@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM CSS Component Token Plan</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ── CSS Component Token Plan 전용 스타일 ── */
+
+/* code chip */
+.kchip {
+  display: inline-block;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 4px;
+  background: rgba(84,81,232,.14);
+  color: #8B7FF8;
+  letter-spacing: .01em;
+  line-height: 1.6;
+}
+[data-theme="light"] .kchip { background: rgba(84,81,232,.10); color: #5451E8; }
+
+/* class list cell */
+.cls-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 5px;
+  font-family: var(--font);
+}
+
+/* file path */
+.fpath {
+  font-family: var(--font);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--t1);
+  letter-spacing: .005em;
+  white-space: nowrap;
+}
+
+/* note row */
+.stbl td.role-desc {
+  white-space: normal;
+  color: var(--t2);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* phase pill */
+.phase-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(84,81,232,.14);
+  color: #8B7FF8;
+  font-family: var(--font);
+  flex-shrink: 0;
+}
+[data-theme="light"] .phase-pill { background: rgba(84,81,232,.10); color: #5451E8; }
+
+/* implementation step list */
+.step-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.step-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--t2);
+}
+.step-list li strong {
+  display: block;
+  color: var(--t1);
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 1px;
+}
+.step-list li > div { flex: 1; }
+
+/* Do / Don't grid */
+.dd-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 920px) {
+  .dd-grid { grid-template-columns: 1fr; }
+}
+.dd-col {
+  border-radius: var(--r-md);
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dd-col.dd-do    { border-color: rgba(0,191,64,.22); }
+.dd-col.dd-dont  { border-color: rgba(255,66,66,.22); }
+.dd-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.dd-do  .dd-hdr { color: var(--pass); }
+.dd-dont .dd-hdr { color: var(--fail); }
+.dd-hdr::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.dd-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dd-col ul li {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--t2);
+  padding-left: 14px;
+  position: relative;
+}
+.dd-col ul li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--t3);
+}
+
+/* Related links list */
+.rlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
+@media (max-width: 760px) { .rlist { grid-template-columns: 1fr; } }
+.rlist a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  background: var(--bg-sur2);
+  text-decoration: none;
+  color: var(--t1);
+  font-size: 12px;
+  font-weight: 600;
+  transition: border-color .12s ease, background .12s ease;
+}
+.rlist a:hover {
+  border-color: rgba(84,81,232,.40);
+  background: var(--bg-sur);
+}
+.rlist .rico {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-sm);
+  background: rgba(84,81,232,.14);
+  color: #8B7FF8;
+  font-size: 9.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: .04em;
+  flex-shrink: 0;
+}
+[data-theme="light"] .rlist .rico { background: rgba(84,81,232,.10); color: #5451E8; }
+.rlist .rsub {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--t3);
+  margin-top: 1px;
+  letter-spacing: 0;
+}
+.rlist .rbody { flex: 1; line-height: 1.35; }
+
+/* category card */
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.cat-card {
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+}
+.cat-card-t {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t1);
+  letter-spacing: .02em;
+  margin-bottom: 4px;
+}
+.cat-card-d {
+  font-size: 11px;
+  color: var(--t3);
+  line-height: 1.55;
+}
+
+/* compact stbl variation for class list rows */
+.stbl td.cls-cell {
+  vertical-align: top;
+  white-space: normal;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+/* tighter list inside ibox */
+.ibox.info ul { margin: 6px 0 0; padding-left: 18px; line-height: 1.8; font-size: .9em; }
+.ibox.info ul li { padding: 0; }
+
+.guide-content section + section { margin-top: 28px; }
+
+/* Force S-Core Dream */
+.guide-content, .guide-content *,
+.kchip, .fpath, .step-list, .step-list *,
+.dd-col, .dd-col *, .rlist, .rlist *,
+.cat-grid, .cat-grid *, .phase-pill {
+  font-family: var(--font) !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">CSS Component Token Plan</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Plan v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>2026-06-08</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">CSS Token Plan</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Current Source Guides</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>CSS File Responsibility</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Component → CSS Mapping</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Token Categories</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Implementation Order</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Do / Don't</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Risk / QA</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Status Banner ── -->
+      <div class="ibox info" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <strong>CSS Component Token Plan — 설계 단계</strong>
+          <span class="sbadge plan" style="margin-left:auto;">Plan</span>
+        </div>
+        <p style="margin:0 0 8px;font-size:.88em;line-height:1.7;opacity:.9;">
+          이 문서는 <strong>실제 CSS 구현이 아닌 적용 계획</strong>이다.
+          Component Guide v1(7종)과 UI Baseline Guide 기준을 실제 제품 CSS 파일 구조로 옮기기 전에,
+          공통 토큰·공통 클래스·CSS 파일 역할·적용 순서를 먼저 합의하기 위한 문서이다.
+        </p>
+        <div style="font-size:.82em;opacity:.7;display:flex;gap:18px;flex-wrap:wrap;">
+          <span>Source — Component Guide v1 · UI Baseline Guide</span>
+          <span>Target — <code>stam/css/**</code> (이번 작업에서는 미수정)</span>
+        </div>
+      </div>
+
+      <!-- ── S01 Overview ── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">Plan</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM Component Guide v1은 컴포넌트의 외형·상태·인터랙션을 정의했지만,
+            실제 제품 CSS 파일 구조와 1:1로 매핑되어 있지 않다.
+            화면별로 버튼·폼·테이블 스타일이 따로 작성되는 문제를 막기 위해,
+            가이드 → CSS 클래스 → CSS 파일까지 이어지는 단일 매핑 기준을 먼저 문서화한다.
+          </p>
+
+          <div class="dd-grid" style="margin-top:8px;">
+            <div class="dd-col" style="border-color:var(--bd);background:var(--bg-sur2);">
+              <div class="dd-hdr" style="color:var(--t1);">이 문서가 다루는 것</div>
+              <ul>
+                <li>Component Guide와 실제 CSS 사이의 연결 기준</li>
+                <li>공통 CSS 클래스 네이밍 후보 (<span class="kchip">.stam-*</span>)</li>
+                <li>CSS 파일별 역할 정의</li>
+                <li>토큰 카테고리 목록</li>
+                <li>실제 적용 순서, Do / Don't, Risk / QA</li>
+              </ul>
+            </div>
+            <div class="dd-col" style="border-color:var(--bd);background:var(--bg-sur2);">
+              <div class="dd-hdr" style="color:var(--t1);">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li>실제 CSS 파일 신규 작성 / 수정</li>
+                <li>실제 JS 컴포넌트 구현</li>
+                <li>제품 화면(WBS / Project Overview / Home) 수정</li>
+                <li>nav-data, IA 구조 변경</li>
+                <li>Firebase / GitHub Actions / package.json 변경</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>설계 단계 — 구현 단계 아님</strong>
+            이 문서를 근거로 <code>stam/css/**</code> 를 바로 수정하지 않는다.
+            본 계획 합의 → 별도 작업 단위로 분할 → 화면 단위 점진 적용 순서로 진행한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Current Source Guides ── -->
+      <section id="s02" class="sec" data-screen-label="02 Source Guides">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Current Source Guides — 기준 가이드</span>
+          <span class="sbadge done">v1 Completed</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">CSS 적용 계획의 기준 입력 문서. 본 문서는 아래 가이드를 직접 변경하지 않는다.</p>
+          <ul class="rlist" style="margin-top:6px;">
+            <li><a href="STAM-UI-Baseline-Guide.html"><span class="rico">BG</span><span class="rbody">UI Baseline Guide<span class="rsub">폰트·토큰·레이아웃·Forbidden Rules</span></span></a></li>
+            <li><a href="STAM-Component-Guide.html"><span class="rico">CG</span><span class="rbody">Component Guide (Index)<span class="rsub">컴포넌트 전체 인덱스 · 공통 규칙</span></span></a></li>
+            <li><a href="components/STAM-Button-Guide.html"><span class="rico">BT</span><span class="rbody">Button Guide<span class="rsub">Variant · Size · State</span></span></a></li>
+            <li><a href="components/STAM-Icon-Guide.html"><span class="rico">IC</span><span class="rbody">Icon Guide<span class="rsub">Set · Size · Fill / Outline</span></span></a></li>
+            <li><a href="components/STAM-Dialog-Guide.html"><span class="rico">DL</span><span class="rbody">Dialog Guide<span class="rsub">Alert · Confirm · Input</span></span></a></li>
+            <li><a href="components/STAM-Form-Guide.html"><span class="rico">FM</span><span class="rbody">Form Guide<span class="rsub">Input · Select · Validation</span></span></a></li>
+            <li><a href="components/STAM-Drawer-Guide.html"><span class="rico">DR</span><span class="rbody">Drawer Guide<span class="rsub">Anatomy · Tab · Scroll · Full view</span></span></a></li>
+            <li><a href="components/STAM-Table-Guide.html"><span class="rico">TB</span><span class="rbody">Table Guide<span class="rsub">Column · Header · Focus View</span></span></a></li>
+            <li><a href="components/STAM-Topbar-Guide.html"><span class="rico">TP</span><span class="rbody">Topbar Guide<span class="rsub">Doc Nav · App Topbar · Breadcrumb</span></span></a></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── S03 CSS File Responsibility ── -->
+      <section id="s03" class="sec" data-screen-label="03 CSS File Responsibility">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">CSS File Responsibility — 파일 역할 정의</span>
+          <span class="sbadge guide">정의만 / 미수정</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>주의 — 이번 작업에서는 CSS 파일을 만들거나 수정하지 않는다</strong>
+            아래 표는 각 파일이 <em>어떤 역할을 맡아야 하는가</em>에 대한 합의안이다.
+            실제 분리·이동·신규 생성은 별도 작업 단위에서 수행한다.
+          </div>
+
+          <table class="stbl" style="margin-top:10px;">
+            <colgroup>
+              <col style="width:30%;">
+              <col style="width:70%;">
+            </colgroup>
+            <thead>
+              <tr><th>CSS File</th><th>역할</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="fpath">stam/css/stam.tokens.css</span></td>
+                <td class="role-desc">색상, 폰트, radius, shadow, spacing, z-index 등 <strong>기본 토큰</strong>. 모든 파일이 참조하는 단일 소스.</td>
+              </tr>
+              <tr>
+                <td><span class="fpath">stam/css/stam.shell.css</span></td>
+                <td class="role-desc">앱 셸 — Topbar, Left Nav, Guide Shell 레이아웃 골격. 컴포넌트가 아닌 <strong>구조</strong>.</td>
+              </tr>
+              <tr>
+                <td><span class="fpath">stam/css/stam.components.css</span></td>
+                <td class="role-desc">버튼, 폼, 드로어, 다이얼로그, 토스트 등 <strong>공통 컴포넌트</strong> 후보. <span class="kchip">.stam-*</span> 네임스페이스의 공용 클래스가 위치할 자리.</td>
+              </tr>
+              <tr>
+                <td><span class="fpath">stam/css/stam.tables.css</span></td>
+                <td class="role-desc">테이블, 목록, WBS compact / focus view 등 <strong>표 계열 공통 규칙</strong> 후보.</td>
+              </tr>
+              <tr>
+                <td><span class="fpath">stam/css/stam.forms.css</span> <span class="sbadge plan" style="margin-left:4px;">신규 후보</span></td>
+                <td class="role-desc">폼 필드, 라벨, 상태(error / disabled / focused), validation 메시지 등 폼 전용 규칙 후보. 현재는 파일 없음 — 별도 작업에서 분리 여부 결정.</td>
+              </tr>
+              <tr>
+                <td><span class="fpath">stam/css/stam.pages.css</span></td>
+                <td class="role-desc">제품 페이지 공통 레이아웃, 페이지 컨테이너, 공통 헤더 / 푸터 등.</td>
+              </tr>
+              <tr>
+                <td><span class="fpath">stam/css/stam.docs.css</span></td>
+                <td class="role-desc">문서 / 가이드 화면 전용 스타일 (Docs Index, Component Guide 등 정적 문서).</td>
+              </tr>
+              <tr>
+                <td><span class="fpath">stam/css/stam.ui-baseline-guide.css</span></td>
+                <td class="role-desc">UI Baseline Guide 문서 화면 전용. 다른 화면에서 재사용하지 않음.</td>
+              </tr>
+              <tr>
+                <td><span class="fpath">stam/css/stam.wbs.css</span></td>
+                <td class="role-desc">WBS 화면 <strong>전용 확장</strong>. 공통 테이블 규칙을 오염시키지 않는다.</td>
+              </tr>
+              <tr>
+                <td><span class="fpath">stam/css/stam.project-overview.css</span></td>
+                <td class="role-desc">Project Overview 화면 전용 확장. 공통 컴포넌트로 흡수되기 전 임시 스타일은 이 파일에서만 유지.</td>
+              </tr>
+              <tr>
+                <td><span class="fpath">stam/css/stam.home.css</span></td>
+                <td class="role-desc">Home 화면 전용 스타일. 공통화 후보가 발견되면 <code>components.css</code> / <code>pages.css</code>로 승격.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ibox warn" style="margin-top:12px;">
+            <strong>승격 / 강등 규칙 (제안)</strong>
+            화면 전용 파일에서 같은 패턴이 <strong>2개 화면 이상</strong> 반복되면 <code>stam.components.css</code> 또는 <code>stam.tables.css</code>로 승격.
+            공통 파일의 규칙이 한 화면에서만 쓰이고 있으면 화면 전용 파일로 강등.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Component to CSS Mapping ── -->
+      <section id="s04" class="sec" data-screen-label="04 Component CSS Mapping">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Component → CSS Mapping</span>
+          <span class="sbadge done">7/7</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Component Guide v1 7종을 실제 CSS 클래스 후보와 1:1로 매핑한다. 모든 클래스는 <span class="kchip">.stam-*</span> 네임스페이스를 사용한다.</p>
+
+          <!-- Button -->
+          <h4 style="margin:14px 0 6px;font-size:13px;color:var(--t1);">Button</h4>
+          <table class="stbl">
+            <colgroup><col style="width:28%;"><col style="width:32%;"><col style="width:40%;"></colgroup>
+            <thead><tr><th>역할</th><th>CSS Class</th><th>대상 CSS</th></tr></thead>
+            <tbody>
+              <tr><td>Base 버튼</td><td class="cls-cell"><span class="kchip">.stam-btn</span></td><td>stam.components.css</td></tr>
+              <tr><td>Primary</td><td class="cls-cell"><span class="kchip">.stam-btn-primary</span></td><td>stam.components.css</td></tr>
+              <tr><td>Secondary</td><td class="cls-cell"><span class="kchip">.stam-btn-secondary</span></td><td>stam.components.css</td></tr>
+              <tr><td>Ghost</td><td class="cls-cell"><span class="kchip">.stam-btn-ghost</span></td><td>stam.components.css</td></tr>
+              <tr><td>Danger</td><td class="cls-cell"><span class="kchip">.stam-btn-danger</span></td><td>stam.components.css</td></tr>
+              <tr><td>Icon-only 버튼</td><td class="cls-cell"><span class="kchip">.stam-btn-icon</span></td><td>stam.components.css</td></tr>
+            </tbody>
+          </table>
+
+          <!-- Icon -->
+          <h4 style="margin:18px 0 6px;font-size:13px;color:var(--t1);">Icon</h4>
+          <table class="stbl">
+            <colgroup><col style="width:28%;"><col style="width:32%;"><col style="width:40%;"></colgroup>
+            <thead><tr><th>역할</th><th>CSS Class</th><th>대상 CSS</th></tr></thead>
+            <tbody>
+              <tr><td>Base 아이콘</td><td class="cls-cell"><span class="kchip">.stam-icon</span></td><td>stam.components.css</td></tr>
+              <tr><td>Small (14–16px)</td><td class="cls-cell"><span class="kchip">.stam-icon-sm</span></td><td>stam.components.css</td></tr>
+              <tr><td>Medium (18–20px)</td><td class="cls-cell"><span class="kchip">.stam-icon-md</span></td><td>stam.components.css</td></tr>
+              <tr><td>Large (24px+)</td><td class="cls-cell"><span class="kchip">.stam-icon-lg</span></td><td>stam.components.css</td></tr>
+              <tr><td>Icon 버튼 결합</td><td class="cls-cell"><span class="kchip">.stam-icon-btn</span></td><td>stam.components.css</td></tr>
+            </tbody>
+          </table>
+
+          <!-- Dialog -->
+          <h4 style="margin:18px 0 6px;font-size:13px;color:var(--t1);">Dialog</h4>
+          <table class="stbl">
+            <colgroup><col style="width:28%;"><col style="width:32%;"><col style="width:40%;"></colgroup>
+            <thead><tr><th>역할</th><th>CSS Class</th><th>대상 CSS</th></tr></thead>
+            <tbody>
+              <tr><td>Dialog 컨테이너</td><td class="cls-cell"><span class="kchip">.stam-dialog</span></td><td>stam.components.css</td></tr>
+              <tr><td>Backdrop (dim)</td><td class="cls-cell"><span class="kchip">.stam-dialog-backdrop</span></td><td>stam.components.css</td></tr>
+              <tr><td>Header</td><td class="cls-cell"><span class="kchip">.stam-dialog-header</span></td><td>stam.components.css</td></tr>
+              <tr><td>Body</td><td class="cls-cell"><span class="kchip">.stam-dialog-body</span></td><td>stam.components.css</td></tr>
+              <tr><td>Footer (action row)</td><td class="cls-cell"><span class="kchip">.stam-dialog-footer</span></td><td>stam.components.css</td></tr>
+            </tbody>
+          </table>
+
+          <!-- Form -->
+          <h4 style="margin:18px 0 6px;font-size:13px;color:var(--t1);">Form</h4>
+          <table class="stbl">
+            <colgroup><col style="width:28%;"><col style="width:32%;"><col style="width:40%;"></colgroup>
+            <thead><tr><th>역할</th><th>CSS Class</th><th>대상 CSS</th></tr></thead>
+            <tbody>
+              <tr><td>Form 컨테이너</td><td class="cls-cell"><span class="kchip">.stam-form</span></td><td>stam.components.css / stam.forms.css</td></tr>
+              <tr><td>필드 그룹 (label + input + help)</td><td class="cls-cell"><span class="kchip">.stam-field</span></td><td>stam.components.css / stam.forms.css</td></tr>
+              <tr><td>Label</td><td class="cls-cell"><span class="kchip">.stam-label</span></td><td>stam.components.css / stam.forms.css</td></tr>
+              <tr><td>Input / Select / Textarea 베이스</td><td class="cls-cell"><span class="kchip">.stam-input</span></td><td>stam.components.css / stam.forms.css</td></tr>
+              <tr><td>Help text</td><td class="cls-cell"><span class="kchip">.stam-help</span></td><td>stam.components.css / stam.forms.css</td></tr>
+              <tr><td>Error 메시지</td><td class="cls-cell"><span class="kchip">.stam-error</span></td><td>stam.components.css / stam.forms.css</td></tr>
+            </tbody>
+          </table>
+
+          <!-- Drawer -->
+          <h4 style="margin:18px 0 6px;font-size:13px;color:var(--t1);">Drawer</h4>
+          <table class="stbl">
+            <colgroup><col style="width:28%;"><col style="width:32%;"><col style="width:40%;"></colgroup>
+            <thead><tr><th>역할</th><th>CSS Class</th><th>대상 CSS</th></tr></thead>
+            <tbody>
+              <tr><td>Drawer 레이어</td><td class="cls-cell"><span class="kchip">.stam-drawer</span></td><td>stam.components.css</td></tr>
+              <tr><td>패널 (실제 컨텐츠 박스)</td><td class="cls-cell"><span class="kchip">.stam-drawer-panel</span></td><td>stam.components.css</td></tr>
+              <tr><td>Header</td><td class="cls-cell"><span class="kchip">.stam-drawer-header</span></td><td>stam.components.css</td></tr>
+              <tr><td>Body (스크롤 영역)</td><td class="cls-cell"><span class="kchip">.stam-drawer-body</span></td><td>stam.components.css</td></tr>
+              <tr><td>Footer (action row)</td><td class="cls-cell"><span class="kchip">.stam-drawer-footer</span></td><td>stam.components.css</td></tr>
+              <tr><td>Full view (전체 화면 모드)</td><td class="cls-cell"><span class="kchip">.stam-drawer-fullview</span></td><td>stam.components.css</td></tr>
+            </tbody>
+          </table>
+
+          <!-- Table -->
+          <h4 style="margin:18px 0 6px;font-size:13px;color:var(--t1);">Table</h4>
+          <table class="stbl">
+            <colgroup><col style="width:28%;"><col style="width:32%;"><col style="width:40%;"></colgroup>
+            <thead><tr><th>역할</th><th>CSS Class</th><th>대상 CSS</th></tr></thead>
+            <tbody>
+              <tr><td>Base 테이블</td><td class="cls-cell"><span class="kchip">.stam-table</span></td><td>stam.tables.css</td></tr>
+              <tr><td>Toolbar (필터·검색·액션)</td><td class="cls-cell"><span class="kchip">.stam-table-toolbar</span></td><td>stam.tables.css</td></tr>
+              <tr><td>스크롤 래퍼</td><td class="cls-cell"><span class="kchip">.stam-table-wrap</span></td><td>stam.tables.css</td></tr>
+              <tr><td>Focus view (선택 행 강조)</td><td class="cls-cell"><span class="kchip">.stam-table-focus</span></td><td>stam.tables.css</td></tr>
+              <tr><td>Sticky header / column</td><td class="cls-cell"><span class="kchip">.stam-table-sticky</span></td><td>stam.tables.css</td></tr>
+              <tr><td>Row 액션 영역</td><td class="cls-cell"><span class="kchip">.stam-row-action</span></td><td>stam.tables.css</td></tr>
+            </tbody>
+          </table>
+
+          <!-- Topbar -->
+          <h4 style="margin:18px 0 6px;font-size:13px;color:var(--t1);">Topbar</h4>
+          <table class="stbl">
+            <colgroup><col style="width:28%;"><col style="width:32%;"><col style="width:40%;"></colgroup>
+            <thead><tr><th>역할</th><th>CSS Class</th><th>대상 CSS</th></tr></thead>
+            <tbody>
+              <tr><td>Topbar 컨테이너</td><td class="cls-cell"><span class="kchip">.stam-topbar</span></td><td>stam.shell.css</td></tr>
+              <tr><td>좌측 영역 (logo / nav)</td><td class="cls-cell"><span class="kchip">.stam-topbar-left</span></td><td>stam.shell.css</td></tr>
+              <tr><td>가운데 영역 (title / breadcrumb)</td><td class="cls-cell"><span class="kchip">.stam-topbar-center</span></td><td>stam.shell.css</td></tr>
+              <tr><td>우측 영역 (theme / user)</td><td class="cls-cell"><span class="kchip">.stam-topbar-right</span></td><td>stam.shell.css</td></tr>
+              <tr><td>Topbar 액션 버튼</td><td class="cls-cell"><span class="kchip">.stam-topbar-action</span></td><td>stam.shell.css</td></tr>
+            </tbody>
+          </table>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>네이밍 원칙</strong>
+            <ul>
+              <li>공통 클래스는 모두 <code>.stam-</code> 접두사를 사용한다.</li>
+              <li>화면 전용 클래스는 <code>.wbs-</code> / <code>.po-</code> / <code>.home-</code> 등 별도 접두사를 사용한다.</li>
+              <li>상태 클래스(<code>is-active</code> / <code>is-disabled</code> / <code>has-error</code>)는 BEM 변형 없이 동사형으로 통일한다.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 Token Categories ── -->
+      <section id="s05" class="sec" data-screen-label="05 Token Categories">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Token Categories — 토큰 카테고리</span>
+          <span class="sbadge guide">tokens.css 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub"><code>stam.tokens.css</code>가 단일 소스로 보유해야 할 토큰 카테고리. 현 시점에 신규 토큰을 추가하지는 않는다.</p>
+          <div class="cat-grid">
+            <div class="cat-card"><div class="cat-card-t">Color</div><div class="cat-card-d">brand · surface · border · text · status (info/warn/fail/pass) · light/dark 매핑.</div></div>
+            <div class="cat-card"><div class="cat-card-t">Typography</div><div class="cat-card-d">S-Core Dream weight / size scale · line-height · letter-spacing.</div></div>
+            <div class="cat-card"><div class="cat-card-t">Spacing</div><div class="cat-card-d">4pt 그리드 기반 gap·padding·margin 스텝.</div></div>
+            <div class="cat-card"><div class="cat-card-t">Radius</div><div class="cat-card-d"><code>--r-sm</code> · <code>--r-md</code> · <code>--r-lg</code> 단계.</div></div>
+            <div class="cat-card"><div class="cat-card-t">Shadow</div><div class="cat-card-d">card / popover / modal 3단계. 컬러 그림자 사용 안 함.</div></div>
+            <div class="cat-card"><div class="cat-card-t">Border</div><div class="cat-card-d"><code>--bd</code> · <code>--bd-s</code> · <code>--bd-f</code> 기본 / hairline / focus.</div></div>
+            <div class="cat-card"><div class="cat-card-t">Z-index</div><div class="cat-card-d">topbar · dropdown · drawer · dialog · toast 5단계 정수 토큰.</div></div>
+            <div class="cat-card"><div class="cat-card-t">Motion</div><div class="cat-card-d">120ms / 160ms / 200ms ease-out. spring / overshoot 사용 안 함.</div></div>
+            <div class="cat-card"><div class="cat-card-t">Layout width</div><div class="cat-card-d">Left Nav 폭 · Drawer 폭 · 페이지 최대 폭.</div></div>
+            <div class="cat-card"><div class="cat-card-t">Table density</div><div class="cat-card-d">compact / default / focus view 행 높이.</div></div>
+            <div class="cat-card"><div class="cat-card-t">Form height</div><div class="cat-card-d">Input / Select / Textarea 표준 높이 (28 / 32 / 40).</div></div>
+            <div class="cat-card"><div class="cat-card-t">Button height</div><div class="cat-card-d">sm / md / lg 표준 높이. Icon-only 정사각 별도.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 Implementation Order ── -->
+      <section id="s06" class="sec" data-screen-label="06 Implementation Order">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Implementation Order — 적용 순서 제안</span>
+          <span class="sbadge plan">제안</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아래 순서는 권장 순서이며, 각 단계는 별도 작업 단위로 분할해서 진행한다. 한 단계 안에 화면 단위 점진 적용을 포함한다.</p>
+          <ol class="step-list">
+            <li>
+              <span class="phase-pill">1</span>
+              <div><strong>토큰 점검</strong>tokens.css의 카테고리 빠짐 여부 확인. 누락 시에만 보강. 색·radius·shadow 신규 도입 없음.</div>
+            </li>
+            <li>
+              <span class="phase-pill">2</span>
+              <div><strong>공통 클래스 설계</strong>S04 매핑 표 기준으로 <code>.stam-*</code> 공통 클래스 시그니처 확정. 화면 적용 없음 (드라이런).</div>
+            </li>
+            <li>
+              <span class="phase-pill">3</span>
+              <div><strong>Button 적용</strong><code>.stam-btn*</code> 적용. 한 화면씩 교체하며 깨짐 확인.</div>
+            </li>
+            <li>
+              <span class="phase-pill">4</span>
+              <div><strong>Form 적용</strong><code>.stam-form</code> / <code>.stam-field</code> / <code>.stam-input</code> 적용. validation 상태 우선 1개 화면에서 검증.</div>
+            </li>
+            <li>
+              <span class="phase-pill">5</span>
+              <div><strong>Drawer · Dialog 적용</strong>Drawer가 테이블을 밀어내지 않는지 우선 확인. Dialog Focus Trap은 JS 단계에서 별도 처리.</div>
+            </li>
+            <li>
+              <span class="phase-pill">6</span>
+              <div><strong>Table 적용</strong><code>.stam-table*</code> 적용. WBS 전용 스타일은 <code>stam.wbs.css</code> 안으로만 한정.</div>
+            </li>
+            <li>
+              <span class="phase-pill">7</span>
+              <div><strong>Topbar · Icon 적용</strong><code>.stam-topbar*</code>, <code>.stam-icon*</code> 적용. 기존 <code>.doc-nav</code> / <code>.tbtn</code>은 호환 유지 후 정리.</div>
+            </li>
+            <li>
+              <span class="phase-pill">8</span>
+              <div><strong>WBS / Project Overview 점진 적용</strong>화면 전용 파일에서 공통 클래스로 흡수 가능한 규칙을 단계별로 이동. 한 PR에 한 화면.</div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ── S07 Do / Don't ── -->
+      <section id="s07" class="sec" data-screen-label="07 Do Dont">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Do / Don't — 적용 원칙</span>
+          <span class="sbadge guide">규칙</span>
+        </div>
+        <div class="sec-body">
+          <div class="dd-grid">
+            <div class="dd-col dd-do">
+              <div class="dd-hdr">Do</div>
+              <ul>
+                <li>기존 가이드 문서를 먼저 확인한다.</li>
+                <li>공통 클래스와 화면 전용 클래스를 분리한다.</li>
+                <li>CSS 수정 범위를 작게 나눈다 (한 PR에 한 컴포넌트 / 한 화면).</li>
+                <li>제품 화면 적용 전 문서 / Preview에서 먼저 확인한다.</li>
+                <li>S-Core Dream 폰트를 유지한다.</li>
+                <li>토큰만으로 표현 가능한 값은 토큰으로 작성한다.</li>
+                <li>라이트 / 다크 양쪽에서 검증한다.</li>
+              </ul>
+            </div>
+            <div class="dd-col dd-dont">
+              <div class="dd-hdr">Don't</div>
+              <ul>
+                <li>화면별로 버튼 / 폼 / 테이블 스타일을 새로 만든다.</li>
+                <li>공통 CSS와 화면 전용 CSS를 한 파일에 섞는다.</li>
+                <li>WBS 전용 스타일을 전체 컴포넌트 기준으로 오염시킨다.</li>
+                <li>실제 제품 화면을 한 번에 전체 변경한다.</li>
+                <li>레이아웃 속성을 불필요하게 대량 수정한다.</li>
+                <li>Pretendard CDN, Google Fonts, Gulim, Dotum 등 외부 / 시스템 폰트를 사용한다.</li>
+                <li>색·radius·shadow를 토큰 우회로 하드코딩한다.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Risk / QA ── -->
+      <section id="s08" class="sec" data-screen-label="08 Risk QA">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Risk / QA — 위험 요소와 검증 기준</span>
+          <span class="sbadge guide">체크</span>
+        </div>
+        <div class="sec-body">
+          <h4 style="margin:0 0 6px;font-size:13px;color:var(--t1);">Risk — 위험 요소</h4>
+          <table class="stbl">
+            <colgroup><col style="width:30%;"><col style="width:70%;"></colgroup>
+            <thead><tr><th>항목</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td>기존 화면 깨짐</td><td class="role-desc">공통 클래스 도입 시 기존 화면 선택자와 충돌. 한 화면씩 점진 적용 필요.</td></tr>
+              <tr><td>WBS 가로 스크롤 재발</td><td class="role-desc">테이블 공통 규칙 변경으로 WBS Compact view 가로 스크롤이 다시 생길 위험.</td></tr>
+              <tr><td>Drawer가 테이블을 밀어냄</td><td class="role-desc">Drawer 위치가 absolute / fixed가 아닐 경우 테이블 폭이 축소되어 레이아웃 변형 발생.</td></tr>
+              <tr><td>폰트 혼입</td><td class="role-desc">버튼 / 폼 / 테이블 적용 시 외부 폰트 fallback이 끼어들 수 있음. S-Core Dream 강제 방어 필요.</td></tr>
+              <tr><td>Button 상태 불일치</td><td class="role-desc">hover / active / disabled / focus-visible 상태가 variant마다 어긋날 위험.</td></tr>
+              <tr><td>Form validation 스타일 불일치</td><td class="role-desc"><code>has-error</code> 상태에서 라벨·input·help 색이 일관되지 않을 위험.</td></tr>
+              <tr><td>Z-index 충돌</td><td class="role-desc">Drawer / Dialog / Toast의 z-index 토큰이 정의되지 않으면 순서가 화면별로 달라짐.</td></tr>
+            </tbody>
+          </table>
+
+          <h4 style="margin:18px 0 6px;font-size:13px;color:var(--t1);">QA — 검증 기준</h4>
+          <table class="stbl">
+            <colgroup><col style="width:30%;"><col style="width:70%;"></colgroup>
+            <thead><tr><th>항목</th><th>확인 방법</th></tr></thead>
+            <tbody>
+              <tr><td>변경 파일 범위</td><td class="role-desc"><code>git diff --stat</code>로 한 작업 단위에서 의도한 파일만 바뀌었는지 확인.</td></tr>
+              <tr><td>가로 스크롤</td><td class="role-desc">페이지 레벨 가로 스크롤 0. 테이블 내부 스크롤만 허용.</td></tr>
+              <tr><td>라이트 / 다크 모드</td><td class="role-desc">두 테마 모두 본문 / 보조 / 비활성 텍스트 대비가 가이드 기준을 만족.</td></tr>
+              <tr><td>폰트</td><td class="role-desc">DevTools Computed → font-family에 S-Core Dream만 노출. 외부 폰트 미사용.</td></tr>
+              <tr><td>Button 상태</td><td class="role-desc">primary / secondary / ghost / danger × hover / active / disabled / focus-visible 매트릭스 확인.</td></tr>
+              <tr><td>Form 상태</td><td class="role-desc">default / focus / disabled / has-error / read-only 5가지 상태 확인.</td></tr>
+              <tr><td>Table 상태</td><td class="role-desc">정렬 / 빈 상태 / 로딩 / focus row / sticky header 확인.</td></tr>
+              <tr><td>Drawer 상태</td><td class="role-desc">opened / closed / fullview 전환 시 본문 레이아웃 변형 없음.</td></tr>
+              <tr><td>콘솔 오류</td><td class="role-desc">대상 화면 콘솔 0 error / 0 warning.</td></tr>
+              <tr><td>git diff</td><td class="role-desc">금지 파일(<code>README.md</code> · <code>.gitignore</code> · Firebase 설정 · GitHub Actions · package.json) 미변경.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── S09 Related Links ── -->
+      <section id="s09" class="sec" data-screen-label="09 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Related Links — 관련 문서</span>
+          <span class="sbadge guide">링크</span>
+        </div>
+        <div class="sec-body">
+          <ul class="rlist">
+            <li><a href="STAM-Docs-Index.html"><span class="rico">DI</span><span class="rbody">STAM Docs Index<span class="rsub">전체 문서 인덱스</span></span></a></li>
+            <li><a href="STAM-UI-Baseline-Guide.html"><span class="rico">BG</span><span class="rbody">UI Baseline Guide<span class="rsub">폰트·토큰·레이아웃 기준</span></span></a></li>
+            <li><a href="STAM-Component-Guide.html"><span class="rico">CG</span><span class="rbody">Component Guide (Index)<span class="rsub">컴포넌트 전체 인덱스</span></span></a></li>
+            <li><a href="components/STAM-Button-Guide.html"><span class="rico">BT</span><span class="rbody">Button Guide<span class="rsub">Variant · Size · State</span></span></a></li>
+            <li><a href="components/STAM-Form-Guide.html"><span class="rico">FM</span><span class="rbody">Form Guide<span class="rsub">Input · Select · Validation</span></span></a></li>
+            <li><a href="components/STAM-Drawer-Guide.html"><span class="rico">DR</span><span class="rbody">Drawer Guide<span class="rsub">Anatomy · Tab · Scroll</span></span></a></li>
+            <li><a href="components/STAM-Table-Guide.html"><span class="rico">TB</span><span class="rbody">Table Guide<span class="rsub">Column · Header · Focus View</span></span></a></li>
+            <li><a href="components/STAM-Topbar-Guide.html"><span class="rico">TP</span><span class="rbody">Topbar Guide<span class="rsub">Doc Nav · App Topbar</span></span></a></li>
+            <li><a href="STAM-Backend-Architecture-API-Boundary-Guide.html"><span class="rico">BA</span><span class="rbody">Backend Architecture &amp; API Boundary Guide<span class="rsub">레이어 책임 · API Boundary</span></span></a></li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
