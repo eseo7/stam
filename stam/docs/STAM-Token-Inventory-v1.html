@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Token Inventory v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ── Token Inventory v1 전용 보조 스타일 (이 문서 안에서만 사용) ── */
+
+/* status pill — Ready / Partial / Missing / Needs Decision */
+.spill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-family: var(--font);
+  white-space: nowrap;
+}
+.spill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.spill.ready    { background: var(--pass-bg); color: var(--pass); }
+.spill.partial  { background: var(--warn-bg); color: var(--warn); }
+.spill.missing  { background: var(--fail-bg); color: var(--fail); }
+.spill.decide   { background: var(--purple-bg); color: var(--purple); }
+.spill.candidate{ background: var(--info-bg); color: var(--info); }
+.spill.hold     { background: var(--skip-bg); color: var(--skip); }
+
+/* priority pill — P0 / P1 / P2 */
+.ppill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  font-family: var(--font);
+  white-space: nowrap;
+}
+.ppill::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.ppill.p0 { background: var(--fail-bg); color: var(--fail); }
+.ppill.p1 { background: var(--warn-bg); color: var(--warn); }
+.ppill.p2 { background: var(--info-bg); color: var(--info); }
+
+/* generic inventory table */
+.inv-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font);
+  font-size: 11.5px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.inv-tbl th {
+  padding: 9px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  text-align: left;
+  color: var(--t3);
+  border-bottom: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.inv-tbl td {
+  padding: 10px;
+  border-bottom: 1px solid var(--bd);
+  color: var(--t2);
+  vertical-align: top;
+  line-height: 1.6;
+}
+.inv-tbl tbody tr:last-child td { border-bottom: none; }
+.inv-tbl td.tn {
+  color: var(--t1);
+  font-weight: 700;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.inv-tbl td.tn code,
+.inv-tbl td code {
+  font-family: var(--font);
+  font-size: 10.5px;
+  color: var(--t1);
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 1px 6px;
+  letter-spacing: .005em;
+  white-space: nowrap;
+}
+.inv-tbl td.note { color: var(--t3); font-size: 10.5px; }
+
+.inv-wrap { overflow-x: auto; }
+.inv-tbl  { min-width: 880px; }
+
+/* table caption / sub */
+.inv-cap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t1);
+  letter-spacing: -.005em;
+}
+.inv-cap .inv-cap-n {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--stam-soft);
+  color: var(--stam);
+  font-size: 10.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.inv-cap-sub {
+  font-size: 10.5px;
+  color: var(--t3);
+  font-weight: 500;
+  letter-spacing: 0;
+  margin-left: 4px;
+}
+
+/* priority cards grid */
+.tp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+@media (max-width: 920px) { .tp-grid { grid-template-columns: 1fr; } }
+
+.tp-col {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tp-col.p0 { border-color: rgba(255,66,66,.22); }
+.tp-col.p1 { border-color: rgba(245,158,11,.22); }
+.tp-col.p2 { border-color: rgba(111,168,255,.22); }
+.tp-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.tp-hdr .tp-h-title { color: var(--t1); }
+.tp-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.tp-col li {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--t2);
+  padding-left: 14px;
+  position: relative;
+}
+.tp-col li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--t3);
+}
+.tp-col li code {
+  font-family: var(--font);
+  font-size: 10.5px;
+  color: var(--t1);
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 1px 5px;
+  letter-spacing: .005em;
+}
+
+/* gate / step list */
+.gate-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (max-width: 760px) { .gate-grid { grid-template-columns: 1fr; } }
+
+.gate-step {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.gate-step .gs-n {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--stam-soft);
+  color: var(--stam);
+  font-size: 10.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: .02em;
+}
+.gate-step .gs-body {
+  flex: 1 1 auto;
+  font-size: 12px;
+  color: var(--t1);
+  line-height: 1.55;
+  font-weight: 600;
+}
+.gate-step .gs-sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 10.5px;
+  color: var(--t3);
+  font-weight: 500;
+  letter-spacing: .01em;
+}
+.gate-step .gs-sub code {
+  font-family: var(--font);
+  font-size: 10px;
+  color: var(--t1);
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 0 5px;
+}
+
+/* light/dark side-by-side cards */
+.ld-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 900px) { .ld-grid { grid-template-columns: 1fr; } }
+.ld-card {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+}
+.ld-card .ld-hdr {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--t1);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ld-card .ld-hdr::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+.ld-card.light .ld-hdr::before { background: #F8FAFC; border: 1px solid #CBD5E1; }
+.ld-card.dark  .ld-hdr::before { background: #13161D; border: 1px solid rgba(180,184,200,.30); }
+.ld-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.ld-card li {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--t2);
+  padding-left: 12px;
+  position: relative;
+}
+.ld-card li::before {
+  content: "·";
+  position: absolute;
+  left: 2px;
+  top: -2px;
+  color: var(--t3);
+  font-weight: 800;
+}
+
+/* naming rule grid */
+.nm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 760px) { .nm-grid { grid-template-columns: 1fr; } }
+.nm-col {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+}
+.nm-col.good { border-color: rgba(0,191,64,.22); }
+.nm-col.bad  { border-color: rgba(255,66,66,.22); }
+.nm-col .nm-hdr {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.nm-col.good .nm-hdr { color: var(--pass); }
+.nm-col.bad  .nm-hdr { color: var(--fail); }
+.nm-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.nm-col li {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--t2);
+}
+.nm-col li code {
+  font-family: var(--font);
+  font-size: 10.5px;
+  color: var(--t1);
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+/* force S-Core Dream inside Inventory-specific blocks */
+.spill, .ppill, .inv-tbl, .inv-tbl *,
+.tp-col, .tp-col *, .gate-step, .gate-step *,
+.ld-card, .ld-card *, .nm-col, .nm-col *,
+.inv-cap, .inv-cap * {
+  font-family: var(--font) !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Token Inventory v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Inventory Draft</span>
+  <span class="doc-nav-pill"><span class="dot"></span>2026-06-08</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Token Inventory</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Priority Summary</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Existing Inventory</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Missing / Needed</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Component Usage</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Light / Dark Rule</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Naming Rule</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Implementation Hold</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Cursor Handoff</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Next Steps</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Status Banner ── -->
+      <div class="ibox info" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <strong>STAM Token Inventory v1</strong>
+          <span class="sbadge plan" style="margin-left:auto;">Inventory Draft</span>
+        </div>
+        <p style="margin:0 0 8px;font-size:.88em;line-height:1.7;opacity:.9;">
+          이 문서는 <strong>실제 CSS 구현 작업이 아니라, <code>stam/css/stam.tokens.css</code>에 반영할 STAM 공통 토큰의 목록·역할·값 후보를 사전 정리하는 인벤토리 문서</strong>이다.
+          <em>CSS Token Readiness Check</em>에서 도출된 Gap·Decision 항목을 토큰 단위로 풀어서 표로 만든다.
+          P0 항목(Shadow · Z-index · Border Focus · Button State · Form State)을 우선 확정하며,
+          본 문서로는 <code>stam/css/**</code>, <code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/assets/**</code>를 수정하지 않는다.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:6px;">
+          <span class="sbadge plan">Inventory Draft</span>
+          <span class="sbadge lock">Implementation Hold</span>
+          <span class="sbadge guide">Pre-Implementation</span>
+          <span class="sbadge lock">No CSS Edit</span>
+        </div>
+        <p style="margin:10px 0 0;font-size:.82em;line-height:1.65;opacity:.78;">
+          <strong>판정 근거</strong> — Color · Radius · Border color · Layout Width 등 v1 진입에 필요한 atomic 토큰은 정의되어 있어 <em>인벤토리 작성</em>이 가능한 상태이다. 단, Shadow · Z-index · Border Focus · Button State · Form State 등 P0 카테고리의 토큰명·라이트값·다크값이 본 문서로 확정되기 전까지 <code>stam.tokens.css</code> 수정·컴포넌트 CSS 구현·제품 화면 변경은 보류한다.
+        </p>
+      </div>
+
+      <!-- ── S01 Overview ── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            CSS Token Readiness Check가 “지금 토큰이 충분한가”를 점검했다면,
+            본 Token Inventory v1은 <strong>“구현 전에 추가·정의할 토큰의 목록과 값 후보가 무엇인가”</strong>를 표로 확정한다.
+            기획자·PM도 “어떤 토큰이 왜 필요한지”를 같은 화면에서 읽고 승인할 수 있어야 하며,
+            개발자는 후속 단계에서 본 문서를 그대로 <code>stam.tokens.css</code> 반영 기준으로 사용한다.
+          </p>
+
+          <div class="dd-grid" style="margin-top:8px;">
+            <div class="dd-col" style="border-color:var(--bd);background:var(--bg-sur2);">
+              <div class="dd-hdr" style="color:var(--t1);">이 문서가 다루는 것</div>
+              <ul>
+                <li>현재 <code>stam.tokens.css</code> 토큰 인벤토리 분류</li>
+                <li>P0 카테고리 신규 토큰명·역할·값 후보</li>
+                <li>컴포넌트별 토큰 사용 매핑</li>
+                <li>라이트 / 다크 토큰 운영 원칙</li>
+                <li>토큰 네이밍 규칙</li>
+                <li>실제 CSS 구현 전 Hold Checklist</li>
+                <li>Cursor 핸드오프 기준</li>
+              </ul>
+            </div>
+            <div class="dd-col" style="border-color:var(--bd);background:var(--bg-sur2);">
+              <div class="dd-hdr" style="color:var(--t1);">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/css/**</code> 토큰 추가 / 값 변경</li>
+                <li><code>stam/css/**</code> 클래스·컴포넌트 CSS 구현</li>
+                <li><code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/index.html</code> 변경</li>
+                <li><code>stam/assets/**</code> 변경</li>
+                <li>Component Guide / UI Baseline / Token Plan 본문 수정</li>
+                <li>Firebase / GitHub Actions / package*.json 변경</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>선행 문서와의 관계</strong>
+            <span style="display:block;margin-top:4px;line-height:1.7;">
+              · <a href="STAM-UI-Baseline-Guide.html" style="color:var(--stam);">UI Baseline Guide</a> — 폰트·레이아웃·Forbidden Rules 기준<br>
+              · <a href="STAM-Component-Guide.html" style="color:var(--stam);">Component Guide</a> — 컴포넌트 변형·사이즈·상태 정의<br>
+              · <a href="STAM-CSS-Token-Readiness-Check.html" style="color:var(--stam);">CSS Token Readiness Check</a> — 12 카테고리 Ready / Partial / Missing 점검<br>
+              · <strong>STAM Token Inventory v1</strong> <em style="opacity:.6;">(현재 문서)</em> — 신규 토큰명·값 후보 확정·승인 기준표
+            </span>
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>주의 — Inventory는 코드 변경이 아니다</strong>
+            본 문서의 Candidate 토큰명·라이트/다크 값은 <em>후보</em>이며, 실제 토큰 추가·값 결정은 후속 작업 단위에서 코드 변경과 함께 확정한다.
+            본 문서만으로 <code>stam.tokens.css</code>를 수정하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Priority Summary ── -->
+      <section id="s02" class="sec" data-screen-label="02 Priority Summary">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Token Priority Summary — P0 / P1 / P2</span>
+          <span class="sbadge plan">우선순위</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">신규 토큰 카테고리를 우선순위 3단계로 나눈다. P0는 본 문서로 확정 후 즉시 CSS 구현 단위에 진입할 수 있어야 하며, P1·P2는 별도 인벤토리 단위에서 후속 확정한다.</p>
+
+          <div class="tp-grid">
+
+            <div class="tp-col p0">
+              <div class="tp-hdr"><span class="ppill p0">P0</span><span class="tp-h-title">컴포넌트 CSS 구현 전 필수</span></div>
+              <ul>
+                <li>Shadow / Elevation — 카드 · 팝오버 · Drawer · Dialog · Focus</li>
+                <li>Z-index / Layer — Sticky · Topbar · Drawer · Dialog · Toast 위계</li>
+                <li>Border Focus — focus-visible ring · 두께 · 색 · offset</li>
+                <li>Button State — primary / secondary / danger × hover / active / disabled</li>
+                <li>Form State — input bg / border / placeholder / disabled / error / success</li>
+              </ul>
+            </div>
+
+            <div class="tp-col p1">
+              <div class="tp-hdr"><span class="ppill p1">P1</span><span class="tp-h-title">주요 컴포넌트 구현 전 확정</span></div>
+              <ul>
+                <li>Table Density — row · header · cell padding · compact/default</li>
+                <li>Drawer Width / Overlay — 폭 · max · backdrop alpha</li>
+                <li>Dialog Size / Backdrop — sm/md/lg · backdrop alpha</li>
+                <li>Topbar Height / Gap — height · 좌우 gap · action 영역 폭</li>
+                <li>App Shell Layout Gap — 본문 padding · 사이드바 gap</li>
+                <li>Scrollbar / Sticky Header — sticky offset · scrollbar 두께</li>
+              </ul>
+            </div>
+
+            <div class="tp-col p2">
+              <div class="tp-hdr"><span class="ppill p2">P2</span><span class="tp-h-title">후속 확장</span></div>
+              <ul>
+                <li>Motion / Transition — duration · easing · reduced-motion</li>
+                <li>Badge / Chip 상태 — info · success · warn · danger · neutral</li>
+                <li>Toast / Alert — 위치 · 폭 · z-index · 자동 닫기 시간</li>
+                <li>Empty State — placeholder bg · 텍스트 위계</li>
+                <li>Skeleton / Loading — base bg · shimmer alpha · duration</li>
+                <li>Mobile Breakpoint — bp-sm / bp-md / bp-lg 단계</li>
+              </ul>
+            </div>
+
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>우선순위 부여 기준</strong>
+            P0은 컴포넌트 CSS 구현의 “기본 골조”에 해당하는 토큰(없으면 구현 자체가 불가),
+            P1은 “주요 컴포넌트(Drawer · Dialog · Table · Topbar)” 구현 전에 필요한 토큰,
+            P2는 v1 안정화 이후 보강해도 무방한 토큰으로 분류한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 Existing Token Inventory ── -->
+      <section id="s03" class="sec" data-screen-label="03 Existing Inventory">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Existing Token Inventory — 현재 정의된 토큰</span>
+          <span class="sbadge done">현황</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">현재 <code>stam/css/stam.tokens.css</code>에 정의된 토큰을 카테고리별로 분류한다. <strong>Status</strong>는 v1 컴포넌트 구현 기준의 충분성 판정(Ready / Partial / Missing).</p>
+
+          <!-- Color -->
+          <div class="inv-cap"><span class="inv-cap-n">A</span>Color <span class="inv-cap-sub">Brand · Surface · Border · Text · Status · Label · Group</span></div>
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:22%;">Token Name</th>
+                <th style="width:18%;">Current Value</th>
+                <th style="width:14%;">Theme Scope</th>
+                <th style="width:18%;">Usage</th>
+                <th style="width:12%;">Status</th>
+                <th style="width:16%;">Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--brand</code> / <code>--brand-h</code></td><td><code>#5451E8</code> / <code>#4340C8</code></td><td>Light only</td><td>Brand primary</td><td><span class="spill ready">Ready</span></td><td class="note">컴포넌트 별칭 미정의</td></tr>
+              <tr><td class="tn"><code>--accent</code> / <code>--navy</code></td><td><code>#8B7FF8</code> / <code>#0D1235</code></td><td>Light only</td><td>Accent · 사이드</td><td><span class="spill ready">Ready</span></td><td class="note">다크 별도 키 없음</td></tr>
+              <tr><td class="tn"><code>--bg-base</code> / <code>--bg-sur</code> / <code>--bg-sur2</code> / <code>--bg-sur3</code></td><td>화이트 / 슬레이트 단계</td><td>Light + Dark</td><td>Surface 4단계</td><td><span class="spill ready">Ready</span></td><td class="note">elevated 별칭 미정의</td></tr>
+              <tr><td class="tn"><code>--bd</code> / <code>--bd-s</code> / <code>--bd-f</code></td><td>슬레이트 200 / 300 / brand</td><td>Light + Dark</td><td>Border color 3종</td><td><span class="spill partial">Partial</span></td><td class="note">두께 · ring · offset 없음</td></tr>
+              <tr><td class="tn"><code>--t1</code> / <code>--t2</code> / <code>--t3</code></td><td>슬레이트 900 / 600 / 500</td><td>Light + Dark</td><td>Text 3단계</td><td><span class="spill ready">Ready</span></td><td class="note">label-* 별도 존재</td></tr>
+              <tr><td class="tn"><code>--label-strong/normal/neutral/alt/muted/disabled</code></td><td>6단계 label</td><td>Light + Dark</td><td>라벨 위계</td><td><span class="spill ready">Ready</span></td><td class="note">v1 충분</td></tr>
+              <tr><td class="tn"><code>--pass/fail/warn/info/skip/purple</code></td><td>상태 색 + bg 쌍</td><td>Light + Dark</td><td>Status 6쌍</td><td><span class="spill ready">Ready</span></td><td class="note">Form / Button 별칭 미정의</td></tr>
+              <tr><td class="tn"><code>--badge-urgent/warn/brand/zero/idle</code></td><td>5종 badge bg/fg</td><td>Light + Dark</td><td>Count badge</td><td><span class="spill ready">Ready</span></td><td class="note">Chip 공용 여부 미정</td></tr>
+              <tr><td class="tn"><code>--stam</code> / <code>--stam-h</code> / <code>--stam-soft</code> / <code>--stam-soft-strong</code></td><td>brand 별칭</td><td>Light + Dark</td><td>제품 브랜드</td><td><span class="spill ready">Ready</span></td><td class="note">Button 별칭과 통합 필요</td></tr>
+              <tr><td class="tn"><code>--g-a</code> ~ <code>--g-g</code> / <code>--g-*-bg</code></td><td>Group 7색</td><td>Light + Dark</td><td>Group A–G</td><td><span class="spill ready">Ready</span></td><td class="note">활용 가이드 후속</td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- Typography -->
+          <div class="inv-cap"><span class="inv-cap-n">B</span>Typography <span class="inv-cap-sub">Font family · Size · Line-height · Letter-spacing</span></div>
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:22%;">Token Name</th>
+                <th style="width:18%;">Current Value</th>
+                <th style="width:14%;">Theme Scope</th>
+                <th style="width:18%;">Usage</th>
+                <th style="width:12%;">Status</th>
+                <th style="width:16%;">Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--font</code></td><td>S-Core Dream 우선 stack</td><td>전역</td><td>모든 텍스트</td><td><span class="spill ready">Ready</span></td><td class="note">자체 서빙 폰트 1종</td></tr>
+              <tr><td class="tn"><code>--mono</code></td><td><code>var(--font)</code></td><td>전역</td><td>코드 · 표 셀</td><td><span class="spill ready">Ready</span></td><td class="note">S-Core Dream로 통일</td></tr>
+              <tr><td class="tn">font-size / line-height</td><td>body 13px / 1.5</td><td>전역</td><td>본문</td><td><span class="spill missing">Missing</span></td><td class="note">단계 토큰 부재</td></tr>
+              <tr><td class="tn">letter-spacing</td><td>미정의</td><td>—</td><td>—</td><td><span class="spill missing">Missing</span></td><td class="note">단계 토큰 부재</td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- Spacing -->
+          <div class="inv-cap"><span class="inv-cap-n">C</span>Spacing <span class="inv-cap-sub">Content padding · Grid gap</span></div>
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:22%;">Token Name</th>
+                <th style="width:18%;">Current Value</th>
+                <th style="width:14%;">Theme Scope</th>
+                <th style="width:18%;">Usage</th>
+                <th style="width:12%;">Status</th>
+                <th style="width:16%;">Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--content-pad-x</code></td><td><code>32px</code></td><td>전역</td><td>본문 좌우 여백</td><td><span class="spill ready">Ready</span></td><td class="note">전체 64px</td></tr>
+              <tr><td class="tn"><code>--grid-gap</code></td><td><code>10px</code></td><td>전역</td><td>카드 그리드 gap</td><td><span class="spill ready">Ready</span></td><td class="note">v1 충분</td></tr>
+              <tr><td class="tn">4 / 8 / 12 / 16 / 24 / 32 스케일</td><td>미정의</td><td>—</td><td>일반 gap · padding</td><td><span class="spill missing">Missing</span></td><td class="note">화면별 직타이핑</td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- Radius -->
+          <div class="inv-cap"><span class="inv-cap-n">D</span>Radius <span class="inv-cap-sub">Corner radii</span></div>
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:22%;">Token Name</th>
+                <th style="width:18%;">Current Value</th>
+                <th style="width:14%;">Theme Scope</th>
+                <th style="width:18%;">Usage</th>
+                <th style="width:12%;">Status</th>
+                <th style="width:16%;">Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--r-sm</code></td><td><code>4px</code></td><td>전역</td><td>Tag · 작은 칩</td><td><span class="spill ready">Ready</span></td><td class="note">—</td></tr>
+              <tr><td class="tn"><code>--r-md</code></td><td><code>8px</code></td><td>전역</td><td>Button · Input · 카드 inner</td><td><span class="spill ready">Ready</span></td><td class="note">—</td></tr>
+              <tr><td class="tn"><code>--r-lg</code></td><td><code>12px</code></td><td>전역</td><td>카드 · Dialog</td><td><span class="spill ready">Ready</span></td><td class="note">—</td></tr>
+              <tr><td class="tn"><code>--r-pill</code> / <code>--r-xl</code></td><td>미정의</td><td>—</td><td>pill 999px · 모달 전용</td><td><span class="spill partial">Partial</span></td><td class="note">필요 시 보강 — P2</td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- Border -->
+          <div class="inv-cap"><span class="inv-cap-n">E</span>Border <span class="inv-cap-sub">Color · Width · Focus ring</span></div>
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:22%;">Token Name</th>
+                <th style="width:18%;">Current Value</th>
+                <th style="width:14%;">Theme Scope</th>
+                <th style="width:18%;">Usage</th>
+                <th style="width:12%;">Status</th>
+                <th style="width:16%;">Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--bd</code></td><td>슬레이트 200 / dark alpha</td><td>Light + Dark</td><td>카드 · 구분선</td><td><span class="spill ready">Ready</span></td><td class="note">—</td></tr>
+              <tr><td class="tn"><code>--bd-s</code></td><td>슬레이트 300 / dark alpha</td><td>Light + Dark</td><td>강한 구분선</td><td><span class="spill ready">Ready</span></td><td class="note">—</td></tr>
+              <tr><td class="tn"><code>--bd-f</code></td><td>brand / accent</td><td>Light + Dark</td><td>Focus color</td><td><span class="spill partial">Partial</span></td><td class="note">두께·offset·ring 미정</td></tr>
+              <tr><td class="tn">focus ring 두께 · offset</td><td>미정의</td><td>—</td><td>focus-visible</td><td><span class="spill missing">Missing</span></td><td class="note">Section 04 C에서 정의</td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- Shadow -->
+          <div class="inv-cap"><span class="inv-cap-n">F</span>Shadow <span class="inv-cap-sub">Elevation</span></div>
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:22%;">Token Name</th>
+                <th style="width:18%;">Current Value</th>
+                <th style="width:14%;">Theme Scope</th>
+                <th style="width:18%;">Usage</th>
+                <th style="width:12%;">Status</th>
+                <th style="width:16%;">Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn">elevation 단계</td><td>미정의</td><td>—</td><td>카드 · 팝오버 · 모달</td><td><span class="spill missing">Missing</span></td><td class="note">Section 04 A에서 정의</td></tr>
+              <tr><td class="tn">focus shadow</td><td>미정의</td><td>—</td><td>focus-visible</td><td><span class="spill missing">Missing</span></td><td class="note">Section 04 A에서 정의</td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- Layout -->
+          <div class="inv-cap"><span class="inv-cap-n">G</span>Layout <span class="inv-cap-sub">App shell · Content width · Topbar · Sidebar</span></div>
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:22%;">Token Name</th>
+                <th style="width:18%;">Current Value</th>
+                <th style="width:14%;">Theme Scope</th>
+                <th style="width:18%;">Usage</th>
+                <th style="width:12%;">Status</th>
+                <th style="width:16%;">Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--sw</code></td><td><code>256px</code></td><td>전역</td><td>사이드바 폭</td><td><span class="spill ready">Ready</span></td><td class="note">—</td></tr>
+              <tr><td class="tn"><code>--topbar-h</code></td><td><code>48px</code></td><td>전역</td><td>Topbar 높이</td><td><span class="spill ready">Ready</span></td><td class="note">—</td></tr>
+              <tr><td class="tn"><code>--content-max</code></td><td><code>1560px</code></td><td>전역</td><td>본문 최대 폭</td><td><span class="spill ready">Ready</span></td><td class="note">—</td></tr>
+              <tr><td class="tn"><code>--content-focus-max</code></td><td><code>1760px</code></td><td>전역</td><td>Focus 모드 폭</td><td><span class="spill ready">Ready</span></td><td class="note">—</td></tr>
+              <tr><td class="tn">breakpoint 토큰</td><td>미정의</td><td>—</td><td>반응형 기준</td><td><span class="spill partial">Partial</span></td><td class="note">P1 — 후속</td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- State -->
+          <div class="inv-cap"><span class="inv-cap-n">H</span>State <span class="inv-cap-sub">Hover · Pressed · Disabled · Overlay</span></div>
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:22%;">Token Name</th>
+                <th style="width:18%;">Current Value</th>
+                <th style="width:14%;">Theme Scope</th>
+                <th style="width:18%;">Usage</th>
+                <th style="width:12%;">Status</th>
+                <th style="width:16%;">Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--surf-hover</code></td><td>alpha 2.5%</td><td>Light + Dark</td><td>표면 hover</td><td><span class="spill ready">Ready</span></td><td class="note">—</td></tr>
+              <tr><td class="tn"><code>--row-hover</code></td><td>표 row hover</td><td>Light + Dark</td><td>Table row</td><td><span class="spill ready">Ready</span></td><td class="note">—</td></tr>
+              <tr><td class="tn"><code>--go-bg</code> / <code>--go-bg-h</code> / <code>--go-fg</code> / <code>--go-bd</code></td><td>brand 액션 button 세트</td><td>Light + Dark</td><td>Go 버튼</td><td><span class="spill ready">Ready</span></td><td class="note">Button 별칭과 통합 검토</td></tr>
+              <tr><td class="tn">Button state — primary / secondary / danger</td><td>미정의</td><td>—</td><td>Button 4 variant × 4 state</td><td><span class="spill missing">Missing</span></td><td class="note">Section 04 D에서 정의</td></tr>
+              <tr><td class="tn">Form state — input · disabled · error · success</td><td>미정의</td><td>—</td><td>Input · Select · Textarea</td><td><span class="spill missing">Missing</span></td><td class="note">Section 04 E에서 정의</td></tr>
+              <tr><td class="tn">Overlay backdrop</td><td>미정의</td><td>—</td><td>Drawer · Dialog 배경</td><td><span class="spill missing">Missing</span></td><td class="note">P1 — 후속</td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- Motion -->
+          <div class="inv-cap"><span class="inv-cap-n">I</span>Motion <span class="inv-cap-sub">Duration · Easing · Reduced-motion</span></div>
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:22%;">Token Name</th>
+                <th style="width:18%;">Current Value</th>
+                <th style="width:14%;">Theme Scope</th>
+                <th style="width:18%;">Usage</th>
+                <th style="width:12%;">Status</th>
+                <th style="width:16%;">Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn">duration / easing</td><td>미정의</td><td>—</td><td>hover · drawer · dialog</td><td><span class="spill missing">Missing</span></td><td class="note">P2 — 후속</td></tr>
+              <tr><td class="tn">reduced-motion 기준</td><td>미정의</td><td>—</td><td>접근성</td><td><span class="spill missing">Missing</span></td><td class="note">P2 — 후속</td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- Layer -->
+          <div class="inv-cap"><span class="inv-cap-n">J</span>Layer <span class="inv-cap-sub">Z-index · Sticky</span></div>
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:22%;">Token Name</th>
+                <th style="width:18%;">Current Value</th>
+                <th style="width:14%;">Theme Scope</th>
+                <th style="width:18%;">Usage</th>
+                <th style="width:12%;">Status</th>
+                <th style="width:16%;">Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn">z-index 위계</td><td>미정의</td><td>—</td><td>Topbar · Drawer · Dialog · Toast</td><td><span class="spill missing">Missing</span></td><td class="note">Section 04 B에서 정의</td></tr>
+              <tr><td class="tn">sticky offset</td><td>미정의</td><td>—</td><td>표 헤더 · Topbar</td><td><span class="spill missing">Missing</span></td><td class="note">P1 — 후속</td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>요약 — 현재 인벤토리 강점</strong>
+            Color · Radius · Label · Layout Width · 기본 Surface / Border / Text는 라이트·다크 양 테마에 정의되어 있어, 컴포넌트 별칭만 신설하면 v1 진입이 가능하다.
+            반면 Shadow · Z-index · Border focus · Button state · Form state는 토큰 자체가 부재이며, Section 04에서 후보를 정리한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Missing / Needed Tokens ── -->
+      <section id="s04" class="sec" data-screen-label="04 Missing Needed">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Missing / Needed Tokens — P0 후보 목록</span>
+          <span class="sbadge plan">P0 후보</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아래 5개 그룹의 신규 토큰을 P0로 우선 확정한다. Light / Dark 값은 <em>후보</em>이며, 실제 값은 후속 작업 단위에서 Component Guide·UI Baseline과 정합 검토 후 확정한다.</p>
+
+          <!-- A Shadow -->
+          <div class="inv-cap"><span class="inv-cap-n">A</span>Shadow / Elevation <span class="inv-cap-sub">카드 · 팝오버 · 모달 · Drawer · Focus</span></div>
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:20%;">Token Candidate</th>
+                <th style="width:18%;">Purpose</th>
+                <th style="width:18%;">Light Value Candidate</th>
+                <th style="width:18%;">Dark Value Candidate</th>
+                <th style="width:12%;">Used By</th>
+                <th style="width:7%;">Priority</th>
+                <th style="width:7%;">Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--shadow-card</code></td><td>카드 기본 elevation</td><td><code>0 1px 2px rgba(15,23,42,.04), 0 1px 1px rgba(15,23,42,.03)</code></td><td><code>0 1px 2px rgba(0,0,0,.40)</code></td><td>Card</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--shadow-popover</code></td><td>팝오버 / 메뉴 / 셀렉트 옵션</td><td><code>0 6px 14px rgba(15,23,42,.08), 0 0 1px rgba(15,23,42,.08)</code></td><td><code>0 6px 14px rgba(0,0,0,.45)</code></td><td>Select · Menu · Tooltip</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--shadow-dialog</code></td><td>다이얼로그 깊은 elevation</td><td><code>0 12px 28px rgba(15,23,42,.12), 0 0 1px rgba(15,23,42,.08)</code></td><td><code>0 12px 28px rgba(0,0,0,.55)</code></td><td>Dialog · Modal</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--shadow-drawer</code></td><td>우측 슬라이드 drawer</td><td><code>-12px 0 28px rgba(15,23,42,.10)</code></td><td><code>-12px 0 28px rgba(0,0,0,.50)</code></td><td>Drawer</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--shadow-focus</code></td><td>focus ring shadow 형태</td><td><code>0 0 0 3px rgba(84,81,232,.30)</code></td><td><code>0 0 0 3px rgba(139,127,248,.40)</code></td><td>Button · Input · Link</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- B Z-index -->
+          <div class="inv-cap"><span class="inv-cap-n">B</span>Z-index / Layer <span class="inv-cap-sub">위계 — Sticky · Topbar · Dropdown · Drawer · Dialog · Toast</span></div>
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:20%;">Token Candidate</th>
+                <th style="width:24%;">Purpose</th>
+                <th style="width:14%;">Value Candidate</th>
+                <th style="width:22%;">Used By</th>
+                <th style="width:10%;">Priority</th>
+                <th style="width:10%;">Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--z-base</code></td><td>기준 레이어</td><td><code>0</code></td><td>일반 콘텐츠</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--z-sticky</code></td><td>스티키 헤더 / 표 상단</td><td><code>50</code></td><td>Table sticky · Section sticky</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--z-topbar</code></td><td>App Topbar / Doc Nav</td><td><code>100</code></td><td>Topbar · Doc Nav</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--z-dropdown</code></td><td>드롭다운 / 메뉴</td><td><code>200</code></td><td>Select · Menu</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--z-popover</code></td><td>팝오버 / 툴팁</td><td><code>300</code></td><td>Popover · Tooltip</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--z-drawer</code></td><td>우측 슬라이드 drawer</td><td><code>800</code></td><td>Drawer · backdrop</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--z-dialog</code></td><td>다이얼로그 (Drawer 상위)</td><td><code>900</code></td><td>Dialog · Modal · backdrop</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--z-toast</code></td><td>토스트 / Alert (최상위)</td><td><code>1000</code></td><td>Toast · Snackbar</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- C Border focus -->
+          <div class="inv-cap"><span class="inv-cap-n">C</span>Border Focus <span class="inv-cap-sub">focus-visible · ring · danger · success</span></div>
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:20%;">Token Candidate</th>
+                <th style="width:18%;">Purpose</th>
+                <th style="width:18%;">Light Value Candidate</th>
+                <th style="width:18%;">Dark Value Candidate</th>
+                <th style="width:12%;">Used By</th>
+                <th style="width:7%;">Priority</th>
+                <th style="width:7%;">Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--border-focus</code></td><td>focus 기본 색</td><td><code>#5451E8</code></td><td><code>#8B7FF8</code></td><td>Input · Button · Link</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--border-focus-strong</code></td><td>강한 focus 색</td><td><code>#4340C8</code></td><td><code>#a49bf9</code></td><td>Primary CTA · Danger CTA</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--ring-focus</code></td><td>focus-visible ring</td><td><code>0 0 0 3px rgba(84,81,232,.30)</code></td><td><code>0 0 0 3px rgba(139,127,248,.40)</code></td><td>Input · Button · Link</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--ring-danger</code></td><td>error 상태 ring</td><td><code>0 0 0 3px rgba(220,38,38,.25)</code></td><td><code>0 0 0 3px rgba(255,133,133,.35)</code></td><td>Input error · Confirm danger</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--ring-success</code></td><td>success 상태 ring</td><td><code>0 0 0 3px rgba(4,120,87,.22)</code></td><td><code>0 0 0 3px rgba(70,201,125,.30)</code></td><td>Input success</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- D Button state -->
+          <div class="inv-cap"><span class="inv-cap-n">D</span>Button State <span class="inv-cap-sub">Primary · Secondary · Danger × Hover · Active · Disabled</span></div>
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:24%;">Token Candidate</th>
+                <th style="width:18%;">Purpose</th>
+                <th style="width:18%;">Light Value Candidate</th>
+                <th style="width:18%;">Dark Value Candidate</th>
+                <th style="width:10%;">Used By</th>
+                <th style="width:6%;">Priority</th>
+                <th style="width:6%;">Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--btn-primary-bg</code></td><td>Primary 기본 배경</td><td><code>#5451E8</code></td><td><code>#5451E8</code></td><td>Button primary</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--btn-primary-bg-hover</code></td><td>Primary hover 배경</td><td><code>#4542D8</code></td><td><code>#6B68EE</code></td><td>Button primary</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--btn-primary-bg-active</code></td><td>Primary pressed 배경</td><td><code>#3936B8</code></td><td><code>#4340C8</code></td><td>Button primary</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--btn-primary-bg-disabled</code></td><td>Primary disabled 배경</td><td><code>rgba(84,81,232,.35)</code></td><td><code>rgba(139,127,248,.25)</code></td><td>Button primary</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--btn-primary-text</code></td><td>Primary 텍스트</td><td><code>#FFFFFF</code></td><td><code>#FFFFFF</code></td><td>Button primary</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--btn-secondary-bg</code></td><td>Secondary 기본 배경</td><td><code>#FFFFFF</code></td><td><code>var(--bg-sur2)</code></td><td>Button secondary</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--btn-secondary-bd</code></td><td>Secondary 테두리</td><td><code>#CBD5E1</code></td><td><code>rgba(180,184,200,.20)</code></td><td>Button secondary</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--btn-secondary-text</code></td><td>Secondary 텍스트</td><td><code>#0F172A</code></td><td><code>#F0F1F5</code></td><td>Button secondary</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--btn-danger-bg</code></td><td>Danger 기본 배경</td><td><code>#DC2626</code></td><td><code>#EF4444</code></td><td>Button danger</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--btn-danger-bg-hover</code></td><td>Danger hover 배경</td><td><code>#B91C1C</code></td><td><code>#DC2626</code></td><td>Button danger</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--btn-danger-bg-active</code></td><td>Danger pressed 배경</td><td><code>#991B1B</code></td><td><code>#B91C1C</code></td><td>Button danger</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--btn-danger-text</code></td><td>Danger 텍스트</td><td><code>#FFFFFF</code></td><td><code>#FFFFFF</code></td><td>Button danger</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- E Form state -->
+          <div class="inv-cap"><span class="inv-cap-n">E</span>Form State <span class="inv-cap-sub">Input · Select · Textarea · Validation</span></div>
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:22%;">Token Candidate</th>
+                <th style="width:18%;">Purpose</th>
+                <th style="width:18%;">Light Value Candidate</th>
+                <th style="width:18%;">Dark Value Candidate</th>
+                <th style="width:12%;">Used By</th>
+                <th style="width:6%;">Priority</th>
+                <th style="width:6%;">Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--input-bg</code></td><td>입력 기본 배경</td><td><code>#FFFFFF</code></td><td><code>var(--bg-sur)</code></td><td>Input · Select · Textarea</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-border</code></td><td>입력 기본 테두리</td><td><code>#CBD5E1</code></td><td><code>rgba(180,184,200,.20)</code></td><td>Input · Select · Textarea</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-border-hover</code></td><td>입력 hover 테두리</td><td><code>#94A3B8</code></td><td><code>rgba(200,204,220,.32)</code></td><td>Input · Select · Textarea</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-border-focus</code></td><td>입력 focus 테두리</td><td><code>#5451E8</code></td><td><code>#8B7FF8</code></td><td>Input · Select · Textarea</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-text</code></td><td>입력 텍스트</td><td><code>#0F172A</code></td><td><code>#F0F1F5</code></td><td>Input · Select · Textarea</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-placeholder</code></td><td>placeholder 텍스트</td><td><code>#94A3B8</code></td><td><code>rgba(200,204,220,.45)</code></td><td>Input · Select · Textarea</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-disabled-bg</code></td><td>disabled 배경</td><td><code>#F1F5F9</code></td><td><code>var(--bg-sur2)</code></td><td>Input · Select · Textarea</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-disabled-text</code></td><td>disabled 텍스트</td><td><code>#94A3B8</code></td><td><code>rgba(200,204,220,.35)</code></td><td>Input · Select · Textarea</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-error-border</code></td><td>error 테두리</td><td><code>#DC2626</code></td><td><code>#FF8585</code></td><td>Input error</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-success-border</code></td><td>success 테두리</td><td><code>#047857</code></td><td><code>#46C97D</code></td><td>Input success</td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>주의 — 본 표는 Candidate(후보)이다</strong>
+            토큰명·라이트값·다크값은 본 문서 리뷰 단계에서 변경될 수 있다.
+            <em>Decision Status</em>가 “후보”에서 “확정”으로 바뀐 항목만 후속 작업에서 <code>stam.tokens.css</code>에 반영한다.
+            본 문서만으로 토큰을 추가·변경하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 Component Usage Mapping ── -->
+      <section id="s05" class="sec" data-screen-label="05 Component Usage">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Component Usage Mapping — 컴포넌트별 토큰 사용</span>
+          <span class="sbadge plan">매핑</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">컴포넌트가 어떤 토큰 그룹에 의존하는지, P0 의존성과 누락 시 리스크를 정리한다. <strong>Next Action</strong>은 각 컴포넌트의 다음 작업 단위.</p>
+
+          <div class="inv-wrap">
+          <table class="inv-tbl">
+            <thead>
+              <tr>
+                <th style="width:14%;">Component</th>
+                <th style="width:30%;">Required Token Groups</th>
+                <th style="width:18%;">P0 Dependency</th>
+                <th style="width:22%;">Risk If Missing</th>
+                <th style="width:16%;">Next Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn">Button</td>
+                <td>Color(brand/status) · Radius · Border · Shadow(focus) · Spacing · Typography · Button State</td>
+                <td>Button State · Border Focus · Shadow Focus</td>
+                <td>화면별 hover / pressed / disabled 색이 어긋날 위험. focus-visible 미정의로 키보드 접근성 저하.</td>
+                <td>Button Token Mapping 문서 작성</td>
+              </tr>
+              <tr>
+                <td class="tn">Form</td>
+                <td>Color(label/status) · Border · Border Focus · Form State · Typography · Spacing</td>
+                <td>Form State · Border Focus · Ring Danger</td>
+                <td>Input/Select 높이가 Button md와 어긋날 위험. error/success 시각 일관성 부재.</td>
+                <td>Form Token Mapping 문서 작성</td>
+              </tr>
+              <tr>
+                <td class="tn">Select</td>
+                <td>Form State · Shadow(popover) · Z-index(dropdown) · Border Focus</td>
+                <td>Z-index · Shadow Popover · Border Focus</td>
+                <td>옵션 패널이 Topbar/Drawer 아래로 깔릴 위험. native blue 옵션이 다크에서 노출될 위험.</td>
+                <td>Select native UI 제거 기준 확정</td>
+              </tr>
+              <tr>
+                <td class="tn">Date Picker</td>
+                <td>Form State · Shadow(popover) · Z-index(popover) · Border Focus · Color(brand)</td>
+                <td>Z-index · Shadow Popover · Border Focus</td>
+                <td>달력 팝업 레이어 충돌 위험. native date 입력 외형이 다크에서 깨질 위험.</td>
+                <td>Date Picker native UI 제거 기준 확정</td>
+              </tr>
+              <tr>
+                <td class="tn">Dialog</td>
+                <td>Shadow(dialog) · Z-index(dialog) · Overlay backdrop · Radius · Color(brand/danger) · Button State</td>
+                <td>Z-index Dialog · Shadow Dialog · Overlay</td>
+                <td>Drawer와 레이어 순서 충돌 위험. backdrop alpha가 화면별로 다를 위험.</td>
+                <td>Dialog Token Mapping 후속</td>
+              </tr>
+              <tr>
+                <td class="tn">Drawer</td>
+                <td>Shadow(drawer) · Z-index(drawer) · Overlay backdrop · Border · Width · Topbar height</td>
+                <td>Z-index Drawer · Shadow Drawer · Overlay</td>
+                <td>Topbar / sticky 위로 올라타거나 Dialog 아래로 들어갈 위험.</td>
+                <td>Drawer Token Mapping 후속</td>
+              </tr>
+              <tr>
+                <td class="tn">Table</td>
+                <td>Color(label/border) · Border · Spacing · Density · Z-index(sticky) · Typography</td>
+                <td>Z-index Sticky · Density(후속) · Border</td>
+                <td>sticky header가 Topbar 위로 노출되거나 row 높이가 화면별로 어긋날 위험.</td>
+                <td>Table density 기준 확정 (후속)</td>
+              </tr>
+              <tr>
+                <td class="tn">Topbar</td>
+                <td>Layout(topbar-h) · Z-index(topbar) · Color(surface/label) · Border · Spacing</td>
+                <td>Z-index Topbar · Layout Gap</td>
+                <td>Drawer / Dialog와 레이어 순서 충돌. gap이 화면별로 다를 위험.</td>
+                <td>Topbar height/gap 토큰 별칭 확정</td>
+              </tr>
+              <tr>
+                <td class="tn">App Shell</td>
+                <td>Layout(sw · content-max · topbar-h) · Spacing · Color(side)</td>
+                <td>Layout Gap · Topbar Height</td>
+                <td>본문 padding / 사이드바 gap이 화면별로 다를 위험.</td>
+                <td>App Shell layout gap 토큰화 후속</td>
+              </tr>
+              <tr>
+                <td class="tn">WBS Board</td>
+                <td>Color(group/status) · Typography · Spacing · Border · Density · Z-index(sticky)</td>
+                <td>Density(후속) · Sticky Z-index</td>
+                <td>row 높이·sticky 동작이 일반 표와 다를 위험.</td>
+                <td>WBS density 정합 (Table v1 이후)</td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>매핑 원칙</strong>
+            한 컴포넌트는 가능하면 <em>의미 기반 별칭 토큰</em>(<code>--btn-primary-bg</code>, <code>--input-border-focus</code> 등)을 통해 atomic 토큰을 참조한다.
+            컴포넌트 클래스 정의에서 atomic 토큰(<code>--brand</code>, <code>--bd</code>)을 직접 사용하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 Light / Dark Token Rule ── -->
+      <section id="s06" class="sec" data-screen-label="06 Light Dark Rule">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Light / Dark Token Rule — 운영 원칙</span>
+          <span class="sbadge guide">원칙</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">라이트 / 다크는 동일 토큰 키를 유지하고, <code>[data-theme="dark"]</code> 블록에서 값만 재정의한다. 컴포넌트 CSS는 항상 토큰을 통해서만 색을 참조한다.</p>
+
+          <div class="ld-grid">
+
+            <div class="ld-card light">
+              <div class="ld-hdr">Light Theme</div>
+              <ul>
+                <li>기준 surface: <code>--bg-base</code> · <code>--bg-sur</code> · <code>--bg-sur2</code></li>
+                <li>label / text: 단단한 hex 값 (<code>#0F172A</code> · <code>#475569</code>)</li>
+                <li>status: 단단한 hex bg/fg 쌍</li>
+                <li>focus ring: brand 색 + 30% alpha shadow</li>
+                <li>backdrop: <code>rgba(15,23,42,.40)</code> 후보</li>
+              </ul>
+            </div>
+
+            <div class="ld-card dark">
+              <div class="ld-hdr">Dark Theme</div>
+              <ul>
+                <li>기준 surface: charcoal/navy (<code>#13161D</code> · <code>#1C2030</code> · <code>#222638</code>)</li>
+                <li>label / text: alpha 기반 (<code>rgba(230,232,240,.88)</code>)</li>
+                <li>status: alpha bg + 밝은 fg 쌍</li>
+                <li>focus ring: accent 색 + 40% alpha shadow</li>
+                <li>backdrop: <code>rgba(0,0,0,.55)</code> 후보</li>
+              </ul>
+            </div>
+
+          </div>
+
+          <div class="dd-grid" style="margin-top:14px;">
+            <div class="dd-col" style="border-color:var(--bd);background:var(--bg-sur2);">
+              <div class="dd-hdr" style="color:var(--t1);">Do — 권장 운영</div>
+              <ul>
+                <li>같은 토큰명을 라이트·다크에서 유지한다.</li>
+                <li><code>[data-theme="dark"]</code> 블록에서 값만 재정의한다.</li>
+                <li>컴포넌트 CSS에서는 hex / rgba 직타이핑 금지, 항상 토큰 사용.</li>
+                <li>focus / ring / hover는 라이트·다크 모두 별도 확인한다.</li>
+                <li>native UI(select option · date input)는 라이트·다크에서 일관 외형이 되도록 별도 처리한다.</li>
+              </ul>
+            </div>
+            <div class="dd-col" style="border-color:var(--bd);background:var(--bg-sur2);">
+              <div class="dd-hdr" style="color:var(--t1);">Don't — 금지</div>
+              <ul>
+                <li>다크 전용 신규 토큰명을 새로 만들지 않는다 (값만 재정의).</li>
+                <li>컴포넌트 CSS에 raw hex / rgba를 직타이핑하지 않는다.</li>
+                <li>다크 모드에서 native blue select option이 노출되도록 두지 않는다.</li>
+                <li>focus 색을 라이트에서만 검증하고 다크 확인을 생략하지 않는다.</li>
+                <li>라이트 / 다크 간 토큰명을 분리(<code>--bg-light</code> / <code>--bg-dark</code>) 하지 않는다.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>주의 — Native UI 회귀</strong>
+            Select option · Date input의 native UI가 다크 테마에서 파란색 박스로 노출되는 회귀가 가장 흔한 이슈다.
+            본 문서에서 <em>native UI 제거 기준</em>을 후속 작업 단위로 분리해 별도 매핑 문서에서 다룬다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 Naming Rule ── -->
+      <section id="s07" class="sec" data-screen-label="07 Naming Rule">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Naming Rule — 토큰명 규칙</span>
+          <span class="sbadge guide">규칙</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">토큰명은 “어디서 어떻게 쓰이는가”가 아니라 “무엇인가 / 어떤 역할인가”를 표현한다. 색 raw 이름·화면명 기반 이름은 사용하지 않는다.</p>
+
+          <div class="nm-grid">
+
+            <div class="nm-col good">
+              <div class="nm-hdr">권장 — 의미 기반 / 컴포넌트 별칭</div>
+              <ul>
+                <li><code>--input-border-focus</code> — 역할 기반</li>
+                <li><code>--btn-primary-bg-hover</code> — 컴포넌트·variant·state</li>
+                <li><code>--shadow-dialog</code> — 컴포넌트 elevation</li>
+                <li><code>--z-drawer</code> — 레이어 역할</li>
+                <li><code>--ring-danger</code> — 의미 기반 ring</li>
+                <li><code>--label-strong</code> — 위계 기반 label</li>
+              </ul>
+            </div>
+
+            <div class="nm-col bad">
+              <div class="nm-hdr">비권장 — raw color / 화면명 기반</div>
+              <ul>
+                <li><code>--purple-500-input-line</code> — raw color 직타</li>
+                <li><code>--wbs-row-blue</code> — 화면명 기반</li>
+                <li><code>--home-card-shadow</code> — 화면명 기반</li>
+                <li><code>--bg-light</code> / <code>--bg-dark</code> — 테마 분리</li>
+                <li><code>--button1-bg</code> — 의미 없는 숫자</li>
+                <li><code>--color1</code>, <code>--c-a</code> — 추상 표기</li>
+              </ul>
+            </div>
+
+          </div>
+
+          <div class="dd-grid" style="margin-top:14px;">
+            <div class="dd-col" style="border-color:var(--bd);background:var(--bg-sur2);">
+              <div class="dd-hdr" style="color:var(--t1);">네이밍 분류</div>
+              <ul>
+                <li><strong>Atomic</strong> — <code>--bg-base</code>, <code>--bd</code>, <code>--t1</code>, <code>--brand</code> · 화면 / 컴포넌트 무관</li>
+                <li><strong>Semantic</strong> — <code>--label-strong</code>, <code>--pass</code>, <code>--ring-focus</code> · 역할 기반</li>
+                <li><strong>Component Alias</strong> — <code>--btn-primary-bg</code>, <code>--input-border-focus</code> · 컴포넌트 전용</li>
+                <li>화면 전용 토큰은 화면 CSS 파일에 한정해 정의하고 전역 토큰을 오염하지 않는다.</li>
+              </ul>
+            </div>
+            <div class="dd-col" style="border-color:var(--bd);background:var(--bg-sur2);">
+              <div class="dd-hdr" style="color:var(--t1);">참조 우선순위</div>
+              <ul>
+                <li>컴포넌트 CSS → <strong>Component Alias</strong> 토큰 우선 사용.</li>
+                <li>Alias 토큰이 없는 경우만 <strong>Semantic</strong> 토큰 사용.</li>
+                <li>화면별 CSS는 Atomic 토큰 사용 가능. 단 신규 의미가 필요하면 토큰 추가 검토.</li>
+                <li>raw hex / rgba 직타이핑 금지.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Implementation Hold Checklist ── -->
+      <section id="s08" class="sec" data-screen-label="08 Implementation Hold">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Implementation Hold Checklist — CSS 구현 보류 기준</span>
+          <span class="sbadge lock">Hold</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아래 8개 항목이 본 문서 또는 후속 매핑 문서에서 확정되기 전까지 <code>stam/css/**</code> 토큰 추가·컴포넌트 CSS 구현·제품 화면 변경을 보류한다.</p>
+
+          <div class="gate-grid">
+
+            <div class="gate-step">
+              <span class="gs-n">1</span>
+              <div class="gs-body">P0 토큰명 확정
+                <span class="gs-sub">Shadow · Z-index · Border Focus · Button State · Form State 5개 그룹의 토큰명을 본 문서로 확정한다.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">2</span>
+              <div class="gs-body">라이트 값 후보 확정
+                <span class="gs-sub">P0 각 토큰의 라이트 테마 값이 후보 → 확정으로 전환되어 있어야 한다.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">3</span>
+              <div class="gs-body">다크 값 후보 확정
+                <span class="gs-sub">동일 토큰의 다크 테마 값이 후보 → 확정으로 전환되어 있어야 한다.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">4</span>
+              <div class="gs-body">Button 적용 범위 확정
+                <span class="gs-sub">Button variant / size / state별 토큰 매핑이 별도 Button Token Mapping 문서로 정리되어 있어야 한다.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">5</span>
+              <div class="gs-body">Form 적용 범위 확정
+                <span class="gs-sub">Input · Select · Textarea · Validation 토큰 매핑이 Form Token Mapping 문서로 정리되어 있어야 한다.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">6</span>
+              <div class="gs-body">Select / Date Picker native UI 제거 기준 확정
+                <span class="gs-sub">native option · native date 외형이 다크 모드에서 깨지지 않도록 제거 / 대체 기준을 후속 문서로 정리.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">7</span>
+              <div class="gs-body">z-index 충돌 기준 확정
+                <span class="gs-sub">Topbar · Drawer · Dialog · Toast · Popover 5개 레이어의 z-index가 충돌 없이 확정.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">8</span>
+              <div class="gs-body">Drawer / Dialog layer 기준 확정
+                <span class="gs-sub">Drawer &lt; Dialog 위계, 동시 노출 시 backdrop · shadow · ESC 동작 기준이 정리되어 있어야 한다.</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="ibox bad" style="margin-top:14px;">
+            <strong>Hold 미해소 시</strong>
+            8개 조건 중 하나라도 미충족이면 <code>stam.tokens.css</code> 토큰 추가, <code>stam.components.css</code> 컴포넌트 CSS 구현, 제품 페이지 변경에 진입하지 않는다.
+            본 문서를 갱신하거나 결정 항목을 후속 작업 단위로 분리한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Cursor Handoff Notes ── -->
+      <section id="s09" class="sec" data-screen-label="09 Cursor Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Cursor Handoff Notes — 후속 작업자 인계 기준</span>
+          <span class="sbadge guide">인계</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Cursor 또는 다른 작업자에게 실제 CSS 구현을 넘길 때, 본 인벤토리를 그대로 입력 자료로 사용한다. 한 번에 전체 CSS를 구현하지 않는다.</p>
+
+          <div class="dd-grid">
+            <div class="dd-col" style="border-color:var(--bd);background:var(--bg-sur2);">
+              <div class="dd-hdr" style="color:var(--t1);">Pre-Edit — 작업 진입 전</div>
+              <ul>
+                <li>한 번에 전체 CSS 구현 금지. 한 컴포넌트만 다룬다.</li>
+                <li>첫 구현 대상은 <strong>Button</strong> 또는 <strong>Form</strong> 중 하나만.</li>
+                <li>수정 허용 파일: <code>stam/css/stam.tokens.css</code> · <code>stam/css/stam.components.css</code>.</li>
+                <li>금지 파일(<code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/index.html</code>, <code>stam/assets/**</code>, Firebase / Actions / package*.json) 변경 금지.</li>
+                <li>토큰 추가·변경 사유를 PR 또는 커밋 메시지에 명시한다.</li>
+                <li><code>git status</code> clean 상태에서 시작한다.</li>
+              </ul>
+            </div>
+            <div class="dd-col" style="border-color:var(--bd);background:var(--bg-sur2);">
+              <div class="dd-hdr" style="color:var(--t1);">Post-Edit — 작업 직후 QA</div>
+              <ul>
+                <li>배포 전 <code>git diff --stat</code>으로 변경 파일 범위 확인.</li>
+                <li>Firebase staging 배포 후 staging URL QA(<code>stam-design-staging.web.app</code>).</li>
+                <li>라이트 / 다크 양 테마 QA.</li>
+                <li>1440 / 1600 / 1920 가로폭에서 페이지 레벨 가로 스크롤 없음 확인.</li>
+                <li>native select / date input 회귀 QA — 다크에서 파란색 박스 노출 없음.</li>
+                <li>금지 파일 변경 없음 — <code>stam/css/**</code> 외 파일 diff 0건 확인.</li>
+                <li>S-Core Dream 외 외부 폰트 호출 없음 — Google Fonts / Pretendard CDN / Gulim / Dotum 0건.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>핸드오프 원칙</strong>
+            본 문서가 정한 범위 외 변경이 필요하면, 코드 수정 전에 본 문서를 먼저 갱신한다. 범위를 임의 확장하지 않는다.
+            본 문서의 판정(Inventory Draft)은 <em>Section 08 Implementation Hold 8개 항목 해소</em>를 전제로 한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S10 Recommended Next Steps ── -->
+      <section id="s10" class="sec" data-screen-label="10 Next Steps">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Recommended Next Steps — 단계별 작업 순서</span>
+          <span class="sbadge plan">계획</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">CSS 구현은 한 번에 진행하지 않는다. 아래 6단계를 작은 단위로 끊어 진행하며, 각 단계는 작업 단위 1건에 대응한다.</p>
+
+          <div class="gate-grid">
+
+            <div class="gate-step">
+              <span class="gs-n">1</span>
+              <div class="gs-body">Step 1 — Token Inventory v1 문서 리뷰
+                <span class="gs-sub">본 문서의 P0 후보 목록·라이트/다크 값을 PM·기획자·개발자가 함께 리뷰.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">2</span>
+              <div class="gs-body">Step 2 — P0 토큰명 / 값 승인
+                <span class="gs-sub">Decision Status를 “후보 → 확정”으로 전환. 본 문서를 v1 confirmed 상태로 갱신.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">3</span>
+              <div class="gs-body">Step 3 — Button Token Mapping 문서 작성
+                <span class="gs-sub">Button variant / size / state별 토큰 매핑을 별도 문서로 작성. CSS 구현 진입 전 마지막 게이트.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">4</span>
+              <div class="gs-body">Step 4 — Button CSS 제한 구현
+                <span class="gs-sub"><code>stam.tokens.css</code>에 Button 관련 토큰만 추가 → <code>stam.components.css</code>에 Button 클래스만 정의. 다른 컴포넌트 동시 작업 금지.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">5</span>
+              <div class="gs-body">Step 5 — Form / Select / Date Picker Token Mapping 작성
+                <span class="gs-sub">Button QA 통과 후, Form 계열 컴포넌트의 토큰 매핑을 별도 문서로 작성.</span>
+              </div>
+            </div>
+
+            <div class="gate-step" style="grid-column:1 / -1;">
+              <span class="gs-n">6</span>
+              <div class="gs-body">Step 6 — Form 계열 CSS 제한 구현
+                <span class="gs-sub">Input · Select · Textarea · Validation CSS를 토큰 기준으로 제한 구현. native UI 제거 기준 적용. 이후 Dialog / Drawer / Table 순서로 1개씩 확장.</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>속도 기준</strong>
+            한 컴포넌트 단위는 <em>토큰 → 매핑 문서 → 클래스 → 화면 적용 → QA</em>를 한 묶음으로 처리한다.
+            여러 컴포넌트 CSS를 동시에 손대지 않는다. 본 문서 갱신 없이 다음 단계로 임의 진입하지 않는다.
+          </div>
+
+          <div style="margin-top:14px;">
+            <p class="sub" style="margin-bottom:8px;">관련 문서</p>
+            <ul class="rlist">
+              <li><a href="STAM-Docs-Index.html"><span class="rico">DI</span><span class="rbody">STAM Docs Index<span class="rsub">전체 문서 인덱스</span></span></a></li>
+              <li><a href="STAM-UI-Baseline-Guide.html"><span class="rico">BG</span><span class="rbody">UI Baseline Guide<span class="rsub">폰트·토큰·레이아웃 기준</span></span></a></li>
+              <li><a href="STAM-Component-Guide.html"><span class="rico">CG</span><span class="rbody">Component Guide (Index)<span class="rsub">컴포넌트 전체 인덱스</span></span></a></li>
+              <li><a href="STAM-CSS-Token-Readiness-Check.html"><span class="rico">RC</span><span class="rbody">CSS Token Readiness Check<span class="rsub">12 카테고리 Gap 점검</span></span></a></li>
+              <li><a href="STAM-CSS-Component-Token-Plan.html"><span class="rico">CP</span><span class="rbody">CSS Component Token Plan<span class="rsub">Component Guide v1 → 실제 CSS 적용 계획</span></span></a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
