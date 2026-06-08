@@ -1,0 +1,21 @@
+name: Deploy STAM Design Staging to Firebase Hosting
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy_staging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy staging site
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAM_PREVIEW_HOSTING }}
+          projectId: stam-preview-hosting
+          channelId: live
+          target: staging
