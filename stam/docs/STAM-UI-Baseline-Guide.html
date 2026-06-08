@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM UI Baseline Guide</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a href="STAM-Docs-Index.html" class="doc-nav-back">← Docs</a>
+  <span class="doc-nav-title">UI Baseline Guide</span>
+  <span class="doc-nav-pill"><span class="dot"></span>IA v3.3</span>
+  <span class="doc-nav-pill"><span class="dot"></span>STAM (10).zip</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Baseline Guide</span>
+      <span class="toc-ver-pill">v3.3</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Header / Purpose</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Folder Structure</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Entry Flow</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Typography</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Theme Token</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>App Shell / Left Nav</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Navigation Data</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Content Layout</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Board / List Screen</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Focus View</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>WBS Special</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Drawer</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Attachment / URL</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Comment / Mention</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>Dashboard</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>Project Template</a></li>
+      <li class="toc-item"><a href="#s17"><span class="toc-n">17</span>Export / Delivery</a></li>
+      <li class="toc-item"><a href="#s18"><span class="toc-n">18</span>Forbidden Rules</a></li>
+      <li class="toc-item"><a href="#s19"><span class="toc-n">19</span>First Board Implementation</a></li>
+      <li class="toc-item"><a href="#s20"><span class="toc-n">20</span>Baseline Checklist</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- S01 -->
+      <section id="s01" class="sec" data-screen-label="01 Header / Purpose">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Header / Purpose</span>
+          <span class="sbadge lock">기준 고정</span>
+        </div>
+        <div class="sec-body">
+          <div class="meta-row">
+            <div class="meta-cell"><span class="meta-k">문서명</span><span class="meta-v">STAM UI Baseline Guide</span></div>
+            <div class="meta-cell"><span class="meta-k">부제</span><span class="meta-v">Static Preview &amp; Product UI Standard</span></div>
+            <div class="meta-cell"><span class="meta-k">기준 ZIP</span><span class="meta-v code">STAM (10).zip</span></div>
+            <div class="meta-cell"><span class="meta-k">기준 루트</span><span class="meta-v code">stam/</span></div>
+            <div class="meta-cell"><span class="meta-k">IA 버전</span><span class="meta-v code">v3.3</span></div>
+            <div class="meta-cell"><span class="meta-k">기준일</span><span class="meta-v code">2026-06-07</span></div>
+          </div>
+          <p class="sub">목적</p>
+          <ul class="blist">
+            <li>신규 화면 생성 전 공통 기준 고정 — 폰트·토큰·레이아웃·Left Navigation·목록·Focus View</li>
+            <li>화면마다 메뉴·여백·폰트·스크롤 구조가 흔들리는 문제 방지</li>
+            <li>정적 Preview 기준과 운영 구현 Planned 기준을 명확히 구분 — 과장 표현 방지</li>
+          </ul>
+          <div class="ibox info">
+            <strong>기준 구분</strong>
+            <span class="sbadge done" style="margin-right:5px;">Static Preview</span>현재 정적 Preview에 구현된 기준 &nbsp;|&nbsp;
+            <span class="sbadge guide" style="margin: 0 5px 0 8px;">Baseline Guide</span>이 문서가 정의하는 UI 표준 &nbsp;|&nbsp;
+            <span class="sbadge plan" style="margin-left:8px;">Planned</span> 향후 구현 예정 사항
+          </div>
+        </div>
+      </section>
+
+      <!-- S02 -->
+      <section id="s02" class="sec" data-screen-label="02 Folder Structure">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Folder Structure Standard</span>
+          <span class="sbadge lock">기준 고정</span>
+        </div>
+        <div class="sec-body">
+          <div class="ftree">
+            <span class="ftdir">stam/</span><br>
+            <span class="ftind">├── <span class="ftdir">index.html</span>
+              <span class="ftnote"> — 서비스 루트 · 내 구독 / 내 프로젝트 목록 / 초대받은 프로젝트</span></span>
+            <span class="ftind">├── <span class="ftdir">pages/dashboard/project-overview.html</span>
+              <span class="ftnote"> — 프로젝트 선택 후 첫 화면 · Project Overview Dashboard</span></span>
+            <span class="ftind">├── <span class="ftdir">docs/</span>
+              <span class="ftnote"> — 정적 Preview / 기준 보고서 / 가이드 문서 (*.html)</span></span>
+            <span class="ftind">├── <span class="ftdir">css/</span>
+              <span class="ftnote"> — 토큰·홈·쉘·페이지·테이블·컴포넌트·화면별 CSS</span></span>
+            <span class="ftind">├── <span class="ftdir">js/</span>
+              <span class="ftnote"> — 홈·테마·쉘·nav-data·preview-ui·화면별 JS</span></span>
+            <span class="ftind">├── <span class="ftdir">assets/brand/stam/</span>
+              <span class="ftnote"> — STAM 로고/아이콘</span></span>
+            <span class="ftind">└── <span class="ftdir">assets/fonts/s-core-dream/</span>
+              <span class="ftnote"> — S-Core Dream 자체서빙 폰트 파일 (SCDream1~9.otf)</span></span>
+          </div>
+          <div class="ibox warn">
+            <strong>신규 기준 생성 규칙</strong>
+            기준 루트 <code>stam/</code> 밖에 신규 기준 HTML/CSS/JS를 만들지 않는다.
+            <code>signoff-design-static-v1/**</code>는 보존·참고 전용이며 수정 금지.
+          </div>
+        </div>
+      </section>
+
+      <!-- S03 -->
+      <section id="s03" class="sec" data-screen-label="03 Entry Flow">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Entry Flow Standard</span>
+          <span class="sbadge lock">기준 고정</span>
+        </div>
+        <div class="sec-body">
+          <div class="flow-row">
+            <div class="fbox">로그인</div>
+            <span class="farr">→</span>
+            <div class="fbox">내 프로젝트 목록</div>
+            <span class="farr">→</span>
+            <div class="fbox">프로젝트 선택</div>
+            <span class="farr">→</span>
+            <div class="fbox end">Project Overview Dashboard</div>
+          </div>
+          <div class="ibox info">
+            전체 서비스 루트 <code>index.html</code>과 프로젝트별 <code>project-overview.html</code>은 역할이 다르다.
+            프로젝트 선택 후 첫 화면은 반드시 <strong>Project Overview Dashboard</strong>이며,
+            프로젝트 내부 모든 화면에는 Left Navigation이 포함된다.
+          </div>
+        </div>
+      </section>
+
+      <!-- S04 -->
+      <section id="s04" class="sec" data-screen-label="04 Typography">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Typography Standard</span>
+          <span class="sbadge lock">기준 고정</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <thead><tr><th>항목</th><th>기준값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>사용 폰트</td><td><span class="mono">S-Core Dream</span></td><td>자체서빙 전용 · 외부 CDN 참조 금지</td></tr>
+              <tr><td>폰트 변수</td><td><span class="mono">--font</span></td><td>전역 font-family 기준 변수</td></tr>
+              <tr><td>코드성 텍스트</td><td><span class="mono">--mono: var(--font)</span></td><td>별도 고정폭 폰트 없이 기본 폰트 유지</td></tr>
+              <tr><td>폰트 파일 위치</td><td><span class="mono">stam/assets/fonts/s-core-dream/</span></td><td>SCDream1~9.otf (9 weights)</td></tr>
+              <tr><td>폰트 선언 CSS</td><td><span class="mono">s-core-dream.css</span></td><td>@font-face · src: url() 방식만 허용</td></tr>
+              <tr><td>Weight 범위</td><td><span class="mono">100 ~ 900</span></td><td>SCDream1 (100) ~ SCDream9 (900)</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox bad">
+            <strong>폰트 금지사항 — 코드·주석·본문 모두 포함</strong>
+            <ul class="blist bad">
+              <li>외부 폰트 CDN URL 참조 금지</li>
+              <li>외부 한글 폰트명 직접 기입 금지 (CDN 제공 폰트)</li>
+              <li>브라우저 기본 시스템 폰트명 직접 기입 금지</li>
+              <li>개발자용 고정폭 폰트명 직접 기입 금지</li>
+              <li><code>local&#40;&#41;</code> src 선언 금지 — s-core-dream.css 포함</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- S05 -->
+      <section id="s05" class="sec" data-screen-label="05 Theme Token">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Theme Token Standard</span>
+          <span class="sbadge lock">기준 고정</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Brand / Primary</p>
+          <div class="tgrid">
+            <div class="titem"><div class="tsw" style="background:#5451E8;"></div><span class="tnm">--brand</span><span class="tvl">#5451E8</span></div>
+            <div class="titem"><div class="tsw" style="background:#4340C8;"></div><span class="tnm">--brand-h</span><span class="tvl">#4340C8</span></div>
+            <div class="titem"><div class="tsw" style="background:#8B7FF8;"></div><span class="tnm">--accent</span><span class="tvl">#8B7FF8</span></div>
+            <div class="titem"><div class="tsw" style="background:#0D1235;border:1px solid rgba(255,255,255,.12);"></div><span class="tnm">--navy</span><span class="tvl">#0D1235</span></div>
+          </div>
+          <p class="sub">Surface (Light 기준)</p>
+          <div class="tgrid">
+            <div class="titem"><div class="tsw" style="background:#F8FAFC;border-color:rgba(0,0,0,.12);"></div><span class="tnm">--bg-base</span><span class="tvl">#F8FAFC</span></div>
+            <div class="titem"><div class="tsw" style="background:#FFFFFF;border-color:rgba(0,0,0,.12);"></div><span class="tnm">--bg-sur</span><span class="tvl">#FFFFFF</span></div>
+            <div class="titem"><div class="tsw" style="background:#F1F5F9;border-color:rgba(0,0,0,.12);"></div><span class="tnm">--bg-sur2</span><span class="tvl">#F1F5F9</span></div>
+            <div class="titem"><div class="tsw" style="background:#E2E8F0;border-color:rgba(0,0,0,.12);"></div><span class="tnm">--bg-sur3</span><span class="tvl">#E2E8F0</span></div>
+            <div class="titem"><div class="tsw" style="background:#0D1235;"></div><span class="tnm">--bg-side</span><span class="tvl">#0D1235</span></div>
+          </div>
+          <p class="sub">Border · Radius · Spacing · Layout</p>
+          <div class="two-col">
+            <table class="stbl">
+              <thead><tr><th>토큰</th><th>값</th><th>용도</th></tr></thead>
+              <tbody>
+                <tr><td>--bd</td><td class="mono">#E2E8F0</td><td>기본 테두리</td></tr>
+                <tr><td>--bd-s</td><td class="mono">#CBD5E1</td><td>강조 테두리</td></tr>
+                <tr><td>--bd-f</td><td class="mono">#5451E8</td><td>포커스 링</td></tr>
+                <tr><td>--r-sm</td><td class="mono">4px</td><td>chip · tag</td></tr>
+                <tr><td>--r-md</td><td class="mono">8px</td><td>버튼 · 인풋</td></tr>
+                <tr><td>--r-lg</td><td class="mono">12px</td><td>카드</td></tr>
+              </tbody>
+            </table>
+            <table class="stbl">
+              <thead><tr><th>토큰</th><th>값</th><th>용도</th></tr></thead>
+              <tbody>
+                <tr><td>--content-max</td><td class="mono">1560px</td><td>본문 최대 폭</td></tr>
+                <tr><td>--content-pad-x</td><td class="mono">32px</td><td>좌우 여백 (한쪽)</td></tr>
+                <tr><td>--grid-gap</td><td class="mono">10px</td><td>카드 그리드 gap</td></tr>
+                <tr><td>--content-focus-max</td><td class="mono">1760px</td><td>Focus View 최대 폭</td></tr>
+                <tr><td>--sw</td><td class="mono">256px</td><td>사이드바 너비</td></tr>
+                <tr><td>--topbar-h</td><td class="mono">48px</td><td>상단 바 높이</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="sub">Status · Priority</p>
+          <div class="tgrid">
+            <div class="titem"><div class="tsw" style="background:#047857;"></div><span class="tnm">--pass</span><span class="tvl">#047857</span></div>
+            <div class="titem"><div class="tsw" style="background:#991B1B;"></div><span class="tnm">--fail</span><span class="tvl">#991B1B</span></div>
+            <div class="titem"><div class="tsw" style="background:#854D0E;"></div><span class="tnm">--warn</span><span class="tvl">#854D0E</span></div>
+            <div class="titem"><div class="tsw" style="background:#1D4ED8;"></div><span class="tnm">--info</span><span class="tvl">#1D4ED8</span></div>
+            <div class="titem"><div class="tsw" style="background:#EF4444;"></div><span class="tnm">--prio-high</span><span class="tvl">#EF4444</span></div>
+            <div class="titem"><div class="tsw" style="background:#F59E0B;"></div><span class="tnm">--prio-mid</span><span class="tvl">#F59E0B</span></div>
+          </div>
+          <div class="ibox info">
+            Dark 모드는 <code>[data-theme="dark"]</code> 스코프에서 토큰 오버라이드.
+            토큰명 임의 신규 생성 금지. 부족한 토큰은 "후보"로만 표시하고 <code>stam.tokens.css</code> 확정 전 사용 금지.
+          </div>
+        </div>
+      </section>
+
+      <!-- S06 -->
+      <section id="s06" class="sec" data-screen-label="06 App Shell / Left Nav">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">App Shell / Left Navigation Standard</span>
+          <span class="sbadge lock">1차 고정</span>
+        </div>
+        <div class="sec-body">
+          <div class="two-col">
+            <div class="shdemo">
+              <div class="shdemo-top">
+                <span class="shdemo-top-txt" style="font-weight:700;color:rgba(255,255,255,.80);">STAM</span>
+                <span class="shdemo-top-txt">프로젝트명</span>
+                <span style="flex:1;"></span>
+                <span class="shdemo-top-txt">Topbar 48px</span>
+              </div>
+              <div class="shdemo-body">
+                <div class="shdemo-side">
+                  <div class="shdemo-proj"><div class="shdemo-proj-nm">프로젝트명 · 고객사</div></div>
+                  <div class="shdemo-nav">
+                    <div class="shdemo-ni on"></div>
+                    <div class="shdemo-ni"></div>
+                    <div class="shdemo-ni"></div>
+                    <div class="shdemo-ni"></div>
+                    <div class="shdemo-ni"></div>
+                    <div class="shdemo-ni"></div>
+                    <div class="shdemo-ni"></div>
+                    <div class="shdemo-ni"></div>
+                  </div>
+                  <div class="shdemo-ft"><span class="shdemo-ft-txt">footer 고정 영역</span></div>
+                </div>
+                <div class="shdemo-main"><span class="shdemo-main-txt">본문 (overflow-y: auto)</span></div>
+              </div>
+            </div>
+            <div class="ss-box">
+              <div class="ss-row"><span class="ss-el">.po-sidebar</span><span class="ss-rule">overflow: hidden — 전체 스크롤 금지</span><span class="ss-b no">스크롤 금지</span></div>
+              <div class="ss-row"><span class="ss-el">.po-sidebar-nav</span><span class="ss-rule">overflow-y: auto · scrollbar-gutter: stable</span><span class="ss-b yes">스크롤 허용</span></div>
+              <div class="ss-row"><span class="ss-el">.po-proj-badge</span><span class="ss-rule">프로젝트명 영역 — flex-shrink: 0</span><span class="ss-b no">고정</span></div>
+              <div class="ss-row"><span class="ss-el">sidebar footer</span><span class="ss-rule">profile 영역 — flex-shrink: 0 고정</span><span class="ss-b no">고정</span></div>
+              <div class="ss-row"><span class="ss-el">scrollbar (공통)</span><span class="ss-rule">라이트/다크 동일 — rgba(255,255,255,.025) 저대비 · hover .055 · 기본 거의 비노출</span><span class="ss-b yes">통일 완료</span></div>
+            </div>
+          </div>
+          <p class="sub">Left Nav 구성 요소</p>
+          <ul class="blist">
+            <li>상단: 프로젝트명/브랜드 영역 (<code>.po-proj-badge</code>) — flex-shrink: 0 고정</li>
+            <li>검색: 메뉴명·그룹명·메뉴코드·상태 badge 기준 실시간 필터링</li>
+            <li>그룹: 7개 (A–G) 아코디언 접기/펼치기, 그룹 count badge</li>
+            <li>메뉴 아이템: active 상태 (<code>.gitem.on</code>), dot indicator, status badge</li>
+            <li>검색 결과 없음: <code>.po-nav-empty</code> 표시 — 메뉴·그룹명 검색 안내</li>
+            <li>하단 footer: 사용자/프로젝트 정보 고정 — 메뉴 overflow 시에도 덮히지 않음</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- S07 -->
+      <section id="s07" class="sec" data-screen-label="07 Navigation Data">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Navigation Data Standard</span>
+          <span class="sbadge lock">SSOT 고정</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>SSOT: stam/js/stam.nav-data.js</strong>
+            모든 화면의 메뉴 데이터는 <code>window.STAM.data</code>에서 읽는다.
+            화면별 Left Navigation 하드코딩 금지. 메뉴명·순서·상태 badge는 nav-data 기준만 따른다.
+          </div>
+          <div class="two-col">
+            <div>
+              <p class="sub">서비스 루트 메뉴 (6개)</p>
+              <table class="stbl">
+                <thead><tr><th>ID</th><th>메뉴명</th></tr></thead>
+                <tbody>
+                  <tr><td>R1</td><td>로그인</td></tr>
+                  <tr><td>R2</td><td>최초 프로필 설정</td></tr>
+                  <tr><td>R3</td><td>내 구독 현황</td></tr>
+                  <tr><td>R4</td><td>내 프로젝트 목록</td></tr>
+                  <tr><td>R5</td><td>즐겨찾는 프로젝트</td></tr>
+                  <tr><td>R6</td><td>초대받은 프로젝트</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <p class="sub">프로젝트 내부 그룹 (58개 / 7그룹)</p>
+              <div class="nav-grps">
+                <div class="ngrow"><div class="ng-id" style="background:var(--g-a);">A</div><span class="ng-name">대시보드</span><span class="ng-ids">A1–A6</span><span class="ng-cnt">6개</span></div>
+                <div class="ngrow"><div class="ng-id" style="background:var(--g-b);">B</div><span class="ng-name">산출물 관리</span><span class="ng-ids">B1–B12</span><span class="ng-cnt">12개</span><span class="ng-sp">B3·B9·B10·B11</span></div>
+                <div class="ngrow"><div class="ng-id" style="background:var(--g-c);">C</div><span class="ng-name">테스트/품질</span><span class="ng-ids">C1–C8</span><span class="ng-cnt">8개</span><span class="ng-sp">C8</span></div>
+                <div class="ngrow"><div class="ng-id" style="background:var(--g-d);">D</div><span class="ng-name">협업/검토/승인</span><span class="ng-ids">D1–D8</span><span class="ng-cnt">8개</span></div>
+                <div class="ngrow"><div class="ng-id" style="background:var(--g-e);">E</div><span class="ng-name">내보내기/납품</span><span class="ng-ids">E1–E7</span><span class="ng-cnt">7개</span></div>
+                <div class="ngrow"><div class="ng-id" style="background:var(--g-f);">F</div><span class="ng-name">관리/설정</span><span class="ng-ids">F1–F11</span><span class="ng-cnt">11개</span></div>
+                <div class="ngrow"><div class="ng-id" style="background:var(--g-g);">G</div><span class="ng-name">마이페이지</span><span class="ng-ids">G1–G6</span><span class="ng-cnt">6개</span></div>
+              </div>
+            </div>
+          </div>
+          <p class="sub">주요 특수 메뉴 ID</p>
+          <table class="stbl">
+            <thead><tr><th>ID</th><th>메뉴명</th><th>특이사항</th></tr></thead>
+            <tbody>
+              <tr><td>B3</td><td>WBS 작업</td><td>간트차트·컬럼 9개·Focus View 필수</td></tr>
+              <tr><td>B9</td><td>DB 정보</td><td>민감정보·공개범위·마스킹 처리·컬럼 10개</td></tr>
+              <tr><td>B10</td><td>서버 정보</td><td>민감정보·공개범위 포함·컬럼 10개</td></tr>
+              <tr><td>B11</td><td>접근/보안 정보</td><td>컬럼 12개·열람 정책·Rotation 상태</td></tr>
+              <tr><td>C8</td><td>오픈 시나리오</td><td>컬럼 13개·Go/No-Go·Focus View 필수</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S08 -->
+      <section id="s08" class="sec" data-screen-label="08 Content Layout">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Content Layout Standard</span>
+          <span class="sbadge lock">기준 고정</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <thead><tr><th>토큰</th><th>값</th><th>용도</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>--content-max</td><td class="mono">1560px</td><td>프로젝트 내부 본문 최대 폭</td><td>1440·1600·1920 모두 대응</td></tr>
+              <tr><td>--content-pad-x</td><td class="mono">32px (한쪽)</td><td>본문 좌우 여백</td><td>합산 64px</td></tr>
+              <tr><td>--grid-gap</td><td class="mono">10px</td><td>카드 그리드 gap</td><td>--content-gutter 대체</td></tr>
+              <tr><td>--content-focus-max</td><td class="mono">1760px</td><td>Focus View 모드 최대 폭</td><td>Wide 모니터 대응</td></tr>
+              <tr><td>--content-gutter</td><td class="mono">미사용</td><td>삭제됨</td><td>--grid-gap 으로 대체</td></tr>
+            </tbody>
+          </table>
+          <ul class="blist">
+            <li>페이지 레벨 (<code>.po-main</code>) 가로 스크롤 금지 — <code>overflow-x: hidden</code></li>
+            <li>컬럼이 많은 화면은 테이블 내부 래퍼에만 <code>overflow-x: auto</code> 허용</li>
+            <li>본문 폭 패턴: <code>width: min(calc(100% - var(--content-pad-x) * 2), var(--content-max))</code></li>
+            <li>1440 / 1600 / 1920 폭 모두에서 본문이 답답하지 않도록 설계</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- S09 -->
+      <section id="s09" class="sec" data-screen-label="09 Board / List Screen">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Board / List Screen Standard</span>
+          <span class="sbadge guide">가이드</span>
+        </div>
+        <div class="sec-body">
+          <div class="two-col">
+            <div>
+              <p class="sub">공통 구조 (모든 목록 화면 필수)</p>
+              <ul class="blist">
+                <li>Page Header — 페이지명 + 핵심 KPI</li>
+                <li>Summary KPI Strip — 상태별 모수</li>
+                <li>Filter / Search Bar — 상태·담당자·날짜 등</li>
+                <li>Primary Action — 등록/내보내기 버튼</li>
+                <li>Table / List — 정렬·선택·Row Status</li>
+                <li>Drawer Detail — 우측 슬라이딩 상세</li>
+                <li>Comment / Mention</li>
+                <li>Attachment / URL Reference</li>
+                <li>Related Meeting — 회의록 연결</li>
+                <li>Export Include Option</li>
+                <li>Custom Fields — 확장 컬럼</li>
+                <li>Change History — 변경이력</li>
+              </ul>
+            </div>
+            <div>
+              <p class="sub">대상 목록 화면 (B·C 그룹 중심)</p>
+              <ul class="blist">
+                <li>B1 요구사항정의서</li>
+                <li>B2 메뉴구조/화면목록</li>
+                <li>B3 WBS 작업 (특수 패턴 별도)</li>
+                <li>B4 화면설계서</li>
+                <li>B5 기능정의서</li>
+                <li>B7 API 명세서</li>
+                <li>B8 테이블 정의서</li>
+                <li>B9 DB 정보</li>
+                <li>B10 서버 정보</li>
+                <li>B11 접근/보안 정보</li>
+                <li>B12 정책정의서</li>
+                <li>C1 테스트케이스 · C7 결함관리</li>
+                <li>C8 오픈 시나리오 (특수 패턴 별도)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S10 -->
+      <section id="s10" class="sec" data-screen-label="10 Focus View">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Focus View / Full View Standard</span>
+          <span class="sbadge guide">가이드</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            좌측 메뉴를 숨기고 본문을 최대화하는 모드.
+            테이블·보드·간트차트 등 넓게 봐야 하는 업무, 빔프로젝터 공유·회의·고객 리뷰 시 활용.
+          </div>
+          <div class="two-col">
+            <div>
+              <p class="sub">Focus View 필수 적용 우선 화면</p>
+              <ul class="blist">
+                <li>B3 WBS 작업</li>
+                <li>C8 오픈 시나리오</li>
+                <li>B8 테이블 정의서</li>
+                <li>B9 DB 정보</li>
+                <li>B10 서버 정보</li>
+                <li>B11 접근/보안 정보</li>
+                <li>C5 테스트 결과 대시보드</li>
+                <li>C6 결함 대시보드</li>
+              </ul>
+            </div>
+            <div>
+              <p class="sub">Focus View 필수 포함 사항</p>
+              <ul class="blist">
+                <li>진입 버튼 — Page Header 우측</li>
+                <li>종료 버튼 — Focus 상태에서</li>
+                <li>좌측 메뉴 숨김 (<code>.po-sidebar</code> display: none)</li>
+                <li>본문 최대화 — --content-focus-max (1760px)</li>
+                <li>페이지 레벨 가로 스크롤 금지 유지</li>
+                <li>내부 테이블 영역 overflow 처리</li>
+                <li>현재 필터/검색 조건 유지</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S11 -->
+      <section id="s11" class="sec" data-screen-label="11 WBS Special">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">WBS Special Pattern (B3)</span>
+          <span class="sbadge guide">가이드</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>간트차트 영역 포함 — 날짜 축 + 작업 바 (접기/펼치기 전환)</li>
+            <li>기본 컬럼 9개 — WBS ID·작업명·메뉴/기능 그룹·산출물 유형·담당자·시작일·종료일·진행 상태·지연 여부</li>
+            <li>테이블 내부 래퍼에만 overflow-x: auto 적용 — 페이지 레벨 가로 스크롤 금지</li>
+            <li>Focus View 필수 — 빔프로젝터·화면 공유 대응</li>
+            <li>계획/실적/상태/담당자/산출물 연결 고려</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- S12 -->
+      <section id="s12" class="sec" data-screen-label="12 Drawer">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Drawer Standard</span>
+          <span class="sbadge guide">가이드</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <thead><tr><th>항목</th><th>기준</th></tr></thead>
+            <tbody>
+              <tr><td>등록 진입</td><td>목록 상단 등록 버튼 → 우측 드로어 슬라이드인</td></tr>
+              <tr><td>상세 진입</td><td>Row 클릭 → 우측 드로어 슬라이드인</td></tr>
+              <tr><td>수정 전환</td><td>상세 드로어 내부 수정 모드 전환 (별도 페이지 아님)</td></tr>
+              <tr><td>문서형 산출물</td><td>내용이 긴 경우 전체 상세 페이지 병행 가능</td></tr>
+              <tr><td>Drawer width</td><td>480–560px (콘텐츠 복잡도에 따라)</td></tr>
+              <tr><td>Overlay</td><td>배경 dim rgba(23,23,25,.45) — 배경 클릭 시 닫기</td></tr>
+            </tbody>
+          </table>
+          <p class="sub">드로어 내부 탭 구조</p>
+          <ul class="blist">
+            <li>기본 정보 탭 — 필드 정보 / 수정 모드</li>
+            <li>댓글/의견 탭 — 게시물 단위 댓글·멘션</li>
+            <li>첨부파일/URL 탭</li>
+            <li>변경이력 탭</li>
+            <li>관련 회의록 탭</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- S13 -->
+      <section id="s13" class="sec" data-screen-label="13 Attachment / URL">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Attachment / URL Reference Standard</span>
+          <span class="sbadge guide">가이드</span>
+        </div>
+        <div class="sec-body">
+          <div class="two-col">
+            <div>
+              <p class="sub">첨부파일 필드</p>
+              <ul class="blist">
+                <li>파일명 (필수)</li>
+                <li>유형 (이미지/문서/설계/기타)</li>
+                <li>설명</li>
+                <li>버전</li>
+                <li>공개범위 (전체/멤버/관리자)</li>
+                <li>내보내기 포함 여부</li>
+                <li>다중 등록 지원</li>
+              </ul>
+            </div>
+            <div>
+              <p class="sub">URL 참조 필드</p>
+              <ul class="blist">
+                <li>URL명 (필수)</li>
+                <li>주소 (필수)</li>
+                <li>유형 (설계툴/외부참조/내부링크 등)</li>
+                <li>설명</li>
+                <li>공개범위</li>
+                <li>관련 산출물</li>
+                <li>내보내기 포함 여부</li>
+                <li>다중 등록 지원</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S14 -->
+      <section id="s14" class="sec" data-screen-label="14 Comment / Mention">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Comment / Mention / Meeting Link Standard</span>
+          <span class="sbadge guide">가이드</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>게시물 단위 댓글 — 모든 주요 산출물 게시판 기본 포함</li>
+            <li>담당자 멘션 (@호출) — 할당·검토·승인 요청 보조</li>
+            <li>검토/승인/반려 흐름 보조 — 댓글 내 상태 표시</li>
+            <li>관련 회의록 연결 — 드로어 내 회의록 탭에서 연결</li>
+            <li>회의록 결정사항/액션아이템 → 산출물 역연결</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- S15 -->
+      <section id="s15" class="sec" data-screen-label="15 Dashboard">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">Dashboard Standard</span>
+          <span class="sbadge guide">가이드</span>
+        </div>
+        <div class="sec-body">
+          <div class="three-col">
+            <div class="mcrd">
+              <div class="mcrd-title">A1 · Project Overview</div>
+              <div class="mcrd-body">
+                <ul class="blist" style="margin-top:4px;">
+                  <li>고객/PM용 전체 프로젝트 현황</li>
+                  <li>전체 모수 기반 진행률</li>
+                  <li>산출물/일정/이슈/결함/승인 요약</li>
+                  <li>주요 마일스톤 · 리스크/Gate</li>
+                </ul>
+              </div>
+            </div>
+            <div class="mcrd">
+              <div class="mcrd-title">A2 · My Work</div>
+              <div class="mcrd-body">
+                <ul class="blist" style="margin-top:4px;">
+                  <li>개인 담당 업무 중심</li>
+                  <li>나에게 할당된 작업</li>
+                  <li>내 검토/승인 대기</li>
+                  <li>내 멘션 알림</li>
+                </ul>
+              </div>
+            </div>
+            <div class="mcrd">
+              <div class="mcrd-title">Control Center <span class="sbadge plan" style="font-size:8px;vertical-align:middle;margin-left:4px;">계획</span></div>
+              <div class="mcrd-body">
+                <ul class="blist" style="margin-top:4px;">
+                  <li>PL/운영자/작업자용</li>
+                  <li>PR/Evidence/Gate 현황</li>
+                  <li>작업 큐 관리</li>
+                  <li>팀 전체 진행 현황</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S16 -->
+      <section id="s16" class="sec" data-screen-label="16 Project Template">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
+          <span class="sec-title">Project Template &amp; Share Standard</span>
+          <span class="sbadge plan">계획</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            원본 프로젝트를 직접 공유하지 않는다. 민감정보를 제거한 템플릿 복사본을 공유한다.
+            다른 사용자는 템플릿 구조를 복사해서 새 프로젝트로 시작할 수 있다.
+          </div>
+          <div class="two-col">
+            <div>
+              <p class="sub">복사 기본 포함 후보</p>
+              <ul class="blist">
+                <li>게시판 구조</li>
+                <li>메뉴 구조</li>
+                <li>커스텀 컬럼 설정</li>
+                <li>기본 승인흐름</li>
+                <li>기본 산출물 양식</li>
+                <li>기본 목록 컬럼 설정</li>
+              </ul>
+            </div>
+            <div>
+              <p class="sub">복사 기본 제외 후보 (민감정보)</p>
+              <ul class="blist bad">
+                <li>멤버 정보·이메일</li>
+                <li>고객사 실명</li>
+                <li>첨부파일 원본·댓글·회의록·승인 이력</li>
+                <li>운영 서버/DB 정보 · 접근/보안 정보</li>
+                <li>계정성 데이터 · 운영 URL · 내부 URL</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S17 -->
+      <section id="s17" class="sec" data-screen-label="17 Export / Delivery">
+        <div class="sec-hdr">
+          <span class="sec-n">17</span>
+          <span class="sec-title">Export / Delivery Standard</span>
+          <span class="sbadge plan">계획</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <thead><tr><th>포맷</th><th>용도</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>PDF</td><td>고객 공유 · 납품</td><td>테스트 결과서 앞장 요약 포함</td></tr>
+              <tr><td>DOCX</td><td>편집 가능 산출물</td><td>결함 결과보고서 앞장 요약 포함</td></tr>
+              <tr><td>HTML</td><td>온라인 납품 패키지</td><td>자체서빙 가능</td></tr>
+              <tr><td>Markdown</td><td>GitHub/문서 연동</td><td>코드 산출물 중심</td></tr>
+              <tr><td>납품 패키지</td><td>전체 산출물 묶음</td><td>내보내기 포함 여부 체크 후 생성</td></tr>
+              <tr><td>사용자 매뉴얼</td><td>화면별 자동 생성</td><td>대상 화면 범위 지정</td></tr>
+              <tr><td>운영자 매뉴얼</td><td>관리 기능 중심</td><td>대상 화면 범위 지정</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S18 -->
+      <section id="s18" class="sec" data-screen-label="18 Forbidden Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">18</span>
+          <span class="sec-title">Forbidden Rules</span>
+          <span class="sbadge lock">반드시 준수</span>
+        </div>
+        <div class="sec-body">
+          <div class="two-col">
+            <div class="ibox bad">
+              <strong>폰트 / 스타일</strong>
+              <ul class="blist bad">
+                <li>외부 폰트 CDN 참조 금지</li>
+                <li>외부 폰트명·시스템 폰트명·고정폭 폰트명 직접 기입 금지</li>
+                <li><code>local&#40;&#41;</code> font-face 선언 금지</li>
+                <li>HTML 내부 대량 인라인 style/script 금지</li>
+                <li>CSS·JS 코드 뒤섞기 금지</li>
+              </ul>
+            </div>
+            <div class="ibox bad">
+              <strong>레이아웃 / 화면</strong>
+              <ul class="blist bad">
+                <li>페이지 레벨 가로 스크롤 금지</li>
+                <li>화면마다 Left Nav 하드코딩 금지</li>
+                <li>메뉴명·순서·IA 임의 변경 금지</li>
+                <li>기준 확정 전 10개 화면 한 번에 생성 금지</li>
+                <li>신규 화면 생성 전 Baseline Guide 미확인 금지</li>
+              </ul>
+            </div>
+            <div class="ibox bad">
+              <strong>파일 / 폴더</strong>
+              <ul class="blist bad">
+                <li><code>stam/</code> 루트 밖 신규 기준 생성 금지</li>
+                <li><code>signoff-design-static-v1/**</code> 수정 금지</li>
+                <li><code>stam/js/*.js</code> 임의 변경 금지</li>
+                <li><code>stam.nav-data.js</code> 데이터 임의 변경 금지</li>
+              </ul>
+            </div>
+            <div class="ibox bad">
+              <strong>데이터 / 토큰</strong>
+              <ul class="blist bad">
+                <li>샘플 데이터 임의 변경 금지</li>
+                <li>토큰명 임의 신규 생성 금지</li>
+                <li>기존 디자인 리디자인 금지</li>
+                <li>운영 구현 완료처럼 과장 표현 금지</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S19 -->
+      <section id="s19" class="sec" data-screen-label="19 First Board Implementation Order">
+        <div class="sec-hdr">
+          <span class="sec-n">19</span>
+          <span class="sec-title">First Board Implementation Order</span>
+          <span class="sbadge guide">구현 순서</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            Baseline Guide가 <strong>PASS</strong>된 이후 첫 번째로 만들 목록 화면은 <code>wbs.html</code>이다.
+          </div>
+          <p class="sub">구현 순서</p>
+          <ul class="blist">
+            <li>1. WBS 작업 <code>wbs.html</code></li>
+            <li>2. 요구사항정의서</li>
+            <li>3. 메뉴구조/화면목록</li>
+            <li>4. 화면설계서</li>
+            <li>5. 테스트케이스</li>
+            <li>6. 결함관리</li>
+          </ul>
+          <p class="sub">WBS를 먼저 만드는 이유</p>
+          <ul class="blist">
+            <li>STAM은 SI 프로젝트 실행 관리 SaaS이므로 WBS가 실무 사용 흐름의 중심이다.</li>
+            <li>WBS는 컬럼이 많고 넓은 화면이 필요하므로 Focus View 기준을 먼저 검증하기 좋다.</li>
+            <li>메뉴/기능 단위 그룹핑, 일정, 담당자, 상태, 산출물 연결, 간트차트 기준을 함께 검증할 수 있다.</li>
+            <li>WBS 기준 화면이 안정화된 뒤 요구사항정의서와 다른 산출물 목록 화면으로 확장한다.</li>
+          </ul>
+          <div class="ibox warn">
+            <strong>주의 — 이번 작업 범위</strong>
+            <ul class="blist bad" style="margin-top:6px;">
+              <li>이번 Baseline Guide 보강 작업에서 <code>wbs.html</code>은 만들지 않는다.</li>
+              <li><code>requirements.html</code>도 만들지 않는다.</li>
+              <li>10개 목록 화면을 한 번에 만들지 않는다.</li>
+              <li>Baseline Guide PASS 후 다음 단일 작업으로 <code>wbs.html</code> 1개만 생성한다.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- S20 -->
+      <section id="s20" class="sec" data-screen-label="20 Baseline Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">20</span>
+          <span class="sec-title">Baseline Checklist</span>
+          <span class="sbadge lock">신규 화면 생성 전 확인</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">신규 화면 생성 전 체크리스트</p>
+          <div class="chk-grid">
+            <div class="chk-item"><div class="chk-box"></div>S-Core Dream 자체서빙 사용</div>
+            <div class="chk-item"><div class="chk-box"></div>외부 폰트 참조 없음</div>
+            <div class="chk-item"><div class="chk-box"></div>nav-data 기준 메뉴 사용</div>
+            <div class="chk-item"><div class="chk-box"></div>Left Nav active 상태 정확</div>
+            <div class="chk-item"><div class="chk-box"></div>메뉴 검색 기능 포함</div>
+            <div class="chk-item"><div class="chk-box"></div>CSS 파일 분리 완료</div>
+            <div class="chk-item"><div class="chk-box"></div>JS 파일 분리 완료</div>
+            <div class="chk-item"><div class="chk-box"></div>페이지 레벨 가로 스크롤 없음</div>
+            <div class="chk-item"><div class="chk-box"></div>목록 화면 Focus View 포함</div>
+            <div class="chk-item"><div class="chk-box"></div>Drawer 기준 반영</div>
+            <div class="chk-item"><div class="chk-box"></div>댓글/멘션/첨부/URL/회의록 고려</div>
+            <div class="chk-item"><div class="chk-box"></div>Custom Fields 확장 고려</div>
+            <div class="chk-item"><div class="chk-box"></div>Project Template &amp; Share 영향 고려</div>
+            <div class="chk-item"><div class="chk-box"></div>Light / Dark 대응 확인</div>
+            <div class="chk-item"><div class="chk-box"></div>1440 / 1600 / 1920 폭 확인</div>
+            <div class="chk-item"><div class="chk-box"></div>콘솔 에러 없음</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) {
+    return document.querySelector(a.getAttribute('href'));
+  });
+
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) {
+      a.closest('.toc-item').classList.toggle('active', i === cur);
+    });
+  }
+
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM — 전체 IA 메뉴 구조 미리보기 v3.3</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.tables.css">
+<link rel="stylesheet" href="../css/stam.pages.css">
+</head>
+<body>
+
+<!-- ══ App Topbar ══ -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">전체 IA 메뉴 구조 미리보기</span>
+  <span class="doc-nav-pill"><span class="dot"></span>IA Baseline v3.3</span>
+  <span class="doc-nav-pill"><span class="dot"></span>전체 64개</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ══ KPI Strip ══ -->
+<div class="kpi-strip">
+  <div class="kpi-item">
+    <div class="kpi-num">6</div>
+    <div class="kpi-lbl">서비스 루트</div>
+    <div class="kpi-sub">사이드바 外 · R1–R6</div>
+  </div>
+  <div class="kpi-item hi">
+    <div class="kpi-num">58</div>
+    <div class="kpi-lbl">프로젝트 내부</div>
+    <div class="kpi-sub">Left Nav A–G · 7그룹</div>
+  </div>
+  <div class="kpi-item hi">
+    <div class="kpi-num">64</div>
+    <div class="kpi-lbl">전체 화면/메뉴</div>
+    <div class="kpi-sub">IA Baseline v3.3 확정</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-num">12</div>
+    <div class="kpi-lbl">산출물 관리</div>
+    <div class="kpi-sub">그룹 B · B1–B12</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-num">8</div>
+    <div class="kpi-lbl">테스트/품질</div>
+    <div class="kpi-sub">그룹 C · C1–C8</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-num">11</div>
+    <div class="kpi-lbl">관리/설정</div>
+    <div class="kpi-sub">그룹 F · F1–F11</div>
+  </div>
+</div>
+
+<main class="doc-wrap">
+
+  <!-- § 1 서비스 진입 흐름 -->
+  <section class="sec">
+    <div class="sec-head">
+      <div class="sec-num">1</div>
+      <div class="sec-title">서비스 진입 흐름</div>
+      <span class="sec-sub">로그인 → 서비스 루트 → 프로젝트 진입 → App Shell</span>
+    </div>
+
+    <div class="flow-zone">
+      <div class="flow-zone-label">
+        서비스 루트 영역 — 프로젝트 선택 전 · 사이드바 없음 · R1–R6
+        <span style="margin-left:10px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(255,146,0,.12);color:#F0B24E;">사이드바 포함 불가 (절대 원칙)</span>
+      </div>
+      <div class="flow-row">
+        <div class="flow-box active">R1 · 로그인</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">R2 · 최초 프로필 설정</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">R3 · 내 구독 현황</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box active">R4 · 내 프로젝트 목록</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">R5 · 즐겨찾는 프로젝트</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">R6 · 초대받은 프로젝트</div>
+      </div>
+    </div>
+
+    <div class="flow-down"><span>↓ 프로젝트 선택 클릭</span></div>
+
+    <div class="flow-zone">
+      <div class="flow-zone-label">프로젝트 내부 영역 — App Shell 고정 · Topbar 48px + Left Navigation 256px · 58개 메뉴 A–G</div>
+      <div class="flow-row">
+        <div class="flow-box shell">App Shell</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box active">A1 · Project Overview</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">B1–B12 · 산출물 관리</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">C1–C8 · 테스트/품질</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">D1–D8 · 협업/검토</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">E1–E7 · 납품</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">F1–F11 · 설정</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- § 2 서비스 루트 6개 -->
+  <section class="sec">
+    <div class="sec-head">
+      <div class="sec-num">2</div>
+      <div class="sec-title">서비스 루트 영역 6개</div>
+      <span class="sec-sub">프로젝트 내부 사이드바에 포함하지 않음 (절대 원칙)</span>
+    </div>
+    <div style="background:rgba(255,146,0,.07);border:1px solid rgba(255,146,0,.2);border-radius:var(--r-md);padding:9px 14px;margin-bottom:16px;font-size:11.5px;color:#F0B24E;display:flex;align-items:center;gap:8px;">
+      <span style="font-weight:700;">⚠</span>
+      서비스 루트(R1–R6)는 프로젝트 진입 전 화면입니다. Left Navigation 58개 메뉴에 포함되지 않습니다. stam/index.html에서 구현 예정 (후속 1순위).
+    </div>
+    <div class="root-grid" id="rootGrid"></div>
+  </section>
+
+  <!-- § 3 프로젝트 내부 58개 -->
+  <section class="sec">
+    <div class="sec-head">
+      <div class="sec-num">3</div>
+      <div class="sec-title">프로젝트 내부 메뉴 전체 58개</div>
+      <span class="sec-sub">7개 그룹 A–G · 화면명 + 핵심 컬럼 수 포함</span>
+    </div>
+    <div style="background:var(--bg-sur);border:1px solid var(--bd);border-radius:var(--r-lg);overflow:hidden">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:76px">ID</th>
+            <th style="width:28px">그룹</th>
+            <th style="width:170px">메뉴명</th>
+            <th>화면명</th>
+            <th>핵심 컬럼</th>
+            <th style="width:44px">Col</th>
+            <th style="width:76px">단계</th>
+          </tr>
+        </thead>
+        <tbody id="menuTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- § 4 Left Navigation 미리보기 -->
+  <section class="sec">
+    <div class="sec-head">
+      <div class="sec-num">4</div>
+      <div class="sec-title">Left Navigation 미리보기</div>
+      <span class="sec-sub">실물 렌더링 · 58개 메뉴 트리 · A1 활성 기준</span>
+    </div>
+    <div class="preview-frame">
+      <aside class="preview-sidebar" id="previewSidebar">
+        <div class="glogo">
+          <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+          <span class="glogo-txt">STAM</span>
+          <span class="glogo-ver">v2.1</span>
+        </div>
+      </aside>
+      <div class="preview-content">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="40" height="40" rx="10" fill="rgba(84,81,232,.08)"></rect>
+          <path d="M12 14h16M12 20h10M12 26h13" stroke="#8B7FF8" stroke-width="1.5" stroke-linecap="round"></path>
+        </svg>
+        <div class="preview-content-label">Project Overview Dashboard</div>
+        <div class="preview-content-sub">A1 · 프로젝트 오버뷰 대시보드</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- § 5 총 화면 수 요약 -->
+  <section class="sec">
+    <div class="sec-head">
+      <div class="sec-num">5</div>
+      <div class="sec-title">총 화면 수 요약</div>
+      <span class="sec-sub">IA Baseline v3.3 확정</span>
+    </div>
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-card-label">서비스 루트</div>
+        <div class="summary-card-num">6</div>
+        <div class="summary-card-note">프로젝트 선택 전 화면 · 사이드바 外</div>
+      </div>
+      <div class="summary-card highlight">
+        <div class="summary-card-label">프로젝트 내부 (A~G)</div>
+        <div class="summary-card-num" style="color:#8B7FF8">58</div>
+        <div class="summary-card-note">App Shell 내 Left Navigation</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-label">전체 합계</div>
+        <div class="summary-card-num">64</div>
+        <div class="summary-card-note">IA Baseline v3.3 기준</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-label">v3.2 대비 증가</div>
+        <div class="summary-card-num" style="color:#46C97D">+4</div>
+        <div class="summary-card-note">B9 · B10 · B11 · C8 신규</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="../js/stam.theme.js"></script>
+<script src="../js/stam.nav-data.js"></script>
+<script src="../js/stam.shell.js"></script>
+<script>
+  STAM.shell.renderRootCards(document.getElementById('rootGrid'));
+  STAM.shell.renderMenuTable(document.getElementById('menuTableBody'));
+  STAM.shell.renderSidebar(document.getElementById('previewSidebar'), 'A1');
+</script>
+
+</body>
+</html>

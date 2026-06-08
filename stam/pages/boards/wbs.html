@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WBS 작업 — 파르나스 리뉴얼 구축 — STAM</title>
+  <link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+  <link rel="stylesheet" href="../../css/stam.tokens.css">
+  <link rel="stylesheet" href="../../css/stam.shell.css">
+  <link rel="stylesheet" href="../../css/stam.components.css">
+  <link rel="stylesheet" href="../../css/stam.tables.css">
+  <link rel="stylesheet" href="../../css/stam.project-overview.css">
+  <link rel="stylesheet" href="../../css/stam.wbs.css">
+</head>
+<body>
+
+<div class="po-shell" id="po-shell">
+
+  <!-- topbar-render.js가 data-stam-topbar 컨테이너 전체를 렌더링합니다 -->
+  <header class="po-topbar" data-stam-topbar
+    data-tb-crumbs="내 프로젝트|파르나스 리뉴얼 구축|WBS 작업"
+    data-tb-client="파르나스호텔"></header>
+
+  <!-- ============================================ Body -->
+  <div class="po-body">
+
+    <!-- -------- Left Navigation -------- -->
+    <!-- nav-render.js가 data-stam-left-nav 컨테이너 전체를 렌더링합니다 -->
+    <nav class="po-sidebar" data-stam-left-nav aria-label="프로젝트 내비게이션"></nav>
+
+    <!-- -------- Main Content -------- -->
+    <main class="po-main" id="po-main" data-screen-label="WBS 작업">
+
+      <!-- Focus view exit bar -->
+      <div class="wbs-focus-exit-bar">
+        <span>Focus View 활성화 — 좌측 메뉴 숨김 상태</span>
+        <button class="wbs-btn" data-focus-exit type="button">← 돌아가기</button>
+      </div>
+
+      <!-- Project Context Header -->
+      <div class="po-ctx">
+        <div class="po-ctx-left">
+          <div class="po-ctx-title">파르나스 리뉴얼 구축</div>
+          <div class="po-ctx-meta">
+            <span class="po-ctx-chip">파르나스호텔</span>
+            <span class="po-ctx-chip po-chip-stage">설계 단계</span>
+            <span class="po-ctx-chip po-chip-active">진행중</span>
+            <span class="po-ctx-chip">Project Admin / PM</span>
+            <span class="po-ctx-date">기준일 2026-06-07</span>
+          </div>
+        </div>
+        <div class="po-ctx-right">
+          <div class="po-ctx-prog-wrap">
+            <div class="po-ctx-prog-top">
+              <span class="po-ctx-prog-label">전체 진행률</span>
+              <span class="po-ctx-prog-val">42%</span>
+            </div>
+            <div class="po-ctx-prog-bar"><div class="po-ctx-prog-fill" style="width:42%"></div></div>
+          </div>
+          <div class="po-ctx-risk">
+            <span class="po-ctx-risk-dot warn-dot"></span>
+            위험도 <strong>주의</strong>
+          </div>
+          <div class="po-ctx-updated">업데이트 오늘 10:42</div>
+        </div>
+      </div>
+
+      <!-- ======================================== WBS Content -->
+      <div class="wbs-wrap">
+
+        <!-- WBS 상단 영역: Page Header / KPI / Gantt / Filter / View Controls -->
+        <div class="wbs-board-head">
+
+        <!-- Page Header -->
+        <div class="wbs-page-head">
+          <div class="wbs-page-head-left">
+            <div class="wbs-page-title">WBS 작업</div>
+            <div class="wbs-page-desc">메뉴/기능 단위 작업, 일정, 담당자, 상태, 산출물 연결을 관리하는 실행 중심 목록</div>
+          </div>
+          <div class="wbs-page-actions">
+            <button class="wbs-btn wbs-btn-primary" id="wbs-reg-btn" type="button">+ 작업 등록</button>
+            <button class="wbs-btn" type="button">Excel 가져오기</button>
+            <button class="wbs-btn" type="button">내보내기</button>
+            <button class="wbs-btn" type="button" data-focus-toggle>Focus View</button>
+          </div>
+        </div>
+
+        <!-- KPI Strip -->
+        <div class="wbs-kpi-strip">
+          <div class="wbs-kpi-card kc-brand">
+            <div class="wbs-kpi-num">17</div>
+            <div class="wbs-kpi-lbl">전체 작업</div>
+            <div class="wbs-kpi-sub">6개 기능그룹</div>
+          </div>
+          <div class="wbs-kpi-card kc-info">
+            <div class="wbs-kpi-num">2</div>
+            <div class="wbs-kpi-lbl">진행중</div>
+            <div class="wbs-kpi-sub">WBS-007, WBS-008</div>
+          </div>
+          <div class="wbs-kpi-card kc-pass">
+            <div class="wbs-kpi-num">6</div>
+            <div class="wbs-kpi-lbl">완료</div>
+            <div class="wbs-kpi-sub">35.3% 달성</div>
+          </div>
+          <div class="wbs-kpi-card kc-fail">
+            <div class="wbs-kpi-num">1</div>
+            <div class="wbs-kpi-lbl">지연</div>
+            <div class="wbs-kpi-sub">WBS-007 계획일 초과</div>
+          </div>
+          <div class="wbs-kpi-card kc-warn">
+            <div class="wbs-kpi-num">2</div>
+            <div class="wbs-kpi-lbl">이번 주 마감</div>
+            <div class="wbs-kpi-sub">06-05 ~ 06-11 기준</div>
+          </div>
+        </div>
+
+        <!-- ======================================== Gantt Timeline Section -->
+        <section class="wbs-gantt-section" data-open="true" aria-label="일정 요약 타임라인">
+
+          <!-- 헤더 (접기 토글) -->
+          <div class="wbs-gantt-head">
+            <button class="wbs-gantt-toggle" type="button" aria-label="접기 펼치기"><svg class="wbs-chevron-icon" viewBox="0 0 16 16" fill="none" width="12" height="12" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <span class="wbs-gantt-title">일정 요약 타임라인</span>
+            <span class="wbs-gantt-meta">2026-05-01 ~ 2026-07-31 · 91일 · 17건 · 읽기 전용</span>
+          </div>
+
+          <!-- 접이식 본문 -->
+          <div class="wbs-gantt-body">
+
+            <!-- Summary 6칸 -->
+            <div class="wbs-gsum">
+              <div class="wbs-gsum-cell">
+                <div class="wbs-gsum-label">전체 기간</div>
+                <div class="wbs-gsum-val">91<small>일</small></div>
+              </div>
+              <div class="wbs-gsum-cell">
+                <div class="wbs-gsum-label">전체 작업</div>
+                <div class="wbs-gsum-val">17<small>건</small></div>
+              </div>
+              <div class="wbs-gsum-cell gc-info">
+                <div class="wbs-gsum-label">진행중</div>
+                <div class="wbs-gsum-val">2<small>건</small></div>
+              </div>
+              <div class="wbs-gsum-cell gc-fail">
+                <div class="wbs-gsum-label">지연</div>
+                <div class="wbs-gsum-val">1<small>건</small></div>
+              </div>
+              <div class="wbs-gsum-cell gc-warn">
+                <div class="wbs-gsum-label">이번 주 완료 예정</div>
+                <div class="wbs-gsum-val">2<small>건</small></div>
+              </div>
+              <div class="wbs-gsum-cell gc-pass">
+                <div class="wbs-gsum-label">완료율</div>
+                <div class="wbs-gsum-val">35<small>%</small></div>
+                <div class="wbs-gsum-prog"><i style="width:35%"></i></div>
+              </div>
+            </div>
+
+            <!-- Timeline Grid (PC) -->
+            <div class="wbs-gtl-wrap">
+              <div class="wbs-gtl">
+
+                <!-- 월 헤더 -->
+                <div class="wbs-gtl-month-row">
+                  <div class="wbs-gtl-lhdr">기능그룹</div>
+                  <div class="wbs-gtl-mtrack">
+                    <div class="wbs-gtl-mcell">5월 (May)</div>
+                    <div class="wbs-gtl-mcell">6월 (Jun)</div>
+                    <div class="wbs-gtl-mcell">7월 (Jul)</div>
+                  </div>
+                </div>
+
+                <!-- 주차 헤더 -->
+                <div class="wbs-gtl-week-row">
+                  <div class="wbs-gtl-lhdr" style="font-size:9px">기간 · 건수 · 상태</div>
+                  <div class="wbs-gtl-wtrack">
+                    <div class="wbs-gtl-wcell">W1</div>
+                    <div class="wbs-gtl-wcell">W2</div>
+                    <div class="wbs-gtl-wcell">W3</div>
+                    <div class="wbs-gtl-wcell">W4</div>
+                    <div class="wbs-gtl-wcell">W5</div>
+                    <div class="wbs-gtl-wcell wc-today">W6 今</div>
+                    <div class="wbs-gtl-wcell">W7</div>
+                    <div class="wbs-gtl-wcell">W8</div>
+                    <div class="wbs-gtl-wcell">W9</div>
+                    <div class="wbs-gtl-wcell">W10</div>
+                    <div class="wbs-gtl-wcell">W11</div>
+                    <div class="wbs-gtl-wcell">W12</div>
+                    <div class="wbs-gtl-wcell">W13</div>
+                  </div>
+                </div>
+
+                <!-- Group: 기준본/IA → 05-01~05-20 left:0% width:21% done:100% -->
+                <div class="wbs-gtl-row">
+                  <div class="wbs-gtl-label">
+                    <span class="wbs-gtl-gname">기준본/IA</span>
+                    <span class="wbs-gtl-gmeta">05-01 ~ 05-20 · 2건 · 완료</span>
+                  </div>
+                  <div class="wbs-gtl-track">
+                    <div class="wbs-gtl-today" style="left:41%"></div>
+                    <div class="wbs-gtl-bar gb-done" style="left:0%;width:21%" aria-label="기준본/IA 완료 100%">
+                      <div class="wbs-gtl-fill" style="width:100%"></div>
+                      <span class="wbs-gtl-blab">완료 100%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Group: App Shell/Navigation → 05-10~06-05 left:10% width:28% done:100% -->
+                <div class="wbs-gtl-row">
+                  <div class="wbs-gtl-label">
+                    <span class="wbs-gtl-gname">App Shell/Navigation</span>
+                    <span class="wbs-gtl-gmeta">05-10 ~ 06-05 · 3건 · 완료</span>
+                  </div>
+                  <div class="wbs-gtl-track">
+                    <div class="wbs-gtl-today" style="left:41%"></div>
+                    <div class="wbs-gtl-bar gb-done" style="left:10%;width:28%" aria-label="App Shell Navigation 완료 100%">
+                      <div class="wbs-gtl-fill" style="width:100%"></div>
+                      <span class="wbs-gtl-blab">완료 100%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Group: WBS 화면 → 05-28~06-25 left:30% width:31% prog:52% delay -->
+                <div class="wbs-gtl-row">
+                  <div class="wbs-gtl-label">
+                    <span class="wbs-gtl-gname">WBS 화면</span>
+                    <span class="wbs-gtl-gmeta">05-28 ~ 06-25 · 4건 · 지연</span>
+                  </div>
+                  <div class="wbs-gtl-track">
+                    <div class="wbs-gtl-today" style="left:41%"></div>
+                    <div class="wbs-gtl-bar gb-delay" style="left:30%;width:31%" aria-label="WBS 화면 지연 52%">
+                      <div class="wbs-gtl-fill" style="width:52%"></div>
+                      <span class="wbs-gtl-blab">52% ⚠ 지연</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Group: 산출물 게시판 → 06-10~07-10 left:44% width:33% wait:0% -->
+                <div class="wbs-gtl-row">
+                  <div class="wbs-gtl-label">
+                    <span class="wbs-gtl-gname">산출물 게시판</span>
+                    <span class="wbs-gtl-gmeta">06-10 ~ 07-10 · 3건 · 대기</span>
+                  </div>
+                  <div class="wbs-gtl-track">
+                    <div class="wbs-gtl-today" style="left:41%"></div>
+                    <div class="wbs-gtl-bar gb-wait" style="left:44%;width:33%" aria-label="산출물 게시판 대기 0%">
+                      <div class="wbs-gtl-fill" style="width:0%"></div>
+                      <span class="wbs-gtl-blab">대기 0%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Group: 테스트/검수 → 06-20~07-25 left:55% width:38% wait:0% -->
+                <div class="wbs-gtl-row">
+                  <div class="wbs-gtl-label">
+                    <span class="wbs-gtl-gname">테스트/검수</span>
+                    <span class="wbs-gtl-gmeta">06-20 ~ 07-25 · 3건 · 대기</span>
+                  </div>
+                  <div class="wbs-gtl-track">
+                    <div class="wbs-gtl-today" style="left:41%"></div>
+                    <div class="wbs-gtl-bar gb-wait" style="left:55%;width:38%" aria-label="테스트 검수 대기 0%">
+                      <div class="wbs-gtl-fill" style="width:0%"></div>
+                      <span class="wbs-gtl-blab">대기 0%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Group: 오픈 준비 → 07-15~07-31 left:82% width:17% hold -->
+                <div class="wbs-gtl-row">
+                  <div class="wbs-gtl-label">
+                    <span class="wbs-gtl-gname">오픈 준비</span>
+                    <span class="wbs-gtl-gmeta">07-15 ~ 07-31 · 2건 · 보류</span>
+                  </div>
+                  <div class="wbs-gtl-track">
+                    <div class="wbs-gtl-today" style="left:41%"></div>
+                    <div class="wbs-gtl-bar gb-hold" style="left:82%;width:17%" aria-label="오픈 준비 보류">
+                      <span class="wbs-gtl-blab">보류 · 일정 미정</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div><!-- /.wbs-gtl -->
+            </div><!-- /.wbs-gtl-wrap -->
+
+            <!-- 상태 범례 -->
+            <div class="wbs-legend">
+              <span class="wbs-legend-lbl">상태</span>
+              <span class="wbs-lg-item"><span class="wbs-lg-sw lg-wait"></span>대기</span>
+              <span class="wbs-lg-item"><span class="wbs-lg-sw lg-prog"></span>진행중</span>
+              <span class="wbs-lg-item"><span class="wbs-lg-sw lg-done"></span>완료</span>
+              <span class="wbs-lg-item"><span class="wbs-lg-sw lg-delay"></span>지연</span>
+              <span class="wbs-lg-item"><span class="wbs-lg-sw lg-hold"></span>보류/일정 미정</span>
+              <span class="wbs-lg-item"><span class="wbs-lg-sw lg-today"></span>오늘선</span>
+            </div>
+
+            <!-- 모바일 축약 -->
+            <div class="wbs-gantt-mobile">
+              <div class="wbs-m-card">
+                <div class="wbs-m-card-title">이번 주 핵심</div>
+                <div class="wbs-m-stat-row">
+                  <span>⚠ 지연 <strong>1건</strong></span>
+                  <span>✓ 완료예정 <strong>2건</strong></span>
+                  <span>전체 진행률 <strong>35%</strong></span>
+                  <span>주의 그룹: <strong>WBS 화면</strong></span>
+                </div>
+              </div>
+              <div class="wbs-m-card">
+                <div class="wbs-m-grp">
+                  <span class="wbs-m-grp-name">기준본/IA</span>
+                  <div class="wbs-m-bar-track"><div class="wbs-m-bar-fill" style="width:100%;background:var(--pass)"></div></div>
+                  <span class="wbs-m-pct">100%</span>
+                </div>
+                <div class="wbs-m-grp">
+                  <span class="wbs-m-grp-name">App Shell/Nav</span>
+                  <div class="wbs-m-bar-track"><div class="wbs-m-bar-fill" style="width:100%;background:var(--pass)"></div></div>
+                  <span class="wbs-m-pct">100%</span>
+                </div>
+                <div class="wbs-m-grp">
+                  <span class="wbs-m-grp-name">WBS 화면</span>
+                  <div class="wbs-m-bar-track"><div class="wbs-m-bar-fill" style="width:52%;background:var(--fail)"></div></div>
+                  <span class="wbs-m-pct">52% ⚠</span>
+                </div>
+                <div class="wbs-m-grp">
+                  <span class="wbs-m-grp-name">산출물 게시판</span>
+                  <div class="wbs-m-bar-track"><div class="wbs-m-bar-fill" style="width:0%"></div></div>
+                  <span class="wbs-m-pct">0%</span>
+                </div>
+                <div class="wbs-m-grp">
+                  <span class="wbs-m-grp-name">테스트/검수</span>
+                  <div class="wbs-m-bar-track"><div class="wbs-m-bar-fill" style="width:0%"></div></div>
+                  <span class="wbs-m-pct">0%</span>
+                </div>
+                <div class="wbs-m-grp">
+                  <span class="wbs-m-grp-name">오픈 준비</span>
+                  <div class="wbs-m-bar-track"><div class="wbs-m-bar-fill" style="width:0%;background:var(--warn)"></div></div>
+                  <span class="wbs-m-pct">보류</span>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /.wbs-gantt-body -->
+        </section><!-- /.wbs-gantt-section -->
+
+        <!-- Filter Bar (보기 컨트롤 통합) + 섹션형 필터 패널 -->
+        <div class="wbs-filter-wrap">
+          <div class="wbs-filter-bar">
+            <div class="wbs-search-wrap">
+              <svg class="wbs-search-icon" viewBox="0 0 14 14" fill="none">
+                <circle cx="6" cy="6" r="4" stroke="currentColor" stroke-width="1.4"></circle>
+                <path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path>
+              </svg>
+              <input type="text" class="wbs-search-input" placeholder="작업명 검색" autocomplete="off">
+            </div>
+            <button class="wbs-filter-open-btn" id="wbs-filter-open-btn" type="button" title="필터 패널 열기">
+              <svg class="wbs-filter-open-icon" viewBox="0 0 16 16" fill="none">
+                <path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+              </svg>
+              필터
+              <span class="wbs-filter-count-badge" id="wbs-filter-count-badge">0</span>
+            </button>
+            <div class="wbs-filter-divider"></div>
+            <button class="wbs-btn wbs-btn-delete" id="wbs-delete-btn" type="button" disabled aria-label="선택 항목 삭제">삭제</button>
+            <button class="wbs-btn" type="button" id="wbs-gantt-ctrl-btn">Gantt 접기</button>
+            <button class="wbs-btn" type="button" id="wbs-all-grp-btn">그룹 전체 접기</button>
+            <button class="wbs-btn" type="button">컬럼 설정</button>
+            <button class="wbs-btn" type="button" data-focus-toggle>Focus View</button>
+            <button class="wbs-filter-reset" type="button" style="margin-left:auto">초기화</button>
+            <div class="wbs-filter-divider"></div>
+            <button class="wbs-toggle-btn" id="wbs-my-btn" type="button" title="내 담당 작업만 보기">내 담당</button>
+            <button class="wbs-toggle-btn wbs-toggle-risk" id="wbs-risk-btn" type="button" title="지연·리스크·이슈 작업만 보기">리스크</button>
+          </div>
+
+          <!-- ====== 섹션형 필터 패널 ====== -->
+          <div class="wbs-filter-panel" id="wbs-filter-panel" data-open="false" role="dialog" aria-label="필터 패널">
+
+            <div class="wbs-fp-head">
+              <svg class="wbs-fp-head-icon" viewBox="0 0 16 16" fill="none">
+                <path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+              </svg>
+              <span class="wbs-fp-head-title">필터</span>
+              <button class="wbs-fp-head-reset" id="wbs-fp-reset-top" type="button">초기화</button>
+            </div>
+
+            <div class="wbs-fp-body">
+
+              <div class="wbs-fp-sec">
+                <div class="wbs-fp-sec-title">진행상태</div>
+                <div class="wbs-fp-chips">
+                  <button class="wbs-fp-chip" type="button" data-fp-group="status" data-fp-val="wait"><span class="wbs-fp-dot d-wait"></span>대기</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="status" data-fp-val="prog"><span class="wbs-fp-dot d-prog"></span>진행중</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="status" data-fp-val="review"><span class="wbs-fp-dot d-warn"></span>검토중</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="status" data-fp-val="done"><span class="wbs-fp-dot d-done"></span>완료</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="status" data-fp-val="hold"><span class="wbs-fp-dot d-hold"></span>보류</button>
+                </div>
+              </div>
+
+              <div class="wbs-fp-sec">
+                <div class="wbs-fp-sec-title">기간판정</div>
+                <div class="wbs-fp-chips">
+                  <button class="wbs-fp-chip" type="button" data-fp-group="period" data-fp-val="notstarted">미착수</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="period" data-fp-val="normal"><span class="wbs-fp-dot d-done"></span>정상</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="period" data-fp-val="inprog"><span class="wbs-fp-dot d-prog"></span>진행중</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="period" data-fp-val="delayrisk"><span class="wbs-fp-dot d-warn"></span>지연위험</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="period" data-fp-val="overdue"><span class="wbs-fp-dot d-delay"></span>기간초과</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="period" data-fp-val="early"><span class="wbs-fp-dot d-done"></span>조기완료</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="period" data-fp-val="checkdate">날짜확인</button>
+                </div>
+              </div>
+
+              <div class="wbs-fp-sec">
+                <div class="wbs-fp-sec-title">우선순위</div>
+                <div class="wbs-fp-chips">
+                  <button class="wbs-fp-chip" type="button" data-fp-group="prio" data-fp-val="high"><span class="wbs-fp-dot d-high"></span>높음</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="prio" data-fp-val="mid"><span class="wbs-fp-dot d-mid"></span>보통</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="prio" data-fp-val="low"><span class="wbs-fp-dot d-low"></span>낮음</button>
+                </div>
+              </div>
+
+              <div class="wbs-fp-sec">
+                <div class="wbs-fp-sec-title">기능그룹</div>
+                <div class="wbs-fp-chips">
+                  <button class="wbs-fp-chip" type="button" data-fp-group="group" data-fp-val="signup">회원가입</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="group" data-fp-val="mypage">마이페이지</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="group" data-fp-val="product">상품</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="group" data-fp-val="order">주문/결제</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="group" data-fp-val="admin">관리자</button>
+                </div>
+              </div>
+
+              <div class="wbs-fp-sec">
+                <div class="wbs-fp-sec-title">담당자</div>
+                <div class="wbs-fp-chips">
+                  <button class="wbs-fp-chip" type="button" data-fp-group="assignee" data-fp-val="lee"><span class="wbs-fp-chip-av">이</span>이서연</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="assignee" data-fp-val="kim"><span class="wbs-fp-chip-av">김</span>김기획</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="assignee" data-fp-val="park"><span class="wbs-fp-chip-av">박</span>박PM</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="assignee" data-fp-val="choi"><span class="wbs-fp-chip-av">최</span>최개발</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="assignee" data-fp-val="jung"><span class="wbs-fp-chip-av">정</span>정디자인</button>
+                </div>
+              </div>
+
+              <div class="wbs-fp-sec">
+                <div class="wbs-fp-sec-title">승인상태</div>
+                <div class="wbs-fp-chips">
+                  <button class="wbs-fp-chip" type="button" data-fp-group="approval" data-fp-val="none">미요청</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="approval" data-fp-val="pending"><span class="wbs-fp-dot d-wait"></span>검토 대기</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="approval" data-fp-val="reviewing"><span class="wbs-fp-dot d-prog"></span>고객검토 중</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="approval" data-fp-val="approved"><span class="wbs-fp-dot d-done"></span>승인 완료</button>
+                  <button class="wbs-fp-chip" type="button" data-fp-group="approval" data-fp-val="rejected"><span class="wbs-fp-dot d-delay"></span>반려됨</button>
+                </div>
+              </div>
+
+            </div><!-- /.wbs-fp-body -->
+
+            <div class="wbs-fp-foot">
+              <span class="wbs-fp-foot-info" id="wbs-fp-foot-info">조건 0개 · 결과 17건</span>
+              <button class="wbs-fp-clear" id="wbs-fp-clear" type="button">전체 해제</button>
+              <button class="wbs-fp-apply" id="wbs-fp-apply" type="button">적용</button>
+            </div>
+
+          </div><!-- /.wbs-filter-panel -->
+        </div><!-- /.wbs-filter-wrap -->
+        <div class="wbs-fp-backdrop" id="wbs-fp-backdrop"></div>
+
+        </div><!-- /.wbs-board-head -->
+
+        <!-- ======================================== 전체보기 인라인 패널 -->
+        <div class="wbs-fv-inline" id="wbs-fv-inline" data-open="false">
+          <div class="wbs-fv-head">
+            <div class="wbs-fv-head-left">
+              <div class="wbs-fv-head-top">
+                <span class="wbs-drawer-wid" id="wbs-fv-wid">WBS-007</span>
+                <span class="wbs-fv-mode-tag" id="wbs-fv-mode-tag">전체보기 · 상세</span>
+              </div>
+              <div class="wbs-fv-title" id="wbs-fv-title">WBS 목록 화면 기준 설계</div>
+              <div class="wbs-fv-meta" id="wbs-fv-meta">
+                <span class="wbs-chip wc-delay">지연</span>
+                <span class="wbs-prio wp-high"><span class="wbs-prio-dot"></span>높음</span>
+                <span class="wbs-type-chip">설계</span>
+              </div>
+            </div>
+            <div class="wbs-fv-head-actions">
+              <button class="wbs-btn wbs-btn-primary" id="wbs-fv-edit-trigger" type="button">수정</button>
+              <button class="wbs-btn" id="wbs-fv-back-btn" type="button">← 목록으로</button>
+              <button class="wbs-drawer-close" id="wbs-fv-x-btn" type="button" aria-label="닫기">✕</button>
+            </div>
+          </div>
+          <div class="wbs-fv-body" id="wbs-fv-body"></div>
+          <div class="wbs-fv-foot" id="wbs-fv-foot">
+            <button class="wbs-btn" id="wbs-fv-foot-back" type="button">← 목록으로 돌아가기</button>
+          </div>
+        </div><!-- /.wbs-fv-inline -->
+
+        <!-- WBS Table Zone — 독립 viewport: 세로/가로 스크롤 책임 -->
+        <div class="wbs-table-zone">
+
+        <!-- ======================================== WBS Table -->
+        <div class="wbs-tbl-wrap">
+          <div class="wbs-tbl-inner" id="wbs-tbl-inner">
+            <table class="wbs-table">
+              <thead>
+                <tr>
+                  <th class="wbs-th-chk"><input type="checkbox" class="wbs-chk wbs-chk-all" id="wbs-chk-all" title="전체 선택"></th>
+                  <th class="wbs-col-area     is-focus-col">업무영역</th>
+                  <th class="wbs-col-grp col-d">기능그룹</th>
+                  <th class="wbs-col-id       is-shared-col">WBS ID</th>
+                  <th class="wbs-col-menu     is-shared-col">메뉴/화면</th>
+                  <th class="wbs-col-task     is-shared-col">작업명</th>
+                  <th class="wbs-col-type     is-shared-col">단계</th>
+                  <th class="wbs-col-assign   is-shared-col">담당자</th>
+                  <th class="wbs-col-reviewer is-focus-col">검토자</th>
+                  <th class="wbs-col-status   is-shared-col">진행상태</th>
+                  <th class="wbs-col-prio     is-shared-col">우선순위</th>
+                  <th class="wbs-col-period is-shared-col">기간</th>
+                  <th class="wbs-col-start col-d">시작일</th>
+                  <th class="wbs-col-end col-d">종료일</th>
+                  <th class="wbs-col-effort   is-focus-col">예상공수</th>
+                  <th class="wbs-col-actual   is-focus-col">실공수</th>
+                  <th class="wbs-col-verdict  is-focus-col">기간판정</th>
+                  <th class="wbs-col-req      is-shared-col">관련 요구사항</th>
+                  <th class="wbs-col-scr      is-shared-col">관련 화면설계</th>
+                  <th class="wbs-col-meeting  is-focus-col">관련 회의록</th>
+                  <th class="wbs-col-appr     is-shared-col">승인상태</th>
+                  <th class="wbs-col-risk     is-shared-col">리스크</th>
+                </tr>
+              </thead>
+              <!-- ===== Group: 기준본/IA ===== -->
+              <tbody class="wbs-grp-hdr-body">
+                <tr>
+                  <td colspan="22">
+                    <div class="wbs-grp-hdr-inner">
+                      <button class="wbs-grp-toggle-btn" data-grp="ia" type="button" title="접기"><svg class="wbs-chevron-icon" viewBox="0 0 16 16" fill="none" width="12" height="12" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                      <span class="wbs-grp-ico" style="background:var(--g-a-bg);color:var(--g-a)">분석</span>
+                      <span class="wbs-grp-name">기준본/IA</span>
+                      <span class="wbs-grp-stats"><span class="wbs-grp-stat-txt">2건</span><span class="wbs-chip wc-done sm">완료 2</span></span>
+                      <div class="wbs-grp-progress">
+                        <div class="wbs-grp-prog-bar"><div class="wbs-grp-prog-fill done" style="width:100%"></div></div>
+                        <span class="wbs-grp-prog-pct">100%</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody class="wbs-grp-rows" data-grp="ia">
+                <tr class="wbs-data-row" data-wbs-id="WBS-001">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">기획/IA</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">기준본/IA</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-001</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">기준본/IA</span></td>
+                  <td class="wbs-col-task is-shared-col" title="프로젝트 기준본 정리">프로젝트 기준본 정리</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">분석</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot">이</span>이서연</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-avatar"><span class="wbs-av-dot">박</span>박PM</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-done">완료</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-high"><span class="wbs-prio-dot"></span>높음</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">05-01 ~ 05-10</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-05-01</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-05-10</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">10일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">9일</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-chip wc-done">정상</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-link-chip">킥오프</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-chip wc-done sm">승인</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-muted">—</span></td>
+                </tr>
+                <tr class="wbs-data-row" data-wbs-id="WBS-002">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">기획/IA</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">기준본/IA</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-002</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">기준본/IA</span></td>
+                  <td class="wbs-col-task is-shared-col" title="IA 구조 확정 및 메뉴 기준 수립">IA 구조 확정 및 메뉴 기준 수립</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">분석</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot">이</span>이서연</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-avatar"><span class="wbs-av-dot">박</span>박PM</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-done">완료</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-high"><span class="wbs-prio-dot"></span>높음</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">05-05 ~ 05-20</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-05-05</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-05-20</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">15일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">14일</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-chip wc-done">정상</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-link-chip">킥오프</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-chip wc-done sm">승인</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-muted">—</span></td>
+                </tr>
+              </tbody>
+              <!-- ===== Group: App Shell/Navigation ===== -->
+              <tbody class="wbs-grp-hdr-body">
+                <tr>
+                  <td colspan="22">
+                    <div class="wbs-grp-hdr-inner">
+                      <button class="wbs-grp-toggle-btn" data-grp="shell" type="button" title="접기"><svg class="wbs-chevron-icon" viewBox="0 0 16 16" fill="none" width="12" height="12" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                      <span class="wbs-grp-ico" style="background:var(--g-b-bg);color:var(--g-b);font-size:9px">설계</span>
+                      <span class="wbs-grp-name">App Shell/Navigation</span>
+                      <span class="wbs-grp-stats"><span class="wbs-grp-stat-txt">3건</span><span class="wbs-chip wc-done sm">완료 3</span></span>
+                      <div class="wbs-grp-progress">
+                        <div class="wbs-grp-prog-bar"><div class="wbs-grp-prog-fill done" style="width:100%"></div></div>
+                        <span class="wbs-grp-prog-pct">100%</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody class="wbs-grp-rows" data-grp="shell">
+                <tr class="wbs-data-row" data-wbs-id="WBS-003">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">UI/UX</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">App Shell</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-003</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">App Shell</span></td>
+                  <td class="wbs-col-task is-shared-col" title="App Shell 레이아웃 설계">App Shell 레이아웃 설계</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">설계</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot ai">클</span>클로드</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-avatar"><span class="wbs-av-dot">박</span>박PM</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-done">완료</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-high"><span class="wbs-prio-dot"></span>높음</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">05-10 ~ 05-22</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-05-10</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-05-22</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">12일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">12일</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-chip wc-done">정상</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-chip wc-done sm">승인</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-muted">—</span></td>
+                </tr>
+                <tr class="wbs-data-row" data-wbs-id="WBS-004">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">UI/UX</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">App Shell</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-004</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">Navigation</span></td>
+                  <td class="wbs-col-task is-shared-col" title="Left Navigation 기준 고정">Left Navigation 기준 고정</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">설계</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot ai">클</span>클로드</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-avatar"><span class="wbs-av-dot">박</span>박PM</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-done">완료</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-high"><span class="wbs-prio-dot"></span>높음</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">05-15 ~ 05-28</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-05-15</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-05-28</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">13일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">13일</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-chip wc-done">정상</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-chip wc-done sm">승인</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-muted">—</span></td>
+                </tr>
+                <tr class="wbs-data-row" data-wbs-id="WBS-005">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">UI/UX</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">App Shell</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-005</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">Navigation</span></td>
+                  <td class="wbs-col-task is-shared-col" title="Light/Dark 스크롤바 기준 통일">Light/Dark 스크롤바 기준 통일</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">설계</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot ai">클</span>클로드</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-avatar"><span class="wbs-av-dot">박</span>박PM</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-done">완료</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-mid"><span class="wbs-prio-dot"></span>보통</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">05-28 ~ 06-05</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-05-28</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-06-05</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">8일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">8일</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-chip wc-done">정상</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-chip wc-done sm">승인</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-muted">—</span></td>
+                </tr>
+              </tbody>
+              <!-- ===== Group: WBS 화면 ===== -->
+              <tbody class="wbs-grp-hdr-body">
+                <tr>
+                  <td colspan="22">
+                    <div class="wbs-grp-hdr-inner">
+                      <button class="wbs-grp-toggle-btn" data-grp="wbs-scr" type="button" title="접기"><svg class="wbs-chevron-icon" viewBox="0 0 16 16" fill="none" width="12" height="12" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                      <span class="wbs-grp-ico" style="background:var(--fail-bg);color:var(--fail);font-size:8.5px">구현</span>
+                      <span class="wbs-grp-name">WBS 화면</span>
+                      <span class="wbs-grp-stats"><span class="wbs-grp-stat-txt">4건</span><span class="wbs-chip wc-done sm">완료 1</span><span class="wbs-chip wc-prog sm">진행 2</span><span class="wbs-chip wc-delay sm">지연 1</span></span>
+                      <div class="wbs-grp-progress">
+                        <div class="wbs-grp-prog-bar"><div class="wbs-grp-prog-fill delay" style="width:52%"></div></div>
+                        <span class="wbs-grp-prog-pct">52%</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody class="wbs-grp-rows" data-grp="wbs-scr">
+                <tr class="wbs-data-row" data-wbs-id="WBS-006">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">UI/UX</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">WBS 화면</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-006</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">WBS 화면</span></td>
+                  <td class="wbs-col-task is-shared-col" title="UI Baseline Guide 작성">UI Baseline Guide 작성</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">설계</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot ai">클</span>클로드</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-avatar"><span class="wbs-av-dot">박</span>박PM</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-done">완료</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-high"><span class="wbs-prio-dot"></span>높음</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">05-25 ~ 06-07</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-05-25</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-06-07</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">13일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">13일</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-chip wc-done">정상</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-link-chip">guide</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-chip wc-done sm">승인</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-muted">—</span></td>
+                </tr>
+                <tr class="wbs-data-row" data-wbs-id="WBS-007">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">UI/UX</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">WBS 화면</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-007</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">WBS 화면</span></td>
+                  <td class="wbs-col-task is-shared-col" title="WBS 목록 화면 기준 설계">WBS 목록 화면 기준 설계</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">설계</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot ai">클</span>클로드</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-avatar"><span class="wbs-av-dot">이</span>이서연</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-delay">지연</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-high"><span class="wbs-prio-dot"></span>높음</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period period-late">06-01 ~ 06-05</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-06-01</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date late">2026-06-05</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">4일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">—</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-chip wc-delay">지연</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-link-chip">wbs</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-link-chip">주간보고</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-chip wc-wait sm">검토대기</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-risk-dot risk-high" title="일정 초과 이슈"></span></td>
+                </tr>
+                <tr class="wbs-data-row" data-wbs-id="WBS-008">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">UI/UX</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">WBS 화면</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-008</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">WBS 화면</span></td>
+                  <td class="wbs-col-task is-shared-col" title="Gantt Timeline Preview 구성">Gantt Timeline Preview 구성</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">설계</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot ai">클</span>클로드</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-avatar"><span class="wbs-av-dot">이</span>이서연</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-prog">진행중</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-high"><span class="wbs-prio-dot"></span>높음</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">06-05 ~ 06-25</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-06-05</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-06-25</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">20일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">—</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-chip wc-prog">진행중</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-appr-none">미요청</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-risk-dot risk-warn" title="지연 위험"></span></td>
+                </tr>
+                <tr class="wbs-data-row" data-wbs-id="WBS-009">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">UI/UX</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">WBS 화면</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-009</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">WBS 화면</span></td>
+                  <td class="wbs-col-task is-shared-col" title="WBS Drawer 상세 설계">WBS Drawer 상세 설계</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">설계</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot">이</span>이서연</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-wait">대기</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-mid"><span class="wbs-prio-dot"></span>보통</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">06-20 ~ 07-05</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-06-20</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-07-05</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">15일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">—</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-muted">미착수</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-appr-none">미요청</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-muted">—</span></td>
+                </tr>
+              </tbody>
+              <!-- ===== Group: 산출물 게시판 ===== -->
+              <tbody class="wbs-grp-hdr-body">
+                <tr>
+                  <td colspan="22">
+                    <div class="wbs-grp-hdr-inner">
+                      <button class="wbs-grp-toggle-btn" data-grp="board" type="button" title="접기"><svg class="wbs-chevron-icon" viewBox="0 0 16 16" fill="none" width="12" height="12" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                      <span class="wbs-grp-ico" style="background:var(--g-d-bg);color:var(--g-d);font-size:9px">검수</span>
+                      <span class="wbs-grp-name">산출물 게시판</span>
+                      <span class="wbs-grp-stats"><span class="wbs-grp-stat-txt">3건</span><span class="wbs-chip wc-wait sm">대기 3</span></span>
+                      <div class="wbs-grp-progress">
+                        <div class="wbs-grp-prog-bar"><div class="wbs-grp-prog-fill" style="width:0%"></div></div>
+                        <span class="wbs-grp-prog-pct">0%</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody class="wbs-grp-rows" data-grp="board">
+                <tr class="wbs-data-row" data-wbs-id="WBS-010">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">기획</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">산출물 게시판</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-010</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">산출물 게시판</span></td>
+                  <td class="wbs-col-task is-shared-col" title="요구사항정의서 목록 화면 준비">요구사항정의서 목록 화면 준비</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">분석</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot">이</span>이서연</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-wait">대기</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-mid"><span class="wbs-prio-dot"></span>보통</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">06-10 ~ 07-01</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-06-10</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-07-01</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">21일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">—</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-muted">미착수</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-appr-none">미요청</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-muted">—</span></td>
+                </tr>
+                <tr class="wbs-data-row" data-wbs-id="WBS-011">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">기획</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">산출물 게시판</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-011</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">산출물 게시판</span></td>
+                  <td class="wbs-col-task is-shared-col" title="화면설계서 목록 화면 설계">화면설계서 목록 화면 설계</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">설계</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot">이</span>이서연</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-wait">대기</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-mid"><span class="wbs-prio-dot"></span>보통</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">06-20 ~ 07-10</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-06-20</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-07-10</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">20일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">—</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-muted">미착수</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-appr-none">미요청</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-muted">—</span></td>
+                </tr>
+                <tr class="wbs-data-row" data-wbs-id="WBS-012">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">기획</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">산출물 게시판</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-012</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">산출물 게시판</span></td>
+                  <td class="wbs-col-task is-shared-col" title="공통 게시판 패턴 정의">공통 게시판 패턴 정의</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">분석</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot">이</span>이서연</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-wait">대기</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-low"><span class="wbs-prio-dot"></span>낮음</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">06-15 ~ 07-05</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-06-15</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-07-05</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">20일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">—</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-muted">미착수</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-appr-none">미요청</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-muted">—</span></td>
+                </tr>
+              </tbody>
+              <!-- ===== Group: 테스트/검수 ===== -->
+              <tbody class="wbs-grp-hdr-body">
+                <tr>
+                  <td colspan="22">
+                    <div class="wbs-grp-hdr-inner">
+                      <button class="wbs-grp-toggle-btn" data-grp="test" type="button" title="접기"><svg class="wbs-chevron-icon" viewBox="0 0 16 16" fill="none" width="12" height="12" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                      <span class="wbs-grp-ico" style="background:var(--g-e-bg);color:var(--g-e);font-size:9px">테스트</span>
+                      <span class="wbs-grp-name">테스트/검수</span>
+                      <span class="wbs-grp-stats"><span class="wbs-grp-stat-txt">3건</span><span class="wbs-chip wc-wait sm">대기 3</span></span>
+                      <div class="wbs-grp-progress">
+                        <div class="wbs-grp-prog-bar"><div class="wbs-grp-prog-fill" style="width:0%"></div></div>
+                        <span class="wbs-grp-prog-pct">0%</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody class="wbs-grp-rows" data-grp="test">
+                <tr class="wbs-data-row" data-wbs-id="WBS-013">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">QA</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">테스트/검수</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-013</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">테스트/검수</span></td>
+                  <td class="wbs-col-task is-shared-col" title="테스트케이스 목록 화면 설계">테스트케이스 목록 화면 설계</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">설계</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot">이</span>이서연</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-wait">대기</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-mid"><span class="wbs-prio-dot"></span>보통</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">06-25 ~ 07-20</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-06-25</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-07-20</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">25일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">—</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-muted">미착수</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-appr-none">미요청</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-muted">—</span></td>
+                </tr>
+                <tr class="wbs-data-row" data-wbs-id="WBS-014">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">QA</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">테스트/검수</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-014</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">테스트/검수</span></td>
+                  <td class="wbs-col-task is-shared-col" title="결함 관리 화면 설계">결함 관리 화면 설계</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">설계</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot">이</span>이서연</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-wait">대기</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-mid"><span class="wbs-prio-dot"></span>보통</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">07-01 ~ 07-25</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-07-01</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-07-25</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">24일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">—</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-muted">미착수</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-appr-none">미요청</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-muted">—</span></td>
+                </tr>
+                <tr class="wbs-data-row" data-wbs-id="WBS-015">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">QA</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">테스트/검수</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-015</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">테스트/검수</span></td>
+                  <td class="wbs-col-task is-shared-col" title="UAT 검수 시나리오 작성">UAT 검수 시나리오 작성</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">분석</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot">이</span>이서연</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-wait">대기</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-low"><span class="wbs-prio-dot"></span>낮음</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">06-20 ~ 07-20</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-06-20</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-07-20</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">30일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">—</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-muted">미착수</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-appr-none">미요청</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-muted">—</span></td>
+                </tr>
+              </tbody>
+              <!-- ===== Group: 오픈 준비 ===== -->
+              <tbody class="wbs-grp-hdr-body">
+                <tr>
+                  <td colspan="22">
+                    <div class="wbs-grp-hdr-inner">
+                      <button class="wbs-grp-toggle-btn" data-grp="open" type="button" title="접기"><svg class="wbs-chevron-icon" viewBox="0 0 16 16" fill="none" width="12" height="12" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                      <span class="wbs-grp-ico" style="background:var(--purple-bg);color:var(--purple);font-size:8.5px">오픈</span>
+                      <span class="wbs-grp-name">오픈 준비</span>
+                      <span class="wbs-grp-stats"><span class="wbs-grp-stat-txt">2건</span><span class="wbs-chip wc-hold sm">보류 2</span></span>
+                      <div class="wbs-grp-progress">
+                        <div class="wbs-grp-prog-bar"><div class="wbs-grp-prog-fill hold" style="width:0%"></div></div>
+                        <span class="wbs-grp-prog-pct">보류</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody class="wbs-grp-rows" data-grp="open">
+                <tr class="wbs-data-row" data-wbs-id="WBS-016">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">오픈</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">오픈 준비</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-016</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">오픈 준비</span></td>
+                  <td class="wbs-col-task is-shared-col" title="오픈 시나리오 작성">오픈 시나리오 작성</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">분석</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot">이</span>이서연</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-hold">보류</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-low"><span class="wbs-prio-dot"></span>낮음</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">07-15 ~ 07-31</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-07-15</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-07-31</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">16일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">—</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-chip wc-hold">보류</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-appr-none">미요청</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-muted">—</span></td>
+                </tr>
+                <tr class="wbs-data-row" data-wbs-id="WBS-017">
+                  <td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">오픈</span></td>
+                  <td class="wbs-col-grp col-d"><span class="wbs-type-chip">오픈 준비</span></td>
+                  <td class="wbs-col-id   is-shared-col"><span class="wbs-id-chip">WBS-017</span></td>
+                  <td class="wbs-col-menu is-shared-col"><span class="wbs-type-chip">오픈 준비</span></td>
+                  <td class="wbs-col-task is-shared-col" title="납품 패키지 구성">납품 패키지 구성</td>
+                  <td class="wbs-col-type is-shared-col"><span class="wbs-type-chip">분석</span></td>
+                  <td class="wbs-col-assign   is-shared-col"><span class="wbs-avatar"><span class="wbs-av-dot">이</span>이서연</span></td>
+                  <td class="wbs-col-reviewer is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-status   is-shared-col"><span class="wbs-chip wc-hold">보류</span></td>
+                  <td class="wbs-col-prio     is-shared-col"><span class="wbs-prio wp-low"><span class="wbs-prio-dot"></span>낮음</span></td>
+                  <td class="wbs-col-period is-shared-col"><span class="wbs-period">07-20 ~ 07-31</span></td>
+                  <td class="wbs-col-start col-d"><span class="wbs-date">2026-07-20</span></td>
+                  <td class="wbs-col-end col-d"><span class="wbs-date">2026-07-31</span></td>
+                  <td class="wbs-col-effort   is-focus-col"><span class="wbs-effort">11일</span></td>
+                  <td class="wbs-col-actual   is-focus-col"><span class="wbs-effort">—</span></td>
+                  <td class="wbs-col-verdict  is-focus-col"><span class="wbs-chip wc-hold">보류</span></td>
+                  <td class="wbs-col-req  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-scr  is-shared-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-meeting  is-focus-col"><span class="wbs-muted">—</span></td>
+                  <td class="wbs-col-appr is-shared-col"><span class="wbs-appr-none">미요청</span></td>
+                  <td class="wbs-col-risk is-shared-col"><span class="wbs-muted">—</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div><!-- /.wbs-tbl-inner -->
+        </div><!-- /.wbs-tbl-wrap -->
+
+        </div><!-- /.wbs-table-zone -->
+
+      </div><!-- /.wbs-wrap -->
+
+      <!-- ======================================== Drawer -->
+      <div class="wbs-drawer" id="wbs-drawer" data-open="false" role="dialog" aria-label="WBS 작업 상세">
+        <div class="wbs-drawer-overlay"></div>
+        <aside class="wbs-drawer-panel" id="wbs-drawer-panel" data-mode="detail">
+
+          <div class="wbs-drawer-head">
+            <div class="wbs-drawer-head-left">
+              <div class="wbs-drawer-head-top">
+                <span class="wbs-drawer-wid" id="wbs-dw-wid">WBS-007</span>
+                <span class="wbs-drawer-mode-badge" id="wbs-dw-mode-badge">상세</span>
+              </div>
+              <div class="wbs-drawer-title" id="wbs-dw-title">WBS 목록 화면 기준 설계</div>
+              <div class="wbs-drawer-reg-title">새 WBS 작업 등록</div>
+              <div class="wbs-drawer-meta" id="wbs-dw-meta">
+                <span class="wbs-chip wc-delay">지연</span>
+                <span class="wbs-prio wp-high"><span class="wbs-prio-dot"></span>높음</span>
+                <span class="wbs-type-chip">설계</span>
+              </div>
+              <div class="wbs-drawer-breadcrumb">
+                <span>WBS 화면</span>
+                <span class="bc-sep">›</span>
+                <span>WBS 작업 목록</span>
+              </div>
+            </div>
+            <div class="wbs-drawer-head-actions">
+              <button class="wbs-drawer-close" type="button" aria-label="닫기">✕</button>
+            </div>
+          </div>
+
+          <div class="wbs-drawer-scroll">
+          <div class="wbs-drawer-content">
+
+          <div class="wbs-drawer-body wbs-detail-body">
+
+            <!-- Summary strip -->
+            <div class="wbs-dw-summary">
+              <div class="wbs-dw-sum-item">
+                <span class="wbs-dw-sum-k">담당자</span>
+                <span class="wbs-dw-sum-v"><span class="wbs-av-dot ai" style="width:18px;height:18px;font-size:8px;flex-shrink:0">AI</span>Claude</span>
+              </div>
+              <div class="wbs-dw-sum-item">
+                <span class="wbs-dw-sum-k">검토자</span>
+                <span class="wbs-dw-sum-v"><span class="wbs-av-dot" style="width:18px;height:18px;font-size:8px;flex-shrink:0">이</span>이서연</span>
+              </div>
+              <div class="wbs-dw-sum-item">
+                <span class="wbs-dw-sum-k">기간</span>
+                <span class="wbs-dw-sum-v" style="color:var(--fail)">06-01 ~ 06-05</span>
+              </div>
+              <div class="wbs-dw-sum-item">
+                <span class="wbs-dw-sum-k">공수</span>
+                <span class="wbs-dw-sum-v">4일</span>
+              </div>
+              <div class="wbs-dw-sum-item">
+                <span class="wbs-dw-sum-k">기간판정</span>
+                <span class="wbs-dw-sum-v"><span class="wbs-chip wc-delay sm">지연</span></span>
+              </div>
+            </div>
+
+            <!-- 기본 정보 -->
+            <div class="wbs-drawer-sec">
+              <div class="wbs-drawer-sec-title">기본 정보</div>
+              <div class="wbs-dw-info-grid">
+                <div class="wbs-dw-info-cell">
+                  <div class="wbs-dw-ik">단계</div>
+                  <div class="wbs-dw-iv"><span class="wbs-type-chip">설계</span></div>
+                </div>
+                <div class="wbs-dw-info-cell">
+                  <div class="wbs-dw-ik">업무영역</div>
+                  <div class="wbs-dw-iv">UI/UX</div>
+                </div>
+                <div class="wbs-dw-info-cell">
+                  <div class="wbs-dw-ik">기능그룹</div>
+                  <div class="wbs-dw-iv">WBS 화면</div>
+                </div>
+                <div class="wbs-dw-info-cell">
+                  <div class="wbs-dw-ik">메뉴/화면</div>
+                  <div class="wbs-dw-iv">WBS 작업 목록</div>
+                </div>
+                <div class="wbs-dw-info-cell">
+                  <div class="wbs-dw-ik">우선순위</div>
+                  <div class="wbs-dw-iv"><span class="wbs-prio wp-high"><span class="wbs-prio-dot"></span>높음</span></div>
+                </div>
+                <div class="wbs-dw-info-cell">
+                  <div class="wbs-dw-ik">승인상태</div>
+                  <div class="wbs-dw-iv"><span class="wbs-chip wc-wait sm">검토 대기</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 일정 정보 -->
+            <div class="wbs-drawer-sec">
+              <div class="wbs-drawer-sec-title">일정 정보</div>
+              <div class="wbs-dw-info-grid">
+                <div class="wbs-dw-info-cell">
+                  <div class="wbs-dw-ik">시작일</div>
+                  <div class="wbs-dw-iv">2026-06-01</div>
+                </div>
+                <div class="wbs-dw-info-cell">
+                  <div class="wbs-dw-ik">종료일</div>
+                  <div class="wbs-dw-iv" style="color:var(--fail);font-weight:700">2026-06-05 <small style="color:var(--t3);font-weight:400">+2일</small></div>
+                </div>
+                <div class="wbs-dw-info-cell">
+                  <div class="wbs-dw-ik">예상공수</div>
+                  <div class="wbs-dw-iv"><b>4일</b></div>
+                </div>
+                <div class="wbs-dw-info-cell">
+                  <div class="wbs-dw-ik">실공수</div>
+                  <div class="wbs-dw-iv" style="color:var(--t3)">진행 중</div>
+                </div>
+              </div>
+              <div class="wbs-dw-prog-row">
+                <div class="wbs-prog delay" style="flex:1;max-width:none">
+                  <div class="wbs-prog-bar"><div class="wbs-prog-fill" style="width:65%"></div></div>
+                </div>
+                <span class="wbs-dw-prog-pct-label" style="color:var(--fail)">65%</span>
+              </div>
+            </div>
+
+            <!-- 연결 정보 -->
+            <div class="wbs-drawer-sec">
+              <div class="wbs-drawer-sec-title-flex">
+                <span>연결 정보</span>
+                <span class="stf-link">전체 상세 →</span>
+              </div>
+              <div class="wbs-dw-linked-empty">연결된 요구사항 없음</div>
+              <div class="wbs-dw-linked-item">
+                <span class="wbs-link-chip">wbs.html</span>
+                <span class="wbs-dw-li-name">WBS 화면 설계서</span>
+                <span class="wbs-chip wc-prog sm">진행중</span>
+              </div>
+            </div>
+
+            <!-- 작업 내용 -->
+            <div class="wbs-drawer-sec">
+              <div class="wbs-drawer-sec-title">작업 내용</div>
+              <div class="wbs-dw-desc">Gantt 구성과 동시 진행 중입니다. Drawer 구조는 WBS-009로 분리 예정. 이번 주 내 완료 목표.</div>
+            </div>
+
+            <!-- 댓글 -->
+            <div class="wbs-drawer-sec">
+              <div class="wbs-drawer-sec-title">댓글 <span style="font-size:10px;background:var(--bg-sur3);padding:1px 5px;border-radius:99px;margin-left:3px;font-weight:700;color:var(--t3)">1</span></div>
+              <div class="wbs-dw-cmt">
+                <div class="wbs-dw-cmt-av" style="background:var(--stam-soft);color:var(--stam)">이</div>
+                <div class="wbs-dw-cmt-body">
+                  <div class="wbs-dw-cmt-meta">
+                    <span class="wbs-dw-cmt-who">이서연</span>
+                    <span class="wbs-dw-cmt-time">2026-06-07 09:30</span>
+                  </div>
+                  <div class="wbs-dw-cmt-txt">Gantt 구성과 동시 진행 중입니다. 이번 주 내 완료 목표.</div>
+                </div>
+              </div>
+              <div class="wbs-dw-cmt-input-wrap">
+                <textarea class="wbs-dw-cmt-input" rows="2" placeholder="댓글을 입력하세요…"></textarea>
+                <button class="wbs-dw-cmt-send" type="button">↑</button>
+              </div>
+            </div>
+
+            <!-- 변경이력 -->
+            <div class="wbs-drawer-sec">
+              <div class="wbs-drawer-sec-title">변경이력</div>
+              <div class="wbs-dw-hist-item">
+                <div class="wbs-dw-hist-icon hi-status">↺</div>
+                <div class="wbs-dw-hist-body">
+                  <div class="wbs-dw-hist-title">상태 변경 <span class="wbs-dw-hist-from">진행중</span><span class="wbs-dw-hist-arrow"> → </span><span class="wbs-dw-hist-to">지연</span></div>
+                  <div class="wbs-dw-hist-meta">박PM · 2026-06-07</div>
+                </div>
+              </div>
+              <div class="wbs-dw-hist-item">
+                <div class="wbs-dw-hist-icon hi-edit">✎</div>
+                <div class="wbs-dw-hist-body">
+                  <div class="wbs-dw-hist-title">실제공수 업데이트 <span class="wbs-dw-hist-from">5d</span><span class="wbs-dw-hist-arrow"> → </span><span class="wbs-dw-hist-to">7d</span></div>
+                  <div class="wbs-dw-hist-meta">최개발 · 2026-06-01</div>
+                </div>
+              </div>
+              <div class="wbs-dw-hist-item">
+                <div class="wbs-dw-hist-icon hi-memo">●</div>
+                <div class="wbs-dw-hist-body">
+                  <div class="wbs-dw-hist-title">최초 등록</div>
+                  <div class="wbs-dw-hist-meta">박PM · 2026-05-28</div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /.wbs-detail-body -->
+
+          <!-- ===== BODY: 수정 폼 ===== -->
+          <div class="wbs-drawer-body wbs-edit-body">
+
+            <!-- 수정 경고 -->
+            <div class="wbs-form-alert">
+              <span class="wbs-form-alert-icon">⚠</span>
+              <div class="wbs-form-alert-body">
+                <div class="wbs-form-alert-title">진행 중인 작업을 수정합니다.</div>
+                <div class="wbs-form-alert-desc">일정 또는 담당자 변경 시 관련 팀원에게 영향을 줄 수 있습니다.</div>
+              </div>
+            </div>
+
+            <!-- 1. 기본 정보 -->
+            <div class="wbs-form-sec">
+              <div class="wbs-form-sec-head">
+                <span class="wbs-form-sec-num">1</span>
+                <span class="wbs-form-sec-label">기본 정보</span>
+              </div>
+              <div class="wbs-form-body">
+                <div class="wbs-form-row wbs-form-full">
+                  <label class="wbs-form-label">작업명 <span class="req">*</span></label>
+                  <input class="wbs-drawer-form-input" type="text" value="WBS 목록 화면 기준 설계" placeholder="작업명을 입력하세요">
+                </div>
+                <div class="wbs-form-row wbs-form-full">
+                  <label class="wbs-form-label">단계 <span class="req">*</span></label>
+                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="edit-phase" data-sel-val="설계" data-sel-opts="착수|분석|설계|구현|검수|오픈|완료"></div>
+                </div>
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">기능그룹 <span class="req">*</span></label>
+                  <input class="wbs-drawer-form-input" type="text" value="WBS 화면" placeholder="예) 회원관리, 상품">
+                </div>
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">메뉴/화면 경로</label>
+                  <input class="wbs-drawer-form-input" type="text" value="WBS 작업 목록" placeholder="예) 회원관리 > 회원가입">
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. 담당자 / 검토자 -->
+            <div class="wbs-form-sec">
+              <div class="wbs-form-sec-head">
+                <span class="wbs-form-sec-num">2</span>
+                <span class="wbs-form-sec-label">담당자 / 검토자</span>
+              </div>
+              <div class="wbs-form-body">
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">담당자 <span class="req">*</span></label>
+                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="edit-assignee" data-sel-val="클로드" data-sel-opts="클로드|이서연|김기획|박PM|최개발"></div>
+                </div>
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">검토자</label>
+                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="edit-reviewer" data-sel-val="이서연" data-sel-opts="이서연|박PM|김기획|최개발"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. 상태 / 우선순위 -->
+            <div class="wbs-form-sec">
+              <div class="wbs-form-sec-head">
+                <span class="wbs-form-sec-num">3</span>
+                <span class="wbs-form-sec-label">상태 / 우선순위</span>
+              </div>
+              <div class="wbs-form-body">
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">진행상태</label>
+                  <div class="wbs-form-toggle-group">
+                    <button class="wbs-form-toggle" type="button">대기</button>
+                    <button class="wbs-form-toggle" type="button">진행중</button>
+                    <button class="wbs-form-toggle active" type="button">지연</button>
+                    <button class="wbs-form-toggle" type="button">완료</button>
+                    <button class="wbs-form-toggle" type="button">보류</button>
+                  </div>
+                </div>
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">우선순위</label>
+                  <div class="wbs-form-toggle-group">
+                    <button class="wbs-form-toggle active" type="button">높음</button>
+                    <button class="wbs-form-toggle" type="button">보통</button>
+                    <button class="wbs-form-toggle" type="button">낮음</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. 일정 / 공수 -->
+            <div class="wbs-form-sec">
+              <div class="wbs-form-sec-head">
+                <span class="wbs-form-sec-num">4</span>
+                <span class="wbs-form-sec-label">일정 / 공수</span>
+              </div>
+              <div class="wbs-form-body">
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">시작일 <span class="req">*</span></label>
+                  <div class="wbs-datepick" data-wbs-dp data-dp-name="edit-start" data-dp-val="2026-06-01"></div>
+                </div>
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">종료일 <span class="req">*</span></label>
+                  <div class="wbs-datepick" data-wbs-dp data-dp-name="edit-end" data-dp-val="2026-06-05"></div>
+                </div>
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">예상 공수</label>
+                  <input class="wbs-drawer-form-input" type="text" value="4일" placeholder="예: 8d 또는 40h">
+                </div>
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">실 공수</label>
+                  <input class="wbs-drawer-form-input" type="text" placeholder="전날 후 입력">
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. 작업 내용 -->
+            <div class="wbs-form-sec">
+              <div class="wbs-form-sec-head">
+                <span class="wbs-form-sec-num">5</span>
+                <span class="wbs-form-sec-label">작업 내용</span>
+              </div>
+              <div class="wbs-form-body">
+                <div class="wbs-form-row wbs-form-full">
+                  <label class="wbs-form-label">작업 설명</label>
+                  <textarea class="wbs-drawer-form-textarea" rows="4" placeholder="구현 범위, 참고 사항, 제약 조건…"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. 연결 항목 -->
+            <div class="wbs-form-sec">
+              <div class="wbs-form-sec-head">
+                <span class="wbs-form-sec-num">6</span>
+                <span class="wbs-form-sec-label">관련 항목 연결</span>
+              </div>
+              <div class="wbs-form-body">
+                <div class="wbs-form-row wbs-form-full">
+                  <label class="wbs-form-label">관련 요구사항</label>
+                  <button class="wbs-form-link-btn" type="button">+ 요구사항 연결</button>
+                </div>
+                <div class="wbs-form-row wbs-form-full">
+                  <label class="wbs-form-label">관련 화면설계</label>
+                  <button class="wbs-form-link-btn" type="button">+ 화면설계 연결</button>
+                </div>
+                <div class="wbs-form-row wbs-form-full">
+                  <label class="wbs-form-label">관련 회의록</label>
+                  <button class="wbs-form-link-btn" type="button">+ 회의록 연결</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 7. 변경 사유 -->
+            <div class="wbs-form-sec">
+              <div class="wbs-form-sec-head">
+                <span class="wbs-form-sec-num">7</span>
+                <span class="wbs-form-sec-label">변경 사유</span>
+              </div>
+              <div class="wbs-form-body">
+                <div class="wbs-form-row wbs-form-full">
+                  <label class="wbs-form-label">수정 메모</label>
+                  <textarea class="wbs-drawer-form-textarea" rows="3" placeholder="수정 사유나 변경 내용을 기록하세요…"></textarea>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /.wbs-edit-body -->
+
+          <!-- ===== BODY: 등록 폼 (create) ===== -->
+          <div class="wbs-drawer-body wbs-create-body">
+
+            <!-- 1. 기본 정보 -->
+            <div class="wbs-form-sec">
+              <div class="wbs-form-sec-head">
+                <span class="wbs-form-sec-num">1</span>
+                <span class="wbs-form-sec-label">기본 정보</span>
+              </div>
+              <div class="wbs-form-body">
+                <div class="wbs-form-row wbs-form-full">
+                  <label class="wbs-form-label">작업명 <span class="req">*</span></label>
+                  <input class="wbs-drawer-form-input" type="text" placeholder="예) 상품 상세 화면 개발">
+                </div>
+                <div class="wbs-form-row wbs-form-full">
+                  <label class="wbs-form-label">단계 <span class="req">*</span></label>
+                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="create-phase" data-sel-val="" data-sel-placeholder="— 단계 선택 —" data-sel-opts="착수|분석|설계|구현|검수|오픈|완료"></div>
+                </div>
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">기능그룹 <span class="req">*</span></label>
+                  <input class="wbs-drawer-form-input" type="text" placeholder="예) 회원관리, 상품, 주문/결제">
+                </div>
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">메뉴/화면 경로</label>
+                  <input class="wbs-drawer-form-input" type="text" placeholder="예) 회원관리 > 회원가입">
+                </div>
+                <div class="wbs-form-row wbs-form-full">
+                  <label class="wbs-form-label">WBS ID <span class="wbs-form-auto-badge">자동 부여</span></label>
+                  <input class="wbs-drawer-form-input" type="text" placeholder="저장 시 자동 부여" disabled>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. 담당자 / 검토자 -->
+            <div class="wbs-form-sec">
+              <div class="wbs-form-sec-head">
+                <span class="wbs-form-sec-num">2</span>
+                <span class="wbs-form-sec-label">담당자 / 검토자</span>
+              </div>
+              <div class="wbs-form-body">
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">담당자 <span class="req">*</span></label>
+                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="create-assignee" data-sel-val="" data-sel-placeholder="— 선택 —" data-sel-opts="이서연|김기획|박PM|최개발|정디자인"></div>
+                </div>
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">검토자</label>
+                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="create-reviewer" data-sel-val="" data-sel-placeholder="— 선택 —" data-sel-opts="박PM|이서연|김기획|최개발"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. 상태 / 우선순위 -->
+            <div class="wbs-form-sec">
+              <div class="wbs-form-sec-head">
+                <span class="wbs-form-sec-num">3</span>
+                <span class="wbs-form-sec-label">상태 / 우선순위</span>
+              </div>
+              <div class="wbs-form-body">
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">진행상태</label>
+                  <div class="wbs-form-toggle-group">
+                    <button class="wbs-form-toggle active" type="button">대기</button>
+                    <button class="wbs-form-toggle" type="button">진행중</button>
+                    <button class="wbs-form-toggle" type="button">검토중</button>
+                    <button class="wbs-form-toggle" type="button">완료</button>
+                    <button class="wbs-form-toggle" type="button">보류</button>
+                  </div>
+                </div>
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">우선순위</label>
+                  <div class="wbs-form-toggle-group">
+                    <button class="wbs-form-toggle" type="button">높음</button>
+                    <button class="wbs-form-toggle active" type="button">보통</button>
+                    <button class="wbs-form-toggle" type="button">낮음</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. 일정 / 공수 -->
+            <div class="wbs-form-sec">
+              <div class="wbs-form-sec-head">
+                <span class="wbs-form-sec-num">4</span>
+                <span class="wbs-form-sec-label">일정 / 공수</span>
+              </div>
+              <div class="wbs-form-body">
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">시작일 <span class="req">*</span> <span class="wbs-form-hint">MM-DD 또는 YY.MM.DD</span></label>
+                  <div class="wbs-datepick" data-wbs-dp data-dp-name="create-start" data-dp-val=""></div>
+                </div>
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">종료일 <span class="req">*</span> <span class="wbs-form-hint">PMS 연동 YY.MM.DD</span></label>
+                  <div class="wbs-datepick" data-wbs-dp data-dp-name="create-end" data-dp-val=""></div>
+                </div>
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">예상 공수 <span class="wbs-form-hint">d/h 단위</span></label>
+                  <input class="wbs-drawer-form-input" type="text" placeholder="예) 8d 또는 40h">
+                </div>
+                <div class="wbs-form-row">
+                  <label class="wbs-form-label">실 공수 <span class="wbs-form-hint">전날 후 입력</span></label>
+                  <input class="wbs-drawer-form-input" type="text" placeholder="예) 7d">
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. 작업 내용 -->
+            <div class="wbs-form-sec">
+              <div class="wbs-form-sec-head">
+                <span class="wbs-form-sec-num">5</span>
+                <span class="wbs-form-sec-label">작업 내용</span>
+              </div>
+              <div class="wbs-form-body">
+                <div class="wbs-form-row wbs-form-full">
+                  <label class="wbs-form-label">작업 설명</label>
+                  <textarea class="wbs-drawer-form-textarea" rows="4" placeholder="구현 범위, 참고 사항, 제약 조건…"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. 관련 항목 연결 -->
+            <div class="wbs-form-sec">
+              <div class="wbs-form-sec-head">
+                <span class="wbs-form-sec-num">6</span>
+                <span class="wbs-form-sec-label">관련 항목 연결</span>
+              </div>
+              <div class="wbs-form-body">
+                <div class="wbs-form-row wbs-form-full">
+                  <label class="wbs-form-label">관련 요구사항</label>
+                  <button class="wbs-form-link-btn" type="button">+ 요구사항 연결</button>
+                </div>
+                <div class="wbs-form-row wbs-form-full">
+                  <label class="wbs-form-label">관련 화면설계</label>
+                  <button class="wbs-form-link-btn" type="button">+ 화면설계 연결</button>
+                </div>
+                <div class="wbs-form-row wbs-form-full">
+                  <label class="wbs-form-label">관련 회의록</label>
+                  <button class="wbs-form-link-btn" type="button">+ 회의록 연결</button>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /.wbs-create-body -->
+
+          </div><!-- /.wbs-drawer-content -->
+          </div><!-- /.wbs-drawer-scroll -->
+
+          <!-- ===== FOOTER (공통 Shell) ===== -->
+          <div class="wbs-drawer-footer">
+
+            <!-- detail slot -->
+            <div class="wbs-detail-footer-slot">
+              <span class="wbs-dw-detail-timestamp">최종 변경 2026-06-07 10:42</span>
+              <button class="wbs-btn wbs-drawer-edit-btn" type="button">수정</button>
+              <button class="wbs-btn wbs-btn-primary wbs-fv-trigger-btn" type="button">전체 상세</button>
+            </div>
+
+            <!-- edit slot -->
+            <div class="wbs-edit-footer-slot">
+              <button class="wbs-btn wbs-drawer-cancel-btn" type="button">취소</button>
+              <button class="wbs-btn" type="button">임시저장</button>
+              <button class="wbs-btn wbs-btn-fullview wbs-fv-trigger-btn" type="button">전체 수정화면</button>
+              <button class="wbs-btn wbs-btn-primary" type="button" style="margin-left:auto">저장</button>
+            </div>
+
+            <!-- create slot -->
+            <div class="wbs-create-footer-slot">
+              <button class="wbs-btn wbs-drawer-close-btn" type="button">취소</button>
+              <button class="wbs-btn" type="button">임시저장</button>
+              <button class="wbs-btn wbs-btn-fullview wbs-fv-trigger-btn" type="button">전체 등록화면</button>
+              <button class="wbs-btn wbs-btn-primary" type="button" style="margin-left:auto">등록</button>
+            </div>
+
+          </div><!-- /.wbs-drawer-footer -->
+
+        </aside><!-- /.wbs-drawer-panel -->
+      </div><!-- /.wbs-drawer -->
+
+    </main><!-- /.po-main -->
+  </div><!-- /.po-body -->
+</div><!-- /.po-shell -->
+
+<script src="../../js/stam.theme.js"></script>
+<script src="../../js/stam.nav-data.js"></script>
+<script src="../../js/stam.shell.js"></script>
+<script src="../../js/stam.nav-render.js"></script>
+<script src="../../js/stam.topbar-render.js"></script>
+<script src="../../js/stam.wbs.js"></script>
+
+  <!-- ===== WBS 공통 Dialog (Alert / Confirm) ===== -->
+  <div class="wbs-dialog-overlay" id="wbs-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="wbs-dialog-title">
+    <div class="wbs-dialog" id="wbs-dialog">
+      <div class="wbs-dialog-head">
+        <div class="wbs-dialog-ic danger" id="wbs-dialog-ic"></div>
+        <div class="wbs-dialog-texts">
+          <div class="wbs-dialog-title" id="wbs-dialog-title"></div>
+          <div class="wbs-dialog-msg"   id="wbs-dialog-msg"></div>
+        </div>
+      </div>
+      <div class="wbs-dialog-target" id="wbs-dialog-target"></div>
+      <div class="wbs-dialog-foot">
+        <button type="button" class="wbs-dialog-btn cancel" id="wbs-dialog-cancel">취소</button>
+        <button type="button" class="wbs-dialog-btn danger" id="wbs-dialog-ok">삭제</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

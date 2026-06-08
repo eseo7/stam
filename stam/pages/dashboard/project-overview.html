@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Overview — 파르나스 리뉴얼 구축 — STAM</title>
+  <link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+  <link rel="stylesheet" href="../../css/stam.tokens.css">
+  <link rel="stylesheet" href="../../css/stam.shell.css">
+  <link rel="stylesheet" href="../../css/stam.components.css">
+  <link rel="stylesheet" href="../../css/stam.tables.css">
+  <link rel="stylesheet" href="../../css/stam.pages.css">
+  <link rel="stylesheet" href="../../css/stam.project-overview.css">
+</head>
+<body>
+
+  <div class="po-shell">
+
+    <!-- topbar-render.js가 data-stam-topbar 컨테이너 전체를 렌더링합니다 -->
+    <header class="po-topbar" data-stam-topbar
+      data-tb-crumbs="내 프로젝트|파르나스 리뉴얼 구축|Project Overview"
+      data-tb-client="파르나스호텔"></header>
+
+    <!-- ================================================
+         App Body: Sidebar + Main
+         ================================================ -->
+    <div class="po-body">
+
+      <!-- -------- Left Navigation (256px) -------- -->
+      <!-- nav-render.js가 data-stam-left-nav 컨테이너 전체를 렌더링합니다 -->
+      <nav class="po-sidebar" data-stam-left-nav aria-label="프로젝트 내비게이션"></nav>
+
+      <!-- -------- Main Content -------- -->
+      <main class="po-main" id="po-main">
+
+        <!-- ============================================
+             Project Context Header
+             ============================================ -->
+        <div class="po-ctx">
+          <div class="po-ctx-left">
+            <div class="po-ctx-title">파르나스 리뉴얼 구축</div>
+            <div class="po-ctx-meta">
+              <span class="po-ctx-chip">파르나스호텔</span>
+              <span class="po-ctx-chip po-chip-stage">설계 단계</span>
+              <span class="po-ctx-chip po-chip-active">진행중</span>
+              <span class="po-ctx-chip">Project Admin / PM</span>
+              <span class="po-ctx-date">기준일 2026-06-07</span>
+            </div>
+          </div>
+          <div class="po-ctx-right">
+            <div class="po-ctx-prog-wrap">
+              <div class="po-ctx-prog-top">
+                <span class="po-ctx-prog-label">전체 진행률</span>
+                <span class="po-ctx-prog-val">42%</span>
+              </div>
+              <div class="po-ctx-prog-bar">
+                <div class="po-ctx-prog-fill" style="width:42%"></div>
+              </div>
+            </div>
+            <div class="po-ctx-risk">
+              <span class="po-ctx-risk-dot warn-dot"></span>
+              위험도 <strong>주의</strong>
+            </div>
+            <div class="po-ctx-updated">업데이트 오늘 10:42</div>
+          </div>
+        </div><!-- /.po-ctx -->
+
+        <!-- Content Wrapper — 중앙 정렬 max-width 1560px -->
+        <div class="po-content-wrap">
+
+        <!-- ============================================
+             KPI Strip — 6개 핵심 지표
+             ============================================ -->
+        <div class="kpi-strip">
+          <div class="kpi-item hi">
+            <div class="kpi-num">148</div>
+            <div class="kpi-lbl">전체 산출물</div>
+            <div class="kpi-sub">IA Baseline v3.3</div>
+          </div>
+          <div class="kpi-item add">
+            <div class="kpi-num">62</div>
+            <div class="kpi-lbl">작성 완료</div>
+            <div class="kpi-sub">41.9%</div>
+          </div>
+          <div class="kpi-item">
+            <div class="kpi-num">21</div>
+            <div class="kpi-lbl">검토중</div>
+            <div class="kpi-sub">14.2%</div>
+          </div>
+          <div class="kpi-item">
+            <div class="kpi-num">6</div>
+            <div class="kpi-lbl">승인 대기</div>
+            <div class="kpi-sub">처리 필요</div>
+          </div>
+          <div class="kpi-item risk">
+            <div class="kpi-num">8</div>
+            <div class="kpi-lbl">지연/리스크</div>
+            <div class="kpi-sub">주의 요망</div>
+          </div>
+          <div class="kpi-item">
+            <div class="kpi-num">12</div>
+            <div class="kpi-lbl">내 업무</div>
+            <div class="kpi-sub">오늘 마감 3건</div>
+          </div>
+        </div><!-- /.kpi-strip -->
+
+        <!-- ============================================
+             Dashboard Content Grid (3-col)
+             ============================================ -->
+        <div class="po-grid">
+
+          <!-- ① 산출물 진행 현황 — span 2 -->
+          <div class="po-card po-span2" data-screen-label="산출물 진행 현황">
+            <div class="po-card-hdr">
+              <span class="po-card-title">산출물 진행 현황</span>
+              <span class="po-card-sub">11개 유형 · 전체 148건</span>
+              <button class="tbtn po-card-btn" type="button">전체 보기 →</button>
+            </div>
+            <div class="po-card-body">
+              <table class="data-table po-deliv-table">
+                <thead>
+                  <tr>
+                    <th>산출물 유형</th>
+                    <th style="text-align:center">전체</th>
+                    <th style="text-align:center;color:#46C97D">완료</th>
+                    <th style="text-align:center;color:#6FA8FF">검토중</th>
+                    <th style="text-align:center;color:#F0B24E">승인대기</th>
+                    <th>진행률</th>
+                    <th>상태</th>
+                  </tr>
+                </thead>
+                <tbody id="po-deliv-tbody"></tbody>
+              </table>
+            </div>
+          </div><!-- /산출물 진행 현황 -->
+
+          <!-- ② 내 업무 -->
+          <div class="po-card" data-screen-label="내 업무">
+            <div class="po-card-hdr">
+              <span class="po-card-title">내 업무</span>
+              <span class="po-card-sub">My Work</span>
+              <span class="po-card-badge po-card-ml">12</span>
+            </div>
+            <div class="po-card-body">
+              <div id="po-work-list" class="po-work-list"></div>
+            </div>
+          </div><!-- /내 업무 -->
+
+          <!-- ③ 승인 요약 -->
+          <div class="po-card" data-screen-label="승인 요약">
+            <div class="po-card-hdr">
+              <span class="po-card-title">승인 요약</span>
+              <span class="po-card-sub">Approval Summary</span>
+              <span class="po-card-badge warn po-card-ml">대기 6</span>
+            </div>
+            <div class="po-card-body">
+              <div id="po-approval-kpi" class="po-appr-kpi"></div>
+              <div class="po-divider"></div>
+              <div id="po-approval-list" class="po-appr-list"></div>
+            </div>
+          </div><!-- /승인 요약 -->
+
+          <!-- ④ Risk & Gate -->
+          <div class="po-card" data-screen-label="Risk & Gate">
+            <div class="po-card-hdr">
+              <span class="po-card-title">Risk &amp; Gate</span>
+              <span class="po-card-badge danger po-card-ml">5</span>
+            </div>
+            <div id="po-risk-body" class="po-card-body"></div>
+          </div><!-- /Risk & Gate -->
+
+          <!-- ⑤ 테스트/품질 + 납품/내보내기 -->
+          <div class="po-card" data-screen-label="테스트/품질·납품">
+            <div class="po-card-hdr">
+              <span class="po-card-title">테스트/품질</span>
+            </div>
+            <div id="po-test-body" class="po-card-body"></div>
+
+            <div class="po-card-subhdr">
+              <span class="po-card-title">납품/내보내기</span>
+            </div>
+            <div id="po-delivery-body" class="po-card-body"></div>
+          </div><!-- /테스트+납품 -->
+
+          <!-- ⑥ 최근 변경 — span 2 -->
+          <div class="po-card po-span2" data-screen-label="최근 변경">
+            <div class="po-card-hdr">
+              <span class="po-card-title">최근 변경</span>
+              <span class="po-card-sub">Recent Updates</span>
+            </div>
+            <div class="po-card-body">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>변경 대상</th>
+                    <th>변경 유형</th>
+                    <th>작성자</th>
+                    <th>시간</th>
+                    <th>영향 범위</th>
+                  </tr>
+                </thead>
+                <tbody id="po-recent-tbody"></tbody>
+              </table>
+            </div>
+          </div><!-- /최근 변경 -->
+
+          <!-- ⑦ Next Action -->
+          <div class="po-card" data-screen-label="Next Action">
+            <div class="po-card-hdr">
+              <span class="po-card-title">Next Action</span>
+              <span class="po-card-sub">다음 처리 항목</span>
+            </div>
+            <div id="po-next-body" class="po-card-body"></div>
+          </div><!-- /Next Action -->
+
+        </div><!-- /.po-grid -->
+
+        </div><!-- /.po-content-wrap -->
+
+        <!--
+          TODO: Beam Projector Large View Mode
+          향후 구현 필요 항목. 전체 화면 투영용 요약 뷰. 현재 미구현.
+        -->
+
+      </main><!-- /.po-main -->
+
+    </div><!-- /.po-body -->
+  </div><!-- /.po-shell -->
+
+  <script src="../../js/stam.theme.js"></script>
+  <script src="../../js/stam.nav-data.js"></script>
+  <script src="../../js/stam.shell.js"></script>
+  <script src="../../js/stam.nav-render.js"></script>
+  <script src="../../js/stam.topbar-render.js"></script>
+  <script src="../../js/stam.preview-ui.js"></script>
+  <script src="../../js/stam.project-overview.js"></script>
+
+</body>
+</html>

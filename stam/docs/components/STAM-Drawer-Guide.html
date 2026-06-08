@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Drawer Guide</title>
+<link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../../css/stam.tokens.css">
+<link rel="stylesheet" href="../../css/stam.shell.css">
+<link rel="stylesheet" href="../../css/stam.components.css">
+<link rel="stylesheet" href="../../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../../css/stam.docs.css">
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a href="../STAM-Component-Guide.html" class="doc-nav-back">← Component Guide</a>
+  <span class="doc-nav-title">Drawer Guide</span>
+  <span class="doc-nav-pill"><span class="dot"></span>v1</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<style>
+/* ================================================================
+ * Drawer Guide — 데모 전용 스타일
+ * 이 파일에서만 사용. stam.components.css 영향 없음.
+ * ================================================================ */
+
+/* ---- 데모 버튼 ---- */
+.bd-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; font-family: var(--font) !important; font-weight: 600;
+  border-radius: var(--r-md); cursor: default; white-space: nowrap;
+  border: 1px solid transparent; position: relative; user-select: none;
+  box-sizing: border-box; line-height: 1;
+}
+.bd-btn.primary   { background: var(--brand);   color: #fff;      border-color: var(--brand); }
+.bd-btn.secondary { background: var(--bg-sur2); color: var(--t1); border-color: var(--bd-s); }
+.bd-btn.ghost     { background: transparent;    color: var(--t1); border-color: var(--bd); }
+.bd-btn.danger    { background: #EF4444;        color: #fff;      border-color: #EF4444; }
+.bd-btn.md { height: 36px; padding: 0 16px; font-size: 13px; }
+.bd-btn.sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+
+/* ---- Type 칩 ---- */
+.dtype-chip {
+  display: inline-flex; align-items: center; padding: 2px 8px;
+  border-radius: 4px; font-size: 9.5px; font-weight: 700;
+  font-family: var(--font) !important; white-space: nowrap; flex-shrink: 0;
+}
+.dtype-chip.detail     { background: var(--info-bg);          color: var(--info); }
+.dtype-chip.create     { background: var(--pass-bg);          color: var(--pass); }
+.dtype-chip.edit       { background: rgba(84,81,232,.12);     color: #8B7FF8; }
+.dtype-chip.review     { background: var(--warn-bg);          color: var(--warn); }
+.dtype-chip.attach     { background: var(--purple-bg);        color: var(--purple); }
+[data-theme="light"] .dtype-chip.edit { color: #5451E8; }
+
+/* ---- Do / Don't ---- */
+.dd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 580px) { .dd-grid { grid-template-columns: 1fr; } }
+.dd-card {
+  border-radius: var(--r-md); padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.dd-card.do   { background: rgba(0,191,64,.05);  border: 1px solid rgba(0,191,64,.20); }
+.dd-card.dont { background: rgba(239,68,68,.05); border: 1px solid rgba(239,68,68,.18); }
+.dd-hdr {
+  font-size: 11px; font-weight: 700; font-family: var(--font) !important;
+  display: flex; align-items: center; gap: 7px;
+}
+.dd-card.do   .dd-hdr { color: var(--pass); }
+.dd-card.dont .dd-hdr { color: var(--fail); }
+.dd-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+.dd-card.do   .dd-dot { background: var(--pass); }
+.dd-card.dont .dd-dot { background: var(--fail); }
+.dd-list { list-style: none; display: flex; flex-direction: column; gap: 5px; padding: 0; margin: 0; }
+.dd-list li {
+  font-size: 12px; color: var(--t2); font-family: var(--font) !important;
+  line-height: 1.45; padding-left: 16px; position: relative;
+}
+.dd-card.do   .dd-list li::before { content: '✓'; position: absolute; left: 0; color: var(--pass); font-size: 10px; font-weight: 700; top: 1px; }
+.dd-card.dont .dd-list li::before { content: '✕'; position: absolute; left: 0; color: var(--fail); font-size: 10px; font-weight: 700; top: 1px; }
+
+/* ---- 예시 카드 그리드 ---- */
+.eg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 680px) { .eg-grid { grid-template-columns: 1fr; } }
+.eg-card {
+  background: var(--bg-sur2); border: 1px solid var(--bd);
+  border-radius: var(--r-md); overflow: hidden; display: flex; flex-direction: column;
+}
+.eg-hdr {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-bottom: 1px solid var(--bd);
+}
+.eg-lbl {
+  font-size: 10.5px; font-weight: 700; color: var(--t1);
+  font-family: var(--font) !important; flex: 1;
+}
+.eg-body {
+  padding: 10px; display: flex; align-items: flex-start; justify-content: flex-end;
+  background: rgba(23,23,25,.36); min-height: 224px; position: relative; overflow: hidden;
+}
+[data-theme="light"] .eg-body { background: rgba(15,23,42,.09); }
+
+/* ---- Drawer 미니 패널 ---- */
+.dw-bg {
+  position: absolute; left: 10px; top: 10px; bottom: 10px;
+  right: 182px; background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: var(--r-md); opacity: .45;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.dw-bg-row {
+  height: 20px; border-bottom: 1px solid var(--bd); flex-shrink: 0;
+  display: flex; align-items: center; gap: 6px; padding: 0 8px;
+}
+.dw-bg-row.hd { background: var(--bg-sur2); height: 28px; }
+.dw-bg-dot { width: 40px; height: 6px; border-radius: 3px; background: var(--bd-s); }
+.dw-bg-dot.sm { width: 24px; }
+.dw-bg-dot.active { background: rgba(84,81,232,.30); }
+.dw-panel {
+  width: 172px; flex-shrink: 0; background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: var(--r-md);
+  box-shadow: -6px 0 18px rgba(0,0,0,.22); display: flex;
+  flex-direction: column; overflow: hidden; position: relative; z-index: 1;
+}
+.dw-head {
+  display: flex; align-items: center; gap: 6px; padding: 7px 9px;
+  border-bottom: 1px solid var(--bd); background: var(--bg-sur2); flex-shrink: 0;
+}
+.dw-title {
+  flex: 1; font-size: 10.5px; font-weight: 700; color: var(--t1);
+  font-family: var(--font) !important; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; line-height: 1.3;
+}
+.dw-close {
+  width: 15px; height: 15px; border-radius: 3px; border: 1px solid var(--bd);
+  background: transparent; display: flex; align-items: center; justify-content: center;
+  font-size: 7px; color: var(--t3); flex-shrink: 0; font-family: var(--font) !important;
+}
+.dw-body {
+  flex: 1; overflow: hidden; padding: 7px 9px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.dw-foot {
+  display: flex; align-items: center; gap: 4px; justify-content: flex-end;
+  padding: 6px 9px; border-top: 1px solid var(--bd); flex-shrink: 0; flex-wrap: wrap;
+}
+.dw-foot-split {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 9px; border-top: 1px solid var(--bd); flex-shrink: 0;
+}
+.dw-field { display: flex; flex-direction: column; gap: 2px; }
+.dw-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.dw-lbl {
+  font-size: 8px; font-weight: 700; color: var(--t3);
+  font-family: var(--font) !important; text-transform: uppercase; letter-spacing: .04em;
+}
+.dw-val {
+  font-size: 10px; color: var(--t1); font-family: var(--font) !important; line-height: 1.4;
+}
+.dw-input {
+  background: var(--bg-sur2); border: 1px solid var(--bd-s); border-radius: 4px;
+  padding: 3px 6px; font-size: 9.5px; color: var(--t3);
+  font-family: var(--font) !important; line-height: 1.4;
+}
+.dw-input.focus { border-color: var(--bd-f); box-shadow: 0 0 0 2px rgba(84,81,232,.12); }
+.dw-textarea {
+  background: var(--bg-sur2); border: 1px solid var(--bd-s); border-radius: 4px;
+  padding: 3px 6px; font-size: 9px; color: var(--t3);
+  font-family: var(--font) !important; line-height: 1.5; min-height: 32px;
+}
+.dw-divider { height: 1px; background: var(--bd); flex-shrink: 0; margin: 1px 0; }
+.dw-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 19px; padding: 0 7px; border-radius: 4px; font-size: 8.5px;
+  font-weight: 600; border: 1px solid transparent; white-space: nowrap;
+  font-family: var(--font) !important; cursor: default;
+}
+.dw-btn.primary   { background: var(--brand);   color: #fff;      border-color: var(--brand); }
+.dw-btn.secondary { background: var(--bg-sur2); color: var(--t1); border-color: var(--bd-s); }
+.dw-btn.ghost     { background: transparent;    color: var(--t1); border-color: var(--bd); }
+.dw-btn.danger    { background: #EF4444;        color: #fff;      border-color: #EF4444; }
+.dw-btn.fullview  { background: transparent; color: #8B7FF8; border-color: rgba(84,81,232,.35); font-size: 8px; }
+[data-theme="light"] .dw-btn.fullview { color: #5451E8; border-color: rgba(84,81,232,.40); }
+.dw-chip {
+  display: inline-flex; align-items: center; padding: 1px 5px;
+  border-radius: 3px; font-size: 8px; font-weight: 700; font-family: var(--font) !important;
+}
+.dw-chip.progress { background: rgba(84,81,232,.13); color: #8B7FF8; }
+.dw-chip.done     { background: var(--pass-bg); color: var(--pass); }
+.dw-chip.review   { background: var(--warn-bg); color: var(--warn); }
+.dw-chip.new      { background: var(--info-bg); color: var(--info); }
+[data-theme="light"] .dw-chip.progress { color: #5451E8; }
+.dw-mode-badge {
+  display: inline-flex; align-items: center; padding: 1px 5px; border-radius: 3px;
+  font-size: 7.5px; font-weight: 700; font-family: var(--font) !important;
+  background: rgba(245,158,11,.12); color: #D97706;
+}
+.dw-attach-row {
+  display: flex; align-items: center; gap: 4px; padding: 3px 5px;
+  background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 4px;
+}
+.dw-attach-nm {
+  font-size: 9px; color: var(--t1); font-family: var(--font) !important;
+  flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dw-attach-meta { font-size: 7.5px; color: var(--t3); font-family: var(--font) !important; flex-shrink: 0; }
+.dw-comment {
+  background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 4px; padding: 4px 6px;
+}
+.dw-comment-meta { font-size: 7.5px; color: var(--t3); font-family: var(--font) !important; margin-bottom: 2px; }
+.dw-comment-body { font-size: 9px; color: var(--t2); font-family: var(--font) !important; line-height: 1.4; }
+.dw-section-title {
+  font-size: 8.5px; font-weight: 700; color: var(--t3); text-transform: uppercase;
+  letter-spacing: .04em; font-family: var(--font) !important;
+}
+
+/* ---- 구조 다이어그램 ---- */
+.anm-frame {
+  background: var(--bg-sur2); border: 1px solid var(--bd);
+  border-radius: var(--r-md); display: flex; align-items: flex-start;
+  gap: 14px; padding: 14px; flex-wrap: wrap;
+}
+.anm-preview {
+  flex: 1; min-width: 220px; background: rgba(23,23,25,.38);
+  border-radius: var(--r-md); padding: 12px;
+  display: flex; align-items: stretch; justify-content: flex-end;
+  min-height: 280px; position: relative; overflow: hidden;
+}
+[data-theme="light"] .anm-preview { background: rgba(15,23,42,.12); }
+.anm-preview::before {
+  content: '① Overlay / Scrim';
+  position: absolute; top: 6px; left: 8px;
+  font-size: 9px; font-weight: 700; color: rgba(139,127,248,.65);
+  font-family: var(--font); letter-spacing: .03em;
+}
+[data-theme="light"] .anm-preview::before { color: rgba(84,81,232,.55); }
+.anm-panel {
+  width: 200px; flex-shrink: 0; background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: var(--r-md);
+  box-shadow: -6px 0 18px rgba(0,0,0,.18);
+  display: flex; flex-direction: column; overflow: hidden; position: relative;
+}
+.anm-sec {
+  position: relative; padding-right: 62px;
+}
+.anm-ph {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 60px 8px 12px; border-bottom: 1px solid var(--bd);
+  background: var(--bg-sur2); position: relative; min-height: 32px;
+}
+.anm-pbody {
+  padding: 8px 60px 8px 12px; font-size: 10.5px; color: var(--t2);
+  font-family: var(--font) !important; line-height: 1.55;
+  border-bottom: 1px solid var(--bd); position: relative; min-height: 36px;
+}
+.anm-pfoot {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 5px; padding: 8px 12px 10px; position: relative; min-height: 36px;
+}
+.anm-tag {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  font-size: 8.5px; font-weight: 700; color: rgba(139,127,248,.75);
+  font-family: var(--font) !important; white-space: nowrap; letter-spacing: .02em;
+  background: rgba(84,81,232,.10); padding: 2px 5px; border-radius: 3px;
+}
+[data-theme="light"] .anm-tag { color: #5451E8; background: rgba(84,81,232,.08); }
+.anm-ttl {
+  font-size: 11px; font-weight: 700; color: var(--t1); font-family: var(--font) !important;
+}
+.anm-desc {
+  flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px;
+}
+.anm-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 5px 8px; background: var(--bg-sur2); border: 1px solid var(--bd);
+  border-radius: var(--r-sm);
+}
+.anm-k {
+  font-size: 9.5px; font-weight: 700; color: var(--t3);
+  font-family: var(--font) !important; min-width: 80px; flex-shrink: 0;
+}
+.anm-v {
+  font-size: 10px; color: var(--t2); font-family: var(--font) !important; line-height: 1.5;
+}
+
+/* ---- QA 체크리스트 ---- */
+.qa-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5px;
+}
+@media (max-width: 580px) { .qa-grid { grid-template-columns: 1fr; } }
+.qa-item {
+  display: flex; align-items: flex-start; gap: 8px; padding: 7px 10px;
+  background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: var(--r-md);
+}
+.qa-box {
+  width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--bd-s);
+  background: var(--bg-sur); flex-shrink: 0; margin-top: 1px;
+}
+.qa-txt {
+  font-size: 11.5px; color: var(--t2); font-family: var(--font) !important; line-height: 1.4;
+}
+
+/* ---- 관련 링크 ---- */
+.rel-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px;
+}
+.rel-card {
+  display: flex; align-items: center; gap: 10px; padding: 10px 13px;
+  background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: var(--r-md);
+  text-decoration: none; transition: border-color 120ms, background 120ms;
+}
+.rel-card:hover {
+  border-color: rgba(84,81,232,.35); background: rgba(84,81,232,.035);
+}
+.rel-ico {
+  width: 26px; height: 26px; border-radius: var(--r-sm);
+  background: rgba(84,81,232,.12); display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: #8B7FF8; flex-shrink: 0;
+  font-family: var(--font) !important;
+}
+[data-theme="light"] .rel-ico { background: rgba(84,81,232,.09); color: #5451E8; }
+.rel-body { flex: 1; min-width: 0; }
+.rel-title {
+  font-size: 12px; font-weight: 700; color: var(--t1);
+  font-family: var(--font) !important; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.rel-sub {
+  font-size: 10px; color: var(--t3); font-family: var(--font) !important;
+}
+</style>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Drawer Guide</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Drawer Types</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Drawer Structure</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Width / Layout Rules</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Mode Transition</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Button Rules</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Form Rules</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Usage Rules</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Do / Don't</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Examples</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Accessibility</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>QA Checklist</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ────────────── S01 Overview ────────────── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview</span>
+          <span class="sbadge guide">가이드</span>
+        </div>
+        <div class="sec-body">
+          <div class="meta-row">
+            <div class="meta-cell"><span class="meta-k">컴포넌트</span><span class="meta-v">Drawer (Side Panel)</span></div>
+            <div class="meta-cell"><span class="meta-k">기본 폭</span><span class="meta-v code">콘텐츠 영역 약 40%</span></div>
+            <div class="meta-cell"><span class="meta-k">진입 트리거</span><span class="meta-v">Row 클릭 · 등록 버튼</span></div>
+            <div class="meta-cell"><span class="meta-k">Full View 전환</span><span class="meta-v code">전체 보기 버튼</span></div>
+          </div>
+
+          <p class="sub">목적 및 역할</p>
+          <ul class="blist">
+            <li>목록 화면의 흐름을 유지한 채 상세·수정·등록을 빠르게 처리하는 보조 패널이다.</li>
+            <li>산출물·게시판의 등록·수정·상세는 기본적으로 Drawer를 사용할 수 있다.</li>
+            <li>WBS, 요구사항정의서, 화면설계서, 테이블 정의서, DB 정보, 서버 정보, 오픈 시나리오 등 주요 게시판에 동일 기준을 적용한다.</li>
+            <li>긴 입력·긴 상세는 Drawer보다 Full View(전체 화면 전환)가 적합하다. 이 기준은 전체보기 버튼으로 제공한다.</li>
+          </ul>
+
+          <p class="sub">Dialog vs Drawer 비교</p>
+          <div style="overflow-x:auto;">
+            <table class="stbl">
+              <thead>
+                <tr>
+                  <th>구분</th>
+                  <th>Dialog</th>
+                  <th>Drawer</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>형태</td>
+                  <td>화면 중앙 모달</td>
+                  <td>화면 우측 슬라이드인 패널</td>
+                </tr>
+                <tr>
+                  <td>적합한 사용</td>
+                  <td>단순 확인·경고·위험 액션 확인</td>
+                  <td>목록 행 상세·등록·수정</td>
+                </tr>
+                <tr>
+                  <td>목록 유지</td>
+                  <td>불가 (배경 잠금)</td>
+                  <td>가능 (목록 일부 노출)</td>
+                </tr>
+                <tr>
+                  <td>콘텐츠 길이</td>
+                  <td>짧고 단순한 메시지</td>
+                  <td>중간 길이 정보, 폼</td>
+                </tr>
+                <tr>
+                  <td>Full View 전환</td>
+                  <td>해당 없음</td>
+                  <td>전체보기 버튼으로 전환</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info">
+            <strong>Baseline Guide 참조</strong>
+            Drawer 기준은 <a href="../STAM-UI-Baseline-Guide.html#s12" style="color:var(--info);">Baseline Guide S12 Drawer Standard</a>에도 정의되어 있다. 이 가이드는 컴포넌트 구현 관점에서 보완한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S02 Drawer Types ────────────── -->
+      <section id="s02" class="sec" data-screen-label="02 Drawer Types">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Drawer Types</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div style="overflow-x:auto;">
+            <table class="stbl">
+              <thead>
+                <tr>
+                  <th>유형</th>
+                  <th>칩</th>
+                  <th>사용 맥락</th>
+                  <th>진입</th>
+                  <th>적용 예시</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Detail Drawer</td>
+                  <td><span class="dtype-chip detail">상세</span></td>
+                  <td>목록 행 클릭 후 요약 상세 확인</td>
+                  <td>Row 클릭</td>
+                  <td>WBS 작업 상세, 요구사항 상세</td>
+                </tr>
+                <tr>
+                  <td>Create Drawer</td>
+                  <td><span class="dtype-chip create">등록</span></td>
+                  <td>목록 흐름을 유지한 신규 등록</td>
+                  <td>등록 버튼</td>
+                  <td>산출물 등록, 서버 정보 등록</td>
+                </tr>
+                <tr>
+                  <td>Edit Drawer</td>
+                  <td><span class="dtype-chip edit">수정</span></td>
+                  <td>상세에서 수정 모드 전환 (페이지 이동 없음)</td>
+                  <td>상세 내 수정 버튼</td>
+                  <td>WBS 작업 수정, 오픈 시나리오 수정</td>
+                </tr>
+                <tr>
+                  <td>Review Drawer</td>
+                  <td><span class="dtype-chip review">검토</span></td>
+                  <td>검토 의견, 승인 요청, 코멘트 확인</td>
+                  <td>검토 버튼 또는 Row 클릭</td>
+                  <td>고객 검토 의견 확인, 승인 요청</td>
+                </tr>
+                <tr>
+                  <td>Attachment / URL Drawer</td>
+                  <td><span class="dtype-chip attach">첨부</span></td>
+                  <td>첨부파일과 URL 참조 관리</td>
+                  <td>첨부 아이콘 또는 버튼</td>
+                  <td>파일 설명, 공개범위, 내보내기 포함 여부</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="ibox warn">
+            <strong>중첩 금지</strong>
+            Drawer 안에 또 다른 Drawer를 중첩하지 않는다. Drawer 안에 Dialog는 위험 액션 확인(삭제·반려)에만 제한적으로 사용한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S03 Drawer Structure ────────────── -->
+      <section id="s03" class="sec" data-screen-label="03 Drawer Structure">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Drawer Structure — 구조 해부</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div class="anm-frame">
+            <div class="anm-preview">
+              <div class="anm-panel">
+                <div class="anm-ph anm-sec">
+                  <span class="anm-ttl">WBS 작업 상세</span>
+                  <span class="anm-tag">② Header</span>
+                </div>
+                <div class="anm-pbody anm-sec" style="padding-top:6px;padding-bottom:6px;">
+                  <div style="display:flex;flex-direction:column;gap:4px;">
+                    <div style="font-size:9px;font-weight:700;color:var(--t3);font-family:var(--font);text-transform:uppercase;letter-spacing:.04em;">Status / Meta</div>
+                    <div style="font-size:10px;color:var(--t2);font-family:var(--font);">담당자 · 기간 · 우선순위</div>
+                  </div>
+                  <span class="anm-tag" style="top:30%;">③ Meta Area</span>
+                </div>
+                <div class="anm-pbody anm-sec" style="min-height:60px;flex:1;">
+                  <div style="font-size:9.5px;color:var(--t2);font-family:var(--font);line-height:1.55;">본문 영역<br>Section Group · Comment</div>
+                  <span class="anm-tag">④ Body</span>
+                </div>
+                <div class="anm-pfoot anm-sec">
+                  <div style="font-size:9px;color:var(--t3);font-family:var(--font);">전체 보기</div>
+                  <div style="display:flex;gap:4px;">
+                    <div style="font-size:9px;color:var(--t3);font-family:var(--font);">취소</div>
+                    <div style="font-size:9px;color:#8B7FF8;font-family:var(--font);">저장</div>
+                  </div>
+                  <span class="anm-tag">⑤ Footer</span>
+                </div>
+              </div>
+            </div>
+            <div class="anm-desc">
+              <div style="font-size:10px;font-weight:700;color:var(--t3);font-family:var(--font);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;">구성 요소</div>
+              <div class="anm-row"><span class="anm-k">① Overlay / Scrim</span><span class="anm-v">배경 Dim 레이어 — <code>rgba(23,23,25,.45)</code></span></div>
+              <div class="anm-row"><span class="anm-k">② Header</span><span class="anm-v">제목 · 상태 칩 · 수정 모드 배지 · 닫기 버튼</span></div>
+              <div class="anm-row"><span class="anm-k">③ Meta Area</span><span class="anm-v">상태·담당자·기간 등 키-값 요약</span></div>
+              <div class="anm-row"><span class="anm-k">④ Body</span><span class="anm-v">Section Group · 폼 필드 · Comment / Mention Area</span></div>
+              <div class="anm-row"><span class="anm-k">⑤ Footer</span><span class="anm-v">전체보기 · 저장 / 수정 / 삭제 · 취소</span></div>
+              <div class="anm-row"><span class="anm-k">닫기 버튼</span><span class="anm-v">Header 우측 고정. aria-label 필수</span></div>
+              <div class="anm-row"><span class="anm-k">스크롤</span><span class="anm-v">Header · Footer 고정, Body만 overflow-y: auto</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S04 Width / Layout Rules ────────────── -->
+      <section id="s04" class="sec" data-screen-label="04 Width / Layout Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Width / Layout Rules — 너비 및 레이아웃</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div style="overflow-x:auto;">
+            <table class="stbl">
+              <thead>
+                <tr>
+                  <th>항목</th>
+                  <th>기준</th>
+                  <th>비고</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>기본 폭</td>
+                  <td class="mono">콘텐츠 영역 약 40%</td>
+                  <td>1440px 화면 기준 약 480–560px</td>
+                </tr>
+                <tr>
+                  <td>최소 폭</td>
+                  <td class="mono">360px</td>
+                  <td>이 이하에서는 Full View 전환 우선</td>
+                </tr>
+                <tr>
+                  <td>최대 폭</td>
+                  <td class="mono">640px</td>
+                  <td>복합 폼 · 긴 상세 시 확장 허용</td>
+                </tr>
+                <tr>
+                  <td>위치</td>
+                  <td>콘텐츠 영역 위 Overlay</td>
+                  <td>좌측 메뉴를 밀어내지 않음</td>
+                </tr>
+                <tr>
+                  <td>테이블 레이아웃</td>
+                  <td>테이블 폭 유지</td>
+                  <td>Drawer가 테이블을 밀거나 줄이지 않음</td>
+                </tr>
+                <tr>
+                  <td>가로 스크롤</td>
+                  <td>콘텐츠/테이블 영역 기준</td>
+                  <td>페이지 전체 가로 스크롤 금지</td>
+                </tr>
+                <tr>
+                  <td>세로 스크롤</td>
+                  <td>Body 영역만 허용</td>
+                  <td>Header · Footer는 flex-shrink: 0으로 고정</td>
+                </tr>
+                <tr>
+                  <td>좁은 화면</td>
+                  <td>Full View 전환 우선</td>
+                  <td>뷰포트 &lt; 960px 이하 고려</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="ibox info">
+            <strong>Overlay 방식</strong>
+            Drawer는 좌측 메뉴(Sidebar)와 상단 Topbar를 제외한 콘텐츠 영역 위에만 올라온다. 좌측 메뉴 너비(<code>--sw: 256px</code>)는 항상 유지된다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S05 Mode Transition Rules ────────────── -->
+      <section id="s05" class="sec" data-screen-label="05 Mode Transition Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Mode Transition Rules — 모드 전환 기준</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">전환 흐름</p>
+          <div class="flow-row" style="gap:6px;flex-wrap:wrap;">
+            <div class="fbox">목록</div>
+            <span class="farr">→</span>
+            <div class="fbox">상세 Drawer</div>
+            <span class="farr">→</span>
+            <div class="fbox">수정 Drawer<br><small style="font-size:9px;font-weight:400;opacity:.7;">(같은 Drawer 내 mode 전환)</small></div>
+          </div>
+          <div class="flow-row" style="gap:6px;margin-top:6px;">
+            <div class="fbox">상세 Drawer</div>
+            <span class="farr">전체보기</span>
+            <div class="fbox end">전체 상세 화면</div>
+          </div>
+          <div class="flow-row" style="gap:6px;margin-top:6px;">
+            <div class="fbox">등록 Drawer</div>
+            <span class="farr">전체보기</span>
+            <div class="fbox end">전체 등록 화면</div>
+          </div>
+          <div class="flow-row" style="gap:6px;margin-top:6px;">
+            <div class="fbox">수정 Drawer</div>
+            <span class="farr">전체보기</span>
+            <div class="fbox end">전체 수정 화면</div>
+          </div>
+
+          <p class="sub">전환 세부 기준</p>
+          <div style="overflow-x:auto;">
+            <table class="stbl">
+              <thead>
+                <tr><th>전환</th><th>방법</th><th>비고</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>목록 → 상세 Drawer</td>
+                  <td>Row 클릭</td>
+                  <td>목록 유지, Drawer 슬라이드인</td>
+                </tr>
+                <tr>
+                  <td>상세 → 수정 Drawer</td>
+                  <td>상세 내 수정 버튼</td>
+                  <td>별도 페이지 이동 없이 같은 Drawer 안에서 mode 변경</td>
+                </tr>
+                <tr>
+                  <td>Drawer → Full View</td>
+                  <td>전체 보기 버튼</td>
+                  <td>Drawer 닫힘 → 본문 영역 전체 상세/등록/수정 화면으로 전환</td>
+                </tr>
+                <tr>
+                  <td>저장 완료</td>
+                  <td>—</td>
+                  <td>상세 Drawer로 전환 또는 목록 갱신 후 닫기</td>
+                </tr>
+                <tr>
+                  <td>Dirty 상태 닫기</td>
+                  <td>닫기 버튼 / ESC</td>
+                  <td><a href="STAM-Dialog-Guide.html" style="color:var(--info);">Dialog Guide</a> 기준 이탈 확인 Dialog 표시</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S06 Button Rules ────────────── -->
+      <section id="s06" class="sec" data-screen-label="06 Button Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Button Rules — 버튼 위계</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:4px;">
+            <strong>Button Guide 참조</strong>
+            버튼 크기·상태·아이콘 규칙은 <a href="STAM-Button-Guide.html" style="color:var(--info);">Button Guide</a>를 따른다.
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="stbl">
+              <thead>
+                <tr><th>액션</th><th>Variant</th><th>위치</th><th>비고</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>저장</td>
+                  <td><span class="bd-btn primary sm">Primary</span></td>
+                  <td>Footer 우측</td>
+                  <td>폼 저장, 수정 완료</td>
+                </tr>
+                <tr>
+                  <td>취소 / 닫기</td>
+                  <td><span class="bd-btn secondary sm">Secondary</span> 또는 <span class="bd-btn ghost sm">Ghost</span></td>
+                  <td>Footer 우측, Primary 좌측</td>
+                  <td>Dirty 없으면 즉시 닫기</td>
+                </tr>
+                <tr>
+                  <td>전체 보기</td>
+                  <td><span class="bd-btn secondary sm">Secondary</span></td>
+                  <td>Footer 좌측</td>
+                  <td>Full View 전환 CTA</td>
+                </tr>
+                <tr>
+                  <td>수정</td>
+                  <td><span class="bd-btn secondary sm">Secondary</span> 또는 <span class="bd-btn primary sm">Primary</span></td>
+                  <td>Footer 또는 Header 우측</td>
+                  <td>화면 맥락에 따라 선택</td>
+                </tr>
+                <tr>
+                  <td>삭제</td>
+                  <td><span class="bd-btn danger sm">Danger</span></td>
+                  <td>Footer 좌측 또는 별도 영역</td>
+                  <td>반드시 Dialog 확인 후 실행</td>
+                </tr>
+                <tr>
+                  <td>반려 / 권한 해제</td>
+                  <td><span class="bd-btn danger sm">Danger</span></td>
+                  <td>Footer</td>
+                  <td>Danger + Dialog 확인 필수</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S07 Form Rules ────────────── -->
+      <section id="s07" class="sec" data-screen-label="07 Form Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Form Rules — 폼 구성 기준</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:4px;">
+            <strong>Form Guide 참조</strong>
+            필드·유효성·라벨·에러 메시지 기준은 <a href="STAM-Form-Guide.html" style="color:var(--info);">Form Guide</a>를 따른다.
+          </div>
+          <ul class="blist">
+            <li>Drawer 내부 폼은 Field Group으로 나눈다. 관련 필드는 섹션 제목과 함께 묶는다.</li>
+            <li>긴 폼(필드 10개 초과, 복잡한 에디터 포함)은 전체보기 전환을 제공한다.</li>
+            <li>오류 메시지는 해당 필드 바로 아래에 표시한다. 상단 모아 표시는 사용하지 않는다.</li>
+            <li>저장 중 Loading 상태를 제공한다. Primary 버튼에 스피너를 표시한다.</li>
+            <li>Dirty 상태(입력값 변경 후 미저장)는 이탈 확인 대상이다. 닫기·ESC 시 Dialog 확인을 띄운다.</li>
+            <li>읽기 전용 필드는 입력 스타일이 아닌 텍스트 표시로 구분한다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ────────────── S08 Usage Rules ────────────── -->
+      <section id="s08" class="sec" data-screen-label="08 Usage Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Usage Rules — 사용 규칙</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div style="overflow-x:auto;">
+            <table class="stbl">
+              <thead>
+                <tr><th>상황</th><th>권장 컴포넌트</th><th>이유</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>단순 확인 / 경고</td>
+                  <td>Dialog</td>
+                  <td>짧고 즉각적인 응답이 필요한 경우</td>
+                </tr>
+                <tr>
+                  <td>목록 행 상세 확인</td>
+                  <td>Drawer 우선</td>
+                  <td>목록 맥락을 유지하면서 내용 확인</td>
+                </tr>
+                <tr>
+                  <td>복잡한 작성 / 긴 입력</td>
+                  <td>Full View 우선</td>
+                  <td>좁은 패널에서 긴 폼 작성은 UX 저하</td>
+                </tr>
+                <tr>
+                  <td>상세 → 수정 전환</td>
+                  <td>같은 Drawer 내 mode 전환</td>
+                  <td>별도 페이지 이동 없이 연속성 유지</td>
+                </tr>
+                <tr>
+                  <td>위험 액션 확인</td>
+                  <td>Drawer 내 Dialog</td>
+                  <td>삭제·반려는 Drawer 위에 Dialog로 이중 확인</td>
+                </tr>
+                <tr>
+                  <td>Drawer 중첩</td>
+                  <td>금지</td>
+                  <td>Drawer 안에 Drawer는 구조적으로 허용하지 않음</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <ul class="blist" style="margin-top:4px;">
+            <li>프로젝트 핵심 게시판(WBS·요구사항·화면설계서·테이블정의서·DB·서버정보·오픈시나리오)은 동일 Drawer 패턴을 따른다.</li>
+            <li>빈 탭·빈 섹션이 있더라도 탭/섹션 자체는 항상 표시하고 빈 상태 문구로 안내한다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ────────────── S09 Do / Don't ────────────── -->
+      <section id="s09" class="sec" data-screen-label="09 Do Don't">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Do / Don't</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div class="dd-grid">
+            <div class="dd-card do">
+              <div class="dd-hdr"><div class="dd-dot"></div>Do</div>
+              <ul class="dd-list">
+                <li>목록 맥락을 유지하면서 상세를 보여준다</li>
+                <li>전체보기 전환 버튼을 Footer 좌측에 제공한다</li>
+                <li>상세 → 수정 모드를 같은 Drawer 안에서 자연스럽게 전환한다</li>
+                <li>Footer 버튼 위계를 명확히 구분한다 (Primary / Secondary / Danger)</li>
+                <li>긴 내용은 Section Group으로 나눈다</li>
+                <li>Dirty 상태에서 닫기 시 이탈 확인 Dialog를 띄운다</li>
+                <li>Header와 Footer는 항상 고정하고 Body만 스크롤한다</li>
+              </ul>
+            </div>
+            <div class="dd-card dont">
+              <div class="dd-hdr"><div class="dd-dot"></div>Don't</div>
+              <ul class="dd-list">
+                <li>모든 화면을 억지로 Drawer 안에 넣는다</li>
+                <li>Drawer가 테이블·목록 레이아웃을 밀어내게 만든다</li>
+                <li>Drawer 안에 Drawer를 중첩한다</li>
+                <li>긴 폼을 좁은 Drawer에 그대로 넣는다 (전체보기 없이)</li>
+                <li>삭제·반려를 Dialog 확인 없이 즉시 실행한다</li>
+                <li>닫기(×)와 취소 버튼의 의미를 혼동해서 사용한다</li>
+                <li>좌측 메뉴나 Topbar 위에 Drawer를 올린다</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S10 Examples ────────────── -->
+      <section id="s10" class="sec" data-screen-label="10 Examples">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">STAM Drawer Examples — 정적 샘플</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:2px;">
+            실제 열기/닫기 동작은 구현하지 않는다. 예시는 정적 HTML 샘플로만 구성한다.
+          </div>
+          <div class="eg-grid">
+
+            <!-- EX1: WBS 작업 상세 Drawer -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="dtype-chip detail">상세</span>
+                <span class="eg-lbl">WBS 작업 상세 Drawer</span>
+              </div>
+              <div class="eg-body">
+                <div class="dw-bg">
+                  <div class="dw-bg-row hd"><div class="dw-bg-dot"></div><div class="dw-bg-dot sm"></div></div>
+                  <div class="dw-bg-row"><div class="dw-bg-dot active"></div><div class="dw-bg-dot sm"></div></div>
+                  <div class="dw-bg-row"><div class="dw-bg-dot"></div><div class="dw-bg-dot sm"></div></div>
+                  <div class="dw-bg-row"><div class="dw-bg-dot"></div><div class="dw-bg-dot sm"></div></div>
+                </div>
+                <div class="dw-panel">
+                  <div class="dw-head">
+                    <span class="dw-title">화면 설계 검토</span>
+                    <span class="dw-chip progress">진행중</span>
+                    <span class="dw-close">✕</span>
+                  </div>
+                  <div class="dw-body">
+                    <div class="dw-row">
+                      <div class="dw-field"><span class="dw-lbl">담당자</span><span class="dw-val">김민준</span></div>
+                      <div class="dw-field"><span class="dw-lbl">우선순위</span><span class="dw-val">높음</span></div>
+                    </div>
+                    <div class="dw-row">
+                      <div class="dw-field"><span class="dw-lbl">시작일</span><span class="dw-val">2026-06-01</span></div>
+                      <div class="dw-field"><span class="dw-lbl">종료일</span><span class="dw-val">2026-06-10</span></div>
+                    </div>
+                    <div class="dw-divider"></div>
+                    <div class="dw-field">
+                      <span class="dw-lbl">설명</span>
+                      <span class="dw-val" style="font-size:9.5px;line-height:1.5;">화면설계서 3차 검토 완료 후 고객사 승인 요청 예정</span>
+                    </div>
+                  </div>
+                  <div class="dw-foot-split">
+                    <span class="dw-btn fullview">전체 보기</span>
+                    <div style="display:flex;gap:4px;">
+                      <span class="dw-btn secondary">수정</span>
+                      <span class="dw-btn ghost">닫기</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EX2: 요구사항 등록 Drawer -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="dtype-chip create">등록</span>
+                <span class="eg-lbl">요구사항 등록 Drawer</span>
+              </div>
+              <div class="eg-body">
+                <div class="dw-bg">
+                  <div class="dw-bg-row hd"><div class="dw-bg-dot"></div><div class="dw-bg-dot sm"></div></div>
+                  <div class="dw-bg-row"><div class="dw-bg-dot"></div><div class="dw-bg-dot sm"></div></div>
+                  <div class="dw-bg-row"><div class="dw-bg-dot"></div><div class="dw-bg-dot sm"></div></div>
+                  <div class="dw-bg-row"><div class="dw-bg-dot"></div><div class="dw-bg-dot sm"></div></div>
+                </div>
+                <div class="dw-panel">
+                  <div class="dw-head">
+                    <span class="dw-title">요구사항 등록</span>
+                    <span class="dw-chip new">신규</span>
+                    <span class="dw-close">✕</span>
+                  </div>
+                  <div class="dw-body">
+                    <div class="dw-field">
+                      <span class="dw-lbl">요구사항명 <span style="color:#EF4444;">*</span></span>
+                      <div class="dw-input">요구사항명 입력</div>
+                    </div>
+                    <div class="dw-row">
+                      <div class="dw-field">
+                        <span class="dw-lbl">구분 <span style="color:#EF4444;">*</span></span>
+                        <div class="dw-input" style="display:flex;justify-content:space-between;align-items:center;">
+                          <span>기능</span><span style="font-size:7px;color:var(--t3);">▼</span>
+                        </div>
+                      </div>
+                      <div class="dw-field">
+                        <span class="dw-lbl">우선순위</span>
+                        <div class="dw-input" style="display:flex;justify-content:space-between;align-items:center;">
+                          <span>높음</span><span style="font-size:7px;color:var(--t3);">▼</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="dw-field">
+                      <span class="dw-lbl">설명</span>
+                      <div class="dw-textarea">내용 입력</div>
+                    </div>
+                  </div>
+                  <div class="dw-foot-split">
+                    <span class="dw-btn fullview">전체 보기</span>
+                    <div style="display:flex;gap:4px;">
+                      <span class="dw-btn ghost">취소</span>
+                      <span class="dw-btn primary">저장</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EX3: 상세 → 수정 모드 전환 -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="dtype-chip edit">수정</span>
+                <span class="eg-lbl">상세 Drawer → 수정 모드 전환</span>
+              </div>
+              <div class="eg-body">
+                <div class="dw-bg">
+                  <div class="dw-bg-row hd"><div class="dw-bg-dot"></div></div>
+                  <div class="dw-bg-row active"><div class="dw-bg-dot active"></div></div>
+                  <div class="dw-bg-row"><div class="dw-bg-dot"></div></div>
+                </div>
+                <div class="dw-panel">
+                  <div class="dw-head">
+                    <span class="dw-title">오픈 시나리오 #12</span>
+                    <span class="dw-mode-badge">수정 모드</span>
+                    <span class="dw-close">✕</span>
+                  </div>
+                  <div class="dw-body">
+                    <div class="dw-field">
+                      <span class="dw-lbl">시나리오명 <span style="color:#EF4444;">*</span></span>
+                      <div class="dw-input focus">신규 사용자 온보딩 흐름</div>
+                    </div>
+                    <div class="dw-field">
+                      <span class="dw-lbl">단계</span>
+                      <div class="dw-input" style="display:flex;justify-content:space-between;align-items:center;">
+                        <span>3단계 — 계정 생성</span><span style="font-size:7px;color:var(--t3);">▼</span>
+                      </div>
+                    </div>
+                    <div class="dw-field">
+                      <span class="dw-lbl">비고</span>
+                      <div class="dw-textarea">추가 설명 입력 중...</div>
+                    </div>
+                    <div style="font-size:8.5px;color:var(--warn);font-family:var(--font);">● 저장하지 않은 변경 사항이 있습니다</div>
+                  </div>
+                  <div class="dw-foot-split">
+                    <span class="dw-btn fullview">전체 보기</span>
+                    <div style="display:flex;gap:4px;">
+                      <span class="dw-btn ghost">취소</span>
+                      <span class="dw-btn primary">저장</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EX4: 전체 보기 전환 CTA -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="dtype-chip detail">상세</span>
+                <span class="eg-lbl">전체 보기 전환 CTA 예시</span>
+              </div>
+              <div class="eg-body">
+                <div class="dw-bg">
+                  <div class="dw-bg-row hd"><div class="dw-bg-dot"></div></div>
+                  <div class="dw-bg-row"><div class="dw-bg-dot active"></div></div>
+                  <div class="dw-bg-row"><div class="dw-bg-dot"></div></div>
+                  <div class="dw-bg-row"><div class="dw-bg-dot"></div></div>
+                </div>
+                <div class="dw-panel">
+                  <div class="dw-head">
+                    <span class="dw-title">화면설계서 v2.3</span>
+                    <span class="dw-close">✕</span>
+                  </div>
+                  <div class="dw-body">
+                    <div class="dw-field"><span class="dw-lbl">작성자</span><span class="dw-val">박서연</span></div>
+                    <div class="dw-field"><span class="dw-lbl">최종 수정</span><span class="dw-val">2026-06-07</span></div>
+                    <div class="dw-divider"></div>
+                    <div style="background:rgba(84,81,232,.06);border:1px dashed rgba(84,81,232,.25);border-radius:4px;padding:7px 8px;">
+                      <div style="font-size:9px;font-weight:700;color:#8B7FF8;font-family:var(--font);margin-bottom:3px;">긴 내용은 전체 보기를 사용하세요</div>
+                      <div style="font-size:8.5px;color:var(--t3);font-family:var(--font);line-height:1.5;">이 문서는 50개 이상의 화면 섹션을 포함합니다. 전체 내용은 전체 보기에서 확인하세요.</div>
+                    </div>
+                  </div>
+                  <div class="dw-foot-split">
+                    <span class="dw-btn fullview" style="font-size:9px;height:22px;padding:0 9px;font-weight:700;">↗ 전체 보기</span>
+                    <span class="dw-btn ghost">닫기</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EX5: 첨부파일/URL 관리 Drawer -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="dtype-chip attach">첨부</span>
+                <span class="eg-lbl">첨부파일 / URL 관리 Drawer</span>
+              </div>
+              <div class="eg-body">
+                <div class="dw-bg">
+                  <div class="dw-bg-row hd"><div class="dw-bg-dot"></div></div>
+                  <div class="dw-bg-row"><div class="dw-bg-dot active"></div></div>
+                  <div class="dw-bg-row"><div class="dw-bg-dot"></div></div>
+                </div>
+                <div class="dw-panel">
+                  <div class="dw-head">
+                    <span class="dw-title">첨부파일 관리</span>
+                    <span class="dw-close">✕</span>
+                  </div>
+                  <div class="dw-body">
+                    <span class="dw-section-title">파일 (3)</span>
+                    <div class="dw-attach-row">
+                      <span style="font-size:9px;color:var(--t3);">📄</span>
+                      <span class="dw-attach-nm">화면설계서_v2.3.pdf</span>
+                      <span class="dw-attach-meta">2.4 MB</span>
+                    </div>
+                    <div class="dw-attach-row">
+                      <span style="font-size:9px;color:var(--t3);">📄</span>
+                      <span class="dw-attach-nm">요구사항_정의서.xlsx</span>
+                      <span class="dw-attach-meta">440 KB</span>
+                    </div>
+                    <div class="dw-divider"></div>
+                    <span class="dw-section-title">URL (1)</span>
+                    <div class="dw-attach-row">
+                      <span style="font-size:9px;color:var(--t3);">🔗</span>
+                      <span class="dw-attach-nm">Figma 프로토타입 링크</span>
+                      <span class="dw-attach-meta">내부</span>
+                    </div>
+                  </div>
+                  <div class="dw-foot">
+                    <span class="dw-btn secondary" style="font-size:8px;">+ 파일 추가</span>
+                    <span class="dw-btn ghost">닫기</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EX6: 승인/검토 의견 Drawer -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="dtype-chip review">검토</span>
+                <span class="eg-lbl">승인 / 검토 의견 Drawer</span>
+              </div>
+              <div class="eg-body">
+                <div class="dw-bg">
+                  <div class="dw-bg-row hd"><div class="dw-bg-dot"></div></div>
+                  <div class="dw-bg-row"><div class="dw-bg-dot active"></div></div>
+                  <div class="dw-bg-row"><div class="dw-bg-dot"></div></div>
+                </div>
+                <div class="dw-panel">
+                  <div class="dw-head">
+                    <span class="dw-title">검토 요청 — 요구사항 #07</span>
+                    <span class="dw-chip review">검토중</span>
+                    <span class="dw-close">✕</span>
+                  </div>
+                  <div class="dw-body">
+                    <span class="dw-section-title">검토 의견 (2)</span>
+                    <div class="dw-comment">
+                      <div class="dw-comment-meta">이지원 · 2026-06-06</div>
+                      <div class="dw-comment-body">로그인 실패 시 잠금 정책 기준을 명시해 주세요.</div>
+                    </div>
+                    <div class="dw-comment">
+                      <div class="dw-comment-meta">박서연 · 2026-06-07</div>
+                      <div class="dw-comment-body">5회 실패 후 계정 잠금으로 정의했습니다. 확인 부탁드립니다.</div>
+                    </div>
+                    <div class="dw-divider"></div>
+                    <div class="dw-textarea" style="color:var(--t3);font-style:italic;">의견 입력...</div>
+                  </div>
+                  <div class="dw-foot-split">
+                    <span class="dw-btn danger" style="font-size:8px;">반려</span>
+                    <div style="display:flex;gap:4px;">
+                      <span class="dw-btn ghost">닫기</span>
+                      <span class="dw-btn primary">승인</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S11 Accessibility ────────────── -->
+      <section id="s11" class="sec" data-screen-label="11 Accessibility">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Accessibility — 접근성</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div style="overflow-x:auto;">
+            <table class="stbl">
+              <thead>
+                <tr><th>항목</th><th>기준</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Drawer 열림 시 Focus</td>
+                  <td>Drawer 내 첫 번째 인터랙티브 요소(닫기 버튼 또는 첫 입력 필드)로 자동 이동</td>
+                </tr>
+                <tr>
+                  <td>닫기 버튼 라벨</td>
+                  <td><code>aria-label="닫기"</code> 또는 <code>aria-label="Drawer 닫기"</code> 명시</td>
+                </tr>
+                <tr>
+                  <td>ESC 닫기</td>
+                  <td>ESC 키로 Drawer 닫기 지원. Dirty 상태에서는 이탈 확인 Dialog 표시</td>
+                </tr>
+                <tr>
+                  <td>키보드 이동 순서</td>
+                  <td>Drawer 열림 중 Tab 이동은 Drawer 내부로 제한(Focus Trap). 닫힘 시 진입 트리거 요소로 복귀</td>
+                </tr>
+                <tr>
+                  <td>Overlay 구분</td>
+                  <td>Scrim 영역은 <code>aria-hidden="true"</code>. 본문 영역은 <code>inert</code> 또는 <code>aria-hidden</code>으로 비활성화</td>
+                </tr>
+                <tr>
+                  <td>Screen Reader 제목</td>
+                  <td>Drawer 컨테이너에 <code>role="dialog"</code> + <code>aria-labelledby</code>로 제목 연결</td>
+                </tr>
+                <tr>
+                  <td>Dirty 확인 Dialog</td>
+                  <td>닫기·ESC 시 Dirty 상태라면 Dialog 확인 필수. Dialog Guide 기준 적용</td>
+                </tr>
+                <tr>
+                  <td>색상 단독 상태 표현 금지</td>
+                  <td>색상만으로 상태를 구분하지 않는다. 상태 칩·아이콘·텍스트를 함께 사용한다</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S12 QA Checklist ────────────── -->
+      <section id="s12" class="sec" data-screen-label="12 QA Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">QA Checklist</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div class="qa-grid">
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">Drawer가 필요한 상황인가? Dialog / Full View가 더 적합하지 않은가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">기본 폭 기준(콘텐츠 영역 약 40%)이 유지되는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">테이블·목록 레이아웃을 밀어내지 않는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">전체보기 버튼이 필요한 경우 Footer 좌측에 제공되는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">상세 → 수정 전환이 같은 Drawer 내부에서 이루어지는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">Footer 버튼 위계가 올바른가? (Primary · Secondary · Danger)</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">Dirty 상태 닫기 시 이탈 확인 Dialog가 표시되는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">Header · Footer는 고정되고, Body 영역만 스크롤되는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">닫기 버튼에 접근성 라벨(aria-label)이 있는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">S-Core Dream 폰트가 유지되는가? (Pretendard·Gulim·Dotum 금지)</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">Drawer 중첩이 없는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">가로 스크롤이 페이지 전체에 발생하지 않는가?</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S13 Related Links ────────────── -->
+      <section id="s13" class="sec" data-screen-label="13 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Related Links — 관련 문서</span>
+        </div>
+        <div class="sec-body">
+          <div class="rel-grid">
+            <a href="../STAM-Docs-Index.html" class="rel-card">
+              <div class="rel-ico">Idx</div>
+              <div class="rel-body">
+                <div class="rel-title">Docs Index</div>
+                <div class="rel-sub">전체 문서 목록</div>
+              </div>
+            </a>
+            <a href="../STAM-Component-Guide.html" class="rel-card">
+              <div class="rel-ico">Cmp</div>
+              <div class="rel-body">
+                <div class="rel-title">Component Guide</div>
+                <div class="rel-sub">컴포넌트 전체 목록</div>
+              </div>
+            </a>
+            <a href="STAM-Button-Guide.html" class="rel-card">
+              <div class="rel-ico">Btn</div>
+              <div class="rel-body">
+                <div class="rel-title">Button Guide</div>
+                <div class="rel-sub">버튼 위계·상태·크기</div>
+              </div>
+            </a>
+            <a href="STAM-Dialog-Guide.html" class="rel-card">
+              <div class="rel-ico">Dlg</div>
+              <div class="rel-body">
+                <div class="rel-title">Dialog Guide</div>
+                <div class="rel-sub">이탈 확인 Dialog 기준</div>
+              </div>
+            </a>
+            <a href="STAM-Form-Guide.html" class="rel-card">
+              <div class="rel-ico">Frm</div>
+              <div class="rel-body">
+                <div class="rel-title">Form Guide</div>
+                <div class="rel-sub">필드·유효성·에러 기준</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop; var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>

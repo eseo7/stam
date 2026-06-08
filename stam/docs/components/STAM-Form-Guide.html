@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Form Guide</title>
+<link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../../css/stam.tokens.css">
+<link rel="stylesheet" href="../../css/stam.shell.css">
+<link rel="stylesheet" href="../../css/stam.components.css">
+<link rel="stylesheet" href="../../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../../css/stam.docs.css">
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a href="../STAM-Component-Guide.html" class="doc-nav-back">← Component Guide</a>
+  <span class="doc-nav-title">Form Guide</span>
+  <span class="doc-nav-pill"><span class="dot"></span>v1</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<style>
+/* ================================================================
+ * Form Guide — 데모 전용 스타일
+ * 이 파일에서만 사용. stam.components.css 영향 없음.
+ * ================================================================ */
+
+/* ---- 데모 버튼 (Button Guide 기준 동일) ---- */
+.bd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font) !important;
+  font-weight: 600;
+  border-radius: var(--r-md);
+  cursor: default;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  position: relative;
+  user-select: none;
+  box-sizing: border-box;
+  text-decoration: none;
+  line-height: 1;
+}
+.bd-btn.primary   { background: var(--brand);   color: #fff;      border-color: var(--brand); }
+.bd-btn.secondary { background: var(--bg-sur2); color: var(--t1); border-color: var(--bd-s); }
+.bd-btn.ghost     { background: transparent;    color: var(--t1); border-color: var(--bd); }
+.bd-btn.danger    { background: #EF4444;        color: #fff;      border-color: #EF4444; }
+.bd-btn.md { height: 36px; padding: 0 16px; font-size: 13px; }
+.bd-btn.sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+
+/* ---- Form Type 칩 ---- */
+.ftype-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 700;
+  font-family: var(--font) !important;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ftype-chip.create     { background: var(--info-bg);            color: var(--info); }
+.ftype-chip.edit       { background: rgba(84,81,232,.12);       color: #8B7FF8; }
+.ftype-chip.search     { background: var(--skip-bg);            color: var(--skip); }
+.ftype-chip.inline     { background: var(--warn-bg);            color: var(--warn); }
+.ftype-chip.approval   { background: var(--pass-bg);            color: var(--pass); }
+.ftype-chip.attachment { background: var(--purple-bg);          color: var(--purple); }
+.ftype-chip.readonly   { background: var(--skip-bg);            color: var(--skip); }
+[data-theme="light"] .ftype-chip.edit { color: #5451E8; }
+
+/* ---- Validation 상태 칩 ---- */
+.vstate-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 700;
+  font-family: var(--font) !important;
+  white-space: nowrap;
+}
+.vstate-chip.required { background: var(--info-bg);          color: var(--info); }
+.vstate-chip.invalid  { background: var(--fail-bg);          color: #991B1B; }
+.vstate-chip.warning  { background: var(--warn-bg);          color: var(--warn); }
+.vstate-chip.success  { background: var(--pass-bg);          color: var(--pass); }
+.vstate-chip.readonly { background: var(--skip-bg);          color: var(--skip); }
+.vstate-chip.disabled { background: var(--skip-bg);          color: var(--skip); opacity: .65; }
+.vstate-chip.loading  { background: rgba(84,81,232,.12);     color: #8B7FF8; }
+.vstate-chip.dirty    { background: var(--warn-bg);          color: var(--warn); }
+[data-theme="light"] .vstate-chip.loading { color: #5451E8; }
+
+/* ---- Do / Don't ---- */
+.dd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 580px) { .dd-grid { grid-template-columns: 1fr; } }
+.dd-card {
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dd-card.do   { background: rgba(0,191,64,.05);  border: 1px solid rgba(0,191,64,.20); }
+.dd-card.dont { background: rgba(239,68,68,.05); border: 1px solid rgba(239,68,68,.18); }
+.dd-hdr {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font) !important;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.dd-card.do   .dd-hdr { color: var(--pass); }
+.dd-card.dont .dd-hdr { color: var(--fail); }
+.dd-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+.dd-card.do   .dd-dot { background: var(--pass); }
+.dd-card.dont .dd-dot { background: var(--fail); }
+.dd-list { list-style: none; display: flex; flex-direction: column; gap: 5px; padding: 0; margin: 0; }
+.dd-list li {
+  font-size: 12px;
+  color: var(--t2);
+  font-family: var(--font) !important;
+  line-height: 1.45;
+  padding-left: 16px;
+  position: relative;
+}
+.dd-card.do   .dd-list li::before { content: '✓'; position: absolute; left: 0; color: var(--pass); font-size: 10px; font-weight: 700; top: 1px; }
+.dd-card.dont .dd-list li::before { content: '✕'; position: absolute; left: 0; color: var(--fail); font-size: 10px; font-weight: 700; top: 1px; }
+
+/* ---- 예시 카드 그리드 ---- */
+.eg-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+@media (max-width: 680px) { .eg-grid { grid-template-columns: 1fr; } }
+.eg-card {
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.eg-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--bd);
+}
+.eg-lbl {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--t1);
+  font-family: var(--font) !important;
+  flex: 1;
+}
+.eg-body {
+  padding: 16px 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background: rgba(23,23,25,.36);
+  min-height: 220px;
+}
+[data-theme="light"] .eg-body { background: rgba(15,23,42,.09); }
+
+/* ---- Form 데모 필드 ---- */
+.fd-form {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  width: 100%;
+  max-width: 304px;
+}
+.fd-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.fd-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+.fd-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--t1);
+  font-family: var(--font) !important;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  line-height: 1.3;
+}
+.fd-req {
+  color: #EF4444;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font) !important;
+}
+.fd-input {
+  background: var(--bg-sur);
+  border: 1px solid var(--bd-s);
+  border-radius: var(--r-md);
+  padding: 6px 9px;
+  font-size: 11px;
+  color: var(--t3);
+  font-family: var(--font) !important;
+  line-height: 1.4;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+.fd-textarea {
+  background: var(--bg-sur);
+  border: 1px solid var(--bd-s);
+  border-radius: var(--r-md);
+  padding: 6px 9px;
+  font-size: 11px;
+  color: var(--t3);
+  font-family: var(--font) !important;
+  line-height: 1.55;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 52px;
+}
+.fd-input.filled    { color: var(--t1); }
+.fd-input.focus     { border-color: var(--bd-f); box-shadow: 0 0 0 2px rgba(84,81,232,.14); color: var(--t1); }
+.fd-input.error     { border-color: #EF4444; background: rgba(239,68,68,.04); }
+.fd-input.success   { border-color: #10B981; }
+.fd-input.disabled  { opacity: 0.42; }
+.fd-input.readonly  { background: var(--bg-sur2); color: var(--t2); border-color: var(--bd); }
+.fd-input.dashed    { border-style: dashed; color: var(--t3); }
+.fd-input.select    { justify-content: space-between; cursor: default; }
+.fd-sel-arr         { font-size: 9px; color: var(--t3); flex-shrink: 0; }
+.fd-help {
+  font-size: 10px;
+  color: var(--t3);
+  font-family: var(--font) !important;
+  line-height: 1.5;
+}
+.fd-error-msg {
+  font-size: 10px;
+  color: #EF4444;
+  font-family: var(--font) !important;
+  line-height: 1.4;
+}
+.fd-counter {
+  font-size: 9.5px;
+  color: var(--t3);
+  font-family: var(--font) !important;
+  text-align: right;
+}
+.fd-group {
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  padding: 9px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.fd-group-title {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--t3);
+  font-family: var(--font) !important;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--bd);
+}
+.fd-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  padding-top: 7px;
+  border-top: 1px solid var(--bd);
+}
+.fd-readonly-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.fd-readonly-lbl {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--t3);
+  font-family: var(--font) !important;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.fd-readonly-val {
+  font-size: 12px;
+  color: var(--t1);
+  font-family: var(--font) !important;
+  line-height: 1.4;
+}
+.fd-status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 700;
+  font-family: var(--font) !important;
+  background: var(--pass-bg);
+  color: var(--pass);
+}
+.fd-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 600;
+  font-family: var(--font) !important;
+  background: var(--skip-bg);
+  color: var(--skip);
+}
+.fd-badge.active {
+  background: rgba(84,81,232,.13);
+  color: #8B7FF8;
+}
+[data-theme="light"] .fd-badge.active { color: #5451E8; }
+.fd-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.fd-search-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.fd-search-box {
+  flex: 1;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd-s);
+  border-radius: var(--r-md);
+  padding: 6px 9px;
+  font-size: 11px;
+  color: var(--t3);
+  font-family: var(--font) !important;
+  min-width: 0;
+}
+
+/* ---- 구조 다이어그램 ---- */
+.anm-frame {
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  flex-wrap: wrap;
+}
+.anm-preview {
+  flex: 1;
+  min-width: 230px;
+  background: rgba(23,23,25,.36);
+  border-radius: var(--r-md);
+  padding: 20px 52px 20px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+[data-theme="light"] .anm-preview { background: rgba(15,23,42,.10); }
+
+.anm-field {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.anm-lbl-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+.anm-lbl {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--t1);
+  font-family: var(--font) !important;
+}
+.anm-req {
+  color: #EF4444;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font) !important;
+}
+.anm-input-box {
+  background: var(--bg-sur);
+  border: 1.5px solid var(--bd-f);
+  border-radius: var(--r-md);
+  padding: 7px 10px;
+  font-size: 11px;
+  color: var(--t1);
+  font-family: var(--font) !important;
+  box-shadow: 0 0 0 2px rgba(84,81,232,.14);
+  position: relative;
+}
+.anm-placeholder {
+  font-size: 11px;
+  color: var(--t3);
+  font-family: var(--font) !important;
+  font-style: italic;
+  padding: 7px 10px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd-s);
+  border-radius: var(--r-md);
+}
+.anm-help-text {
+  font-size: 10px;
+  color: var(--t3);
+  font-family: var(--font) !important;
+}
+.anm-err-text {
+  font-size: 10px;
+  color: #EF4444;
+  font-family: var(--font) !important;
+}
+.anm-cnt-text {
+  font-size: 9.5px;
+  color: var(--t3);
+  font-family: var(--font) !important;
+  text-align: right;
+}
+
+.anm-row-wrap {
+  position: relative;
+}
+.anm-tag {
+  position: absolute;
+  right: -102px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8.5px;
+  font-weight: 700;
+  color: rgba(139,127,248,.78);
+  font-family: var(--font) !important;
+  white-space: nowrap;
+  letter-spacing: .02em;
+  background: rgba(84,81,232,.10);
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+[data-theme="light"] .anm-tag { color: #5451E8; background: rgba(84,81,232,.08); }
+
+.anm-legend {
+  width: 176px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.anm-leg-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 11px;
+  font-family: var(--font) !important;
+  color: var(--t2);
+  line-height: 1.4;
+}
+.anm-leg-n {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: rgba(84,81,232,.18);
+  color: #8B7FF8;
+  font-size: 8.5px;
+  font-weight: 700;
+  font-family: var(--font) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+[data-theme="light"] .anm-leg-n { background: rgba(84,81,232,.10); color: #5451E8; }
+.anm-leg-name { font-weight: 700; color: var(--t1); display: block; margin-bottom: 1px; }
+.anm-leg-desc { font-size: 10.5px; color: var(--t3); }
+
+/* ---- Related Links ---- */
+.rel-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.rel-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brand);
+  text-decoration: none;
+  font-family: var(--font) !important;
+  transition: border-color 120ms, background 120ms;
+}
+.rel-link:hover {
+  border-color: rgba(84,81,232,.35);
+  background: rgba(84,81,232,.06);
+}
+[data-theme="dark"] .rel-link { color: var(--accent); }
+
+/* ---- S-Core Dream 강제 방어 ---- */
+.fd-form *, .anm-field *, .anm-legend *,
+.eg-card *, .dd-card *, .bd-btn,
+.ftype-chip, .vstate-chip, .rel-link {
+  font-family: var(--font) !important;
+}
+
+@media (max-width: 600px) {
+  .fd-row { grid-template-columns: 1fr; }
+  .anm-frame { flex-direction: column; }
+  .anm-legend { width: 100%; }
+  .anm-preview { padding-right: 16px; }
+  .anm-tag { display: none; }
+}
+</style>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Form Guide</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Form Types</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Field Structure</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Field Types</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Layout Rules</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Validation Rules</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Usage Rules</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Do / Don't</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Form Examples</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Accessibility</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>QA Checklist</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ═══ S01 Overview ═══ -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview</span>
+          <span class="sbadge guide">가이드</span>
+        </div>
+        <div class="sec-body">
+          <div class="meta-row">
+            <div class="meta-cell">
+              <span class="meta-k">컴포넌트</span>
+              <span class="meta-v">Form Elements</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-k">포함 유형</span>
+              <span class="meta-v">Create · Edit · Search · Inline · Approval · Attachment</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-k">CSS 위치</span>
+              <span class="meta-v code">stam.components.css</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-k">상태</span>
+              <span class="meta-v code">가이드 확정 v1</span>
+            </div>
+          </div>
+
+          <p class="sub">목적</p>
+          <ul class="blist">
+            <li>STAM Form Guide는 산출물 등록/수정, 검색/필터, 승인/반려, 첨부/URL 입력, 프로젝트 설정 등 전체 화면에서 일관된 입력 폼 기준을 제공한다.</li>
+            <li>입력 폼은 데이터 품질과 업무 흐름을 결정하는 핵심 컴포넌트다. 잘못 설계된 폼은 입력 오류, 데이터 누락, 승인 지연의 원인이 된다.</li>
+            <li>화면마다 임의 폼 스타일을 만들지 않는다. 이 가이드에서 정의한 필드 구조, 레이아웃, 검증 기준을 공통으로 따른다.</li>
+            <li>Button Guide / Dialog Guide 기준을 Form과 함께 적용한다. 저장·취소 버튼 위계, 이탈 확인 Dialog는 각 가이드를 참조한다.</li>
+          </ul>
+
+          <div class="ibox info">
+            <strong>현재 구현 상태</strong>
+            현재 WBS·프로젝트 개요 화면의 필터 입력 요소는 각 화면 CSS에 직접 정의되어 있다.
+            공통 폼 컴포넌트 정규화는 이 가이드 확정 후 <code>stam.components.css</code>에 추가한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ S02 Form Types ═══ -->
+      <section id="s02" class="sec" data-screen-label="02 Form Types">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Form Types — 폼 유형 정의</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">유형 정의</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>목적</th>
+                <th>배치 위치</th>
+                <th>사용 예시</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="ftype-chip create">Create Form</span></td>
+                <td>신규 데이터 등록</td>
+                <td>Drawer 또는 Full View</td>
+                <td>산출물 등록, 프로젝트 생성</td>
+              </tr>
+              <tr>
+                <td><span class="ftype-chip edit">Edit Form</span></td>
+                <td>기존 데이터 수정</td>
+                <td>Drawer 또는 Full View</td>
+                <td>요구사항 수정, WBS 작업 수정</td>
+              </tr>
+              <tr>
+                <td><span class="ftype-chip search">Search / Filter Form</span></td>
+                <td>목록 검색과 조건 필터</td>
+                <td>목록 상단 Toolbar 영역</td>
+                <td>상태, 담당자, 기간, 키워드 검색</td>
+              </tr>
+              <tr>
+                <td><span class="ftype-chip inline">Inline Form</span></td>
+                <td>짧은 단일 입력</td>
+                <td>목록 행 내 또는 하단</td>
+                <td>댓글 입력, 간단 메모</td>
+              </tr>
+              <tr>
+                <td><span class="ftype-chip approval">Approval Form</span></td>
+                <td>승인/반려/검토 의견 입력</td>
+                <td>Dialog 또는 Drawer</td>
+                <td>반려 사유, 승인 의견</td>
+              </tr>
+              <tr>
+                <td><span class="ftype-chip attachment">Attachment / URL Form</span></td>
+                <td>첨부파일과 URL 참조 입력</td>
+                <td>Drawer 탭 내 섹션</td>
+                <td>파일 설명, URL명, 공개범위</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ibox info">
+            <strong>폼 유형과 화면 선택 기준</strong>
+            긴 Create / Edit Form은 작은 Dialog에 넣지 않는다. Dialog 높이가 뷰포트 70%를 넘으면 Drawer 또는 Full View로 전환한다.
+            Approval Form은 내용이 짧으면 Dialog에, 긴 사유 입력이 필요한 경우 Drawer에 배치한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ S03 Field Structure ═══ -->
+      <section id="s03" class="sec" data-screen-label="03 Field Structure">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Field Structure — 필드 구성 요소</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">구성 요소</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>요소</th>
+                <th>역할</th>
+                <th>필수 여부</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono">①</td>
+                <td>Label</td>
+                <td>필드의 의미를 명확히 전달하는 텍스트. <code>for</code> 속성으로 input과 연결한다. Placeholder를 Label 대체로 사용하지 않는다.</td>
+                <td>필수</td>
+              </tr>
+              <tr>
+                <td class="mono">②</td>
+                <td>Required Mark</td>
+                <td>필수 항목임을 표시하는 <code>*</code> 마크. Label 우측에 배치. 색상(<code>#EF4444</code>)과 텍스트를 함께 제공한다.</td>
+                <td>필수값에 필수</td>
+              </tr>
+              <tr>
+                <td class="mono">③</td>
+                <td>Input / Select / Textarea</td>
+                <td>실제 입력이 이루어지는 컨트롤 영역. Default · Focus · Filled · Error · Disabled · Readonly 상태를 처리한다.</td>
+                <td>필수</td>
+              </tr>
+              <tr>
+                <td class="mono">④</td>
+                <td>Placeholder</td>
+                <td>입력 전 힌트 텍스트. Label이 있을 때에만 보조 목적으로 사용. 입력 후 사라진다. Label을 대체하지 않는다.</td>
+                <td>권장</td>
+              </tr>
+              <tr>
+                <td class="mono">⑤</td>
+                <td>Help Text</td>
+                <td>업무 기준이나 입력 조건을 보충 설명하는 텍스트. 필드 아래에 위치.</td>
+                <td>선택</td>
+              </tr>
+              <tr>
+                <td class="mono">⑥</td>
+                <td>Error Message</td>
+                <td>유효성 실패 시 필드 바로 아래에 표시. 사용자가 직접 고칠 수 있는 문장으로 작성한다.</td>
+                <td>오류 시 필수</td>
+              </tr>
+              <tr>
+                <td class="mono">⑦</td>
+                <td>Counter</td>
+                <td>입력 글자수 현황. Textarea 우측 하단에 표시. <code>현재/최대</code> 형식.</td>
+                <td>선택</td>
+              </tr>
+              <tr>
+                <td class="mono">⑧</td>
+                <td>Field Group</td>
+                <td>연관된 필드를 묶는 컨테이너. 구분선 또는 배경색으로 그룹을 시각화한다.</td>
+                <td>선택</td>
+              </tr>
+              <tr>
+                <td class="mono">⑨</td>
+                <td>Action Area</td>
+                <td>저장/취소 버튼 영역. Drawer footer 또는 Form 하단. Button Guide 기준을 따른다.</td>
+                <td>필수</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p class="sub">구조 다이어그램</p>
+          <div class="anm-frame">
+            <div class="anm-preview">
+              <div class="anm-field">
+                <div class="anm-row-wrap">
+                  <div class="anm-lbl-row">
+                    <span class="anm-lbl">산출물명</span>
+                    <span class="anm-req">*</span>
+                  </div>
+                  <span class="anm-tag" style="top:8px; right:-108px;">① Label &nbsp; ② Required</span>
+                </div>
+                <div class="anm-row-wrap">
+                  <div class="anm-input-box">WBS Phase 1 분석 보고서</div>
+                  <span class="anm-tag" style="top:12px; right:-55px;">③ Input</span>
+                </div>
+                <div class="anm-row-wrap" style="position:relative;">
+                  <div class="anm-placeholder">예: 분석 보고서 최종본</div>
+                  <span class="anm-tag" style="top:8px; right:-68px;">④ Placeholder</span>
+                </div>
+                <div class="anm-row-wrap" style="position:relative;">
+                  <div class="anm-help-text">산출물 목록에 표시되는 이름입니다.</div>
+                  <span class="anm-tag" style="top:2px; right:-68px;">⑤ Help Text</span>
+                </div>
+                <div class="anm-row-wrap" style="position:relative;">
+                  <div class="anm-err-text">⚠ 이미 등록된 산출물명입니다.</div>
+                  <span class="anm-tag" style="top:2px; right:-55px;">⑥ Error</span>
+                </div>
+                <div class="anm-row-wrap" style="position:relative;">
+                  <div class="anm-cnt-text">12 / 80</div>
+                  <span class="anm-tag" style="top:2px; right:-55px;">⑦ Counter</span>
+                </div>
+              </div>
+            </div>
+            <div class="anm-legend">
+              <div class="anm-leg-item">
+                <span class="anm-leg-n">①</span>
+                <div><span class="anm-leg-name">Label</span><span class="anm-leg-desc">필드 의미를 명확히 전달</span></div>
+              </div>
+              <div class="anm-leg-item">
+                <span class="anm-leg-n">②</span>
+                <div><span class="anm-leg-name">Required Mark</span><span class="anm-leg-desc">필수값 표시 — * + 붉은색</span></div>
+              </div>
+              <div class="anm-leg-item">
+                <span class="anm-leg-n">③</span>
+                <div><span class="anm-leg-name">Input Control</span><span class="anm-leg-desc">6가지 상태 처리</span></div>
+              </div>
+              <div class="anm-leg-item">
+                <span class="anm-leg-n">④</span>
+                <div><span class="anm-leg-name">Placeholder</span><span class="anm-leg-desc">보조 힌트 — Label 대체 불가</span></div>
+              </div>
+              <div class="anm-leg-item">
+                <span class="anm-leg-n">⑤</span>
+                <div><span class="anm-leg-name">Help Text</span><span class="anm-leg-desc">업무 기준 보충 설명</span></div>
+              </div>
+              <div class="anm-leg-item">
+                <span class="anm-leg-n">⑥</span>
+                <div><span class="anm-leg-name">Error Message</span><span class="anm-leg-desc">필드 바로 아래 · 고칠 수 있는 문장</span></div>
+              </div>
+              <div class="anm-leg-item">
+                <span class="anm-leg-n">⑦</span>
+                <div><span class="anm-leg-name">Counter</span><span class="anm-leg-desc">현재/최대 · 우측 하단</span></div>
+              </div>
+              <div class="anm-leg-item">
+                <span class="anm-leg-n">⑧</span>
+                <div><span class="anm-leg-name">Field Group</span><span class="anm-leg-desc">연관 필드 묶음 컨테이너</span></div>
+              </div>
+              <div class="anm-leg-item">
+                <span class="anm-leg-n">⑨</span>
+                <div><span class="anm-leg-name">Action Area</span><span class="anm-leg-desc">저장·취소 버튼 영역</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ S04 Field Types ═══ -->
+      <section id="s04" class="sec" data-screen-label="04 Field Types">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Field Types — 필드 유형 정의</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>유형</th>
+                <th>사용 위치</th>
+                <th>사용 예</th>
+                <th>주의사항</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Text Input</td>
+                <td>단행 텍스트 — 이름, 제목</td>
+                <td>산출물명, 프로젝트명, URL</td>
+                <td>최대 글자수를 사전에 정의한다</td>
+              </tr>
+              <tr>
+                <td>Textarea</td>
+                <td>다행 텍스트 — 설명, 의견</td>
+                <td>산출물 설명, 반려 사유, 작업 메모</td>
+                <td>resize는 vertical only. 글자수 카운터 권장</td>
+              </tr>
+              <tr>
+                <td>Select</td>
+                <td>단일 선택 — 상태, 분류</td>
+                <td>상태(진행중/완료), 우선순위, 담당자</td>
+                <td>옵션명은 목록 필터와 용어 통일</td>
+              </tr>
+              <tr>
+                <td>Multi Select</td>
+                <td>복수 선택 — 태그, 참여자</td>
+                <td>관련 WBS 항목, 참여자 지정</td>
+                <td>선택 항목이 많아지면 태그 형태로 표시</td>
+              </tr>
+              <tr>
+                <td>Checkbox</td>
+                <td>다중 선택 — 공개범위, 옵션</td>
+                <td>내보내기 포함, 고객 공개</td>
+                <td>단독 사용 시 Toggle과 구분해 사용</td>
+              </tr>
+              <tr>
+                <td>Radio</td>
+                <td>단일 선택 — 2~5개 고정 옵션</td>
+                <td>우선순위(높음/중간/낮음), 공개범위</td>
+                <td>옵션이 5개 초과하면 Select로 전환</td>
+              </tr>
+              <tr>
+                <td>Date Picker</td>
+                <td>날짜 선택 — 기간, 마감일</td>
+                <td>시작일, 마감일, 검색 기간</td>
+                <td>날짜 형식은 YYYY-MM-DD로 통일. 직접 입력 허용</td>
+              </tr>
+              <tr>
+                <td>File Upload</td>
+                <td>첨부파일 등록</td>
+                <td>산출물 파일 첨부, 참고 자료</td>
+                <td>허용 확장자, 최대 파일 크기를 Help Text로 안내</td>
+              </tr>
+              <tr>
+                <td>URL Input</td>
+                <td>외부 링크 입력</td>
+                <td>Confluence, Jira, GitHub 링크</td>
+                <td>URL 형식 유효성 검사 필수. 프로토콜 포함 입력 안내</td>
+              </tr>
+              <tr>
+                <td>Search Input</td>
+                <td>목록 검색 키워드 입력</td>
+                <td>산출물 검색, 담당자 검색</td>
+                <td>검색 아이콘(돋보기)을 Prefix로 배치</td>
+              </tr>
+              <tr>
+                <td>Toggle</td>
+                <td>즉시 적용되는 ON/OFF 전환</td>
+                <td>알림 ON/OFF, 공개 여부</td>
+                <td>저장 버튼 없이 즉시 반영되는 경우에만 사용</td>
+              </tr>
+              <tr>
+                <td>Readonly Field</td>
+                <td>수정 불가 정보 표시</td>
+                <td>생성일, 생성자, 승인자 ID</td>
+                <td>Disabled와 시각적으로 구분. 텍스트 복사는 허용</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ═══ S05 Layout Rules ═══ -->
+      <section id="s05" class="sec" data-screen-label="05 Layout Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Layout Rules — 폼 배치 기준</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">배치 원칙</p>
+          <ul class="blist">
+            <li>기본은 세로형 Label + Field 구조다. Label은 필드 상단에 고정하고 좌측 정렬 배치를 우선한다.</li>
+            <li>관련 필드는 Field Group으로 묶는다. 그룹 제목(Group Title)과 구분선으로 섹션을 시각화한다.</li>
+            <li>필수 입력값은 Label 옆에 <code>*</code>로 명확히 표시한다. 폼 상단에 "* 는 필수 항목" 안내를 추가할 수 있다.</li>
+            <li>검색/필터 영역은 Compact하게 구성한다. Label 없이 Placeholder와 아이콘으로 대체 가능한 유일한 예외 영역이다.</li>
+            <li>긴 입력 폼은 Dialog보다 Drawer 또는 Full View를 우선한다. Dialog 높이가 뷰포트 70%를 넘으면 분리한다.</li>
+            <li>2열 이상 배치는 충분한 폭(최소 600px 이상)에서만 사용한다. 연관성이 높은 필드(시작일/종료일)끼리 묶는다.</li>
+            <li>모바일(뷰포트 폭 640px 미만)에서는 1열로 전환한다.</li>
+            <li>저장/취소 버튼은 Button Guide 기준을 따른다. Drawer footer 또는 Form 하단 우측 정렬로 배치한다.</li>
+          </ul>
+
+          <div class="ibox warn">
+            <strong>검색/필터 레이아웃 예외</strong>
+            Search / Filter Form에서는 Label 없이 Placeholder + 아이콘으로 필드를 표현할 수 있다.
+            단, 스크린 리더를 위한 <code>aria-label</code>은 반드시 각 컨트롤에 직접 지정해야 한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ S06 Validation Rules ═══ -->
+      <section id="s06" class="sec" data-screen-label="06 Validation Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Validation Rules — 유효성 검사 기준</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">상태 정의</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>상태</th>
+                <th>시각 처리</th>
+                <th>발생 조건</th>
+                <th>메시지 위치</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="vstate-chip required">Required</span></td>
+                <td>Label 옆 <code>*</code> 붉은색 표시</td>
+                <td>필수 필드 지정 시 항상 표시</td>
+                <td>Label 영역</td>
+              </tr>
+              <tr>
+                <td><span class="vstate-chip invalid">Invalid</span></td>
+                <td>테두리 <code>--fail</code> 색상, 배경 미세 붉은 틴트</td>
+                <td>형식 오류, 필수값 누락, 중복 입력</td>
+                <td>필드 바로 아래 오류 메시지</td>
+              </tr>
+              <tr>
+                <td><span class="vstate-chip warning">Warning</span></td>
+                <td>테두리 <code>--warn</code> 색상, 경고 아이콘</td>
+                <td>권장값 범위 초과, 업무 주의 사항</td>
+                <td>필드 바로 아래 경고 메시지</td>
+              </tr>
+              <tr>
+                <td><span class="vstate-chip success">Success</span></td>
+                <td>테두리 <code>--pass</code> 색상, 체크 아이콘</td>
+                <td>URL 유효성 확인, 중복 체크 통과</td>
+                <td>필드 바로 아래 (간결하게)</td>
+              </tr>
+              <tr>
+                <td><span class="vstate-chip readonly">Readonly</span></td>
+                <td>배경 <code>--bg-sur2</code>, 커서 <code>default</code></td>
+                <td>수정 권한 없음, 시스템 자동 입력 값</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><span class="vstate-chip disabled">Disabled</span></td>
+                <td>전체 opacity 0.4, 커서 <code>not-allowed</code></td>
+                <td>조건 미충족, 폼 제출 중</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><span class="vstate-chip loading">Loading</span></td>
+                <td>버튼 Loading 스피너, 입력 필드 비활성</td>
+                <td>저장 요청 중, 비동기 유효성 확인 중</td>
+                <td>버튼 내 스피너</td>
+              </tr>
+              <tr>
+                <td><span class="vstate-chip dirty">Dirty / Unsaved</span></td>
+                <td>헤더 또는 탭에 미저장 표시 (선택)</td>
+                <td>초기값 대비 변경사항이 존재</td>
+                <td>이탈 시 Confirm Dialog 연동</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p class="sub">검증 원칙</p>
+          <ul class="blist">
+            <li>오류 메시지는 필드 바로 아래에 표시한다. 상단 에러 박스에 모아서 표시하지 않는다.</li>
+            <li>오류 메시지는 사용자가 직접 고칠 수 있는 문장으로 작성한다. 나쁜 예: "필수 항목입니다" → 좋은 예: "산출물명을 입력해 주세요."</li>
+            <li>저장 실패(서버 오류)와 입력 오류(클라이언트 유효성 실패)를 구분해 처리한다.</li>
+            <li>필수값 누락은 저장 시점에 명확히 안내하고 첫 번째 오류 필드로 포커스를 이동한다.</li>
+            <li>Dirty 상태에서 이탈할 때는 Confirm Dialog를 사용한다. Dialog Guide의 Confirm 유형을 따른다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ═══ S07 Usage Rules ═══ -->
+      <section id="s07" class="sec" data-screen-label="07 Usage Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Usage Rules — 사용 규칙</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">입력 설계 규칙</p>
+          <ul class="blist">
+            <li>Placeholder를 Label 대체로 사용하지 않는다. Placeholder는 입력 후 사라지므로 의미를 전달하는 Label을 항상 제공한다.</li>
+            <li>필수값과 선택값을 명확히 구분한다. 필수 필드에는 <code>*</code> 표시를 유지하고 선택 필드에는 "(선택)" 텍스트를 추가할 수 있다.</li>
+            <li>Select 옵션명은 업무 용어 기준으로 통일한다. 예: "진행중", "완료", "검토중" — 화면마다 다른 표현을 사용하지 않는다.</li>
+            <li>날짜/상태/담당자 필드는 목록 필터와 같은 용어를 사용한다. 폼과 필터가 다른 용어를 쓰면 사용자가 혼란을 겪는다.</li>
+            <li>저장 버튼은 입력 영역 하단 또는 Drawer footer에 둔다. 폼 중간이나 여러 위치에 분산시키지 않는다.</li>
+            <li>삭제/반려 같은 위험 액션은 Form 내부에서 직접 실행하지 않는다. 반드시 Dialog로 이중 확인한다. Dialog Guide의 Danger / Approval 유형을 따른다.</li>
+            <li>파일/URL 입력은 공개범위와 내보내기 포함 여부를 함께 고려한다. 관련 설정 필드를 동일 Form 내에 배치한다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ═══ S08 Do / Don't ═══ -->
+      <section id="s08" class="sec" data-screen-label="08 Do Don't">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Do / Don't</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div class="dd-grid">
+            <div class="dd-card do">
+              <div class="dd-hdr">
+                <span class="dd-dot"></span>
+                Do — 이렇게 사용한다
+              </div>
+              <ul class="dd-list">
+                <li>Label을 명확하게 작성한다</li>
+                <li>Help Text로 업무 기준과 입력 조건을 보완한다</li>
+                <li>오류 메시지를 해당 필드 근처에 표시한다</li>
+                <li>필수값과 선택값을 구분해 표시한다</li>
+                <li>저장 중 Loading 상태를 버튼에 제공한다</li>
+                <li>변경사항이 있을 때 이탈 시 Confirm Dialog를 연다</li>
+              </ul>
+            </div>
+            <div class="dd-card dont">
+              <div class="dd-hdr">
+                <span class="dd-dot"></span>
+                Don't — 이렇게 하지 않는다
+              </div>
+              <ul class="dd-list">
+                <li>Placeholder만으로 필드 의미를 전달하지 않는다</li>
+                <li>너무 많은 필드를 한 화면에 몰아넣지 않는다</li>
+                <li>긴 폼을 작은 Dialog에 넣지 않는다</li>
+                <li>오류 메시지를 상단에만 몰아서 표시하지 않는다</li>
+                <li>필드마다 다른 용어를 사용하지 않는다</li>
+                <li>저장 버튼을 여러 위치에 남발하지 않는다</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ S09 Form Examples ═══ -->
+      <section id="s09" class="sec" data-screen-label="09 Form Examples">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">STAM Form Examples — 사용 예시</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>정적 예시</strong>
+            아래 Form은 실제 저장/검증 동작 없는 정적 HTML 샘플이다. Button Guide / Dialog Guide 기준의 버튼 위계와 필드 구성을 참고한다.
+          </div>
+          <div class="eg-grid">
+
+            <!-- 01 산출물 등록 Form -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="eg-lbl">산출물 등록 Form</span>
+                <span class="ftype-chip create">Create</span>
+              </div>
+              <div class="eg-body">
+                <div class="fd-form">
+                  <div class="fd-field">
+                    <label class="fd-label">산출물명 <span class="fd-req">*</span></label>
+                    <div class="fd-input filled">WBS Phase 1 분석 보고서</div>
+                  </div>
+                  <div class="fd-row">
+                    <div class="fd-field">
+                      <label class="fd-label">유형 <span class="fd-req">*</span></label>
+                      <div class="fd-input select filled">분석서 <span class="fd-sel-arr">▾</span></div>
+                    </div>
+                    <div class="fd-field">
+                      <label class="fd-label">우선순위</label>
+                      <div class="fd-input select">중간 <span class="fd-sel-arr">▾</span></div>
+                    </div>
+                  </div>
+                  <div class="fd-field">
+                    <label class="fd-label">담당자 <span class="fd-req">*</span></label>
+                    <div class="fd-input select filled">김하늘 <span class="fd-sel-arr">▾</span></div>
+                  </div>
+                  <div class="fd-field">
+                    <label class="fd-label">설명</label>
+                    <div class="fd-textarea">프로젝트 초기 분석 단계의 핵심 산출물입니다.</div>
+                    <div class="fd-counter">29 / 200</div>
+                  </div>
+                  <div class="fd-footer">
+                    <button class="bd-btn ghost sm" type="button">취소</button>
+                    <button class="bd-btn primary sm" type="button">등록</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 02 WBS 작업 수정 Form -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="eg-lbl">WBS 작업 수정 Form</span>
+                <span class="ftype-chip edit">Edit</span>
+              </div>
+              <div class="eg-body">
+                <div class="fd-form">
+                  <div class="fd-field">
+                    <label class="fd-label">작업명 <span class="fd-req">*</span></label>
+                    <div class="fd-input filled">요구사항 분석 및 정의</div>
+                  </div>
+                  <div class="fd-row">
+                    <div class="fd-field">
+                      <label class="fd-label">시작일 <span class="fd-req">*</span></label>
+                      <div class="fd-input filled">2026-06-01</div>
+                    </div>
+                    <div class="fd-field">
+                      <label class="fd-label">종료일 <span class="fd-req">*</span></label>
+                      <div class="fd-input error">2026-05-28</div>
+                    </div>
+                  </div>
+                  <div class="fd-error-msg">⚠ 종료일은 시작일 이후여야 합니다.</div>
+                  <div class="fd-row">
+                    <div class="fd-field">
+                      <label class="fd-label">상태</label>
+                      <div class="fd-input select filled">진행중 <span class="fd-sel-arr">▾</span></div>
+                    </div>
+                    <div class="fd-field">
+                      <label class="fd-label">진행률</label>
+                      <div class="fd-input filled">65%</div>
+                    </div>
+                  </div>
+                  <div class="fd-footer">
+                    <button class="bd-btn ghost sm" type="button">취소</button>
+                    <button class="bd-btn primary sm" type="button">저장</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 03 목록 검색/필터 Form -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="eg-lbl">목록 검색/필터 Form</span>
+                <span class="ftype-chip search">Search / Filter</span>
+              </div>
+              <div class="eg-body" style="align-items: flex-start; padding-top: 20px;">
+                <div class="fd-form">
+                  <div class="fd-search-row">
+                    <div class="fd-search-box">🔍 산출물명 검색</div>
+                    <button class="bd-btn secondary sm" type="button">검색</button>
+                  </div>
+                  <div class="fd-filter-row">
+                    <div class="fd-input select" style="flex: 1; min-width: 88px; font-size: 10.5px;">상태 <span class="fd-sel-arr">▾</span></div>
+                    <div class="fd-input select" style="flex: 1; min-width: 88px; font-size: 10.5px;">담당자 <span class="fd-sel-arr">▾</span></div>
+                  </div>
+                  <div class="fd-filter-row">
+                    <div class="fd-input select" style="flex: 1; min-width: 88px; font-size: 10.5px;">기간 <span class="fd-sel-arr">▾</span></div>
+                    <div class="fd-input select" style="flex: 1; min-width: 88px; font-size: 10.5px;">유형 <span class="fd-sel-arr">▾</span></div>
+                  </div>
+                  <div class="fd-filter-row">
+                    <span class="fd-badge active">진행중</span>
+                    <span class="fd-badge active">김하늘</span>
+                    <button class="bd-btn ghost sm" type="button" style="font-size: 10.5px;">초기화</button>
+                  </div>
+                  <div class="fd-help">2개 필터 적용됨 · 결과 14건</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 04 승인/반려 의견 Form -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="eg-lbl">승인/반려 의견 Form</span>
+                <span class="ftype-chip approval">Approval</span>
+              </div>
+              <div class="eg-body">
+                <div class="fd-form">
+                  <div class="fd-field">
+                    <label class="fd-label">검토 의견</label>
+                    <div class="fd-textarea">요구사항 항목 3번 내용이 실제 개발 범위와 다릅니다. 수정 후 재요청 부탁드립니다.</div>
+                    <div class="fd-counter">46 / 500</div>
+                    <div class="fd-help">반려 사유는 요청자에게 알림으로 전달됩니다.</div>
+                  </div>
+                  <div class="fd-field">
+                    <label class="fd-label">반려 구분</label>
+                    <div class="fd-input select filled">내용 보완 필요 <span class="fd-sel-arr">▾</span></div>
+                  </div>
+                  <div class="fd-footer">
+                    <button class="bd-btn ghost sm" type="button">취소</button>
+                    <button class="bd-btn danger sm" type="button">반려하기</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 05 첨부파일/URL 참조 Form -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="eg-lbl">첨부파일/URL 참조 Form</span>
+                <span class="ftype-chip attachment">Attachment</span>
+              </div>
+              <div class="eg-body">
+                <div class="fd-form">
+                  <div class="fd-group">
+                    <div class="fd-group-title">파일 첨부</div>
+                    <div class="fd-field">
+                      <label class="fd-label">파일 선택 <span class="fd-req">*</span></label>
+                      <div class="fd-input dashed">📎 파일을 드래그하거나 클릭해 선택</div>
+                      <div class="fd-help">PDF, DOCX, XLSX · 최대 50MB</div>
+                    </div>
+                    <div class="fd-field">
+                      <label class="fd-label">파일 설명</label>
+                      <div class="fd-input filled">분석 보고서 최종본</div>
+                    </div>
+                  </div>
+                  <div class="fd-group">
+                    <div class="fd-group-title">URL 참조</div>
+                    <div class="fd-field">
+                      <label class="fd-label">URL <span class="fd-req">*</span></label>
+                      <div class="fd-input success filled">https://confluence.company.com/…</div>
+                    </div>
+                    <div class="fd-field">
+                      <label class="fd-label">공개범위</label>
+                      <div class="fd-input select filled">팀 내부 <span class="fd-sel-arr">▾</span></div>
+                    </div>
+                  </div>
+                  <div class="fd-footer">
+                    <button class="bd-btn ghost sm" type="button">취소</button>
+                    <button class="bd-btn primary sm" type="button">저장</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 06 읽기 전용 상세 Field Group -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="eg-lbl">읽기 전용 상세 Field Group</span>
+                <span class="ftype-chip readonly">Readonly</span>
+              </div>
+              <div class="eg-body" style="align-items: flex-start; padding-top: 20px;">
+                <div class="fd-form">
+                  <div class="fd-group">
+                    <div class="fd-group-title">산출물 정보</div>
+                    <div class="fd-readonly-row">
+                      <span class="fd-readonly-lbl">산출물명</span>
+                      <span class="fd-readonly-val">WBS Phase 1 분석 보고서</span>
+                    </div>
+                    <div class="fd-readonly-row">
+                      <span class="fd-readonly-lbl">상태</span>
+                      <span class="fd-status-chip">승인 완료</span>
+                    </div>
+                    <div class="fd-readonly-row">
+                      <span class="fd-readonly-lbl">담당자</span>
+                      <span class="fd-readonly-val">김하늘</span>
+                    </div>
+                  </div>
+                  <div class="fd-group">
+                    <div class="fd-group-title">시스템 정보</div>
+                    <div class="fd-row">
+                      <div class="fd-readonly-row">
+                        <span class="fd-readonly-lbl">생성일</span>
+                        <span class="fd-readonly-val">2026-05-12</span>
+                      </div>
+                      <div class="fd-readonly-row">
+                        <span class="fd-readonly-lbl">최종 수정</span>
+                        <span class="fd-readonly-val">2026-06-01</span>
+                      </div>
+                    </div>
+                    <div class="fd-readonly-row">
+                      <span class="fd-readonly-lbl">생성자 ID</span>
+                      <div class="fd-input readonly" style="font-size: 10.5px;">user_kim_haneul</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ S10 Accessibility ═══ -->
+      <section id="s10" class="sec" data-screen-label="10 Accessibility">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Accessibility — 접근성 기준</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>기준</th>
+                <th>설명</th>
+                <th>적용 범위</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>label 연결</td>
+                <td><code>&lt;label for="id"&gt;</code>로 label과 input을 반드시 연결한다. 시각적 Label이 없는 필드(검색/필터)는 <code>aria-label</code>을 사용한다.</td>
+                <td>모든 필드</td>
+              </tr>
+              <tr>
+                <td>필수값 표시</td>
+                <td><code>*</code> 시각 표시만으로 충분하지 않다. <code>aria-required="true"</code>를 함께 제공하고 스크린 리더에서 "필수" 문구가 인식될 수 있도록 처리한다.</td>
+                <td>필수 필드 전체</td>
+              </tr>
+              <tr>
+                <td>오류 메시지</td>
+                <td><code>role="alert"</code> 또는 <code>aria-live="polite"</code>로 오류 메시지를 스크린 리더가 인식하도록 처리한다. 오류 상태 input에는 <code>aria-invalid="true"</code>와 <code>aria-describedby</code>로 오류 메시지를 연결한다.</td>
+                <td>오류 상태 필드</td>
+              </tr>
+              <tr>
+                <td>focus-visible 유지</td>
+                <td><code>outline: none</code> 전역 처리를 하지 않는다. <code>:focus-visible</code>로 키보드 포커스 링이 시각적으로 표시되어야 한다.</td>
+                <td>모든 인터랙티브 요소</td>
+              </tr>
+              <tr>
+                <td>키보드 이동 순서</td>
+                <td>Tab 키 이동 순서가 시각적 레이아웃과 일치해야 한다. 2열 배치 폼에서는 왼쪽 → 오른쪽 → 다음 행 순서를 유지한다.</td>
+                <td>모든 폼</td>
+              </tr>
+              <tr>
+                <td>Disabled vs Readonly</td>
+                <td><code>disabled</code> 필드는 폼 제출에 포함되지 않는다. 값을 유지하면서 수정만 막으려면 <code>readonly</code>를 사용한다. 두 상태를 시각적으로 구분한다.</td>
+                <td>Disabled / Readonly 필드</td>
+              </tr>
+              <tr>
+                <td>색상 의존 금지</td>
+                <td>오류/성공/경고 상태를 색상만으로 구분하지 않는다. 아이콘 + 색상 + 텍스트 메시지를 함께 제공한다.</td>
+                <td>모든 상태 표시</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ibox warn">
+            <strong>주의</strong>
+            Search / Filter Form에서 Label 없이 Placeholder만 사용할 경우, <code>aria-label</code>을 반드시 각 input에 직접 지정해야 한다.
+            Placeholder 텍스트는 스크린 리더에서 Label로 인식되지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ S11 QA Checklist ═══ -->
+      <section id="s11" class="sec" data-screen-label="11 QA Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">QA Checklist</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div class="chk-grid">
+            <div class="chk-item"><span class="chk-box"></span>Label이 명확한가?</div>
+            <div class="chk-item"><span class="chk-box"></span>Placeholder가 Label을 대체하지 않는가?</div>
+            <div class="chk-item"><span class="chk-box"></span>필수값 표시가 명확한가?</div>
+            <div class="chk-item"><span class="chk-box"></span>오류 메시지가 해당 필드 근처에 있는가?</div>
+            <div class="chk-item"><span class="chk-box"></span>저장/취소 버튼 위계가 맞는가?</div>
+            <div class="chk-item"><span class="chk-box"></span>긴 폼을 Dialog에 넣지 않았는가?</div>
+            <div class="chk-item"><span class="chk-box"></span>Loading/Disabled/Readonly 상태가 구분되는가?</div>
+            <div class="chk-item"><span class="chk-box"></span>모바일 1열 대응이 가능한가?</div>
+            <div class="chk-item"><span class="chk-box"></span>접근성 라벨(aria-label, aria-required) 기준이 있는가?</div>
+            <div class="chk-item"><span class="chk-box"></span>S-Core Dream 폰트가 유지되는가?</div>
+          </div>
+
+          <div style="border-top: 1px solid var(--bd); padding-top: 14px; margin-top: 2px; display: flex; flex-direction: column; gap: 8px;">
+            <span class="sub" style="border-bottom: none; padding-bottom: 0;">Related Links</span>
+            <div class="rel-links">
+              <a href="../STAM-Docs-Index.html" class="rel-link">← Docs Index</a>
+              <a href="../STAM-Component-Guide.html" class="rel-link">← Component Guide</a>
+              <a href="STAM-Button-Guide.html" class="rel-link">Button Guide</a>
+              <a href="STAM-Dialog-Guide.html" class="rel-link">Dialog Guide</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) {
+      a.closest('.toc-item').classList.toggle('active', i === cur);
+    });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>

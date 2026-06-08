@@ -1,0 +1,494 @@
+/* ============================================================
+ * STAM Shell — App Topbar, Preview Sidebar, Shell structure
+ * Topbar: 48px | Always dark navy | Sidebar: 256px (--sw)
+ * v2 — accordion + group/menu badges | 2026-06-07
+ * ============================================================ */
+
+/* ---- App Topbar (always dark, regardless of theme) ---- */
+.doc-nav {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: #0A0E1A;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  display: flex;
+  align-items: center;
+  height: 48px;
+  flex-shrink: 0;
+  gap: 0;
+}
+
+.doc-nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  height: 100%;
+  border-right: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+}
+.doc-nav-logo img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+.doc-nav-logo span {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,.90);
+  letter-spacing: .06em;
+}
+
+.doc-nav-title {
+  font-size: 11.5px;
+  color: rgba(255,255,255,.38);
+  padding: 0 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-nav-sp { flex: 1; }
+
+/* ---- Topbar meta / version pills ---- */
+.doc-nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  background: rgba(139,127,248,.12);
+  color: #8B7FF8;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+.doc-nav-pill .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* ---- Preview sidebar frame (docs용) ---- */
+.preview-frame {
+  display: flex;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  height: 700px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.22);
+}
+
+.preview-sidebar {
+  width: var(--sw);
+  background: #0A0E1A;
+  flex-shrink: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  display: flex;
+  flex-direction: column;
+}
+.preview-sidebar::-webkit-scrollbar { width: 3px; }
+.preview-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.10);
+  border-radius: 99px;
+}
+
+/* ---- Sidebar logo / brand ---- */
+.glogo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 14px 10px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.glogo img { width: 22px; height: 22px; object-fit: contain; }
+.glogo-txt {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,.90);
+  letter-spacing: .06em;
+}
+.glogo-ver {
+  margin-left: auto;
+  font-size: 9px;
+  font-family: var(--mono);
+  color: rgba(255,255,255,.22);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+/* ============================================================
+ * Sidebar nav sections — Accordion v2
+ * ============================================================ */
+
+.gsec {
+  padding: 2px 4px;
+}
+
+/* ---- Group label / accordion header ---- */
+.glabel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 8px 5px 10px;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 5px;
+  margin: 2px 2px 0;
+  transition: background 120ms;
+}
+.glabel:hover {
+  background: rgba(255,255,255,.04);
+}
+
+/* Group icon (12×12 SVG) */
+.gicon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: rgba(255,255,255,.28);
+  display: block;
+}
+
+/* Group name */
+.glabel-name {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,.28);
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font);
+  line-height: 1.4;
+}
+
+/* Active group (contains the current active menu) */
+.glabel.glabel-active .gicon       { color: rgba(139,127,248,.72); }
+.glabel.glabel-active .glabel-name { color: rgba(139,127,248,.84); }
+
+/* Admin group tag (F — 관리/설정) */
+.glabel-admin-tag {
+  font-size: 7.5px;
+  font-weight: 700;
+  background: rgba(84,81,232,.20);
+  color: rgba(139,127,248,.72);
+  padding: 1px 4px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-family: var(--font);
+  line-height: 1.5;
+}
+
+/* Group count badge */
+.glabel-cnt {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: rgba(255,255,255,.25);
+  background: rgba(255,255,255,.08);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: var(--font);
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+.glabel-cnt.on {
+  background: rgba(84,81,232,.22);
+  color: rgba(139,127,248,.90);
+}
+
+/* Chevron — 기본 ∧(펼침), .closed 시 rotate180 → ∨(접힘) */
+.glabel-chevron-svg {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+  color: rgba(255,255,255,.20);
+  transition: transform 180ms ease;
+  display: block;
+}
+.glabel.glabel-active .glabel-chevron-svg { color: rgba(139,127,248,.45); }
+.gsec.closed .glabel-chevron-svg          { transform: rotate(180deg); }
+
+/* ---- Group body (collapsible) ---- */
+.gsec-body {
+  overflow: hidden;
+  max-height: 800px;
+  transition: max-height 200ms ease-out;
+}
+.gsec.closed .gsec-body {
+  max-height: 0;
+  transition: max-height 150ms ease-in;
+}
+
+/* ---- Menu items ---- */
+.gitem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px 5px 14px;
+  border-radius: 6px;
+  margin: 1px 4px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: rgba(255,255,255,.44);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+  line-height: 1.3;
+  min-width: 0;
+}
+.gitem:hover {
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.82);
+}
+.gitem.on {
+  background: rgba(84,81,232,.22);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Item dot indicator */
+.gitem-dot {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.16);
+  flex-shrink: 0;
+  transition: background 120ms;
+}
+.gitem:hover .gitem-dot { background: rgba(255,255,255,.42); }
+.gitem.on .gitem-dot {
+  background: #8B7FF8;
+  box-shadow: 0 0 4px rgba(139,127,248,.55);
+}
+
+/* Item name (truncate long names) */
+.gitem-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font);
+}
+
+/* Legacy ID chip — backward compat with older renderSidebar callers */
+.gitem-id {
+  font-family: var(--font);
+  font-size: 9.5px;
+  color: rgba(255,255,255,.22);
+  flex-shrink: 0;
+  min-width: 22px;
+}
+.gitem.on .gitem-id { color: rgba(255,255,255,.50); }
+
+/* ============================================================
+ * Per-menu status / count badges (.mnav-badge)
+ * ============================================================ */
+.mnav-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+  white-space: nowrap;
+  letter-spacing: .01em;
+  font-family: var(--font);
+  line-height: 1.5;
+}
+
+/* Live — green */
+.nb-live {
+  background: rgba(34,197,94,.15);
+  color: #46C97D;
+}
+
+/* Preview — STAM accent purple */
+.nb-preview {
+  background: rgba(139,127,248,.16);
+  color: #8B7FF8;
+}
+
+/* 계획됨 — muted, barely perceptible */
+.nb-plan {
+  background: rgba(180,184,200,.08);
+  color: rgba(200,204,220,.36);
+  font-weight: 500;
+}
+
+/* 고객숨김 — amber/orange */
+.nb-hidden {
+  background: rgba(255,146,0,.14);
+  color: #F0B24E;
+}
+
+/* Admin Only — subtle indigo */
+.nb-admin {
+  background: rgba(84,81,232,.20);
+  color: rgba(139,127,248,.75);
+}
+
+/* count number — brand purple */
+.nb-count {
+  background: rgba(84,81,232,.22);
+  color: #A09CF8;
+  font-size: 9.5px;
+  min-width: 20px;
+  justify-content: center;
+}
+
+/* ---- Preview content placeholder (docs용) ---- */
+.preview-content {
+  flex: 1;
+  background: var(--bg-base);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-left: 1px solid var(--bd);
+}
+.preview-content-label { font-size: 13px; color: var(--t2); font-weight: 600; }
+.preview-content-sub   { font-size: 11px; color: var(--t3); }
+
+/* ============================================================
+ * Sidebar search field
+ * ============================================================ */
+.po-sidebar-search {
+  padding: 8px 10px 7px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+
+.po-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 7px;
+  padding: 5px 8px;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+.po-search-wrap:focus-within {
+  border-color: rgba(84,81,232,.55);
+  box-shadow: 0 0 0 2px rgba(84,81,232,.14);
+}
+
+.po-search-icon {
+  width: 13px;
+  height: 13px;
+  color: rgba(255,255,255,.35);
+  flex-shrink: 0;
+  display: block;
+  transition: color 150ms;
+}
+.po-search-wrap:focus-within .po-search-icon {
+  color: rgba(139,127,248,.72);
+}
+
+.po-search-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 11.5px;
+  color: rgba(255,255,255,.88);
+  font-family: var(--font);
+  line-height: 1.4;
+  padding: 0;
+  min-width: 0;
+}
+.po-search-input::placeholder {
+  color: rgba(255,255,255,.38);
+}
+
+.po-search-clear {
+  display: none; /* JS controls: flex when active */
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border: none;
+  background: rgba(255,255,255,.14);
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: rgba(255,255,255,.55);
+  padding: 0;
+  transition: background 120ms, color 120ms;
+}
+.po-search-clear:hover {
+  background: rgba(255,255,255,.24);
+  color: rgba(255,255,255,.90);
+}
+.po-search-clear svg {
+  width: 8px;
+  height: 8px;
+  display: block;
+}
+
+/* ---- Empty state ---- */
+.po-nav-empty {
+  display: none; /* JS controls: flex when no results */
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 32px 16px;
+  text-align: center;
+}
+.po-nav-empty-title {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,.38);
+  font-family: var(--font);
+}
+.po-nav-empty-sub {
+  font-size: 10px;
+  color: rgba(255,255,255,.22);
+  font-family: var(--font);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+/* ---- Search keyword highlight ---- */
+mark.nav-highlight {
+  background: rgba(139,127,248,.28);
+  color: #fff;
+  border-radius: 2px;
+  padding: 0 1px;
+  font-style: normal;
+}
+
+/* ============================================================
+ * S-Core Dream 강제 방어 — nav/badge/chip !important
+ * font: shorthand fallback 방지
+ * ============================================================ */
+.mnav-badge, .mnav-badge *,
+.glabel-cnt, .glabel-cnt *,
+.gitem, .gitem *,
+.glabel, .glabel *,
+.gsec-body, .gsec-body *,
+[class*="nb-"],
+.po-nav-empty, .po-nav-empty *,
+.po-sidebar-search, .po-sidebar-search * {
+  font-family: var(--font) !important;
+}
+
+/* ============================================================
+ * Left Navigation 스크롤 안정화 — scrollbar-gutter: stable
+ * .po-sidebar-nav 단독 적용 (바깥 .po-sidebar에는 적용 안 함)
+ * ============================================================ */

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Component Guide</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a href="STAM-Docs-Index.html" class="doc-nav-back">← Docs</a>
+  <span class="doc-nav-title">Component Guide</span>
+  <span class="doc-nav-pill"><span class="dot"></span>v1 Completed</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Component Guide</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Component Index</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>General Rules</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Token Reference</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Next Steps</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- S01 Overview -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview</span>
+          <span class="sbadge guide">가이드</span>
+        </div>
+        <div class="sec-body">
+          <div class="meta-row">
+            <div class="meta-cell"><span class="meta-k">문서명</span><span class="meta-v">STAM Component Guide</span></div>
+            <div class="meta-cell"><span class="meta-k">대상</span><span class="meta-v">Button · Icon · Dialog · Form · Drawer · Table · Topbar</span></div>
+            <div class="meta-cell"><span class="meta-k">상태</span><span class="meta-v code">v1 Completed (7 / 7)</span></div>
+            <div class="meta-cell"><span class="meta-k">기준일</span><span class="meta-v code">2026-06-08</span></div>
+          </div>
+
+          <div class="stat-row" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;">
+            <div class="stat-cell" style="background:var(--bg-sur2);border:1px solid var(--bd);border-radius:var(--r-md);padding:14px 16px;display:flex;flex-direction:column;gap:6px;">
+              <span style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;">Total</span>
+              <span style="font-size:22px;font-weight:700;color:var(--t1);font-family:var(--font);">7</span>
+              <span style="font-size:11px;color:var(--t2);">컴포넌트 가이드</span>
+            </div>
+            <div class="stat-cell" style="background:var(--bg-sur2);border:1px solid var(--bd);border-radius:var(--r-md);padding:14px 16px;display:flex;flex-direction:column;gap:6px;">
+              <span style="font-size:10px;font-weight:700;color:var(--pass);text-transform:uppercase;letter-spacing:.06em;">Completed</span>
+              <span style="font-size:22px;font-weight:700;color:var(--pass);font-family:var(--font);">7</span>
+              <span style="font-size:11px;color:var(--t2);">v1 기준 작성 완료</span>
+            </div>
+            <div class="stat-cell" style="background:var(--bg-sur2);border:1px solid var(--bd);border-radius:var(--r-md);padding:14px 16px;display:flex;flex-direction:column;gap:6px;">
+              <span style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;">Status</span>
+              <span style="font-size:22px;font-weight:700;color:var(--t1);font-family:var(--font);">v1 Completed</span>
+              <span style="font-size:11px;color:var(--t2);">실구현 정합화 후속 진행</span>
+            </div>
+          </div>
+
+          <p class="sub">이 가이드에 대하여</p>
+          <ul class="blist">
+            <li>STAM 핵심 컴포넌트 가이드 7종은 <strong>v1 기준 작성 완료</strong> 상태이다.</li>
+            <li>STAM 제품 화면에서 반복적으로 사용하는 UI 컴포넌트의 사용 기준을 정의한다.</li>
+            <li>이 페이지는 전체 컴포넌트 인덱스 역할을 하며, 상세 기준은 각 <code>components/</code> 하위 문서를 따른다.</li>
+            <li>실제 제품 구현 시 CSS/JS 컴포넌트 토큰과의 정합화 작업이 추가로 필요하다.</li>
+          </ul>
+          <div class="ibox info">
+            <strong>전제 조건</strong>
+            모든 컴포넌트 가이드는 <strong>STAM UI Baseline Guide</strong>에서 정의한 토큰·폰트·레이아웃 기준을 따른다.
+            컴포넌트 가이드 사용 전 Baseline Guide 숙지 필수.
+          </div>
+        </div>
+      </section>
+
+      <!-- S02 Component Index -->
+      <section id="s02" class="sec" data-screen-label="02 Component Index">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Component Index</span>
+          <span class="sbadge guide">인덱스</span>
+        </div>
+        <div class="sec-body">
+          <div class="comp-grid">
+
+            <a href="components/STAM-Button-Guide.html" class="comp-card">
+              <div class="comp-card-ico">BT</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Button</span>
+                <span class="comp-card-subs">버튼 위계 · 사이즈 · 상태 · 액션 우선순위 · 접근성 기준</span>
+              </div>
+              <span class="sbadge done" style="align-self:flex-start;flex-shrink:0;">v1 Completed</span>
+            </a>
+
+            <a href="components/STAM-Icon-Guide.html" class="comp-card">
+              <div class="comp-card-ico">IC</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Icon</span>
+                <span class="comp-card-subs">아이콘 유형 · 크기 · 정렬 · 아이콘 버튼 · 접근성 기준</span>
+              </div>
+              <span class="sbadge done" style="align-self:flex-start;flex-shrink:0;">v1 Completed</span>
+            </a>
+
+            <a href="components/STAM-Dialog-Guide.html" class="comp-card">
+              <div class="comp-card-ico">DL</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Dialog</span>
+                <span class="comp-card-subs">확인 · 경고 · 위험 · 승인 · 안내 Dialog 유형과 사용 기준</span>
+              </div>
+              <span class="sbadge done" style="align-self:flex-start;flex-shrink:0;">v1 Completed</span>
+            </a>
+
+            <a href="components/STAM-Form-Guide.html" class="comp-card">
+              <div class="comp-card-ico">FM</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Form</span>
+                <span class="comp-card-subs">입력폼 유형 · 필드 구조 · 검증 상태 · 레이아웃 · 접근성 기준</span>
+              </div>
+              <span class="sbadge done" style="align-self:flex-start;flex-shrink:0;">v1 Completed</span>
+            </a>
+
+            <a href="components/STAM-Drawer-Guide.html" class="comp-card">
+              <div class="comp-card-ico">DR</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Drawer</span>
+                <span class="comp-card-subs">상세 · 등록 · 수정 Drawer · 전체보기 전환 · 폭/레이아웃 · 모드 전환</span>
+              </div>
+              <span class="sbadge done" style="align-self:flex-start;flex-shrink:0;">v1 Completed</span>
+            </a>
+
+            <a href="components/STAM-Table-Guide.html" class="comp-card">
+              <div class="comp-card-ico">TB</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Table</span>
+                <span class="comp-card-subs">목록 · 테이블 · 전체보기 · 가로스크롤 · WBS 특수 기준</span>
+              </div>
+              <span class="sbadge done" style="align-self:flex-start;flex-shrink:0;">v1 Completed</span>
+            </a>
+
+            <a href="components/STAM-Topbar-Guide.html" class="comp-card">
+              <div class="comp-card-ico">TP</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Topbar</span>
+                <span class="comp-card-subs">상단바 역할 · 구조 · 검색/알림/사용자 메뉴 · 반응형 기준</span>
+              </div>
+              <span class="sbadge done" style="align-self:flex-start;flex-shrink:0;">v1 Completed</span>
+            </a>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- S03 General Rules -->
+      <section id="s03" class="sec" data-screen-label="03 General Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">General Rules — 공통 규칙</span>
+          <span class="sbadge lock">기준 고정</span>
+        </div>
+        <div class="sec-body">
+          <div class="two-col">
+            <div>
+              <p class="sub">스타일 / 폰트</p>
+              <ul class="blist">
+                <li>모든 컴포넌트는 <code>--font</code> (S-Core Dream) 사용</li>
+                <li>외부 폰트·시스템 폰트 직접 기입 금지</li>
+                <li>컴포넌트 내부 <code>font-family</code> 별도 선언 금지 — 상속 사용</li>
+                <li>컬러는 반드시 <code>stam.tokens.css</code> 변수 참조</li>
+              </ul>
+            </div>
+            <div>
+              <p class="sub">인터랙션 / 애니메이션</p>
+              <ul class="blist">
+                <li>hover transition: <code>120ms ease-out</code></li>
+                <li>press/active transition: <code>80ms ease-out</code></li>
+                <li>드로어·다이얼로그 슬라이드: <code>200ms ease-out</code></li>
+                <li><code>transform: scale()</code> press 효과 금지</li>
+                <li>Bounce · Spring · Overshoot 금지</li>
+              </ul>
+            </div>
+            <div>
+              <p class="sub">접근성</p>
+              <ul class="blist">
+                <li>모든 인터랙티브 요소 <code>:focus-visible</code> 링 필수 (<code>--bd-f</code>)</li>
+                <li>disabled 상태는 <code>opacity</code>·<code>pointer-events: none</code> 조합</li>
+                <li>다이얼로그 포커스 트랩 필수</li>
+                <li>아이콘 단독 버튼에 <code>aria-label</code> 필수</li>
+              </ul>
+            </div>
+            <div>
+              <p class="sub">금지</p>
+              <ul class="blist bad">
+                <li>컴포넌트 임의 리디자인 금지</li>
+                <li>토큰명 임의 신규 생성 금지</li>
+                <li>컴포넌트별 인라인 스타일 남발 금지</li>
+                <li>emoji 사용 금지 — SVG 아이콘만 허용</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S04 Token Reference -->
+      <section id="s04" class="sec" data-screen-label="04 Token Reference">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Token Reference — 컴포넌트 관련 주요 토큰</span>
+          <span class="sbadge lock">기준 고정</span>
+        </div>
+        <div class="sec-body">
+          <div class="two-col">
+            <table class="stbl">
+              <thead><tr><th>토큰</th><th>값 (Light)</th><th>용도</th></tr></thead>
+              <tbody>
+                <tr><td>--brand</td><td class="mono">#5451E8</td><td>Primary 버튼·링크·포커스</td></tr>
+                <tr><td>--brand-h</td><td class="mono">#4340C8</td><td>Primary hover</td></tr>
+                <tr><td>--accent</td><td class="mono">#8B7FF8</td><td>Dark모드 강조·아이콘</td></tr>
+                <tr><td>--bd-f</td><td class="mono">#5451E8</td><td>포커스 링</td></tr>
+                <tr><td>--r-sm</td><td class="mono">4px</td><td>chip · tag · badge</td></tr>
+                <tr><td>--r-md</td><td class="mono">8px</td><td>버튼 · 인풋 · 카드</td></tr>
+                <tr><td>--r-lg</td><td class="mono">12px</td><td>큰 카드 · 드로어 엣지</td></tr>
+              </tbody>
+            </table>
+            <table class="stbl">
+              <thead><tr><th>토큰</th><th>값 (Light)</th><th>용도</th></tr></thead>
+              <tbody>
+                <tr><td>--t1</td><td class="mono">#0F172A</td><td>버튼·레이블 기본 텍스트</td></tr>
+                <tr><td>--t2</td><td class="mono">#475569</td><td>보조 텍스트</td></tr>
+                <tr><td>--t3</td><td class="mono">#64748B</td><td>플레이스홀더·캡션</td></tr>
+                <tr><td>--bd</td><td class="mono">#E2E8F0</td><td>인풋·카드 기본 테두리</td></tr>
+                <tr><td>--bd-s</td><td class="mono">#CBD5E1</td><td>강조 테두리</td></tr>
+                <tr><td>--bg-sur2</td><td class="mono">#F1F5F9</td><td>disabled·플레이스홀더 배경</td></tr>
+                <tr><td>--pass / --fail</td><td class="mono">#047857 / #991B1B</td><td>Form 유효성 상태</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- S05 Next Steps -->
+      <section id="s05" class="sec" data-screen-label="05 Next Steps">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Next Steps — 후속 작업</span>
+          <span class="sbadge guide">계획</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">v1 이후 후속 추천 작업</p>
+          <ul class="blist">
+            <li>공통 CSS 컴포넌트 토큰 정규화 — Variant·Size·State 토큰 네이밍 정합화</li>
+            <li>Button / Form / Table / Drawer 실구현 클래스 정합화 — 가이드 ↔ <code>stam.components.css</code> 매핑</li>
+            <li>Icon Inventory 문서 작성 — 실제 사용 아이콘 세트와 명세 정리</li>
+            <li>Notification Drawer / Popover Guide 후보 검토 — v2 컴포넌트 후보 정의</li>
+            <li>실제 제품 화면 적용 전 QA 체크리스트 작성 — 페이지 단위 점검 표</li>
+          </ul>
+
+          <div class="ibox info">
+            <strong>적용 순서 권장</strong>
+            v1 가이드 7종은 작성 완료 상태이지만 실제 제품 화면 적용은 별도 단계다.
+            적용 전 CSS/JS 토큰 정합화 → 실구현 클래스 정합화 → QA 체크리스트 순으로 진행한다.
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>

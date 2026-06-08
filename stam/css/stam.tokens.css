@@ -1,0 +1,299 @@
+/* ============================================================
+ * STAM Design Tokens — CSS Custom Properties
+ * Primary #5451E8 | Accent #8B7FF8 | Navy #0D1235
+ * IA Baseline v3.3 | 2026-06-07
+ * ============================================================ */
+
+:root {
+  /* Brand */
+  --brand: #5451E8;
+  --brand-h: #4340C8;
+  --accent: #8B7FF8;
+  --navy: #0D1235;
+
+  /* Surfaces */
+  --bg-base: #F8FAFC;
+  --bg-sur:  #FFFFFF;
+  --bg-sur2: #F1F5F9;
+  --bg-sur3: #E2E8F0;
+  --bg-side: #0D1235;
+
+  /* Borders */
+  --bd:   #E2E8F0;
+  --bd-s: #CBD5E1;
+  --bd-f: #5451E8;
+
+  /* Text */
+  --t1: #0F172A;
+  --t2: #475569;
+  --t3: #64748B;
+
+  /* Radii */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+
+  /* Typography */
+  --font: "S-Core Dream", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --mono: var(--font);
+
+  /* Sidebar width */
+  --sw: 256px;
+
+  /* ---- Content layout tokens ---- */
+  --content-max:       1560px;   /* 프로젝트 내부 본문 최대 폭 */
+  --content-pad-x:     32px;     /* 본문 좌우 여백 (한쪽) — 전체 64px */
+  --grid-gap:          10px;     /* 카드 그리드 gap */
+  --content-focus-max: 1760px;   /* Focus / 전체보기 모드 max-width */
+
+  /* Layout */
+  --topbar-h: 48px;
+
+  /* Status */
+  --pass-bg: #D1FAE5;  --pass: #047857;
+  --fail-bg: #FEE2E2;  --fail: #991B1B;
+  --warn-bg: #FEF9C3;  --warn: #854D0E;
+  --info-bg: #DBEAFE;  --info: #1D4ED8;
+  --skip-bg: #E2E8F0;  --skip: #475569;
+  --purple-bg: #EDE9FE; --purple: #5B21B6;
+
+  /* Priority */
+  --prio-high: #EF4444;
+  --prio-mid:  #F59E0B;
+  --prio-low:  #94A3B8;
+
+  /* ======================================================
+   * Light Mode Semantic Tokens
+   * ====================================================== */
+
+  /* Label hierarchy */
+  --label-strong:  #111827;
+  --label-normal:  #334155;
+  --label-neutral: #64748B;
+  --label-alt:     #7C8798;
+  --label-muted:   #94A3B8;
+  --label-disabled:#CBD5E1;
+
+  /* Brand tokens */
+  --stam:             #5451E8;
+  --stam-h:           #4542D8;
+  --stam-soft:        rgba(84,81,232,.12);
+  --stam-soft-strong: rgba(84,81,232,.18);
+
+  /* Count badge */
+  --badge-urgent-bg: #FEE2E2;
+  --badge-urgent-fg: #DC2626;
+  --badge-warn-bg:   #FEF3C7;
+  --badge-warn-fg:   #D97706;
+  --badge-brand-bg:  rgba(84,81,232,.12);
+  --badge-brand-fg:  #5451E8;
+  --badge-zero-bg:   #E2E8F0;
+  --badge-zero-fg:   #64748B;
+  --badge-idle-bg:   #F1F5F9;
+  --badge-idle-fg:   #7C8798;
+
+  /* Go / action button */
+  --go-bg:   #F8FAFF;
+  --go-bd:   rgba(84,81,232,.35);
+  --go-fg:   #5451E8;
+  --go-bg-h: rgba(84,81,232,.10);
+  --go-bd-h: rgba(84,81,232,.55);
+  --go-fg-h: #4542D8;
+
+  /* Table */
+  --th-fg:     #64748B;
+  --row-hover: #F8FAFC;
+
+  /* Surface hover */
+  --surf-hover: rgba(0,0,0,.025);
+
+  /* Idle dot */
+  --dot-idle: rgba(100,116,139,.35);
+
+  /* Phase / role defaults */
+  --phase-plan-bg: rgba(100,116,139,.10);
+  --phase-plan-fg: #64748B;
+  --phase-done-bg: rgba(100,116,139,.08);
+  --phase-done-fg: #94A3B8;
+  --role-def-bg:   rgba(100,116,139,.10);
+  --role-def-fg:   #64748B;
+
+  /* Sub icon muted */
+  --sub-muted-fg: #94A3B8;
+
+  /* hdr-badge */
+  --hdr-badge-bg:       rgba(84,81,232,.12);
+  --hdr-badge-fg:       #5451E8;
+  --hdr-badge-amber-bg: rgba(245,158,11,.12);
+  --hdr-badge-amber-fg: #D97706;
+
+  /* Date / age text */
+  --age-fg: #64748B;
+
+  /* Group colours */
+  --g-a: #3B82F6; --g-a-bg: #EFF6FF;
+  --g-b: #8B5CF6; --g-b-bg: #F5F3FF;
+  --g-c: #10B981; --g-c-bg: #ECFDF5;
+  --g-d: #F59E0B; --g-d-bg: #FFFBEB;
+  --g-e: #06B6D4; --g-e-bg: #ECFEFF;
+  --g-f: #64748B; --g-f-bg: #F8FAFC;
+  --g-g: #EC4899; --g-g-bg: #FDF2F8;
+}
+
+[data-theme="dark"] {
+  /* Surfaces — Open Scenario 레퍼런스 charcoal/navy */
+  --bg-base: #13161D;
+  --bg-sur:  #1C2030;
+  --bg-sur2: #222638;
+  --bg-sur3: #252A3C;
+  --bg-side: #0A0E1A;
+
+  /* Borders — 얇은 subtle line */
+  --bd:   rgba(180,184,200,.16);
+  --bd-s: rgba(180,184,200,.10);
+  --bd-f: #8B7FF8;
+
+  /* Text — alpha 계열 */
+  --t1: #F0F1F5;
+  --t2: rgba(230,232,240,.88);
+  --t3: rgba(200,204,220,.61);
+
+  /* Status — rgba 기반 (dark surface 위) */
+  --pass-bg: rgba(0,191,64,.12);     --pass: #46C97D;
+  --fail-bg: rgba(255,66,66,.12);    --fail: #FF8585;
+  --warn-bg: rgba(255,146,0,.12);    --warn: #F0B24E;
+  --info-bg: rgba(111,168,255,.12);  --info: #6FA8FF;
+  --skip-bg: rgba(180,184,200,.08);  --skip: rgba(200,204,220,.40);
+  --purple-bg: rgba(139,127,248,.12); --purple: #8B7FF8;
+
+  /* ======================================================
+   * Dark Mode Overrides: Semantic Tokens
+   * ====================================================== */
+
+  /* Label hierarchy */
+  --label-strong:  #F0F1F5;
+  --label-normal:  rgba(230,232,240,.88);
+  --label-neutral: rgba(200,204,220,.61);
+  --label-alt:     rgba(200,204,220,.45);
+  --label-muted:   rgba(200,204,220,.35);
+  --label-disabled:rgba(200,204,220,.22);
+
+  /* Brand tokens */
+  --stam:             #8B7FF8;
+  --stam-h:           #a49bf9;
+  --stam-soft:        rgba(84,81,232,.12);
+  --stam-soft-strong: rgba(84,81,232,.20);
+
+  /* Count badge */
+  --badge-urgent-bg: rgba(255,66,66,.12);
+  --badge-urgent-fg: #FF8585;
+  --badge-warn-bg:   rgba(245,158,11,.12);
+  --badge-warn-fg:   #F0B24E;
+  --badge-brand-bg:  rgba(84,81,232,.12);
+  --badge-brand-fg:  #8B7FF8;
+  --badge-zero-bg:   var(--bg-sur3);
+  --badge-zero-fg:   rgba(200,204,220,.35);
+  --badge-idle-bg:   rgba(200,204,220,.07);
+  --badge-idle-fg:   rgba(200,204,220,.45);
+
+  /* Go / action button */
+  --go-bg:   rgba(84,81,232,.08);
+  --go-bd:   rgba(84,81,232,.18);
+  --go-fg:   rgba(139,127,248,.8);
+  --go-bg-h: rgba(84,81,232,.20);
+  --go-bd-h: rgba(84,81,232,.30);
+  --go-fg-h: #fff;
+
+  /* Table */
+  --th-fg:     rgba(200,204,220,.50);
+  --row-hover: rgba(255,255,255,.02);
+
+  /* Surface hover */
+  --surf-hover: rgba(255,255,255,.02);
+
+  /* Idle dot */
+  --dot-idle: rgba(200,204,220,.25);
+
+  /* Phase / role defaults */
+  --phase-plan-bg: rgba(100,116,139,.10);
+  --phase-plan-fg: rgba(200,204,220,.45);
+  --phase-done-bg: rgba(100,116,139,.08);
+  --phase-done-fg: rgba(200,204,220,.30);
+  --role-def-bg:   rgba(100,116,139,.10);
+  --role-def-fg:   rgba(200,204,220,.50);
+
+  /* Sub icon muted */
+  --sub-muted-fg: rgba(200,204,220,.45);
+
+  /* hdr-badge */
+  --hdr-badge-bg:       rgba(84,81,232,.12);
+  --hdr-badge-fg:       #8B7FF8;
+  --hdr-badge-amber-bg: rgba(245,158,11,.12);
+  --hdr-badge-amber-fg: #F0B24E;
+
+  /* Date / age text */
+  --age-fg: rgba(200,204,220,.32);
+
+  /* Group backgrounds — muted rgba */
+  --g-a-bg: rgba(59,130,246,.13);
+  --g-b-bg: rgba(139,92,246,.13);
+  --g-c-bg: rgba(16,185,129,.13);
+  --g-d-bg: rgba(245,158,11,.13);
+  --g-e-bg: rgba(6,182,212,.13);
+  --g-f-bg: rgba(100,116,139,.11);
+  --g-g-bg: rgba(236,72,153,.13);
+}
+
+/* ---- Base reset ---- */
+html {
+  font-family: "S-Core Dream", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg-base);
+  color: var(--t1);
+  font-size: 13px;
+  line-height: 1.5;
+  text-wrap: pretty;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- 폰트 전역 상속 — S-Core Dream 강제 적용 ---- */
+button, input, select, textarea {
+  font-family: var(--font);
+}
+table, th, td {
+  font-family: var(--font);
+}
+
+/* ---- 폰트 확장 커버리지 — 한글/badge/chip 포함 모든 인라인·블록 요소 ---- */
+a, span, div, p, small, label,
+strong, em, b, i, code, pre,
+summary, details {
+  font-family: var(--font);
+}
+
+/* ---- Group colour helpers ---- */
+.g-A { background: var(--g-a); color: #fff; }
+.g-A-soft { background: var(--g-a-bg); color: var(--g-a); }
+.g-B { background: var(--g-b); color: #fff; }
+.g-B-soft { background: var(--g-b-bg); color: var(--g-b); }
+.g-C { background: var(--g-c); color: #fff; }
+.g-C-soft { background: var(--g-c-bg); color: var(--g-c); }
+.g-D { background: var(--g-d); color: #fff; }
+.g-D-soft { background: var(--g-d-bg); color: var(--g-d); }
+.g-E { background: var(--g-e); color: #fff; }
+.g-E-soft { background: var(--g-e-bg); color: var(--g-e); }
+.g-F { background: var(--g-f); color: #fff; }
+.g-F-soft { background: var(--g-f-bg); color: var(--g-f); }
+.g-G { background: var(--g-g); color: #fff; }
+.g-G-soft { background: var(--g-g-bg); color: var(--g-g); }

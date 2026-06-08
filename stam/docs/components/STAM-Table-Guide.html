@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Table Guide</title>
+<link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../../css/stam.tokens.css">
+<link rel="stylesheet" href="../../css/stam.shell.css">
+<link rel="stylesheet" href="../../css/stam.components.css">
+<link rel="stylesheet" href="../../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../../css/stam.docs.css">
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a href="../STAM-Component-Guide.html" class="doc-nav-back">← Component Guide</a>
+  <span class="doc-nav-title">Table Guide</span>
+  <span class="doc-nav-pill"><span class="dot"></span>v1</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<style>
+/* ================================================================
+ * Table Guide — 데모 전용 스타일
+ * 이 파일에서만 사용. stam.components.css 영향 없음.
+ * 페이지 레벨 가로 스크롤 금지 — 모든 표는 overflow-x:auto 래퍼 사용.
+ * ================================================================ */
+
+/* ---- 데모 버튼 ---- */
+.bt-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; font-family: var(--font) !important; font-weight: 600;
+  border-radius: var(--r-md); cursor: default; white-space: nowrap;
+  border: 1px solid transparent; box-sizing: border-box; line-height: 1;
+}
+.bt-btn.primary   { background: var(--brand);   color: #fff;      border-color: var(--brand); }
+.bt-btn.secondary { background: var(--bg-sur2); color: var(--t1); border-color: var(--bd-s); }
+.bt-btn.ghost     { background: transparent;    color: var(--t1); border-color: var(--bd); }
+.bt-btn.danger    { background: #EF4444;        color: #fff;      border-color: #EF4444; }
+.bt-btn.md { height: 36px; padding: 0 16px; font-size: 13px; }
+.bt-btn.sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+
+/* ---- Type 칩 ---- */
+.ttype-chip {
+  display: inline-flex; align-items: center; padding: 2px 8px;
+  border-radius: 4px; font-size: 9.5px; font-weight: 700;
+  font-family: var(--font) !important; white-space: nowrap; flex-shrink: 0;
+}
+.ttype-chip.standard { background: var(--info-bg);          color: var(--info); }
+.ttype-chip.wbs      { background: rgba(84,81,232,.13);     color: #8B7FF8; }
+.ttype-chip.def      { background: var(--purple-bg);        color: var(--purple); }
+.ttype-chip.review   { background: var(--warn-bg);          color: var(--warn); }
+.ttype-chip.issue    { background: rgba(239,68,68,.12);     color: #EF4444; }
+.ttype-chip.compact  { background: var(--pass-bg);          color: var(--pass); }
+[data-theme="light"] .ttype-chip.wbs { color: #5451E8; }
+
+/* ---- Do / Don't ---- */
+.dd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 580px) { .dd-grid { grid-template-columns: 1fr; } }
+.dd-card {
+  border-radius: var(--r-md); padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.dd-card.do   { background: rgba(0,191,64,.05);  border: 1px solid rgba(0,191,64,.20); }
+.dd-card.dont { background: rgba(239,68,68,.05); border: 1px solid rgba(239,68,68,.18); }
+.dd-hdr {
+  font-size: 11px; font-weight: 700; font-family: var(--font) !important;
+  display: flex; align-items: center; gap: 7px;
+}
+.dd-card.do   .dd-hdr { color: var(--pass); }
+.dd-card.dont .dd-hdr { color: var(--fail); }
+.dd-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+.dd-card.do   .dd-dot { background: var(--pass); }
+.dd-card.dont .dd-dot { background: var(--fail); }
+.dd-list { list-style: none; display: flex; flex-direction: column; gap: 5px; padding: 0; margin: 0; }
+.dd-list li {
+  font-size: 12px; color: var(--t2); font-family: var(--font) !important;
+  line-height: 1.45; padding-left: 16px; position: relative;
+}
+.dd-card.do   .dd-list li::before { content: '✓'; position: absolute; left: 0; color: var(--pass); font-size: 10px; font-weight: 700; top: 1px; }
+.dd-card.dont .dd-list li::before { content: '✕'; position: absolute; left: 0; color: var(--fail); font-size: 10px; font-weight: 700; top: 1px; }
+
+/* ---- 예시 카드 ---- */
+.eg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 880px) { .eg-grid { grid-template-columns: 1fr; } }
+.eg-card {
+  background: var(--bg-sur2); border: 1px solid var(--bd);
+  border-radius: var(--r-md); overflow: hidden; display: flex; flex-direction: column;
+}
+.eg-hdr {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-bottom: 1px solid var(--bd);
+}
+.eg-lbl {
+  font-size: 10.5px; font-weight: 700; color: var(--t1);
+  font-family: var(--font) !important; flex: 1;
+}
+.eg-body {
+  padding: 12px; background: rgba(23,23,25,.36);
+  min-height: 220px; position: relative; overflow: hidden;
+  display: flex; flex-direction: column; gap: 8px;
+}
+[data-theme="light"] .eg-body { background: rgba(15,23,42,.09); }
+
+/* ---- 미니 Table 데모 ---- */
+.mt {
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: var(--r-md); overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.mt-toolbar {
+  display: flex; align-items: center; gap: 6px; padding: 6px 8px;
+  border-bottom: 1px solid var(--bd); background: var(--bg-sur2);
+  flex-wrap: wrap;
+}
+.mt-search {
+  flex: 1; min-width: 80px; height: 22px;
+  background: var(--bg-sur); border: 1px solid var(--bd-s); border-radius: 4px;
+  padding: 0 6px; font-size: 9px; color: var(--t3);
+  font-family: var(--font) !important; display: flex; align-items: center; gap: 4px;
+}
+.mt-chip {
+  display: inline-flex; align-items: center; padding: 2px 6px; border-radius: 10px;
+  font-size: 8.5px; font-weight: 600; font-family: var(--font) !important;
+  background: var(--bg-sur); border: 1px solid var(--bd-s); color: var(--t2);
+  white-space: nowrap;
+}
+.mt-chip.active { background: rgba(84,81,232,.14); border-color: rgba(84,81,232,.30); color: #8B7FF8; }
+[data-theme="light"] .mt-chip.active { color: #5451E8; }
+.mt-chip.count { background: var(--bg-sur2); color: var(--t3); }
+.mt-fv {
+  height: 22px; padding: 0 8px; border-radius: 4px;
+  background: transparent; border: 1px solid rgba(84,81,232,.35);
+  color: #8B7FF8; font-size: 8.5px; font-weight: 700;
+  font-family: var(--font) !important; display: inline-flex; align-items: center; gap: 3px;
+}
+[data-theme="light"] .mt-fv { color: #5451E8; border-color: rgba(84,81,232,.40); }
+.mt-scroll {
+  overflow-x: auto; overflow-y: hidden; flex: 1; min-height: 0;
+}
+.mt-scroll.scroll-cue {
+  background-image:
+    linear-gradient(to right, var(--bg-sur), var(--bg-sur)),
+    linear-gradient(to right, var(--bg-sur), var(--bg-sur)),
+    linear-gradient(to right, rgba(0,0,0,.18), rgba(0,0,0,0)),
+    linear-gradient(to left, rgba(0,0,0,.18), rgba(0,0,0,0));
+  background-position: left center, right center, left center, right center;
+  background-repeat: no-repeat;
+  background-size: 22px 100%, 22px 100%, 12px 100%, 12px 100%;
+  background-attachment: local, local, scroll, scroll;
+}
+table.mt-tbl {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  font-family: var(--font) !important; font-size: 9.5px;
+}
+table.mt-tbl thead th {
+  position: sticky; top: 0; z-index: 2;
+  background: var(--bg-sur2); color: var(--t3);
+  font-size: 8.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .04em; text-align: left;
+  padding: 6px 8px; border-bottom: 1px solid var(--bd);
+  white-space: nowrap;
+}
+table.mt-tbl thead th .sort-arrow {
+  display: inline-block; margin-left: 3px; font-size: 7px;
+  color: var(--t3); transform: translateY(-1px);
+}
+table.mt-tbl thead th.sorted .sort-arrow { color: #8B7FF8; }
+[data-theme="light"] table.mt-tbl thead th.sorted .sort-arrow { color: #5451E8; }
+table.mt-tbl tbody td {
+  padding: 6px 8px; border-bottom: 1px solid var(--bd);
+  color: var(--t2); white-space: nowrap; vertical-align: middle;
+}
+table.mt-tbl tbody tr:last-child td { border-bottom: none; }
+table.mt-tbl tbody tr.selected td { background: rgba(84,81,232,.07); }
+table.mt-tbl tbody tr.updated td { background: rgba(245,158,11,.06); }
+table.mt-tbl tbody tr.disabled td { color: var(--t3); opacity: .55; }
+table.mt-tbl tbody td.ellipsis {
+  max-width: 0; overflow: hidden; text-overflow: ellipsis;
+}
+.mt-cell-strong { color: var(--t1); font-weight: 600; }
+.mt-cell-num { font-feature-settings: "tnum"; text-align: right; }
+.mt-cb {
+  width: 11px; height: 11px; border-radius: 2px;
+  border: 1px solid var(--bd-s); background: var(--bg-sur);
+  display: inline-block; vertical-align: middle;
+}
+.mt-cb.checked {
+  background: var(--brand); border-color: var(--brand);
+  position: relative;
+}
+.mt-cb.checked::after {
+  content: ''; position: absolute; left: 2px; top: 0px;
+  width: 4px; height: 7px; border: solid #fff;
+  border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
+}
+.mt-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 1px 6px; border-radius: 3px; font-size: 8px; font-weight: 700;
+  font-family: var(--font) !important;
+}
+.mt-badge.todo     { background: var(--bg-sur2);     color: var(--t3); }
+.mt-badge.progress { background: rgba(84,81,232,.14); color: #8B7FF8; }
+.mt-badge.review   { background: var(--warn-bg);     color: var(--warn); }
+.mt-badge.done     { background: var(--pass-bg);     color: var(--pass); }
+.mt-badge.delay    { background: rgba(239,68,68,.13); color: #EF4444; }
+.mt-badge.hold     { background: var(--info-bg);     color: var(--info); }
+[data-theme="light"] .mt-badge.progress { color: #5451E8; }
+.mt-bar {
+  display: inline-block; width: 46px; height: 4px;
+  border-radius: 2px; background: var(--bg-sur2);
+  position: relative; vertical-align: middle; overflow: hidden;
+}
+.mt-bar::after {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  background: #8B7FF8; width: var(--pct, 0%);
+}
+[data-theme="light"] .mt-bar::after { background: #5451E8; }
+.mt-bar-num {
+  font-size: 8px; color: var(--t3); margin-left: 4px;
+  font-feature-settings: "tnum";
+}
+.mt-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 8px; border-top: 1px solid var(--bd);
+  background: var(--bg-sur2); flex-shrink: 0;
+}
+.mt-footer-l { font-size: 8.5px; color: var(--t3); font-family: var(--font) !important; }
+.mt-pager { display: flex; gap: 3px; }
+.mt-pager span {
+  width: 16px; height: 16px; border-radius: 3px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 8px; color: var(--t2); border: 1px solid var(--bd);
+  background: var(--bg-sur); font-family: var(--font) !important;
+}
+.mt-pager span.cur { background: rgba(84,81,232,.14); border-color: rgba(84,81,232,.3); color: #8B7FF8; }
+[data-theme="light"] .mt-pager span.cur { color: #5451E8; }
+
+/* WBS gantt mini */
+.mt-gantt {
+  display: inline-flex; align-items: center; gap: 2px;
+}
+.mt-gantt-track {
+  width: 70px; height: 5px; border-radius: 3px;
+  background: var(--bg-sur2); position: relative; overflow: hidden;
+}
+.mt-gantt-bar {
+  position: absolute; top: 0; bottom: 0;
+  background: linear-gradient(90deg, #8B7FF8, #6c66e0);
+  border-radius: 3px;
+}
+
+/* Empty */
+.mt-empty {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; padding: 24px 12px; color: var(--t3);
+  font-family: var(--font) !important;
+}
+.mt-empty-ico {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--bg-sur2); border: 1px dashed var(--bd-s);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: var(--t3);
+}
+.mt-empty-title { font-size: 11px; font-weight: 700; color: var(--t2); }
+.mt-empty-desc { font-size: 9.5px; color: var(--t3); text-align: center; line-height: 1.4; }
+.mt-empty-act { margin-top: 4px; }
+
+/* Focus View 토글 다이어그램 */
+.fv-diag {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+@media (max-width: 720px) { .fv-diag { grid-template-columns: 1fr; } }
+.fv-frame {
+  background: var(--bg-sur2); border: 1px solid var(--bd);
+  border-radius: var(--r-md); padding: 10px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.fv-frame-lbl {
+  font-size: 10px; font-weight: 700; color: var(--t1);
+  font-family: var(--font) !important; display: flex; align-items: center; gap: 6px;
+}
+.fv-mock {
+  background: rgba(23,23,25,.36); border-radius: var(--r-sm);
+  padding: 6px; display: flex; gap: 4px; min-height: 130px;
+}
+[data-theme="light"] .fv-mock { background: rgba(15,23,42,.09); }
+.fv-side {
+  width: 38px; flex-shrink: 0; background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: 4px;
+  display: flex; flex-direction: column; gap: 3px; padding: 5px;
+}
+.fv-side-row { height: 7px; background: var(--bg-sur2); border-radius: 2px; }
+.fv-side-row.active { background: rgba(84,81,232,.30); }
+.fv-content {
+  flex: 1; background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: 4px;
+  padding: 5px; display: flex; flex-direction: column; gap: 3px;
+  min-width: 0; overflow: hidden;
+}
+.fv-tbl-row {
+  height: 8px; background: var(--bg-sur2); border-radius: 2px;
+  display: flex; gap: 3px; padding: 0 3px; align-items: center;
+}
+.fv-tbl-row.hd { background: var(--bd); height: 9px; }
+.fv-tbl-cell {
+  height: 4px; background: var(--bd-s); border-radius: 1px; flex: 1;
+}
+.fv-tbl-cell.narrow { flex: 0.5; }
+.fv-tbl-cell.wide { flex: 2; }
+.fv-tbl-cell.dim { opacity: .5; }
+.fv-note {
+  font-size: 9.5px; color: var(--t3); font-family: var(--font) !important;
+  line-height: 1.4;
+}
+
+/* 상태 카드 (Loading/Empty/Error 등) */
+.state-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px;
+}
+.state-card {
+  background: var(--bg-sur2); border: 1px solid var(--bd);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.state-card-h {
+  display: flex; align-items: center; gap: 7px;
+  font-family: var(--font) !important;
+}
+.state-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  flex-shrink: 0; background: var(--t3);
+}
+.state-dot.load   { background: #8B7FF8; }
+.state-dot.empty  { background: var(--t3); }
+.state-dot.nores  { background: var(--info); }
+.state-dot.err    { background: var(--fail); }
+.state-dot.perm   { background: var(--warn); }
+.state-dot.ro     { background: var(--info); }
+.state-dot.sel    { background: #8B7FF8; }
+.state-dot.upd    { background: var(--warn); }
+.state-dot.dis    { background: var(--t3); }
+.state-name {
+  font-size: 11px; font-weight: 700; color: var(--t1);
+}
+.state-desc {
+  font-size: 11px; color: var(--t2); line-height: 1.5;
+  font-family: var(--font) !important;
+}
+.state-msg {
+  font-size: 10px; color: var(--t3); font-family: var(--font) !important;
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 5px 7px; line-height: 1.4;
+}
+.state-msg strong { color: var(--t2); font-weight: 700; }
+
+/* QA */
+.qa-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5px;
+}
+@media (max-width: 580px) { .qa-grid { grid-template-columns: 1fr; } }
+.qa-item {
+  display: flex; align-items: flex-start; gap: 8px; padding: 7px 10px;
+  background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: var(--r-md);
+}
+.qa-box {
+  width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--bd-s);
+  background: var(--bg-sur); flex-shrink: 0; margin-top: 1px;
+}
+.qa-txt {
+  font-size: 11.5px; color: var(--t2); font-family: var(--font) !important; line-height: 1.4;
+}
+
+/* 관련 링크 */
+.rel-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px;
+}
+.rel-card {
+  display: flex; align-items: center; gap: 10px; padding: 10px 13px;
+  background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: var(--r-md);
+  text-decoration: none; transition: border-color 120ms, background 120ms;
+}
+.rel-card:hover {
+  border-color: rgba(84,81,232,.35); background: rgba(84,81,232,.035);
+}
+.rel-ico {
+  width: 26px; height: 26px; border-radius: var(--r-sm);
+  background: rgba(84,81,232,.12); display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: #8B7FF8; flex-shrink: 0;
+  font-family: var(--font) !important;
+}
+[data-theme="light"] .rel-ico { background: rgba(84,81,232,.09); color: #5451E8; }
+.rel-body { flex: 1; min-width: 0; }
+.rel-title {
+  font-size: 12px; font-weight: 700; color: var(--t1);
+  font-family: var(--font) !important; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.rel-sub {
+  font-size: 10px; color: var(--t3); font-family: var(--font) !important;
+}
+
+/* 페이지 레벨 가로 스크롤 차단 */
+html, body { overflow-x: hidden; }
+</style>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Table Guide</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Table Types</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Table Structure</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Column Rules</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Scroll / Width</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Row Interaction</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Filter / Search</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>WBS Special</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>State / Empty / Loading</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Do / Don't</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Examples</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Accessibility</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>QA Checklist</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ────────────── S01 Overview ────────────── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview</span>
+          <span class="sbadge guide">가이드</span>
+        </div>
+        <div class="sec-body">
+          <div class="meta-row">
+            <div class="meta-cell"><span class="meta-k">컴포넌트</span><span class="meta-v">Table (목록형 데이터 그리드)</span></div>
+            <div class="meta-cell"><span class="meta-k">기본 모드</span><span class="meta-v">보통 모드 (핵심 컬럼)</span></div>
+            <div class="meta-cell"><span class="meta-k">확장 모드</span><span class="meta-v code">전체보기 / Focus View</span></div>
+            <div class="meta-cell"><span class="meta-k">행 클릭</span><span class="meta-v">상세 Drawer 열기</span></div>
+          </div>
+
+          <p class="sub">목적 및 역할</p>
+          <ul class="blist">
+            <li>Table은 STAM 전체 목록형 산출물 관리의 기본 컴포넌트다.</li>
+            <li>WBS, 요구사항정의서, 메뉴구조/화면목록, 화면설계서, 기능정의서, 프로그램 목록정의서, API 명세서, 테이블 정의서, DB 정보, 서버 정보, 접근/보안 정보, 정책정의서, 오픈 시나리오 등 주요 게시판의 목록 패턴을 통일한다.</li>
+            <li>같은 화면이라도 <strong>보통 모드</strong>와 <strong>전체보기 / Focus View</strong>를 명확히 구분한다.</li>
+            <li>보통 모드는 다른 작업과 병행하기 위한 축약 목록이고, 전체보기는 폭넓은 분석·편집을 위한 작업 환경이다.</li>
+            <li>행 클릭은 상세 Drawer로 연결되는 것이 기본이며, 큰 상세는 Drawer 안 전체보기 버튼으로 별도 전체 화면으로 연결한다.</li>
+          </ul>
+
+          <p class="sub">보통 모드 vs 전체보기 (Focus View)</p>
+          <div style="overflow-x:auto;">
+            <table class="stbl">
+              <thead>
+                <tr>
+                  <th>구분</th>
+                  <th>보통 모드</th>
+                  <th>전체보기 / Focus View</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>좌측 메뉴</td>
+                  <td>표시</td>
+                  <td>숨김</td>
+                </tr>
+                <tr>
+                  <td>컬럼 노출</td>
+                  <td>핵심 컬럼만</td>
+                  <td>상세 컬럼 + 부가 컬럼 확장</td>
+                </tr>
+                <tr>
+                  <td>가로 스크롤</td>
+                  <td>가능한 한 발생 금지</td>
+                  <td>필요 시 컨텐츠 영역 안에서만 허용</td>
+                </tr>
+                <tr>
+                  <td>세로 스크롤</td>
+                  <td>브라우저 스크롤 기준</td>
+                  <td>브라우저 스크롤 기준 우선</td>
+                </tr>
+                <tr>
+                  <td>WBS 간트</td>
+                  <td>간단한 진행률만</td>
+                  <td>간트 / 일정 영역 확장 (접기/펼치기)</td>
+                </tr>
+                <tr>
+                  <td>적합한 작업</td>
+                  <td>대시보드, 빠른 확인, 행 클릭 후 Drawer</td>
+                  <td>상세 비교, 일괄 편집, 정렬·필터 분석</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info">
+            <strong>Baseline Guide 참조</strong>
+            테이블 가로 스크롤·Focus View 기준은 <a href="../STAM-UI-Baseline-Guide.html#s08" style="color:var(--info);">Baseline Guide S08 Content Layout</a> 및 <a href="../STAM-UI-Baseline-Guide.html#s10" style="color:var(--info);">S10 Focus View</a>에도 정의되어 있다. 이 가이드는 컴포넌트 구현 관점에서 보완한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S02 Table Types ────────────── -->
+      <section id="s02" class="sec" data-screen-label="02 Table Types">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Table Types — 유형</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div style="overflow-x:auto;">
+            <table class="stbl">
+              <thead>
+                <tr>
+                  <th>유형</th>
+                  <th>칩</th>
+                  <th>사용 맥락</th>
+                  <th>핵심 컬럼</th>
+                  <th>적용 예시</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Standard List Table</td>
+                  <td><span class="ttype-chip standard">기본</span></td>
+                  <td>기본 산출물 목록</td>
+                  <td>제목 · 상태 · 담당자 · 업데이트일</td>
+                  <td>요구사항, 정책, 기능정의서</td>
+                </tr>
+                <tr>
+                  <td>WBS / Schedule Table</td>
+                  <td><span class="ttype-chip wbs">WBS</span></td>
+                  <td>작업·일정·담당자·진행률 중심</td>
+                  <td>작업명 · 담당자 · 기간 · 진행률 · 상태</td>
+                  <td>WBS 작업, 마일스톤</td>
+                </tr>
+                <tr>
+                  <td>Definition Table</td>
+                  <td><span class="ttype-chip def">정의</span></td>
+                  <td>구조·항목·속성 중심</td>
+                  <td>코드 · 명칭 · 타입 · 길이 · 설명</td>
+                  <td>테이블 정의서, DB 정보, 서버 정보</td>
+                </tr>
+                <tr>
+                  <td>Review / Approval Table</td>
+                  <td><span class="ttype-chip review">검토</span></td>
+                  <td>검토·승인 상태 중심</td>
+                  <td>대상 · 요청자 · 단계 · 상태 · 요청일</td>
+                  <td>승인 요청, 검토 목록</td>
+                </tr>
+                <tr>
+                  <td>Issue / Defect Table</td>
+                  <td><span class="ttype-chip issue">이슈</span></td>
+                  <td>이슈·결함·위험 관리</td>
+                  <td>제목 · 심각도 · 담당자 · 상태 · 보고일</td>
+                  <td>결함관리, 리스크 목록</td>
+                </tr>
+                <tr>
+                  <td>Compact Table</td>
+                  <td><span class="ttype-chip compact">컴팩트</span></td>
+                  <td>카드·대시보드 내부 요약 목록</td>
+                  <td>제목 · 상태 (2–3개 컬럼)</td>
+                  <td>최근 작업, 내 담당 항목</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="ibox warn">
+            <strong>유형 혼합 금지</strong>
+            한 화면 내에서 같은 데이터를 두 유형으로 동시에 노출하지 않는다. WBS Table은 보통 모드와 전체보기를 같은 유형 내에서 전환하는 것이 원칙이다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S03 Table Structure ────────────── -->
+      <section id="s03" class="sec" data-screen-label="03 Table Structure">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Table Structure — 구성 요소</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div style="overflow-x:auto;">
+            <table class="stbl">
+              <thead>
+                <tr>
+                  <th>영역</th>
+                  <th>구성 요소</th>
+                  <th>역할</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="4">Toolbar (상단)</td>
+                  <td>Quick Filter</td>
+                  <td>업무 의미 단위의 빠른 필터 (내 담당, 지연, 리스크 등). 실제 필터처럼 동작</td>
+                </tr>
+                <tr>
+                  <td>Search</td>
+                  <td>제목·담당자·상태 등 주요 텍스트 대상 키워드 검색</td>
+                </tr>
+                <tr>
+                  <td>Column Control</td>
+                  <td>표시 컬럼 선택 / 순서 변경 (전체보기에서 더 많은 컬럼 노출)</td>
+                </tr>
+                <tr>
+                  <td>Full View / Focus View Button</td>
+                  <td>전체보기 진입. 좌측 메뉴 숨김 + 본문 영역 최대화</td>
+                </tr>
+                <tr>
+                  <td rowspan="2">Header</td>
+                  <td>Column Header</td>
+                  <td>컬럼명 + 정렬 인디케이터. Sticky 처리 권장</td>
+                </tr>
+                <tr>
+                  <td>Sort Indicator</td>
+                  <td>오름/내림/없음 3상태. 아이콘 + aria-sort 함께 사용</td>
+                </tr>
+                <tr>
+                  <td rowspan="4">Body (행)</td>
+                  <td>Row</td>
+                  <td>한 항목 단위. 클릭 시 상세 Drawer 열림</td>
+                </tr>
+                <tr>
+                  <td>Cell</td>
+                  <td>컬럼 값. 긴 텍스트는 말줄임 + 상세 Drawer 연결</td>
+                </tr>
+                <tr>
+                  <td>Badge / Chip</td>
+                  <td>상태·단계·우선순위·심각도 등 시각 표시</td>
+                </tr>
+                <tr>
+                  <td>Row Action</td>
+                  <td>행 단위 액션 (보기·수정·복제 등). Button Guide의 Small / Icon Button 기준</td>
+                </tr>
+                <tr>
+                  <td rowspan="2">상태</td>
+                  <td>Empty State</td>
+                  <td>데이터 없음 / 검색 결과 없음 / 권한 없음 등 명확한 문구</td>
+                </tr>
+                <tr>
+                  <td>Loading / Error</td>
+                  <td>스켈레톤 또는 인디케이터. 에러는 재시도 액션 포함</td>
+                </tr>
+                <tr>
+                  <td rowspan="4">Layout</td>
+                  <td>Pagination / More Button</td>
+                  <td>페이지네이션 또는 더보기 방식 중 화면 단위로 통일</td>
+                </tr>
+                <tr>
+                  <td>Horizontal Scroll Area</td>
+                  <td>가로 스크롤이 필요한 경우 테이블 영역 내부에서만 발생</td>
+                </tr>
+                <tr>
+                  <td>Sticky Header</td>
+                  <td>긴 목록에서 컬럼 헤더 고정</td>
+                </tr>
+                <tr>
+                  <td>Sticky First Column 후보</td>
+                  <td>WBS / Definition Table에서 식별 컬럼(작업명·코드) 고정 검토</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S04 Column Rules ────────────── -->
+      <section id="s04" class="sec" data-screen-label="04 Column Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Column Rules — 컬럼 기준</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>보통 모드는 핵심 컬럼만 노출한다. 화면당 5–7개를 목표로 한다.</li>
+            <li>상세 컬럼·부가 컬럼은 전체보기에서 확장한다.</li>
+            <li>컬럼명은 업무 용어 기준으로 짧고 명확하게 쓴다. 기술 용어·축약 코드는 사용하지 않는다.</li>
+            <li>상태 · 단계 · 담당자 · 기간 · 업데이트일은 STAM 공통 컬럼이다. 가능한 한 명칭과 표시 방식을 통일한다.</li>
+            <li>숫자·날짜는 정렬 기준을 명확히 한다. 숫자는 우측 정렬 + tabular-nums, 날짜는 <code>YYYY-MM-DD</code>.</li>
+            <li>긴 텍스트는 말줄임 + 상세 Drawer 연결을 사용한다. Cell 안에 줄바꿈을 강제하지 않는다.</li>
+            <li>컬럼 순서는 업무 판단 순서에 맞춘다. (식별 → 분류 → 상태 → 담당 → 기간 → 업데이트)</li>
+            <li>컬럼 폭은 화면마다 임의로 다르게 만들지 않는다. 공통 컬럼은 동일 폭으로 통일한다.</li>
+          </ul>
+
+          <p class="sub">공통 컬럼 폭 기준 (목표값)</p>
+          <div style="overflow-x:auto;">
+            <table class="stbl">
+              <thead>
+                <tr><th>컬럼</th><th>정렬</th><th>목표 폭</th><th>비고</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>체크박스</td><td>center</td><td class="mono">36px</td><td>선택 컬럼. 항상 가장 좌측</td></tr>
+                <tr><td>ID / 코드</td><td>left</td><td class="mono">80–100px</td><td>tabular-nums</td></tr>
+                <tr><td>제목 / 명칭</td><td>left</td><td class="mono">flex (min 200px)</td><td>말줄임 허용</td></tr>
+                <tr><td>분류 / 구분</td><td>left</td><td class="mono">90–120px</td><td>Chip 또는 텍스트</td></tr>
+                <tr><td>상태</td><td>left</td><td class="mono">90–110px</td><td>Badge + 텍스트</td></tr>
+                <tr><td>담당자</td><td>left</td><td class="mono">100–130px</td><td>이름 + 보조 정보</td></tr>
+                <tr><td>기간 / 일정</td><td>left</td><td class="mono">140–170px</td><td>시작–종료 표시</td></tr>
+                <tr><td>진행률</td><td>left</td><td class="mono">100px</td><td>진행률 바 + 숫자</td></tr>
+                <tr><td>업데이트일</td><td>left</td><td class="mono">100px</td><td><code>YYYY-MM-DD</code></td></tr>
+                <tr><td>액션</td><td>right</td><td class="mono">80–120px</td><td>Icon / Small Button</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S05 Scroll / Width Rules ────────────── -->
+      <section id="s05" class="sec" data-screen-label="05 Scroll Width Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Scroll / Width Rules — 스크롤·폭 기준</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>페이지 레벨 상단 별도 가로 스크롤 바는 만들지 않는다.</li>
+            <li>기본 스크롤은 브라우저 세로 스크롤 기준으로 둔다.</li>
+            <li>가로 스크롤이 필요한 경우 컨텐츠 / 테이블 영역 내부에서만 발생시킨다.</li>
+            <li>좌측 네비는 고정하고 컨텐츠 영역만 가로 스크롤한다. 좌측 메뉴가 밀리지 않는다.</li>
+            <li>Drawer가 열려도 테이블 레이아웃을 밀거나 줄이지 않는다. Drawer는 콘텐츠 영역 위 Overlay다.</li>
+            <li>테이블 카드는 페이지 전체 폭을 불필요하게 넘기지 않는다. Card max-width 안에서 동작한다.</li>
+            <li>전체보기에서는 좌측 메뉴를 숨기고 테이블 가용 폭을 확대한다.</li>
+            <li>모바일에서는 카드형 목록 또는 중요 컬럼 우선 노출(2–3개)을 검토한다.</li>
+          </ul>
+
+          <p class="sub">스크롤 영역 책임</p>
+          <div style="overflow-x:auto;">
+            <table class="stbl">
+              <thead>
+                <tr><th>영역</th><th>세로 스크롤</th><th>가로 스크롤</th><th>비고</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>App Shell / Body</td><td>브라우저 기준</td><td class="mono">금지</td><td>좌측 메뉴 고정 유지</td></tr>
+                <tr><td>Sidebar (좌측 메뉴)</td><td>내부 허용</td><td class="mono">금지</td><td>폭 고정 (<code>--sw</code>)</td></tr>
+                <tr><td>Content / Page</td><td>브라우저 기준</td><td>필요 시 내부</td><td>페이지 가로 스크롤은 금지</td></tr>
+                <tr><td>Table 카드</td><td>없음 (페이지 흐름)</td><td>없음</td><td>카드 자체는 스크롤 컨테이너 아님</td></tr>
+                <tr><td><code>.table-scroll</code> 래퍼</td><td>없음</td><td>허용</td><td>가로 스크롤은 여기서만 발생</td></tr>
+                <tr><td>Drawer</td><td>Body 영역 내부</td><td>금지</td><td>테이블 폭에 영향 없음</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox warn">
+            <strong>주의</strong>
+            상단 별도 가로 스크롤 바(테이블 위 가로 스크롤 트랙) 패턴은 사용하지 않는다. 가로 스크롤은 테이블 영역 자체에서만 발생해야 한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S06 Row Interaction Rules ────────────── -->
+      <section id="s06" class="sec" data-screen-label="06 Row Interaction Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Row Interaction Rules — 행 인터랙션 기준</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>행 클릭은 상세 Drawer를 기본으로 한다.</li>
+            <li>더블클릭 또는 별도 버튼으로 전체 상세 화면 이동을 고려할 수 있다.</li>
+            <li>행 안의 액션 버튼은 <a href="STAM-Button-Guide.html" style="color:var(--info);">Button Guide</a>의 Small / Icon Button 기준을 따른다.</li>
+            <li>체크박스 선택과 행 클릭은 충돌하지 않게 한다. 체크박스 영역은 행 클릭 이벤트와 분리한다.</li>
+            <li>링크·버튼·체크박스 영역은 행 클릭 이벤트와 분리한다. 이벤트 버블링을 막는다.</li>
+            <li>위험 액션(삭제·반려)은 <a href="STAM-Dialog-Guide.html" style="color:var(--info);">Dialog Guide</a> 확인을 거친다. 행 액션에서 즉시 실행하지 않는다.</li>
+            <li>수정은 Drawer 안에서 모드 전환(상세 → 수정)을 우선한다. 별도 페이지 이동을 강제하지 않는다.</li>
+          </ul>
+
+          <p class="sub">이벤트 분리 기준</p>
+          <div style="overflow-x:auto;">
+            <table class="stbl">
+              <thead>
+                <tr><th>영역</th><th>클릭 결과</th><th>버블링</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Row 빈 셀</td><td>상세 Drawer 열림</td><td>—</td></tr>
+                <tr><td>체크박스 셀</td><td>행 선택 토글</td><td>차단 (행 클릭 무시)</td></tr>
+                <tr><td>내부 링크 / 칩 (담당자 등)</td><td>해당 상세로 이동</td><td>차단</td></tr>
+                <tr><td>Row Action 버튼</td><td>버튼 액션 실행</td><td>차단</td></tr>
+                <tr><td>드롭다운 / More 메뉴</td><td>메뉴 열림</td><td>차단</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S07 Filter / Search Rules ────────────── -->
+      <section id="s07" class="sec" data-screen-label="07 Filter Search Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Filter / Search Rules — 필터·검색 기준</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>빠른 필터는 실제 필터처럼 조건 외 행을 <strong>숨긴다</strong>.</li>
+            <li>조건 외 행을 단순 dim 처리만 하는 방식은 기본 패턴으로 사용하지 않는다.</li>
+            <li>검색어 입력 시 메뉴명 · 화면명 · 작업명 · 담당자 · 상태 등 주요 텍스트를 대상으로 한다.</li>
+            <li>필터 초기화 버튼을 제공한다. 활성 필터가 하나라도 있으면 노출한다.</li>
+            <li>활성 필터는 칩 또는 배지로 명확히 표시한다. 각 칩에 제거(×)를 둔다.</li>
+            <li>필터 결과 없음 상태를 제공한다. "검색 조건에 맞는 항목이 없습니다" + 필터 초기화 액션.</li>
+            <li>필터와 검색은 목록 카운트와 연동한다. <code>전체 124 · 필터 18</code> 형식으로 보여준다.</li>
+          </ul>
+
+          <div class="ibox warn">
+            <strong>금지 패턴</strong>
+            조건에 맞지 않는 행을 단순히 회색으로 dim 처리해서 "필터처럼" 보이게 만드는 패턴은 금지한다. 사용자가 실제 데이터 건수를 오해할 수 있다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S08 WBS Special Rules ────────────── -->
+      <section id="s08" class="sec" data-screen-label="08 WBS Special Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">WBS Table Special Rules — WBS 전용 기준</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>보통 모드에서는 컬럼 수를 줄여 스크롤을 최소화한다. (작업명 · 담당자 · 상태 · 진행률 · 기간 위주)</li>
+            <li>전체보기에서는 상세 컬럼과 간트 / 일정 영역을 확장한다.</li>
+            <li>간트차트 영역은 접기 / 펼치기를 제공한다. 기본은 펼침, 보통 모드에서는 접힘 가능.</li>
+            <li>메뉴 / 기능 단위 그룹핑을 지원한다.</li>
+            <li>그룹 헤더는 접기 / 펼치기, 그룹명, 작업 수, 대표 메타(담당 · 평균 진행률 등)를 표시한다.</li>
+            <li>내 담당 · 리스크 · 지연 같은 빠른 필터는 조건 행만 남긴다. (dim 처리 금지)</li>
+            <li>기간 · 담당자 · 상태 · 진행률 · 리스크는 WBS 주요 컬럼으로 본다.</li>
+          </ul>
+
+          <p class="sub">WBS 보통 모드 vs 전체보기 컬럼 비교</p>
+          <div style="overflow-x:auto;">
+            <table class="stbl">
+              <thead>
+                <tr>
+                  <th>모드</th>
+                  <th>표시 컬럼</th>
+                  <th>간트</th>
+                  <th>그룹핑</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>보통 모드</td>
+                  <td>작업명 · 담당자 · 상태 · 진행률 · 기간</td>
+                  <td>접힘 가능</td>
+                  <td>지원</td>
+                </tr>
+                <tr>
+                  <td>전체보기</td>
+                  <td>작업명 · ID · 분류 · 담당자 · 시작일 · 종료일 · 상태 · 진행률 · 리스크 · 의존성 · 업데이트일</td>
+                  <td>펼침 (확장 영역)</td>
+                  <td>지원 + 그룹 메타 확장</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S09 State / Empty / Loading ────────────── -->
+      <section id="s09" class="sec" data-screen-label="09 State Empty Loading">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">State / Empty / Loading — 상태 정의</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div class="state-grid">
+
+            <div class="state-card">
+              <div class="state-card-h"><span class="state-dot load"></span><span class="state-name">Loading</span></div>
+              <div class="state-desc">테이블 로드 중. 스켈레톤 행 또는 인디케이터 표시.</div>
+              <div class="state-msg"><strong>표시</strong> · 스켈레톤 행 4–6개 또는 상단 프로그레스</div>
+              <div class="state-msg"><strong>액션</strong> · 없음. 자동 갱신 대기</div>
+            </div>
+
+            <div class="state-card">
+              <div class="state-card-h"><span class="state-dot empty"></span><span class="state-name">Empty</span></div>
+              <div class="state-desc">데이터가 아직 생성되지 않음.</div>
+              <div class="state-msg"><strong>문구</strong> · "아직 등록된 항목이 없습니다"</div>
+              <div class="state-msg"><strong>액션</strong> · Primary "신규 등록" 버튼</div>
+            </div>
+
+            <div class="state-card">
+              <div class="state-card-h"><span class="state-dot nores"></span><span class="state-name">No Search Result</span></div>
+              <div class="state-desc">검색·필터 조건에 맞는 항목 없음.</div>
+              <div class="state-msg"><strong>문구</strong> · "조건에 맞는 항목이 없습니다"</div>
+              <div class="state-msg"><strong>액션</strong> · Secondary "필터 초기화"</div>
+            </div>
+
+            <div class="state-card">
+              <div class="state-card-h"><span class="state-dot err"></span><span class="state-name">Error</span></div>
+              <div class="state-desc">불러오기 실패 또는 서버 오류.</div>
+              <div class="state-msg"><strong>문구</strong> · "목록을 불러오지 못했습니다. 다시 시도해 주세요."</div>
+              <div class="state-msg"><strong>액션</strong> · Secondary "다시 시도"</div>
+            </div>
+
+            <div class="state-card">
+              <div class="state-card-h"><span class="state-dot perm"></span><span class="state-name">Permission Restricted</span></div>
+              <div class="state-desc">권한이 없는 사용자.</div>
+              <div class="state-msg"><strong>문구</strong> · "접근 권한이 없습니다. 관리자에게 요청하세요."</div>
+              <div class="state-msg"><strong>액션</strong> · Ghost "권한 요청"</div>
+            </div>
+
+            <div class="state-card">
+              <div class="state-card-h"><span class="state-dot ro"></span><span class="state-name">Readonly</span></div>
+              <div class="state-desc">조회만 가능. 등록·수정 액션 숨김.</div>
+              <div class="state-msg"><strong>표시</strong> · Toolbar에 "조회 전용" 배지</div>
+              <div class="state-msg"><strong>액션</strong> · 행 클릭은 상세 Drawer 열기만 허용</div>
+            </div>
+
+            <div class="state-card">
+              <div class="state-card-h"><span class="state-dot sel"></span><span class="state-name">Selected Row</span></div>
+              <div class="state-desc">체크박스 또는 단일 선택된 행.</div>
+              <div class="state-msg"><strong>표시</strong> · 좌측 강조 라인 + 배경 색상 + aria-selected</div>
+              <div class="state-msg"><strong>액션</strong> · 다중 선택 시 Toolbar에 일괄 액션 노출</div>
+            </div>
+
+            <div class="state-card">
+              <div class="state-card-h"><span class="state-dot upd"></span><span class="state-name">Updated Row</span></div>
+              <div class="state-desc">최근 업데이트되어 강조가 필요한 행.</div>
+              <div class="state-msg"><strong>표시</strong> · 잠시 배경 강조 후 일반 상태로 전환</div>
+              <div class="state-msg"><strong>액션</strong> · 새 항목은 상단 정렬</div>
+            </div>
+
+            <div class="state-card">
+              <div class="state-card-h"><span class="state-dot dis"></span><span class="state-name">Disabled Row</span></div>
+              <div class="state-desc">권한·상태로 인해 액션 불가.</div>
+              <div class="state-msg"><strong>표시</strong> · 텍스트 dim + 행 액션 숨김 또는 disabled</div>
+              <div class="state-msg"><strong>액션</strong> · 상세 Drawer는 조회만 허용</div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S10 Do / Don't ────────────── -->
+      <section id="s10" class="sec" data-screen-label="10 Do Don't">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Do / Don't</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div class="dd-grid">
+            <div class="dd-card do">
+              <div class="dd-hdr"><div class="dd-dot"></div>Do</div>
+              <ul class="dd-list">
+                <li>보통 모드와 전체보기를 명확히 분리한다</li>
+                <li>핵심 컬럼 중심으로 기본 목록을 구성한다</li>
+                <li>빠른 필터는 실제 필터로 동작시킨다</li>
+                <li>행 클릭과 행 액션을 분리한다</li>
+                <li>긴 텍스트는 상세 Drawer로 보완한다</li>
+                <li>전체보기에서 넓은 작업 환경을 제공한다</li>
+                <li>공통 컬럼은 화면마다 동일 폭으로 통일한다</li>
+                <li>필터·검색은 목록 카운트와 연동한다</li>
+              </ul>
+            </div>
+            <div class="dd-card dont">
+              <div class="dd-hdr"><div class="dd-dot"></div>Don't</div>
+              <ul class="dd-list">
+                <li>기본 목록에 모든 컬럼을 다 넣지 않는다</li>
+                <li>조건 외 행을 dim 처리만 해서 필터처럼 보이게 만들지 않는다</li>
+                <li>Drawer가 테이블 폭을 밀어내게 만들지 않는다</li>
+                <li>상단 별도 가로 스크롤 바를 만들지 않는다</li>
+                <li>컬럼 폭을 화면마다 임의로 다르게 만들지 않는다</li>
+                <li>삭제·반려를 행 액션에서 즉시 실행하지 않는다</li>
+                <li>한 셀에 줄바꿈을 강제해 행 높이를 변화시키지 않는다</li>
+                <li>좌측 메뉴를 가로 스크롤 영역에 포함하지 않는다</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S11 Examples ────────────── -->
+      <section id="s11" class="sec" data-screen-label="11 Examples">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">STAM Table Examples — 정적 샘플</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:2px;">
+            실제 정렬·필터·행 클릭 동작은 구현하지 않는다. 예시는 정적 HTML 샘플로만 구성한다.
+          </div>
+
+          <div class="eg-grid">
+
+            <!-- EX1: Standard List Table -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="ttype-chip standard">기본</span>
+                <span class="eg-lbl">Standard List Table — 요구사항 목록</span>
+              </div>
+              <div class="eg-body">
+                <div class="mt">
+                  <div class="mt-toolbar">
+                    <div class="mt-search">🔎 검색</div>
+                    <span class="mt-chip active">내 담당</span>
+                    <span class="mt-chip">진행중</span>
+                    <span class="mt-chip count">전체 24</span>
+                    <span class="mt-fv">↗ 전체보기</span>
+                  </div>
+                  <div class="mt-scroll">
+                    <table class="mt-tbl">
+                      <thead>
+                        <tr>
+                          <th style="width:24px;"><span class="mt-cb"></span></th>
+                          <th style="width:60px;">ID</th>
+                          <th class="sorted">제목 <span class="sort-arrow">▾</span></th>
+                          <th style="width:80px;">상태</th>
+                          <th style="width:80px;">담당자</th>
+                          <th style="width:90px;">업데이트</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr><td><span class="mt-cb checked"></span></td><td>REQ-012</td><td class="ellipsis mt-cell-strong">로그인 5회 실패 시 계정 잠금 정책</td><td><span class="mt-badge progress">진행중</span></td><td>김민준</td><td class="mt-cell-num">06-07</td></tr>
+                        <tr><td><span class="mt-cb"></span></td><td>REQ-013</td><td class="ellipsis">SSO 연동 — Wanted OneID 기준</td><td><span class="mt-badge review">검토</span></td><td>박서연</td><td class="mt-cell-num">06-07</td></tr>
+                        <tr><td><span class="mt-cb"></span></td><td>REQ-014</td><td class="ellipsis">비밀번호 재설정 메일 발송 흐름</td><td><span class="mt-badge done">완료</span></td><td>이지원</td><td class="mt-cell-num">06-06</td></tr>
+                        <tr><td><span class="mt-cb"></span></td><td>REQ-015</td><td class="ellipsis">감사 로그 보존 기간 정의</td><td><span class="mt-badge todo">대기</span></td><td>김민준</td><td class="mt-cell-num">06-05</td></tr>
+                        <tr><td><span class="mt-cb"></span></td><td>REQ-016</td><td class="ellipsis">API 호출 제한(Rate limit) 정책</td><td><span class="mt-badge delay">지연</span></td><td>박서연</td><td class="mt-cell-num">06-04</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="mt-footer">
+                    <span class="mt-footer-l">전체 24 · 필터 5</span>
+                    <div class="mt-pager"><span>‹</span><span class="cur">1</span><span>2</span><span>3</span><span>›</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EX2: WBS Compact -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="ttype-chip wbs">WBS</span>
+                <span class="eg-lbl">WBS Compact Table — 보통 모드</span>
+              </div>
+              <div class="eg-body">
+                <div class="mt">
+                  <div class="mt-toolbar">
+                    <span class="mt-chip active">내 담당</span>
+                    <span class="mt-chip">지연</span>
+                    <span class="mt-chip">리스크</span>
+                    <span class="mt-chip count">전체 56</span>
+                    <span class="mt-fv">↗ 전체보기</span>
+                  </div>
+                  <div class="mt-scroll">
+                    <table class="mt-tbl">
+                      <thead>
+                        <tr>
+                          <th>작업명</th>
+                          <th style="width:78px;">담당자</th>
+                          <th style="width:78px;">상태</th>
+                          <th style="width:108px;">진행률</th>
+                          <th style="width:90px;">기간</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr><td class="ellipsis mt-cell-strong">화면 설계 검토 (3차)</td><td>김민준</td><td><span class="mt-badge progress">진행중</span></td><td><span class="mt-bar" style="--pct:62%;"></span><span class="mt-bar-num">62%</span></td><td class="mt-cell-num">06-01~10</td></tr>
+                        <tr><td class="ellipsis mt-cell-strong">DB 정의서 v2.1 작성</td><td>이지원</td><td><span class="mt-badge done">완료</span></td><td><span class="mt-bar" style="--pct:100%;"></span><span class="mt-bar-num">100%</span></td><td class="mt-cell-num">05-25~31</td></tr>
+                        <tr><td class="ellipsis mt-cell-strong">API 명세서 — 인증 영역</td><td>박서연</td><td><span class="mt-badge delay">지연</span></td><td><span class="mt-bar" style="--pct:35%;"></span><span class="mt-bar-num">35%</span></td><td class="mt-cell-num">05-30~06-05</td></tr>
+                        <tr><td class="ellipsis mt-cell-strong">오픈 시나리오 1차 정리</td><td>김민준</td><td><span class="mt-badge review">검토</span></td><td><span class="mt-bar" style="--pct:80%;"></span><span class="mt-bar-num">80%</span></td><td class="mt-cell-num">06-02~08</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EX3: WBS Focus View -->
+            <div class="eg-card" style="grid-column: 1 / -1;">
+              <div class="eg-hdr">
+                <span class="ttype-chip wbs">WBS</span>
+                <span class="eg-lbl">WBS Focus View Table — 전체보기 (간트 확장 · 좌측 메뉴 숨김)</span>
+              </div>
+              <div class="eg-body">
+                <div class="mt">
+                  <div class="mt-toolbar">
+                    <div class="mt-search">🔎 작업명·담당자 검색</div>
+                    <span class="mt-chip active">내 담당</span>
+                    <span class="mt-chip">지연</span>
+                    <span class="mt-chip">리스크</span>
+                    <span class="mt-chip count">전체 56 · 필터 18</span>
+                    <span class="mt-fv">↩ 보통 모드</span>
+                  </div>
+                  <div class="mt-scroll scroll-cue">
+                    <table class="mt-tbl">
+                      <thead>
+                        <tr>
+                          <th style="width:24px;"><span class="mt-cb"></span></th>
+                          <th style="width:64px;">ID</th>
+                          <th style="min-width:160px;">작업명</th>
+                          <th style="width:78px;">담당자</th>
+                          <th class="sorted" style="width:88px;">시작일 <span class="sort-arrow">▴</span></th>
+                          <th style="width:88px;">종료일</th>
+                          <th style="width:80px;">상태</th>
+                          <th style="width:108px;">진행률</th>
+                          <th style="width:70px;">리스크</th>
+                          <th style="width:90px;">의존성</th>
+                          <th style="min-width:120px;">간트</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr><td><span class="mt-cb"></span></td><td>WBS-031</td><td class="ellipsis mt-cell-strong">화면 설계 검토 (3차)</td><td>김민준</td><td>2026-06-01</td><td>2026-06-10</td><td><span class="mt-badge progress">진행중</span></td><td><span class="mt-bar" style="--pct:62%;"></span><span class="mt-bar-num">62%</span></td><td><span class="mt-badge review">중</span></td><td>WBS-028</td><td><span class="mt-gantt"><span class="mt-gantt-track"><span class="mt-gantt-bar" style="left:14%;width:42%;"></span></span></span></td></tr>
+                        <tr><td><span class="mt-cb checked"></span></td><td>WBS-032</td><td class="ellipsis mt-cell-strong">DB 정의서 v2.1 작성</td><td>이지원</td><td>2026-05-25</td><td>2026-05-31</td><td><span class="mt-badge done">완료</span></td><td><span class="mt-bar" style="--pct:100%;"></span><span class="mt-bar-num">100%</span></td><td><span class="mt-badge todo">없음</span></td><td>—</td><td><span class="mt-gantt"><span class="mt-gantt-track"><span class="mt-gantt-bar" style="left:0;width:32%;"></span></span></span></td></tr>
+                        <tr><td><span class="mt-cb"></span></td><td>WBS-033</td><td class="ellipsis mt-cell-strong">API 명세서 — 인증 영역</td><td>박서연</td><td>2026-05-30</td><td>2026-06-05</td><td><span class="mt-badge delay">지연</span></td><td><span class="mt-bar" style="--pct:35%;"></span><span class="mt-bar-num">35%</span></td><td><span class="mt-badge delay">상</span></td><td>WBS-029</td><td><span class="mt-gantt"><span class="mt-gantt-track"><span class="mt-gantt-bar" style="left:8%;width:28%;background:linear-gradient(90deg,#EF4444,#c9302c);"></span></span></span></td></tr>
+                        <tr><td><span class="mt-cb"></span></td><td>WBS-034</td><td class="ellipsis mt-cell-strong">오픈 시나리오 1차 정리</td><td>김민준</td><td>2026-06-02</td><td>2026-06-08</td><td><span class="mt-badge review">검토</span></td><td><span class="mt-bar" style="--pct:80%;"></span><span class="mt-bar-num">80%</span></td><td><span class="mt-badge todo">없음</span></td><td>WBS-031</td><td><span class="mt-gantt"><span class="mt-gantt-track"><span class="mt-gantt-bar" style="left:18%;width:36%;"></span></span></span></td></tr>
+                        <tr><td><span class="mt-cb"></span></td><td>WBS-035</td><td class="ellipsis mt-cell-strong">테이블 정의서 리뷰</td><td>이지원</td><td>2026-06-06</td><td>2026-06-12</td><td><span class="mt-badge progress">진행중</span></td><td><span class="mt-bar" style="--pct:18%;"></span><span class="mt-bar-num">18%</span></td><td><span class="mt-badge review">중</span></td><td>WBS-032</td><td><span class="mt-gantt"><span class="mt-gantt-track"><span class="mt-gantt-bar" style="left:30%;width:34%;"></span></span></span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="mt-footer">
+                    <span class="mt-footer-l">전체 56 · 필터 18 · 선택 1</span>
+                    <div class="mt-pager"><span>‹</span><span class="cur">1</span><span>2</span><span>3</span><span>4</span><span>›</span></div>
+                  </div>
+                </div>
+                <div style="font-size:9.5px;color:var(--t3);font-family:var(--font);">전체보기에서는 좌측 메뉴를 숨기고 ID · 시작일 · 종료일 · 리스크 · 의존성 · 간트 컬럼을 추가로 확장한다. 폭이 부족할 때만 테이블 내부 가로 스크롤이 발생한다.</div>
+              </div>
+            </div>
+
+            <!-- EX4: Definition Table -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="ttype-chip def">정의</span>
+                <span class="eg-lbl">Definition Table — 테이블 정의서</span>
+              </div>
+              <div class="eg-body">
+                <div class="mt">
+                  <div class="mt-toolbar">
+                    <div class="mt-search">🔎 컬럼명 검색</div>
+                    <span class="mt-chip">PK</span>
+                    <span class="mt-chip">FK</span>
+                    <span class="mt-chip count">전체 12</span>
+                    <span class="mt-fv">↗ 전체보기</span>
+                  </div>
+                  <div class="mt-scroll">
+                    <table class="mt-tbl">
+                      <thead>
+                        <tr>
+                          <th style="width:90px;">코드</th>
+                          <th>명칭</th>
+                          <th style="width:70px;">타입</th>
+                          <th style="width:50px;">길이</th>
+                          <th style="width:50px;">NULL</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr><td class="mt-cell-strong">user_id</td><td class="ellipsis">사용자 ID (PK)</td><td>VARCHAR</td><td class="mt-cell-num">36</td><td>N</td></tr>
+                        <tr><td class="mt-cell-strong">email</td><td class="ellipsis">이메일 주소</td><td>VARCHAR</td><td class="mt-cell-num">255</td><td>N</td></tr>
+                        <tr><td class="mt-cell-strong">name</td><td class="ellipsis">이름</td><td>VARCHAR</td><td class="mt-cell-num">100</td><td>N</td></tr>
+                        <tr><td class="mt-cell-strong">role_id</td><td class="ellipsis">권한 ID (FK)</td><td>VARCHAR</td><td class="mt-cell-num">36</td><td>Y</td></tr>
+                        <tr><td class="mt-cell-strong">created_at</td><td class="ellipsis">생성 일시</td><td>TIMESTAMP</td><td class="mt-cell-num">—</td><td>N</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EX5: Review / Approval -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="ttype-chip review">검토</span>
+                <span class="eg-lbl">Review / Approval Table — 승인 요청</span>
+              </div>
+              <div class="eg-body">
+                <div class="mt">
+                  <div class="mt-toolbar">
+                    <span class="mt-chip active">대기</span>
+                    <span class="mt-chip">검토중</span>
+                    <span class="mt-chip">반려</span>
+                    <span class="mt-chip count">전체 14</span>
+                    <span class="mt-fv">↗ 전체보기</span>
+                  </div>
+                  <div class="mt-scroll">
+                    <table class="mt-tbl">
+                      <thead>
+                        <tr>
+                          <th>대상</th>
+                          <th style="width:78px;">요청자</th>
+                          <th style="width:78px;">단계</th>
+                          <th style="width:78px;">상태</th>
+                          <th style="width:88px;">요청일</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr><td class="ellipsis mt-cell-strong">요구사항 #07 — 인증 정책</td><td>김민준</td><td>2/3</td><td><span class="mt-badge review">검토중</span></td><td class="mt-cell-num">06-06</td></tr>
+                        <tr><td class="ellipsis mt-cell-strong">화면설계서 v2.3</td><td>박서연</td><td>1/3</td><td><span class="mt-badge todo">대기</span></td><td class="mt-cell-num">06-07</td></tr>
+                        <tr><td class="ellipsis mt-cell-strong">오픈 시나리오 #12</td><td>이지원</td><td>3/3</td><td><span class="mt-badge done">승인</span></td><td class="mt-cell-num">06-05</td></tr>
+                        <tr><td class="ellipsis mt-cell-strong">API 명세서 — 회원</td><td>박서연</td><td>2/3</td><td><span class="mt-badge delay">반려</span></td><td class="mt-cell-num">06-04</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EX6: Empty State -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="ttype-chip standard">기본</span>
+                <span class="eg-lbl">Empty State Table — 등록된 항목 없음</span>
+              </div>
+              <div class="eg-body">
+                <div class="mt">
+                  <div class="mt-toolbar">
+                    <div class="mt-search">🔎 검색</div>
+                    <span class="mt-chip count">전체 0</span>
+                    <span class="mt-fv">↗ 전체보기</span>
+                  </div>
+                  <div class="mt-empty">
+                    <div class="mt-empty-ico">+</div>
+                    <div class="mt-empty-title">아직 등록된 항목이 없습니다</div>
+                    <div class="mt-empty-desc">첫 산출물을 등록하면 이 목록에 나타납니다.</div>
+                    <div class="mt-empty-act"><span class="bt-btn primary sm">+ 신규 등록</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EX7: Filter Result Table (No Search Result) -->
+            <div class="eg-card">
+              <div class="eg-hdr">
+                <span class="ttype-chip standard">기본</span>
+                <span class="eg-lbl">Filter Result Table — 조건 외 행은 숨김</span>
+              </div>
+              <div class="eg-body">
+                <div class="mt">
+                  <div class="mt-toolbar">
+                    <div class="mt-search" style="color:var(--t1);">🔎 "API 인증"</div>
+                    <span class="mt-chip active">내 담당 ×</span>
+                    <span class="mt-chip active">지연 ×</span>
+                    <span class="mt-chip count">필터 2 / 전체 124</span>
+                    <span class="mt-fv">↗ 전체보기</span>
+                  </div>
+                  <div class="mt-scroll">
+                    <table class="mt-tbl">
+                      <thead>
+                        <tr>
+                          <th style="width:60px;">ID</th>
+                          <th>제목</th>
+                          <th style="width:80px;">상태</th>
+                          <th style="width:80px;">담당자</th>
+                          <th style="width:90px;">업데이트</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr><td>REQ-016</td><td class="ellipsis mt-cell-strong">API 호출 제한(Rate limit) 정책</td><td><span class="mt-badge delay">지연</span></td><td>박서연</td><td class="mt-cell-num">06-04</td></tr>
+                        <tr><td>REQ-019</td><td class="ellipsis mt-cell-strong">API 인증 토큰 만료 정책</td><td><span class="mt-badge delay">지연</span></td><td>김민준</td><td class="mt-cell-num">06-03</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="mt-footer">
+                    <span class="mt-footer-l">필터 2 / 전체 124</span>
+                    <span style="font-size:8.5px;color:#8B7FF8;font-family:var(--font);">필터 초기화</span>
+                  </div>
+                </div>
+                <div style="font-size:9.5px;color:var(--t3);font-family:var(--font);">조건 외 행은 <strong style="color:var(--t2);">숨김</strong> 처리한다. dim 처리만으로 필터처럼 보이게 만들지 않는다.</div>
+              </div>
+            </div>
+
+          </div>
+
+          <p class="sub" style="margin-top:10px;">Focus View 전환 — 좌측 메뉴 숨김 다이어그램</p>
+          <div class="fv-diag">
+            <div class="fv-frame">
+              <div class="fv-frame-lbl"><span class="ttype-chip standard">기본</span>보통 모드 (좌측 메뉴 표시)</div>
+              <div class="fv-mock">
+                <div class="fv-side">
+                  <div class="fv-side-row active"></div>
+                  <div class="fv-side-row"></div>
+                  <div class="fv-side-row"></div>
+                  <div class="fv-side-row"></div>
+                  <div class="fv-side-row"></div>
+                </div>
+                <div class="fv-content">
+                  <div class="fv-tbl-row hd"><div class="fv-tbl-cell narrow"></div><div class="fv-tbl-cell wide"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div></div>
+                  <div class="fv-tbl-row"><div class="fv-tbl-cell narrow"></div><div class="fv-tbl-cell wide"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div></div>
+                  <div class="fv-tbl-row"><div class="fv-tbl-cell narrow"></div><div class="fv-tbl-cell wide"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div></div>
+                  <div class="fv-tbl-row"><div class="fv-tbl-cell narrow"></div><div class="fv-tbl-cell wide"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div></div>
+                </div>
+              </div>
+              <div class="fv-note">핵심 컬럼만 노출. 좌측 메뉴는 표시 상태. 가로 스크롤 없음.</div>
+            </div>
+            <div class="fv-frame">
+              <div class="fv-frame-lbl"><span class="ttype-chip wbs">전체보기</span>Focus View (좌측 메뉴 숨김)</div>
+              <div class="fv-mock">
+                <div class="fv-content">
+                  <div class="fv-tbl-row hd"><div class="fv-tbl-cell narrow"></div><div class="fv-tbl-cell wide"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div></div>
+                  <div class="fv-tbl-row"><div class="fv-tbl-cell narrow"></div><div class="fv-tbl-cell wide"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell dim"></div></div>
+                  <div class="fv-tbl-row"><div class="fv-tbl-cell narrow"></div><div class="fv-tbl-cell wide"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell dim"></div></div>
+                  <div class="fv-tbl-row"><div class="fv-tbl-cell narrow"></div><div class="fv-tbl-cell wide"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell"></div><div class="fv-tbl-cell dim"></div></div>
+                </div>
+              </div>
+              <div class="fv-note">상세 컬럼 + 간트 확장. 좌측 메뉴는 숨김. 필요 시 테이블 영역 내 가로 스크롤만 발생.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S12 Accessibility ────────────── -->
+      <section id="s12" class="sec" data-screen-label="12 Accessibility">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Accessibility — 접근성</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div style="overflow-x:auto;">
+            <table class="stbl">
+              <thead>
+                <tr><th>항목</th><th>기준</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Header ↔ Cell 관계</td>
+                  <td><code>&lt;th scope="col"&gt;</code> 사용. 복잡한 경우 <code>id</code> ↔ <code>headers</code> 매핑으로 명확히 한다</td>
+                </tr>
+                <tr>
+                  <td>정렬 상태</td>
+                  <td>정렬 가능한 컬럼은 <code>aria-sort="ascending|descending|none"</code> + 텍스트/아이콘으로 함께 안내</td>
+                </tr>
+                <tr>
+                  <td>행 액션 버튼</td>
+                  <td>아이콘 버튼은 <code>aria-label</code> 필수. 행 컨텍스트("WBS-031 수정") 포함 권장</td>
+                </tr>
+                <tr>
+                  <td>키보드 포커스</td>
+                  <td>Tab으로 Toolbar → Header → Row → Action 순서. 행 단위 포커스 이동 시 시각 인디케이터 유지</td>
+                </tr>
+                <tr>
+                  <td>선택된 행</td>
+                  <td><code>aria-selected="true"</code> + 색상 외 시각 단서(좌측 강조 라인 등) 제공</td>
+                </tr>
+                <tr>
+                  <td>필터 결과 없음</td>
+                  <td>"조건에 맞는 항목이 없습니다" 등 명확한 문구. 단순 빈 화면 금지</td>
+                </tr>
+                <tr>
+                  <td>가로 스크롤 영역</td>
+                  <td>스크롤 컨테이너에 <code>tabindex="0"</code> + <code>role="region"</code> + <code>aria-label</code>로 키보드 접근 보장</td>
+                </tr>
+                <tr>
+                  <td>색상 단독 상태 표현 금지</td>
+                  <td>상태는 색상 + Badge 텍스트 / 아이콘을 항상 함께 사용한다</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S13 QA Checklist ────────────── -->
+      <section id="s13" class="sec" data-screen-label="13 QA Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">QA Checklist</span>
+          <span class="sbadge done">완료</span>
+        </div>
+        <div class="sec-body">
+          <div class="qa-grid">
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">보통 모드 컬럼이 과도하지 않은가? (5–7개 목표)</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">전체보기 / Focus View가 필요한 화면에 제공되는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">가로 스크롤이 페이지 전체에 생기지 않는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">좌측 네비가 밀리거나 흔들리지 않는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">빠른 필터가 실제 필터로 동작하는가? (dim 처리만 아닌가)</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">행 클릭과 버튼·체크박스 클릭이 충돌하지 않는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">Drawer가 테이블 폭을 밀어내지 않는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">Empty · Loading · Error 상태가 정의되어 있는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">접근성 라벨 기준(aria-sort · aria-label · aria-selected)이 있는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">S-Core Dream 폰트가 유지되는가? (Pretendard · Gulim · Dotum 금지)</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">공통 컬럼 폭이 화면마다 동일하게 통일되어 있는가?</span></div>
+            <div class="qa-item"><div class="qa-box"></div><span class="qa-txt">상단 별도 가로 스크롤 바를 만들지 않았는가?</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S14 Related Links ────────────── -->
+      <section id="s14" class="sec" data-screen-label="14 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Related Links — 관련 문서</span>
+        </div>
+        <div class="sec-body">
+          <div class="rel-grid">
+            <a href="../STAM-Docs-Index.html" class="rel-card">
+              <div class="rel-ico">Idx</div>
+              <div class="rel-body">
+                <div class="rel-title">Docs Index</div>
+                <div class="rel-sub">전체 문서 목록</div>
+              </div>
+            </a>
+            <a href="../STAM-Component-Guide.html" class="rel-card">
+              <div class="rel-ico">Cmp</div>
+              <div class="rel-body">
+                <div class="rel-title">Component Guide</div>
+                <div class="rel-sub">컴포넌트 전체 목록</div>
+              </div>
+            </a>
+            <a href="STAM-Button-Guide.html" class="rel-card">
+              <div class="rel-ico">Btn</div>
+              <div class="rel-body">
+                <div class="rel-title">Button Guide</div>
+                <div class="rel-sub">Small / Icon Button 기준</div>
+              </div>
+            </a>
+            <a href="STAM-Dialog-Guide.html" class="rel-card">
+              <div class="rel-ico">Dlg</div>
+              <div class="rel-body">
+                <div class="rel-title">Dialog Guide</div>
+                <div class="rel-sub">위험 액션 확인</div>
+              </div>
+            </a>
+            <a href="STAM-Form-Guide.html" class="rel-card">
+              <div class="rel-ico">Frm</div>
+              <div class="rel-body">
+                <div class="rel-title">Form Guide</div>
+                <div class="rel-sub">필드·유효성·에러 기준</div>
+              </div>
+            </a>
+            <a href="STAM-Drawer-Guide.html" class="rel-card">
+              <div class="rel-ico">Drw</div>
+              <div class="rel-body">
+                <div class="rel-title">Drawer Guide</div>
+                <div class="rel-sub">행 클릭 상세 패널</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop; var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>

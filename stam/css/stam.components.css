@@ -1,0 +1,473 @@
+/* ============================================================
+ * STAM Components — Buttons, Badges, Chips, Cards, Tags
+ * ============================================================ */
+
+/* ---- Button (dark-topbar friendly) ---- */
+.tbtn {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: var(--r-md);
+  padding: 5px 11px;
+  font-size: 11.5px;
+  cursor: pointer;
+  color: rgba(255,255,255,.60);
+  font-family: var(--font);
+  transition: background 120ms, color 120ms;
+}
+.tbtn:hover {
+  background: rgba(255,255,255,.13);
+  color: #fff;
+}
+
+/* ---- ID code chip ---- */
+.id-code {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--brand);
+  background: rgba(84,81,232,.08);
+  padding: 2px 7px;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(84,81,232,.2);
+}
+
+/* ---- Group badge ---- */
+.group-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--r-sm);
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ---- Status badges ---- */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.s-todo { background: var(--skip-bg); color: var(--skip); }
+.s-wip  { background: var(--info-bg); color: var(--info); }
+.s-done { background: var(--pass-bg); color: var(--pass); }
+
+/* ---- Phase badges ---- */
+.phase-p1 {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(84,81,232,.1);
+  color: var(--brand);
+}
+.phase-later {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--skip-bg);
+  color: var(--skip);
+}
+
+/* ---- Change tags ---- */
+.new-tag {
+  display: inline-flex;
+  padding: 1px 7px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--pass-bg);
+  color: var(--pass);
+}
+.moved-tag {
+  display: inline-flex;
+  padding: 1px 7px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--info-bg);
+  color: var(--info);
+}
+
+/* ---- Kanban card ID chips ---- */
+.kcard-id {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--brand);
+  background: rgba(84,81,232,.08);
+  padding: 1px 6px;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(84,81,232,.18);
+}
+.kcard-root {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--g-g);
+  background: var(--g-g-bg);
+  padding: 1px 6px;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(236,72,153,.2);
+}
+
+/* ---- Column chip (root card columns) ---- */
+.col-chip {
+  display: inline-block;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-sm);
+  padding: 1px 7px;
+  margin: 2px 2px 2px 0;
+  font-size: 10.5px;
+  color: var(--t2);
+}
+
+/* ---- Summary cards (report variant) ---- */
+.sum-card {
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+}
+.sum-card.accent { border-top: 3px solid var(--brand); }
+.sum-card.green  { border-top: 3px solid var(--pass); }
+.sum-num    { font-size: 30px; font-weight: 700; line-height: 1; color: var(--t1); }
+.sum-label  { font-size: 11px; color: var(--t3); margin-top: 6px; }
+.sum-detail { font-size: 11px; color: var(--t2); margin-top: 4px; }
+
+/* ---- Summary cards (menu page variant) ---- */
+.summary-card {
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  border-top: 3px solid var(--bd);
+}
+.summary-card.highlight { border-top-color: var(--brand); }
+.summary-card-label { font-size: 11px; color: var(--t3); margin-bottom: 8px; font-weight: 600; }
+.summary-card-num   { font-size: 28px; font-weight: 700; color: var(--t1); }
+.summary-card-note  { font-size: 11px; color: var(--t3); margin-top: 4px; }
+
+/* ---- Principle cards ---- */
+.principle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.principle-card {
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-lg);
+  padding: 20px;
+}
+.principle-card h3 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.principle-tag {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: var(--r-sm);
+  font-size: 10px;
+  font-weight: 700;
+}
+.p-root { background: var(--info-bg);   color: var(--info); }
+.p-proj { background: var(--purple-bg); color: var(--purple); }
+.principle-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.principle-card ul li {
+  font-size: 12px;
+  color: var(--t2);
+  padding-left: 14px;
+  position: relative;
+}
+.principle-card ul li::before { content: '•'; position: absolute; left: 0; color: var(--brand); }
+
+/* ---- Scope cards ---- */
+.scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.scope-card {
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-lg);
+  padding: 20px;
+}
+.scope-card h3 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--bd);
+}
+.scope-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.scope-card li {
+  font-size: 12.5px;
+  color: var(--t2);
+  padding: 6px 10px;
+  background: var(--bg-sur2);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--bd);
+}
+
+/* ---- Next priority box ---- */
+.next-box {
+  background: var(--bg-sur);
+  border: 2px solid var(--brand);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.next-box-hdr {
+  background: var(--brand);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.next-box-hdr h3 { font-size: 14px; font-weight: 700; color: #fff; }
+.next-box-hdr span { font-size: 11px; color: rgba(255,255,255,.7); margin-left: auto; }
+.next-box-body { padding: 20px; }
+.next-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.next-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--bd);
+  vertical-align: top;
+}
+.next-table tr:last-child td { border-bottom: none; }
+.next-table td:first-child {
+  font-weight: 600;
+  color: var(--t3);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  width: 120px;
+  background: var(--bg-sur2);
+}
+.next-table td:last-child { color: var(--t1); }
+.file-path { font-family: var(--mono); font-size: 13px; color: var(--brand); font-weight: 600; }
+
+/* ============================================================
+ * KPI Strip — Command-center metrics row (always dark)
+ * ============================================================ */
+.kpi-strip {
+  display: flex;
+  background: #0A0E1A;
+  border-bottom: 1px solid rgba(84,81,232,.15);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.kpi-item {
+  flex: 1;
+  padding: 11px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-right: 1px solid rgba(255,255,255,.05);
+  position: relative;
+  min-width: 0;
+  transition: background 120ms;
+}
+.kpi-item:last-child { border-right: none; }
+.kpi-item:hover { background: rgba(255,255,255,.03); }
+.kpi-num {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: rgba(230,232,240,.88);
+  font-family: var(--mono);
+  letter-spacing: -.5px;
+}
+.kpi-lbl {
+  font-size: 10.5px;
+  color: rgba(200,204,220,.61);
+  font-weight: 500;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kpi-sub {
+  font-size: 9.5px;
+  color: rgba(200,204,220,.35);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kpi-item.hi::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: #5451E8;
+}
+.kpi-item.hi .kpi-num { color: #8B7FF8; }
+.kpi-item.add::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: #00BF40;
+}
+.kpi-item.add .kpi-num { color: #46C97D; }
+.kpi-item.dim .kpi-num { color: rgba(200,204,220,.38); }
+
+/* ---- Status dot (5px circle, glow variant) ---- */
+.s-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+.s-dot.pass  { background: #00BF40; }
+.s-dot.warn  { background: #FF9200; }
+.s-dot.info  { background: #6FA8FF; }
+.s-dot.brand { background: #8B7FF8; box-shadow: 0 0 6px rgba(139,127,248,.6); }
+.s-dot.todo  { background: transparent; border: 1px solid rgba(255,255,255,.22); }
+
+/* ---- List-First pill ---- */
+.list-first-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  background: rgba(84,81,232,.12);
+  border: 1px solid rgba(84,81,232,.25);
+  color: #8B7FF8;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+ * DARK MODE OVERRIDES — components
+ * ============================================================ */
+
+/* sum-card */
+[data-theme="dark"] .sum-card {
+  background: var(--bg-sur);
+  border-color: var(--bd);
+}
+[data-theme="dark"] .sum-card.accent { border-top-color: var(--brand); }
+[data-theme="dark"] .sum-card.green  { border-top-color: var(--pass); }
+[data-theme="dark"] .sum-num   { color: var(--t1); }
+[data-theme="dark"] .sum-label { color: var(--t3); }
+[data-theme="dark"] .sum-detail{ color: var(--t2); }
+
+/* summary-card (menu page) */
+[data-theme="dark"] .summary-card {
+  background: var(--bg-sur);
+  border-color: var(--bd);
+  border-top-color: var(--bd);
+}
+[data-theme="dark"] .summary-card.highlight { border-top-color: var(--brand); }
+[data-theme="dark"] .summary-card-label { color: var(--t3); }
+[data-theme="dark"] .summary-card-num   { color: var(--t1); }
+[data-theme="dark"] .summary-card-note  { color: var(--t3); }
+
+/* id-code chip */
+[data-theme="dark"] .id-code {
+  color: #8B7FF8;
+  background: rgba(139,127,248,.10);
+  border-color: rgba(139,127,248,.22);
+}
+
+/* status badges */
+[data-theme="dark"] .s-todo { background: var(--skip-bg);   color: var(--skip); }
+[data-theme="dark"] .s-wip  { background: var(--info-bg);   color: var(--info); }
+[data-theme="dark"] .s-done { background: var(--pass-bg);   color: var(--pass); }
+
+/* phase badges */
+[data-theme="dark"] .phase-p1    { background: rgba(84,81,232,.14); color: #8B7FF8; }
+[data-theme="dark"] .phase-later { background: var(--skip-bg);      color: var(--skip); }
+
+/* change tags */
+[data-theme="dark"] .new-tag   { background: var(--pass-bg); color: var(--pass); }
+[data-theme="dark"] .moved-tag { background: var(--info-bg); color: var(--info); }
+
+/* kcard chips */
+[data-theme="dark"] .kcard-id {
+  color: #8B7FF8;
+  background: rgba(139,127,248,.10);
+  border-color: rgba(139,127,248,.20);
+}
+[data-theme="dark"] .kcard-root {
+  color: rgba(236,72,153,.90);
+  background: rgba(236,72,153,.12);
+  border-color: rgba(236,72,153,.22);
+}
+
+/* principle tags */
+[data-theme="dark"] .p-root   { background: var(--info-bg);   color: var(--info); }
+[data-theme="dark"] .p-proj   { background: var(--purple-bg); color: var(--purple); }
+
+/* KPI strip — 이미 다크 하드코딩이나 dim 등 보강 */
+[data-theme="dark"] .kpi-item { border-right-color: rgba(255,255,255,.04); }
+[data-theme="dark"] .kpi-lbl  { color: rgba(200,204,220,.55); }
+[data-theme="dark"] .kpi-sub  { color: rgba(200,204,220,.32); }
+
+/* doc-wrap main content area */
+[data-theme="dark"] .doc-wrap,
+[data-theme="dark"] .doc-wrap-report { color: var(--t2); }
+
+/* ============================================================
+ * Light Mode KPI Strip — 화이트 카드형, 시맨틱 컬러
+ * ============================================================ */
+[data-theme="light"] .kpi-strip {
+  background: #FFFFFF;
+  border-bottom: 1px solid rgba(15,23,42,.12);
+  box-shadow: 0 1px 3px rgba(15,23,42,.05);
+}
+[data-theme="light"] .kpi-item {
+  border-right-color: rgba(15,23,42,.10);
+}
+[data-theme="light"] .kpi-item:hover {
+  background: #F8FAFC;
+}
+[data-theme="light"] .kpi-num {
+  color: #111827;
+}
+[data-theme="light"] .kpi-lbl {
+  color: #334155;
+}
+[data-theme="light"] .kpi-sub {
+  color: #64748B;
+}
+/* 항목별 시맨틱 숫자 컬러 */
+[data-theme="light"] .kpi-item.hi  .kpi-num  { color: #5451E8; }
+[data-theme="light"] .kpi-item.add .kpi-num  { color: #059669; }
+[data-theme="light"] .kpi-item.risk .kpi-num { color: #DC2626; }
+[data-theme="light"] .kpi-strip .kpi-item:nth-child(3) .kpi-num { color: #2563EB; }
+[data-theme="light"] .kpi-strip .kpi-item:nth-child(4) .kpi-num { color: #D97706; }
+[data-theme="light"] .kpi-strip .kpi-item:nth-child(6) .kpi-num { color: #5451E8; }
+/* 상단 accent bar */
+[data-theme="light"] .kpi-item.hi::before   { background: #5451E8; }
+[data-theme="light"] .kpi-item.add::before  { background: #059669; }
+[data-theme="light"] .kpi-item.risk::before { background: #DC2626; }
+
+/* ============================================================
+ * S-Core Dream 강제 방어 — badge/chip/status/button !important
+ * S-Core Dream 외 다른 폰트로 빠지는 것을 전역 차단
+ * ============================================================ */
+.status-badge, .status-badge *,
+.phase-badge, .phase-badge *,
+.col-chip, .col-chip *,
+.tbtn, .group-badge, .phase-p1, .phase-later,
+[class*="badge"], [class*="chip"],
+[class*="status"], [class*="tag"],
+[class*="pill"], [class*="label"],
+.kpi-lbl, .kpi-sub,
+.po-card-badge,
+.po-change-type,
+.po-risk-lv,
+.po-next-count,
+.status-chip {
+  font-family: var(--font) !important;
+}

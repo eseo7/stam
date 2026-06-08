@@ -1,0 +1,71 @@
+/* ============================================================
+ * STAM Tables — Data Table, Column Count, Pagination
+ * ============================================================ */
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.data-table th {
+  padding: 7px 12px;
+  background: var(--bg-sur2);
+  color: var(--t3);
+  font-size: 11px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--bd);
+  text-align: left;
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--bd);
+  color: var(--t2);
+  vertical-align: middle;
+}
+.data-table tr:hover td { background: var(--bg-sur2); }
+.data-table .group-header td {
+  background: var(--bg-sur3);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--t1);
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr.highlight-row td {
+  background: rgba(84,81,232,.04);
+  font-weight: 600;
+}
+
+/* Column count — table cell */
+.col-count { font-family: var(--mono); font-size: 11px; color: var(--t3); }
+
+/* ---- Report table overrides ---- */
+.data-table.report th,
+.data-table.report td { padding: 9px 14px; }
+
+/* ============================================================
+ * DARK MODE OVERRIDES — tables
+ * ============================================================ */
+[data-theme="dark"] .data-table th {
+  background: var(--bg-sur2);
+  border-bottom-color: var(--bd);
+  color: rgba(200,204,220,.61);
+}
+[data-theme="dark"] .data-table td {
+  border-bottom-color: var(--bd);
+  color: var(--t2);
+  vertical-align: middle;
+}
+[data-theme="dark"] .data-table tr:hover td {
+  background: rgba(255,255,255,.022);
+}
+[data-theme="dark"] .data-table .group-header td {
+  background: var(--bg-sur3);
+  color: var(--t1);
+  border-bottom-color: var(--bd);
+}
+[data-theme="dark"] .data-table tr:last-child td { border-bottom: none; }
+[data-theme="dark"] .data-table tr.highlight-row td {
+  background: rgba(84,81,232,.07);
+}
+[data-theme="dark"] .col-count { color: var(--t3); }

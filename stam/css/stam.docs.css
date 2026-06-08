@@ -1,0 +1,189 @@
+/* ============================================================
+ * STAM Docs — 공통 문서 페이지 스타일
+ * Docs Index / Component Guide / Component Skeleton 공통
+ * IA Baseline v3.3 | 2026-06-08
+ * ============================================================ */
+
+/* ── Topbar back link ── */
+.doc-nav-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 12px;
+  height: 100%;
+  border-right: 1px solid rgba(255,255,255,.07);
+  font-size: 11px;
+  color: rgba(255,255,255,.38);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 120ms;
+  flex-shrink: 0;
+  font-family: var(--font);
+}
+.doc-nav-back:hover { color: rgba(255,255,255,.78); }
+
+/* ── Doc card list ── */
+.doc-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.doc-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  text-decoration: none;
+  transition: border-color 120ms, background 120ms;
+  cursor: pointer;
+}
+.doc-card:hover {
+  border-color: rgba(84,81,232,.35);
+  background: rgba(84,81,232,.035);
+}
+.doc-card-ico {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-md);
+  background: rgba(84,81,232,.13);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8B7FF8;
+  flex-shrink: 0;
+  font-family: var(--font);
+  letter-spacing: .01em;
+}
+[data-theme="light"] .doc-card-ico {
+  background: rgba(84,81,232,.09);
+  color: #5451E8;
+}
+.doc-card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.doc-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t1);
+  font-family: var(--font);
+}
+.doc-card-sub {
+  font-size: 11px;
+  color: var(--t3);
+  font-family: var(--font);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.doc-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.doc-card-arr {
+  width: 18px;
+  height: 18px;
+  color: var(--t3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Component index grid ── */
+.comp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 6px;
+}
+.comp-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  text-decoration: none;
+  transition: border-color 120ms, background 120ms;
+  cursor: pointer;
+}
+.comp-card:hover {
+  border-color: rgba(84,81,232,.35);
+  background: rgba(84,81,232,.035);
+}
+.comp-card-ico {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  background: rgba(84,81,232,.13);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #8B7FF8;
+  flex-shrink: 0;
+  font-family: var(--font);
+}
+[data-theme="light"] .comp-card-ico {
+  background: rgba(84,81,232,.09);
+  color: #5451E8;
+}
+.comp-card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.comp-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t1);
+  font-family: var(--font);
+}
+.comp-card-subs {
+  font-size: 10.5px;
+  color: var(--t3);
+  font-family: var(--font);
+  line-height: 1.5;
+}
+
+/* ── Section placeholder ── */
+.sec-todo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 14px;
+  background: var(--bg-sur2);
+  border: 1px dashed var(--bd-s);
+  border-radius: var(--r-md);
+  color: var(--label-muted);
+  font-size: 12px;
+  font-family: var(--font);
+  line-height: 1.5;
+}
+.sec-todo-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--dot-idle);
+  flex-shrink: 0;
+}
+
+/* ── Font guard ── */
+.doc-card,    .doc-card *,
+.comp-card,   .comp-card *,
+.sec-todo,    .sec-todo *,
+.doc-nav-back { font-family: var(--font) !important; }

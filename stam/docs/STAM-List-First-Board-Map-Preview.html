@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM — List-First 보드 맵 미리보기 v3.3</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.tables.css">
+<link rel="stylesheet" href="../css/stam.pages.css">
+</head>
+<body>
+
+<!-- ══ App Topbar ══ -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">List-First 보드 맵 미리보기</span>
+  <span class="doc-nav-pill"><span class="dot"></span>IA Baseline v3.3</span>
+  <span class="doc-nav-pill"><span class="dot"></span>전체 64개</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ══ Strategy Banner (command-center header) ══ -->
+<div class="strategy-banner">
+  <h1>List-First 전략 보드 맵</h1>
+  <p>Phase 1 Core: 각 메뉴의 목록 화면만 우선 제작하여 데이터 구조·상태 흐름·필터 기준을 먼저 확정합니다.<br>
+  목록 화면이 안정화된 후 상세/등록/수정/기능 구현으로 확장합니다.</p>
+  <div class="strategy-pills">
+    <span class="strategy-pill">서비스 루트 6개</span>
+    <span class="strategy-pill">프로젝트 내부 58개</span>
+    <span class="strategy-pill">전체 64개 화면/메뉴</span>
+    <span class="strategy-pill">IA Baseline v3.3</span>
+    <span class="strategy-pill">Cursor 제한 ~2026-06-28</span>
+  </div>
+</div>
+
+<!-- ══ KPI Strip ══ -->
+<div class="kpi-strip">
+  <div class="kpi-item hi">
+    <div class="kpi-num">64</div>
+    <div class="kpi-lbl">전체 화면/메뉴</div>
+    <div class="kpi-sub">IA Baseline v3.3</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-num">6</div>
+    <div class="kpi-lbl">서비스 루트</div>
+    <div class="kpi-sub">사이드바 外 · R1–R6</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-num">58</div>
+    <div class="kpi-lbl">프로젝트 내부</div>
+    <div class="kpi-sub">Left Nav A–G</div>
+  </div>
+  <div class="kpi-item hi">
+    <div class="kpi-num" id="kpiP1Num">—</div>
+    <div class="kpi-lbl">Phase 1 Core</div>
+    <div class="kpi-sub">목록 화면 우선</div>
+  </div>
+  <div class="kpi-item">
+    <div class="kpi-num" id="kpiP2Num">—</div>
+    <div class="kpi-lbl">Later Phase</div>
+    <div class="kpi-sub">상세/등록/수정</div>
+  </div>
+</div>
+
+<!-- ══ Step Flow Strip ══ -->
+<div class="flow-step-strip">
+  <div class="flow-step p1">
+    <span class="flow-step-num">1</span>
+    목록 화면 — List-First · Phase 1 Core
+  </div>
+  <div class="flow-step-arr">→</div>
+  <div class="flow-step p2">
+    <span class="flow-step-num">2</span>
+    상세 / 등록 / 수정 — Later Phase
+  </div>
+  <div class="flow-step-arr">→</div>
+  <div class="flow-step feat">
+    <span class="flow-step-num">3</span>
+    기능 구현 — 범위 외 (~2026-06-28)
+  </div>
+</div>
+
+<!-- ══ Board ══ -->
+<div class="board-wrap">
+
+  <!-- Phase 1 Core -->
+  <div>
+    <div class="col-header" style="background:var(--brand)">
+      <span class="col-title">① Phase 1 Core — 목록 화면</span>
+      <span class="col-count-badge" id="p1Count">0</span>
+    </div>
+    <div class="col-body" id="p1Col"></div>
+  </div>
+
+  <!-- Later Phase -->
+  <div>
+    <div class="col-header" style="background:#2d3748">
+      <span class="col-title">② Later Phase — 상세/등록/수정</span>
+      <span class="col-count-badge" id="p2Count">0</span>
+    </div>
+    <div class="col-body" id="p2Col"></div>
+  </div>
+
+  <!-- 기능 구현 (범위 외) -->
+  <div>
+    <div class="col-header" style="background:#141A3F">
+      <span class="col-title">③ 기능 구현</span>
+      <span class="col-count-badge" style="background:rgba(255,255,255,.1)">범위 외</span>
+    </div>
+    <div class="feat-col-body">
+      <p class="feat-note">목록 화면 안정화 이후 실제 동작 기능 구현 단계입니다.<br>현재 Cursor 사용 제한 기간(~2026-06-28) 범위 외입니다.</p>
+      <ul class="feat-list">
+        <li>DB / Auth / API 실제 연동</li>
+        <li>파일 업로드 / 버전 관리</li>
+        <li>실시간 알림 · 멘션 처리</li>
+        <li>승인 워크플로우 엔진</li>
+        <li>PDF/Word/Excel 자동 Export</li>
+        <li>매뉴얼 자동 생성 AI</li>
+        <li>감사로그 실시간 기록</li>
+        <li>보안 정보 마스킹 / 열람 감사</li>
+        <li>외부 API 연동 (Jira, Confluence 등)</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ 그룹별 진척도 ══ -->
+<div class="progress-wrap">
+  <h2>그룹별 목록 화면 완성도 — Phase 1 Core 기준</h2>
+  <div class="progress-grid" id="progressGrid"></div>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script src="../js/stam.nav-data.js"></script>
+<script src="../js/stam.preview-ui.js"></script>
+<script>
+  STAM.ui.renderBoardMap({
+    p1ColId:   'p1Col',
+    p2ColId:   'p2Col',
+    p1CountId: 'p1Count',
+    p2CountId: 'p2Count',
+  });
+  STAM.ui.renderProgressBars('progressGrid');
+
+  /* KPI strip 동기화 */
+  var kpiP1 = document.getElementById('kpiP1Num');
+  var kpiP2 = document.getElementById('kpiP2Num');
+  var p1cnt = document.getElementById('p1Count');
+  var p2cnt = document.getElementById('p2Count');
+  if (kpiP1 && p1cnt) kpiP1.textContent = p1cnt.textContent;
+  if (kpiP2 && p2cnt) kpiP2.textContent = p2cnt.textContent;
+</script>
+
+</body>
+</html>
