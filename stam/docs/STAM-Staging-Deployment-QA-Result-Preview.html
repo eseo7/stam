@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Staging Deployment QA Result Preview</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+.stbl td.role-desc {
+  white-space: normal;
+  color: var(--t2);
+  font-weight: 400;
+  line-height: 1.6;
+}
+.stbl td.qa-pass { color: var(--pass); font-weight: 700; }
+.stbl td.qa-warn { color: var(--skip); font-weight: 700; }
+.kv-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 24px;
+  font-size: .875em;
+  line-height: 1.9;
+}
+@media (max-width: 760px) { .kv-grid { grid-template-columns: 1fr; } }
+.kv-grid span { display: block; }
+.kv-grid strong { color: var(--t1); margin-right: 6px; }
+.commit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.commit-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--t2);
+}
+.commit-list li code {
+  flex-shrink: 0;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 4px;
+  background: rgba(84,81,232,.14);
+  color: #8B7FF8;
+}
+[data-theme="light"] .commit-list li code { background: rgba(84,81,232,.10); color: #5451E8; }
+.url-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.url-list a {
+  display: block;
+  padding: 9px 12px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  background: var(--bg-sur2);
+  text-decoration: none;
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 600;
+  word-break: break-all;
+  transition: border-color .12s ease, background .12s ease;
+}
+.url-list a:hover {
+  border-color: rgba(84,81,232,.40);
+  background: var(--bg-sur);
+}
+.guide-content section + section { margin-top: 28px; }
+.guide-content, .guide-content *,
+.commit-list, .commit-list *,
+.kv-grid, .kv-grid *, .url-list, .url-list * {
+  font-family: var(--font) !important;
+}
+.snapshot-kpi {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+@media (max-width: 900px) { .snapshot-kpi { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .snapshot-kpi { grid-template-columns: 1fr; } }
+.snapshot-kpi-item {
+  padding: 12px 14px;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+}
+.snapshot-kpi-item .lbl {
+  font-size: 10.5px;
+  color: var(--t3);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.snapshot-kpi-item .val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t1);
+  line-height: 1.4;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Staging Deployment QA Result Preview</span>
+  <span class="doc-nav-pill"><span class="dot"></span>2026-06-08</span>
+  <span class="doc-nav-pill"><span class="dot"></span>PASS</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Staging QA</span>
+      <span class="toc-ver-pill">PASS</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Deployment Snapshot</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Commit Timeline</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>QA Checklist</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>URL Verification</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Notes</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Next Actions</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Status Summary ── -->
+      <div class="ibox info" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <strong>STAM Design Staging 배포 QA 결과 Preview</strong>
+          <span class="sbadge done" style="margin-left:auto;">PASS</span>
+        </div>
+        <div style="font-size:.875em;line-height:1.65;opacity:.9;margin-bottom:8px;">
+          대상 URL: <a href="https://stam-design-staging.web.app/" target="_blank" rel="noopener" style="color:var(--brand);">https://stam-design-staging.web.app/</a>
+        </div>
+        <p style="margin:0;font-size:.84em;line-height:1.65;opacity:.85;">
+          Firebase Hosting staging 환경에 STAM Design Preview가 정상 배포되었습니다.
+          GitHub Actions <code>workflow_dispatch</code> 수동 배포 성공 및 주요 URL 로딩을 확인했습니다.
+          상세 기록은 <a href="STAM-Staging-Deployment-QA-Result.html" style="color:var(--brand);">QA Result</a> 문서를 참고합니다.
+        </p>
+      </div>
+
+      <!-- S01 Overview -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview</span>
+          <span class="sbadge done">PASS</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>문서 목적</strong>
+            <p style="margin:8px 0 0;font-size:.875em;line-height:1.7;">
+              STAM Design Staging 배포 QA 결과 Preview 문서입니다.
+              Deployment Snapshot, Commit Timeline, QA Checklist, URL Verification을
+              한 화면에서 빠르게 확인할 수 있도록 요약합니다.
+            </p>
+            <div class="kv-grid" style="margin-top:14px;">
+              <span><strong>대상 URL</strong> <code>https://stam-design-staging.web.app/</code></span>
+              <span><strong>Repo</strong> <a href="https://github.com/eseo7/stam" target="_blank" rel="noopener" style="color:var(--brand);">github.com/eseo7/stam</a></span>
+              <span><strong>QA 일자</strong> 2026-06-08</span>
+              <span><strong>최종 결과</strong> <span class="sbadge done" style="font-size:.85em;">PASS</span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S02 Deployment Snapshot -->
+      <section id="s02" class="sec" data-screen-label="02 Deployment Snapshot">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Deployment Snapshot</span>
+          <span class="sbadge guide">Firebase</span>
+        </div>
+        <div class="sec-body">
+          <div class="snapshot-kpi">
+            <div class="snapshot-kpi-item">
+              <div class="lbl">Firebase Project</div>
+              <div class="val"><code>stam-preview-hosting</code></div>
+            </div>
+            <div class="snapshot-kpi-item">
+              <div class="lbl">Hosting Site</div>
+              <div class="val"><code>stam-design-staging</code></div>
+            </div>
+            <div class="snapshot-kpi-item">
+              <div class="lbl">Public Root</div>
+              <div class="val"><code>stam</code></div>
+            </div>
+            <div class="snapshot-kpi-item">
+              <div class="lbl">Deploy Trigger</div>
+              <div class="val"><code>workflow_dispatch</code></div>
+            </div>
+          </div>
+          <table class="stbl">
+            <colgroup><col style="width:32%;"><col style="width:68%;"></colgroup>
+            <thead><tr><th>항목</th><th>값</th></tr></thead>
+            <tbody>
+              <tr><td>Firebase project</td><td class="role-desc"><code>stam-preview-hosting</code></td></tr>
+              <tr><td>Hosting site</td><td class="role-desc"><code>stam-design-staging</code></td></tr>
+              <tr><td>public root</td><td class="role-desc"><code>stam</code></td></tr>
+              <tr><td>workflow</td><td class="role-desc">Deploy STAM Design Staging to Firebase Hosting</td></tr>
+              <tr><td>trigger</td><td class="role-desc"><code>workflow_dispatch</code> (수동 실행)</td></tr>
+              <tr><td>build step</td><td class="role-desc">없음 (정적 파일 직접 배포)</td></tr>
+              <tr><td>deploy source</td><td class="role-desc"><code>eseo7/stam</code> · main <code>c147524</code></td></tr>
+              <tr><td>QA 결과</td><td class="role-desc"><span class="sbadge done" style="font-size:.85em;">PASS</span> · 9/9 항목 통과</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S03 Commit Timeline -->
+      <section id="s03" class="sec" data-screen-label="03 Commit Timeline">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Commit Timeline</span>
+          <span class="sbadge lock">Baseline</span>
+        </div>
+        <div class="sec-body">
+          <ul class="commit-list">
+            <li><code>c4ae92d</code> Clean baseline</li>
+            <li><code>ff481ca</code> README baseline</li>
+            <li><code>6d9c762</code> Docs Index status</li>
+            <li><code>be329c0</code> CSS Component Token Plan</li>
+            <li><code>fcac488</code> Staging Landing Page</li>
+            <li><code>259b422</code> Firebase Hosting Config</li>
+            <li><code>c147524</code> Staging Deployment QA Result</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- S04 QA Checklist -->
+      <section id="s04" class="sec" data-screen-label="04 QA Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">QA Checklist</span>
+          <span class="sbadge done">PASS</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <colgroup><col style="width:28%;"><col style="width:14%;"><col style="width:58%;"></colgroup>
+            <thead><tr><th>항목</th><th>결과</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>Root Landing</td>
+                <td class="qa-pass">PASS</td>
+                <td class="role-desc">Staging 진입점 · Primary Links · Product Preview 섹션 정상 렌더</td>
+              </tr>
+              <tr>
+                <td>Docs Index</td>
+                <td class="qa-pass">PASS</td>
+                <td class="role-desc">기준 문서·컴포넌트 가이드·Preview/Reports 섹션 정상 로딩</td>
+              </tr>
+              <tr>
+                <td>Project Overview</td>
+                <td class="qa-pass">PASS</td>
+                <td class="role-desc">실제 브라우저에서 KPI·산출물·업무 패널 정상 로딩 확인</td>
+              </tr>
+              <tr>
+                <td>WBS Board</td>
+                <td class="qa-pass">PASS</td>
+                <td class="role-desc">Gantt Timeline · WBS 목록 · Focus View 정상 로딩 확인</td>
+              </tr>
+              <tr>
+                <td>CSS/JS 404</td>
+                <td class="qa-pass">PASS</td>
+                <td class="role-desc">주요 URL 기준 CSS·JS·font asset 404 없음</td>
+              </tr>
+              <tr>
+                <td>S-Core Dream font</td>
+                <td class="qa-pass">PASS</td>
+                <td class="role-desc"><code>s-core-dream.css</code> 로드 · 문서/Preview 공통 폰트 기준 유지</td>
+              </tr>
+              <tr>
+                <td>Signoff 화면 회귀 없음</td>
+                <td class="qa-pass">PASS</td>
+                <td class="role-desc">signoff-app PR #44 merge로 기존 Signoff 자동 덮어쓰기 차단 완료</td>
+              </tr>
+              <tr>
+                <td>가로 스크롤</td>
+                <td class="qa-pass">PASS</td>
+                <td class="role-desc">페이지 레벨 가로 스크롤 없음 · WBS 테이블 내부 스크롤만 허용</td>
+              </tr>
+              <tr>
+                <td>콘솔 오류</td>
+                <td class="qa-pass">PASS</td>
+                <td class="role-desc">주요 URL 수동 확인 기준 blocking error 없음</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S05 URL Verification -->
+      <section id="s05" class="sec" data-screen-label="05 URL Verification">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">URL Verification</span>
+          <span class="sbadge guide">4 URLs</span>
+        </div>
+        <div class="sec-body">
+          <ul class="url-list">
+            <li><a href="https://stam-design-staging.web.app/" target="_blank" rel="noopener">https://stam-design-staging.web.app/</a></li>
+            <li><a href="https://stam-design-staging.web.app/docs/STAM-Docs-Index.html" target="_blank" rel="noopener">https://stam-design-staging.web.app/docs/STAM-Docs-Index.html</a></li>
+            <li><a href="https://stam-design-staging.web.app/pages/dashboard/project-overview.html" target="_blank" rel="noopener">https://stam-design-staging.web.app/pages/dashboard/project-overview.html</a></li>
+            <li><a href="https://stam-design-staging.web.app/pages/boards/wbs.html" target="_blank" rel="noopener">https://stam-design-staging.web.app/pages/boards/wbs.html</a></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- S06 Notes -->
+      <section id="s06" class="sec" data-screen-label="06 Notes">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Notes</span>
+          <span class="sbadge guide">참고</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <ul style="margin:0;padding-left:18px;line-height:1.9;font-size:.875em;">
+              <li>기존 <code>signoff-app</code> staging workflow 자동 배포는 PR #44로 차단 완료</li>
+              <li><code>workflow_dispatch</code> 수동 배포만 사용</li>
+              <li>운영 서비스가 아닌 Design Staging Preview</li>
+              <li>Firebase Auth / API / DB / 결제는 아직 미연결</li>
+              <li>상세 QA 기록: <a href="STAM-Staging-Deployment-QA-Result.html" style="color:var(--brand);">STAM Staging Deployment QA Result</a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- S07 Next Actions -->
+      <section id="s07" class="sec" data-screen-label="07 Next Actions">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Next Actions</span>
+          <span class="sbadge plan">후보</span>
+        </div>
+        <div class="sec-body">
+          <ul style="margin:0;padding-left:22px;line-height:2.2;font-size:.9em;">
+            <li>README에 Staging URL 추가 검토</li>
+            <li>Firebase staging 자동 main push 배포 전환 여부 결정</li>
+            <li>CSS Token Readiness Check 진행</li>
+            <li>실제 컴포넌트 CSS 적용은 Button부터 작은 범위로 진행</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
