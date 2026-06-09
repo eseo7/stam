@@ -1,0 +1,2359 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Drawer Token Mapping v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ── Drawer Token Mapping v1 전용 보조 스타일 (이 문서 안에서만 사용) ── */
+
+/* status pill */
+.spill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase;
+  font-family: var(--font); white-space: nowrap;
+}
+.spill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 999px;
+  background: currentColor; display: inline-block; flex-shrink: 0;
+}
+.spill.ready    { background: var(--pass-bg); color: var(--pass); }
+.spill.partial  { background: var(--warn-bg); color: var(--warn); }
+.spill.missing  { background: var(--fail-bg); color: var(--fail); }
+.spill.decide   { background: var(--purple-bg); color: var(--purple); }
+.spill.candidate{ background: var(--info-bg); color: var(--info); }
+.spill.hold     { background: var(--skip-bg); color: var(--skip); }
+
+/* priority pill */
+.ppill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px 2px 7px; border-radius: 999px;
+  font-size: 10px; font-weight: 800; letter-spacing: .04em;
+  font-family: var(--font); white-space: nowrap;
+}
+.ppill::before {
+  content: ""; width: 5px; height: 5px; border-radius: 999px;
+  background: currentColor; display: inline-block; flex-shrink: 0;
+}
+.ppill.p0 { background: var(--fail-bg); color: var(--fail); }
+.ppill.p1 { background: var(--warn-bg); color: var(--warn); }
+.ppill.p2 { background: var(--info-bg); color: var(--info); }
+
+/* drawer scenario chip */
+.dchip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  font-family: var(--font); white-space: nowrap;
+  background: var(--bg-sur2); border: 1px solid var(--bd); color: var(--t1);
+}
+.dchip.create   { background: var(--info-bg);   color: var(--info);   border-color: transparent; }
+.dchip.edit     { background: var(--purple-bg); color: var(--purple); border-color: transparent; }
+.dchip.detail   { background: var(--pass-bg);   color: var(--pass);   border-color: transparent; }
+.dchip.review   { background: var(--warn-bg);   color: var(--warn);   border-color: transparent; }
+.dchip.approval { background: var(--purple-bg); color: var(--purple); border-color: transparent; }
+.dchip.comment  { background: var(--bg-sur2);   color: var(--t2);     border-color: var(--bd); }
+.dchip.filter   { background: var(--bg-sur2);   color: var(--t2);     border-color: var(--bd); }
+.dchip.full     { background: var(--stam-soft); color: var(--stam);   border-color: transparent; }
+.dchip.form     { background: var(--info-bg);   color: var(--info);   border-color: transparent; }
+.dchip.footer   { background: var(--skip-bg);   color: var(--skip);   border-color: transparent; }
+
+/* state chip */
+.stchip {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  font-family: var(--font); white-space: nowrap;
+  border: 1px solid var(--bd);
+}
+.stchip.closed     { background: var(--bg-sur);    color: var(--t3);     }
+.stchip.opening    { background: var(--info-bg);   color: var(--info);   border-color: transparent; }
+.stchip.open       { background: var(--pass-bg);   color: var(--pass);   border-color: transparent; }
+.stchip.detail     { background: var(--pass-bg);   color: var(--pass);   border-color: transparent; }
+.stchip.editing    { background: var(--purple-bg); color: var(--purple); border-color: transparent; }
+.stchip.readonly   { background: var(--skip-bg);   color: var(--skip);   border-color: transparent; }
+.stchip.dirty      { background: var(--warn-bg);   color: var(--warn);   border-color: transparent; }
+.stchip.saving     { background: var(--purple-bg); color: var(--purple); border-color: transparent; }
+.stchip.saved      { background: var(--pass-bg);   color: var(--pass);   border-color: transparent; }
+.stchip.error      { background: var(--fail-bg);   color: var(--fail);   border-color: transparent; }
+.stchip.closing    { background: var(--bg-sur2);   color: var(--t2);     }
+
+/* viewport / size chip */
+.szchip {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 800; letter-spacing: .05em;
+  font-family: var(--font); white-space: nowrap;
+  background: var(--stam-soft); color: var(--stam);
+}
+
+/* generic mapping table */
+.fm-tbl {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--font); font-size: 11.5px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: var(--r-md);
+  overflow: hidden;
+}
+.fm-tbl th {
+  padding: 9px 10px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em; text-align: left;
+  color: var(--t3); border-bottom: 1px solid var(--bd);
+  background: var(--bg-sur2); white-space: nowrap; vertical-align: middle;
+}
+.fm-tbl td {
+  padding: 10px; border-bottom: 1px solid var(--bd);
+  color: var(--t2); vertical-align: top; line-height: 1.6;
+}
+.fm-tbl tbody tr:last-child td { border-bottom: none; }
+.fm-tbl td.tn { color: var(--t1); font-weight: 700; white-space: nowrap; font-size: 11px; }
+.fm-tbl td code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur2); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 6px; letter-spacing: .005em; white-space: nowrap;
+}
+.fm-tbl td.note { color: var(--t3); font-size: 10.5px; }
+.fm-tbl td.zval { font-weight: 800; color: var(--stam); white-space: nowrap; }
+
+.fm-wrap { overflow-x: auto; }
+.fm-tbl  { min-width: 880px; }
+
+/* caption */
+.fm-cap {
+  display: flex; align-items: center; gap: 8px;
+  margin: 18px 0 8px;
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.fm-cap .fm-cap-n {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--stam-soft); color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.fm-cap-sub {
+  font-size: 10.5px; color: var(--t3); font-weight: 500; letter-spacing: 0; margin-left: 4px;
+}
+
+/* scope cards grid */
+.scope-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+}
+@media (max-width: 1100px) { .scope-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px)  { .scope-grid { grid-template-columns: 1fr; } }
+.scope-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.scope-card .sc-top {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11.5px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.scope-card .sc-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55; letter-spacing: .005em;
+}
+.scope-card .sc-z {
+  font-size: 10px; font-weight: 800; color: var(--stam);
+  letter-spacing: .02em; margin-top: 2px;
+}
+
+/* gate / step */
+.gate-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 760px) { .gate-grid { grid-template-columns: 1fr; } }
+.gate-step {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.gate-step .gs-n {
+  flex: 0 0 auto; width: 22px; height: 22px; border-radius: 6px;
+  background: var(--stam-soft); color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center; letter-spacing: .02em;
+}
+.gate-step .gs-body {
+  flex: 1 1 auto; font-size: 12px; color: var(--t1); line-height: 1.55; font-weight: 600;
+}
+.gate-step .gs-sub {
+  display: block; margin-top: 3px;
+  font-size: 10.5px; color: var(--t3); font-weight: 500; letter-spacing: .01em;
+}
+.gate-step .gs-sub code {
+  font-family: var(--font); font-size: 10px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 4px; padding: 0 5px;
+}
+
+/* rule grid */
+.rule-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 760px) { .rule-grid { grid-template-columns: 1fr; } }
+.rule-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+}
+.rule-card .rc-hdr {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--t1); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.rule-card .rc-hdr::before {
+  content: ""; width: 8px; height: 8px; border-radius: 999px;
+  background: var(--stam); display: inline-block;
+}
+.rule-card ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.rule-card li {
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  padding-left: 12px; position: relative;
+}
+.rule-card li::before {
+  content: "·"; position: absolute; left: 2px; top: -2px;
+  color: var(--t3); font-weight: 800;
+}
+.rule-card li code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 5px;
+}
+
+/* do / don't grid */
+.dd-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+@media (max-width: 760px) { .dd-grid { grid-template-columns: 1fr; } }
+.dd-col {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 14px 16px;
+}
+.dd-col.good { border-color: rgba(0,191,64,.22); }
+.dd-col.bad  { border-color: rgba(255,66,66,.22); }
+.dd-col .dd-hdr {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.dd-col.good .dd-hdr { color: var(--pass); }
+.dd-col.bad  .dd-hdr { color: var(--fail); }
+.dd-col ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.dd-col li {
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  padding-left: 14px; position: relative;
+}
+.dd-col.good li::before { content: "✓"; position: absolute; left: 0; color: var(--pass); font-weight: 800; }
+.dd-col.bad  li::before { content: "✕"; position: absolute; left: 0; color: var(--fail); font-weight: 800; }
+.dd-col li code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 5px;
+}
+
+/* sync rule grid */
+.sync-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+@media (max-width: 760px) { .sync-grid { grid-template-columns: 1fr; } }
+.sync-col {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 14px 16px;
+}
+.sync-col .sy-hdr {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  font-size: 11px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--t1);
+}
+.sync-col .sy-hdr .sy-tag {
+  font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+  letter-spacing: .04em; background: var(--stam-soft); color: var(--stam); text-transform: uppercase;
+}
+.sync-col ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.sync-col li {
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  padding-left: 14px; position: relative;
+}
+.sync-col li::before {
+  content: "→"; position: absolute; left: 0; color: var(--stam); font-weight: 800;
+}
+.sync-col li code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 5px;
+}
+
+/* drawer anatomy block visualization */
+.danat {
+  display: flex; flex-direction: column; gap: 0;
+  margin-top: 14px;
+  border: 1px dashed var(--bd-s); background: var(--bg-sur);
+  border-radius: var(--r-md); padding: 14px;
+}
+.danat-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-sm);
+  font-size: 11px; font-weight: 700; color: var(--t1);
+  margin-bottom: 4px;
+}
+.danat-row:last-child { margin-bottom: 0; }
+.danat-row .dr-area {
+  font-family: var(--font); font-size: 11px; font-weight: 800;
+  color: var(--t1); letter-spacing: -.005em; flex: 0 0 150px;
+}
+.danat-row .dr-role {
+  flex: 1 1 auto; font-size: 11px; font-weight: 500; color: var(--t2); letter-spacing: .005em;
+}
+.danat-row .dr-tag {
+  font-family: var(--font); font-size: 10px; color: var(--t3);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 6px; font-weight: 600; white-space: nowrap;
+}
+.danat-row.header { background: var(--info-bg); border-color: transparent; }
+.danat-row.header .dr-role { color: var(--info); }
+.danat-row.body   { background: var(--bg-sur2); }
+.danat-row.footer { background: var(--warn-bg); border-color: transparent; }
+.danat-row.footer .dr-role { color: var(--warn); }
+.danat-row.backdrop { background: var(--bg-sur); }
+
+/* viewport width visualization */
+.vp-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+  margin-top: 14px;
+}
+@media (max-width: 1100px) { .vp-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px)  { .vp-grid { grid-template-columns: 1fr; } }
+.vp-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.vp-card .vp-top {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+}
+.vp-card .vp-name {
+  font-family: var(--font); font-size: 11.5px; font-weight: 800;
+  color: var(--t1); letter-spacing: .04em; text-transform: uppercase;
+}
+.vp-card .vp-w {
+  font-family: var(--font); font-size: 16px; font-weight: 800;
+  color: var(--stam); letter-spacing: -.01em;
+}
+.vp-card .vp-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55; letter-spacing: .005em;
+}
+.vp-card .vp-use {
+  font-size: 10.5px; color: var(--t2); line-height: 1.55; font-weight: 600;
+}
+
+/* layout viz: drawer occupying ~40% of content area */
+.layout-viz {
+  display: flex; flex-direction: column; gap: 10px; margin-top: 14px;
+}
+.layout-viz .lv-row {
+  display: flex; align-items: stretch; gap: 0;
+  border: 1px dashed var(--bd-s); background: var(--bg-sur);
+  border-radius: var(--r-md); padding: 12px; min-height: 120px;
+}
+.layout-viz .lv-content {
+  flex: 1 1 60%;
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-sm);
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  padding: 12px 16px;
+  font-size: 11px; font-weight: 700; color: var(--t1);
+}
+.layout-viz .lv-content .lv-sub {
+  font-size: 10.5px; color: var(--t3); font-weight: 500; margin-top: 4px;
+}
+.layout-viz .lv-drawer {
+  flex: 0 0 40%; margin-left: 8px;
+  border: 1px solid var(--stam); background: var(--stam-soft);
+  border-radius: var(--r-sm);
+  display: flex; flex-direction: column; padding: 12px 14px;
+  font-size: 11px; font-weight: 800; color: var(--stam);
+}
+.layout-viz .lv-drawer .lv-sub {
+  font-size: 10.5px; color: var(--stam); opacity: .8; font-weight: 600; margin-top: 4px; letter-spacing: .005em;
+}
+.layout-viz .lv-drawer .lv-rows {
+  display: flex; flex-direction: column; gap: 4px; margin-top: 10px;
+}
+.layout-viz .lv-drawer .lv-rows span {
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 6px 8px;
+  font-size: 10px; font-weight: 600; color: var(--t2);
+}
+.layout-viz .lv-full {
+  flex: 1 1 100%;
+  border: 1px solid var(--stam); background: var(--stam-soft);
+  border-radius: var(--r-sm);
+  display: flex; flex-direction: column; padding: 12px 16px;
+  font-size: 11px; font-weight: 800; color: var(--stam);
+}
+.layout-viz .lv-full .lv-sub {
+  font-size: 10.5px; color: var(--stam); opacity: .8; font-weight: 600; margin-top: 4px; letter-spacing: .005em;
+}
+
+/* z-stack visualization (mini) */
+.zstack-mini {
+  display: flex; flex-direction: column; gap: 4px; margin-top: 14px;
+  border: 1px dashed var(--bd-s); background: var(--bg-sur);
+  border-radius: var(--r-md); padding: 12px;
+}
+.zstack-mini .zm-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 10px; border-radius: var(--r-sm);
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  font-size: 11px; font-weight: 700; color: var(--t1);
+}
+.zstack-mini .zm-row .zm-num {
+  font-family: var(--font); font-size: 11px; font-weight: 800;
+  color: var(--stam); flex: 0 0 56px; letter-spacing: .02em;
+}
+.zstack-mini .zm-row .zm-lbl {
+  flex: 1 1 auto; font-size: 11px; font-weight: 700; color: var(--t1);
+}
+.zstack-mini .zm-row .zm-tok {
+  font-family: var(--font); font-size: 10px; color: var(--t3);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 6px; font-weight: 600; white-space: nowrap;
+}
+.zstack-mini .zm-row.lvl-dropdown { background: var(--info-bg);   border-color: transparent; }
+.zstack-mini .zm-row.lvl-dropdown .zm-lbl { color: var(--info); }
+.zstack-mini .zm-row.lvl-dialog   { background: var(--fail-bg);   border-color: transparent; }
+.zstack-mini .zm-row.lvl-dialog   .zm-lbl { color: var(--fail); }
+.zstack-mini .zm-row.lvl-drawer   { background: var(--stam-soft); border-color: transparent; }
+.zstack-mini .zm-row.lvl-drawer   .zm-lbl { color: var(--stam); }
+
+/* footer viz (drawer) */
+.dfooter-viz {
+  display: flex; align-items: stretch; gap: 12px; margin-top: 14px;
+}
+@media (max-width: 760px) { .dfooter-viz { flex-direction: column; } }
+.dfooter-card {
+  flex: 1 1 0;
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.dfooter-card .df-hdr {
+  font-size: 11px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--t1);
+  display: flex; align-items: center; gap: 6px;
+}
+.dfooter-card .df-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 10px; border-radius: var(--r-sm);
+  background: var(--bg-sur); border: 1px dashed var(--bd-s);
+  justify-content: flex-end;
+}
+.dfooter-card .df-row.split { justify-content: space-between; }
+.dfooter-card .df-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+}
+.df-btn {
+  font-family: var(--font); font-size: 11px; font-weight: 700; letter-spacing: -.005em;
+  padding: 7px 14px; border-radius: 6px;
+  border: 1px solid var(--bd); background: var(--bg-sur2); color: var(--t1);
+  white-space: nowrap;
+}
+.df-btn.primary  { background: var(--stam); color: #fff; border-color: var(--stam); }
+.df-btn.danger   { background: var(--fail); color: #fff; border-color: var(--fail); }
+.df-btn.ghost    { background: transparent; color: var(--t2); border-color: transparent; }
+.df-btn.disabled { opacity: .45; }
+
+/* handoff flow viz */
+.flow-viz {
+  display: flex; align-items: stretch; gap: 12px; margin-top: 14px;
+}
+@media (max-width: 900px) { .flow-viz { flex-direction: column; } }
+.flow-card {
+  flex: 1 1 0;
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 6px;
+  position: relative;
+}
+.flow-card .fc-step {
+  font-family: var(--font); font-size: 10px; font-weight: 800;
+  color: var(--stam); letter-spacing: .06em; text-transform: uppercase;
+}
+.flow-card .fc-name {
+  font-size: 12px; font-weight: 800; color: var(--t1); letter-spacing: -.005em;
+}
+.flow-card .fc-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+}
+.flow-card .fc-tok {
+  font-family: var(--font); font-size: 10px; color: var(--t2);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 2px 6px; font-weight: 600;
+  align-self: flex-start; margin-top: 4px;
+}
+.flow-arrow {
+  align-self: center;
+  font-family: var(--font); font-size: 18px; font-weight: 800;
+  color: var(--stam); letter-spacing: 0;
+}
+@media (max-width: 900px) { .flow-arrow { transform: rotate(90deg); } }
+
+/* related link grid */
+.rel-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+@media (max-width: 900px) { .rel-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px) { .rel-grid { grid-template-columns: 1fr; } }
+.rel-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  text-decoration: none;
+  display: flex; flex-direction: column; gap: 4px;
+  transition: border-color .15s ease, background .15s ease;
+}
+.rel-card:hover { border-color: var(--bd-s); background: var(--bg-sur); }
+.rel-card .rl-title {
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.rel-card .rl-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+}
+
+/* force S-Core Dream */
+.spill, .ppill, .dchip, .stchip, .szchip,
+.fm-tbl, .fm-tbl *,
+.scope-card, .scope-card *, .gate-step, .gate-step *,
+.rule-card, .rule-card *, .dd-col, .dd-col *,
+.sync-col, .sync-col *, .fm-cap, .fm-cap *,
+.danat, .danat *, .vp-card, .vp-card *,
+.layout-viz, .layout-viz *, .zstack-mini, .zstack-mini *,
+.dfooter-card, .dfooter-card *, .df-btn,
+.flow-card, .flow-card *, .flow-arrow,
+.rel-card, .rel-card * {
+  font-family: var(--font) !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Drawer Token Mapping v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Mapping Draft</span>
+  <span class="doc-nav-pill"><span class="dot"></span>CSS Implementation Hold</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Full Detail Handoff Required</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Drawer Mapping</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Drawer Scope</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Drawer Structure</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Width / Layout</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Drawer State</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Token Mapping</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Form Sync</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Full Detail Handoff</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Layer / Overlay</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Button / Footer</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Accessibility</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Do / Don't</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Gate Checklist</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Cursor Handoff</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Status Banner ── -->
+      <div class="ibox info" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <strong>STAM Drawer Token Mapping v1</strong>
+          <span class="sbadge plan" style="margin-left:auto;">Mapping Draft</span>
+        </div>
+        <p style="margin:0 0 8px;font-size:.88em;line-height:1.7;opacity:.9;">
+          본 문서는 <strong>실제 Drawer CSS 구현이 아니라, Create · Edit · Detail · Review · Approval · Comment · Filter Drawer와 Full Detail 전환의 width · header · body · footer · backdrop · shadow · scroll · transition · 내부 Form · Full Detail handoff 기준을 토큰 기반으로 사전 확정하는 매핑 문서</strong>이다.
+          Drawer는 등록·수정·상세의 공통 진입 UI이며, Dialog보다 한 layer 아래에 위치한다. Drawer 내부 Select · Date Picker · Dropdown은 Drawer panel보다 위에 떠야 한다.
+          본 문서로는 <code>stam/css/**</code>, <code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/index.html</code>, <code>stam/assets/**</code>를 절대 수정하지 않는다.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:6px;">
+          <span class="sbadge plan">Mapping Draft</span>
+          <span class="sbadge lock">CSS Implementation Hold</span>
+          <span class="sbadge lock">Full Detail Handoff Required</span>
+          <span class="sbadge guide">Pre-Implementation</span>
+          <span class="sbadge lock">No CSS Edit</span>
+        </div>
+        <p style="margin:10px 0 0;font-size:.82em;line-height:1.65;opacity:.78;">
+          <strong>판정 근거</strong> — Layer Token Mapping v1에서 “Drawer는 Dialog 아래, Dropdown은 Drawer 위”의 z-index 순서가 동결되었고, Form Token Mapping v1에서 “Drawer 내부 Select · Date Picker는 Full Detail과 같은 컴포넌트를 portal로 mount”라는 원칙이 동결되었으나, Drawer 자체의 width · header · footer · backdrop · scroll · transition · Full Detail handoff 기준은 확정되지 않은 상태이다. Drawer에서 “전체 보기”로 넘어간 Full Detail이 다른 컴포넌트로 보이거나, Drawer 내부 popup이 panel 뒤에 깔리는 사고를 사전에 차단하기 위해 본 문서로 Drawer 매핑과 운영 원칙을 확정한다.
+        </p>
+      </div>
+
+      <!-- ── S01 Overview ── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            Layer Token Mapping v1이 “화면에 떠 있는 모든 컴포넌트의 z-index 순서”를 확정했다면,
+            본 Drawer Token Mapping v1은 그 안에서 동작하는 <strong>Create · Edit · Detail · Review · Approval · Comment · Filter Drawer 그리고 Full Detail 전환</strong>의
+            width · structure · state · token · backdrop · scroll · transition · footer · button 우선순위를 1:1로 매핑한다.
+            STAM에서 Drawer는 “리스트에서 한 건을 빠르게 보고 / 등록하고 / 수정하는 공통 진입 UI”이며,
+            Full Detail은 “Drawer가 좁을 때 본문에서 같은 데이터를 크게 보는 경로”다. 두 화면은 같은 Form · Button · Layer 기준을 따라야 하며,
+            서로 다른 UI로 분기 구현하지 않는다. 기획자·PM은 “어떤 Drawer가 어떤 시나리오에서 떠야 하는지”, 디자이너는 “Drawer 안 영역과 폭 규칙”을, 개발자는 “토큰명 · backdrop · transition · Full Detail handoff 기준”을 본 문서 하나로 읽고 승인할 수 있어야 한다.
+          </p>
+
+          <div class="dd-grid" style="margin-top:8px;">
+            <div class="dd-col good">
+              <div class="dd-hdr">이 문서가 다루는 것</div>
+              <ul>
+                <li>Drawer 범위 정의 (Create · Edit · Detail · Review · Approval · Comment · Filter · Full Detail Handoff · 내부 Form · 내부 Select/Date · Footer Actions 11개)</li>
+                <li>Drawer Structure Matrix (Backdrop · Panel Shell · Header · Meta Area · Body · Section Group · Form Field Area · Sticky Footer · Action Button Area · Full Detail Button · Close Button 11개)</li>
+                <li>Drawer Width / Layout Rule (컨텐츠 영역 기준 ~40% · 1440 / 1600 / 1920 후보 폭 · responsive fallback)</li>
+                <li>Drawer State Matrix (<code>closed</code> · <code>opening</code> · <code>open</code> · <code>detail</code> · <code>editing</code> · <code>readonly</code> · <code>dirty</code> · <code>saving</code> · <code>saved</code> · <code>error</code> · <code>closing</code> 11종)</li>
+                <li>Drawer Token 후보 15종 (<code>--drawer-width</code> ~ <code>--drawer-field-gap</code>)</li>
+                <li>Drawer / Form Sync Rule (Drawer · Full Detail · Dialog 일관성)</li>
+                <li>Drawer → Full Detail Handoff Rule (전체 보기 · 같은 데이터 · 같은 컴포넌트 · 같은 검증)</li>
+                <li>Drawer Layer / Overlay Rule (Drawer는 Dialog 아래 · Dropdown은 Drawer 위)</li>
+                <li>Drawer Button / Footer Rule (Primary · Secondary · Ghost · Danger)</li>
+                <li>Accessibility / Interaction Rule (ESC · backdrop click · dirty 확인 · focus trap · tab order)</li>
+                <li>Gate Checklist · Cursor 핸드오프 기준</li>
+              </ul>
+            </div>
+            <div class="dd-col bad">
+              <div class="dd-hdr">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/css/**</code> 토큰 추가 / 값 변경 / 실제 Drawer 클래스 작성</li>
+                <li><code>stam/css/stam.tokens.css</code>의 drawer 토큰 정의 코드 작성</li>
+                <li><code>stam/css/stam.components.css</code>의 drawer 클래스 / animation 적용</li>
+                <li><code>stam/js/**</code> Drawer open / close / dirty / focus trap 구현</li>
+                <li><code>stam/pages/**</code>, <code>stam/index.html</code> 변경</li>
+                <li><code>stam/assets/**</code>, <code>_ds/**</code>, <code>uploads/**</code> 변경</li>
+                <li>Form · Button · Layer · Dialog 등 다른 컴포넌트의 토큰 정의 변경</li>
+                <li>Dialog · Drawer · Form · Component Guide 본문 수정</li>
+                <li>Firebase / GitHub Actions / package*.json 변경</li>
+                <li>저장 API · 데이터 필드명 변경 (Drawer는 UI 레이어만)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>선행 문서와의 관계</strong>
+            <span style="display:block;margin-top:4px;line-height:1.7;">
+              · <a href="STAM-UI-Baseline-Guide.html" style="color:var(--stam);">UI Baseline Guide</a> — 폰트·레이아웃·Forbidden Rules 기준<br>
+              · <a href="STAM-Component-Guide.html" style="color:var(--stam);">Component Guide</a> — 컴포넌트 전체 변형·사이즈·상태 정의<br>
+              · <a href="components/STAM-Drawer-Guide.html" style="color:var(--stam);">Drawer Guide</a> — Drawer Anatomy · Tab Structure · 스크롤 기준<br>
+              · <a href="components/STAM-Form-Guide.html" style="color:var(--stam);">Form Guide</a> — Input · Select · Date Picker · Calendar popup<br>
+              · <a href="components/STAM-Dialog-Guide.html" style="color:var(--stam);">Dialog Guide</a> — Dialog Anatomy · Confirm · Alert · Focus Trap<br>
+              · <a href="STAM-CSS-Token-Readiness-Check.html" style="color:var(--stam);">CSS Token Readiness Check</a> — 12 카테고리 Ready / Partial / Missing 점검<br>
+              · <a href="STAM-Token-Inventory-v1.html" style="color:var(--stam);">Token Inventory v1</a> — Drawer · Form · Layer 토큰 후보<br>
+              · <a href="STAM-Button-Token-Mapping-v1.html" style="color:var(--stam);">Button Token Mapping v1</a> — Button variant × size × state 매핑 (선행)<br>
+              · <a href="STAM-Form-Token-Mapping-v1.html" style="color:var(--stam);">Form Token Mapping v1</a> — Input · Select · Date Picker 매핑 (선행)<br>
+              · <a href="STAM-Layer-Token-Mapping-v1.html" style="color:var(--stam);">Layer Token Mapping v1</a> — Topbar · Drawer · Dialog · Dropdown z-index 매핑 (선행)<br>
+              · <a href="STAM-Dialog-Token-Mapping-v1.html" style="color:var(--stam);">Dialog Token Mapping v1</a> — Alert · Confirm · Danger · Form Dialog 매핑 (선행)<br>
+              · <strong>STAM Drawer Token Mapping v1</strong> <em style="opacity:.6;">(현재 문서)</em> — Drawer · Full Detail handoff 토큰 매핑
+            </span>
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>주의 — Mapping은 코드 변경이 아니다</strong>
+            본 문서의 Candidate 토큰명·Suggested Value·Used By는 모두 <em>매핑 기준 후보</em>이며,
+            실제 토큰 추가·CSS 클래스 작성·z-index 부여·JS 구현은 후속 Drawer CSS / JS 구현 단위에서 코드 변경과 함께 확정한다.
+            본 문서만으로 <code>stam.tokens.css</code> · <code>stam.components.css</code> · 어떤 JS 파일도 수정하지 않는다.
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>핵심 원칙 — Drawer · Full Detail은 같은 컴포넌트를 쓴다</strong>
+            Drawer 안의 등록·수정·상세 화면과 Full Detail 화면은 <strong>같은 Form · 같은 Select · 같은 Date Picker · 같은 Button · 같은 validation</strong>을 사용한다.
+            “Drawer 안에서는 작은 폼”, “Full Detail에서는 다른 폼”이라는 식의 분기 구현은 금지된다.
+            Drawer가 좁아 답답할 때 사용자가 “전체 보기”로 Full Detail에 넘어가도 입력값·UI 상태가 그대로 유지되어야 한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Drawer Scope ── -->
+      <section id="s02" class="sec" data-screen-label="02 Drawer Scope">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Drawer Scope — 본 매핑이 다루는 Drawer 범위</span>
+          <span class="sbadge plan">범위</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아래 11개 시나리오가 본 매핑의 대상이다. 등록(Create) · 수정(Edit) · 상세(Detail) · 검토(Review) · 결재(Approval) · 댓글(Comment) · 필터(Filter) Drawer 7종과 Full Detail Handoff, 그리고 Drawer 내부에서 발생하는 Form / Select·Date Picker / Footer Actions를 포함한다.</p>
+
+          <div class="scope-grid">
+            <div class="scope-card">
+              <div class="sc-top"><span class="dchip create">Create Drawer</span></div>
+              <div class="sc-sub">신규 등록 · 빈 form · 첫 진입 focus는 첫 필드.</div>
+              <div class="sc-z">Action: 등록 / 취소</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="dchip edit">Edit Drawer</span></div>
+              <div class="sc-sub">기존 항목 수정 · 기존값 prefill · dirty 추적 필요.</div>
+              <div class="sc-z">Action: 저장 / 취소</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="dchip detail">Detail Drawer</span></div>
+              <div class="sc-sub">readonly 상세 · “수정” 클릭 시 내부 edit mode 전환.</div>
+              <div class="sc-z">Action: 수정 / 닫기 / 전체 보기</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="dchip review">Review Drawer</span></div>
+              <div class="sc-sub">검토 / 코멘트 입력 · 결과 reject / pass.</div>
+              <div class="sc-z">Action: 승인 / 반려 / 보류</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="dchip approval">Approval Drawer</span></div>
+              <div class="sc-sub">결재 / 승인 · 결재선 · 사유 입력.</div>
+              <div class="sc-z">Action: 승인 / 반려</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="dchip comment">Comment Drawer</span></div>
+              <div class="sc-sub">스레드형 댓글 · 작성 · 첨부.</div>
+              <div class="sc-z">Action: 작성 / 닫기</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="dchip filter">Filter Drawer</span></div>
+              <div class="sc-sub">리스트 필터 · 다중 조건 · 초기화 / 적용.</div>
+              <div class="sc-z">Action: 적용 / 초기화</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="dchip full">Full Detail Handoff</span></div>
+              <div class="sc-sub">Drawer 닫고 본문 영역 Full Detail로 전환.</div>
+              <div class="sc-z">Trigger: 전체 보기</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="dchip form">Drawer 내부 Form</span></div>
+              <div class="sc-sub">Form Token Mapping v1과 같은 토큰 / 컴포넌트.</div>
+              <div class="sc-z">Sync: Form Mapping v1</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="dchip form">내부 Select / Date Picker</span></div>
+              <div class="sc-sub">Full Detail · Dialog와 같은 컴포넌트 · portal popup.</div>
+              <div class="sc-z">Layer: Drawer panel 위</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="dchip footer">Drawer Footer Actions</span></div>
+              <div class="sc-sub">Primary · Secondary · Ghost · Danger 4종 sticky footer.</div>
+              <div class="sc-z">Sync: Button Mapping v1</div>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>본 문서가 다루지 않는 UI</strong>
+            Dialog · Modal · Confirm · Alert · Toast · Bottom Sheet는 Drawer와 시각·동작이 다르므로 본 문서 범위 밖이다 (Dialog Token Mapping v1 별도).
+            Drawer에서 발생한 confirm / 삭제 / 위험 액션은 Drawer 위에 Dialog로 띄우며, Drawer 안에 inline confirm을 만들지 않는다.
+            Tooltip · Popover는 Drawer 내부 popup 시나리오에서만 본 문서가 다루며, 자체 정의는 Form / Layer Mapping v1을 따른다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 Drawer Structure Matrix ── -->
+      <section id="s03" class="sec" data-screen-label="03 Drawer Structure">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Drawer Structure Matrix — Drawer 내부 영역 매핑</span>
+          <span class="sbadge plan">구조</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Drawer는 backdrop · panel shell · header(+meta) · body(section group + form field area) · sticky footer(action button area + full detail button + close button) 4단으로 구성된다. 11개 영역의 역할 · 토큰 · 인터랙션 · 위험 · 결정 상태를 한 표로 정리한다.</p>
+
+          <!-- Anatomy visualization -->
+          <div class="danat">
+            <div class="danat-row backdrop">
+              <span class="dr-area">Backdrop</span>
+              <span class="dr-role">본문 dim layer · 클릭 시 close (dirty 확인) · Drawer 아래까지만 덮음</span>
+              <span class="dr-tag">--drawer-backdrop-bg · --z-drawer-backdrop</span>
+            </div>
+            <div class="danat-row">
+              <span class="dr-area">Panel Shell</span>
+              <span class="dr-role">Drawer 본체 컨테이너 · 우측 슬라이드 · width / radius / shadow / background</span>
+              <span class="dr-tag">--drawer-width · --drawer-bg · --drawer-shadow</span>
+            </div>
+            <div class="danat-row header">
+              <span class="dr-area">Header</span>
+              <span class="dr-role">상단 영역 · 타이틀 + Close + 전체 보기 + Meta Area</span>
+              <span class="dr-tag">--drawer-header-height · --drawer-padding</span>
+            </div>
+            <div class="danat-row header">
+              <span class="dr-area">Meta Area</span>
+              <span class="dr-role">상태 chip · 작성자 · 일시 · ID 등 보조 정보</span>
+              <span class="dr-tag">type · color 토큰 재사용</span>
+            </div>
+            <div class="danat-row body">
+              <span class="dr-area">Body</span>
+              <span class="dr-role">본문 · 내부 scroll · header / footer 고정</span>
+              <span class="dr-tag">--drawer-padding · --drawer-section-gap</span>
+            </div>
+            <div class="danat-row body">
+              <span class="dr-area">Section Group</span>
+              <span class="dr-role">본문 내 섹션 묶음 (기본 정보 / 상세 / 첨부 등)</span>
+              <span class="dr-tag">--drawer-section-gap</span>
+            </div>
+            <div class="danat-row body">
+              <span class="dr-area">Form Field Area</span>
+              <span class="dr-role">입력 필드 그룹 · Form Token Mapping v1 재사용</span>
+              <span class="dr-tag">--drawer-field-gap · --input-*</span>
+            </div>
+            <div class="danat-row footer">
+              <span class="dr-area">Sticky Footer</span>
+              <span class="dr-role">하단 액션 영역 · 항상 고정 · scroll에 흔들리지 않음</span>
+              <span class="dr-tag">--drawer-footer-height · --drawer-padding</span>
+            </div>
+            <div class="danat-row footer">
+              <span class="dr-area">Action Button Area</span>
+              <span class="dr-role">Primary · Secondary · Danger 버튼 우측 정렬</span>
+              <span class="dr-tag">--btn-primary-* · --btn-secondary-*</span>
+            </div>
+            <div class="danat-row footer">
+              <span class="dr-area">Full Detail Button</span>
+              <span class="dr-role">Footer 좌측 또는 Header 우측 · Drawer 닫고 Full Detail 전환</span>
+              <span class="dr-tag">--btn-ghost-* · icon 토큰</span>
+            </div>
+            <div class="danat-row">
+              <span class="dr-area">Close Button</span>
+              <span class="dr-role">Header 우측 X · ESC와 동일 동작 · aria-label 필수</span>
+              <span class="dr-tag">--btn-ghost-* · icon 토큰</span>
+            </div>
+          </div>
+
+          <div class="fm-cap" style="margin-top:18px;"><span class="fm-cap-n">①</span>Drawer Structure Matrix <span class="fm-cap-sub">11개 영역 — Required Tokens · Interaction · Risk</span></div>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:16%;">Area</th>
+                <th style="width:18%;">Role</th>
+                <th style="width:20%;">Required Tokens</th>
+                <th style="width:20%;">Interaction Rule</th>
+                <th style="width:16%;">Risk</th>
+                <th style="width:10%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn">Backdrop</td>
+                <td>본문 dim layer · 클릭 차단</td>
+                <td><code>--drawer-backdrop-bg</code> · <code>--z-drawer-backdrop</code> · <code>--drawer-transition</code></td>
+                <td>Click 시 close (dirty 시 확인 후) · ESC 시 close · Topbar / Sidebar 위까지 덮음</td>
+                <td>dirty 상태에서 무조건 close → 입력 내용 손실</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Panel Shell</td>
+                <td>Drawer 본체 컨테이너</td>
+                <td><code>--drawer-bg</code> · <code>--drawer-border</code> · <code>--drawer-radius</code> · <code>--drawer-shadow</code> · <code>--z-drawer</code></td>
+                <td>우측 슬라이드 진입 · viewport 기준 fixed · width 토큰 기반</td>
+                <td>panel이 viewport보다 넓어 우측 잘림 · 가로 스크롤</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Header</td>
+                <td>상단 영역 · Title · Meta · Close</td>
+                <td><code>--drawer-header-height</code> · <code>--drawer-padding</code></td>
+                <td>고정 높이 · scroll에 흔들리지 않음 · Close 우측 끝</td>
+                <td>Title 길이 변화로 header 높이가 흔들리면 layout shift</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Meta Area</td>
+                <td>상태 chip · 작성자 · 일시 · ID</td>
+                <td>Component Guide의 chip · type · color 토큰</td>
+                <td>한 줄 또는 두 줄 · 줄바꿈 시 ellipsis</td>
+                <td>Meta가 길어져 header 높이를 늘리면 body scroll 영역 침범</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Body</td>
+                <td>본문 영역 · 내부 scroll</td>
+                <td><code>--drawer-padding</code> · <code>--drawer-section-gap</code></td>
+                <td>body 내부 scroll만 · header / footer 고정 · 가로 scroll 금지</td>
+                <td>body overflow가 page scroll로 빠지면 footer 가려짐</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Section Group</td>
+                <td>본문 내 섹션 묶음</td>
+                <td><code>--drawer-section-gap</code> · type / color 토큰</td>
+                <td>섹션 헤더 + 본문 · 접기/펼치기 옵션</td>
+                <td>섹션 헤더가 sticky로 설정되면 footer / popup 영역과 충돌</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Form Field Area</td>
+                <td>입력 필드 그룹 · Form Dialog/Drawer 공통</td>
+                <td>Form Token Mapping v1 <code>--input-*</code> · <code>--drawer-field-gap</code></td>
+                <td>Full Detail과 같은 input · select · date picker 컴포넌트 사용</td>
+                <td>Drawer 전용 input·select 변형 발생 → Full Detail과 불일치</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Sticky Footer</td>
+                <td>하단 액션 영역</td>
+                <td><code>--drawer-footer-height</code> · <code>--drawer-padding</code></td>
+                <td>항상 고정 · body scroll에 흔들리지 않음 · 위 경계선</td>
+                <td>footer 누락 시 사용자가 저장 버튼을 못 찾음</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Action Button Area</td>
+                <td>Primary · Secondary · Danger 버튼</td>
+                <td>Button Token Mapping v1 <code>--btn-primary-*</code> · <code>--btn-secondary-*</code> · <code>--btn-danger-*</code></td>
+                <td>우측 정렬 기본 · 위험 액션은 좌우 분리 가능 · 중복 클릭 차단</td>
+                <td>저장 중 중복 클릭으로 동일 데이터 중복 저장</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Full Detail Button</td>
+                <td>“전체 보기” · Drawer 닫고 Full Detail로 전환</td>
+                <td>Button Token Mapping v1 <code>--btn-ghost-*</code> · icon 토큰</td>
+                <td>Footer 좌측 또는 Header 우측 위치 · 라벨 명확</td>
+                <td>dirty 상태에서 전체 보기 클릭 시 입력값 손실 위험</td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Close Button</td>
+                <td>Header 우측 X 버튼</td>
+                <td>Button Token Mapping v1 <code>--btn-ghost-*</code> · icon 토큰</td>
+                <td>aria-label 필수 · ESC와 동일 동작 · keyboard tab order 포함</td>
+                <td>Close가 ESC와 다른 동작이면 사용자 혼란</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Header / Body / Sticky Footer 3단 원칙</strong>
+            모든 STAM Drawer는 Header · Body · Sticky Footer 3단 구조를 따른다.
+            Detail Drawer는 footer가 “수정 · 닫기 · 전체 보기”, Create / Edit는 “저장 · 취소 · 전체 보기”, Review / Approval은 “승인 · 반려 · 닫기”다.
+            Header와 Footer는 고정 높이로 scroll에 흔들리지 않으며, Body만 내부 scroll을 가진다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Drawer Width / Layout Rule ── -->
+      <section id="s04" class="sec" data-screen-label="04 Drawer Width Layout">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Drawer Width / Layout Rule — 폭 · viewport · scroll 기준</span>
+          <span class="sbadge plan">폭/레이아웃</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Drawer의 기본 폭은 <strong>컨텐츠 영역 기준 약 40%</strong>로 잡는다. 본문 60%를 그대로 두고 우측 40%에 Drawer가 슬라이드 진입한다. 1440 · 1600 · 1920 가로폭에서는 각각 권장 폭 후보를 제시하며, 좁은 화면(<code>&lt; 1280px</code>)에서는 폭이 커지거나 fullscreen으로 fallback한다. Drawer 내부만 scroll되어야 하며 페이지 전체 scroll과 충돌하지 않는다.</p>
+
+          <!-- layout viz -->
+          <div class="layout-viz">
+            <div class="lv-row">
+              <div class="lv-content">
+                기본 화면 (Drawer 닫힘)
+                <span class="lv-sub">List / Table / Page 본문이 컨텐츠 영역 100%</span>
+              </div>
+            </div>
+            <div class="lv-row">
+              <div class="lv-content">
+                본문 (~60%)
+                <span class="lv-sub">List · Table은 dim 처리 · 클릭 차단 (backdrop)</span>
+              </div>
+              <div class="lv-drawer">
+                Drawer Panel (~40%)
+                <span class="lv-sub">우측 슬라이드 진입 · 컨텐츠 영역 기준 약 40%</span>
+                <div class="lv-rows">
+                  <span>Header — 타이틀 · Meta · Close</span>
+                  <span>Body — Section / Form / 상세</span>
+                  <span>Footer — 저장 · 취소 · 전체 보기</span>
+                </div>
+              </div>
+            </div>
+            <div class="lv-row">
+              <div class="lv-full">
+                Full Detail (Drawer 닫힘 → 본문 영역 100%)
+                <span class="lv-sub">“전체 보기” 클릭 후 — 같은 데이터 · 같은 컴포넌트 · 같은 검증</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="fm-cap" style="margin-top:18px;"><span class="fm-cap-n">②</span>Viewport별 Drawer Width Candidate <span class="fm-cap-sub">1440 · 1600 · 1920 권장 폭 · min / max · scroll · Full Detail 필요</span></div>
+
+          <div class="vp-grid">
+            <div class="vp-card">
+              <div class="vp-top"><span class="vp-name">≥ 1920</span><span class="vp-w">760px</span></div>
+              <div class="vp-sub">권장 후보 · 컨텐츠 영역 기준 ~40%</div>
+              <div class="vp-use">Full Detail 필요도 ▼ (Drawer 안에서 대부분 가능)</div>
+            </div>
+            <div class="vp-card">
+              <div class="vp-top"><span class="vp-name">1600 ~ 1919</span><span class="vp-w">640px</span></div>
+              <div class="vp-sub">권장 후보 · 컨텐츠 영역 기준 ~40%</div>
+              <div class="vp-use">Full Detail 필요도 ▼/▲ (긴 form은 권장)</div>
+            </div>
+            <div class="vp-card">
+              <div class="vp-top"><span class="vp-name">1440 ~ 1599</span><span class="vp-w">560px</span></div>
+              <div class="vp-sub">권장 후보 · 컨텐츠 영역 기준 ~40%</div>
+              <div class="vp-use">Full Detail 필요도 ▲ (Drawer 좁음)</div>
+            </div>
+            <div class="vp-card">
+              <div class="vp-top"><span class="vp-name">1280 ~ 1439</span><span class="vp-w">480px</span></div>
+              <div class="vp-sub">최소 권장 · 컨텐츠 영역 기준 ~38%</div>
+              <div class="vp-use">Full Detail 강력 권장 — Drawer는 미리보기 용도</div>
+            </div>
+            <div class="vp-card">
+              <div class="vp-top"><span class="vp-name">&lt; 1280</span><span class="vp-w">100%</span></div>
+              <div class="vp-sub">Responsive fallback · 전체 폭</div>
+              <div class="vp-use">큰 form은 Full Detail 또는 별도 페이지 권장</div>
+            </div>
+          </div>
+
+          <div class="fm-cap" style="margin-top:18px;"><span class="fm-cap-n">③</span>Viewport × Width × Scroll × Full Detail 매트릭스 <span class="fm-cap-sub">결정 상태 포함</span></div>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:14%;">Viewport</th>
+                <th style="width:16%;">Drawer Width Candidate</th>
+                <th style="width:16%;">Min / Max</th>
+                <th style="width:22%;">Body Scroll Rule</th>
+                <th style="width:18%;">Full Detail Need</th>
+                <th style="width:14%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn"><span class="szchip">≥ 1920</span></td>
+                <td class="zval">760px (~40%)</td>
+                <td>min 640px / max 880px</td>
+                <td>body 내부 scroll만 · page scroll 차단</td>
+                <td>낮음 — Drawer 안에서 대부분 처리 가능</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="szchip">1600~1919</span></td>
+                <td class="zval">640px (~40%)</td>
+                <td>min 560px / max 760px</td>
+                <td>body 내부 scroll만 · header / footer 고정</td>
+                <td>중간 — 긴 form은 Full Detail 권장</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="szchip">1440~1599</span></td>
+                <td class="zval">560px (~40%)</td>
+                <td>min 480px / max 640px</td>
+                <td>body 내부 scroll만 · 가로 scroll 금지</td>
+                <td>높음 — Drawer가 좁아 Full Detail 권장</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="szchip">1280~1439</span></td>
+                <td class="zval">480px (~38%)</td>
+                <td>min 440px / max 520px</td>
+                <td>body 내부 scroll만 · field 영역 압박 주의</td>
+                <td>매우 높음 — Drawer는 미리보기, Full Detail이 본 흐름</td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="szchip">&lt; 1280</span></td>
+                <td class="zval">100vw</td>
+                <td>100vw (radius 0)</td>
+                <td>body 내부 scroll · safe-area 보정</td>
+                <td>강제 — 큰 form은 별도 페이지 또는 Full Detail</td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="rule-grid" style="margin-top:14px;">
+            <div class="rule-card">
+              <div class="rc-hdr">width 선택 원칙</div>
+              <ul>
+                <li>기본 후보는 <strong>컨텐츠 영역 기준 약 40%</strong> — 본문 60% 보존</li>
+                <li>Drawer 폭은 토큰 <code>--drawer-width</code> 1개로 통제 · 시나리오별 분기 금지</li>
+                <li>최소 폭 <code>--drawer-width-min</code> · 최대 폭 <code>--drawer-width-max</code>로 viewport 양 끝 보호</li>
+                <li>Filter Drawer는 본 폭의 75% 정도로 좁힘 옵션 검토 (Decision Needed)</li>
+                <li>한 화면에서 두 Drawer가 동시에 떠 다른 폭으로 분기되지 않음 — 1 Drawer 1 width</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">scroll / overflow 원칙</div>
+              <ul>
+                <li>body의 내용이 길면 <strong>body 내부 scroll</strong> — header · sticky footer는 고정</li>
+                <li>페이지 전체 scroll과 충돌 금지 — Drawer open 시 <code>body { overflow: hidden }</code></li>
+                <li>scrollbar gutter 보정 — Drawer open 시 layout shift 방지</li>
+                <li>가로 scroll 금지 — content가 넘치면 줄바꿈 · ellipsis · Full Detail 권장</li>
+                <li>body overflow가 내부 popup을 잘라먹지 않음 — popup은 portal 렌더링 (Section 09)</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">responsive fallback</div>
+              <ul>
+                <li>viewport &lt; 1280px → Drawer 폭이 480px 이하로 좁아짐</li>
+                <li>viewport &lt; 1024px → fullscreen 모드로 강제 전환 (radius 0 · width 100vw)</li>
+                <li>fullscreen 모드에서도 header · sticky footer 고정 · body만 scroll</li>
+                <li>safe-area-inset-top / bottom 보정 — iOS notch · home indicator</li>
+                <li>좁은 화면의 긴 form은 Drawer로 강행하지 않고 Full Detail 또는 별도 페이지로 이동</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">Full Detail 필요도 기준</div>
+              <ul>
+                <li>Drawer 폭 기준 form column 수 ≤ 2 → Drawer 충분</li>
+                <li>form column 3 이상 또는 표 · 좌우 비교 → Full Detail 권장</li>
+                <li>좁은 viewport(&lt; 1440)에서 긴 form → Full Detail 권장</li>
+                <li>첨부 / 미리보기 / 우측 도움말 패널이 필요 → Full Detail 본 흐름</li>
+                <li>Detail Drawer는 readonly이므로 Full Detail 필요도 ▼ · Edit Drawer는 ▲</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Decision Needed — fullscreen fallback breakpoint</strong>
+            Responsive fullscreen 진입 breakpoint를 <code>1024px</code>으로 잡을지 <code>1280px</code>으로 잡을지 PM 결정이 필요하다.
+            기본 후보는 <code>1024px</code>이며, 1280px 미만에서는 폭이 좁아지지만 fullscreen으로 빠지지 않는다.
+            Filter Drawer의 좁힘 옵션과 함께 일괄 결정 권장.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 Drawer State Matrix ── -->
+      <section id="s05" class="sec" data-screen-label="05 Drawer State">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Drawer State Matrix — Drawer 상태 매핑</span>
+          <span class="sbadge plan">상태</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Drawer는 closed → opening → open → (detail | editing | readonly | dirty) → saving → (saved | error) → closing → closed 순으로 흐른다. 11개 상태별 토큰 · 동작 · 시각 · 위험 · 결정 상태를 정리한다.</p>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:12%;">State</th>
+                <th style="width:18%;">Required Tokens</th>
+                <th style="width:22%;">Behavior</th>
+                <th style="width:22%;">Visual Feedback</th>
+                <th style="width:14%;">Risk</th>
+                <th style="width:12%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn"><span class="stchip closed">closed</span></td>
+                <td>—</td>
+                <td>Drawer DOM 미존재 또는 hidden · backdrop 미노출</td>
+                <td>화면 영향 없음 · body scroll lock 해제</td>
+                <td>stale backdrop 잔존 시 사용자 클릭 차단</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip opening">opening</span></td>
+                <td><code>--drawer-transition</code> · <code>--drawer-backdrop-bg</code></td>
+                <td>open trigger → backdrop fade-in → panel 우측 슬라이드 → 초기 focus</td>
+                <td>backdrop opacity 0→1 · panel translateX 100%→0 · 180~240ms</td>
+                <td>transition 중 ESC / backdrop click 무시 정책 필요</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip open">open</span></td>
+                <td><code>--drawer-bg</code> · <code>--drawer-shadow</code> · <code>--z-drawer</code></td>
+                <td>완전 렌더링 · focus trap 활성 · ESC / backdrop click 동작</td>
+                <td>backdrop 1.0 · panel 1.0 · header / body / footer 정상</td>
+                <td>focus trap 누락 시 Tab이 본문으로 빠짐</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip detail">detail</span></td>
+                <td>type · color 토큰 (readonly)</td>
+                <td>readonly view · 모든 필드 비편집 · “수정” 버튼 노출</td>
+                <td>field가 input이 아닌 정보 표시 · 색약화</td>
+                <td>readonly인데 input처럼 보이면 사용자가 클릭/입력 시도</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip editing">editing</span></td>
+                <td>Form Mapping v1 input · validation 토큰</td>
+                <td>모든 필드 편집 가능 · dirty 추적 시작 · 저장 / 취소 활성화</td>
+                <td>field가 input 상태 · Primary “저장” 활성</td>
+                <td>edit mode 진입을 사용자가 인지 못하면 변경 사실 미인지</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip readonly">readonly</span></td>
+                <td>type · color 토큰 (disabled tone)</td>
+                <td>권한 없음 / 잠금 · 모든 필드 비편집 · 저장 미노출</td>
+                <td>field 색약화 · Primary “저장” 미노출 또는 disabled</td>
+                <td>권한 없음을 안내 없이 disabled로만 표현하면 사용자 혼란</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip dirty">dirty</span></td>
+                <td>Form Mapping v1 dirty / warning 토큰</td>
+                <td>변경 사항 발생 · close · backdrop click · 전체 보기 시 확인</td>
+                <td>저장 버튼 강조 · 변경 표시 chip · close 시 confirm dialog</td>
+                <td>dirty인데 확인 없이 닫히면 입력 내용 손실</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip saving">saving</span></td>
+                <td>Button Mapping v1 loading 토큰 · <code>--drawer-transition</code></td>
+                <td>API 호출 진행 중 · 모든 액션 disabled · close 차단 옵션</td>
+                <td>Primary loading · Secondary disabled · Close disabled (옵션)</td>
+                <td>저장 중 close 시 race condition · 중복 저장</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip saved">saved</span></td>
+                <td>—</td>
+                <td>API 성공 → dirty 해제 → Drawer close 또는 detail mode 전환 + toast</td>
+                <td>Drawer closing transition + toast 노출</td>
+                <td>저장 후 dirty 해제 누락 → close 확인 dialog가 다시 뜸</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip error">error</span></td>
+                <td>Form Mapping v1 error 색 토큰</td>
+                <td>API 실패 → Drawer 유지 · 에러 메시지 노출 · 재시도 가능</td>
+                <td>Body 상단에 error banner 또는 field error · Primary 라벨 “다시 시도” 옵션</td>
+                <td>Drawer가 자동 close되면 사용자가 에러 인지 못함</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip closing">closing</span></td>
+                <td><code>--drawer-transition</code></td>
+                <td>close trigger → panel 우측 슬라이드 아웃 → backdrop fade-out → focus 복귀</td>
+                <td>panel translateX 0→100% · backdrop 1→0 · 180~240ms</td>
+                <td>closing 중 재오픈 시 transition 깨짐 · dirty 상태에서 강제 close</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>state 전이 원칙</strong>
+            opening / closing 중에는 새로운 open / close trigger를 무시하거나 큐잉한다.
+            saving 상태는 Primary 버튼의 loading 상태로만 표현하며, 별도의 spinner overlay를 Drawer 위에 띄우지 않는다 (Global Loading은 별개).
+            saved 직후에는 Drawer를 close하거나 detail mode로 전환하며, error는 Drawer 유지 + 사용자 재시도 흐름을 보장한다.
+            dirty 상태는 close · backdrop click · 전체 보기 세 경로 모두에서 확인이 필요하다 (Section 11).
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 Drawer Token Mapping Table ── -->
+      <section id="s06" class="sec" data-screen-label="06 Token Mapping">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Drawer Token Mapping Table — 토큰 후보</span>
+          <span class="sbadge plan">P0 매핑</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Token Inventory v1의 Drawer P0 후보를 풀어 정리한다. width / bg / border / radius / shadow / padding / header / footer / backdrop / z-index / transition / gap 15종 토큰이 Drawer 전체를 정의한다.</p>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:18%;">Token Candidate</th>
+                <th style="width:14%;">Purpose</th>
+                <th style="width:18%;">Used By</th>
+                <th style="width:14%;">Light Candidate</th>
+                <th style="width:14%;">Dark Candidate</th>
+                <th style="width:8%;">Required</th>
+                <th style="width:14%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn"><code>--drawer-width</code></td>
+                <td>Drawer 기본 폭 (~40%)</td>
+                <td>모든 Drawer panel</td>
+                <td class="zval">640px</td>
+                <td class="zval">640px</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--drawer-width-min</code></td>
+                <td>Drawer 최소 폭</td>
+                <td>좁은 viewport · Filter Drawer</td>
+                <td class="zval">480px</td>
+                <td class="zval">480px</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--drawer-width-max</code></td>
+                <td>Drawer 최대 폭</td>
+                <td>넓은 viewport (≥ 1920)</td>
+                <td class="zval">880px</td>
+                <td class="zval">880px</td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--drawer-bg</code></td>
+                <td>Drawer panel 배경</td>
+                <td>모든 Drawer panel</td>
+                <td>#FFFFFF</td>
+                <td>#1B1C1F</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--drawer-border</code></td>
+                <td>Drawer panel 좌측 경계선</td>
+                <td>panel 좌측 1px 또는 shadow 경계</td>
+                <td>rgba(0,0,0,.06)</td>
+                <td>rgba(255,255,255,.08)</td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--drawer-shadow</code></td>
+                <td>Drawer panel 좌측 그림자</td>
+                <td>모든 Drawer panel</td>
+                <td>-8px 0 24px rgba(0,0,0,.10)</td>
+                <td>-8px 0 24px rgba(0,0,0,.40)</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--drawer-radius</code></td>
+                <td>Drawer panel 좌측 상/하 둥글기</td>
+                <td>모든 Drawer panel (좌측 코너)</td>
+                <td class="zval">0px</td>
+                <td class="zval">0px</td>
+                <td><span class="ppill p2">P2</span></td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--drawer-header-height</code></td>
+                <td>Header 고정 높이</td>
+                <td>모든 Drawer header</td>
+                <td class="zval">64px</td>
+                <td class="zval">64px</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--drawer-footer-height</code></td>
+                <td>Sticky Footer 고정 높이</td>
+                <td>모든 Drawer footer</td>
+                <td class="zval">72px</td>
+                <td class="zval">72px</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--drawer-padding</code></td>
+                <td>Drawer 내부 padding</td>
+                <td>Header · Body · Footer</td>
+                <td class="zval">20px</td>
+                <td class="zval">20px</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--drawer-backdrop-bg</code></td>
+                <td>backdrop dim 색</td>
+                <td>모든 Drawer backdrop</td>
+                <td>rgba(15,15,20,.32)</td>
+                <td>rgba(0,0,0,.52)</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--drawer-z</code></td>
+                <td>Drawer panel z-index alias</td>
+                <td>모든 Drawer shell (= <code>--z-drawer</code>)</td>
+                <td class="zval">1100</td>
+                <td class="zval">1100</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--drawer-transition</code></td>
+                <td>open / close transition</td>
+                <td>backdrop fade · panel slide</td>
+                <td>220ms ease-out</td>
+                <td>220ms ease-out</td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--drawer-section-gap</code></td>
+                <td>body 내부 섹션 gap</td>
+                <td>Section Group 간격</td>
+                <td class="zval">24px</td>
+                <td class="zval">24px</td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--drawer-field-gap</code></td>
+                <td>form field 간격</td>
+                <td>Form Field Area</td>
+                <td class="zval">16px</td>
+                <td class="zval">16px</td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>토큰 네이밍 원칙</strong>
+            모든 토큰은 <code>--drawer-*</code> prefix로 통일한다. 단, z-index는 Layer Token Mapping v1의 <code>--z-drawer</code>를 단일 소스로 두고
+            <code>--drawer-z</code>는 alias로만 정의한다 (값 불일치 차단).
+            backdrop은 panel과 분리된 별개 token (<code>--drawer-backdrop-bg</code> · <code>--z-drawer-backdrop</code>)을 사용한다.
+            width는 viewport별 분기를 위해 <code>--drawer-width-min</code> · <code>--drawer-width-max</code>와 함께 정의한다.
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>Light / Dark 동시 정의 원칙</strong>
+            모든 색·shadow 토큰은 light / dark 두 값을 동시 정의한다. dark에서 backdrop opacity가 낮으면 본문과 Drawer 경계가 모호해 사용자가 backdrop click 위치를 인지 못한다 (기본 후보: dark .52 / light .32).
+            shadow는 dark에서 더 강하게 (-8px 0 24px rgba .40) 두어 panel의 elevation을 유지한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 Drawer / Form Sync Rule ── -->
+      <section id="s07" class="sec" data-screen-label="07 Form Sync">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Drawer / Form Sync Rule — Drawer 내부 Form 일관성</span>
+          <span class="sbadge guide">규칙</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Drawer 안에서 사용되는 Input · Select · Date Picker는 Form Token Mapping v1과 같은 컴포넌트 · 같은 토큰을 사용한다. Drawer 전용 native UI 회귀는 금지되며, 같은 컴포넌트가 Drawer · Full Detail · Dialog 세 화면에서 동일한 시각·동작·layer로 보장된다.</p>
+
+          <div class="sync-grid">
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must</span>Form Sync 원칙</div>
+              <ul>
+                <li>Drawer 내부 Input은 Form Token Mapping v1의 <code>--input-*</code> 토큰 그대로 사용</li>
+                <li>Drawer 내부 Select는 Full Detail · Dialog와 동일한 STAM custom select 컴포넌트 사용</li>
+                <li>Drawer 내부 Date Picker도 동일 — calendar popup은 portal로 mount</li>
+                <li>Drawer 내부 form layout · label · helper · error 토큰 모두 Form Mapping v1 재사용</li>
+                <li>field 간격은 <code>--drawer-field-gap</code> · 섹션 간격은 <code>--drawer-section-gap</code>만 사용</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must Not</span>Form Sync 금지 원칙</div>
+              <ul>
+                <li>Drawer 전용 native <code>&lt;select&gt;</code> · <code>&lt;input type="date"&gt;</code> 사용 금지</li>
+                <li>Drawer 전용 input · select 변형 컴포넌트를 별도로 만들지 않음</li>
+                <li>Drawer 내부 popup이 panel 뒤에 깔리는 것 → 실패 (portal 미적용)</li>
+                <li>Drawer 내부 scroll 영역에 popup이 잘리는 것 → 실패 (overflow 사고)</li>
+                <li>Drawer 내부 form에서 Full Detail과 다른 padding / gap 사용 → 실패</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Layer</span>같은 popup token 재사용</div>
+              <ul>
+                <li>Drawer 내부 Select Dropdown → <code>--z-dropdown</code> (1500)</li>
+                <li>Drawer 내부 Date Picker Calendar → <code>--z-calendar</code> (1500)</li>
+                <li>Drawer 내부 Tooltip / Help popover → <code>--z-popover</code> (1500)</li>
+                <li>같은 popup 컴포넌트가 Drawer · Full Detail · Dialog · 테이블 인라인에서 모두 같은 z-index 사용</li>
+                <li>화면별 popup 시각 / 동작 / layer가 동일하게 보장됨</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">QA</span>회귀 판정 기준</div>
+              <ul>
+                <li>Drawer 내부 Select 클릭 → 옵션 패널이 Drawer 본문 위에 보임 → <strong>PASS</strong></li>
+                <li>Drawer 내부 Date Picker 클릭 → calendar popup이 Drawer 본문 위에 보임 → <strong>PASS</strong></li>
+                <li>popup이 Drawer panel 뒤에 깔리면 <strong>FAIL</strong></li>
+                <li>Drawer 안에 native select / date input이 1개라도 노출되면 <strong>FAIL</strong></li>
+                <li>Drawer 안 input이 Full Detail · Dialog 안 input과 다르게 보이면 <strong>FAIL</strong></li>
+                <li>Drawer 내부 scroll에 popup이 잘리면 <strong>FAIL</strong> (portal 미적용)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Form Token Mapping v1과의 정합</strong>
+            본 Rule은 Form Token Mapping v1 “Drawer / Full Detail Sync Rule”의 Drawer 측면 구체화다.
+            “Drawer · Full Detail · Dialog 세 화면에서 같은 input · select · date picker 컴포넌트가 같은 시각·동작·layer를 보장한다”가 단일 원칙이다.
+            Form Mapping v1이 portal infrastructure와 token을 정의하고, Drawer Mapping v1은 그 위에서 동작하는 Drawer shell · footer · button · transition 기준을 정의한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Drawer / Full Detail Handoff Rule ── -->
+      <section id="s08" class="sec" data-screen-label="08 Full Detail Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Drawer / Full Detail Handoff Rule — “전체 보기” 전환 원칙</span>
+          <span class="sbadge guide">핸드오프</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Drawer가 좁아 답답할 때 사용자는 “전체 보기” 버튼으로 Full Detail에 넘어간다. Drawer와 Full Detail은 같은 데이터 · 같은 컴포넌트 · 같은 검증을 사용하며, 두 화면이 서로 다른 UI로 분기 구현되면 실패다. 본 섹션은 Drawer Mapping v1의 가장 핵심 규칙이다.</p>
+
+          <!-- handoff flow viz -->
+          <div class="flow-viz">
+            <div class="flow-card">
+              <span class="fc-step">Step 01 — Drawer</span>
+              <span class="fc-name">Drawer (Detail / Edit)</span>
+              <span class="fc-sub">우측 슬라이드 진입 · 컨텐츠 영역 ~40% · 같은 form 컴포넌트</span>
+              <span class="fc-tok">--drawer-width · --z-drawer (1100)</span>
+            </div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-card">
+              <span class="fc-step">Step 02 — Trigger</span>
+              <span class="fc-name">“전체 보기” 클릭</span>
+              <span class="fc-sub">Header 우측 또는 Footer 좌측 ghost button · dirty 시 confirm</span>
+              <span class="fc-tok">--btn-ghost-* · Dialog Mapping v1</span>
+            </div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-card">
+              <span class="fc-step">Step 03 — Full Detail</span>
+              <span class="fc-name">Full Detail (본문 영역 100%)</span>
+              <span class="fc-sub">Drawer 닫힘 · 본문 100% · 같은 데이터 · 같은 컴포넌트 · 같은 검증</span>
+              <span class="fc-tok">Form Mapping v1 · Button Mapping v1</span>
+            </div>
+          </div>
+
+          <div class="fm-cap" style="margin-top:18px;"><span class="fm-cap-n">④</span>Full Detail Handoff Rule <span class="fm-cap-sub">데이터 · 컴포넌트 · 검증 · 라우팅 · 복귀</span></div>
+
+          <div class="sync-grid">
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must</span>전체 보기 진입 원칙</div>
+              <ul>
+                <li>Drawer 하단(Footer 좌측) 또는 Header 우측에 <strong>“전체 보기”</strong> 버튼 제공</li>
+                <li>“전체 보기” 클릭 시 Drawer를 닫고 본문 영역의 Full Detail 화면으로 전환</li>
+                <li>Full Detail은 Drawer와 같은 데이터, 같은 Form 컴포넌트, 같은 validation 기준 사용</li>
+                <li>Detail Drawer에서 “수정” 클릭 시 별도 페이지 이동이 아니라 Drawer 내부 edit mode로 전환</li>
+                <li>Full Detail에서도 수정 모드 진입 시 Drawer와 같은 Select · Date Picker · Button 기준 유지</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must Not</span>전체 보기 금지 원칙</div>
+              <ul>
+                <li>Drawer와 Full Detail이 서로 다른 UI로 보이면 <strong>실패</strong></li>
+                <li>Drawer 안 input과 Full Detail 안 input의 시각·동작이 다르면 <strong>실패</strong></li>
+                <li>Drawer 전용 form / Full Detail 전용 form을 별도로 만들지 않음</li>
+                <li>저장 로직과 데이터 필드명은 변경하지 않음 (UI 레이어만)</li>
+                <li>dirty 상태에서 “전체 보기” 클릭 시 확인 없이 데이터가 손실되면 <strong>실패</strong></li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">State</span>상태·값 이동 원칙</div>
+              <ul>
+                <li>Drawer에서 입력 중이던 field value는 Full Detail로 이동 시 그대로 유지</li>
+                <li>Drawer에서의 edit / detail mode는 Full Detail에서도 동일하게 유지</li>
+                <li>Drawer dirty 상태는 Full Detail로 넘어가서도 dirty 상태로 유지</li>
+                <li>scroll 위치는 초기화 (Full Detail은 본문 최상단부터 시작)</li>
+                <li>focus는 Full Detail의 첫 입력 또는 “수정” 버튼으로 설정</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Back</span>Full Detail → Drawer 복귀</div>
+              <ul>
+                <li>Full Detail에는 “목록으로” 또는 “닫기” 버튼이 있으며 List로 복귀</li>
+                <li>Full Detail에서 다시 Drawer로 강제 전환하는 경로는 만들지 않음 (혼란 방지)</li>
+                <li>List 복귀 시 사용자가 원하면 같은 항목을 다시 Drawer로 열 수 있음</li>
+                <li>URL은 List · Drawer · Full Detail 세 상태를 구분할 수 있어야 함 (Decision Needed)</li>
+                <li>저장 후 Drawer는 close · Full Detail은 detail mode로 머무름</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="rule-grid" style="margin-top:14px;">
+            <div class="rule-card">
+              <div class="rc-hdr">dirty 시 “전체 보기” 처리</div>
+              <ul>
+                <li>dirty 상태에서 “전체 보기” 클릭 → confirm dialog 노출</li>
+                <li>confirm dialog는 Dialog Mapping v1의 Confirm Dialog 사용 (Drawer 위)</li>
+                <li>사용자가 “계속”을 누르면 입력값을 Full Detail로 이동하며 dirty 유지</li>
+                <li>사용자가 “취소”를 누르면 Drawer 유지 · Full Detail 전환 취소</li>
+                <li>입력값 손실 없이 이동 (값 보존) — Drawer/Full Detail 같은 store / state 공유</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">버튼 위치 / 라벨</div>
+              <ul>
+                <li>“전체 보기” 버튼은 Footer 좌측(Ghost) 권장 — 우측 액션과 분리</li>
+                <li>대안: Header 우측 Close 버튼 옆에 외부 링크 icon (Decision Needed)</li>
+                <li>라벨은 “전체 보기” 또는 “자세히 보기” — “상세” 단어는 Detail Drawer와 혼동 회피</li>
+                <li>Detail Drawer의 “수정” 버튼은 Drawer 안 edit mode 전환 — 별도 페이지 이동 아님</li>
+                <li>한 화면에서 두 버튼이 같은 라벨로 다른 동작을 하지 않음</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">QA 회귀 판정</div>
+              <ul>
+                <li>Drawer에서 입력 후 “전체 보기” → Full Detail에 같은 값 유지 → <strong>PASS</strong></li>
+                <li>Drawer Select / Date Picker UI가 Full Detail Select / Date Picker와 동일 → <strong>PASS</strong></li>
+                <li>저장 후 Drawer · Full Detail 모두 같은 데이터로 보임 → <strong>PASS</strong></li>
+                <li>“전체 보기” 클릭 시 값이 초기화되면 <strong>FAIL</strong></li>
+                <li>Drawer와 Full Detail의 form padding · gap · label 위치가 다르면 <strong>FAIL</strong></li>
+                <li>dirty 상태에서 확인 없이 “전체 보기”되면 <strong>FAIL</strong></li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">저장 / 데이터 정합</div>
+              <ul>
+                <li>저장 API endpoint는 Drawer · Full Detail 동일</li>
+                <li>data field name은 Drawer · Full Detail 동일 (UI 레이어 변경 금지)</li>
+                <li>validation rule은 Form Token Mapping v1로 단일화 — 두 화면에서 같은 규칙</li>
+                <li>저장 후 toast 메시지는 두 화면 모두 동일 문구</li>
+                <li>저장 실패 에러 메시지도 두 화면 동일 — error UI는 Form Mapping v1</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Decision Needed — 전체 보기 버튼 위치 · URL 라우팅</strong>
+            (1) “전체 보기” 버튼을 Footer 좌측에 둘지, Header 우측 close 옆에 둘지 PM 결정 필요. 기본 후보는 <em>Footer 좌측 Ghost</em>.
+            (2) URL은 List · Drawer · Full Detail 세 상태를 분리할지(<code>?drawer=ID</code> / <code>/detail/ID</code>), 단일 URL로 통합할지 결정 필요. 기본 후보는 <em>분리</em> — 새로고침/공유 안정성.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Drawer Layer / Overlay Rule ── -->
+      <section id="s09" class="sec" data-screen-label="09 Layer Overlay">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Drawer Layer / Overlay Rule — z-index 순서 / 내부 popup</span>
+          <span class="sbadge guide">규칙</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Layer Token Mapping v1의 “Drawer는 Dialog 아래, Dropdown은 Drawer 위”의 원칙을 Drawer 측면에서 구체화한다. Drawer 내부 Select · Date Picker · Tooltip · Menu는 portal 렌더링으로 Drawer panel 뒤에 깔리지 않아야 한다.</p>
+
+          <!-- z-stack mini viz -->
+          <div class="zstack-mini">
+            <div class="zm-row lvl-dropdown"><span class="zm-num">1500</span><span class="zm-lbl">Dropdown / Calendar / Popover</span><span class="zm-tok">--z-dropdown · --z-calendar · --z-popover</span></div>
+            <div class="zm-row lvl-dialog"><span class="zm-num">1300</span><span class="zm-lbl">Dialog Panel</span><span class="zm-tok">--z-dialog</span></div>
+            <div class="zm-row lvl-dialog"><span class="zm-num">1200</span><span class="zm-lbl">Dialog Backdrop</span><span class="zm-tok">--z-dialog-backdrop</span></div>
+            <div class="zm-row lvl-drawer"><span class="zm-num">1100</span><span class="zm-lbl">Drawer Panel</span><span class="zm-tok">--z-drawer</span></div>
+            <div class="zm-row lvl-drawer"><span class="zm-num">1000</span><span class="zm-lbl">Drawer Backdrop</span><span class="zm-tok">--z-drawer-backdrop</span></div>
+            <div class="zm-row"><span class="zm-num">300</span><span class="zm-lbl">Topbar</span><span class="zm-tok">--z-topbar</span></div>
+            <div class="zm-row"><span class="zm-num">200</span><span class="zm-lbl">Sidebar</span><span class="zm-tok">--z-sidebar</span></div>
+            <div class="zm-row"><span class="zm-num">0</span><span class="zm-lbl">Base Content</span><span class="zm-tok">--z-base</span></div>
+          </div>
+
+          <div class="sync-grid" style="margin-top:14px;">
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must</span>z-index 순서 원칙</div>
+              <ul>
+                <li>Drawer backdrop은 base content / Topbar / Sidebar / Sticky 위까지 덮음 (<code>--z-drawer-backdrop</code> 1000)</li>
+                <li>Drawer panel은 Drawer backdrop 위 (<code>--z-drawer</code> 1100 &gt; <code>--z-drawer-backdrop</code> 1000)</li>
+                <li>Drawer 내부 Dropdown · Calendar · Popover는 Drawer panel 위 (<code>--z-dropdown</code> 1500 &gt; <code>--z-drawer</code> 1100)</li>
+                <li>Dialog는 Drawer 위 (<code>--z-dialog</code> 1300 &gt; <code>--z-drawer</code> 1100)</li>
+                <li>Dialog backdrop도 Drawer panel 위까지 덮음 (<code>--z-dialog-backdrop</code> 1200 &gt; <code>--z-drawer</code> 1100)</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must Not</span>z-index 금지 원칙</div>
+              <ul>
+                <li>Drawer CSS에 <code>z-index: 9999</code>, <code>z-index: 100</code> 같은 임의 숫자 사용 금지</li>
+                <li>모든 z-index는 Layer Token Mapping v1의 13개 token (<code>--z-base</code> ~ <code>--z-global-loading</code>) 중 하나만 사용</li>
+                <li>Drawer panel 안에 <code>overflow: hidden</code>이 있으면 내부 popup이 잘림 — portal로 회피</li>
+                <li>Drawer 내부 Select · Date Picker를 자식 DOM에 mount하면 stacking context에 갇혀 layer 매핑 무효</li>
+                <li>backdrop의 z-index를 panel과 같거나 위로 두면 panel이 backdrop에 가려짐</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Portal</span>portal 렌더링 원칙</div>
+              <ul>
+                <li>Drawer 내부 popup(Dropdown · Calendar · Popover · Menu)은 <strong>portal 렌더링</strong> — <code>document.body</code> 또는 별도 portal root에 mount</li>
+                <li>popup은 position fixed · viewport 좌표 기준으로 계산</li>
+                <li>Drawer 내부 scroll · resize 시 popup 위치 재계산</li>
+                <li>Drawer 자체와 popup은 별개 DOM tree에 있어도 사용자 시각으로는 같은 layer로 보임</li>
+                <li>Drawer · Full Detail · Dialog 모두 같은 portal root를 사용 — 일관성 보장</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Dialog</span>Drawer 위 Dialog · Toast 정책</div>
+              <ul>
+                <li>Drawer가 열려 있을 때 Dialog가 열리면 Dialog가 Drawer 위 (1300 &gt; 1100)</li>
+                <li>Dialog backdrop은 Drawer panel까지 dim 처리 (1200 &gt; 1100) — Drawer 인터랙션 차단</li>
+                <li>Drawer 안에서 발생한 confirm / 삭제 / 위험 액션은 Drawer 위에 Dialog로 띄움</li>
+                <li>Drawer 안에 inline confirm을 만들지 않음 — Dialog Mapping v1 재사용</li>
+                <li>Toast / Global Loading은 Drawer · Dialog 모두 위 (Toast 2000 · Loading 3000 후보) — Dialog 문서의 정책과 충돌하지 않음</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>overflow hidden으로 내부 popup을 잘라먹지 않는다</strong>
+            Drawer panel · body · form area · section group 어디에도 popup을 잘라먹는 <code>overflow: hidden</code>이 적용되면 안 된다.
+            scroll이 필요한 경우 body에만 한정해 적용하며, popup은 portal로 viewport에 mount되어 Drawer의 overflow 경계와 무관하게 표시된다.
+            이 원칙은 Form / Dialog Token Mapping v1의 portal 렌더링 원칙과 동일 — 세 문서는 같은 portal infrastructure를 전제한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S10 Drawer Button / Footer Rule ── -->
+      <section id="s10" class="sec" data-screen-label="10 Button Footer">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Drawer Button / Footer Rule — sticky footer 액션 정책</span>
+          <span class="sbadge guide">규칙</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Drawer Sticky Footer의 버튼 variant · 정렬 · 우선순위 · loading · disabled를 Button Token Mapping v1과 동일 토큰으로 정의한다. Primary / Secondary / Ghost / Danger 4종이 Footer 단일 정책을 따른다.</p>
+
+          <!-- footer viz -->
+          <div class="dfooter-viz">
+            <div class="dfooter-card">
+              <div class="df-hdr">기본 — Footer 좌측 Ghost + 우측 액션</div>
+              <div class="df-row split">
+                <span class="df-btn ghost">전체 보기</span>
+                <div style="display:flex;gap:8px;">
+                  <span class="df-btn">취소</span>
+                  <span class="df-btn primary">저장</span>
+                </div>
+              </div>
+              <div class="df-sub">Create · Edit Drawer의 footer 기본 — 좌측 Ghost(“전체 보기”) · 우측 Secondary + Primary</div>
+            </div>
+            <div class="dfooter-card">
+              <div class="df-hdr">Detail — 수정 + 닫기 + 전체 보기</div>
+              <div class="df-row split">
+                <span class="df-btn ghost">전체 보기</span>
+                <div style="display:flex;gap:8px;">
+                  <span class="df-btn">닫기</span>
+                  <span class="df-btn primary">수정</span>
+                </div>
+              </div>
+              <div class="df-sub">Detail Drawer — “수정”은 Drawer 내부 edit mode 전환 · 별도 페이지 이동 아님</div>
+            </div>
+            <div class="dfooter-card">
+              <div class="df-hdr">Saving — Primary loading</div>
+              <div class="df-row split">
+                <span class="df-btn ghost disabled">전체 보기</span>
+                <div style="display:flex;gap:8px;">
+                  <span class="df-btn disabled">취소</span>
+                  <span class="df-btn primary">저장 중…</span>
+                </div>
+              </div>
+              <div class="df-sub">saving 상태 — Primary loading · Secondary · Ghost disabled · close 차단 옵션</div>
+            </div>
+          </div>
+
+          <div class="fm-cap" style="margin-top:18px;"><span class="fm-cap-n">⑤</span>Footer Button Matrix <span class="fm-cap-sub">variant · 토큰 · 우선순위 · loading / disabled</span></div>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:14%;">Variant</th>
+                <th style="width:20%;">Usage (Drawer 시나리오)</th>
+                <th style="width:22%;">Required Tokens</th>
+                <th style="width:14%;">Position</th>
+                <th style="width:18%;">Loading / Disabled</th>
+                <th style="width:12%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn"><span class="dchip create">Primary</span></td>
+                <td>저장 · 등록 · 승인 · 적용</td>
+                <td>Button Mapping v1 <code>--btn-primary-*</code> 재사용</td>
+                <td>Footer 우측 끝</td>
+                <td>saving 시 loading spinner · disabled 시 hover 차단</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="dchip review">Secondary</span></td>
+                <td>취소 · 닫기 · 보류</td>
+                <td>Button Mapping v1 <code>--btn-secondary-*</code> · <code>--btn-ghost-*</code></td>
+                <td>Primary 좌측</td>
+                <td>saving 시 disabled (옵션) · dirty 시 enable 유지</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="dchip full">Ghost</span></td>
+                <td>전체 보기 · 상세 보기</td>
+                <td>Button Mapping v1 <code>--btn-ghost-*</code> · icon 토큰</td>
+                <td>Footer 좌측</td>
+                <td>saving 시 disabled · dirty 시 confirm 후 이동</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="dchip review">Danger</span></td>
+                <td>삭제 · 반려 · 초기화</td>
+                <td>Button Mapping v1 <code>--btn-danger-*</code> 재사용</td>
+                <td>Footer 우측 끝 (Primary 위치 대체) 또는 좌우 분리</td>
+                <td>saving 시 loading · 중복 클릭 차단 · Dialog 위에 confirm</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Close (X)</td>
+                <td>Header 우측 X 버튼</td>
+                <td>Button Mapping v1 <code>--btn-ghost-*</code> · icon 토큰</td>
+                <td>Header 우측 끝 (Footer 외)</td>
+                <td>saving 시 disabled 옵션 · dirty 시 confirm</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="rule-grid" style="margin-top:14px;">
+            <div class="rule-card">
+              <div class="rc-hdr">정렬 / 우선순위 원칙</div>
+              <ul>
+                <li>기본은 우측 정렬 — Secondary 좌 / Primary 우</li>
+                <li>“전체 보기” Ghost는 좌측 분리 — 우측 액션과 시각 분리</li>
+                <li>위험 액션(삭제 · 반려)은 좌우 분리 — 좌측 Ghost, 우측 Cancel + Danger</li>
+                <li>Footer에는 최대 4개 버튼 — 5개 이상은 menu로 묶음</li>
+                <li>Primary와 Danger는 동시에 표시하지 않음 — 위험 액션은 Primary를 Danger로 대체</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">loading / disabled 원칙</div>
+              <ul>
+                <li>Primary 클릭 → 즉시 saving 상태 진입 → 중복 클릭 차단</li>
+                <li>saving 중 Secondary · Ghost는 disabled · 또는 enable 유지 (Cancel 가능 시)</li>
+                <li>Danger 액션은 Dialog Mapping v1의 Danger Confirm으로 보호 — 중복 클릭 차단 필수</li>
+                <li>Form validation 미통과 시 Primary disabled · Enter 키 trigger 차단</li>
+                <li>disabled 버튼은 cursor not-allowed · 클릭 시 시각 변화 없음</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">시나리오별 footer 구성</div>
+              <ul>
+                <li>Create — “전체 보기” + “취소” + “등록” (Primary)</li>
+                <li>Edit — “전체 보기” + “취소” + “저장” (Primary)</li>
+                <li>Detail — “전체 보기” + “닫기” + “수정” (Primary)</li>
+                <li>Review / Approval — “전체 보기” + “반려”(Danger) + “승인”(Primary)</li>
+                <li>Filter — “초기화”(Ghost) + “취소” + “적용” (Primary)</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">중복 클릭 방지</div>
+              <ul>
+                <li>Primary 클릭 즉시 saving 진입 — 다음 클릭은 무시</li>
+                <li>저장 / 등록 / 승인 모두 idempotency key 또는 disabled로 차단</li>
+                <li>API 응답까지 Primary loading 유지</li>
+                <li>응답 후 saved → toast → close 또는 detail mode 전환</li>
+                <li>error → Primary 라벨 “다시 시도” 옵션 · 자동 close 금지</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Button Token Mapping v1과의 정합</strong>
+            본 Rule은 Button Token Mapping v1의 5종 variant (Primary / Secondary / Danger / Ghost / Text)를 Drawer Sticky Footer에 1:1 매핑한다.
+            Drawer 전용 button 변형을 만들지 않으며, 모든 버튼은 Button Mapping v1 토큰만 사용한다.
+            footer 자체의 padding · height · gap만 Drawer 토큰 (<code>--drawer-padding</code> · <code>--drawer-footer-height</code> · <code>--drawer-section-gap</code>)으로 정의한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S11 Accessibility / Interaction Rule ── -->
+      <section id="s11" class="sec" data-screen-label="11 Accessibility">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Accessibility / Interaction Rule — ESC · backdrop · dirty · focus</span>
+          <span class="sbadge guide">A11y</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Drawer는 본문을 dim 처리하고 사용자 집중을 부분 강제하는 UI이므로 ESC · backdrop click · dirty 확인 · focus trap · 초기 focus · 복귀 focus · 다크모드 대비가 모두 정의되어야 한다.</p>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:18%;">Rule</th>
+                <th style="width:22%;">Spec</th>
+                <th style="width:30%;">동작 기준</th>
+                <th style="width:18%;">Variant 별 분기</th>
+                <th style="width:12%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn">ESC 키</td>
+                <td>가장 위 Drawer만 close</td>
+                <td>popup 열려있으면 popup만 close · 두 번째 ESC에서 Drawer close · dirty 시 confirm</td>
+                <td>saving 중 ESC 차단 옵션 · Detail Drawer는 즉시 close</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">backdrop click</td>
+                <td>backdrop 클릭 시 close</td>
+                <td>Detail / Filter는 즉시 close · Create / Edit는 dirty 시 confirm · Review / Approval은 차단 옵션</td>
+                <td>variant 별 분기 필수</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">dirty 닫기 확인</td>
+                <td>변경 사항 있을 시 close 전 확인</td>
+                <td>ESC · backdrop click · Close · 전체 보기 네 경로에서 모두 confirm 노출</td>
+                <td>Create / Edit / Review / Approval 적용 · Detail / Filter 제외</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">focus trap</td>
+                <td>Drawer 내부 focus 가둠</td>
+                <td>Tab / Shift+Tab이 Drawer 밖으로 빠지지 않음 · 마지막 → 첫 · 첫 → 마지막 순환</td>
+                <td>모든 variant 공통</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">role="dialog"</td>
+                <td>aria role 명시</td>
+                <td>Drawer panel에 role="dialog" 또는 role="region" + aria-modal</td>
+                <td>모든 variant 공통 (Decision Needed)</td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+              <tr>
+                <td class="tn">aria-modal</td>
+                <td>modal 플래그</td>
+                <td>Drawer panel에 aria-modal="true" · 본문 inert</td>
+                <td>모든 variant 공통</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">aria-labelledby</td>
+                <td>Title 연결</td>
+                <td>Drawer panel의 aria-labelledby를 Header Title 요소 id로 연결</td>
+                <td>모든 variant 공통</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Close aria-label</td>
+                <td>Close 버튼 aria-label</td>
+                <td>“닫기” 또는 “Drawer 닫기” — icon-only 버튼은 aria-label 필수</td>
+                <td>모든 variant 공통</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">전체 보기 라벨</td>
+                <td>Full Detail 버튼 라벨 명확화</td>
+                <td>“전체 보기” 또는 “자세히 보기” — “상세” 단어는 Detail Drawer와 혼동 회피</td>
+                <td>모든 variant 공통</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">keyboard tab order</td>
+                <td>Tab 키 이동 순서</td>
+                <td>Header Close → Header 전체 보기(있을 시) → Body 첫 입력 → … → Footer Ghost → Footer Secondary → Footer Primary</td>
+                <td>Close는 tab order 포함 또는 제외 결정 필요</td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+              <tr>
+                <td class="tn">initial focus</td>
+                <td>open 시 초기 focus 위치</td>
+                <td>Create — 첫 입력 · Edit — 첫 입력 · Detail — Close 또는 “수정” · Review — 첫 입력 · Filter — 첫 입력</td>
+                <td>variant 별 분기 필수</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">restore focus</td>
+                <td>close 시 focus 복귀</td>
+                <td>Drawer open trigger 요소로 복귀 (List row · 등록 버튼) · trigger가 사라졌으면 body로 fallback</td>
+                <td>모든 variant 공통</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">스크린리더 heading</td>
+                <td>Drawer 시작 알림</td>
+                <td>Header Title을 H레벨로 단일 노출 · Meta Area는 보조 텍스트</td>
+                <td>모든 variant 공통</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">focus outline 유지</td>
+                <td>focus 시각 표시</td>
+                <td>모든 focusable 요소에 visible outline 유지 — outline 제거 금지</td>
+                <td>모든 variant 공통</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">다크모드 대비</td>
+                <td>light / dark 대비비</td>
+                <td>backdrop · panel · text · border 모두 light / dark 두 테마에서 WCAG AA 이상</td>
+                <td>모든 variant 공통</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="rule-grid" style="margin-top:14px;">
+            <div class="rule-card">
+              <div class="rc-hdr">ESC / backdrop click variant</div>
+              <ul>
+                <li>Detail / Filter — ESC close · backdrop click close (dirty 없음)</li>
+                <li>Create / Edit — ESC · backdrop click 시 dirty 있으면 confirm</li>
+                <li>Review / Approval — ESC close · backdrop click <strong>차단 옵션</strong> (실수 dismiss 방지)</li>
+                <li>Comment — ESC close · backdrop click close (편집 중이면 confirm)</li>
+                <li>saving 중 — ESC · backdrop click 모두 차단 옵션 (race condition)</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">dirty 확인 dialog</div>
+              <ul>
+                <li>dirty 시 close trigger → Confirm Dialog (Dialog Mapping v1)로 “변경사항이 저장되지 않았습니다”</li>
+                <li>버튼: “계속 작성” · “나가기” — Primary는 “계속 작성” (안전 액션)</li>
+                <li>“나가기” 선택 시 Drawer close · 입력값 폐기</li>
+                <li>“계속 작성” 선택 시 Drawer 유지 · focus 복귀</li>
+                <li>“전체 보기” 경로에서는 “이동” / “취소” · “이동” 시 입력값 보존하며 Full Detail로 이동 (Section 08)</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">focus trap 세부 원칙</div>
+              <ul>
+                <li>open 시 trap 활성 — close 시 즉시 해제</li>
+                <li>Drawer 내부 popup이 portal로 body 직속에 mount된 경우 trap을 일시 확장</li>
+                <li>popup 닫힘 시 focus는 popup trigger로 복귀 (Drawer 자체로 빠지지 않음)</li>
+                <li>Drawer 위에서 Dialog 열림 시 Dialog만 trap 활성 · Drawer는 inert</li>
+                <li>Dialog close 시 Drawer trap 복귀 · Drawer 내부 원래 focus로 복귀</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">스크롤 / body lock</div>
+              <ul>
+                <li>Drawer open 시 body scroll lock — <code>body { overflow: hidden }</code></li>
+                <li>scrollbar gutter 보정 — layout shift 방지</li>
+                <li>Drawer close 시 즉시 lock 해제</li>
+                <li>Drawer 위에서 Dialog 열렸을 때 body lock은 한 번만 적용</li>
+                <li>iOS Safari touch scroll 차단 정책 검토 필요 — Dialog Mapping v1과 동일</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Decision Needed — role="dialog" vs role="region" · keyboard tab order의 Close 포함</strong>
+            (1) Drawer panel의 aria role을 <code>role="dialog"</code>로 둘지 <code>role="region"</code>으로 둘지 결정 필요. 기본 후보는 <code>role="dialog"</code> + <code>aria-modal="true"</code>.
+            (2) Header의 Close (X) 버튼을 keyboard tab order에 포함할지 제외할지 결정 필요. 기본 후보는 “포함” (접근성 우선).
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S12 Do / Don't ── -->
+      <section id="s12" class="sec" data-screen-label="12 Do Don't">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Do / Don't — 구현 원칙</span>
+          <span class="sbadge guide">원칙</span>
+        </div>
+        <div class="sec-body">
+          <div class="dd-grid">
+            <div class="dd-col good">
+              <div class="dd-hdr">Do</div>
+              <ul>
+                <li>Drawer · Full Detail 컴포넌트 기준 통일 — 같은 데이터 / 같은 컴포넌트 / 같은 검증</li>
+                <li>token 기반 구현 — <code>--drawer-*</code> 15종 토큰만 사용</li>
+                <li>Form · Button · Layer · Dialog mapping 재사용 — Drawer 전용 변형 금지</li>
+                <li>Drawer 내부와 Full Detail 동시 QA — 같은 form · 같은 popup 검증</li>
+                <li>1440 / 1600 / 1920 가로 폭 QA — width 권장 후보 검증</li>
+                <li>Drawer 내부 popup은 portal 렌더링 — Drawer panel 위에 표시</li>
+                <li>dirty 상태에서 close · backdrop click · 전체 보기 시 confirm — 입력값 보호</li>
+                <li>Drawer 위에서 confirm / 삭제 / 위험 액션은 Dialog로 띄움 — Drawer 안 inline 금지</li>
+                <li>Primary 클릭 후 즉시 saving 진입 — 중복 클릭 차단</li>
+                <li>light · dark 동시 QA — backdrop · panel · shadow 양 테마에서 명확</li>
+              </ul>
+            </div>
+            <div class="dd-col bad">
+              <div class="dd-hdr">Don't</div>
+              <ul>
+                <li>Drawer 전용 Form을 따로 만들기 — Form Mapping v1 컴포넌트 재사용</li>
+                <li>Full Detail에서 native <code>&lt;select&gt;</code> · <code>&lt;input type="date"&gt;</code>로 회귀 — STAM custom 컴포넌트 사용</li>
+                <li>z-index 숫자(<code>9999</code>, <code>100</code>, <code>1</code>)를 임의 지정 — Layer Mapping v1 token만 사용</li>
+                <li>overflow hidden으로 popup 자르기 — portal 렌더링 강제</li>
+                <li>저장 로직 / 데이터 필드명을 디자인 작업에서 변경 — Drawer는 UI 레이어만</li>
+                <li>전체 Drawer variant를 한 번에 구현 — 하나씩 제한 구현 (첫 구현은 layout 또는 handoff)</li>
+                <li>Drawer와 Full Detail이 서로 다른 UI로 보이게 분기 구현</li>
+                <li>dirty 상태에서 확인 없이 close · 전체 보기로 입력값 손실</li>
+                <li>focus outline 제거(<code>outline: none</code>) — 접근성 위반</li>
+                <li>Drawer 안에서 confirm을 inline으로 처리 — Dialog Mapping v1 사용</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S13 Implementation Gate Checklist ── -->
+      <section id="s13" class="sec" data-screen-label="13 Gate Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Implementation Gate Checklist — CSS 구현 진입 전 점검</span>
+          <span class="sbadge lock">Gate</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아래 항목이 모두 확정될 때까지 <code>stam.tokens.css</code>에 drawer 토큰 추가, <code>stam.components.css</code>에 drawer 클래스 작성, JS focus trap / dirty 추적 / handoff 구현을 진입하지 않는다.</p>
+
+          <div class="gate-grid">
+            <div class="gate-step">
+              <span class="gs-n">01</span>
+              <span class="gs-body">Drawer Token Mapping v1 본 문서 승인
+                <span class="gs-sub">PM · 디자인 · 개발 3자 합의 — 11개 scope · 11개 structure · 15개 token candidate 확정</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">02</span>
+              <span class="gs-body">Form Token Mapping v1 승인 (선행)
+                <span class="gs-sub">Input · Select · Date Picker token 동결 + portal 렌더링 원칙 동결 — Drawer 내부 form 재사용</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">03</span>
+              <span class="gs-body">Layer Token Mapping v1 승인 (선행)
+                <span class="gs-sub"><code>--z-drawer-backdrop</code> 1000 · <code>--z-drawer</code> 1100 · <code>--z-dialog-backdrop</code> 1200 · <code>--z-dialog</code> 1300 · <code>--z-dropdown</code> 1500 동결</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">04</span>
+              <span class="gs-body">Dialog Token Mapping v1과 layer 충돌 없음 확인
+                <span class="gs-sub">Drawer 위 Dialog 정책 (Dialog backdrop이 Drawer panel까지 dim) 정합 확인</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">05</span>
+              <span class="gs-body">Button Token Mapping v1 승인 (선행)
+                <span class="gs-sub">Primary · Secondary · Danger · Ghost · Text variant 5종 동결 — Drawer footer 재사용</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">06</span>
+              <span class="gs-body">Drawer width 기준 승인
+                <span class="gs-sub">1920 → 760 · 1600 → 640 · 1440 → 560 · 1280 → 480 · &lt; 1280 → 100vw · fullscreen breakpoint (1024 후보) PM 결정</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">07</span>
+              <span class="gs-body">Full Detail Handoff Rule 승인
+                <span class="gs-sub">Section 08 — 같은 데이터 · 같은 컴포넌트 · 같은 검증 · 값 보존 · dirty 확인 · 전체 보기 버튼 위치 · URL 라우팅 PM 결정</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">08</span>
+              <span class="gs-body">수정 허용 파일 범위 확정
+                <span class="gs-sub"><code>stam/css/stam.tokens.css</code> · <code>stam/css/stam.components.css</code> · 필요 시 drawer 전용 JS 파일 1개만 허용</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">09</span>
+              <span class="gs-body">Drawer만 제한 구현
+                <span class="gs-sub">첫 구현은 <strong>Drawer layout</strong> 또는 <strong>Full Detail handoff</strong> 중 하나에 한정 — 둘 다 동시 구현 금지</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">10</span>
+              <span class="gs-body">Dialog / Table 동시 수정 금지
+                <span class="gs-sub">Drawer 구현 중 Dialog · Table · Form · Layer 수정 금지 — 한 번에 Drawer만</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">11</span>
+              <span class="gs-body">Select / Date Picker 공통 init 함수 기준 확정
+                <span class="gs-sub">Drawer · Full Detail · Dialog 세 화면에서 같은 컴포넌트 / 같은 portal init / 같은 z-index 사용 보장</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">12</span>
+              <span class="gs-body">Accessibility 정책 승인
+                <span class="gs-sub">Section 11 ESC · backdrop click · dirty 확인 · focus trap · 초기 focus · 복귀 focus · role / tab order Close 포함 PM 결정</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S14 Cursor Handoff Notes ── -->
+      <section id="s14" class="sec" data-screen-label="14 Cursor Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Cursor Handoff Notes — 구현 핸드오프 기준</span>
+          <span class="sbadge guide">핸드오프</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Section 13 Gate가 통과되면, 아래 기준으로 Cursor에게 Drawer 구현 단위를 넘긴다.</p>
+
+          <div class="rule-grid">
+            <div class="rule-card">
+              <div class="rc-hdr">첫 구현 대상 · 범위</div>
+              <ul>
+                <li><strong>첫 구현은 Drawer layout 또는 Full Detail handoff 중 하나만</strong> — Create / Edit / Detail / Review / Approval / Comment / Filter는 후속</li>
+                <li>한 번에 하나의 단위만 — Dialog · Table · Form · Layer 동시 수정 금지</li>
+                <li>수정 허용 파일: <code>stam/css/stam.tokens.css</code> · <code>stam/css/stam.components.css</code> · Drawer 전용 JS 파일 1개</li>
+                <li><code>stam/pages/**</code> · <code>stam/index.html</code> · <code>stam/assets/**</code> · <code>_ds/**</code> · <code>uploads/**</code> 수정 금지</li>
+                <li>저장 API / 데이터 구조 변경 금지 — Drawer는 UI 레이어만</li>
+                <li>Firebase / GitHub Actions / package*.json 변경 금지</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">구현 시 원칙</div>
+              <ul>
+                <li>Drawer · Form · Button · Layer · Dialog Mapping 기준 준수 — 별도 토큰 추가 금지</li>
+                <li>Section 06의 15개 token 외 어떤 drawer 토큰도 추가하지 않음</li>
+                <li>Suggested Value는 본 문서 후보값 그대로 사용 — 변경이 필요하면 v2 합의</li>
+                <li>Drawer 내부 input · select · date picker는 Form Mapping v1 컴포넌트만 사용</li>
+                <li>Drawer footer 버튼은 Button Mapping v1 variant만 사용</li>
+                <li>z-index는 Layer Mapping v1 token만 사용 — 임의 숫자 금지</li>
+                <li>Drawer / Full Detail은 같은 form store / state를 공유</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">QA 기준</div>
+              <ul>
+                <li><code>git diff</code> 확인 — 허용 파일 외 변경 없음</li>
+                <li>light / dark 동시 QA — backdrop · panel · shadow 양 테마에서 명확</li>
+                <li>Drawer open / close transition QA — 180~240ms · 깨짐 없음</li>
+                <li>Drawer → Full Detail 전환 QA — 같은 데이터 · 같은 컴포넌트 · 값 보존</li>
+                <li>Full Detail → 수정 모드 QA — Drawer와 동일 input / select / date picker</li>
+                <li>Drawer 내부 Select / Date Picker popup QA — Drawer panel 위에 표시 · scroll에 잘리지 않음</li>
+                <li>1440 / 1600 / 1920 가로 폭에서 페이지 레벨 가로 스크롤 없음</li>
+                <li>staging 배포 후 URL (<code>https://stam-design-staging.web.app/</code>)에서 QA 진행</li>
+                <li>Drawer 위에서 Dialog 열리는 시나리오 QA — Dialog backdrop이 Drawer panel까지 dim 처리</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">롤백 기준</div>
+              <ul>
+                <li>Docs 또는 제품 화면에서 Drawer 회귀 1건 이상 발생 시 즉시 revert</li>
+                <li>토큰명 충돌(기존 <code>--btn-*</code>, <code>--input-*</code>, <code>--z-*</code> 등) 발생 시 본 문서 v2로 재합의</li>
+                <li>Drawer 내부 popup이 panel 뒤로 깔리면 즉시 revert</li>
+                <li>light / dark 중 한 테마에서만 깨질 경우 즉시 revert</li>
+                <li>native select · date input 회귀가 1건이라도 발견되면 즉시 revert</li>
+                <li>dirty 상태에서 확인 없이 close · 전체 보기로 입력값 손실되면 즉시 revert</li>
+                <li>Drawer와 Full Detail의 form / popup이 다른 컴포넌트로 분기되면 즉시 revert</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>핸드오프 시 명시 사항</strong>
+            본 문서는 매핑 기준 문서이며, CSS·JS·페이지·자산 변경 권한을 포함하지 않는다.
+            Cursor는 Section 03 Structure · Section 04 Width / Layout · Section 05 State · Section 06 Token Mapping · Section 07–11 Rule만 코드로 옮기며,
+            새로운 토큰명·값을 임의로 추가하거나, Drawer variant마다 별도 변형 컴포넌트를 만들지 않는다.
+            저장 / 삭제 API · 데이터 구조 · 필드명 변경은 Drawer 디자인 작업 범위에 포함되지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S15 Related Links ── -->
+      <section id="s15" class="sec" data-screen-label="15 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">Related Links — 참고 문서</span>
+          <span class="sbadge guide">관련</span>
+        </div>
+        <div class="sec-body">
+          <div class="rel-grid">
+            <a class="rel-card" href="STAM-Docs-Index.html">
+              <span class="rl-title">STAM Docs Index</span>
+              <span class="rl-sub">전체 기준 문서 인덱스</span>
+            </a>
+            <a class="rel-card" href="STAM-CSS-Token-Readiness-Check.html">
+              <span class="rl-title">CSS Token Readiness Check</span>
+              <span class="rl-sub">12 카테고리 토큰 준비상태 점검</span>
+            </a>
+            <a class="rel-card" href="STAM-Token-Inventory-v1.html">
+              <span class="rl-title">Token Inventory v1</span>
+              <span class="rl-sub">P0 / P1 / P2 토큰 후보 목록</span>
+            </a>
+            <a class="rel-card" href="STAM-Button-Token-Mapping-v1.html">
+              <span class="rl-title">Button Token Mapping v1</span>
+              <span class="rl-sub">Button variant × size × state 토큰 매핑 (선행)</span>
+            </a>
+            <a class="rel-card" href="STAM-Form-Token-Mapping-v1.html">
+              <span class="rl-title">Form Token Mapping v1</span>
+              <span class="rl-sub">Input · Select · Date Picker 토큰 매핑 (선행)</span>
+            </a>
+            <a class="rel-card" href="STAM-Layer-Token-Mapping-v1.html">
+              <span class="rl-title">Layer Token Mapping v1</span>
+              <span class="rl-sub">Topbar · Drawer · Dialog · Dropdown z-index 매핑 (선행)</span>
+            </a>
+            <a class="rel-card" href="STAM-Dialog-Token-Mapping-v1.html">
+              <span class="rl-title">Dialog Token Mapping v1</span>
+              <span class="rl-sub">Alert · Confirm · Danger · Form Dialog 매핑 (선행)</span>
+            </a>
+            <a class="rel-card" href="STAM-Component-Guide.html">
+              <span class="rl-title">Component Guide</span>
+              <span class="rl-sub">컴포넌트 전체 인덱스 · 공통 규칙</span>
+            </a>
+            <a class="rel-card" href="components/STAM-Drawer-Guide.html">
+              <span class="rl-title">Drawer Guide</span>
+              <span class="rl-sub">Drawer Anatomy · Tab Structure · 스크롤</span>
+            </a>
+            <a class="rel-card" href="components/STAM-Form-Guide.html">
+              <span class="rl-title">Form Guide</span>
+              <span class="rl-sub">Input · Select · Date Picker · Calendar popup</span>
+            </a>
+            <a class="rel-card" href="components/STAM-Dialog-Guide.html">
+              <span class="rl-title">Dialog Guide</span>
+              <span class="rl-sub">Dialog Anatomy · Confirm · Alert · Focus Trap</span>
+            </a>
+            <a class="rel-card" href="STAM-UI-Baseline-Guide.html">
+              <span class="rl-title">UI Baseline Guide</span>
+              <span class="rl-sub">폰트 · 레이아웃 · Forbidden Rules 기준</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
