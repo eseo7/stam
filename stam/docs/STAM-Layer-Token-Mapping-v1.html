@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Layer Token Mapping v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ── Layer Token Mapping v1 전용 보조 스타일 (이 문서 안에서만 사용) ── */
+
+/* status pill */
+.spill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-family: var(--font);
+  white-space: nowrap;
+}
+.spill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.spill.ready    { background: var(--pass-bg); color: var(--pass); }
+.spill.partial  { background: var(--warn-bg); color: var(--warn); }
+.spill.missing  { background: var(--fail-bg); color: var(--fail); }
+.spill.decide   { background: var(--purple-bg); color: var(--purple); }
+.spill.candidate{ background: var(--info-bg); color: var(--info); }
+.spill.hold     { background: var(--skip-bg); color: var(--skip); }
+
+/* priority pill */
+.ppill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  font-family: var(--font);
+  white-space: nowrap;
+}
+.ppill::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.ppill.p0 { background: var(--fail-bg); color: var(--fail); }
+.ppill.p1 { background: var(--warn-bg); color: var(--warn); }
+.ppill.p2 { background: var(--info-bg); color: var(--info); }
+
+/* layer type chip */
+.lchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  font-family: var(--font);
+  white-space: nowrap;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  color: var(--t1);
+}
+.lchip.base     { background: var(--bg-sur2);   color: var(--t2);     border-color: var(--bd); }
+.lchip.sticky   { background: var(--info-bg);   color: var(--info);   border-color: transparent; }
+.lchip.shell    { background: var(--skip-bg);   color: var(--skip);   border-color: transparent; }
+.lchip.popup    { background: var(--purple-bg); color: var(--purple); border-color: transparent; }
+.lchip.drawer   { background: var(--info-bg);   color: var(--info);   border-color: transparent; }
+.lchip.dialog   { background: var(--warn-bg);   color: var(--warn);   border-color: transparent; }
+.lchip.toast    { background: var(--pass-bg);   color: var(--pass);   border-color: transparent; }
+.lchip.loading  { background: var(--fail-bg);   color: var(--fail);   border-color: transparent; }
+.lchip.backdrop { background: var(--bg-sur);    color: var(--t3);     border-color: var(--bd); }
+
+/* generic mapping table */
+.fm-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font);
+  font-size: 11.5px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.fm-tbl th {
+  padding: 9px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  text-align: left;
+  color: var(--t3);
+  border-bottom: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.fm-tbl td {
+  padding: 10px;
+  border-bottom: 1px solid var(--bd);
+  color: var(--t2);
+  vertical-align: top;
+  line-height: 1.6;
+}
+.fm-tbl tbody tr:last-child td { border-bottom: none; }
+.fm-tbl td.tn {
+  color: var(--t1);
+  font-weight: 700;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.fm-tbl td code {
+  font-family: var(--font);
+  font-size: 10.5px;
+  color: var(--t1);
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 1px 6px;
+  letter-spacing: .005em;
+  white-space: nowrap;
+}
+.fm-tbl td.note { color: var(--t3); font-size: 10.5px; }
+.fm-tbl td.zval {
+  font-weight: 800;
+  color: var(--stam);
+  white-space: nowrap;
+}
+
+.fm-wrap { overflow-x: auto; }
+.fm-tbl  { min-width: 880px; }
+
+/* caption */
+.fm-cap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t1);
+  letter-spacing: -.005em;
+}
+.fm-cap .fm-cap-n {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--stam-soft);
+  color: var(--stam);
+  font-size: 10.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.fm-cap-sub {
+  font-size: 10.5px;
+  color: var(--t3);
+  font-weight: 500;
+  letter-spacing: 0;
+  margin-left: 4px;
+}
+
+/* scope cards grid */
+.scope-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+@media (max-width: 1100px) { .scope-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px)  { .scope-grid { grid-template-columns: 1fr; } }
+
+.scope-card {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.scope-card .sc-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--t1);
+  letter-spacing: -.005em;
+}
+.scope-card .sc-sub {
+  font-size: 10.5px;
+  color: var(--t3);
+  line-height: 1.55;
+  letter-spacing: .005em;
+}
+.scope-card .sc-z {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--stam);
+  letter-spacing: .02em;
+  margin-top: 2px;
+}
+
+/* gate / step */
+.gate-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (max-width: 760px) { .gate-grid { grid-template-columns: 1fr; } }
+.gate-step {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.gate-step .gs-n {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--stam-soft);
+  color: var(--stam);
+  font-size: 10.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: .02em;
+}
+.gate-step .gs-body {
+  flex: 1 1 auto;
+  font-size: 12px;
+  color: var(--t1);
+  line-height: 1.55;
+  font-weight: 600;
+}
+.gate-step .gs-sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 10.5px;
+  color: var(--t3);
+  font-weight: 500;
+  letter-spacing: .01em;
+}
+.gate-step .gs-sub code {
+  font-family: var(--font);
+  font-size: 10px;
+  color: var(--t1);
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 0 5px;
+}
+
+/* rule grid */
+.rule-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (max-width: 760px) { .rule-grid { grid-template-columns: 1fr; } }
+.rule-card {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+}
+.rule-card .rc-hdr {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--t1);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rule-card .rc-hdr::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--stam);
+  display: inline-block;
+}
+.rule-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.rule-card li {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--t2);
+  padding-left: 12px;
+  position: relative;
+}
+.rule-card li::before {
+  content: "·";
+  position: absolute;
+  left: 2px;
+  top: -2px;
+  color: var(--t3);
+  font-weight: 800;
+}
+.rule-card li code {
+  font-family: var(--font);
+  font-size: 10.5px;
+  color: var(--t1);
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+/* do / don't grid */
+.dd-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 760px) { .dd-grid { grid-template-columns: 1fr; } }
+.dd-col {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+}
+.dd-col.good { border-color: rgba(0,191,64,.22); }
+.dd-col.bad  { border-color: rgba(255,66,66,.22); }
+.dd-col .dd-hdr {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.dd-col.good .dd-hdr { color: var(--pass); }
+.dd-col.bad  .dd-hdr { color: var(--fail); }
+.dd-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dd-col li {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--t2);
+  padding-left: 14px;
+  position: relative;
+}
+.dd-col.good li::before { content: "✓"; position: absolute; left: 0; color: var(--pass); font-weight: 800; }
+.dd-col.bad  li::before { content: "✕"; position: absolute; left: 0; color: var(--fail); font-weight: 800; }
+.dd-col li code {
+  font-family: var(--font);
+  font-size: 10.5px;
+  color: var(--t1);
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+/* sync rule highlight box */
+.sync-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 760px) { .sync-grid { grid-template-columns: 1fr; } }
+.sync-col {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+}
+.sync-col .sy-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--t1);
+}
+.sync-col .sy-hdr .sy-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: .04em;
+  background: var(--stam-soft);
+  color: var(--stam);
+  text-transform: uppercase;
+}
+.sync-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sync-col li {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--t2);
+  padding-left: 14px;
+  position: relative;
+}
+.sync-col li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--stam);
+  font-weight: 800;
+}
+.sync-col li code {
+  font-family: var(--font);
+  font-size: 10.5px;
+  color: var(--t1);
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+/* layer stack visualization — 시각적으로 z-index 계층 표시 */
+.zstack {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px dashed var(--bd-s);
+  background: var(--bg-sur);
+  border-radius: var(--r-md);
+}
+.zstack-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--t1);
+  position: relative;
+}
+.zstack-row .zr-num {
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--stam);
+  background: var(--stam-soft);
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: .03em;
+  white-space: nowrap;
+}
+.zstack-row .zr-label {
+  flex: 1 1 auto;
+  letter-spacing: -.005em;
+}
+.zstack-row .zr-token {
+  font-family: var(--font);
+  font-size: 10px;
+  color: var(--t3);
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.zstack-row.top    { margin-left: 0%; }
+.zstack-row.l1     { margin-left: 2%; }
+.zstack-row.l2     { margin-left: 4%; }
+.zstack-row.l3     { margin-left: 6%; }
+.zstack-row.l4     { margin-left: 8%; }
+.zstack-row.l5     { margin-left: 10%; }
+.zstack-row.l6     { margin-left: 12%; }
+.zstack-row.l7     { margin-left: 14%; }
+.zstack-row.l8     { margin-left: 16%; }
+.zstack-row.l9     { margin-left: 18%; }
+.zstack-row.l10    { margin-left: 20%; }
+.zstack-row.l11    { margin-left: 22%; }
+.zstack-row.l12    { margin-left: 24%; }
+.zstack-row.l13    { margin-left: 26%; }
+
+/* collision matrix — 두 레이어가 동시에 떠 있을 때의 순서 */
+.cm-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font);
+  font-size: 11px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  min-width: 720px;
+}
+.cm-tbl th, .cm-tbl td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--bd);
+  border-right: 1px solid var(--bd);
+  text-align: center;
+  vertical-align: middle;
+}
+.cm-tbl th {
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--t3);
+  background: var(--bg-sur2);
+  white-space: nowrap;
+}
+.cm-tbl tbody th {
+  text-align: left;
+  color: var(--t1);
+}
+.cm-tbl td {
+  color: var(--t2);
+  font-weight: 600;
+}
+.cm-tbl td.win  { background: var(--pass-bg); color: var(--pass); }
+.cm-tbl td.lose { background: var(--fail-bg); color: var(--fail); }
+.cm-tbl td.same { background: var(--bg-sur2); color: var(--t3); }
+.cm-tbl td.na   { background: var(--bg-sur); color: var(--t3); opacity: .55; }
+.cm-tbl tr:last-child td { border-bottom: none; }
+.cm-tbl td:last-child, .cm-tbl th:last-child { border-right: none; }
+
+/* related link grid */
+.rel-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 900px) { .rel-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px) { .rel-grid { grid-template-columns: 1fr; } }
+.rel-card {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color .15s ease, background .15s ease;
+}
+.rel-card:hover { border-color: var(--bd-s); background: var(--bg-sur); }
+.rel-card .rl-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t1);
+  letter-spacing: -.005em;
+}
+.rel-card .rl-sub {
+  font-size: 10.5px;
+  color: var(--t3);
+  line-height: 1.55;
+}
+
+/* force S-Core Dream */
+.spill, .ppill, .lchip, .fm-tbl, .fm-tbl *,
+.scope-card, .scope-card *, .gate-step, .gate-step *,
+.rule-card, .rule-card *, .dd-col, .dd-col *,
+.sync-col, .sync-col *, .fm-cap, .fm-cap *,
+.zstack, .zstack *, .cm-tbl, .cm-tbl *,
+.rel-card, .rel-card * {
+  font-family: var(--font) !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Layer Token Mapping v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Mapping Draft</span>
+  <span class="doc-nav-pill"><span class="dot"></span>CSS Implementation Hold</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Layer Collision Prevention</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Layer Mapping</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Layer Scope</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Layer Order Principle</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Layer Token Table</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Component Mapping</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Drawer / Dropdown</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Dialog / Dropdown</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Full Detail / Page</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Overlay / Backdrop</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Do / Don't</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Implementation Gate</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Cursor Handoff</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Status Banner ── -->
+      <div class="ibox info" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <strong>STAM Layer Token Mapping v1</strong>
+          <span class="sbadge plan" style="margin-left:auto;">Mapping Draft</span>
+        </div>
+        <p style="margin:0 0 8px;font-size:.88em;line-height:1.7;opacity:.9;">
+          본 문서는 <strong>실제 Layer / z-index CSS 구현이 아니라, Topbar · Sticky Header · Dropdown · Popover · Calendar · Drawer · Dialog · Toast · Global Loading이 서로 겹칠 때 어떤 순서로 보여야 하는지를 토큰 기반으로 사전 확정하는 매핑 문서</strong>이다.
+          Dropdown / Select / Date Picker popup이 Drawer 또는 Full Detail 화면에서 뒤로 깔리거나 잘리는 사고를 차단하기 위한 기준을 정의하며,
+          본 문서로는 <code>stam/css/**</code>, <code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/index.html</code>, <code>stam/assets/**</code>를 절대 수정하지 않는다.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:6px;">
+          <span class="sbadge plan">Mapping Draft</span>
+          <span class="sbadge lock">CSS Implementation Hold</span>
+          <span class="sbadge lock">Layer Collision Prevention</span>
+          <span class="sbadge guide">Pre-Implementation</span>
+          <span class="sbadge lock">No CSS Edit</span>
+        </div>
+        <p style="margin:10px 0 0;font-size:.82em;line-height:1.65;opacity:.78;">
+          <strong>판정 근거</strong> — Form Token Mapping v1에서 “Drawer 내부 dropdown / calendar popup은 portal로 렌더링되어야 하며 z-index는 layer token으로 관리한다”는 원칙이 동결되었으나, 실제 layer token명·값·순서가 확정되지 않은 상태이다. Drawer 내부 select가 Drawer panel 뒤에 깔리는 사고, Dialog 내부 calendar가 Dialog backdrop 아래로 사라지는 사고, Full Detail에서 sticky header가 dropdown을 가리는 사고를 사전에 차단하기 위해 본 문서로 layer 매핑과 충돌 방지 원칙을 확정한다.
+        </p>
+      </div>
+
+      <!-- ── S01 Overview ── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            CSS Token Readiness Check가 “전체 토큰 충분성”을, Token Inventory v1이 “신규 토큰 후보 목록”을, Button / Form Token Mapping v1이 “컴포넌트별 토큰 매핑”을 확정했다면,
+            본 Layer Token Mapping v1은 <strong>“화면에 떠 있는 여러 컴포넌트가 어느 순서로 겹쳐야 하는지” z-index 축으로 1:1 매핑</strong>을 확정한다.
+            STAM의 수정 흐름은 리스트 → Drawer 수정 → Full Detail 수정 → Drawer 복귀로 순환하며, 그 사이사이에 Topbar · Sticky Table Header · Dropdown · Calendar · Toast · Global Loading이 동시에 떠 있을 수 있다.
+            본 문서는 이 모든 레이어가 충돌하지 않도록 <strong>token 기반 z-index 체계</strong>를 정의하며, Dropdown · Select · Date Picker popup이 Drawer / Full Detail 전환에서 사라지거나 뒤에 깔리는 사고를 차단한다.
+            기획자·PM은 “어떤 화면에서 어떤 레이어가 위에 떠야 하는지”를 한 화면에서 읽고 승인할 수 있어야 하며,
+            개발자는 후속 Layer CSS 구현 단위에서 본 문서를 그대로 토큰 정의 기준으로 사용한다.
+          </p>
+
+          <div class="dd-grid" style="margin-top:8px;">
+            <div class="dd-col good">
+              <div class="dd-hdr">이 문서가 다루는 것</div>
+              <ul>
+                <li>Layer 범위 정의 (Base · Sticky · Sidebar · Topbar · Dropdown · Popover · Calendar · Drawer · Dialog · Toast · Loading 등 14개)</li>
+                <li>Layer 순서 원칙 (기본 stack order · 컨텍스트 내부 popup 예외)</li>
+                <li>z-index 토큰 후보 13종 (<code>--z-base</code> ~ <code>--z-global-loading</code>)</li>
+                <li>토큰별 Suggested Value · Used By · Collision Risk</li>
+                <li>컴포넌트별 Layer Mapping (App Shell · Topbar · Dropdown · Drawer · Dialog · Toast 등 11개)</li>
+                <li>Drawer 내부 Dropdown / Calendar 충돌 방지 규칙</li>
+                <li>Dialog 내부 Dropdown / Calendar 충돌 방지 규칙</li>
+                <li>Full Detail / Page Content 화면 layer 규칙</li>
+                <li>Overlay · Backdrop 정책 (Drawer · Dialog · Loading dim layer)</li>
+                <li>실제 CSS 구현 전 Gate Checklist · Cursor 핸드오프 기준</li>
+              </ul>
+            </div>
+            <div class="dd-col bad">
+              <div class="dd-hdr">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/css/**</code> 토큰 추가 / 값 변경 / 실제 z-index 부여</li>
+                <li><code>stam/css/stam.tokens.css</code>의 layer 토큰 정의 코드 작성</li>
+                <li><code>stam/css/stam.components.css</code>의 Dropdown · Drawer · Dialog z-index 적용</li>
+                <li><code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/index.html</code> 변경</li>
+                <li><code>stam/assets/**</code>, <code>_ds/**</code>, <code>uploads/**</code> 변경</li>
+                <li>Form · Button · Table 등 컴포넌트의 색·사이즈 토큰 매핑</li>
+                <li>Drawer / Dialog / Form Guide 본문 수정</li>
+                <li>Firebase / GitHub Actions / package*.json 변경</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>선행 문서와의 관계</strong>
+            <span style="display:block;margin-top:4px;line-height:1.7;">
+              · <a href="STAM-UI-Baseline-Guide.html" style="color:var(--stam);">UI Baseline Guide</a> — 폰트·레이아웃·Forbidden Rules 기준<br>
+              · <a href="STAM-Component-Guide.html" style="color:var(--stam);">Component Guide</a> — 컴포넌트 전체 변형·사이즈·상태 정의<br>
+              · <a href="components/STAM-Drawer-Guide.html" style="color:var(--stam);">Drawer Guide</a> — Drawer Anatomy · Tab Structure · 스크롤 기준<br>
+              · <a href="components/STAM-Dialog-Guide.html" style="color:var(--stam);">Dialog Guide</a> — Dialog Anatomy · Confirm · Alert · Focus Trap<br>
+              · <a href="components/STAM-Form-Guide.html" style="color:var(--stam);">Form Guide</a> — Input · Select · Date Picker · Calendar popup<br>
+              · <a href="STAM-CSS-Token-Readiness-Check.html" style="color:var(--stam);">CSS Token Readiness Check</a> — 12 카테고리 Ready / Partial / Missing 점검<br>
+              · <a href="STAM-Token-Inventory-v1.html" style="color:var(--stam);">Token Inventory v1</a> — Layer · Form State P0 토큰 후보<br>
+              · <a href="STAM-Button-Token-Mapping-v1.html" style="color:var(--stam);">Button Token Mapping v1</a> — Button variant × size × state 매핑 (선행)<br>
+              · <a href="STAM-Form-Token-Mapping-v1.html" style="color:var(--stam);">Form Token Mapping v1</a> — Input · Select · Date Picker 매핑 (선행)<br>
+              · <strong>STAM Layer Token Mapping v1</strong> <em style="opacity:.6;">(현재 문서)</em> — Topbar · Dropdown · Drawer · Dialog · Toast z-index 매핑 + 충돌 방지 확정
+            </span>
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>주의 — Mapping은 코드 변경이 아니다</strong>
+            본 문서의 Candidate 토큰명·Suggested Value·Used By는 모두 <em>매핑 기준 후보</em>이며,
+            실제 토큰 추가·CSS 클래스 작성·z-index 부여는 후속 Layer CSS 구현 단위에서 코드 변경과 함께 확정한다.
+            본 문서만으로 <code>stam.tokens.css</code> · <code>stam.components.css</code> 등 어떤 CSS 파일도 수정하지 않는다.
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>핵심 원칙 — popup은 owning context보다 위에 떠야 한다</strong>
+            STAM의 select / date picker popup은 Drawer · Dialog · Full Detail · 일반 페이지 어느 곳에서 열리더라도
+            <strong>owning context(자신을 띄운 컨테이너)보다 위</strong>에 떠야 하며, overflow hidden 부모에 잘리지 않아야 한다.
+            이를 위해 popup은 portal 렌더링 + layer token 기반 z-index를 사용한다. 상세 규칙은 Section 06–08에서 정의한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Layer Scope ── -->
+      <section id="s02" class="sec" data-screen-label="02 Layer Scope">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Layer Scope — 본 매핑이 다루는 레이어 범위</span>
+          <span class="sbadge plan">범위</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아래 14개 레이어가 본 매핑의 대상이다. 시각적 컴포넌트 레이어(Topbar · Dropdown · Drawer · Dialog · Toast)와 보조 레이어(Sticky Header · Backdrop · Global Loading)를 모두 포함한다.</p>
+
+          <div class="scope-grid">
+            <div class="scope-card">
+              <div class="sc-top"><span class="lchip base">Base Content</span></div>
+              <div class="sc-sub">페이지 본문 · 카드 · 표 · 일반 컨텐츠. 모든 레이어의 기준점.</div>
+              <div class="sc-z">z: 0</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="lchip sticky">Sticky Table Header</span></div>
+              <div class="sc-sub">WBS · 산출물 · 인사 등 테이블의 sticky 헤더. 스크롤 시 고정.</div>
+              <div class="sc-z">z: 100</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="lchip shell">Sidebar</span></div>
+              <div class="sc-sub">STAM App Shell 좌측 네비게이션. 페이지 스크롤과 무관하게 고정.</div>
+              <div class="sc-z">z: 200</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="lchip shell">Topbar</span></div>
+              <div class="sc-sub">STAM App Shell 상단바 (48px). Sticky · 검색 · 프로필 영역 포함.</div>
+              <div class="sc-z">z: 300</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="lchip backdrop">Drawer Backdrop</span></div>
+              <div class="sc-sub">Drawer 오픈 시 본문 dim layer. 클릭 시 Drawer close.</div>
+              <div class="sc-z">z: 1000</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="lchip drawer">Drawer</span></div>
+              <div class="sc-sub">우측 또는 좌측 Drawer panel. 수정·미리보기·요약 화면.</div>
+              <div class="sc-z">z: 1100</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="lchip backdrop">Dialog Backdrop</span></div>
+              <div class="sc-sub">Dialog 오픈 시 본문 dim layer. Drawer 위까지 덮음.</div>
+              <div class="sc-z">z: 1200</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="lchip dialog">Dialog</span></div>
+              <div class="sc-sub">Confirm · Alert · 작은 입력 모달. Drawer 위에서 오픈 가능.</div>
+              <div class="sc-z">z: 1300</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="lchip popup">Dropdown</span></div>
+              <div class="sc-sub">Select / Custom Dropdown / Menu / Context Menu popup.</div>
+              <div class="sc-z">z: 1500</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="lchip popup">Select Option Panel</span></div>
+              <div class="sc-sub">Select trigger 클릭 시 옵션 패널. Dropdown과 동일 layer.</div>
+              <div class="sc-z">z: 1500</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="lchip popup">Date Picker Calendar</span></div>
+              <div class="sc-sub">Date Picker 트리거 클릭 시 calendar popup. Dropdown과 동일 layer.</div>
+              <div class="sc-z">z: 1500</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="lchip popup">Popover / Tooltip</span></div>
+              <div class="sc-sub">툴팁 · 보조 popover · 헬프 박스. Dropdown과 동일 layer.</div>
+              <div class="sc-z">z: 1500</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="lchip toast">Toast</span></div>
+              <div class="sc-sub">알림 · 성공 · 에러 · 진행 메시지. 모든 panel 위에서 알림.</div>
+              <div class="sc-z">z: 2000</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="lchip loading">Global Loading Overlay</span></div>
+              <div class="sc-sub">전체 화면 로딩 dim + 스피너. Toast와의 우선순위는 본 문서에서 결정.</div>
+              <div class="sc-z">z: 3000</div>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>본 문서가 다루지 않는 레이어</strong>
+            Print 모드 전용 overlay, iframe 내부 자체 z-index, 외부 SaaS 위젯(채팅 · 분석 등) layer는 v1 범위 밖이며 후속 단계에서 별도 매핑한다.
+            CSS <code>position: fixed</code>를 사용하지 않는 일반 본문 컴포넌트는 모두 Base Content layer로 간주한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 Layer Order Principle ── -->
+      <section id="s03" class="sec" data-screen-label="03 Layer Order Principle">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Layer Order Principle — 기본 순서 원칙</span>
+          <span class="sbadge plan">원칙</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">STAM은 “일반 화면 stack order”와 “owning context 내부 popup 예외” 두 원칙을 동시에 사용한다. 두 원칙이 충돌하는 경우 <strong>popup은 항상 owning context보다 위</strong>에 떠야 한다는 원칙이 우선한다.</p>
+
+          <div class="fm-cap"><span class="fm-cap-n">①</span>Default Stack Order <span class="fm-cap-sub">기본 화면 z-index 순서 (아래 → 위)</span></div>
+
+          <div class="zstack">
+            <div class="zstack-row top"><span class="zr-num">3000</span><span class="zr-label">Global Loading Overlay</span><span class="zr-token">--z-global-loading</span></div>
+            <div class="zstack-row l1"><span class="zr-num">2000</span><span class="zr-label">Toast</span><span class="zr-token">--z-toast</span></div>
+            <div class="zstack-row l2"><span class="zr-num">1500</span><span class="zr-label">Dropdown · Popover · Calendar (Portal)</span><span class="zr-token">--z-dropdown · --z-popover · --z-calendar</span></div>
+            <div class="zstack-row l3"><span class="zr-num">1300</span><span class="zr-label">Dialog</span><span class="zr-token">--z-dialog</span></div>
+            <div class="zstack-row l4"><span class="zr-num">1200</span><span class="zr-label">Dialog Backdrop</span><span class="zr-token">--z-dialog-backdrop</span></div>
+            <div class="zstack-row l5"><span class="zr-num">1100</span><span class="zr-label">Drawer</span><span class="zr-token">--z-drawer</span></div>
+            <div class="zstack-row l6"><span class="zr-num">1000</span><span class="zr-label">Drawer Backdrop</span><span class="zr-token">--z-drawer-backdrop</span></div>
+            <div class="zstack-row l7"><span class="zr-num">300</span><span class="zr-label">Topbar</span><span class="zr-token">--z-topbar</span></div>
+            <div class="zstack-row l8"><span class="zr-num">200</span><span class="zr-label">Sidebar</span><span class="zr-token">--z-sidebar</span></div>
+            <div class="zstack-row l9"><span class="zr-num">100</span><span class="zr-label">Sticky Table Header</span><span class="zr-token">--z-sticky</span></div>
+            <div class="zstack-row l10"><span class="zr-num">0</span><span class="zr-label">Base Content</span><span class="zr-token">--z-base</span></div>
+          </div>
+
+          <div class="rule-grid" style="margin-top:14px;">
+            <div class="rule-card">
+              <div class="rc-hdr">기본 순서 원칙</div>
+              <ul>
+                <li>Base Content &lt; Sticky Header &lt; Sidebar &lt; Topbar &lt; Drawer (Backdrop → Panel) &lt; Dialog (Backdrop → Panel) &lt; Dropdown / Popover / Calendar &lt; Toast &lt; Global Loading 순서 보장</li>
+                <li>같은 layer 내에서 backdrop은 panel보다 항상 아래(<code>--z-drawer-backdrop &lt; --z-drawer</code>, <code>--z-dialog-backdrop &lt; --z-dialog</code>)</li>
+                <li>Sticky Header는 본문보다 위지만 Topbar보다 아래 — Topbar 아래로 스크롤되어 들어가지 않아야 함</li>
+                <li>Sidebar는 본문보다 위 · Topbar보다 아래 (Topbar가 Sidebar 위로 가로지름)</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">Owning Context 예외 원칙</div>
+              <ul>
+                <li>Drawer 안에서 열리는 Dropdown / Calendar / Popover는 <strong>Drawer panel보다 위</strong>에 떠야 함</li>
+                <li>Dialog 안에서 열리는 Dropdown / Calendar / Popover는 <strong>Dialog panel보다 위</strong>에 떠야 함</li>
+                <li>Full Detail (페이지 본문) 화면에서 열리는 Dropdown / Calendar / Popover는 sticky header · topbar보다 위에 떠야 함</li>
+                <li>이를 위해 popup은 <code>--z-dropdown</code>을 단일 token으로 사용하며, <strong>Dialog 위 layer</strong>로 설정한다 (1500 &gt; 1300)</li>
+                <li>popup은 반드시 <strong>portal 렌더링</strong> — Drawer · Dialog의 <code>overflow: hidden</code> 부모에 갇히지 않아야 함</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">Drawer ↔ Dialog 우선순위</div>
+              <ul>
+                <li>Drawer가 열린 상태에서 Dialog가 열리면 Dialog가 우선 (1300 &gt; 1100)</li>
+                <li>Dialog backdrop은 Drawer panel보다 위로 덮을 수 있음 (1200 &gt; 1100)</li>
+                <li>Dialog 닫힘 시 focus는 Drawer 내부 원래 요소로 복귀</li>
+                <li>두 모달이 동시에 떠 있을 때 ESC는 Dialog만 닫고 Drawer는 유지</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">Toast / Global Loading 원칙</div>
+              <ul>
+                <li>Toast는 Dropdown · Dialog · Drawer 모두 위에 표시 (2000)</li>
+                <li>Global Loading은 Toast보다도 위에 표시하는 것을 기본 후보로 둠 (3000)</li>
+                <li>단 Loading 중에도 Toast 알림이 보여야 하는 시나리오 발생 시 Loading &lt; Toast로 재합의 필요 — <strong>Decision Needed</strong></li>
+                <li>Toast는 자동 dismiss · Loading은 작업 종료 시 dismiss — 두 layer가 동시에 떠 있는 시간이 짧아야 함</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>z-index 임의 숫자 금지 원칙</strong>
+            STAM CSS·JS 어디에서도 <code>z-index: 9999</code>, <code>z-index: 100</code> 같은 임의 숫자 사용을 금지한다.
+            모든 z-index는 본 문서의 layer token (<code>--z-base</code> ~ <code>--z-global-loading</code>) 13종 중 하나만 사용한다.
+            새로운 layer가 필요한 경우 본 문서 v2로 재합의하여 token을 추가한 뒤에만 사용 가능하다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Layer Token Candidate Table ── -->
+      <section id="s04" class="sec" data-screen-label="04 Layer Token Table">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Layer Token Candidate Table — z-index 토큰 후보</span>
+          <span class="sbadge plan">P0 매핑</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Token Inventory v1의 Layer P0 후보를 풀어 정리한다. Suggested Value는 후속 단계에서 확정되며, 본 문서에서는 후보값으로 둔다. 13개 토큰은 STAM 전역에서 사용 가능한 모든 z-index 값을 망라한다.</p>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:16%;">Token Candidate</th>
+                <th style="width:14%;">Layer Role</th>
+                <th style="width:10%;">Suggested Value</th>
+                <th style="width:20%;">Used By</th>
+                <th style="width:20%;">Collision Risk</th>
+                <th style="width:8%;">Priority</th>
+                <th style="width:12%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn"><code>--z-base</code></td>
+                <td><span class="lchip base">Base</span></td>
+                <td class="zval">0</td>
+                <td>페이지 본문 · 카드 · 표 · 일반 영역</td>
+                <td>본문 내 임의 <code>z-index: 1</code>이 sticky header를 뚫는 경우</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--z-sticky</code></td>
+                <td><span class="lchip sticky">Sticky</span></td>
+                <td class="zval">100</td>
+                <td>Table sticky header · WBS · 산출물 · 인사 표</td>
+                <td>Topbar가 본문 위로 스크롤될 때 sticky header가 Topbar를 덮음</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--z-sidebar</code></td>
+                <td><span class="lchip shell">Shell</span></td>
+                <td class="zval">200</td>
+                <td>STAM App Shell 좌측 네비게이션</td>
+                <td>Sidebar가 Topbar 위로 올라가 검색·프로필 UI를 가림</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--z-topbar</code></td>
+                <td><span class="lchip shell">Shell</span></td>
+                <td class="zval">300</td>
+                <td>STAM App Shell 상단바 (48px)</td>
+                <td>Topbar가 Drawer · Dialog · Dropdown 위로 노출</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--z-drawer-backdrop</code></td>
+                <td><span class="lchip backdrop">Backdrop</span></td>
+                <td class="zval">1000</td>
+                <td>Drawer 오픈 시 본문 dim layer</td>
+                <td>Drawer panel 위까지 backdrop이 덮어 panel이 가려짐</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--z-drawer</code></td>
+                <td><span class="lchip drawer">Drawer</span></td>
+                <td class="zval">1100</td>
+                <td>Drawer panel 본체 (우측 / 좌측)</td>
+                <td>Drawer 위에서 dropdown 열렸을 때 dropdown이 Drawer 뒤로 깔림</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--z-dialog-backdrop</code></td>
+                <td><span class="lchip backdrop">Backdrop</span></td>
+                <td class="zval">1200</td>
+                <td>Dialog 오픈 시 본문 dim layer (Drawer 위까지)</td>
+                <td>Dialog backdrop이 Dialog panel 위까지 덮어 panel이 가려짐</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--z-dialog</code></td>
+                <td><span class="lchip dialog">Dialog</span></td>
+                <td class="zval">1300</td>
+                <td>Dialog panel · Confirm · Alert · 작은 입력 모달</td>
+                <td>Dialog 내부 dropdown / calendar가 Dialog 뒤로 깔림</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--z-dropdown</code></td>
+                <td><span class="lchip popup">Popup</span></td>
+                <td class="zval">1500</td>
+                <td>Select · Custom Dropdown · Menu · Context Menu popup</td>
+                <td>임의 <code>z-index: 9999</code>로 Toast를 뚫고 올라감</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--z-popover</code></td>
+                <td><span class="lchip popup">Popup</span></td>
+                <td class="zval">1500</td>
+                <td>Tooltip · Help popover · 보조 안내</td>
+                <td>Dropdown과 다른 값으로 분리되면 동시 노출 시 stacking 모호</td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--z-calendar</code></td>
+                <td><span class="lchip popup">Popup</span></td>
+                <td class="zval">1500</td>
+                <td>Date Picker Calendar popup</td>
+                <td>Dropdown보다 낮게 두면 Date Picker 위에서 Dropdown이 calendar를 가림</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--z-toast</code></td>
+                <td><span class="lchip toast">Toast</span></td>
+                <td class="zval">2000</td>
+                <td>알림 · 성공 · 에러 · 진행 메시지</td>
+                <td>Dropdown / Dialog 보다 낮게 두면 모달 위에서 toast가 안 보임</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--z-global-loading</code></td>
+                <td><span class="lchip loading">Loading</span></td>
+                <td class="zval">3000</td>
+                <td>전체 화면 로딩 dim + 스피너</td>
+                <td>Toast와의 상하 결정 — 본 문서에서 <strong>Decision Needed</strong></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Suggested Value 설계 원칙</strong>
+            인접 layer 간 최소 100 간격을 두어 후속 신규 layer 추가 여지를 남긴다 (예: <code>--z-dropdown</code>과 <code>--z-toast</code> 사이 1500–2000 영역에 새 layer 추가 가능).
+            모든 값은 정수이며 음수는 사용하지 않는다 (음수 z-index는 부모 stacking context 외부로 빠지는 사고를 유발).
+            토큰은 <code>stam/css/stam.tokens.css</code>에 정의하며, 컴포넌트는 <code>var(--z-*)</code> 만 참조한다.
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>Decision Needed — Global Loading vs Toast</strong>
+            “Loading 중에도 사용자에게 진행 메시지를 toast로 보여야 한다”는 시나리오와 “Loading은 전체 화면을 막아야 한다”는 시나리오가 충돌한다.
+            본 문서는 기본 후보로 <code>--z-global-loading: 3000 &gt; --z-toast: 2000</code>을 제안하지만,
+            “Loading dim 위에 toast가 떠야 한다”가 PM 결정으로 채택되는 경우 두 토큰 값을 swap한다 (Loading: 1900 / Toast: 2000).
+            본 결정은 Section 11 Gate Checklist 항목으로 다룬다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 Component Layer Mapping ── -->
+      <section id="s05" class="sec" data-screen-label="05 Component Mapping">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Component Layer Mapping — 컴포넌트별 layer 토큰 매핑</span>
+          <span class="sbadge plan">매핑</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">각 컴포넌트가 사용하는 layer token, 내부에서 열릴 수 있는 popup, 위/아래 순서, 누락 시 위험을 한 표로 정리한다.</p>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:13%;">Component</th>
+                <th style="width:18%;">Required Layer Tokens</th>
+                <th style="width:14%;">Opens Inside</th>
+                <th style="width:15%;">Must Appear Above</th>
+                <th style="width:15%;">Must Stay Below</th>
+                <th style="width:17%;">Risk If Missing</th>
+                <th style="width:8%;">Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn"><span class="lchip base">App Shell</span></td>
+                <td><code>--z-base</code></td>
+                <td>—</td>
+                <td>—</td>
+                <td>모든 fixed layer</td>
+                <td>본문 z-index가 sticky header를 뚫음</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="lchip shell">Topbar</span></td>
+                <td><code>--z-topbar</code></td>
+                <td>—</td>
+                <td>Base · Sticky · Sidebar</td>
+                <td>Drawer · Dialog · Dropdown · Toast · Loading</td>
+                <td>Drawer 위로 Topbar가 노출되어 모달 흐름 깨짐</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="lchip shell">Sidebar</span></td>
+                <td><code>--z-sidebar</code></td>
+                <td>—</td>
+                <td>Base · Sticky</td>
+                <td>Topbar · Drawer · Dialog · Dropdown · Toast · Loading</td>
+                <td>Sidebar가 Topbar 위로 올라가 검색·프로필 UI를 가림</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="lchip sticky">Sticky Table Header</span></td>
+                <td><code>--z-sticky</code></td>
+                <td>—</td>
+                <td>Base</td>
+                <td>Topbar · Sidebar · Drawer · Dialog · Dropdown · Toast</td>
+                <td>Sticky header가 Topbar를 뚫거나 dropdown을 가림</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="lchip popup">Select Dropdown</span></td>
+                <td><code>--z-dropdown</code></td>
+                <td>Topbar · Drawer · Dialog · Full Detail · Sticky Header</td>
+                <td>Topbar · Drawer · Dialog · Sticky · Sidebar · Base</td>
+                <td>Toast · Loading</td>
+                <td>Drawer / Dialog 안에서 dropdown이 panel 뒤로 깔림</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="lchip popup">Date Picker Calendar</span></td>
+                <td><code>--z-calendar</code></td>
+                <td>Drawer · Dialog · Full Detail · Sticky Header</td>
+                <td>Topbar · Drawer · Dialog · Sticky · Sidebar · Base</td>
+                <td>Toast · Loading</td>
+                <td>Drawer 안 date picker가 panel 뒤로 깔리거나 잘림</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="lchip popup">Tooltip / Popover</span></td>
+                <td><code>--z-popover</code></td>
+                <td>Topbar · Drawer · Dialog · Full Detail · Sticky Header</td>
+                <td>Topbar · Drawer · Dialog · Sticky · Sidebar · Base</td>
+                <td>Toast · Loading</td>
+                <td>Tooltip이 Dropdown 뒤로 깔려 안 보임</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="lchip drawer">Drawer</span></td>
+                <td><code>--z-drawer-backdrop</code> · <code>--z-drawer</code></td>
+                <td>Dropdown · Calendar · Popover (portal)</td>
+                <td>Topbar · Sidebar · Sticky · Base</td>
+                <td>Dialog · Dropdown · Toast · Loading</td>
+                <td>Drawer 내부 popup이 panel overflow에 잘림</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="lchip dialog">Dialog</span></td>
+                <td><code>--z-dialog-backdrop</code> · <code>--z-dialog</code></td>
+                <td>Dropdown · Calendar · Popover (portal)</td>
+                <td>Drawer · Topbar · Sidebar · Sticky · Base</td>
+                <td>Dropdown · Toast · Loading</td>
+                <td>Drawer 위에서 Dialog가 안 떠 사용자 confirm 차단됨</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="lchip toast">Toast</span></td>
+                <td><code>--z-toast</code></td>
+                <td>—</td>
+                <td>Dropdown · Dialog · Drawer · Topbar · 모든 layer</td>
+                <td>Global Loading (기본 후보 기준)</td>
+                <td>모달 위에서 toast 알림이 안 보임</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="lchip loading">Loading Overlay</span></td>
+                <td><code>--z-global-loading</code></td>
+                <td>—</td>
+                <td>Toast (기본 후보 기준) · 모든 layer</td>
+                <td>—</td>
+                <td>Loading dim 사이로 사용자가 클릭 가능 → 사고</td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- 두 컨테이너가 동시에 떠있을 때 매트릭스 -->
+          <div class="fm-cap"><span class="fm-cap-n">★</span>Collision Matrix <span class="fm-cap-sub">두 layer가 동시에 떠 있을 때 “위에 떠야 하는 쪽” — 행 vs 열</span></div>
+          <div class="fm-wrap">
+          <table class="cm-tbl">
+            <thead>
+              <tr>
+                <th style="text-align:left;">행 ↓ vs 열 →</th>
+                <th>Base</th>
+                <th>Sticky</th>
+                <th>Topbar</th>
+                <th>Drawer</th>
+                <th>Dialog</th>
+                <th>Dropdown</th>
+                <th>Toast</th>
+                <th>Loading</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><th>Base</th>          <td class="same">=</td><td class="lose">↓</td><td class="lose">↓</td><td class="lose">↓</td><td class="lose">↓</td><td class="lose">↓</td><td class="lose">↓</td><td class="lose">↓</td></tr>
+              <tr><th>Sticky</th>        <td class="win">↑</td><td class="same">=</td><td class="lose">↓</td><td class="lose">↓</td><td class="lose">↓</td><td class="lose">↓</td><td class="lose">↓</td><td class="lose">↓</td></tr>
+              <tr><th>Topbar</th>        <td class="win">↑</td><td class="win">↑</td><td class="same">=</td><td class="lose">↓</td><td class="lose">↓</td><td class="lose">↓</td><td class="lose">↓</td><td class="lose">↓</td></tr>
+              <tr><th>Drawer</th>        <td class="win">↑</td><td class="win">↑</td><td class="win">↑</td><td class="same">=</td><td class="lose">↓</td><td class="lose">↓</td><td class="lose">↓</td><td class="lose">↓</td></tr>
+              <tr><th>Dialog</th>        <td class="win">↑</td><td class="win">↑</td><td class="win">↑</td><td class="win">↑</td><td class="same">=</td><td class="lose">↓</td><td class="lose">↓</td><td class="lose">↓</td></tr>
+              <tr><th>Dropdown</th>      <td class="win">↑</td><td class="win">↑</td><td class="win">↑</td><td class="win">↑</td><td class="win">↑</td><td class="same">=</td><td class="lose">↓</td><td class="lose">↓</td></tr>
+              <tr><th>Toast</th>         <td class="win">↑</td><td class="win">↑</td><td class="win">↑</td><td class="win">↑</td><td class="win">↑</td><td class="win">↑</td><td class="same">=</td><td class="lose">↓</td></tr>
+              <tr><th>Loading</th>       <td class="win">↑</td><td class="win">↑</td><td class="win">↑</td><td class="win">↑</td><td class="win">↑</td><td class="win">↑</td><td class="win">↑</td><td class="same">=</td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>매트릭스 해석</strong>
+            ↑ = 행의 컴포넌트가 열의 컴포넌트보다 위에 떠야 함 / ↓ = 행이 열보다 아래 / = 동일 layer.
+            Loading은 모든 layer보다 위로 두는 것이 기본 후보이며, Dropdown은 Dialog · Drawer 위에 떠야 하는 점이 매트릭스의 핵심이다.
+            각 cell은 “owning context 예외 원칙” 적용 결과를 반영한다 — 즉 Drawer 안 Dropdown은 Drawer보다 위에 떠야 한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 Drawer / Dropdown Collision Rule ── -->
+      <section id="s06" class="sec" data-screen-label="06 Drawer Dropdown Rule">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Drawer / Dropdown Collision Rule — Drawer 내부 popup 충돌 방지</span>
+          <span class="sbadge guide">규칙</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">STAM 수정 흐름의 가장 큰 위험 — Drawer 수정 화면에서 Select / Date Picker popup이 Drawer panel 뒤에 깔리거나 panel overflow에 잘려서 사라지는 사고를 차단한다.</p>
+
+          <div class="sync-grid">
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must</span>Drawer 내부 popup 원칙</div>
+              <ul>
+                <li>Drawer 안의 Select Dropdown은 <strong>Drawer panel보다 위</strong>에 노출되어야 함 (<code>--z-dropdown</code> 1500 &gt; <code>--z-drawer</code> 1100)</li>
+                <li>Drawer 안의 Date Picker Calendar는 Drawer panel보다 위에 노출되어야 함 (<code>--z-calendar</code> 1500 &gt; <code>--z-drawer</code> 1100)</li>
+                <li>Drawer 안의 Tooltip / Popover도 동일하게 Drawer panel보다 위에 표시</li>
+                <li>popup은 반드시 <strong>portal 렌더링</strong> — <code>document.body</code> 직속에 mount되어 Drawer의 stacking context에 갇히지 않아야 함</li>
+                <li>popup의 위치 계산은 trigger 요소 기준으로 매 frame 재계산 (Drawer 내부 scroll · resize 시에도 따라옴)</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must Not</span>Drawer 충돌 금지 패턴</div>
+              <ul>
+                <li>Drawer panel <code>overflow: hidden</code> 부모 안쪽에 popup을 직접 자식으로 렌더링하는 것 — 잘림 사고</li>
+                <li>Drawer 내부에서 popup의 z-index를 임의 숫자(<code>z-index: 5</code>, <code>z-index: 9999</code>)로 부여 — 다른 모달과 충돌</li>
+                <li>popup이 Drawer backdrop보다 아래로 깔리는 것 — backdrop dim에 popup이 가려져 안 보임</li>
+                <li>popup이 Drawer 밖 content 위로 너무 올라가 Dialog까지 뚫고 가는 것 — Dialog가 열렸을 때 dropdown이 Dialog 위에 노출되면 안 됨</li>
+                <li>Drawer 내부 scroll 영역에 popup이 잘려 사라지는 것 — popup은 viewport 기준 위치이며 Drawer scroll에 따라 흔들리지 않아야 함</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Layer</span>z-index 적용 순서</div>
+              <ul>
+                <li>Drawer Backdrop <code>--z-drawer-backdrop</code> (1000) — 본문 dim</li>
+                <li>Drawer Panel <code>--z-drawer</code> (1100) — Drawer 본체</li>
+                <li>Drawer 내부 Dropdown / Calendar <code>--z-dropdown</code> / <code>--z-calendar</code> (1500) — Drawer panel 위</li>
+                <li>Drawer 위에서 Dialog 열림 → Dialog Backdrop <code>--z-dialog-backdrop</code> (1200) → Dialog Panel <code>--z-dialog</code> (1300)</li>
+                <li>Dialog 내부 Dropdown / Calendar <code>--z-dropdown</code> (1500) — Dialog panel 위 (같은 단일 token 재사용)</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">QA</span>회귀 판정 기준</div>
+              <ul>
+                <li>Drawer 수정 화면에서 Select 클릭 → 옵션 패널이 Drawer 본문 위에 보임 → <strong>PASS</strong></li>
+                <li>Drawer 수정 화면에서 Date Picker 클릭 → calendar popup이 Drawer 본문 위에 보임 → <strong>PASS</strong></li>
+                <li>popup이 Drawer panel 뒤에 가려 안 보이면 <strong>FAIL</strong></li>
+                <li>popup이 Drawer 내부 scroll에 의해 잘리거나 흔들리면 <strong>FAIL</strong></li>
+                <li>popup이 Drawer backdrop 아래로 깔리면 <strong>FAIL</strong></li>
+                <li>popup이 Dialog 위로 올라가면 <strong>FAIL</strong> (Dialog가 동시에 열려 있을 때만 해당)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>portal 렌더링은 layer 매핑의 전제 조건이다</strong>
+            본 Rule은 popup이 portal로 렌더링됨을 전제로 한다. Drawer panel 자식 DOM에 popup을 직접 두는 구현은 stacking context 격리에 의해 본 z-index 매핑이 무효화된다.
+            popup 컴포넌트는 mount 시 <code>document.body</code> 또는 별도 portal root에 append되어야 하며, position은 fixed로 viewport 좌표를 사용한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 Dialog / Dropdown Collision Rule ── -->
+      <section id="s07" class="sec" data-screen-label="07 Dialog Dropdown Rule">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Dialog / Dropdown Collision Rule — Dialog 내부 popup 충돌 방지</span>
+          <span class="sbadge guide">규칙</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Dialog(Confirm · Alert · 입력 모달)에서 Select · Date Picker가 사용될 때, popup이 Dialog 뒤로 깔리거나 Dialog backdrop 아래로 사라지는 사고를 차단한다.</p>
+
+          <div class="sync-grid">
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must</span>Dialog 내부 popup 원칙</div>
+              <ul>
+                <li>Dialog 내부 Select Dropdown은 <strong>Dialog panel 위</strong>에 노출되어야 함 (<code>--z-dropdown</code> 1500 &gt; <code>--z-dialog</code> 1300)</li>
+                <li>Dialog 내부 Date Picker Calendar는 Dialog panel 위에 노출되어야 함 (<code>--z-calendar</code> 1500 &gt; <code>--z-dialog</code> 1300)</li>
+                <li>Dialog 내부 popup도 Drawer와 동일하게 portal 렌더링 사용</li>
+                <li>popup이 Dialog backdrop보다 위에 표시 (<code>--z-dropdown</code> 1500 &gt; <code>--z-dialog-backdrop</code> 1200)</li>
+                <li>popup이 Toast보다는 아래로 유지 (<code>--z-dropdown</code> 1500 &lt; <code>--z-toast</code> 2000)</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must Not</span>Dialog 충돌 금지 패턴</div>
+              <ul>
+                <li>Dialog panel 자식 DOM에 popup을 직접 두어 stacking context에 가두는 것</li>
+                <li>Dialog 위에서 dropdown이 panel 뒤로 깔리는 것 — confirm 화면에서 옵션 선택 불가</li>
+                <li>Dialog backdrop이 dropdown 위로 덮어 클릭이 backdrop으로 흡수되는 것</li>
+                <li>popup이 Dialog 자체보다 위로 너무 올라가 Toast까지 뚫는 것</li>
+                <li>Dialog 열린 상태에서 dropdown 외부 클릭 시 Dialog까지 함께 닫혀버리는 것 (popup만 닫혀야 함)</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Order</span>Dialog ↔ Drawer 동시 노출</div>
+              <ul>
+                <li>Drawer가 열려 있을 때 Dialog가 열리면 Dialog가 Drawer보다 위 (1300 &gt; 1100)</li>
+                <li>Dialog backdrop은 Drawer panel 위까지 덮음 (1200 &gt; 1100) — Drawer dim 처리</li>
+                <li>Dialog가 열려 있을 때 Drawer는 인터랙션 차단</li>
+                <li>Dialog 내부에서 열리는 Dropdown도 동일 <code>--z-dropdown</code> (1500) — Drawer · Dialog 모두 위에 표시</li>
+                <li>Dialog 닫힘 시 focus는 Drawer 내부 원래 trigger로 복귀</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Focus</span>Focus Trap 호환성</div>
+              <ul>
+                <li>Dialog는 focus trap을 사용하나, popup이 portal로 body 직속에 mount되어 trap 외부에 위치할 수 있음 — 이 경우 popup이 열리는 동안 Dialog focus trap을 일시 확장</li>
+                <li>popup 닫힘 시 focus는 popup trigger로 복귀 — Dialog 자체로 빠지지 않음</li>
+                <li>ESC 키는 popup이 열려 있으면 popup만 닫고 Dialog는 유지 → 두 번째 ESC에서 Dialog 닫힘</li>
+                <li>Tab 이동 순서가 layer 순서와 충돌하면 안 됨 — Dialog 내부 → popup 옵션 → 다시 Dialog 내부 순으로 유지</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Toast는 Dialog · Dropdown 모두 위에 떠야 한다</strong>
+            저장 성공 / 실패 toast가 Dialog · Dropdown 위에 보이지 않으면 사용자가 결과를 인지하지 못한다.
+            따라서 <code>--z-toast</code>는 항상 Dialog · Dropdown · Drawer · Topbar보다 큰 값을 유지한다.
+            단, Global Loading dim 상태에서는 toast 노출 정책을 Section 04 Decision Needed 항목에서 결정한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Full Detail / Page Content Rule ── -->
+      <section id="s08" class="sec" data-screen-label="08 Full Detail Rule">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Full Detail / Page Content Rule — 전체 상세 / 페이지 본문 layer 규칙</span>
+          <span class="sbadge guide">규칙</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Drawer가 닫힌 “Full Detail 수정 화면”과 일반 페이지 본문(Dashboard · WBS · 산출물 · 인사)에서 Select / Date Picker popup이 sticky header · topbar 뒤로 깔리거나 native UI로 회귀하는 사고를 차단한다.</p>
+
+          <div class="sync-grid">
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must</span>Full Detail layer 원칙</div>
+              <ul>
+                <li>Full Detail 화면에서 Select · Date Picker는 <strong>STAM custom 컴포넌트</strong>를 사용 — native UI 회귀 금지 (Form Token Mapping v1 동일)</li>
+                <li>Full Detail 내 dropdown / calendar는 Topbar · Sticky Header보다 위에 떠야 함 (<code>--z-dropdown</code> 1500 &gt; <code>--z-topbar</code> 300 &gt; <code>--z-sticky</code> 100)</li>
+                <li>같은 popup 컴포넌트가 Drawer · Dialog · Full Detail에서 동일한 z-index token (<code>--z-dropdown</code>)을 사용</li>
+                <li>페이지 본문 overflow와 popup layer는 충돌하지 않아야 함 — popup은 portal로 viewport에 mount</li>
+                <li>테이블 내부 인라인 셀 편집 시 열린 dropdown / calendar도 sticky header를 가리지 않고 위에 표시</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must Not</span>Full Detail 금지 패턴</div>
+              <ul>
+                <li>Full Detail에서 Select·Date Picker가 native <code>&lt;select&gt;</code>·<code>&lt;input type="date"&gt;</code> UI로 회귀하는 것 — 디자인 위반 + layer 매핑 무효</li>
+                <li>Full Detail 내 dropdown이 sticky header 뒤에 깔리는 것 — 페이지 상단 옵션이 안 보임</li>
+                <li>Full Detail 내 dropdown이 Topbar 뒤에 깔리는 것 — 화면 상단 영역 옵션이 안 보임</li>
+                <li>페이지 본문의 임의 <code>overflow: hidden</code>이 popup을 잘라먹는 것 — popup은 portal로 회피</li>
+                <li>테이블 내부 / Drawer 내부 / Full Detail 내부에서 서로 다른 layer rule을 사용하는 것 — 모두 동일 token 사용</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Same</span>레이어 일관성 원칙</div>
+              <ul>
+                <li>테이블 셀 인라인 편집 → 같은 dropdown 컴포넌트 → 같은 <code>--z-dropdown</code> 사용</li>
+                <li>Drawer 내부 form → 같은 dropdown 컴포넌트 → 같은 <code>--z-dropdown</code> 사용</li>
+                <li>Full Detail 내 form → 같은 dropdown 컴포넌트 → 같은 <code>--z-dropdown</code> 사용</li>
+                <li>Dialog 내부 form → 같은 dropdown 컴포넌트 → 같은 <code>--z-dropdown</code> 사용</li>
+                <li>네 화면 모두에서 popup의 시각·동작·layer가 동일하게 보장된다 (Form Token Mapping v1의 Sync Rule과 정합)</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">QA</span>회귀 판정 기준</div>
+              <ul>
+                <li>Full Detail에서 Select 클릭 → 옵션 패널이 sticky header · Topbar 위에 보임 → <strong>PASS</strong></li>
+                <li>Full Detail에서 native select / date input UI가 1개라도 노출되면 <strong>FAIL</strong></li>
+                <li>Drawer → Full Detail 전환 후 같은 필드의 dropdown이 다른 모양으로 보이면 <strong>FAIL</strong></li>
+                <li>테이블 인라인 편집 시 dropdown이 sticky header 뒤로 깔리면 <strong>FAIL</strong></li>
+                <li>페이지 본문 overflow에 popup이 잘리면 <strong>FAIL</strong></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Form Token Mapping v1과의 정합</strong>
+            본 Rule은 Form Token Mapping v1 Section 09 “Drawer / Full Detail Sync Rule”의 layer 측면을 구체화한다.
+            “두 화면에서 같은 dropdown / calendar 컴포넌트가 같은 시각·동작을 보장한다”는 원칙은 layer 측면에서 “두 화면에서 같은 <code>--z-dropdown</code> token을 사용한다”로 풀린다.
+            Form Mapping v1의 portal 렌더링 원칙이 본 문서의 layer 매핑이 작동하기 위한 전제 조건이다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Overlay / Backdrop Rule ── -->
+      <section id="s09" class="sec" data-screen-label="09 Overlay Backdrop Rule">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Overlay / Backdrop Rule — dim layer 정책</span>
+          <span class="sbadge guide">규칙</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Drawer · Dialog · Loading의 dim layer(backdrop)와 panel 본체의 관계를 정리한다. backdrop은 항상 panel보다 아래, base content보다는 위에 있다.</p>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:18%;">Overlay Type</th>
+                <th style="width:14%;">Required Token</th>
+                <th style="width:18%;">Position vs Panel</th>
+                <th style="width:18%;">Click Behavior</th>
+                <th style="width:18%;">Stack Behavior</th>
+                <th style="width:14%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn"><span class="lchip backdrop">Drawer Backdrop</span></td>
+                <td><code>--z-drawer-backdrop</code> (1000)</td>
+                <td>Drawer panel 아래 (1000 &lt; 1100)</td>
+                <td>클릭 시 Drawer close (옵션)</td>
+                <td>Topbar · Sidebar · Sticky · Base 위 / Dialog · Dropdown 아래</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="lchip backdrop">Dialog Backdrop</span></td>
+                <td><code>--z-dialog-backdrop</code> (1200)</td>
+                <td>Dialog panel 아래 (1200 &lt; 1300)</td>
+                <td>클릭 시 Dialog close 또는 차단 (variant 별)</td>
+                <td>Drawer · Topbar 위까지 덮음 / Dropdown · Toast 아래</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="lchip loading">Global Loading Overlay</span></td>
+                <td><code>--z-global-loading</code> (3000)</td>
+                <td>모든 panel · backdrop · popup 위</td>
+                <td>클릭 차단 — pointer-events 모두 막음</td>
+                <td>Toast와의 상하는 본 문서 Decision Needed에서 결정</td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="lchip backdrop">Modal Dim Layer</span></td>
+                <td>위 3종 중 해당</td>
+                <td>—</td>
+                <td>—</td>
+                <td>Drawer / Dialog / Loading 별 자체 backdrop 사용 — 별도 layer 신설 금지</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="lchip backdrop">Click-outside Close Layer</span></td>
+                <td>—</td>
+                <td>popup 자체와 동일 layer · 단 pointer-events: auto는 popup만 활성</td>
+                <td>외부 클릭 → popup close</td>
+                <td>backdrop처럼 시각 dim을 두지 않고 투명 click-trap만 사용</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="rule-grid" style="margin-top:14px;">
+            <div class="rule-card">
+              <div class="rc-hdr">backdrop 기본 정책</div>
+              <ul>
+                <li>backdrop은 panel보다 항상 아래 z-index</li>
+                <li>backdrop은 base content보다 항상 위 z-index</li>
+                <li>Dialog backdrop은 Drawer panel보다 위에 올 수 있음 (1200 &gt; 1100) — 의도된 동작</li>
+                <li>backdrop dim 색은 토큰 기반 (별도 컬러 토큰) — z-index와 별개로 정의</li>
+                <li>backdrop은 panel과 같이 mount / unmount되어 stale dim 잔존 금지</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">click outside / close-trap 정책</div>
+              <ul>
+                <li>popup(Dropdown · Calendar · Popover)은 시각 dim 없이 transparent click-trap을 사용</li>
+                <li>click-trap은 popup과 같은 layer 또는 한 단계 아래 — pointer-events로 외부 클릭만 잡음</li>
+                <li>외부 클릭 → popup만 close, 같은 stack의 Dialog · Drawer는 닫히지 않음</li>
+                <li>ESC 키 우선 처리 — 가장 위 popup → Dialog → Drawer 순으로 닫힘</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">Loading Overlay 정책</div>
+              <ul>
+                <li>Loading은 모든 panel · backdrop · popup · toast 위에 두는 것이 기본 후보</li>
+                <li>Loading 중에는 pointer-events 모두 차단 · 키보드 입력도 차단(ESC 제외 검토)</li>
+                <li>Loading dim 색은 backdrop과 다르게 — 사용자 인지 가능한 톤</li>
+                <li>Loading 노출 시 page scroll lock — body overflow hidden</li>
+                <li>Toast와의 상하는 본 문서 Section 04 Decision Needed에서 PM 결정</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">Modal dim 단일화 원칙</div>
+              <ul>
+                <li>“dim layer”라는 별도 token을 새로 만들지 않음 — Drawer / Dialog / Loading의 자체 backdrop을 사용</li>
+                <li>Drawer 위 Dialog가 떠 있을 때 dim은 Dialog backdrop으로 통합 — 이중 dim 금지</li>
+                <li>dim 강도 변경이 필요한 경우 backdrop의 색 토큰을 조정 (z-index와 별개)</li>
+                <li>임시 dim이 필요한 경우 (예: drag preview overlay) 본 문서 v2에서 신규 token 합의</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>backdrop의 클릭 동작은 variant 별로 다르다</strong>
+            Drawer backdrop은 클릭 시 Drawer close (기본). Dialog backdrop의 클릭 동작은 Dialog variant 별로 다르며 (Confirm: 차단 / Light Dialog: close), 본 layer 매핑은 클릭 동작은 다루지 않는다.
+            본 문서는 z-index 순서만 정의하고, 클릭 동작 정책은 Drawer Guide / Dialog Guide에서 정의한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S10 Do / Don't ── -->
+      <section id="s10" class="sec" data-screen-label="10 Do Don't">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Do / Don't — 구현 원칙</span>
+          <span class="sbadge guide">원칙</span>
+        </div>
+        <div class="sec-body">
+          <div class="dd-grid">
+            <div class="dd-col good">
+              <div class="dd-hdr">Do</div>
+              <ul>
+                <li>모든 z-index는 <strong>layer token 기반</strong>으로 구현 (<code>--z-base</code> ~ <code>--z-global-loading</code> 13종만 사용)</li>
+                <li>popup이 열리는 <strong>owning context</strong>를 항상 고려 — Drawer · Dialog · Full Detail · 테이블 내부 모두 같은 token 사용</li>
+                <li>popup은 반드시 <strong>portal 렌더링</strong> — <code>document.body</code> 직속에 mount하여 stacking context 격리 회피</li>
+                <li>Drawer · Dialog · Full Detail · Light · Dark <strong>5개 상태 동시 QA</strong></li>
+                <li>light / dark에서 overlay 투명도(backdrop · dim)가 모두 충분히 보이는지 확인</li>
+                <li>overflow hidden 부모에 popup이 갇히지 않는지 확인 — popup은 viewport 기준 fixed position</li>
+                <li>backdrop은 panel보다 아래, base content보다 위로 유지</li>
+                <li>Dialog가 Drawer 위에서 열릴 때 Dialog backdrop이 Drawer까지 dim 처리</li>
+              </ul>
+            </div>
+            <div class="dd-col bad">
+              <div class="dd-hdr">Don't</div>
+              <ul>
+                <li>z-index 숫자(<code>9999</code>, <code>100</code>, <code>1</code>)를 컴포넌트 CSS에 직접 하드코딩</li>
+                <li>컴포넌트마다 임의 z-index를 부여 — 단일 token 13개 외 추가 금지</li>
+                <li>popup을 native <code>&lt;select&gt;</code> · <code>&lt;input type="date"&gt;</code>에 맡겨 OS 기본 UI로 회귀</li>
+                <li>Drawer · Dialog 안쪽 popup이 panel 뒤에 깔리게 두기 (portal 미사용 시 발생)</li>
+                <li>overflow hidden으로 popup을 잘라먹기 — Drawer · Dialog · Full Detail에서 자주 발생</li>
+                <li>전체 CSS를 한 번에 수정 — layer 구현은 token 추가 또는 단일 layer 문제만 제한 수정</li>
+                <li>Drawer 전용 dropdown layer와 Full Detail 전용 dropdown layer를 분리 — 같은 token 사용</li>
+                <li>backdrop을 panel과 같은 z-index 또는 위로 두기 — panel이 backdrop에 가려짐</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S11 Implementation Gate Checklist ── -->
+      <section id="s11" class="sec" data-screen-label="11 Implementation Gate">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Implementation Gate Checklist — CSS 구현 진입 전 점검</span>
+          <span class="sbadge lock">Gate</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아래 항목이 모두 확정될 때까지 <code>stam.tokens.css</code>에 layer 토큰 추가, <code>stam.components.css</code>에 z-index 부여, JS portal 구현을 진입하지 않는다.</p>
+
+          <div class="gate-grid">
+            <div class="gate-step">
+              <span class="gs-n">01</span>
+              <span class="gs-body">Layer Token Mapping v1 본 문서 승인
+                <span class="gs-sub">PM · 디자인 · 개발 3자 합의 — 14개 layer scope · 13개 token candidate 확정</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">02</span>
+              <span class="gs-body">z-index token명 확정
+                <span class="gs-sub"><code>--z-base</code> · <code>--z-sticky</code> · <code>--z-sidebar</code> · <code>--z-topbar</code> · <code>--z-drawer-backdrop</code> · <code>--z-drawer</code> · <code>--z-dialog-backdrop</code> · <code>--z-dialog</code> · <code>--z-dropdown</code> · <code>--z-popover</code> · <code>--z-calendar</code> · <code>--z-toast</code> · <code>--z-global-loading</code> 네이밍 동결</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">03</span>
+              <span class="gs-body">각 token Suggested Value 확정
+                <span class="gs-sub">Section 04 표의 13개 후보값(0 · 100 · 200 · 300 · 1000 · 1100 · 1200 · 1300 · 1500 · 2000 · 3000) PM 승인</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">04</span>
+              <span class="gs-body">Drawer / Dropdown / Calendar 충돌 기준 승인
+                <span class="gs-sub">Section 06 Must · Must Not · Layer · QA 4 블록 PM 승인</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">05</span>
+              <span class="gs-body">Dialog / Dropdown / Calendar 충돌 기준 승인
+                <span class="gs-sub">Section 07 Must · Must Not · Order · Focus 4 블록 PM 승인</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">06</span>
+              <span class="gs-body">Full Detail / Page Content 규칙 승인
+                <span class="gs-sub">Section 08 native UI 회귀 금지 · 같은 token 사용 · portal 렌더링 정합 확인</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">07</span>
+              <span class="gs-body">Overlay / Backdrop 정책 승인
+                <span class="gs-sub">Section 09 5종 overlay table · backdrop 단일화 · click-outside trap 정책 확정</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">08</span>
+              <span class="gs-body">Global Loading vs Toast 결정
+                <span class="gs-sub">기본 후보 <code>--z-global-loading: 3000 &gt; --z-toast: 2000</code>을 채택할지, swap할지 PM 결정 — Decision Needed</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">09</span>
+              <span class="gs-body">Form Token Mapping v1과 충돌 없음 확인
+                <span class="gs-sub">portal 렌더링 원칙 · Drawer / Full Detail Sync Rule · <code>--z-dropdown</code> 공유 정합 확인</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">10</span>
+              <span class="gs-body">수정 허용 CSS 파일 범위 확정
+                <span class="gs-sub"><code>stam/css/stam.tokens.css</code> · <code>stam/css/stam.components.css</code> 두 파일만 허용 — 다른 CSS 미수정</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">11</span>
+              <span class="gs-body">Form · Drawer · Dialog 동시 구현 금지 확인
+                <span class="gs-sub">Layer 구현은 “token 정의만” 또는 “Select/Date Picker layer 문제만” 중 하나에 한정</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">12</span>
+              <span class="gs-body">하나의 layer 문제만 제한 수정 원칙 동결
+                <span class="gs-sub">layer 사고가 여러 컴포넌트에 걸쳐 있어도 한 번에 하나의 layer만 수정하고 회귀 점검</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S12 Cursor Handoff Notes ── -->
+      <section id="s12" class="sec" data-screen-label="12 Cursor Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Cursor Handoff Notes — 구현 핸드오프 기준</span>
+          <span class="sbadge guide">핸드오프</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Section 11 Gate가 통과되면, 아래 기준으로 Cursor에게 Layer CSS 구현 단위를 넘긴다.</p>
+
+          <div class="rule-grid">
+            <div class="rule-card">
+              <div class="rc-hdr">첫 구현 대상 · 범위</div>
+              <ul>
+                <li><strong>첫 Layer 구현은 두 옵션 중 하나만</strong> 선택 — (A) Section 04 13개 token <strong>정의만</strong> 추가, (B) Select / Date Picker 1종의 layer 문제만 수정</li>
+                <li>두 옵션 동시 진입 금지 — 한 번에 하나의 layer 문제만</li>
+                <li>수정 허용 파일은 <code>stam/css/stam.tokens.css</code> · <code>stam/css/stam.components.css</code> 외 변경 금지</li>
+                <li>JS 변경은 portal 렌더링 구현에 필요한 경우 별도 승인 후 진행</li>
+                <li><code>stam/pages/**</code> · <code>stam/index.html</code> · <code>stam/assets/**</code> · <code>_ds/**</code> · <code>uploads/**</code> 수정 금지</li>
+                <li>Firebase / GitHub Actions / package*.json 변경 금지</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">구현 시 원칙</div>
+              <ul>
+                <li>임의 z-index 숫자 금지 — 본 문서 Section 04의 13개 토큰 외 어떤 z-index 값도 추가하지 않음</li>
+                <li>토큰명은 본 문서 Section 04 Token 컬럼과 동일하게 사용</li>
+                <li>Suggested Value는 본 문서 후보값 그대로 사용 — 변경이 필요하면 v2 합의</li>
+                <li>Drawer · Dialog · Full Detail · 테이블 인라인 popup에 모두 같은 <code>--z-dropdown</code> 사용</li>
+                <li>backdrop은 panel과 분리된 별개 token 사용 — 둘을 합치지 않음</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">QA 기준</div>
+              <ul>
+                <li>Drawer · Full Detail · Dialog 각각 QA — 같은 popup이 모두 위에 보이는지 확인</li>
+                <li>dropdown / calendar popup이 owning context의 overflow에 잘리는지 확인 — 잘리면 portal 미적용</li>
+                <li>light / dark overlay QA — backdrop · dim 모두 양 테마에서 보임 확인</li>
+                <li>1440 · 1600 · 1920 가로 폭에서 페이지 레벨 가로 스크롤 없음</li>
+                <li>native select / date picker 회귀 점검 — 1개라도 노출되면 실패</li>
+                <li>git diff로 허용 파일 외 변경 없음 확인</li>
+                <li>staging 배포 후 URL(<code>https://stam-design-staging.web.app/</code>)에서 QA 진행</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">롤백 기준</div>
+              <ul>
+                <li>Docs 또는 제품 화면에서 layer 회귀 1건 이상 발생 시 즉시 revert</li>
+                <li>토큰명 충돌(기존 <code>--stam-*</code>, <code>--btn-*</code>, <code>--input-*</code> 등) 발생 시 본 문서 v2로 재합의</li>
+                <li>Drawer · Dialog · Full Detail 중 한 화면이라도 popup이 깔리면 즉시 revert</li>
+                <li>light / dark 중 한 테마에서만 깨질 경우 즉시 revert</li>
+                <li>native select · date input 회귀가 1건이라도 발견되면 즉시 revert</li>
+                <li>임의 z-index 숫자 사용이 발견되면 즉시 revert</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>핸드오프 시 명시 사항</strong>
+            본 문서는 매핑 기준 문서이며, CSS·JS·페이지·자산 변경 권한을 포함하지 않는다.
+            Cursor는 Section 04 Token Mapping 표와 Section 06–09 충돌 / overlay rule만 코드로 옮기며, 새로운 토큰명·값을 임의로 추가하지 않는다.
+            Drawer · Dialog · Full Detail 중 한쪽만 위해 별도 layer를 분기 구현하는 것은 본 문서 위반으로 간주한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S13 Related Links ── -->
+      <section id="s13" class="sec" data-screen-label="13 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Related Links — 참고 문서</span>
+          <span class="sbadge guide">관련</span>
+        </div>
+        <div class="sec-body">
+          <div class="rel-grid">
+            <a class="rel-card" href="STAM-Docs-Index.html">
+              <span class="rl-title">STAM Docs Index</span>
+              <span class="rl-sub">전체 기준 문서 인덱스</span>
+            </a>
+            <a class="rel-card" href="STAM-CSS-Token-Readiness-Check.html">
+              <span class="rl-title">CSS Token Readiness Check</span>
+              <span class="rl-sub">12 카테고리 토큰 준비상태 점검</span>
+            </a>
+            <a class="rel-card" href="STAM-Token-Inventory-v1.html">
+              <span class="rl-title">Token Inventory v1</span>
+              <span class="rl-sub">P0 / P1 / P2 토큰 후보 목록</span>
+            </a>
+            <a class="rel-card" href="STAM-Button-Token-Mapping-v1.html">
+              <span class="rl-title">Button Token Mapping v1</span>
+              <span class="rl-sub">Button variant × size × state 토큰 매핑 (선행)</span>
+            </a>
+            <a class="rel-card" href="STAM-Form-Token-Mapping-v1.html">
+              <span class="rl-title">Form Token Mapping v1</span>
+              <span class="rl-sub">Input · Select · Date Picker 토큰 매핑 (선행)</span>
+            </a>
+            <a class="rel-card" href="STAM-Component-Guide.html">
+              <span class="rl-title">Component Guide</span>
+              <span class="rl-sub">컴포넌트 전체 인덱스 · 공통 규칙</span>
+            </a>
+            <a class="rel-card" href="components/STAM-Drawer-Guide.html">
+              <span class="rl-title">Drawer Guide</span>
+              <span class="rl-sub">Drawer Anatomy · Tab Structure · 스크롤</span>
+            </a>
+            <a class="rel-card" href="components/STAM-Dialog-Guide.html">
+              <span class="rl-title">Dialog Guide</span>
+              <span class="rl-sub">Dialog Anatomy · Confirm · Alert · Focus Trap</span>
+            </a>
+            <a class="rel-card" href="components/STAM-Form-Guide.html">
+              <span class="rl-title">Form Guide</span>
+              <span class="rl-sub">Input · Select · Date Picker · Calendar popup</span>
+            </a>
+            <a class="rel-card" href="STAM-UI-Baseline-Guide.html">
+              <span class="rl-title">UI Baseline Guide</span>
+              <span class="rl-sub">폰트 · 레이아웃 · Forbidden Rules 기준</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>

@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Form Token Mapping v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ── Form Token Mapping v1 전용 보조 스타일 (이 문서 안에서만 사용) ── */
+
+/* status pill */
+.spill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-family: var(--font);
+  white-space: nowrap;
+}
+.spill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.spill.ready    { background: var(--pass-bg); color: var(--pass); }
+.spill.partial  { background: var(--warn-bg); color: var(--warn); }
+.spill.missing  { background: var(--fail-bg); color: var(--fail); }
+.spill.decide   { background: var(--purple-bg); color: var(--purple); }
+.spill.candidate{ background: var(--info-bg); color: var(--info); }
+.spill.hold     { background: var(--skip-bg); color: var(--skip); }
+
+/* priority pill */
+.ppill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  font-family: var(--font);
+  white-space: nowrap;
+}
+.ppill::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.ppill.p0 { background: var(--fail-bg); color: var(--fail); }
+.ppill.p1 { background: var(--warn-bg); color: var(--warn); }
+.ppill.p2 { background: var(--info-bg); color: var(--info); }
+
+/* field type chip — field 형태별 표식 */
+.fchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  font-family: var(--font);
+  white-space: nowrap;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  color: var(--t1);
+}
+.fchip.input    { background: var(--info-bg);   color: var(--info);   border-color: transparent; }
+.fchip.select   { background: var(--purple-bg); color: var(--purple); border-color: transparent; }
+.fchip.date     { background: var(--warn-bg);   color: var(--warn);   border-color: transparent; }
+.fchip.textarea { background: var(--skip-bg);   color: var(--skip);   border-color: transparent; }
+.fchip.check    { background: var(--pass-bg);   color: var(--pass);   border-color: transparent; }
+.fchip.radio    { background: var(--pass-bg);   color: var(--pass);   border-color: transparent; }
+.fchip.search   { background: var(--info-bg);   color: var(--info);   border-color: transparent; }
+.fchip.file     { background: var(--skip-bg);   color: var(--skip);   border-color: transparent; }
+
+/* generic mapping table */
+.fm-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font);
+  font-size: 11.5px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.fm-tbl th {
+  padding: 9px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  text-align: left;
+  color: var(--t3);
+  border-bottom: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.fm-tbl td {
+  padding: 10px;
+  border-bottom: 1px solid var(--bd);
+  color: var(--t2);
+  vertical-align: top;
+  line-height: 1.6;
+}
+.fm-tbl tbody tr:last-child td { border-bottom: none; }
+.fm-tbl td.tn {
+  color: var(--t1);
+  font-weight: 700;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.fm-tbl td code {
+  font-family: var(--font);
+  font-size: 10.5px;
+  color: var(--t1);
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 1px 6px;
+  letter-spacing: .005em;
+  white-space: nowrap;
+}
+.fm-tbl td.note { color: var(--t3); font-size: 10.5px; }
+
+.fm-wrap { overflow-x: auto; }
+.fm-tbl  { min-width: 880px; }
+
+/* caption */
+.fm-cap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t1);
+  letter-spacing: -.005em;
+}
+.fm-cap .fm-cap-n {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--stam-soft);
+  color: var(--stam);
+  font-size: 10.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.fm-cap-sub {
+  font-size: 10.5px;
+  color: var(--t3);
+  font-weight: 500;
+  letter-spacing: 0;
+  margin-left: 4px;
+}
+
+/* scope cards grid */
+.scope-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+@media (max-width: 1100px) { .scope-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px)  { .scope-grid { grid-template-columns: 1fr; } }
+
+.scope-card {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.scope-card .sc-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--t1);
+  letter-spacing: -.005em;
+}
+.scope-card .sc-sub {
+  font-size: 10.5px;
+  color: var(--t3);
+  line-height: 1.55;
+  letter-spacing: .005em;
+}
+
+/* gate / step */
+.gate-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (max-width: 760px) { .gate-grid { grid-template-columns: 1fr; } }
+.gate-step {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.gate-step .gs-n {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--stam-soft);
+  color: var(--stam);
+  font-size: 10.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: .02em;
+}
+.gate-step .gs-body {
+  flex: 1 1 auto;
+  font-size: 12px;
+  color: var(--t1);
+  line-height: 1.55;
+  font-weight: 600;
+}
+.gate-step .gs-sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 10.5px;
+  color: var(--t3);
+  font-weight: 500;
+  letter-spacing: .01em;
+}
+.gate-step .gs-sub code {
+  font-family: var(--font);
+  font-size: 10px;
+  color: var(--t1);
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 0 5px;
+}
+
+/* a11y / rule grid */
+.rule-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (max-width: 760px) { .rule-grid { grid-template-columns: 1fr; } }
+.rule-card {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+}
+.rule-card .rc-hdr {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--t1);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rule-card .rc-hdr::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--stam);
+  display: inline-block;
+}
+.rule-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.rule-card li {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--t2);
+  padding-left: 12px;
+  position: relative;
+}
+.rule-card li::before {
+  content: "·";
+  position: absolute;
+  left: 2px;
+  top: -2px;
+  color: var(--t3);
+  font-weight: 800;
+}
+.rule-card li code {
+  font-family: var(--font);
+  font-size: 10.5px;
+  color: var(--t1);
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+/* do / don't grid */
+.dd-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 760px) { .dd-grid { grid-template-columns: 1fr; } }
+.dd-col {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+}
+.dd-col.good { border-color: rgba(0,191,64,.22); }
+.dd-col.bad  { border-color: rgba(255,66,66,.22); }
+.dd-col .dd-hdr {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.dd-col.good .dd-hdr { color: var(--pass); }
+.dd-col.bad  .dd-hdr { color: var(--fail); }
+.dd-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dd-col li {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--t2);
+  padding-left: 14px;
+  position: relative;
+}
+.dd-col.good li::before { content: "✓"; position: absolute; left: 0; color: var(--pass); font-weight: 800; }
+.dd-col.bad  li::before { content: "✕"; position: absolute; left: 0; color: var(--fail); font-weight: 800; }
+.dd-col li code {
+  font-family: var(--font);
+  font-size: 10.5px;
+  color: var(--t1);
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+/* sync rule highlight box */
+.sync-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 760px) { .sync-grid { grid-template-columns: 1fr; } }
+.sync-col {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+}
+.sync-col .sy-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--t1);
+}
+.sync-col .sy-hdr .sy-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: .04em;
+  background: var(--stam-soft);
+  color: var(--stam);
+  text-transform: uppercase;
+}
+.sync-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sync-col li {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--t2);
+  padding-left: 14px;
+  position: relative;
+}
+.sync-col li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--stam);
+  font-weight: 800;
+}
+.sync-col li code {
+  font-family: var(--font);
+  font-size: 10.5px;
+  color: var(--t1);
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+/* flow strip — Drawer ↔ Full Detail 흐름 */
+.flow-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px dashed var(--bd-s);
+  background: var(--bg-sur);
+  border-radius: var(--r-md);
+}
+.flow-strip .fs-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--t1);
+  letter-spacing: -.005em;
+}
+.flow-strip .fs-node .fs-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--stam);
+  display: inline-block;
+}
+.flow-strip .fs-arrow {
+  color: var(--t3);
+  font-weight: 700;
+  font-size: 12px;
+}
+.flow-strip .fs-meta {
+  font-size: 10.5px;
+  color: var(--t3);
+  margin-left: auto;
+  letter-spacing: .005em;
+}
+
+/* related link grid */
+.rel-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 900px) { .rel-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px) { .rel-grid { grid-template-columns: 1fr; } }
+.rel-card {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color .15s ease, background .15s ease;
+}
+.rel-card:hover { border-color: var(--bd-s); background: var(--bg-sur); }
+.rel-card .rl-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t1);
+  letter-spacing: -.005em;
+}
+.rel-card .rl-sub {
+  font-size: 10.5px;
+  color: var(--t3);
+  line-height: 1.55;
+}
+
+/* force S-Core Dream */
+.spill, .ppill, .fchip, .fm-tbl, .fm-tbl *,
+.scope-card, .scope-card *, .gate-step, .gate-step *,
+.rule-card, .rule-card *, .dd-col, .dd-col *,
+.sync-col, .sync-col *, .flow-strip, .flow-strip *,
+.fm-cap, .fm-cap *, .rel-card, .rel-card * {
+  font-family: var(--font) !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Form Token Mapping v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Mapping Draft</span>
+  <span class="doc-nav-pill"><span class="dot"></span>CSS Implementation Hold</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Drawer / Full Detail Sync Required</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Form Mapping</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Form Scope</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Field Matrix</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Size Matrix</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>State Matrix</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Select / Dropdown Rule</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Date Picker Rule</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Token Mapping</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Drawer / Full Detail Sync</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>A11y / Interaction</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Do / Don't</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Implementation Gate</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Cursor Handoff</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Status Banner ── -->
+      <div class="ibox info" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <strong>STAM Form Token Mapping v1</strong>
+          <span class="sbadge plan" style="margin-left:auto;">Mapping Draft</span>
+        </div>
+        <p style="margin:0 0 8px;font-size:.88em;line-height:1.7;opacity:.9;">
+          본 문서는 <strong>실제 Form CSS 구현 작업이 아니라, Form / Select / Date Picker 컴포넌트가 사용할 토큰의 field × size × state 매핑 기준을 사전 확정하는 매핑 문서</strong>이다.
+          <em>Token Inventory v1</em>에서 후보로 제안된 Form State 토큰을 Input · Select · Date Picker · Checkbox · Radio · Validation 축으로 풀어서 표로 정리하며,
+          본 문서로는 <code>stam/css/**</code>, <code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/index.html</code>, <code>stam/assets/**</code>를 절대 수정하지 않는다.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:6px;">
+          <span class="sbadge plan">Mapping Draft</span>
+          <span class="sbadge lock">CSS Implementation Hold</span>
+          <span class="sbadge lock">Drawer / Full Detail Sync Required</span>
+          <span class="sbadge guide">Pre-Implementation</span>
+          <span class="sbadge lock">No CSS Edit</span>
+        </div>
+        <p style="margin:10px 0 0;font-size:.82em;line-height:1.65;opacity:.78;">
+          <strong>판정 근거</strong> — Token Inventory v1에서 Form State P0 토큰(<code>--input-*</code>, <code>--dropdown-*</code>, <code>--calendar-*</code>, <code>--field-*</code>)이 후보로 제안되었으나, Drawer 수정 화면과 Full Detail 수정 화면이 같은 Form 컴포넌트를 공유해야 한다는 동기화 기준, native select / date input 회귀 차단 기준, dropdown / calendar popup z-index 충돌 차단 기준이 확정되지 않은 상태이다. 본 문서로 매핑과 동기화 원칙을 확정해야 Form CSS 구현 단위에 진입할 수 있다.
+        </p>
+      </div>
+
+      <!-- ── S01 Overview ── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            CSS Token Readiness Check가 “전체 토큰 충분성”을, Token Inventory v1이 “신규 토큰 후보 목록”을, Button Token Mapping v1이 “Button variant × size × state” 매핑을 확정했다면,
+            본 Form Token Mapping v1은 <strong>“Input · Select · Date Picker · Checkbox · Radio · Validation이 실제로 어느 토큰을 어떻게 쓰는지” field × size × state 축으로 1:1 매핑</strong>을 확정한다.
+            특히 <strong>Drawer 수정 화면과 전체 상세 수정 화면에서 동일한 Form 컴포넌트를 사용해야 한다는 동기화 원칙</strong>을 본 문서에서 동결하여, 두 화면 사이의 시각·인터랙션 회귀를 차단한다.
+            기획자·PM도 “어떤 필드가 어떤 토큰을 참조하는지”를 한 화면에서 읽고 승인할 수 있어야 하며,
+            개발자는 후속 Form CSS 구현 단위에서 본 문서를 그대로 클래스·토큰 참조 기준으로 사용한다.
+          </p>
+
+          <div class="dd-grid" style="margin-top:8px;">
+            <div class="dd-col good">
+              <div class="dd-hdr">이 문서가 다루는 것</div>
+              <ul>
+                <li>Form field 범위 (Input · Textarea · Select · Custom Dropdown · Date Picker · Calendar · Checkbox · Radio · Search · Validation · Label · Required · Helper)</li>
+                <li>Input size 기준 (sm / md / lg / dense) 후보값</li>
+                <li>Form state 매트릭스 (default / hover / focus / active / disabled / readonly / error / success / warning / required / filled / empty)</li>
+                <li>Select · Dropdown · Date Picker · Calendar 인터랙션 규칙</li>
+                <li>field × state → 토큰 1:1 매핑 표</li>
+                <li>Drawer ↔ Full Detail Sync Rule (동일 컴포넌트 재사용 원칙)</li>
+                <li>접근성 · 인터랙션 규칙</li>
+                <li>실제 CSS 구현 전 Gate Checklist</li>
+                <li>Cursor 핸드오프 기준</li>
+              </ul>
+            </div>
+            <div class="dd-col bad">
+              <div class="dd-hdr">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/css/**</code> 토큰 추가 / 값 변경</li>
+                <li><code>stam/css/**</code> Form 클래스·셀렉터 CSS 구현</li>
+                <li><code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/index.html</code> 변경</li>
+                <li><code>stam/assets/**</code> 변경</li>
+                <li>Button · Dialog · Drawer · Table 등 타 컴포넌트 매핑</li>
+                <li>Form Guide / Component Guide 본문 수정</li>
+                <li>Firebase / GitHub Actions / package*.json 변경</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>선행 문서와의 관계</strong>
+            <span style="display:block;margin-top:4px;line-height:1.7;">
+              · <a href="STAM-UI-Baseline-Guide.html" style="color:var(--stam);">UI Baseline Guide</a> — 폰트·레이아웃·Forbidden Rules 기준<br>
+              · <a href="STAM-Component-Guide.html" style="color:var(--stam);">Component Guide</a> — 컴포넌트 전체 변형·사이즈·상태 정의<br>
+              · <a href="components/STAM-Form-Guide.html" style="color:var(--stam);">Form Guide</a> — Input · Select · Checkbox · Radio · Textarea · Validation 상세 가이드<br>
+              · <a href="components/STAM-Drawer-Guide.html" style="color:var(--stam);">Drawer Guide</a> — Drawer Anatomy · Tab Structure · 스크롤 기준 (Form Sync 대상)<br>
+              · <a href="STAM-CSS-Token-Readiness-Check.html" style="color:var(--stam);">CSS Token Readiness Check</a> — 12 카테고리 Ready / Partial / Missing 점검<br>
+              · <a href="STAM-Token-Inventory-v1.html" style="color:var(--stam);">Token Inventory v1</a> — Form State P0 토큰 후보<br>
+              · <a href="STAM-Button-Token-Mapping-v1.html" style="color:var(--stam);">Button Token Mapping v1</a> — Button variant × size × state 매핑 (선행)<br>
+              · <strong>STAM Form Token Mapping v1</strong> <em style="opacity:.6;">(현재 문서)</em> — Input · Select · Date Picker 토큰 매핑 + Drawer / Full Detail Sync 확정
+            </span>
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>주의 — Mapping은 코드 변경이 아니다</strong>
+            본 문서의 Candidate 토큰명·라이트/다크 값·size 후보값은 모두 <em>매핑 기준 후보</em>이며,
+            실제 토큰 추가·CSS 클래스 작성·Form 스타일 구현은 후속 Form CSS 구현 단위에서 코드 변경과 함께 확정한다.
+            본 문서만으로 <code>stam.tokens.css</code> · <code>stam.components.css</code> 등 어떤 CSS 파일도 수정하지 않는다.
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>핵심 원칙 — Drawer / Full Detail은 같은 Form을 본다</strong>
+            STAM의 수정 흐름은 <em>리스트 → Drawer 수정 → 전체 상세 → Drawer 수정 복귀</em>로 순환한다.
+            Drawer 수정 화면과 Full Detail 수정 화면은 <strong>동일한 Input · Select · Date Picker 마크업과 init 함수를 공유</strong>해야 하며,
+            두 화면에서 같은 필드가 다르게 보이면 본 매핑 위반으로 간주한다. 상세 규칙은 Section 09에서 정의한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Form Scope ── -->
+      <section id="s02" class="sec" data-screen-label="02 Form Scope">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Form Scope — 본 매핑이 다루는 Form 범위</span>
+          <span class="sbadge plan">범위</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아래 13개 Form 요소가 본 매핑의 대상이다. 시각 컴포넌트와 보조 요소(Label · Required · Helper · Validation)를 모두 포함한다.</p>
+
+          <div class="scope-grid">
+            <div class="scope-card">
+              <div class="sc-top"><span class="fchip input">Text Input</span></div>
+              <div class="sc-sub">단일행 텍스트 입력. WBS · 산출물 · 인사 등 모든 수정 화면 기본.</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="fchip textarea">Textarea</span></div>
+              <div class="sc-sub">다중행 입력. 설명 · 메모 · 회의록. resize 정책 별도 정의.</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="fchip select">Select Box</span></div>
+              <div class="sc-sub">단일 선택. native select 기본 UI 노출 금지.</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="fchip select">Custom Dropdown</span></div>
+              <div class="sc-sub">검색 · 다중 선택 · 그룹 옵션 등. STAM 공통 dropdown 컴포넌트.</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="fchip date">Date Picker</span></div>
+              <div class="sc-sub">단일 날짜 · 기간. native date input 회귀 금지.</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="fchip date">Calendar Popup</span></div>
+              <div class="sc-sub">Date Picker 클릭 시 노출되는 popup. z-index · 다크모드 별도.</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="fchip check">Checkbox</span></div>
+              <div class="sc-sub">단일 · 다중 선택. 체크 · 미체크 · indeterminate 3 state.</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="fchip radio">Radio</span></div>
+              <div class="sc-sub">단일 선택 그룹. 그룹 내 1개만 선택.</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="fchip search">Search Field</span></div>
+              <div class="sc-sub">목록 검색 · 명령어 검색. 좌측 아이콘 · 우측 클리어 버튼.</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="fchip" style="background:var(--bg-sur);">Validation</span></div>
+              <div class="sc-sub">error / success / warning 메시지. 색·아이콘·텍스트 3원칙.</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="fchip" style="background:var(--bg-sur);">Field Label</span></div>
+              <div class="sc-sub">필드 상단·좌측 라벨. for 속성 필수.</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="fchip" style="background:var(--bg-sur);">Required Mark</span></div>
+              <div class="sc-sub">필수 표시 (* 등). 색 단독 의존 금지.</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="fchip" style="background:var(--bg-sur);">Helper Text</span></div>
+              <div class="sc-sub">필드 하단 보조 설명. 에러 메시지와 영역 공유.</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="fchip file">File / URL Ref</span></div>
+              <div class="sc-sub">산출물 첨부 · 외부 링크. 파일명 · 링크 미리보기 영역 정의.</div>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>본 문서가 다루지 않는 Form 요소</strong>
+            Toggle Switch, Stepper(증감 컨트롤), Range Slider, Color Picker, Rich Text Editor, Combobox(타이핑 가능한 select), Multi-select Tag Input은 v1 범위 밖이며 후속 단계에서 별도 매핑한다.
+            Tag · Chip · Badge는 Form 필드가 아니므로 별도 컴포넌트로 매핑한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 Field Matrix ── -->
+      <section id="s03" class="sec" data-screen-label="03 Field Matrix">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Form Field Matrix — 필드별 역할 · 토큰 의존성</span>
+          <span class="sbadge plan">매트릭스</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Field는 사용 위치(Usage)와 Drawer / Full Detail에서의 사용 원칙(Sync Rule)으로 정의한다. <strong>Required Tokens</strong>는 해당 필드 구현에 필수인 토큰 그룹이며, 상세 토큰명은 Section 08에서 풀린다.</p>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:12%;">Field Type</th>
+                <th style="width:21%;">Usage</th>
+                <th style="width:21%;">Required Tokens</th>
+                <th style="width:14%;">Interaction Risk</th>
+                <th style="width:20%;">Drawer / Full Detail Rule</th>
+                <th style="width:12%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn"><span class="fchip input">Text Input</span></td>
+                <td>WBS Task명 · 산출물명 · 사용자명 등 단일행 텍스트.</td>
+                <td><code>--input-bg</code> · <code>--input-border</code> · <code>--input-text</code> · <code>--input-placeholder</code></td>
+                <td>focus ring 누락 시 키보드 사용자 손실.</td>
+                <td>동일 markup · class · init 사용. 폭만 컨테이너로 조절.</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="fchip textarea">Textarea</span></td>
+                <td>설명 · 메모 · 회의록 · 변경 사유.</td>
+                <td><code>--input-bg</code> · <code>--input-border</code> · <code>--input-text</code> · line-height 토큰</td>
+                <td>resize 정책 불일치 시 Drawer 폭 깨짐.</td>
+                <td>resize 정책(vertical only)을 두 화면에서 동일하게 적용.</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="fchip select">Select</span></td>
+                <td>담당자 · 상태 · 우선순위 등 enum 단일 선택.</td>
+                <td><code>--dropdown-*</code> · <code>--input-*</code> (트리거)</td>
+                <td>native 파란 option UI 노출 시 디자인 위반.</td>
+                <td>두 화면 모두 custom select 사용. native &lt;select&gt; 직접 노출 금지.</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="fchip date">Date Picker</span></td>
+                <td>WBS 시작일·종료일 · 산출물 제출 기한.</td>
+                <td><code>--calendar-*</code> · <code>--input-*</code> (트리거)</td>
+                <td>native date input UI 회귀 · OS별 UI 차이.</td>
+                <td>두 화면 모두 custom date picker 사용. native &lt;input type="date"&gt; 노출 금지.</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="fchip check">Checkbox</span></td>
+                <td>다중 선택 · 약관 동의 · indeterminate 표시.</td>
+                <td><code>--input-border</code> · <code>--stam</code> (selected) · focus ring</td>
+                <td>hit-area 부족 · selected 시 대비 부족.</td>
+                <td>두 화면 모두 동일 체크 마크 SVG · 동일 사이즈 사용.</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="fchip radio">Radio</span></td>
+                <td>단일 선택 그룹. 상태 · 카테고리 분기.</td>
+                <td><code>--input-border</code> · <code>--stam</code> (selected) · focus ring</td>
+                <td>그룹 내 keyboard 이동(↑↓) 누락.</td>
+                <td>두 화면 모두 동일 그룹 컴포넌트 · 동일 keyboard 동작.</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="fchip search">Search</span></td>
+                <td>목록 검색 · Custom Dropdown 내부 검색.</td>
+                <td><code>--input-*</code> · 좌측 아이콘 · 우측 클리어</td>
+                <td>클리어 버튼 hit-area 부족 · 엔터 동작 누락.</td>
+                <td>Drawer 내부 검색 / Full Detail 검색 동일 컴포넌트.</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="fchip file">File / URL Ref</span></td>
+                <td>산출물 파일 첨부 · 외부 URL 참조.</td>
+                <td><code>--input-*</code> · 파일명 영역 · 액션 버튼</td>
+                <td>긴 파일명 overflow · 보안 정책 충돌.</td>
+                <td>두 화면 모두 동일 첨부 컴포넌트 · 동일 파일명 표시 규칙.</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>필드 선택 우선순위</strong>
+            한 필드에 대해 <em>“Drawer는 select, Full Detail은 input”</em> 같은 분기는 금지한다.
+            같은 데이터 항목은 같은 필드 타입으로 통일하며, 화면에 따라 폭·표시 형식만 컨테이너로 조절한다.
+            Select / Date Picker는 항상 STAM custom 컴포넌트를 사용한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Size Matrix ── -->
+      <section id="s04" class="sec" data-screen-label="04 Size Matrix">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Input Size Matrix — 사이즈 기준 후보값</span>
+          <span class="sbadge plan">매트릭스</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">현재 STAM 제품의 Topbar 48px · Button md 32px · Drawer footer 36–40px 기준에 정합하는 현실적인 후보값이다. 모든 값은 <em>후보</em>이며 실제 CSS 반영은 후속 단위에서 한다.</p>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:8%;">Size</th>
+                <th style="width:9%;">Height</th>
+                <th style="width:10%;">Padding X</th>
+                <th style="width:10%;">Font Size</th>
+                <th style="width:9%;">Radius</th>
+                <th style="width:8%;">Gap</th>
+                <th style="width:32%;">Usage</th>
+                <th style="width:14%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn">sm</td>
+                <td><code>28px</code></td>
+                <td><code>10px</code></td>
+                <td><code>12px</code></td>
+                <td><code>var(--r-sm)</code></td>
+                <td><code>6px</code></td>
+                <td>Table 인라인 편집 · Filter · Topbar 검색</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">md</td>
+                <td><code>32px</code></td>
+                <td><code>12px</code></td>
+                <td><code>13px</code></td>
+                <td><code>var(--r-md)</code></td>
+                <td><code>6px</code></td>
+                <td>기본 사이즈. Drawer 수정 / Full Detail 수정 / 일반 폼 — Drawer ↔ Full Detail 동일 적용</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">lg</td>
+                <td><code>40px</code></td>
+                <td><code>14px</code></td>
+                <td><code>14px</code></td>
+                <td><code>var(--r-md)</code></td>
+                <td><code>8px</code></td>
+                <td>강조 입력 · 온보딩 · 로그인 · 모달 메인 필드</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">dense</td>
+                <td><code>24px</code></td>
+                <td><code>8px</code></td>
+                <td><code>11px</code></td>
+                <td><code>var(--r-sm)</code></td>
+                <td><code>4px</code></td>
+                <td>WBS 그리드 인라인 셀 편집 · 산출물 목록 인라인 편집</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- Checkbox / Radio 별도 표 -->
+          <div class="fm-cap"><span class="fm-cap-n">★</span>Checkbox / Radio Size <span class="fm-cap-sub">정사각형 / 원형 hit-area 후보</span></div>
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:12%;">Field</th>
+                <th style="width:12%;">Size</th>
+                <th style="width:14%;">Box Size</th>
+                <th style="width:14%;">Hit Area</th>
+                <th style="width:34%;">Usage</th>
+                <th style="width:14%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn">Checkbox</td><td>sm</td><td><code>14 × 14</code></td><td><code>≥ 24 × 24</code></td><td>Table row 다중 선택 · 인라인 동의</td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn">Checkbox</td><td>md</td><td><code>16 × 16</code></td><td><code>≥ 32 × 32</code></td><td>Drawer · Full Detail 수정 폼 기본</td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn">Radio</td><td>sm</td><td><code>14 × 14</code></td><td><code>≥ 24 × 24</code></td><td>Filter 그룹 · Toolbar 그룹</td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn">Radio</td><td>md</td><td><code>16 × 16</code></td><td><code>≥ 32 × 32</code></td><td>Drawer · Full Detail 수정 폼 기본</td><td><span class="spill candidate">후보</span></td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>후보값 제약</strong>
+            현재 <code>--topbar-h</code> 48px · Button md 32px 기준과 정합하기 위해 Input md = 32px를 기본 사이즈로 둔다.
+            <strong>Drawer 수정 화면과 Full Detail 수정 화면은 동일 size(md=32px)를 사용</strong>한다. Drawer만 dense로 줄이는 등의 분기는 금지한다.
+            dense=24px는 WBS · 산출물 그리드 인라인 편집 한정 — 일반 수정 폼에서는 사용하지 않는다.
+            lg=40px는 로그인 · 온보딩 · 강조 모달 한정.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 State Matrix ── -->
+      <section id="s05" class="sec" data-screen-label="05 State Matrix">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Form State Matrix — 상태별 토큰 후보값</span>
+          <span class="sbadge plan">매트릭스</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">11개 상태(default · hover · focus · active · disabled · readonly · error · success · warning · required · filled / empty)별 Required Tokens와 Light / Dark 후보값. 색상 후보는 Token Inventory v1 P0 Form State 후보와 정합한다.</p>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:10%;">State</th>
+                <th style="width:24%;">Required Tokens</th>
+                <th style="width:20%;">Light Value Candidate</th>
+                <th style="width:20%;">Dark Value Candidate</th>
+                <th style="width:16%;">Accessibility Note</th>
+                <th style="width:10%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn">default</td>
+                <td><code>--input-bg</code> · <code>--input-border</code> · <code>--input-text</code> · <code>--input-placeholder</code></td>
+                <td>bg <code>#FFFFFF</code> · border <code>#CBD5E1</code></td>
+                <td>bg <code>var(--bg-sur)</code> · border <code>rgba(180,184,200,.20)</code></td>
+                <td>placeholder 대비비 4.5:1 이상</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">hover</td>
+                <td><code>--input-bg-hover</code> · <code>--input-border-hover</code></td>
+                <td>border <code>#94A3B8</code></td>
+                <td>border <code>rgba(180,184,200,.32)</code></td>
+                <td>hover 단독 의존 금지 (focus 보장)</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">focus</td>
+                <td><code>--input-border-focus</code> · <code>--btn-focus-ring</code> (공유)</td>
+                <td>border <code>var(--stam)</code> · ring <code>0 0 0 3px rgba(84,81,232,.30)</code></td>
+                <td>border <code>var(--stam)</code> · ring <code>0 0 0 3px rgba(139,127,248,.40)</code></td>
+                <td>focus-visible 필수 · native outline 무작정 제거 금지</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">active</td>
+                <td><code>--input-border-focus</code> 유지</td>
+                <td>focus와 동일</td>
+                <td>focus와 동일</td>
+                <td>입력 중 시각 변화 최소 — 깜빡임 방지</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">disabled</td>
+                <td><code>--input-bg-disabled</code> · <code>--input-disabled-text</code> · <code>cursor:not-allowed</code></td>
+                <td>bg <code>#F1F5F9</code> · text <code>#94A3B8</code></td>
+                <td>bg <code>rgba(255,255,255,.04)</code> · text <code>rgba(240,241,245,.40)</code></td>
+                <td>opacity 단독 금지 · pointer-events 차단</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">readonly</td>
+                <td><code>--input-bg</code> 유지 · <code>--input-text</code> · 테두리만 약화</td>
+                <td>border <code>rgba(203,213,225,.55)</code></td>
+                <td>border <code>rgba(180,184,200,.12)</code></td>
+                <td>readonly와 disabled 시각 구분 필수</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">error</td>
+                <td><code>--input-error-border</code> · <code>--field-error-text</code> · helper 영역</td>
+                <td>border <code>#DC2626</code> · text <code>#B91C1C</code></td>
+                <td>border <code>#EF4444</code> · text <code>#FCA5A5</code></td>
+                <td>색상 단독 의존 금지 · 아이콘 · 텍스트 메시지 동반</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">success</td>
+                <td><code>--input-success-border</code> · success 아이콘</td>
+                <td>border <code>#16A34A</code></td>
+                <td>border <code>#22C55E</code></td>
+                <td>success도 아이콘 · 텍스트 메시지 동반</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">warning</td>
+                <td><code>--input-warning-border</code> · warning 아이콘</td>
+                <td>border <code>#D97706</code></td>
+                <td>border <code>#F59E0B</code></td>
+                <td>warning은 error와 시각 분리</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">required</td>
+                <td><code>--field-label</code> · required mark 색·아이콘</td>
+                <td>mark <code>#DC2626</code></td>
+                <td>mark <code>#FCA5A5</code></td>
+                <td>색·기호·텍스트 3원칙 — “필수” 텍스트 또는 aria-required 병행</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">filled / empty</td>
+                <td><code>--input-text</code> · <code>--input-placeholder</code> 구분</td>
+                <td>filled <code>#0F172A</code> · placeholder <code>#94A3B8</code></td>
+                <td>filled <code>#F0F1F5</code> · placeholder <code>rgba(240,241,245,.45)</code></td>
+                <td>placeholder만으로 라벨 대체 금지</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>상태 우선순위 (CSS specificity)</strong>
+            disabled &gt; readonly &gt; error &gt; warning &gt; success &gt; focus &gt; hover &gt; default 순으로 시각 효과를 처리한다.
+            disabled · readonly 상태에서는 hover · active 효과를 모두 차단한다.
+            error · warning · success는 동시에 표시하지 않으며, 한 필드는 한 시점에 하나의 validation 상태만 가진다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 Select / Dropdown Rule ── -->
+      <section id="s06" class="sec" data-screen-label="06 Select Dropdown Rule">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Select / Dropdown Rule — 공통 인터랙션 규칙</span>
+          <span class="sbadge guide">규칙</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">native &lt;select&gt;의 운영체제별 파란 option UI는 STAM 디자인 시스템에서 노출 금지이다. Drawer · Full Detail 모두 동일한 custom select / dropdown 컴포넌트를 사용해야 하며, 옵션 hover / selected / focus · keyboard navigation · placeholder · disabled · z-index 기준은 본 표로 동결한다.</p>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:14%;">Select Part</th>
+                <th style="width:18%;">Required Tokens</th>
+                <th style="width:18%;">Interaction Rule</th>
+                <th style="width:15%;">Drawer Rule</th>
+                <th style="width:15%;">Full Detail Rule</th>
+                <th style="width:12%;">Risk</th>
+                <th style="width:8%;">Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn">Trigger</td>
+                <td><code>--input-bg</code> · <code>--input-border</code> · <code>--input-text</code> · chevron 아이콘</td>
+                <td>클릭 / Enter / Space 로 패널 오픈. ESC 로 닫힘.</td>
+                <td>동일 trigger 사용</td>
+                <td>동일 trigger 사용</td>
+                <td>native select 회귀</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Panel (Popup)</td>
+                <td><code>--dropdown-bg</code> · <code>--dropdown-border</code> · <code>--shadow-strong</code></td>
+                <td>패널 위치는 trigger 기준 아래 — 공간 부족 시 위로 flip.</td>
+                <td>Drawer 내부에서도 panel은 portal로 렌더링</td>
+                <td>portal로 렌더링 (동일 컴포넌트)</td>
+                <td>Drawer overflow에 의해 clipping</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Option (default)</td>
+                <td><code>--dropdown-bg</code> · <code>--input-text</code></td>
+                <td>옵션은 라벨만 표시. 부가 메타 우측 정렬.</td>
+                <td>동일</td>
+                <td>동일</td>
+                <td>긴 옵션 텍스트 ellipsis 누락</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Option (hover)</td>
+                <td><code>--dropdown-option-hover</code></td>
+                <td>마우스 hover · keyboard active 동시 적용</td>
+                <td>동일</td>
+                <td>동일</td>
+                <td>keyboard active 시각 누락</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Option (selected)</td>
+                <td><code>--dropdown-option-selected</code> · <code>--stam</code></td>
+                <td>현재 선택값 시각 강조 + 체크 아이콘 표시.</td>
+                <td>동일</td>
+                <td>동일</td>
+                <td>색상만으로 selected 구분</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Option (focus)</td>
+                <td><code>--btn-focus-ring</code> (공유)</td>
+                <td>↑↓ keyboard 이동 시 focus ring · 자동 스크롤.</td>
+                <td>동일</td>
+                <td>동일</td>
+                <td>focus ring 미적용</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Placeholder</td>
+                <td><code>--input-placeholder</code></td>
+                <td>미선택 상태 안내 문구. 선택 후 텍스트 색 변경.</td>
+                <td>동일</td>
+                <td>동일</td>
+                <td>placeholder가 라벨 대체</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Disabled (trigger)</td>
+                <td><code>--input-bg-disabled</code> · <code>--input-disabled-text</code></td>
+                <td>cursor:not-allowed · 패널 오픈 차단.</td>
+                <td>동일</td>
+                <td>동일</td>
+                <td>opacity 단독 처리</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Disabled (option)</td>
+                <td><code>--input-disabled-text</code></td>
+                <td>선택 불가 옵션 시각 구분 · click 차단.</td>
+                <td>동일</td>
+                <td>동일</td>
+                <td>비활성 옵션도 선택됨</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Dark Mode</td>
+                <td><code>--dropdown-bg</code> · <code>--dropdown-border</code> · option text</td>
+                <td>다크 panel 배경과 option text 대비비 4.5:1 이상</td>
+                <td>동일</td>
+                <td>동일</td>
+                <td>다크에서 옵션 가독성 부족</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Z-Index</td>
+                <td>layer token (별도 정의)</td>
+                <td>Topbar &lt; Drawer &lt; Dialog &lt; Dropdown popup 순서 보장</td>
+                <td>Drawer 위에서 dropdown 보임</td>
+                <td>Dialog 위에서 dropdown 보임</td>
+                <td>임의 z-index 숫자 사용</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Select 회귀 차단 원칙</strong>
+            HTML &lt;select&gt; 태그를 화면에 그대로 노출하는 구현은 본 매핑 위반으로 간주한다.
+            data-binding을 위해 hidden &lt;select&gt;를 두는 것은 허용하나, 사용자에게 노출되는 UI는 반드시 STAM custom dropdown이어야 한다.
+            Drawer 전용 select와 Full Detail 전용 select를 분리 구현하는 것도 금지한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 Date Picker / Calendar Rule ── -->
+      <section id="s07" class="sec" data-screen-label="07 Date Picker Rule">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Date Picker / Calendar Rule — 공통 인터랙션 규칙</span>
+          <span class="sbadge guide">규칙</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">native &lt;input type="date"&gt;의 OS별 UI 차이는 STAM 디자인 일관성에 치명적이므로 노출 금지이다. Drawer · Full Detail 모두 동일한 custom date picker / calendar popup을 사용해야 하며, 표시 형식 · 저장 형식 · today / clear / month navigation · z-index · 다크모드 기준은 본 표로 동결한다.</p>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:14%;">Calendar Part</th>
+                <th style="width:18%;">Required Tokens</th>
+                <th style="width:18%;">Interaction Rule</th>
+                <th style="width:14%;">Display Rule</th>
+                <th style="width:14%;">Storage Rule</th>
+                <th style="width:14%;">Risk</th>
+                <th style="width:8%;">Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn">Trigger Input</td>
+                <td><code>--input-*</code> · 캘린더 아이콘</td>
+                <td>클릭 / Enter / Space 로 popup 오픈. ESC 로 닫힘.</td>
+                <td><code>YYYY-MM-DD</code> 표시 (제품 공통)</td>
+                <td>ISO 8601 <code>YYYY-MM-DD</code></td>
+                <td>native date input 회귀</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Popup Container</td>
+                <td><code>--calendar-bg</code> · <code>--calendar-border</code> · <code>--shadow-strong</code></td>
+                <td>trigger 기준 아래 위치 · 공간 부족 시 위로 flip · portal 렌더링</td>
+                <td>고정 폭 (대략 280–320px)</td>
+                <td>—</td>
+                <td>Drawer overflow 의해 clipping</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Month Navigation</td>
+                <td>icon button (sm) · <code>--t1</code></td>
+                <td>← / → 버튼 · ↑↓ keyboard 가능 · 헤더 클릭 시 월/년 선택 패널</td>
+                <td>월 헤더 텍스트 형식 고정</td>
+                <td>—</td>
+                <td>키보드 미지원</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Day Cell (default)</td>
+                <td><code>--input-text</code></td>
+                <td>정사각형 셀 · 이전 / 다음 월 날짜는 흐리게</td>
+                <td>숫자만 표시</td>
+                <td>—</td>
+                <td>이전월 날짜 클릭 시 동작 모호</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Day Cell (hover)</td>
+                <td><code>--dropdown-option-hover</code> 공유</td>
+                <td>마우스 / keyboard active 동시 적용</td>
+                <td>—</td>
+                <td>—</td>
+                <td>hover 표시 누락</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Day Cell (today)</td>
+                <td><code>--calendar-today-ring</code></td>
+                <td>오늘 셀에 ring 표시 · 선택 여부와 무관</td>
+                <td>“오늘” 텍스트 미사용 — ring만</td>
+                <td>—</td>
+                <td>today와 selected 시각 충돌</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Day Cell (selected)</td>
+                <td><code>--calendar-selected-bg</code> · <code>--stam</code></td>
+                <td>선택 시 원형 / 사각형 fill · 확정 시 popup 자동 close</td>
+                <td>색 + 형태 변화</td>
+                <td>ISO 8601 저장</td>
+                <td>색상만으로 selected 구분</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Day Cell (disabled)</td>
+                <td><code>--input-disabled-text</code></td>
+                <td>min/max 범위 밖 셀 비활성 · click 차단</td>
+                <td>opacity 단독 금지</td>
+                <td>—</td>
+                <td>비활성 셀 선택 가능</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Today / Clear</td>
+                <td>text button · <code>--btn-text-color</code></td>
+                <td>“오늘” → 오늘로 이동 + 선택. “지우기” → 값 제거 + popup close.</td>
+                <td>하단 footer 영역</td>
+                <td>지우기 시 <code>null</code> 저장</td>
+                <td>버튼 누락 시 사용성 저하</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Z-Index</td>
+                <td>layer token (별도 정의)</td>
+                <td>Dropdown popup과 동일 layer — Dialog · Drawer 위에 표시</td>
+                <td>—</td>
+                <td>—</td>
+                <td>임의 z-index 숫자 사용</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Dark Mode</td>
+                <td><code>--calendar-bg</code> · <code>--calendar-border</code> · day text</td>
+                <td>다크 popup 배경과 day text 대비비 4.5:1 이상</td>
+                <td>—</td>
+                <td>—</td>
+                <td>다크에서 ring · selected 시인성 부족</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Date Picker 회귀 차단 원칙</strong>
+            HTML &lt;input type="date"&gt;를 화면에 그대로 노출하는 구현은 본 매핑 위반으로 간주한다.
+            저장 데이터 형식은 기존 로직과 충돌하지 않도록 <code>YYYY-MM-DD</code>(ISO 8601)을 유지한다.
+            Drawer 전용 date picker와 Full Detail 전용 date picker를 분리 구현하는 것도 금지한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Token Mapping Table ── -->
+      <section id="s08" class="sec" data-screen-label="08 Token Mapping">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Token Mapping Table — Form P0 토큰 1:1 매핑</span>
+          <span class="sbadge plan">P0 매핑</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Token Inventory v1의 Form State P0 후보를 Form 매핑 기준으로 풀어서 정리한다. <strong>Required</strong>는 본 매핑이 Form v1 구현에 필수로 요구하는지 여부.</p>
+
+          <!-- Input -->
+          <div class="fm-cap"><span class="fm-cap-n">A</span>Input Tokens <span class="fm-cap-sub">--input-*</span></div>
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:18%;">Token</th>
+                <th style="width:17%;">Purpose</th>
+                <th style="width:15%;">Used By</th>
+                <th style="width:17%;">Light Candidate</th>
+                <th style="width:17%;">Dark Candidate</th>
+                <th style="width:8%;">Required</th>
+                <th style="width:8%;">Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--input-bg</code></td><td>Input · Select trigger 기본 배경</td><td>default · readonly · filled</td><td><code>#FFFFFF</code></td><td><code>var(--bg-sur)</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-bg-hover</code></td><td>Input · Select trigger hover 배경</td><td>hover</td><td><code>#F8FAFC</code></td><td><code>rgba(255,255,255,.03)</code></td><td><span class="ppill p1">P1</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-bg-disabled</code></td><td>Input · Select trigger disabled 배경</td><td>disabled</td><td><code>#F1F5F9</code></td><td><code>rgba(255,255,255,.04)</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-border</code></td><td>Input · Select 기본 테두리</td><td>default</td><td><code>#CBD5E1</code></td><td><code>rgba(180,184,200,.20)</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-border-hover</code></td><td>Input · Select hover 테두리</td><td>hover</td><td><code>#94A3B8</code></td><td><code>rgba(180,184,200,.32)</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-border-focus</code></td><td>Input · Select focus 테두리</td><td>focus · active</td><td><code>var(--stam)</code></td><td><code>var(--stam)</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-text</code></td><td>Input · Select 입력 텍스트</td><td>filled · all states</td><td><code>#0F172A</code></td><td><code>#F0F1F5</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-placeholder</code></td><td>Input · Select placeholder 텍스트</td><td>empty</td><td><code>#94A3B8</code></td><td><code>rgba(240,241,245,.45)</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-disabled-text</code></td><td>Input · Select disabled 텍스트</td><td>disabled</td><td><code>#94A3B8</code></td><td><code>rgba(240,241,245,.40)</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-error-border</code></td><td>Input · Select error 테두리</td><td>error</td><td><code>#DC2626</code></td><td><code>#EF4444</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--input-success-border</code></td><td>Input · Select success 테두리</td><td>success</td><td><code>#16A34A</code></td><td><code>#22C55E</code></td><td><span class="ppill p1">P1</span></td><td><span class="spill candidate">후보</span></td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- Field meta -->
+          <div class="fm-cap"><span class="fm-cap-n">B</span>Field Meta Tokens <span class="fm-cap-sub">--field-*</span></div>
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:18%;">Token</th>
+                <th style="width:17%;">Purpose</th>
+                <th style="width:15%;">Used By</th>
+                <th style="width:17%;">Light Candidate</th>
+                <th style="width:17%;">Dark Candidate</th>
+                <th style="width:8%;">Required</th>
+                <th style="width:8%;">Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--field-label</code></td><td>필드 라벨 텍스트</td><td>Label</td><td><code>#0F172A</code></td><td><code>#F0F1F5</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--field-helper</code></td><td>helper text · 부가 설명</td><td>Helper Text</td><td><code>#64748B</code></td><td><code>rgba(240,241,245,.55)</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--field-required</code></td><td>required mark (*) 색</td><td>Required Mark</td><td><code>#DC2626</code></td><td><code>#FCA5A5</code></td><td><span class="ppill p1">P1</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--field-error-text</code></td><td>error 메시지 텍스트</td><td>Validation (error)</td><td><code>#B91C1C</code></td><td><code>#FCA5A5</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- Dropdown -->
+          <div class="fm-cap"><span class="fm-cap-n">C</span>Dropdown Tokens <span class="fm-cap-sub">--dropdown-*</span></div>
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:18%;">Token</th>
+                <th style="width:17%;">Purpose</th>
+                <th style="width:15%;">Used By</th>
+                <th style="width:17%;">Light Candidate</th>
+                <th style="width:17%;">Dark Candidate</th>
+                <th style="width:8%;">Required</th>
+                <th style="width:8%;">Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--dropdown-bg</code></td><td>Dropdown panel 배경</td><td>Select · Custom Dropdown panel</td><td><code>#FFFFFF</code></td><td><code>var(--bg-sur2)</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--dropdown-border</code></td><td>Dropdown panel 테두리</td><td>Select · Custom Dropdown panel</td><td><code>#E2E8F0</code></td><td><code>rgba(180,184,200,.18)</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--dropdown-option-hover</code></td><td>option hover · keyboard active 배경</td><td>option hover</td><td><code>#F1F5F9</code></td><td><code>rgba(255,255,255,.04)</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--dropdown-option-selected</code></td><td>현재 선택값 option 배경</td><td>option selected</td><td><code>var(--stam-soft)</code></td><td><code>var(--stam-soft)</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <!-- Calendar -->
+          <div class="fm-cap"><span class="fm-cap-n">D</span>Calendar Tokens <span class="fm-cap-sub">--calendar-*</span></div>
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:18%;">Token</th>
+                <th style="width:17%;">Purpose</th>
+                <th style="width:15%;">Used By</th>
+                <th style="width:17%;">Light Candidate</th>
+                <th style="width:17%;">Dark Candidate</th>
+                <th style="width:8%;">Required</th>
+                <th style="width:8%;">Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="tn"><code>--calendar-bg</code></td><td>Calendar popup 배경</td><td>Calendar popup</td><td><code>#FFFFFF</code></td><td><code>var(--bg-sur2)</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--calendar-border</code></td><td>Calendar popup 테두리</td><td>Calendar popup</td><td><code>#E2E8F0</code></td><td><code>rgba(180,184,200,.18)</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--calendar-selected-bg</code></td><td>선택된 day cell 배경</td><td>day selected</td><td><code>var(--stam)</code></td><td><code>var(--stam)</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+              <tr><td class="tn"><code>--calendar-today-ring</code></td><td>오늘 day cell ring</td><td>day today</td><td><code>0 0 0 2px var(--stam) inset</code></td><td><code>0 0 0 2px var(--stam) inset</code></td><td><span class="ppill p0">P0</span></td><td><span class="spill candidate">후보</span></td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>의존 관계 — Inventory v1 · Button Mapping v1과의 정합</strong>
+            본 매핑의 <code>--input-*</code> · <code>--dropdown-*</code> · <code>--calendar-*</code>는 Token Inventory v1 Section 04 Form State P0 후보를 그대로 인용한다.
+            focus ring은 <code>--btn-focus-ring</code>을 Form과 공유하며, 별도 <code>--input-focus-ring</code> 토큰을 추가하지 않는다 (단일 ring 원칙).
+            <code>--stam</code> · <code>--stam-soft</code>는 기존 STAM Brand 토큰을 그대로 참조한다.
+            실제 토큰 추가 시 통합·별칭 여부는 후속 단계에서 결정한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Drawer / Full Detail Sync Rule ── -->
+      <section id="s09" class="sec" data-screen-label="09 Drawer Full Detail Sync">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Drawer / Full Detail Sync Rule — 동기화 원칙</span>
+          <span class="sbadge lock">Sync</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub"><strong>STAM 수정 흐름의 핵심 원칙</strong>이다. 이 섹션을 지키지 않으면 Drawer 수정과 Full Detail 수정에서 동일 필드가 다르게 보이거나, 한쪽에서만 native select / date input으로 회귀하는 시각 사고가 발생한다.</p>
+
+          <div class="flow-strip">
+            <span class="fs-node"><span class="fs-dot"></span>리스트</span>
+            <span class="fs-arrow">→</span>
+            <span class="fs-node"><span class="fs-dot"></span>Drawer 수정</span>
+            <span class="fs-arrow">→</span>
+            <span class="fs-node"><span class="fs-dot"></span>전체 상세 수정</span>
+            <span class="fs-arrow">→</span>
+            <span class="fs-node"><span class="fs-dot"></span>Drawer 수정 복귀</span>
+            <span class="fs-meta">같은 Form 컴포넌트를 일관되게 본다</span>
+          </div>
+
+          <div class="sync-grid" style="margin-top:14px;">
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must</span>동일성 원칙</div>
+              <ul>
+                <li>같은 데이터 항목은 두 화면에서 같은 <strong>markup</strong>을 사용한다.</li>
+                <li>같은 필드는 같은 <strong>class</strong>를 가진다. Drawer 전용 · Full Detail 전용 class 분기 금지.</li>
+                <li>같은 select / date picker는 같은 <strong>init function</strong>으로 초기화된다.</li>
+                <li>크기 · radius · padding · focus ring은 본 문서 Section 04 / 08 토큰을 동일 적용한다.</li>
+                <li>Light / Dark 테마는 두 화면에서 같은 토큰 값을 사용한다.</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must Not</span>금지 패턴</div>
+              <ul>
+                <li>Drawer 전용 select / date picker를 별도 구현하는 것 — 한쪽만 변경되면 다른 쪽 회귀.</li>
+                <li>Full Detail에서 native &lt;select&gt; · &lt;input type="date"&gt;로 회귀하는 것 — 디자인 위반.</li>
+                <li>Drawer에서는 custom dropdown, Full Detail에서는 ad-hoc 옵션 리스트로 분리하는 것.</li>
+                <li>같은 필드의 size를 Drawer만 dense, Full Detail은 md로 다르게 두는 것.</li>
+                <li>같은 데이터 항목의 label · helper · required 표기를 두 화면에서 다르게 두는 것.</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Bind</span>이벤트 / 상태 바인딩</div>
+              <ul>
+                <li>Drawer → Full Detail 전환 후에도 <strong>select · dropdown · date picker 이벤트 바인딩이 유지</strong>되어야 한다.</li>
+                <li>두 화면에서 동일한 validation 규칙을 사용한다 — error · success · warning 분기 동일.</li>
+                <li>필드 값 저장 형식은 두 화면에서 동일하다 — date는 ISO 8601 <code>YYYY-MM-DD</code>.</li>
+                <li>키보드 동작(Tab · Enter · Space · ESC · ↑↓)이 두 화면에서 동일하다.</li>
+                <li>Drawer 내부 dropdown / calendar popup은 portal로 렌더링되어 Drawer overflow에 의해 clipping되지 않는다.</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">QA</span>회귀 판정 기준</div>
+              <ul>
+                <li>“Drawer에서 보이는 Form”과 “Full Detail에서 보이는 Form”의 스크린샷 비교 — 시각 차이 발견 시 실패.</li>
+                <li>Drawer → Full Detail → Drawer 흐름에서 같은 필드의 UI · 동작이 다르면 실패.</li>
+                <li>Full Detail에서 native select / date input이 1개라도 노출되면 실패.</li>
+                <li>Drawer에서 dropdown / calendar popup이 Drawer 폭으로 잘리면 실패.</li>
+                <li>Drawer · Full Detail 중 한쪽만 다크모드에서 깨지면 실패.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>본 Sync Rule의 적용 범위</strong>
+            본 Rule은 “편집 가능한 Form 컴포넌트”에 한정한다. Drawer가 read-only 표시를 사용하고 Full Detail이 read-only 표시를 사용하는 경우, 둘 다 같은 read-only 컴포넌트를 사용해야 한다.
+            Drawer 자체의 폭 · 위치 · 탭 구조는 Drawer Guide의 책임이며, 본 문서가 정의하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S10 Accessibility / Interaction Rule ── -->
+      <section id="s10" class="sec" data-screen-label="10 A11y Interaction">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Accessibility / Interaction Rule — 필수 준수</span>
+          <span class="sbadge guide">필수</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="rule-grid">
+            <div class="rule-card">
+              <div class="rc-hdr">Label · Input 연결</div>
+              <ul>
+                <li><code>&lt;label for="..."&gt;</code>로 input과 라벨 1:1 연결</li>
+                <li>label을 시각적으로 숨기는 경우 <code>aria-label</code> 또는 <code>aria-labelledby</code> 필수</li>
+                <li>placeholder만으로 label을 대체하지 않음</li>
+                <li>required field는 시각 표시 + <code>aria-required="true"</code> 병행</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">키보드 · 포커스</div>
+              <ul>
+                <li>모든 Form 필드는 <code>focus-visible</code> ring 필수 — <code>--btn-focus-ring</code> 공유 적용</li>
+                <li>native focus outline을 무작정 제거하지 않음 — 대체 ring이 있을 때만 제거</li>
+                <li>Tab 키 순서가 시각 순서와 일치 · 그룹 내 ↑↓ 이동 지원</li>
+                <li>Enter / Space로 select · checkbox · radio 활성화 가능</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">Error · Validation</div>
+              <ul>
+                <li>에러는 <strong>색 + 아이콘 + 텍스트 메시지</strong> 3원칙 — 색상 단독 의존 금지</li>
+                <li>에러 메시지를 <code>aria-describedby</code>로 input과 연결</li>
+                <li><code>aria-invalid="true"</code>를 error 상태에 부여</li>
+                <li>한 필드 한 시점에 하나의 validation 상태만 유지</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">Disabled · Readonly</div>
+              <ul>
+                <li>disabled / readonly는 시각으로 명확히 구분 — opacity 단독 처리 금지</li>
+                <li>disabled는 <code>cursor:not-allowed</code> + <code>pointer-events: none</code></li>
+                <li>readonly는 텍스트 선택 · 복사 가능 유지</li>
+                <li>aria-disabled · readonly 속성 일관 적용</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">Date Picker A11y</div>
+              <ul>
+                <li>날짜 popup은 keyboard만으로 사용 가능해야 함 — ↑↓←→ 일 이동 · PageUp/Down 월 이동</li>
+                <li>icon-only 캘린더 트리거에 <code>aria-label</code> 필수</li>
+                <li>popup 오픈 시 focus를 popup 내부로 이동</li>
+                <li>ESC로 popup 닫힘 · trigger로 focus 복귀</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">Dark Mode 대비</div>
+              <ul>
+                <li>라이트 / 다크 모두 텍스트 대비비 4.5:1 이상 보장</li>
+                <li>focus ring은 다크에서 더 밝은 톤·높은 알파로 보강</li>
+                <li>disabled · placeholder도 다크에서 식별 가능해야 함</li>
+                <li>dropdown · calendar popup 배경과 텍스트 대비 별도 검수</li>
+              </ul>
+            </div>
+            <div class="rule-card" style="grid-column: 1 / -1;">
+              <div class="rc-hdr">Select / Dropdown / Calendar Z-Index</div>
+              <ul>
+                <li>dropdown · calendar popup의 z-index는 임의 숫자가 아닌 <strong>layer token</strong>으로 관리</li>
+                <li>Topbar &lt; Drawer &lt; Dialog &lt; Dropdown popup 순서 보장</li>
+                <li>Drawer 내부 dropdown / calendar는 portal로 렌더링 — Drawer overflow에 의해 clipping 금지</li>
+                <li>Dialog 내부 dropdown / calendar도 portal로 렌더링 — Dialog backdrop 위에 표시</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── S11 Do / Don't ── -->
+      <section id="s11" class="sec" data-screen-label="11 Do Don't">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Do / Don't — 구현 원칙</span>
+          <span class="sbadge guide">원칙</span>
+        </div>
+        <div class="sec-body">
+          <div class="dd-grid">
+            <div class="dd-col good">
+              <div class="dd-hdr">Do</div>
+              <ul>
+                <li>모든 색·radius·padding은 <strong>토큰 기반</strong>으로 구현 (<code>--input-*</code>, <code>--dropdown-*</code>, <code>--calendar-*</code> 등)</li>
+                <li>Drawer · Full Detail 모두 <strong>같은 Form 컴포넌트(markup · class · init)</strong>를 재사용</li>
+                <li>Select · Date Picker는 STAM <strong>공통 init 함수</strong>로 초기화 — Drawer · Full Detail 모두 호출</li>
+                <li>Drawer · Full Detail · Light · Dark <strong>4개 상태 동시 QA</strong></li>
+                <li>focus ring은 <code>--btn-focus-ring</code> 단일 토큰을 Button과 공유</li>
+                <li>disabled는 토큰 기반 색상 + <code>cursor:not-allowed</code> 동시 적용</li>
+                <li>dropdown · calendar popup은 portal 렌더링 + layer token 기반 z-index</li>
+                <li>error는 색 + 아이콘 + 텍스트 3원칙 동반</li>
+              </ul>
+            </div>
+            <div class="dd-col bad">
+              <div class="dd-hdr">Don't</div>
+              <ul>
+                <li>raw color (<code>#FFFFFF</code>, <code>#CBD5E1</code>) 직접 사용 — 모두 토큰 경유</li>
+                <li>Drawer와 Full Detail에 <strong>별도 select · date picker</strong> 구현 — 한 컴포넌트로 통일</li>
+                <li>native <code>&lt;select&gt;</code> · <code>&lt;input type="date"&gt;</code> 기본 UI에 의존 — 디자인 위반</li>
+                <li>z-index를 임의 숫자(<code>9999</code> 등)로 땜질 — layer token 사용</li>
+                <li>disabled를 <code>opacity</code>만으로 처리 — 토큰 + cursor 차단 병행</li>
+                <li>한 번에 Input · Select · Date Picker · Checkbox · Radio 모두 동시 CSS 구현 — Form 내에서도 단계 분리</li>
+                <li>placeholder로 라벨 대체 · 색상 단독으로 error 표시</li>
+                <li>화면별·페이지별 Form CSS 별도 작성 — 공통 클래스 단일화</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S12 Implementation Gate Checklist ── -->
+      <section id="s12" class="sec" data-screen-label="12 Implementation Gate">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Implementation Gate Checklist — CSS 구현 진입 전 점검</span>
+          <span class="sbadge lock">Gate</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아래 항목이 모두 확정될 때까지 <code>stam.tokens.css</code> · <code>stam.components.css</code>에 Form 관련 토큰 추가·클래스 구현을 진입하지 않는다.</p>
+
+          <div class="gate-grid">
+            <div class="gate-step">
+              <span class="gs-n">01</span>
+              <span class="gs-body">Form Token Mapping v1 본 문서 승인
+                <span class="gs-sub">PM · 디자인 · 개발 3자 합의 — field · size · state 매트릭스 확정</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">02</span>
+              <span class="gs-body">P0 Form State 토큰명 확정
+                <span class="gs-sub"><code>--input-*</code> · <code>--field-*</code> · <code>--dropdown-*</code> · <code>--calendar-*</code> 네이밍 동결</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">03</span>
+              <span class="gs-body">Select / Date Picker 공통화 기준 확정
+                <span class="gs-sub">공통 컴포넌트 식별자 · 공통 init function 시그니처 · portal 렌더링 정책 동결</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">04</span>
+              <span class="gs-body">Drawer / Full Detail Sync Rule 승인
+                <span class="gs-sub">Section 09 동일성 · 금지 패턴 · 이벤트 바인딩 · QA 판정 기준 4 블록 PM 승인</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">05</span>
+              <span class="gs-body">Light / Dark 후보값 확정
+                <span class="gs-sub">Section 08 표의 Light / Dark Candidate 값 PM 승인 — 다크 대비비 4.5:1 점검 포함</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">06</span>
+              <span class="gs-body">수정 허용 CSS 파일 범위 확정
+                <span class="gs-sub"><code>stam/css/stam.tokens.css</code> · <code>stam/css/stam.components.css</code> 두 파일만 허용 — 별도 지정 시까지 다른 CSS 미수정</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">07</span>
+              <span class="gs-body">Button Token Mapping v1과 충돌 없음 확인
+                <span class="gs-sub">focus ring <code>--btn-focus-ring</code> 공유 · 색상 충돌 · Button Guide와 정합 확인</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">08</span>
+              <span class="gs-body">Form만 제한 구현
+                <span class="gs-sub">Button(완료) 외 Dialog · Drawer · Table 클래스는 본 단위에서 절대 수정하지 않음</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">09</span>
+              <span class="gs-body">동시 수정 금지 컴포넌트 확인
+                <span class="gs-sub">Dialog · Drawer · Table 매핑은 별도 후속 매핑 단위에서 진행</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">10</span>
+              <span class="gs-body">기존 문서·페이지 회귀 QA 기준 정의
+                <span class="gs-sub">Docs 문서 내 input · select 영향 범위 사전 확인 · 제품 페이지 Form 회귀 사전 확인</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S13 Cursor Handoff Notes ── -->
+      <section id="s13" class="sec" data-screen-label="13 Cursor Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Cursor Handoff Notes — 구현 핸드오프 기준</span>
+          <span class="sbadge guide">핸드오프</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Section 12 Gate가 통과되면, 아래 기준으로 Cursor에게 Form CSS 구현 단위를 넘긴다.</p>
+
+          <div class="rule-grid">
+            <div class="rule-card">
+              <div class="rc-hdr">구현 대상 · 파일 범위</div>
+              <ul>
+                <li><strong>첫 Form 구현 대상은 Input · Select · Date Picker 중 1개만</strong> 선택 — 동시 진입 금지</li>
+                <li>수정 허용 파일은 추후 별도 지정 — 기본은 <code>stam/css/stam.tokens.css</code> · <code>stam/css/stam.components.css</code> 외 수정 금지</li>
+                <li>JS가 필요한 경우 Drawer · Full Detail이 공유할 <strong>공통 init 함수만</strong> 제한적으로 추가</li>
+                <li>Drawer와 Full Detail은 같은 init 함수 호출 — 분기 구현 금지</li>
+                <li><code>stam/pages/**</code> · <code>stam/index.html</code> · <code>stam/assets/**</code> 수정 금지</li>
+                <li>Firebase / GitHub Actions / package*.json 변경 금지</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">변경 검증</div>
+              <ul>
+                <li>git diff로 허용 파일 외 변경 없음 확인</li>
+                <li>금지 파일 tracking 발생 시 즉시 revert</li>
+                <li>새 토큰명은 본 문서 Section 08의 Token 컬럼과 동일하게 사용</li>
+                <li>Drawer · Full Detail 동일 markup · class · init function 사용 확인</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">QA 기준</div>
+              <ul>
+                <li>라이트 / 다크 QA 동시 — 양 테마에서 대비비·focus ring 가독성 확인</li>
+                <li>Docs Index · Token Inventory · Component Guide · Form Guide 회귀 확인</li>
+                <li>1440 · 1600 · 1920 가로 폭에서 페이지 레벨 가로 스크롤 없음</li>
+                <li>native select / date picker 회귀 점검 — 1개라도 노출되면 실패</li>
+                <li>Drawer → Full Detail → Drawer 전환 QA — 동일 컴포넌트 시각·동작 일관성 확인</li>
+                <li>제품 페이지(Dashboard · WBS · Boards)의 기존 input · select 회귀 확인</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">롤백 기준</div>
+              <ul>
+                <li>Docs 또는 제품 화면에서 시각 회귀 1건 이상 발생 시 즉시 revert</li>
+                <li>토큰명 충돌(기존 <code>--stam-*</code>, <code>--btn-*</code> 등) 발생 시 본 문서 v2로 재합의</li>
+                <li>Drawer · Full Detail 중 한 화면이라도 회귀 시 즉시 revert</li>
+                <li>라이트 / 다크 중 한 테마에서만 깨질 경우 즉시 revert</li>
+                <li>native select · date input 회귀가 1건이라도 발견되면 즉시 revert</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>핸드오프 시 명시 사항</strong>
+            본 문서는 매핑 기준 문서이며, CSS·JS·페이지·자산 변경 권한을 포함하지 않는다.
+            Cursor는 Section 08 Token Mapping 표와 Section 09 Sync Rule만 코드로 옮기며, 새로운 토큰명·값을 임의로 추가하지 않는다.
+            Drawer 전용 · Full Detail 전용 분기 구현은 본 문서 위반으로 간주한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S14 Related Links ── -->
+      <section id="s14" class="sec" data-screen-label="14 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Related Links — 참고 문서</span>
+          <span class="sbadge guide">관련</span>
+        </div>
+        <div class="sec-body">
+          <div class="rel-grid">
+            <a class="rel-card" href="STAM-Docs-Index.html">
+              <span class="rl-title">STAM Docs Index</span>
+              <span class="rl-sub">전체 기준 문서 인덱스</span>
+            </a>
+            <a class="rel-card" href="STAM-CSS-Token-Readiness-Check.html">
+              <span class="rl-title">CSS Token Readiness Check</span>
+              <span class="rl-sub">12 카테고리 토큰 준비상태 점검</span>
+            </a>
+            <a class="rel-card" href="STAM-Token-Inventory-v1.html">
+              <span class="rl-title">Token Inventory v1</span>
+              <span class="rl-sub">P0 / P1 / P2 토큰 후보 목록</span>
+            </a>
+            <a class="rel-card" href="STAM-Button-Token-Mapping-v1.html">
+              <span class="rl-title">Button Token Mapping v1</span>
+              <span class="rl-sub">Button variant × size × state 토큰 매핑 (선행)</span>
+            </a>
+            <a class="rel-card" href="STAM-Component-Guide.html">
+              <span class="rl-title">Component Guide</span>
+              <span class="rl-sub">컴포넌트 전체 인덱스 · 공통 규칙</span>
+            </a>
+            <a class="rel-card" href="components/STAM-Form-Guide.html">
+              <span class="rl-title">Form Guide</span>
+              <span class="rl-sub">Input · Select · Checkbox · Radio · Textarea · Validation</span>
+            </a>
+            <a class="rel-card" href="components/STAM-Drawer-Guide.html">
+              <span class="rl-title">Drawer Guide</span>
+              <span class="rl-sub">Drawer Anatomy · Tab Structure · 스크롤 (Sync 대상)</span>
+            </a>
+            <a class="rel-card" href="STAM-UI-Baseline-Guide.html">
+              <span class="rl-title">UI Baseline Guide</span>
+              <span class="rl-sub">폰트 · 레이아웃 · Forbidden Rules 기준</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>

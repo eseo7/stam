@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM CSS Token Readiness Check</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ── Readiness Check 전용 보조 스타일 (이 문서 안에서만 사용) ── */
+
+/* status pill — Ready / Partial / Missing / Needs Decision */
+.spill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-family: var(--font);
+  white-space: nowrap;
+}
+.spill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.spill.ready   { background: var(--pass-bg); color: var(--pass); }
+.spill.partial { background: var(--warn-bg); color: var(--warn); }
+.spill.missing { background: var(--fail-bg); color: var(--fail); }
+.spill.decide  { background: var(--purple-bg); color: var(--purple); }
+
+/* priority pill — P0 / P1 / P2 */
+.ppill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  font-family: var(--font);
+  white-space: nowrap;
+}
+.ppill::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.ppill.p0 { background: var(--fail-bg); color: var(--fail); }
+.ppill.p1 { background: var(--warn-bg); color: var(--warn); }
+.ppill.p2 { background: var(--info-bg); color: var(--info); }
+
+/* token category table */
+.tcat-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font);
+  font-size: 11.5px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.tcat-tbl th {
+  padding: 9px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  text-align: left;
+  color: var(--t3);
+  border-bottom: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.tcat-tbl td {
+  padding: 10px;
+  border-bottom: 1px solid var(--bd);
+  color: var(--t2);
+  vertical-align: top;
+  line-height: 1.6;
+}
+.tcat-tbl tbody tr:last-child td { border-bottom: none; }
+.tcat-tbl td:first-child {
+  color: var(--t1);
+  font-weight: 700;
+  white-space: nowrap;
+  width: 12%;
+}
+.tcat-tbl td.col-req     { width: 18%; font-size: 11px; }
+.tcat-tbl td.col-cur     { width: 20%; font-size: 11px; }
+.tcat-tbl td.col-gap     { width: 22%; font-size: 11px; }
+.tcat-tbl td.col-rec     { width: 20%; font-size: 11px; }
+.tcat-tbl td.col-prio    { width: 8%; }
+
+@media (max-width: 1100px) {
+  .tcat-wrap { overflow-x: auto; }
+  .tcat-tbl  { min-width: 900px; }
+}
+
+/* component need card */
+.cn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 920px) { .cn-grid { grid-template-columns: 1fr; } }
+
+.cn-card {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 14px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cn-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t1);
+  letter-spacing: -.005em;
+}
+.cn-hdr .cn-ico {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--stam-soft);
+  color: var(--stam);
+  font-size: 10px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: .02em;
+}
+.cn-sub {
+  font-size: 11px;
+  color: var(--t3);
+  margin-top: -4px;
+  line-height: 1.55;
+}
+.cn-card ul {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.cn-card li {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--t2);
+  padding-left: 14px;
+  position: relative;
+}
+.cn-card li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--t3);
+}
+.cn-card li code {
+  font-family: var(--font);
+  font-size: 10.5px;
+  color: var(--t1);
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 1px 5px;
+  letter-spacing: .005em;
+}
+
+/* gap summary grid (Ready / Partial / Missing / Needs Decision) */
+.gs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+@media (max-width: 1100px) { .gs-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px)  { .gs-grid { grid-template-columns: 1fr; } }
+
+.gs-card {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.gs-card.ready   { border-color: rgba(0,191,64,.22); }
+.gs-card.partial { border-color: rgba(245,158,11,.22); }
+.gs-card.missing { border-color: rgba(255,66,66,.22); }
+.gs-card.decide  { border-color: rgba(139,127,248,.28); }
+
+.gs-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.gs-card ul li {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--t2);
+  padding-left: 12px;
+  position: relative;
+}
+.gs-card ul li::before {
+  content: "·";
+  position: absolute;
+  left: 2px;
+  top: -2px;
+  color: var(--t3);
+  font-weight: 800;
+}
+
+/* priority recommendation columns */
+.pr-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+@media (max-width: 920px) { .pr-grid { grid-template-columns: 1fr; } }
+
+.pr-col {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pr-col.p0 { border-color: rgba(255,66,66,.22); }
+.pr-col.p1 { border-color: rgba(245,158,11,.22); }
+.pr-col.p2 { border-color: rgba(111,168,255,.22); }
+.pr-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.pr-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.pr-col ul li {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--t2);
+  padding-left: 14px;
+  position: relative;
+}
+.pr-col ul li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--t3);
+}
+
+/* gate steps */
+.gate-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (max-width: 760px) { .gate-grid { grid-template-columns: 1fr; } }
+
+.gate-step {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.gate-step .gs-n {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--stam-soft);
+  color: var(--stam);
+  font-size: 10.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: .02em;
+}
+.gate-step .gs-body {
+  flex: 1 1 auto;
+  font-size: 12px;
+  color: var(--t1);
+  line-height: 1.55;
+  font-weight: 600;
+}
+.gate-step .gs-sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 10.5px;
+  color: var(--t3);
+  font-weight: 500;
+  letter-spacing: .01em;
+}
+
+/* Force S-Core Dream inside Readiness-specific blocks */
+.spill, .ppill, .tcat-tbl, .tcat-tbl *,
+.cn-card, .cn-card *, .gs-card, .gs-card *,
+.pr-col, .pr-col *, .gate-step, .gate-step * {
+  font-family: var(--font) !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">CSS Token Readiness Check</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Check v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>2026-06-08</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Readiness Check</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s-strengths"><span class="toc-n">02</span>Current Strengths</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">03</span>Target Token File</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">04</span>Token Category Checklist</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">05</span>Component Token Needs</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">06</span>Gap Summary</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">07</span>Priority Recommendation</a></li>
+      <li class="toc-item"><a href="#s-next"><span class="toc-n">08</span>Recommended Next Steps</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">09</span>Do / Don't</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">10</span>Implementation Gate</a></li>
+      <li class="toc-item"><a href="#s-handoff"><span class="toc-n">11</span>Cursor Handoff Notes</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">12</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Status Banner ── -->
+      <div class="ibox info" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <strong>STAM CSS Token Readiness Check</strong>
+          <span class="sbadge plan" style="margin-left:auto;">Check v1</span>
+        </div>
+        <p style="margin:0 0 8px;font-size:.88em;line-height:1.7;opacity:.9;">
+          이 문서는 <strong>실제 CSS 수정 작업이 아니라, <code>stam/css/stam.tokens.css</code> 기준으로 STAM 공통 컴포넌트 구현에 필요한 토큰이 충분한지 점검하기 위한 사전 점검 문서</strong>이다.
+          Component Guide 7종 v1과 CSS Component Token Plan을 기준으로,
+          12개 토큰 카테고리와 7종 컴포넌트 관점에서 토큰의 누락 / 부분 / 결정 필요 항목만 정리한다.
+          본 문서로는 CSS · JS · 페이지 · Firebase 설정을 수정하지 않는다.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:6px;">
+          <span class="sbadge done">Verdict — Ready with Notes</span>
+          <span class="sbadge guide">Pre-Implementation</span>
+          <span class="sbadge plan">Readiness Only</span>
+          <span class="sbadge lock">No CSS Edit</span>
+        </div>
+        <p style="margin:10px 0 0;font-size:.82em;line-height:1.65;opacity:.78;">
+          <strong>판정 근거</strong> — Color · Radius · Border · Layout Width 등 v1 진입에 필요한 토큰은 정의되어 있어 문서화·기준 합의는 가능한 상태이다. 단, Shadow · Z-index · Motion · Button H · Form H 등 컴포넌트 구현 직전에 반드시 필요한 토큰은 <em>Missing</em>이므로, 본 문서의 Gap List를 기준으로 Implementation Hold 항목을 먼저 해소한 뒤 CSS 수정에 진입한다.
+        </p>
+      </div>
+
+      <!-- ── S01 Overview ── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            CSS Component Token Plan으로 컴포넌트별 토큰 매핑 방향이 정리된 이후,
+            실제 CSS를 수정하기 직전 단계에서 <strong>토큰 정의 자체가 준비되어 있는지</strong>를 확인한다.
+            이번 단계의 결과는 코드가 아니라 <strong>Gap List와 신규 토큰 후보 목록</strong>이다.
+            본 점검을 통과하지 못한 카테고리는 CSS 수정 대상에서 제외하고, 후속 작업 단위에서 다시 다룬다.
+          </p>
+
+          <div class="dd-grid" style="margin-top:8px;">
+            <div class="dd-col" style="border-color:var(--bd);background:var(--bg-sur2);">
+              <div class="dd-hdr" style="color:var(--t1);">이 문서가 다루는 것</div>
+              <ul>
+                <li>12개 토큰 카테고리 준비 상태 점검</li>
+                <li>Button · Form · Drawer · Dialog · Table · Topbar · Icon 관점의 토큰 수요</li>
+                <li>Ready / Partial / Missing / Needs Decision 분류</li>
+                <li>실제 CSS 수정 진입 전 Gate 조건</li>
+                <li>우선순위(P0 / P1 / P2) 권고</li>
+              </ul>
+            </div>
+            <div class="dd-col" style="border-color:var(--bd);background:var(--bg-sur2);">
+              <div class="dd-hdr" style="color:var(--t1);">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/css/**</code> 토큰 정의 / 클래스 정의 변경</li>
+                <li><code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/index.html</code> 변경</li>
+                <li>Component Guide / UI Baseline / Token Plan 본문 수정</li>
+                <li>QA Checklist · Firebase Staging 설정 작업</li>
+                <li>신규 컴포넌트 / 신규 폰트 / 신규 외부 의존성 추가</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>주의 — Readiness Check는 결정 문서가 아니다</strong>
+            본 문서의 Recommendation / Priority는 <em>제안</em>이며, 실제 토큰 추가·이름·값은 후속 작업 단위에서 코드 변경과 함께 확정한다.
+            본 문서만으로 <code>stam/css/**</code>를 수정하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S-strengths Current Strengths ── -->
+      <section id="s-strengths" class="sec" data-screen-label="02 Current Strengths">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Current Strengths — 현재 강점</span>
+          <span class="sbadge done">강점</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">CSS 수정 작업 진입 전 이미 정리되어 있는 자산을 확인한다. 아래 항목은 별도 보강 없이 그대로 활용 가능한 기준이다.</p>
+
+          <div class="cn-grid">
+
+            <div class="cn-card">
+              <div class="cn-hdr"><span class="cn-ico">FT</span>S-Core Dream 폰트 기준</div>
+              <div class="cn-sub">자체 서빙 폰트 1종으로 전역 통일.</div>
+              <ul>
+                <li><code>--font</code> 토큰이 <code>html</code> · <code>body</code> · UI 요소 · 표 · 코드 모두에 강제 상속된다.</li>
+                <li>외부 폰트 의존 없음 — Pretendard CDN / Google Fonts / Gulim / Dotum 미사용.</li>
+                <li>라이트 / 다크 양 테마 모두 S-Core Dream 단일 패밀리로 호환.</li>
+              </ul>
+            </div>
+
+            <div class="cn-card">
+              <div class="cn-hdr"><span class="cn-ico">TH</span>라이트 / 다크 테마 기준</div>
+              <div class="cn-sub"><code>[data-theme="dark"]</code> 블록에서 동일 키 재정의.</div>
+              <ul>
+                <li>Surface · Border · Text · Status · Label · Group 모두 라이트 / 다크 쌍이 정의되어 있다.</li>
+                <li>다크 테마는 alpha 기반 정의로 시각 위계를 유지한다.</li>
+                <li>테마 토글은 <code>js/stam.theme.js</code> 단일 진입점이며 문서 / 제품 양쪽에서 재사용한다.</li>
+              </ul>
+            </div>
+
+            <div class="cn-card">
+              <div class="cn-hdr"><span class="cn-ico">DX</span>문서 연결 기준</div>
+              <div class="cn-sub">Docs Index 중심 문서 그래프.</div>
+              <ul>
+                <li>UI Baseline Guide · Component Guide 7종 · CSS Component Token Plan과 정합 가능한 상태이다.</li>
+                <li>본 Readiness Check 문서는 Token Plan과 실제 CSS 수정 사이의 Pre-Implementation Gate로 동작한다.</li>
+                <li>Staging Deployment QA Result / Preview 문서로 배포 흐름까지 연결된다.</li>
+              </ul>
+            </div>
+
+            <div class="cn-card">
+              <div class="cn-hdr"><span class="cn-ico">RD</span>문서화 가능 상태</div>
+              <div class="cn-sub">코드 변경 없이 토큰 기준선을 작성할 수 있다.</div>
+              <ul>
+                <li>토큰 카테고리별 현황을 정적 보고로 정리할 수 있다.</li>
+                <li>CSS 수정 전 결정 항목을 Gap List · Implementation Hold 항목으로 분리할 수 있다.</li>
+                <li>Cursor / 후속 작업자에게 허용 / 금지 범위를 본 문서로 인계할 수 있다.</li>
+              </ul>
+            </div>
+
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>요약 — Strength는 Gate 통과의 충분 조건이 아니다</strong>
+            본 섹션의 강점은 <em>문서화 / 합의 가능 상태</em>까지를 보장한다. 컴포넌트 CSS 구현 진입에는 별도로 Section 06 Gap Summary와 Section 10 Implementation Gate 조건을 모두 충족해야 한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Target Token File ── -->
+      <section id="s02" class="sec" data-screen-label="03 Target Token File">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Target Token File — 기준 파일</span>
+          <span class="sbadge lock">기준 고정</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아래 한 파일을 기준으로 토큰 정의 상태를 점검한다. 토큰 추가 / 정리는 후속 작업에서 동일 파일을 대상으로 한다.</p>
+
+          <table class="stbl">
+            <colgroup>
+              <col style="width:28%;">
+              <col style="width:72%;">
+            </colgroup>
+            <thead>
+              <tr><th>구분</th><th>경로</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>기준 파일</td>
+                <td><code>stam/css/stam.tokens.css</code></td>
+              </tr>
+              <tr>
+                <td>관련 문서</td>
+                <td>
+                  STAM UI Baseline Guide · STAM Component Guide ·
+                  STAM CSS Component Token Plan ·
+                  Button / Form / Drawer / Dialog / Table / Topbar / Icon Guide
+                </td>
+              </tr>
+              <tr>
+                <td>점검 범위</td>
+                <td>토큰 <em>정의 존재 여부</em>와 <em>의미 기준 적정성</em>만 확인. 토큰 값 변경 · 신규 클래스 정의는 대상 아님.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ibox info" style="margin-top:12px;">
+            <strong>참고 — 토큰 정의 위치 원칙</strong>
+            모든 디자인 토큰은 <code>stam/css/stam.tokens.css</code> 에만 정의한다.
+            화면별 CSS(<code>stam.home.css</code>, <code>stam.wbs.css</code> 등)에 임시 px / hex 값을 남발하지 않는다.
+            라이트 / 다크는 동일 토큰 키를 <code>[data-theme="dark"]</code> 블록에서 함께 정의한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 Token Category Checklist ── -->
+      <section id="s03" class="sec" data-screen-label="04 Token Category Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Token Category Checklist — 12 카테고리 점검</span>
+          <span class="sbadge plan">체크</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">현재 토큰 파일 기준으로 12개 카테고리의 준비 상태를 점검한다. 컬럼 의미: <strong>Required For</strong> = 어디서 쓰는가 · <strong>Current Token Presence</strong> = 현재 정의 상태 · <strong>Gap</strong> = 누락 / 부족 항목 · <strong>Recommendation</strong> = 보강 방향.</p>
+
+          <div class="tcat-wrap">
+          <table class="tcat-tbl">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Required For</th>
+                <th>Current Token Presence</th>
+                <th>Gap</th>
+                <th>Recommendation</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <tr>
+                <td>Color</td>
+                <td class="col-req">Brand · Label · Status · Badge · Group A–G</td>
+                <td class="col-cur"><span class="spill ready">Ready</span><br>
+                  <code>--brand</code>, <code>--accent</code>, <code>--navy</code>, label 6단계, status 6쌍, group 7색 정의됨.
+                </td>
+                <td class="col-gap">컴포넌트 의미(primary / secondary / ghost / danger) 전용 키 없음. 토큰은 충분하나 별칭 부족.</td>
+                <td class="col-rec">기존 토큰 재사용 + 컴포넌트 별칭(<code>--btn-primary-bg</code> 등) 신설.</td>
+                <td class="col-prio"><span class="ppill p1">P1</span></td>
+              </tr>
+
+              <tr>
+                <td>Typography</td>
+                <td class="col-req">전역 폰트 · 본문 / 라벨 / 캡션 위계</td>
+                <td class="col-cur"><span class="spill partial">Partial</span><br>
+                  <code>--font</code> 정의됨. <code>body</code> 기준 13px / 1.5만 고정.
+                </td>
+                <td class="col-gap">사이즈 / 라인하이트 / 자간 단계 토큰 없음. 화면별 px 직타이핑 다수.</td>
+                <td class="col-rec">UI Baseline Guide 기준 단계명(<code>--fs-body</code>, <code>--fs-label</code>, <code>--lh-tight</code> 등) 후보 정리.</td>
+                <td class="col-prio"><span class="ppill p1">P1</span></td>
+              </tr>
+
+              <tr>
+                <td>Spacing</td>
+                <td class="col-req">카드 / 폼 / 테이블 패딩 · gap</td>
+                <td class="col-cur"><span class="spill partial">Partial</span><br>
+                  <code>--content-pad-x</code>, <code>--grid-gap</code> 등 콘텐츠 레이아웃 토큰만 존재.
+                </td>
+                <td class="col-gap">4 / 8 / 12 / 16 / 24 / 32 스케일 토큰 없음. <code>gap</code>, <code>padding</code>이 화면별 직타이핑.</td>
+                <td class="col-rec">의미 기반(<code>--sp-1</code> ~ <code>--sp-7</code> 또는 <code>--gap-tight/regular/loose</code>) 후보 정리.</td>
+                <td class="col-prio"><span class="ppill p1">P1</span></td>
+              </tr>
+
+              <tr>
+                <td>Radius</td>
+                <td class="col-req">버튼 · 인풋 · 카드 · 칩 · 모달</td>
+                <td class="col-cur"><span class="spill ready">Ready</span><br>
+                  <code>--r-sm</code>, <code>--r-md</code>, <code>--r-lg</code> 3단계 정의됨.
+                </td>
+                <td class="col-gap">pill(999px) / 모달용 큰 radius 별도 키 없음.</td>
+                <td class="col-rec">필요 시 <code>--r-pill</code>, <code>--r-xl</code> 1–2개 보강. 현재로도 v1 진입 가능.</td>
+                <td class="col-prio"><span class="ppill p2">P2</span></td>
+              </tr>
+
+              <tr>
+                <td>Shadow</td>
+                <td class="col-req">카드 · 팝오버 · Drawer · Dialog</td>
+                <td class="col-cur"><span class="spill missing">Missing</span><br>
+                  토큰 정의 없음. 화면별 box-shadow 직타이핑.
+                </td>
+                <td class="col-gap">elevation 단계 부재. Drawer / Dialog overlay 그림자 기준 없음.</td>
+                <td class="col-rec">3단계(<code>--sh-card</code> / <code>--sh-pop</code> / <code>--sh-modal</code>) 신설 후보.</td>
+                <td class="col-prio"><span class="ppill p0">P0</span></td>
+              </tr>
+
+              <tr>
+                <td>Border</td>
+                <td class="col-req">카드 · 인풋 · 구분선 · focus ring</td>
+                <td class="col-cur"><span class="spill ready">Ready</span><br>
+                  <code>--bd</code>, <code>--bd-s</code>, <code>--bd-f</code> 정의됨.
+                </td>
+                <td class="col-gap">두께 / focus 두께 / 점선 등 패턴 토큰 없음. <code>--bd-f</code>는 색만 정의.</td>
+                <td class="col-rec">focus-visible 두께·색·offset 별칭(<code>--ring</code>, <code>--ring-offset</code>) 후보.</td>
+                <td class="col-prio"><span class="ppill p0">P0</span></td>
+              </tr>
+
+              <tr>
+                <td>Z-index</td>
+                <td class="col-req">Topbar · Drawer · Dialog · Sticky header</td>
+                <td class="col-cur"><span class="spill missing">Missing</span><br>
+                  토큰 정의 없음. 화면별 숫자 임의 사용.
+                </td>
+                <td class="col-gap">레이어 위계 기준 부재. Drawer / Dialog overlay 순서 불명확.</td>
+                <td class="col-rec">5단계(<code>--z-base</code> / <code>--z-sticky</code> / <code>--z-topbar</code> / <code>--z-drawer</code> / <code>--z-dialog</code>) 신설.</td>
+                <td class="col-prio"><span class="ppill p0">P0</span></td>
+              </tr>
+
+              <tr>
+                <td>Motion</td>
+                <td class="col-req">hover · focus · drawer open · dialog open</td>
+                <td class="col-cur"><span class="spill missing">Missing</span><br>
+                  duration · easing 토큰 정의 없음.
+                </td>
+                <td class="col-gap">상태 전이 시간 / 곡선이 화면별로 다름. <code>prefers-reduced-motion</code> 기준 부재.</td>
+                <td class="col-rec"><code>--dur-fast/normal</code>, <code>--ease-out</code> 2–3개 + reduced-motion 가이드.</td>
+                <td class="col-prio"><span class="ppill p1">P1</span></td>
+              </tr>
+
+              <tr>
+                <td>Layout Width</td>
+                <td class="col-req">콘텐츠 본문 · Focus 모드 · 사이드바</td>
+                <td class="col-cur"><span class="spill ready">Ready</span><br>
+                  <code>--content-max</code>, <code>--content-focus-max</code>, <code>--sw</code> 정의됨.
+                </td>
+                <td class="col-gap">반응형 breakpoint 토큰 없음. 모바일 / 태블릿 폭 정의 부재.</td>
+                <td class="col-rec">media query 기준 폭(<code>--bp-md</code>, <code>--bp-lg</code>) 후보. 우선순위 낮음.</td>
+                <td class="col-prio"><span class="ppill p1">P1</span></td>
+              </tr>
+
+              <tr>
+                <td>Button Height</td>
+                <td class="col-req">Button 사이즈 sm / md / lg</td>
+                <td class="col-cur"><span class="spill missing">Missing</span><br>
+                  토큰 정의 없음. Component Guide의 사이즈 정의가 코드에 반영되지 않음.
+                </td>
+                <td class="col-gap">화면별 button 높이 임의값 우려. 키보드 hit area 기준 부재.</td>
+                <td class="col-rec">3단계(<code>--btn-h-sm/md/lg</code>) + padding 별칭 신설.</td>
+                <td class="col-prio"><span class="ppill p0">P0</span></td>
+              </tr>
+
+              <tr>
+                <td>Form Height</td>
+                <td class="col-req">Input · Select · Textarea · Field gap</td>
+                <td class="col-cur"><span class="spill missing">Missing</span><br>
+                  토큰 정의 없음. Form Guide 기준값이 코드에 반영되지 않음.
+                </td>
+                <td class="col-gap">입력 높이가 Button과 정렬되지 않을 위험. 라벨 / help / error 간격 기준 부재.</td>
+                <td class="col-rec"><code>--field-h</code>, <code>--field-pad-x</code>, <code>--field-gap</code> 신설. Button 높이와 정합 유지.</td>
+                <td class="col-prio"><span class="ppill p0">P0</span></td>
+              </tr>
+
+              <tr>
+                <td>Table Density</td>
+                <td class="col-req">Row · Header height · Cell padding · Sticky</td>
+                <td class="col-cur"><span class="spill partial">Partial</span><br>
+                  <code>--th-fg</code>, <code>--row-hover</code>만 존재.
+                </td>
+                <td class="col-gap">row 높이 / cell padding / density(compact, default, comfortable) 토큰 없음.</td>
+                <td class="col-rec">2–3단계 density(<code>--row-h-compact/default</code>, <code>--cell-pad-x</code>) 후보.</td>
+                <td class="col-prio"><span class="ppill p1">P1</span></td>
+              </tr>
+
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:12px;">
+            <strong>참고 — 우선순위 부여 기준</strong>
+            P0은 컴포넌트 구현 진입 자체를 막는 항목,
+            P1은 구현 직후 반드시 정합화해야 하는 항목,
+            P2는 v1 안정화 이후 보강해도 무방한 항목으로 분류한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Component Token Needs ── -->
+      <section id="s04" class="sec" data-screen-label="05 Component Token Needs">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Component Token Needs — 컴포넌트별 토큰 수요</span>
+          <span class="sbadge plan">수요</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">7종 컴포넌트가 v1 구현 시점에 필요한 토큰을 정리한다. 신규 토큰 명은 <em>후보</em>이며, 실제 이름은 후속 작업에서 확정한다.</p>
+
+          <div class="cn-grid">
+
+            <div class="cn-card">
+              <div class="cn-hdr"><span class="cn-ico">BT</span>Button</div>
+              <div class="cn-sub">기준: STAM Button Guide v1 · 사이즈 sm / md / lg · variant 4종 · state 4종.</div>
+              <ul>
+                <li>height — <code>--btn-h-sm/md/lg</code></li>
+                <li>padding — <code>--btn-pad-x-sm/md/lg</code></li>
+                <li>radius — <code>--r-md</code> 재사용</li>
+                <li>font size — Typography 카테고리 토큰 재사용</li>
+                <li>border — <code>--bd-s</code> 재사용 + <code>--btn-bd</code> 별칭</li>
+                <li>variant 색상 — <code>--btn-primary/secondary/ghost/danger-bg/fg/bd</code></li>
+                <li>state — hover / focus-visible / disabled / loading 별칭</li>
+              </ul>
+            </div>
+
+            <div class="cn-card">
+              <div class="cn-hdr"><span class="cn-ico">FM</span>Form</div>
+              <div class="cn-sub">기준: STAM Form Guide v1 · Input / Select / Textarea · label · help · error.</div>
+              <ul>
+                <li>input height — <code>--field-h</code> (Button md와 정합)</li>
+                <li>field gap — <code>--field-gap</code></li>
+                <li>label size — Typography 라벨 토큰 재사용</li>
+                <li>help text — <code>--t3</code> + 캡션 토큰 재사용</li>
+                <li>error color — <code>--fail</code> 재사용 + <code>--field-error-bd</code> 별칭</li>
+                <li>disabled / readonly bg — <code>--bg-sur2</code> 재사용 또는 <code>--field-disabled-bg</code></li>
+              </ul>
+            </div>
+
+            <div class="cn-card">
+              <div class="cn-hdr"><span class="cn-ico">DR</span>Drawer</div>
+              <div class="cn-sub">기준: STAM Drawer Guide v1 · 우측 슬라이드 · 폼 / 상세 보기.</div>
+              <ul>
+                <li>width — <code>--drawer-w</code></li>
+                <li>max-width — <code>--drawer-w-max</code></li>
+                <li>overlay — <code>--overlay-bg</code> (공용)</li>
+                <li>z-index — <code>--z-drawer</code></li>
+                <li>header / footer height — <code>--drawer-hdr-h</code>, <code>--drawer-ftr-h</code></li>
+                <li>shadow — <code>--sh-modal</code> 또는 별도 키</li>
+              </ul>
+            </div>
+
+            <div class="cn-card">
+              <div class="cn-hdr"><span class="cn-ico">DG</span>Dialog</div>
+              <div class="cn-sub">기준: STAM Dialog Guide v1 · 확인 / 경고 / 위험.</div>
+              <ul>
+                <li>backdrop — <code>--overlay-bg</code> 공용</li>
+                <li>z-index — <code>--z-dialog</code> (Drawer보다 상위)</li>
+                <li>width — <code>--dialog-w-sm/md/lg</code></li>
+                <li>radius — <code>--r-lg</code> 또는 <code>--r-xl</code> 후보</li>
+                <li>shadow — <code>--sh-modal</code></li>
+                <li>danger state — <code>--fail</code> 재사용 + Button danger 토큰</li>
+              </ul>
+            </div>
+
+            <div class="cn-card">
+              <div class="cn-hdr"><span class="cn-ico">TB</span>Table</div>
+              <div class="cn-sub">기준: STAM Table Guide v1 · Header / Body / Sticky · 가로 스크롤 컨테이너.</div>
+              <ul>
+                <li>row height — <code>--row-h-compact/default</code></li>
+                <li>header height — <code>--row-h-header</code></li>
+                <li>cell padding — <code>--cell-pad-x</code>, <code>--cell-pad-y</code></li>
+                <li>sticky z-index — <code>--z-sticky</code></li>
+                <li>density — compact / default / comfortable 옵션</li>
+                <li>horizontal scroll container — <code>--tbl-min-w</code> 별칭 또는 overflow wrapper 기준</li>
+              </ul>
+            </div>
+
+            <div class="cn-card">
+              <div class="cn-hdr"><span class="cn-ico">TP</span>Topbar</div>
+              <div class="cn-sub">기준: STAM Topbar Guide v1 · 좌측 타이틀 / 브레드크럼 · 우측 액션.</div>
+              <ul>
+                <li>height — <code>--topbar-h</code> (기존 토큰 재사용)</li>
+                <li>action button size — Button sm 토큰 재사용</li>
+                <li>gap — Spacing 토큰 재사용</li>
+                <li>breadcrumb / title spacing — <code>--topbar-gap</code> 후보</li>
+                <li>z-index — <code>--z-topbar</code></li>
+              </ul>
+            </div>
+
+            <div class="cn-card" style="grid-column:1 / -1;">
+              <div class="cn-hdr"><span class="cn-ico">IC</span>Icon</div>
+              <div class="cn-sub">기준: STAM Icon Guide v1 · stroke 기반 · currentColor.</div>
+              <ul>
+                <li>size scale — <code>--ico-12/16/20/24</code> 후보 (4단계)</li>
+                <li>stroke width — <code>--ico-stroke</code> (기본 1.6 / 1.8)</li>
+                <li>icon button hit area — Button sm 높이와 정합 (<code>--btn-h-sm</code>)</li>
+                <li>alignment gap — 라벨 / 아이콘 사이 gap, Spacing 토큰 재사용</li>
+              </ul>
+            </div>
+
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>네이밍 원칙</strong>
+            컴포넌트 별칭 토큰은 항상 <em>의미 기반</em>(<code>--btn-primary-bg</code>) 으로 정의하고,
+            값은 가능하면 atomic 토큰(<code>--brand</code>, <code>--bg-sur</code> 등)을 참조한다.
+            화면별 CSS에서 atomic 토큰 직접 사용은 허용하나, 컴포넌트 클래스 정의에서는 별칭 토큰 우선 사용한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 Gap Summary ── -->
+      <section id="s05" class="sec" data-screen-label="06 Gap Summary">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Gap Summary — 준비 상태 요약 / Risk</span>
+          <span class="sbadge guide">요약</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">12개 카테고리 점검 결과를 4단계로 요약한다. Missing / Needs Decision 항목은 CSS 수정 진입 전 반드시 해소한다.</p>
+
+          <div class="gs-grid">
+
+            <div class="gs-card ready">
+              <span class="spill ready">Ready</span>
+              <ul>
+                <li>Color (atomic / semantic 토큰)</li>
+                <li>Radius (3단계)</li>
+                <li>Border (color 3종)</li>
+                <li>Layout Width (content / focus / sidebar)</li>
+              </ul>
+            </div>
+
+            <div class="gs-card partial">
+              <span class="spill partial">Partial</span>
+              <ul>
+                <li>Typography (전역 폰트만 정의)</li>
+                <li>Spacing (콘텐츠 토큰만 존재)</li>
+                <li>Table Density (header fg / row hover만 존재)</li>
+              </ul>
+            </div>
+
+            <div class="gs-card missing">
+              <span class="spill missing">Missing</span>
+              <ul>
+                <li>Shadow elevation 단계</li>
+                <li>Z-index 위계</li>
+                <li>Motion (duration / easing)</li>
+                <li>Button Height 3단계</li>
+                <li>Form Height / Field gap</li>
+              </ul>
+            </div>
+
+            <div class="gs-card decide">
+              <span class="spill decide">Needs Decision</span>
+              <ul>
+                <li>컴포넌트 별칭 토큰 네이밍 규칙</li>
+                <li>focus-visible 표현 방식(ring vs border)</li>
+                <li>Drawer / Dialog overlay 색 / alpha</li>
+                <li>Table density 기본값(compact / default)</li>
+                <li>반응형 breakpoint 토큰화 여부</li>
+              </ul>
+            </div>
+
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>해소 순서 권장</strong>
+            Missing 항목 → Needs Decision 항목 → Partial 항목 순으로 해소한다.
+            Ready 카테고리는 별도 작업 없이 그대로 사용한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 Priority Recommendation ── -->
+      <section id="s06" class="sec" data-screen-label="07 Priority Recommendation">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Priority Recommendation — 우선순위 권고</span>
+          <span class="sbadge guide">권고</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">실제 CSS 수정 시 다루는 순서. P0는 v1 진입 전 필수, P1은 v1 직후, P2는 v1 안정화 이후 보강.</p>
+
+          <div class="pr-grid">
+
+            <div class="pr-col p0">
+              <div class="pr-hdr"><span class="ppill p0">P0</span><span style="color:var(--t1);">v1 진입 전 필수</span></div>
+              <ul>
+                <li>z-index 체계 (<code>--z-sticky / --z-topbar / --z-drawer / --z-dialog</code>)</li>
+                <li>Button / Form / Table 기본 높이 (Button md와 Input 높이 정합)</li>
+                <li>focus-visible 기준 (ring 두께 · 색 · offset)</li>
+                <li>Drawer / Dialog overlay 기준 (배경 alpha · z-index · shadow)</li>
+              </ul>
+            </div>
+
+            <div class="pr-col p1">
+              <div class="pr-hdr"><span class="ppill p1">P1</span><span style="color:var(--t1);">v1 직후 정합화</span></div>
+              <ul>
+                <li>Table density 기준 (compact / default / comfortable)</li>
+                <li>Motion 기준 (<code>--dur-fast/normal</code>, <code>--ease-out</code>, reduced-motion)</li>
+                <li>Responsive width 기준 (<code>--bp-md/lg</code> · 가로 스크롤 임계점)</li>
+                <li>Typography 단계 토큰 (사이즈 · 라인하이트 · 자간)</li>
+                <li>Spacing 스케일 토큰 (4 / 8 / 12 / 16 / 24 / 32)</li>
+              </ul>
+            </div>
+
+            <div class="pr-col p2">
+              <div class="pr-hdr"><span class="ppill p2">P2</span><span style="color:var(--t1);">v1 안정화 이후 보강</span></div>
+              <ul>
+                <li>Semantic color 확장 (variant 별칭 세분화)</li>
+                <li>Icon size scale 세분화 (12 / 16 / 20 / 24 · stroke 단계)</li>
+                <li>Radius 보강 (pill · 모달 전용)</li>
+                <li>Group 색상 활용 가이드 정리</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S-next Recommended Next Steps ── -->
+      <section id="s-next" class="sec" data-screen-label="08 Recommended Next Steps">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Recommended Next Steps — 단계별 작업 순서</span>
+          <span class="sbadge plan">계획</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">CSS 구현은 한 번에 진행하지 않는다. 아래 5단계를 작은 단위로 끊어 진행하며, 각 단계는 작업 단위 1건에 대응한다.</p>
+
+          <div class="gate-grid">
+
+            <div class="gate-step">
+              <span class="gs-n">1</span>
+              <div class="gs-body">Step 1 — Token Inventory 확정
+                <span class="gs-sub">P0 카테고리(Shadow · Z-index · Border focus · Button H · Form H)부터 신규 토큰 후보를 별도 작업 단위로 확정한다.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">2</span>
+              <div class="gs-body">Step 2 — Component별 Token Mapping 확정
+                <span class="gs-sub">CSS Component Token Plan과 Section 05 Component Token Needs를 결합해 컴포넌트 별칭 토큰 매핑을 확정한다.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">3</span>
+              <div class="gs-body">Step 3 — Button Token Mapping 작성
+                <span class="gs-sub">Button 한 컴포넌트만 대상으로 height · padding · variant · state 매핑 표를 확정한다. 다른 컴포넌트 동시 작업 금지.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">4</span>
+              <div class="gs-body">Step 4 — Button CSS만 제한 구현
+                <span class="gs-sub"><code>stam.tokens.css</code>에 Button 토큰만 추가 → <code>stam.components.css</code>에 Button 클래스만 정의. 페이지별 CSS는 다음 단계에서.</span>
+              </div>
+            </div>
+
+            <div class="gate-step" style="grid-column:1 / -1;">
+              <span class="gs-n">5</span>
+              <div class="gs-body">Step 5 — QA 후 Form / Dialog / Drawer / Table 순서로 확장
+                <span class="gs-sub">Button QA(라이트·다크 · 1440 / 1600 / 1920 가로 스크롤 · 콘솔 오류 · Staging 200) 통과 후 동일 순서로 컴포넌트 1개씩 확장. 한 번에 1 컴포넌트.</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>속도 기준</strong>
+            한 컴포넌트 단위는 <em>토큰 → 클래스 → 화면 적용 → QA</em>를 한 묶음으로 처리한다. 여러 컴포넌트 CSS를 동시에 손대지 않는다.
+            본 문서 갱신 없이 다음 단계로 임의 진입하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 Do / Don't ── -->
+      <section id="s07" class="sec" data-screen-label="09 Do Dont">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Do / Don't — 작업 원칙</span>
+          <span class="sbadge guide">원칙</span>
+        </div>
+        <div class="sec-body">
+          <div class="pf-grid">
+            <div class="pf-col pf-pass">
+              <div class="pf-hdr">Do — 권장</div>
+              <ul>
+                <li>기존 토큰을 먼저 재사용한다.</li>
+                <li>새 토큰은 의미 기반 이름(<code>--btn-primary-bg</code>)으로 추가한다.</li>
+                <li>화면별 임의 값 추가 전 공통 토큰을 먼저 확인한다.</li>
+                <li>라이트 / 다크 토큰 쌍을 함께 고려한다.</li>
+                <li>S-Core Dream 자체 서빙 폰트를 유지한다.</li>
+              </ul>
+            </div>
+            <div class="pf-col pf-fail">
+              <div class="pf-hdr">Don't — 금지</div>
+              <ul>
+                <li>화면별 CSS에 임시 px 값을 남발하지 않는다.</li>
+                <li>WBS / Project Overview 전용 토큰을 전역 토큰으로 오염하지 않는다.</li>
+                <li>버튼 / 폼 / 테이블 높이를 화면마다 다르게 정의하지 않는다.</li>
+                <li>z-index를 임의 숫자로 추가하지 않는다.</li>
+                <li>Pretendard CDN · Google Fonts · Gulim · Dotum 등 외부 폰트를 추가하지 않는다.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Implementation Gate ── -->
+      <section id="s08" class="sec" data-screen-label="10 Implementation Gate">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Implementation Gate — CSS 수정 진입 조건</span>
+          <span class="sbadge lock">Gate</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아래 7개 조건을 모두 만족할 때 실제 <code>stam/css/**</code> 수정을 시작한다. 하나라도 미충족이면 본 문서 단계로 회귀.</p>
+
+          <div class="gate-grid">
+
+            <div class="gate-step">
+              <span class="gs-n">1</span>
+              <div class="gs-body">Token gap 확인 완료
+                <span class="gs-sub">12개 카테고리 점검 결과가 본 문서에 반영되어 있다.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">2</span>
+              <div class="gs-body">필요한 신규 토큰 목록 확정
+                <span class="gs-sub">P0 항목의 신규 토큰 이름·키·라이트/다크 값이 후속 작업 단위로 확정되어 있다.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">3</span>
+              <div class="gs-body">Button부터 작은 범위로 적용
+                <span class="gs-sub">첫 적용 대상은 Button. 한 컴포넌트 단위로 토큰화 → 클래스 정의 → 화면 적용 순서.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">4</span>
+              <div class="gs-body">변경 파일 범위 제한
+                <span class="gs-sub"><code>stam.tokens.css</code> + <code>stam.components.css</code> 우선. 페이지별 CSS는 후속 단계.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">5</span>
+              <div class="gs-body">라이트 / 다크 QA
+                <span class="gs-sub">신규 / 변경 토큰은 두 테마에서 모두 확인. 누락된 dark 키 없음.</span>
+              </div>
+            </div>
+
+            <div class="gate-step">
+              <span class="gs-n">6</span>
+              <div class="gs-body">가로 스크롤 QA
+                <span class="gs-sub">페이지 레벨 가로 스크롤이 발생하지 않는다. Topbar / Drawer 적용 시 z-index 확인.</span>
+              </div>
+            </div>
+
+            <div class="gate-step" style="grid-column:1 / -1;">
+              <span class="gs-n">7</span>
+              <div class="gs-body">git diff 검증
+                <span class="gs-sub">변경 파일이 허용 범위 내인지 <code>git diff --stat</code> 으로 확인. 금지 파일 변경 없음.</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="ibox bad" style="margin-top:14px;">
+            <strong>Gate 미충족 시</strong>
+            7개 조건 중 하나라도 미충족이면 CSS 수정에 진입하지 않고, 본 Readiness Check 문서를 갱신하거나 새 결정 항목을 후속 작업 단위로 분리한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S-handoff Cursor Handoff Notes ── -->
+      <section id="s-handoff" class="sec" data-screen-label="11 Cursor Handoff Notes">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Cursor Handoff Notes — 후속 작업자 인계 기준</span>
+          <span class="sbadge guide">인계</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Cursor 또는 다른 작업자에게 CSS 구현 작업을 넘길 때 동일 기준을 유지하기 위한 항목. 본 문서가 합의된 허용 / 금지 범위의 기준이 된다.</p>
+
+          <div class="dd-grid">
+            <div class="dd-col" style="border-color:var(--bd);background:var(--bg-sur2);">
+              <div class="dd-hdr" style="color:var(--t1);">Pre-Edit — 작업 진입 전</div>
+              <ul>
+                <li>본 문서를 기준으로 허용 / 금지 범위를 확인한다.</li>
+                <li>수정 대상은 <code>stam/css/stam.tokens.css</code> · <code>stam/css/stam.components.css</code> 우선.</li>
+                <li>금지 파일(<code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/index.html</code>, <code>stam/assets/**</code>, Firebase 설정 / GitHub Actions / package*.json) 변경 금지.</li>
+                <li>토큰 추가 / 변경 사유를 PR 또는 커밋 메시지에 명시한다.</li>
+                <li>한 번의 작업은 한 컴포넌트만 다룬다.</li>
+                <li><code>git status</code> clean 상태에서 시작한다.</li>
+              </ul>
+            </div>
+            <div class="dd-col" style="border-color:var(--bd);background:var(--bg-sur2);">
+              <div class="dd-hdr" style="color:var(--t1);">Post-Edit — 작업 직후 QA</div>
+              <ul>
+                <li><code>git diff --stat</code>으로 변경 파일 범위를 확인한다.</li>
+                <li>라이트 / 다크 양 테마 시각 QA.</li>
+                <li>1440 / 1600 / 1920 가로폭에서 페이지 레벨 가로 스크롤 없음 확인.</li>
+                <li>Docs Index · Component Guide 링크 정합 확인.</li>
+                <li>Firebase Staging 배포 후 URL 200 · CSS 적용 · 콘솔 오류 없음 확인.</li>
+                <li>S-Core Dream 외 외부 폰트 호출 없음 확인.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Cursor 핸드오프 원칙</strong>
+            본 문서가 정한 범위 외 변경이 필요하면, 코드 수정 전에 본 문서를 먼저 갱신한다. 범위를 임의 확장하지 않는다.
+            본 문서의 판정(Ready with Notes)은 <em>Section 06 Gap Summary의 Missing / Needs Decision 항목 해소</em>를 전제로 한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Related Links ── -->
+      <section id="s09" class="sec" data-screen-label="12 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Related Links — 관련 문서</span>
+          <span class="sbadge guide">링크</span>
+        </div>
+        <div class="sec-body">
+          <ul class="rlist">
+            <li><a href="STAM-Docs-Index.html"><span class="rico">DI</span><span class="rbody">STAM Docs Index<span class="rsub">전체 문서 인덱스</span></span></a></li>
+            <li><a href="STAM-UI-Baseline-Guide.html"><span class="rico">BG</span><span class="rbody">UI Baseline Guide<span class="rsub">폰트·토큰·레이아웃 기준</span></span></a></li>
+            <li><a href="STAM-Component-Guide.html"><span class="rico">CG</span><span class="rbody">Component Guide (Index)<span class="rsub">컴포넌트 전체 인덱스</span></span></a></li>
+            <li><a href="STAM-CSS-Component-Token-Plan.html"><span class="rico">CP</span><span class="rbody">CSS Component Token Plan<span class="rsub">Component Guide v1 → 실제 CSS 적용 계획</span></span></a></li>
+            <li><a href="components/STAM-Button-Guide.html"><span class="rico">BT</span><span class="rbody">Button Guide<span class="rsub">Variant · Size · State · Token</span></span></a></li>
+            <li><a href="components/STAM-Form-Guide.html"><span class="rico">FM</span><span class="rbody">Form Guide<span class="rsub">Input · Select · Textarea · Validation</span></span></a></li>
+            <li><a href="components/STAM-Drawer-Guide.html"><span class="rico">DR</span><span class="rbody">Drawer Guide<span class="rsub">Slide-over · Overlay · z-index</span></span></a></li>
+            <li><a href="components/STAM-Table-Guide.html"><span class="rico">TB</span><span class="rbody">Table Guide<span class="rsub">Density · Sticky · Horizontal Scroll</span></span></a></li>
+            <li><a href="components/STAM-Topbar-Guide.html"><span class="rico">TP</span><span class="rbody">Topbar Guide<span class="rsub">Title · Breadcrumb · Action</span></span></a></li>
+          </ul>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>참고 — 본 문서 위치</strong>
+            본 문서는 CSS Component Token Plan과 실제 CSS 수정 사이의 <em>Pre-Implementation Gate</em>로 기능한다.
+            Component Guide / UI Baseline / Token Plan 본문은 변경하지 않는다.
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
