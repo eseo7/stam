@@ -138,6 +138,20 @@
     }
   }
 
+  /* ─── 2b. Topbar search → page filter search ─────────────── */
+  function initTopbarSearch() {
+    var trigger = document.querySelector('[data-tb-search-trigger]');
+    var input   = document.querySelector('.wbs-search-input');
+    if (!trigger || !input) return;
+    trigger.addEventListener('click', function () {
+      input.focus();
+      var bar = input.closest('.wbs-filter-bar');
+      if (bar && bar.scrollIntoView) {
+        bar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+  }
+
   /* ─── 3. Focus View ─────────────────────────────────────── */
   function initFocusView() {
     var shell = document.querySelector('.po-shell');
@@ -997,6 +1011,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     initNav();
     initThemeToggleBtn();  /* 테마 토글 버튼 aria-label */
+    initTopbarSearch();    /* topbar 검색 → 본문 검색 포커스 */
     initGanttToggle();
     initGroupToggle();
     initFocusView();

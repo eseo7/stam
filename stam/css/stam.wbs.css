@@ -4,6 +4,49 @@
  * IA Baseline v3.3 | 2026-06-07
  * ============================================================ */
 
+/* ---- WBS page shell — topbar / left nav alignment ---- */
+.wbs-page {
+  overflow-x: hidden;
+}
+.wbs-page .po-topbar.stam-topbar {
+  flex-shrink: 0;
+}
+.wbs-page .po-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.wbs-page .po-sidebar {
+  align-self: stretch;
+}
+.wbs-page .po-main {
+  overflow-x: hidden;
+}
+
+/* WBS topbar — responsive center search */
+@media (max-width: 1280px) {
+  .wbs-page .stam-topbar-center {
+    max-width: 280px;
+    padding: 0 10px;
+  }
+  .wbs-page .stam-topbar-search {
+    max-width: 240px;
+  }
+}
+@media (max-width: 1100px) {
+  .wbs-page .po-topbar-client {
+    display: none;
+  }
+}
+@media (max-width: 960px) {
+  .wbs-page .stam-topbar-actions-work {
+    display: none;
+  }
+  .wbs-page .stam-topbar-actions-sep {
+    display: none;
+  }
+}
+
 /* ============================================================
  * 1. Content Wrapper
  * ============================================================ */

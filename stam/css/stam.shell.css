@@ -492,3 +492,164 @@ mark.nav-highlight {
  * Left Navigation 스크롤 안정화 — scrollbar-gutter: stable
  * .po-sidebar-nav 단독 적용 (바깥 .po-sidebar에는 적용 안 함)
  * ============================================================ */
+
+/* ============================================================
+ * App Topbar — Guide v1 (LEFT · CENTER · RIGHT)
+ * Product pages: .po-topbar.stam-topbar
+ * Height: --topbar-h (48px) · Always dark #0A0E1A
+ * ============================================================ */
+.po-topbar.stam-topbar {
+  height: var(--topbar-h, 48px);
+  min-height: var(--topbar-h, 48px);
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+}
+
+.stam-topbar-left {
+  display: flex;
+  align-items: center;
+  flex-shrink: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+.stam-topbar-center {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  max-width: 480px;
+  padding: 0 16px;
+  height: 100%;
+}
+
+.stam-topbar-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+  padding: 0 12px 0 0;
+  height: 100%;
+  margin-left: auto;
+}
+
+.stam-topbar-actions-work,
+.stam-topbar-actions-util {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stam-topbar-actions-sep {
+  width: 1px;
+  height: 20px;
+  background: rgba(255,255,255,.10);
+  flex-shrink: 0;
+}
+
+/* CENTER search pill */
+.po-topbar.stam-topbar .stam-topbar-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 360px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 99px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(255,255,255,.55);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms, color 120ms;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.po-topbar.stam-topbar .stam-topbar-search:hover {
+  background: rgba(255,255,255,.09);
+  border-color: rgba(255,255,255,.16);
+  color: rgba(255,255,255,.78);
+}
+.po-topbar.stam-topbar .stam-topbar-search svg {
+  flex-shrink: 0;
+  color: rgba(255,255,255,.45);
+}
+.po-topbar.stam-topbar .stam-topbar-search-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.stam-topbar-user-chev {
+  color: rgba(255,255,255,.40);
+  font-size: 10px;
+  margin-left: 2px;
+}
+
+/* Notification icon + badge */
+.stam-topbar-notif-btn {
+  position: relative;
+}
+.stam-topbar-notif-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  margin-left: 0;
+  border: 2px solid #0A0E1A;
+}
+
+/* Dark topbar — .stam-btn overrides (topbar is always dark) */
+.po-topbar.stam-topbar .stam-btn--ghost {
+  color: rgba(255,255,255,.62);
+  border-color: transparent;
+  background: transparent;
+}
+.po-topbar.stam-topbar .stam-btn--ghost:hover {
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.92);
+}
+.po-topbar.stam-topbar .stam-btn--ghost:active {
+  background: rgba(255,255,255,.12);
+}
+.po-topbar.stam-topbar .stam-btn--secondary {
+  background: rgba(255,255,255,.07);
+  border-color: rgba(255,255,255,.12);
+  color: rgba(255,255,255,.75);
+}
+.po-topbar.stam-topbar .stam-btn--secondary:hover {
+  background: rgba(255,255,255,.12);
+  color: #fff;
+}
+.po-topbar.stam-topbar .stam-btn--icon-only {
+  color: rgba(255,255,255,.72);
+  border-color: rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+}
+.po-topbar.stam-topbar .stam-btn--icon-only:hover {
+  background: rgba(255,255,255,.10);
+  color: #fff;
+  border-color: rgba(255,255,255,.16);
+}
+.po-topbar.stam-topbar .stam-btn svg {
+  display: block;
+}
+
+/* App shell — sidebar aligns below topbar, no overlap */
+.po-body {
+  min-height: 0;
+  min-width: 0;
+}
+.po-sidebar {
+  min-height: 0;
+}
+.po-main {
+  min-width: 0;
+}
