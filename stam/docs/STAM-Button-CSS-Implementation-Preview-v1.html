@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Button CSS Implementation Preview v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ──────────────────────────────────────────────────────────────────
+   STAM Button CSS Implementation Preview v1 — 문서 전용 보조 스타일
+   - 이 문서 안에서만 사용 (Preview 전용 클래스)
+   - 모든 버튼 샘플 클래스는 `bcp-` 접두어 (Button CSS Preview)
+   - 실제 공통 .stam-btn / .tbtn / .sbadge 클래스를 절대 덮어쓰지 않음
+   - 라이트/다크 모두 대응 — :root[data-theme="dark"] override 사용
+   ────────────────────────────────────────────────────────────────── */
+
+/* ── status pill (Token Mapping v1과 시각 통일) ── */
+.spill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; font-family: var(--font);
+  white-space: nowrap;
+}
+.spill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 999px;
+  background: currentColor; display: inline-block; flex-shrink: 0;
+}
+.spill.ready    { background: var(--pass-bg); color: var(--pass); }
+.spill.partial  { background: var(--warn-bg); color: var(--warn); }
+.spill.missing  { background: var(--fail-bg); color: var(--fail); }
+.spill.decide   { background: var(--purple-bg); color: var(--purple); }
+.spill.candidate{ background: var(--info-bg); color: var(--info); }
+.spill.hold     { background: var(--skip-bg); color: var(--skip); }
+.spill.preview  { background: var(--purple-bg); color: var(--purple); }
+.spill.qa       { background: var(--pass-bg); color: var(--pass); }
+
+/* ── 공통 table ── */
+.bcp-tbl {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--font); font-size: 11.5px;
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: var(--r-md); overflow: hidden;
+}
+.bcp-tbl th {
+  padding: 9px 10px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  text-align: left; color: var(--t3);
+  border-bottom: 1px solid var(--bd); background: var(--bg-sur2);
+  white-space: nowrap; vertical-align: middle;
+}
+.bcp-tbl td {
+  padding: 10px; border-bottom: 1px solid var(--bd);
+  color: var(--t2); vertical-align: top; line-height: 1.6;
+}
+.bcp-tbl tbody tr:last-child td { border-bottom: none; }
+.bcp-tbl td.tn { color: var(--t1); font-weight: 700; white-space: nowrap; font-size: 11px; }
+.bcp-tbl td code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur2);
+  border: 1px solid var(--bd); border-radius: 4px;
+  padding: 1px 6px; letter-spacing: .005em; white-space: nowrap;
+}
+.bcp-tbl td.note { color: var(--t3); font-size: 10.5px; }
+.bcp-wrap { overflow-x: auto; }
+.bcp-tbl  { min-width: 880px; }
+
+/* ── caption ── */
+.bcp-cap {
+  display: flex; align-items: center; gap: 8px;
+  margin: 18px 0 8px;
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.bcp-cap .bcp-cap-n {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--stam-soft); color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.bcp-cap-sub { font-size: 10.5px; color: var(--t3); font-weight: 500; letter-spacing: 0; margin-left: 4px; }
+
+/* ──────────────────────────────────────────────────────────────────
+   Preview-only Button Colors
+   ─ Button Token Mapping v1의 Light/Dark Candidate 값을 그대로 인용
+   ─ 실제 토큰이 아니라, 문서 내부 Preview 변수 (--bcp-* 로 격리)
+   ────────────────────────────────────────────────────────────────── */
+:root {
+  /* Primary */
+  --bcp-primary-bg:         #5451E8;
+  --bcp-primary-bg-hover:   #4542D8;
+  --bcp-primary-bg-active:  #3936B8;
+  --bcp-primary-bg-disabled:rgba(84,81,232,.35);
+  --bcp-primary-text:       #FFFFFF;
+  --bcp-primary-ring:       0 0 0 3px rgba(84,81,232,.30);
+  /* Secondary */
+  --bcp-secondary-bg:       #FFFFFF;
+  --bcp-secondary-bg-hover: #F1F5F9;
+  --bcp-secondary-bg-active:#E2E8F0;
+  --bcp-secondary-bd:       #CBD5E1;
+  --bcp-secondary-text:     #0F172A;
+  --bcp-secondary-text-disabled: rgba(15,23,42,.40);
+  /* Danger */
+  --bcp-danger-bg:          #DC2626;
+  --bcp-danger-bg-hover:    #B91C1C;
+  --bcp-danger-bg-active:   #991B1B;
+  --bcp-danger-bg-disabled: rgba(220,38,38,.35);
+  --bcp-danger-text:        #FFFFFF;
+  --bcp-danger-ring:        0 0 0 3px rgba(220,38,38,.25);
+  /* Ghost */
+  --bcp-ghost-text:         var(--t1);
+  --bcp-ghost-bg-hover:     rgba(15,23,42,.06);
+  --bcp-ghost-bg-active:    rgba(15,23,42,.10);
+  /* Text */
+  --bcp-text-color:         var(--stam);
+  --bcp-text-color-hover:   var(--stam-h);
+  /* Icon */
+  --bcp-icon-text:          var(--t1);
+  --bcp-icon-bg-hover:      rgba(15,23,42,.06);
+  --bcp-icon-bg-active:     rgba(15,23,42,.10);
+}
+:root[data-theme="dark"] {
+  --bcp-primary-bg:         #5451E8;
+  --bcp-primary-bg-hover:   #6B68EE;
+  --bcp-primary-bg-active:  #4340C8;
+  --bcp-primary-bg-disabled:rgba(139,127,248,.25);
+  --bcp-primary-ring:       0 0 0 3px rgba(139,127,248,.40);
+
+  --bcp-secondary-bg:       var(--bg-sur2);
+  --bcp-secondary-bg-hover: rgba(255,255,255,.04);
+  --bcp-secondary-bg-active:rgba(255,255,255,.07);
+  --bcp-secondary-bd:       rgba(180,184,200,.20);
+  --bcp-secondary-text:     #F0F1F5;
+  --bcp-secondary-text-disabled: rgba(240,241,245,.30);
+
+  --bcp-danger-bg:          #EF4444;
+  --bcp-danger-bg-hover:    #DC2626;
+  --bcp-danger-bg-active:   #B91C1C;
+  --bcp-danger-bg-disabled: rgba(239,68,68,.28);
+  --bcp-danger-ring:        0 0 0 3px rgba(255,133,133,.35);
+
+  --bcp-ghost-bg-hover:     rgba(255,255,255,.06);
+  --bcp-ghost-bg-active:    rgba(255,255,255,.10);
+  --bcp-icon-bg-hover:      rgba(255,255,255,.06);
+  --bcp-icon-bg-active:     rgba(255,255,255,.10);
+}
+
+/* ── base preview button ── */
+.bcp-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  font-family: var(--font);
+  font-weight: 600;
+  letter-spacing: -.005em;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: background-color .12s ease, color .12s ease,
+              border-color .12s ease, box-shadow .12s ease;
+  user-select: none;
+  white-space: nowrap;
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+.bcp-btn:focus { outline: none; }
+.bcp-btn svg { width: 1em; height: 1em; flex-shrink: 0; }
+
+/* sizes */
+.bcp-btn--xs { height: 24px; padding: 0 8px;  font-size: 11px; gap: 4px; }
+.bcp-btn--sm { height: 28px; padding: 0 10px; font-size: 12px; gap: 6px; }
+.bcp-btn--md { height: 32px; padding: 0 12px; font-size: 13px; gap: 6px; }
+.bcp-btn--lg { height: 40px; padding: 0 16px; font-size: 14px; gap: 8px; }
+.bcp-btn--xs svg { width: 12px; height: 12px; }
+.bcp-btn--sm svg { width: 14px; height: 14px; }
+.bcp-btn--md svg { width: 16px; height: 16px; }
+.bcp-btn--lg svg { width: 18px; height: 18px; }
+
+/* variant: primary */
+.bcp-btn--primary {
+  background: var(--bcp-primary-bg);
+  color: var(--bcp-primary-text);
+  border-color: var(--bcp-primary-bg);
+}
+.bcp-btn--primary.is-hover, .bcp-btn--primary:hover {
+  background: var(--bcp-primary-bg-hover);
+  border-color: var(--bcp-primary-bg-hover);
+}
+.bcp-btn--primary.is-active, .bcp-btn--primary:active {
+  background: var(--bcp-primary-bg-active);
+  border-color: var(--bcp-primary-bg-active);
+}
+.bcp-btn--primary.is-focus,
+.bcp-btn--primary:focus-visible {
+  box-shadow: var(--bcp-primary-ring);
+}
+
+/* variant: secondary */
+.bcp-btn--secondary {
+  background: var(--bcp-secondary-bg);
+  color: var(--bcp-secondary-text);
+  border-color: var(--bcp-secondary-bd);
+}
+.bcp-btn--secondary.is-hover, .bcp-btn--secondary:hover {
+  background: var(--bcp-secondary-bg-hover);
+}
+.bcp-btn--secondary.is-active, .bcp-btn--secondary:active {
+  background: var(--bcp-secondary-bg-active);
+}
+.bcp-btn--secondary.is-focus,
+.bcp-btn--secondary:focus-visible {
+  box-shadow: var(--bcp-primary-ring);
+}
+
+/* variant: ghost */
+.bcp-btn--ghost {
+  background: transparent;
+  color: var(--bcp-ghost-text);
+  border-color: transparent;
+}
+.bcp-btn--ghost.is-hover, .bcp-btn--ghost:hover {
+  background: var(--bcp-ghost-bg-hover);
+}
+.bcp-btn--ghost.is-active, .bcp-btn--ghost:active {
+  background: var(--bcp-ghost-bg-active);
+}
+.bcp-btn--ghost.is-focus,
+.bcp-btn--ghost:focus-visible {
+  box-shadow: var(--bcp-primary-ring);
+}
+
+/* variant: text */
+.bcp-btn--text {
+  background: transparent;
+  color: var(--bcp-text-color);
+  border-color: transparent;
+  padding-left: 4px;
+  padding-right: 4px;
+  font-weight: 600;
+}
+.bcp-btn--text.is-hover, .bcp-btn--text:hover {
+  color: var(--bcp-text-color-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.bcp-btn--text.is-active, .bcp-btn--text:active {
+  color: var(--bcp-text-color-hover);
+}
+.bcp-btn--text.is-focus,
+.bcp-btn--text:focus-visible {
+  box-shadow: var(--bcp-primary-ring);
+  border-radius: 4px;
+}
+
+/* variant: danger */
+.bcp-btn--danger {
+  background: var(--bcp-danger-bg);
+  color: var(--bcp-danger-text);
+  border-color: var(--bcp-danger-bg);
+}
+.bcp-btn--danger.is-hover, .bcp-btn--danger:hover {
+  background: var(--bcp-danger-bg-hover);
+  border-color: var(--bcp-danger-bg-hover);
+}
+.bcp-btn--danger.is-active, .bcp-btn--danger:active {
+  background: var(--bcp-danger-bg-active);
+  border-color: var(--bcp-danger-bg-active);
+}
+.bcp-btn--danger.is-focus,
+.bcp-btn--danger:focus-visible {
+  box-shadow: var(--bcp-danger-ring);
+}
+
+/* variant: icon (label + icon, normal button) */
+.bcp-btn--icon {
+  background: transparent;
+  color: var(--bcp-icon-text);
+  border-color: var(--bd);
+}
+.bcp-btn--icon.is-hover, .bcp-btn--icon:hover {
+  background: var(--bcp-icon-bg-hover);
+}
+.bcp-btn--icon.is-active, .bcp-btn--icon:active {
+  background: var(--bcp-icon-bg-active);
+}
+.bcp-btn--icon.is-focus, .bcp-btn--icon:focus-visible {
+  box-shadow: var(--bcp-primary-ring);
+}
+
+/* icon-only square */
+.bcp-btn--icon-only {
+  padding: 0;
+  background: transparent;
+  color: var(--bcp-icon-text);
+  border-color: var(--bd);
+}
+.bcp-btn--icon-only.bcp-btn--xs { width: 24px; }
+.bcp-btn--icon-only.bcp-btn--sm { width: 28px; }
+.bcp-btn--icon-only.bcp-btn--md { width: 32px; }
+.bcp-btn--icon-only.bcp-btn--lg { width: 40px; }
+.bcp-btn--icon-only.is-hover, .bcp-btn--icon-only:hover { background: var(--bcp-icon-bg-hover); }
+.bcp-btn--icon-only.is-active, .bcp-btn--icon-only:active { background: var(--bcp-icon-bg-active); }
+.bcp-btn--icon-only.is-focus, .bcp-btn--icon-only:focus-visible { box-shadow: var(--bcp-primary-ring); }
+.bcp-btn--icon-only.bcp-circle { border-radius: 999px; }
+
+/* disabled — variant 무관 공통 */
+.bcp-btn[disabled],
+.bcp-btn.is-disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.bcp-btn--primary[disabled],
+.bcp-btn--primary.is-disabled {
+  background: var(--bcp-primary-bg-disabled);
+  border-color: var(--bcp-primary-bg-disabled);
+  color: var(--bcp-primary-text);
+}
+.bcp-btn--secondary[disabled],
+.bcp-btn--secondary.is-disabled {
+  color: var(--bcp-secondary-text-disabled);
+  background: var(--bcp-secondary-bg);
+  border-color: var(--bcp-secondary-bd);
+}
+.bcp-btn--ghost[disabled],
+.bcp-btn--ghost.is-disabled,
+.bcp-btn--text[disabled],
+.bcp-btn--text.is-disabled,
+.bcp-btn--icon[disabled],
+.bcp-btn--icon.is-disabled,
+.bcp-btn--icon-only[disabled],
+.bcp-btn--icon-only.is-disabled {
+  color: var(--t3);
+  opacity: .55;
+  background: transparent;
+}
+.bcp-btn--danger[disabled],
+.bcp-btn--danger.is-disabled {
+  background: var(--bcp-danger-bg-disabled);
+  border-color: var(--bcp-danger-bg-disabled);
+}
+
+/* loading state */
+.bcp-btn--loading {
+  position: relative;
+  pointer-events: none;
+}
+.bcp-btn--loading .bcp-spinner {
+  width: 1em; height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 999px;
+  display: inline-block;
+  animation: bcpSpin .8s linear infinite;
+  flex-shrink: 0;
+}
+.bcp-btn--loading.is-mute .bcp-btn-label {
+  visibility: hidden;
+}
+@keyframes bcpSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .bcp-spinner { animation-duration: 2.4s; }
+}
+
+/* selected (segment toggle) */
+.bcp-btn--selected {
+  background: var(--stam-soft);
+  color: var(--stam);
+  border-color: transparent;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Sample stage (변형/사이즈/상태 비교용 그리드 · 카드)
+   ────────────────────────────────────────────────────────────────── */
+.bcp-stage {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  border-radius: var(--r-md);
+  padding: 0;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.bcp-stage + .bcp-stage { margin-top: 14px; }
+
+.bcp-stage-hdr {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-sur2);
+  border-bottom: 1px solid var(--bd);
+  font-family: var(--font);
+}
+.bcp-stage-hdr .bcp-stage-name {
+  font-size: 11.5px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.bcp-stage-hdr .bcp-stage-sub {
+  font-size: 10.5px; color: var(--t3); font-weight: 500;
+}
+.bcp-stage-hdr .bcp-stage-sp { flex: 1; }
+
+.bcp-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 1fr 1fr 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--bd);
+  font-family: var(--font);
+}
+.bcp-row:last-child { border-bottom: none; }
+.bcp-row-hdr {
+  background: var(--bg-sur2);
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--t3);
+  padding-top: 8px; padding-bottom: 8px;
+}
+.bcp-row-name {
+  display: inline-flex; flex-direction: column; gap: 3px;
+  font-size: 11.5px; font-weight: 700; color: var(--t1);
+}
+.bcp-row-name .bcp-row-name-sub {
+  font-size: 10px; color: var(--t3); font-weight: 500; letter-spacing: .02em;
+}
+.bcp-cell {
+  display: flex; align-items: center; gap: 8px;
+  min-height: 40px;
+}
+.bcp-cell-lbl {
+  font-size: 9.5px; color: var(--t3); text-transform: uppercase;
+  letter-spacing: .08em; font-weight: 700;
+  align-self: flex-start;
+  margin-bottom: 4px;
+}
+.bcp-cell-stack {
+  display: flex; flex-direction: column; gap: 6px;
+}
+
+/* size row variant */
+.bcp-row--size {
+  grid-template-columns: 80px 1fr;
+  gap: 24px;
+}
+.bcp-row--size .bcp-cell {
+  flex-wrap: wrap; gap: 14px;
+}
+
+/* icon row variant */
+.bcp-row--icon {
+  grid-template-columns: 180px 1fr;
+  gap: 16px;
+}
+.bcp-row--icon .bcp-cell { flex-wrap: wrap; gap: 12px; }
+
+/* loading row variant */
+.bcp-row--load {
+  grid-template-columns: 180px 1fr 1fr;
+  gap: 16px;
+}
+
+/* responsive */
+@media (max-width: 1100px) {
+  .bcp-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .bcp-row-name { flex-direction: row; align-items: center; gap: 8px; }
+  .bcp-cell { min-height: 0; }
+  .bcp-cell-stack { width: 100%; }
+}
+
+/* ── usage / a11y / focus rule cards ── */
+.bcp-rule-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 760px) { .bcp-rule-grid { grid-template-columns: 1fr; } }
+.bcp-rule-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+}
+.bcp-rule-card .bcp-rc-hdr {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--t1);
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.bcp-rule-card .bcp-rc-hdr::before {
+  content: ""; width: 8px; height: 8px; border-radius: 999px;
+  background: var(--stam); display: inline-block;
+}
+.bcp-rule-card ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.bcp-rule-card li {
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  padding-left: 12px; position: relative;
+}
+.bcp-rule-card li::before {
+  content: "·"; position: absolute; left: 2px; top: -2px;
+  color: var(--t3); font-weight: 800;
+}
+.bcp-rule-card li code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: 4px; padding: 1px 5px;
+}
+
+/* QA checklist */
+.bcp-qa-list {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  font-family: var(--font);
+}
+@media (max-width: 760px) { .bcp-qa-list { grid-template-columns: 1fr; } }
+.bcp-qa-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 11.5px; line-height: 1.55; color: var(--t2);
+  padding: 4px 0;
+}
+.bcp-qa-item .bcp-qa-chk {
+  flex-shrink: 0;
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  border: 1.4px solid var(--bd-s);
+  background: var(--bg-sur);
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+  color: var(--t3);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+/* related link grid */
+.bcp-rel-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+@media (max-width: 900px) { .bcp-rel-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px) { .bcp-rel-grid { grid-template-columns: 1fr; } }
+.bcp-rel-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  text-decoration: none;
+  display: flex; flex-direction: column; gap: 4px;
+  transition: border-color .15s ease, background .15s ease;
+}
+.bcp-rel-card:hover { border-color: var(--bd-s); background: var(--bg-sur); }
+.bcp-rel-card .bcp-rl-title {
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.bcp-rel-card .bcp-rl-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+}
+
+/* usage table secondary highlight chip */
+.bcp-uchip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .04em; font-family: var(--font);
+  white-space: nowrap;
+}
+.bcp-uchip.primary   { background: var(--info-bg);   color: var(--info); }
+.bcp-uchip.secondary { background: var(--skip-bg);   color: var(--skip); }
+.bcp-uchip.ghost     { background: var(--purple-bg); color: var(--purple); }
+.bcp-uchip.danger    { background: var(--fail-bg);   color: var(--fail); }
+.bcp-uchip.icon      { background: var(--warn-bg);   color: var(--warn); }
+.bcp-uchip.text      { background: var(--pass-bg);   color: var(--pass); }
+
+/* state mini-tag (default / hover / focus 등 라벨) */
+.bcp-state-tag {
+  display: inline-block;
+  font-family: var(--font);
+  font-size: 9.5px; font-weight: 700;
+  color: var(--t3);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+/* font enforcement */
+.spill, .bcp-tbl, .bcp-tbl *,
+.bcp-stage, .bcp-stage *,
+.bcp-row, .bcp-row *,
+.bcp-rule-card, .bcp-rule-card *,
+.bcp-qa-list, .bcp-qa-list *,
+.bcp-rel-card, .bcp-rel-card *,
+.bcp-cap, .bcp-cap *,
+.bcp-btn, .bcp-btn *,
+.bcp-uchip, .bcp-state-tag {
+  font-family: var(--font) !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Button CSS Implementation Preview v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Implementation Preview</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Button CSS</span>
+  <span class="doc-nav-pill"><span class="dot"></span>QA Baseline</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Button Preview</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Variant Preview</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Size Preview</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>State Matrix</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Icon Button Preview</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Loading Preview</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Focus &amp; A11y</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Usage Guide</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>QA Checklist</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Cursor Handoff</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Status Banner ── -->
+      <div class="ibox info" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <strong>STAM Button CSS Implementation Preview v1</strong>
+          <span class="sbadge plan" style="margin-left:auto;">Implementation Preview</span>
+        </div>
+        <p style="margin:0 0 8px;font-size:.88em;line-height:1.7;opacity:.9;">
+          본 문서는 <strong>Cursor의 Button CSS 제한 구현 직전 단계에서 “최종 시각 기준”을 정리한 정적 Preview</strong>이다.
+          variant · size · state · icon-only · loading · danger · focus 상태를 한 화면에서 비교 가능하게 정리하며,
+          Cursor 구현 후에는 본 문서가 Button CSS QA Baseline으로 사용된다.
+          본 문서로는 <code>stam/css/**</code>, <code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/index.html</code>, <code>stam/assets/**</code>를 절대 수정하지 않는다.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:6px;">
+          <span class="sbadge plan">Implementation Preview</span>
+          <span class="sbadge lock">Button CSS</span>
+          <span class="sbadge guide">QA Baseline</span>
+          <span class="sbadge lock">No CSS / JS / Pages Edit</span>
+        </div>
+        <p style="margin:10px 0 0;font-size:.82em;line-height:1.65;opacity:.78;">
+          <strong>판정 근거</strong> — Button Token Mapping v1 · Token Inventory v1 · P0 Decision Approval Sheet v1 · Implementation Readiness Dashboard v1까지 매핑·승인 시퀀스가 끝났고, Cursor가 staging에서 Implementation Readiness Dashboard v1을 반영 중인 상태이다. Button CSS 구현 직전, “구현 후 어떤 화면이 나와야 하는가”를 정적 화면 하나로 고정해 두면 QA 합의가 빨라진다.
+        </p>
+      </div>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S01 Overview
+           ────────────────────────────────────────────────────────── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            Button Token Mapping v1이 <em>“어떤 토큰이 어디에 매핑되는가”</em>를 표로 확정했다면,
+            본 Preview는 <strong>“그 매핑이 화면에서 어떻게 보여야 하는가”</strong>를 정적 시각 기준으로 고정한다.
+            Cursor가 Button CSS 제한 구현(<code>stam.tokens.css</code> · <code>stam.components.css</code>)을 마친 뒤,
+            본 문서를 좌·우로 띄워 놓고 staging 화면과 시각 비교하는 QA Baseline으로 사용한다.
+          </p>
+
+          <div class="bcp-rule-grid" style="margin-top:8px;">
+            <div class="bcp-rule-card">
+              <div class="bcp-rc-hdr">이 문서가 다루는 것</div>
+              <ul>
+                <li>variant 7종(Primary / Secondary / Ghost / Text / Danger / Icon / Icon-only) Preview</li>
+                <li>size 4종(xs / sm / md / lg)별 height · padding · font-size · radius 기준</li>
+                <li>state 8종(default · hover · active · focus-visible · disabled · loading · selected · danger) 매트릭스</li>
+                <li>Icon Button — icon-left / icon-right / icon-only square / icon-only circle</li>
+                <li>Loading 상태 후보(텍스트 유지 + spinner / 텍스트 숨김 + spinner only)</li>
+                <li>Focus &amp; Accessibility 기준 (focus-visible · aria-label · aria-busy 등)</li>
+                <li>variant별 사용처 가이드</li>
+                <li>Cursor 구현 후 QA Checklist</li>
+              </ul>
+            </div>
+            <div class="bcp-rule-card">
+              <div class="bcp-rc-hdr">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/css/**</code> 토큰 추가 / 값 변경 / 클래스 작성</li>
+                <li><code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/index.html</code> 변경</li>
+                <li><code>stam/assets/**</code> 변경</li>
+                <li>Form · Dialog · Drawer · Table 등 다른 컴포넌트 CSS</li>
+                <li>Firebase · GitHub Actions · package*.json 변경</li>
+                <li>실제 제품 App Shell · 페이지에 부착</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Button Token Mapping v1과의 관계</strong>
+            <span style="display:block;margin-top:4px;line-height:1.7;">
+              · 본 Preview의 모든 버튼 샘플 색·치수는 Button Token Mapping v1 Section 04 · 05 · 06 후보값을 그대로 인용한다.<br>
+              · 단, 문서 내부 격리를 위해 실제 <code>--btn-*</code> 토큰이 아닌 Preview 전용 <code>--bcp-*</code> 변수로 재선언한다.<br>
+              · 따라서 본 문서는 실제 토큰 추가 없이도 라이트/다크에서 정확한 시각을 보여준다.<br>
+              · Cursor 구현 시 <code>--bcp-*</code>를 <code>--btn-*</code>로 치환하면 동일한 결과가 나오도록 설계되었다.
+            </span>
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>주의 — Preview는 코드 변경이 아니다</strong>
+            본 문서의 <code>.bcp-btn</code> 계열 클래스는 <em>이 문서 안에서만</em> 동작하는 Preview 전용 클래스이다.
+            실제 제품·다른 docs에 영향을 주지 않으며, <code>.stam-btn</code> · <code>.tbtn</code> · <code>.sbadge</code> 등 기존 공통 클래스는 단 한 줄도 덮어쓰지 않는다.
+            Cursor가 본 문서를 보고 새 토큰명·새 클래스명을 임의로 추가하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S02 Variant Preview
+           ────────────────────────────────────────────────────────── -->
+      <section id="s02" class="sec" data-screen-label="02 Variant Preview">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Button Variant Preview — variant별 default / hover / active / disabled</span>
+          <span class="sbadge plan">Preview</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">각 variant마다 <strong>default · hover sample · active sample · disabled sample</strong>을 같은 줄에서 비교한다. 모든 샘플은 <code>md</code> 사이즈(32px) 기준이며, hover · active · focus 효과는 마우스 인터랙션 없이도 보이도록 <code>.is-hover</code> · <code>.is-active</code> · <code>.is-focus</code> 보조 클래스로 강제 표시한다.</p>
+
+          <div class="bcp-stage">
+            <div class="bcp-stage-hdr">
+              <span class="bcp-stage-name"><span class="bcp-uchip primary">Primary</span> 주요 저장 · 등록 · 확정</span>
+              <span class="bcp-stage-sp"></span>
+              <span class="bcp-stage-sub">화면당 1개 원칙 · md=32px</span>
+            </div>
+            <div class="bcp-row bcp-row-hdr">
+              <span>Variant</span>
+              <span>Default</span>
+              <span>Hover (sample)</span>
+              <span>Active (sample)</span>
+              <span>Disabled (sample)</span>
+            </div>
+            <div class="bcp-row">
+              <span class="bcp-row-name">Primary <span class="bcp-row-name-sub">.bcp-btn--primary</span></span>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary">저장</button></div>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary is-hover">저장</button></div>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary is-active">저장</button></div>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary" disabled>저장</button></div>
+            </div>
+            <div class="bcp-row">
+              <span class="bcp-row-name">Secondary <span class="bcp-row-name-sub">.bcp-btn--secondary</span></span>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--secondary">취소</button></div>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--secondary is-hover">취소</button></div>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--secondary is-active">취소</button></div>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--secondary" disabled>취소</button></div>
+            </div>
+            <div class="bcp-row">
+              <span class="bcp-row-name">Ghost <span class="bcp-row-name-sub">.bcp-btn--ghost</span></span>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--ghost">필터</button></div>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--ghost is-hover">필터</button></div>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--ghost is-active">필터</button></div>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--ghost" disabled>필터</button></div>
+            </div>
+            <div class="bcp-row">
+              <span class="bcp-row-name">Text <span class="bcp-row-name-sub">.bcp-btn--text</span></span>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--text">자세히 보기</button></div>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--text is-hover">자세히 보기</button></div>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--text is-active">자세히 보기</button></div>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--text" disabled>자세히 보기</button></div>
+            </div>
+            <div class="bcp-row">
+              <span class="bcp-row-name">Danger <span class="bcp-row-name-sub">.bcp-btn--danger</span></span>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--danger">삭제</button></div>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--danger is-hover">삭제</button></div>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--danger is-active">삭제</button></div>
+              <div class="bcp-cell"><button type="button" class="bcp-btn bcp-btn--md bcp-btn--danger" disabled>삭제</button></div>
+            </div>
+            <div class="bcp-row">
+              <span class="bcp-row-name">Icon <span class="bcp-row-name-sub">.bcp-btn--icon</span></span>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon" aria-label="다운로드">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v9M4.5 7.5L8 11l3.5-3.5M3 13h10"/></svg>
+                  <span class="bcp-btn-label">다운로드</span>
+                </button>
+              </div>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon is-hover" aria-label="다운로드">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v9M4.5 7.5L8 11l3.5-3.5M3 13h10"/></svg>
+                  <span class="bcp-btn-label">다운로드</span>
+                </button>
+              </div>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon is-active" aria-label="다운로드">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v9M4.5 7.5L8 11l3.5-3.5M3 13h10"/></svg>
+                  <span class="bcp-btn-label">다운로드</span>
+                </button>
+              </div>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon" disabled aria-label="다운로드">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v9M4.5 7.5L8 11l3.5-3.5M3 13h10"/></svg>
+                  <span class="bcp-btn-label">다운로드</span>
+                </button>
+              </div>
+            </div>
+            <div class="bcp-row">
+              <span class="bcp-row-name">Icon-only <span class="bcp-row-name-sub">.bcp-btn--icon-only</span></span>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon-only" aria-label="검색">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+                </button>
+              </div>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon-only is-hover" aria-label="검색">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+                </button>
+              </div>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon-only is-active" aria-label="검색">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+                </button>
+              </div>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon-only" disabled aria-label="검색">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>비교 기준</strong>
+            샘플 hover / active 상태는 사용자 마우스 동작 없이도 보이도록 강제 표시했다.
+            실제 구현 시에는 <code>:hover</code> · <code>:active</code> 가상 클래스가 동일한 색을 만들어야 한다.
+            disabled는 <code>opacity</code> 단독이 아니라 토큰 기반 색상 + <code>cursor:not-allowed</code> + <code>pointer-events:none</code> 조합으로 처리한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S03 Size Preview
+           ────────────────────────────────────────────────────────── -->
+      <section id="s03" class="sec" data-screen-label="03 Size Preview">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Button Size Preview — xs / sm / md / lg</span>
+          <span class="sbadge plan">Preview</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Primary · Secondary · Ghost 3개 variant로 size 4종을 한 줄씩 비교한다. 각 size별 height · padding · font-size · border-radius 기준값은 우측 표에 정리.</p>
+
+          <div class="bcp-stage">
+            <div class="bcp-stage-hdr">
+              <span class="bcp-stage-name">Size 비교 — Primary</span>
+              <span class="bcp-stage-sp"></span>
+              <span class="bcp-stage-sub">동일 라벨 · 동일 폰트 · 사이즈만 변화</span>
+            </div>
+            <div class="bcp-row bcp-row--size">
+              <span class="bcp-row-name">Primary <span class="bcp-row-name-sub">.bcp-btn--primary</span></span>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--xs bcp-btn--primary">저장</button>
+                <button type="button" class="bcp-btn bcp-btn--sm bcp-btn--primary">저장</button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary">저장</button>
+                <button type="button" class="bcp-btn bcp-btn--lg bcp-btn--primary">저장</button>
+              </div>
+            </div>
+            <div class="bcp-row bcp-row--size">
+              <span class="bcp-row-name">Secondary <span class="bcp-row-name-sub">.bcp-btn--secondary</span></span>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--xs bcp-btn--secondary">취소</button>
+                <button type="button" class="bcp-btn bcp-btn--sm bcp-btn--secondary">취소</button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--secondary">취소</button>
+                <button type="button" class="bcp-btn bcp-btn--lg bcp-btn--secondary">취소</button>
+              </div>
+            </div>
+            <div class="bcp-row bcp-row--size">
+              <span class="bcp-row-name">Ghost <span class="bcp-row-name-sub">.bcp-btn--ghost</span></span>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--xs bcp-btn--ghost">필터</button>
+                <button type="button" class="bcp-btn bcp-btn--sm bcp-btn--ghost">필터</button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--ghost">필터</button>
+                <button type="button" class="bcp-btn bcp-btn--lg bcp-btn--ghost">필터</button>
+              </div>
+            </div>
+            <div class="bcp-row bcp-row--size">
+              <span class="bcp-row-name">Danger <span class="bcp-row-name-sub">.bcp-btn--danger</span></span>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--xs bcp-btn--danger">삭제</button>
+                <button type="button" class="bcp-btn bcp-btn--sm bcp-btn--danger">삭제</button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--danger">삭제</button>
+                <button type="button" class="bcp-btn bcp-btn--lg bcp-btn--danger">삭제</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- size 기준값 표 -->
+          <div class="bcp-cap"><span class="bcp-cap-n">★</span>Size 기준값 <span class="bcp-cap-sub">Button Token Mapping v1 Section 04와 동일</span></div>
+          <div class="bcp-wrap">
+            <table class="bcp-tbl">
+              <thead>
+                <tr>
+                  <th style="width:8%;">Size</th>
+                  <th style="width:10%;">Height</th>
+                  <th style="width:10%;">Padding X</th>
+                  <th style="width:10%;">Font Size</th>
+                  <th style="width:10%;">Icon Size</th>
+                  <th style="width:8%;">Gap</th>
+                  <th style="width:14%;">Border Radius</th>
+                  <th style="width:30%;">Usage</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">xs</td>
+                  <td><code>24px</code></td>
+                  <td><code>8px</code></td>
+                  <td><code>11px</code></td>
+                  <td><code>12px</code></td>
+                  <td><code>4px</code></td>
+                  <td><code>var(--r-md)</code></td>
+                  <td>Tag 내부 · Table row 인라인 · 칩 보조 액션</td>
+                </tr>
+                <tr>
+                  <td class="tn">sm</td>
+                  <td><code>28px</code></td>
+                  <td><code>10px</code></td>
+                  <td><code>12px</code></td>
+                  <td><code>14px</code></td>
+                  <td><code>6px</code></td>
+                  <td><code>var(--r-md)</code></td>
+                  <td>Toolbar · Filter · Topbar 우측 액션 · 표 헤더 액션</td>
+                </tr>
+                <tr>
+                  <td class="tn">md</td>
+                  <td><code>32px</code></td>
+                  <td><code>12px</code></td>
+                  <td><code>13px</code></td>
+                  <td><code>16px</code></td>
+                  <td><code>6px</code></td>
+                  <td><code>var(--r-md)</code></td>
+                  <td>기본 사이즈. Form · Dialog footer · Drawer footer · 일반 CTA</td>
+                </tr>
+                <tr>
+                  <td class="tn">lg</td>
+                  <td><code>40px</code></td>
+                  <td><code>16px</code></td>
+                  <td><code>14px</code></td>
+                  <td><code>18px</code></td>
+                  <td><code>8px</code></td>
+                  <td><code>var(--r-md)</code></td>
+                  <td>강조 CTA · 빈 상태 메인 액션 · 결제 확정</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>구현 시 주의</strong>
+            <code>md=32px</code>가 기본 사이즈이며, Form input 32–36px과 시각 정렬되도록 한다.
+            <code>lg=40px</code>는 Dialog · Drawer footer 강조 CTA 한정 — 일반 화면 CTA에는 <code>md</code>를 우선한다.
+            <code>xs=24px</code>는 손가락 hit-area가 작으므로 모바일에서는 <code>sm</code> 이상을 권장한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S04 State Matrix
+           ────────────────────────────────────────────────────────── -->
+      <section id="s04" class="sec" data-screen-label="04 State Matrix">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Button State Matrix — default / hover / active / focus-visible / disabled / loading / selected / danger</span>
+          <span class="sbadge plan">Matrix</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Primary variant 기준으로 8개 상태를 시각 샘플 + Visual Rule + Token Candidate + QA Check 4컬럼으로 정리한다.</p>
+
+          <div class="bcp-wrap">
+            <table class="bcp-tbl">
+              <thead>
+                <tr>
+                  <th style="width:14%;">State</th>
+                  <th style="width:18%;">Sample (Primary md)</th>
+                  <th style="width:24%;">Visual Rule</th>
+                  <th style="width:22%;">Token Candidate</th>
+                  <th style="width:22%;">QA Check</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">default</td>
+                  <td><button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary">저장</button></td>
+                  <td>variant 기본 배경 · 텍스트 · 테두리. 그림자 없음.</td>
+                  <td><code>--btn-primary-bg</code> · <code>--btn-primary-text</code></td>
+                  <td>대비비 4.5:1 이상 · 라이트/다크 동일</td>
+                </tr>
+                <tr>
+                  <td class="tn">hover</td>
+                  <td><button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary is-hover">저장</button></td>
+                  <td>default보다 1단계 어둡게 (라이트) / 밝게 (다크).</td>
+                  <td><code>--btn-primary-bg-hover</code></td>
+                  <td>hover 단독 의존 금지 · 색만 변하고 크기 변화 없음</td>
+                </tr>
+                <tr>
+                  <td class="tn">active</td>
+                  <td><button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary is-active">저장</button></td>
+                  <td>hover보다 1단계 더 어둡게 · transform 사용 금지.</td>
+                  <td><code>--btn-primary-bg-active</code></td>
+                  <td>scale · translate 효과 없음 · 색만 변화</td>
+                </tr>
+                <tr>
+                  <td class="tn">focus-visible</td>
+                  <td><button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary is-focus">저장</button></td>
+                  <td>외곽 3px ring. 키보드 Tab 이동 시에만 보임.</td>
+                  <td><code>--btn-focus-ring</code> · <code>box-shadow</code></td>
+                  <td>마우스 클릭만으로 ring 떠오르지 않음 · native outline 제거 시 대체 ring 보장</td>
+                </tr>
+                <tr>
+                  <td class="tn">disabled</td>
+                  <td><button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary" disabled>저장</button></td>
+                  <td>토큰 기반 disabled 색상 + cursor:not-allowed.</td>
+                  <td><code>--btn-primary-bg-disabled</code></td>
+                  <td>opacity 단독 금지 · pointer-events:none · focus 가능 여부 결정</td>
+                </tr>
+                <tr>
+                  <td class="tn">loading</td>
+                  <td>
+                    <button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary bcp-btn--loading">
+                      <span class="bcp-spinner" aria-hidden="true"></span>
+                      <span class="bcp-btn-label">저장 중</span>
+                    </button>
+                  </td>
+                  <td>텍스트 유지 + spinner 동반. pointer-events 차단.</td>
+                  <td>spinner color = <code>--btn-primary-text</code></td>
+                  <td>중복 클릭 방지 · <code>aria-busy="true"</code> · 최소 300ms 이상 작업에만 사용</td>
+                </tr>
+                <tr>
+                  <td class="tn">selected</td>
+                  <td><button type="button" class="bcp-btn bcp-btn--md bcp-btn--selected">활성</button></td>
+                  <td>STAM 보조색 soft 표면 + STAM 텍스트.</td>
+                  <td><code>--stam-soft</code> · <code>--stam</code></td>
+                  <td>Toolbar toggle · Segment 활성 셀에서만 사용</td>
+                </tr>
+                <tr>
+                  <td class="tn">danger</td>
+                  <td><button type="button" class="bcp-btn bcp-btn--md bcp-btn--danger">삭제</button></td>
+                  <td>빨강 계열 단독. focus ring도 분리.</td>
+                  <td><code>--btn-danger-bg</code> · <code>--btn-danger-ring</code></td>
+                  <td>일반 hover에서 빨강 사용 금지 · Confirm Dialog 한정</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>상태 우선순위 (CSS specificity)</strong>
+            <code>disabled &gt; loading &gt; active &gt; focus &gt; hover &gt; default</code> 순으로 적용한다.
+            <code>disabled</code> · <code>loading</code> 상태에서는 hover · active 효과를 모두 차단한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S05 Icon Button Preview
+           ────────────────────────────────────────────────────────── -->
+      <section id="s05" class="sec" data-screen-label="05 Icon Button Preview">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Icon Button Preview — icon-left / icon-right / icon-only / disabled / danger</span>
+          <span class="sbadge plan">Preview</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아이콘과 라벨의 조합 6종을 한 화면에서 비교한다. SVG 아이콘은 <code>display:flex</code> + <code>align-items:center</code>로 vertical middle 정렬을 보장한다.</p>
+
+          <div class="bcp-stage">
+            <div class="bcp-stage-hdr">
+              <span class="bcp-stage-name">Icon Button 6종</span>
+              <span class="bcp-stage-sp"></span>
+              <span class="bcp-stage-sub">md=32px · SVG <code>currentColor</code></span>
+            </div>
+
+            <div class="bcp-row bcp-row--icon">
+              <span class="bcp-row-name">icon-left + label <span class="bcp-row-name-sub">flex 순서: icon → label</span></span>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg>
+                  <span class="bcp-btn-label">새 항목 추가</span>
+                </button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--secondary">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h10M3 8h10M3 11h6"/></svg>
+                  <span class="bcp-btn-label">정렬</span>
+                </button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--ghost">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+                  <span class="bcp-btn-label">검색</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="bcp-row bcp-row--icon">
+              <span class="bcp-row-name">label + icon-right <span class="bcp-row-name-sub">flex 순서: label → icon</span></span>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary">
+                  <span class="bcp-btn-label">다음 단계</span>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h8M9 5l3 3-3 3"/></svg>
+                </button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--secondary">
+                  <span class="bcp-btn-label">옵션</span>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+                </button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--text">
+                  <span class="bcp-btn-label">자세히 보기</span>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h8M9 5l3 3-3 3"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="bcp-row bcp-row--icon">
+              <span class="bcp-row-name">icon-only square <span class="bcp-row-name-sub">aria-label 필수 · 정사각형</span></span>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--xs bcp-btn--icon-only" aria-label="닫기">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                </button>
+                <button type="button" class="bcp-btn bcp-btn--sm bcp-btn--icon-only" aria-label="검색">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+                </button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon-only" aria-label="더보기">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="3.5" cy="8" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="12.5" cy="8" r="1"/></svg>
+                </button>
+                <button type="button" class="bcp-btn bcp-btn--lg bcp-btn--icon-only" aria-label="편집">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l3-1 7-7-2-2-7 7-1 3z"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="bcp-row bcp-row--icon">
+              <span class="bcp-row-name">icon-only circle <span class="bcp-row-name-sub">.bcp-circle · FAB 후보</span></span>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--sm bcp-btn--icon-only bcp-circle" aria-label="닫기">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                </button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon-only bcp-circle" aria-label="알림">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V7a4 4 0 018 0v4l1 1H3l1-1zM7 14h2"/></svg>
+                </button>
+                <button type="button" class="bcp-btn bcp-btn--lg bcp-btn--icon-only bcp-circle bcp-btn--primary" aria-label="추가">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="bcp-row bcp-row--icon">
+              <span class="bcp-row-name">disabled icon button <span class="bcp-row-name-sub">아이콘 + 라벨</span></span>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary" disabled>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg>
+                  <span class="bcp-btn-label">추가</span>
+                </button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon-only" disabled aria-label="더보기">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="3.5" cy="8" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="12.5" cy="8" r="1"/></svg>
+                </button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--ghost" disabled>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+                  <span class="bcp-btn-label">검색</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="bcp-row bcp-row--icon">
+              <span class="bcp-row-name">danger icon button <span class="bcp-row-name-sub">삭제 한정</span></span>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--danger">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h10M6 5V3h4v2M5 5l1 8h4l1-8"/></svg>
+                  <span class="bcp-btn-label">삭제</span>
+                </button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--danger">
+                  <span class="bcp-btn-label">영구 삭제</span>
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h8M9 5l3 3-3 3"/></svg>
+                </button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon-only" style="color:var(--bcp-danger-bg);border-color:var(--bcp-danger-bg);" aria-label="삭제">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h10M6 5V3h4v2M5 5l1 8h4l1-8"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Icon Button 정렬·hit-area 기준</strong>
+            SVG는 <code>currentColor</code> 사용 — 텍스트 색 변경 시 같이 변한다.
+            <code>display:inline-flex</code> + <code>align-items:center</code>로 vertical middle 정렬을 보장한다 (<code>vertical-align</code> 대신).
+            icon-only 버튼의 클릭 영역은 <strong>최소 32×32 (md)</strong> 이상을 권장하며,
+            기존 Token Mapping의 sm=28×28도 데스크탑 toolbar 한정으로 허용된다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S06 Loading Preview
+           ────────────────────────────────────────────────────────── -->
+      <section id="s06" class="sec" data-screen-label="06 Loading Preview">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Loading Button Preview — 텍스트 유지 / 텍스트 숨김 / disabled 처리</span>
+          <span class="sbadge plan">Preview</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">v1 권장안은 <strong>텍스트 유지 + small spinner</strong>이다. 텍스트 숨김 + spinner only는 짧은 라벨(저장/등록) 한정 후보이며, 라벨이 사라지면 사용자가 진행 상황을 추론하기 어려우므로 기본은 텍스트 유지로 결정한다.</p>
+
+          <div class="bcp-stage">
+            <div class="bcp-stage-hdr">
+              <span class="bcp-stage-name">Loading 상태 4가지 시나리오</span>
+              <span class="bcp-stage-sp"></span>
+              <span class="bcp-stage-sub">pointer-events: none · aria-busy="true"</span>
+            </div>
+
+            <div class="bcp-row bcp-row--load">
+              <span class="bcp-row-name">텍스트 유지 + spinner <span class="bcp-row-name-sub">v1 권장</span></span>
+              <div class="bcp-cell">
+                <span class="bcp-cell-stack">
+                  <span class="bcp-state-tag">Primary</span>
+                  <button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary bcp-btn--loading" aria-busy="true">
+                    <span class="bcp-spinner" aria-hidden="true"></span>
+                    <span class="bcp-btn-label">저장 중</span>
+                  </button>
+                </span>
+              </div>
+              <div class="bcp-cell">
+                <span class="bcp-cell-stack">
+                  <span class="bcp-state-tag">Secondary</span>
+                  <button type="button" class="bcp-btn bcp-btn--md bcp-btn--secondary bcp-btn--loading" aria-busy="true">
+                    <span class="bcp-spinner" aria-hidden="true"></span>
+                    <span class="bcp-btn-label">불러오는 중</span>
+                  </button>
+                </span>
+              </div>
+            </div>
+
+            <div class="bcp-row bcp-row--load">
+              <span class="bcp-row-name">텍스트 숨김 + spinner only <span class="bcp-row-name-sub">짧은 라벨 후보</span></span>
+              <div class="bcp-cell">
+                <span class="bcp-cell-stack">
+                  <span class="bcp-state-tag">Primary</span>
+                  <button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary bcp-btn--loading is-mute" aria-busy="true" aria-label="저장 중">
+                    <span class="bcp-spinner" aria-hidden="true"></span>
+                    <span class="bcp-btn-label">저장</span>
+                  </button>
+                </span>
+              </div>
+              <div class="bcp-cell">
+                <span class="bcp-cell-stack">
+                  <span class="bcp-state-tag">Danger</span>
+                  <button type="button" class="bcp-btn bcp-btn--md bcp-btn--danger bcp-btn--loading is-mute" aria-busy="true" aria-label="삭제 중">
+                    <span class="bcp-spinner" aria-hidden="true"></span>
+                    <span class="bcp-btn-label">삭제</span>
+                  </button>
+                </span>
+              </div>
+            </div>
+
+            <div class="bcp-row bcp-row--load">
+              <span class="bcp-row-name">disabled 처리 동시 <span class="bcp-row-name-sub">pointer-events 차단</span></span>
+              <div class="bcp-cell">
+                <span class="bcp-cell-stack">
+                  <span class="bcp-state-tag">Primary · loading + 클릭 방지</span>
+                  <button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary bcp-btn--loading" aria-busy="true" disabled>
+                    <span class="bcp-spinner" aria-hidden="true"></span>
+                    <span class="bcp-btn-label">처리 중</span>
+                  </button>
+                </span>
+              </div>
+              <div class="bcp-cell">
+                <span class="bcp-cell-stack">
+                  <span class="bcp-state-tag">Secondary · loading + 클릭 방지</span>
+                  <button type="button" class="bcp-btn bcp-btn--md bcp-btn--secondary bcp-btn--loading" aria-busy="true" disabled>
+                    <span class="bcp-spinner" aria-hidden="true"></span>
+                    <span class="bcp-btn-label">동기화 중</span>
+                  </button>
+                </span>
+              </div>
+            </div>
+
+            <div class="bcp-row bcp-row--load">
+              <span class="bcp-row-name">icon-only loading <span class="bcp-row-name-sub">아이콘 → spinner 교체</span></span>
+              <div class="bcp-cell">
+                <span class="bcp-cell-stack">
+                  <span class="bcp-state-tag">Icon-only · loading</span>
+                  <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon-only bcp-btn--loading" aria-busy="true" aria-label="새로고침 중">
+                    <span class="bcp-spinner" aria-hidden="true"></span>
+                  </button>
+                </span>
+              </div>
+              <div class="bcp-cell">
+                <span class="bcp-cell-stack">
+                  <span class="bcp-state-tag">Icon-only circle · loading</span>
+                  <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon-only bcp-circle bcp-btn--primary bcp-btn--loading" aria-busy="true" aria-label="알림 가져오는 중">
+                    <span class="bcp-spinner" aria-hidden="true"></span>
+                  </button>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Loading 권장 규칙 — v1 결정안</strong>
+            <ul style="margin:6px 0 0;padding-left:18px;line-height:1.7;font-size:.86em;">
+              <li>v1 기본은 <strong>텍스트 유지 + small spinner</strong> 조합 — 텍스트는 “저장 중”처럼 진행 상태로 변경 권장</li>
+              <li>loading 중 <code>pointer-events: none</code> + <code>aria-busy="true"</code> 동시 적용</li>
+              <li><code>opacity</code>만 낮춰 표시 금지 — cursor/state를 명확히 표현</li>
+              <li>최소 300ms 이상의 작업에만 loading 표시 (그 이하는 깜빡임 회피)</li>
+              <li>spinner 색상 = variant text 색상 (<code>currentColor</code> 사용)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S07 Focus & Accessibility Preview
+           ────────────────────────────────────────────────────────── -->
+      <section id="s07" class="sec" data-screen-label="07 Focus A11y">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Focus &amp; Accessibility Preview — 접근성 기준</span>
+          <span class="sbadge guide">필수</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">키보드 Tab으로 이동할 때만 ring이 떠야 하고, 마우스 클릭으로는 ring이 보이지 않아야 한다. focus-visible 효과를 강제 표시한 샘플과 함께 접근성 규칙을 정리한다.</p>
+
+          <div class="bcp-stage">
+            <div class="bcp-stage-hdr">
+              <span class="bcp-stage-name">focus-visible Ring Preview</span>
+              <span class="bcp-stage-sp"></span>
+              <span class="bcp-stage-sub">.is-focus 보조 클래스로 강제 표시</span>
+            </div>
+            <div class="bcp-row bcp-row--icon">
+              <span class="bcp-row-name">Primary focus ring <span class="bcp-row-name-sub">--btn-focus-ring</span></span>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary is-focus">저장</button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--secondary is-focus">취소</button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--ghost is-focus">필터</button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--text is-focus">자세히</button>
+              </div>
+            </div>
+            <div class="bcp-row bcp-row--icon">
+              <span class="bcp-row-name">Danger focus ring <span class="bcp-row-name-sub">--btn-danger-ring</span></span>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--danger is-focus">삭제</button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon-only is-focus" style="color:var(--bcp-danger-bg);border-color:var(--bcp-danger-bg);box-shadow:var(--bcp-danger-ring);" aria-label="삭제">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h10M6 5V3h4v2M5 5l1 8h4l1-8"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="bcp-row bcp-row--icon">
+              <span class="bcp-row-name">Icon-only focus ring <span class="bcp-row-name-sub">aria-label 필수</span></span>
+              <div class="bcp-cell">
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon-only is-focus" aria-label="검색">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+                </button>
+                <button type="button" class="bcp-btn bcp-btn--md bcp-btn--icon-only bcp-circle is-focus" aria-label="알림">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V7a4 4 0 018 0v4l1 1H3l1-1zM7 14h2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="bcp-rule-grid" style="margin-top:14px;">
+            <div class="bcp-rule-card">
+              <div class="bcp-rc-hdr">focus-visible Ring</div>
+              <ul>
+                <li>모든 Button은 <code>:focus-visible</code> 시 외곽 ring 3px 필수</li>
+                <li>마우스 클릭만으로는 ring이 떠오르지 않음 — <code>:focus</code>가 아닌 <code>:focus-visible</code> 사용</li>
+                <li>native focus outline은 대체 ring이 있을 때만 제거</li>
+                <li>Primary ring과 Danger ring은 색·hue 분리 (<code>--btn-focus-ring</code> vs <code>--btn-danger-ring</code>)</li>
+              </ul>
+            </div>
+            <div class="bcp-rule-card">
+              <div class="bcp-rc-hdr">키보드 Tab 이동</div>
+              <ul>
+                <li>Tab 키 순서는 시각 순서와 일치 — DOM 순서를 깨지 않음</li>
+                <li>Enter / Space 키로 활성화 가능</li>
+                <li><code>disabled</code> Button은 Tab 순서에서 제외 — 단, 사유 안내 필요 시 <code>aria-disabled="true"</code>로 focusable 유지 가능</li>
+                <li>focus-trap이 필요한 컴포넌트(Dialog · Drawer) 내부에서도 동일 규칙 유지</li>
+              </ul>
+            </div>
+            <div class="bcp-rule-card">
+              <div class="bcp-rc-hdr">aria 속성</div>
+              <ul>
+                <li>icon-only Button — <code>aria-label</code> 필수 (시각 텍스트 없음)</li>
+                <li>loading 상태 — <code>aria-busy="true"</code> 부착</li>
+                <li>토글성 Button(selected) — <code>aria-pressed="true"</code> 사용</li>
+                <li>disabled로 보여주되 클릭은 받고 싶을 때 — <code>aria-disabled="true"</code> 사용</li>
+              </ul>
+            </div>
+            <div class="bcp-rule-card">
+              <div class="bcp-rc-hdr">Hit Area · 색 대비</div>
+              <ul>
+                <li>모바일 hit-area 최소 <code>32×32</code>, 권장 <code>40×40</code></li>
+                <li>텍스트 vs 배경 색 대비 4.5:1 이상</li>
+                <li>focus ring vs 배경 색 대비 3:1 이상</li>
+                <li>라이트/다크 모두 동일 대비 보장</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S08 Usage Guide
+           ────────────────────────────────────────────────────────── -->
+      <section id="s08" class="sec" data-screen-label="08 Usage Guide">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Button Usage Guide — variant별 사용처</span>
+          <span class="sbadge guide">사용처</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">화면 안에서 variant를 어떤 액션에 쓰는지 기준이다. <strong>한 화면에 Primary 1개</strong>가 원칙이며, 보조 액션은 Secondary 또는 Ghost · Text로 내린다.</p>
+
+          <div class="bcp-wrap">
+            <table class="bcp-tbl">
+              <thead>
+                <tr>
+                  <th style="width:14%;">Variant</th>
+                  <th style="width:24%;">사용 액션</th>
+                  <th style="width:28%;">사용 위치</th>
+                  <th style="width:24%;">Sample</th>
+                  <th style="width:10%;">Visual Priority</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn"><span class="bcp-uchip primary">Primary</span></td>
+                  <td>주요 저장 · 등록 · 승인 · 제출</td>
+                  <td>Form 푸터 · Dialog footer 주요 CTA · 빈 상태 메인 액션</td>
+                  <td><button type="button" class="bcp-btn bcp-btn--md bcp-btn--primary">등록</button></td>
+                  <td>Highest</td>
+                </tr>
+                <tr>
+                  <td class="tn"><span class="bcp-uchip secondary">Secondary</span></td>
+                  <td>취소 · 보조 액션</td>
+                  <td>Primary 옆 페어 · Drawer footer 보조</td>
+                  <td><button type="button" class="bcp-btn bcp-btn--md bcp-btn--secondary">취소</button></td>
+                  <td>High</td>
+                </tr>
+                <tr>
+                  <td class="tn"><span class="bcp-uchip ghost">Ghost</span></td>
+                  <td>Drawer footer 보조 액션 · Toolbar 보조</td>
+                  <td>Drawer footer 좌측 · Toolbar 내부 · 메뉴 인라인</td>
+                  <td><button type="button" class="bcp-btn bcp-btn--md bcp-btn--ghost">초기화</button></td>
+                  <td>Medium</td>
+                </tr>
+                <tr>
+                  <td class="tn"><span class="bcp-uchip text">Text</span></td>
+                  <td>링크성 액션</td>
+                  <td>본문 내 인라인 · Card 우측 “자세히 보기” · Toast 내 액션</td>
+                  <td><button type="button" class="bcp-btn bcp-btn--md bcp-btn--text">자세히 보기</button></td>
+                  <td>Low</td>
+                </tr>
+                <tr>
+                  <td class="tn"><span class="bcp-uchip danger">Danger</span></td>
+                  <td>삭제 · 반려 · 위험 작업</td>
+                  <td>Confirm Dialog 주요 CTA · 삭제 컨펌 한정</td>
+                  <td><button type="button" class="bcp-btn bcp-btn--md bcp-btn--danger">삭제</button></td>
+                  <td>Highest (warn)</td>
+                </tr>
+                <tr>
+                  <td class="tn"><span class="bcp-uchip icon">Icon</span></td>
+                  <td>Table row action · Toolbar action</td>
+                  <td>Table row 우측 · Toolbar · Topbar 우측</td>
+                  <td>
+                    <button type="button" class="bcp-btn bcp-btn--sm bcp-btn--icon-only" aria-label="더보기">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="3.5" cy="8" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="12.5" cy="8" r="1"/></svg>
+                    </button>
+                  </td>
+                  <td>Low–Medium</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>조합 원칙</strong>
+            한 화면 안 표준 조합: <em>Primary 1 + Secondary 1 + (Ghost / Text 0~N)</em>.
+            Danger는 일반 화면 CTA 자리에 두지 않으며, Confirm Dialog · 삭제 컨펌에 한정한다.
+            Toolbar 우측 액션은 Ghost · Icon으로 우선 처리하고, “등록 +” 같은 주요 진입 액션만 Primary로 둔다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S09 QA Checklist
+           ────────────────────────────────────────────────────────── -->
+      <section id="s09" class="sec" data-screen-label="09 QA Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Button QA Checklist — Cursor 구현 후 확인 항목</span>
+          <span class="sbadge plan">QA</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아래 항목은 Cursor가 <code>stam.tokens.css</code> · <code>stam.components.css</code>에 Button CSS를 반영한 직후, 본 Preview 문서를 좌·우로 비교하며 점검할 QA 기준이다.</p>
+
+          <div class="bcp-qa-list">
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>라이트 / 다크 모두 동일 visual 대응 — 두 테마에서 동시 캡처 비교</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>hover / active / focus-visible 상태가 모두 분리 보이는지 확인</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>disabled가 명확히 인지됨 — 색·cursor·pointer-events 차단 동시</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>icon vertical 정렬 — 라벨 baseline과 시각적으로 가운데 정렬</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>버튼 높이 흔들림 없음 — hover/active/focus 시 height 변화 없음</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>label이 길어져도 버튼이 깨지지 않음 — 줄바꿈 또는 ellipsis 처리</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>Table row · Drawer footer · Dialog footer 안에서도 동일 표시</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>Form input(32–36px) 옆에 md=32px Button이 시각 정렬됨</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>Google Fonts · Pretendard CDN · Gulim · Dotum · 굴림 · 돋움 사용 없음</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>S-Core Dream 자체서빙 폰트로만 렌더링됨</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>page-level horizontal scroll 없음 — 1440 / 1600 / 1920 가로폭</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>키보드 Tab 이동 시 ring 보임 · 마우스 클릭만으로 ring 안 보임</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>icon-only Button에 <code>aria-label</code> 부착되어 있음</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>loading 상태에서 <code>aria-busy="true"</code> · pointer-events 차단 동시 적용</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>Docs 기존 <code>.tbtn</code> · <code>.sbadge</code> 회귀 없음</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>제품 페이지(Dashboard · WBS · Boards)에서 기존 버튼 표시 회귀 없음</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>console error · console warning 없음 (라이트/다크 양쪽)</span></div>
+            <div class="bcp-qa-item"><span class="bcp-qa-chk">✓</span><span>git diff에 <code>stam.tokens.css</code> · <code>stam.components.css</code> 외 변경 없음</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S10 Cursor Handoff
+           ────────────────────────────────────────────────────────── -->
+      <section id="s10" class="sec" data-screen-label="10 Cursor Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Cursor Implementation Handoff — Button CSS 제한 구현 범위</span>
+          <span class="sbadge lock">Handoff</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Cursor에게 Button CSS 단위를 넘길 때 명시하는 범위. 본 Preview 문서가 시각 기준이고, 클래스명·토큰명은 아래 목록에서만 사용한다.</p>
+
+          <div class="bcp-rule-grid">
+            <div class="bcp-rule-card">
+              <div class="bcp-rc-hdr">수정 후보 파일</div>
+              <ul>
+                <li><code>stam/css/stam.tokens.css</code> — Button P0 토큰 추가</li>
+                <li><code>stam/css/stam.components.css</code> — <code>.stam-btn</code> 계열 클래스 추가</li>
+                <li>그 외 CSS 파일은 별도 지정 시까지 미수정</li>
+              </ul>
+            </div>
+            <div class="bcp-rule-card">
+              <div class="bcp-rc-hdr">금지 사항</div>
+              <ul>
+                <li>JS 수정 (<code>stam/js/**</code>)</li>
+                <li>제품 페이지 수정 (<code>stam/pages/**</code>, <code>stam/index.html</code>)</li>
+                <li><code>stam/assets/**</code> 변경</li>
+                <li>Drawer · Form · Dialog · Table 동시 CSS 구현 — Button만 우선</li>
+                <li>Firebase · GitHub Actions · package*.json 변경</li>
+                <li><code>_ds/**</code>, <code>uploads/**</code>, <code>*.zip</code>, <code>.env*</code>, <code>node_modules/**</code> tracking</li>
+              </ul>
+            </div>
+            <div class="bcp-rule-card">
+              <div class="bcp-rc-hdr">첫 구현 클래스 범위</div>
+              <ul>
+                <li><code>.stam-btn</code> — base</li>
+                <li><code>.stam-btn--primary</code></li>
+                <li><code>.stam-btn--secondary</code></li>
+                <li><code>.stam-btn--ghost</code></li>
+                <li><code>.stam-btn--text</code></li>
+                <li><code>.stam-btn--danger</code></li>
+                <li><code>.stam-btn--icon</code> (label+icon · icon-only는 후속 변경자)</li>
+                <li><code>.stam-btn--loading</code></li>
+              </ul>
+            </div>
+            <div class="bcp-rule-card">
+              <div class="bcp-rc-hdr">Size Modifier</div>
+              <ul>
+                <li><code>.stam-btn--xs</code> — height 24px</li>
+                <li><code>.stam-btn--sm</code> — height 28px</li>
+                <li><code>.stam-btn--md</code> — height 32px (default 후보)</li>
+                <li><code>.stam-btn--lg</code> — height 40px</li>
+                <li>size 별 padding · font · gap은 본 Preview Section 03 표 그대로 사용</li>
+              </ul>
+            </div>
+            <div class="bcp-rule-card">
+              <div class="bcp-rc-hdr">사용 토큰 (Button Token Mapping v1 인용)</div>
+              <ul>
+                <li><code>--btn-primary-bg</code> · <code>-hover</code> · <code>-active</code> · <code>-disabled</code> · <code>--btn-primary-text</code></li>
+                <li><code>--btn-secondary-bg</code> · <code>-hover</code> · <code>--btn-secondary-bd</code> · <code>--btn-secondary-text</code></li>
+                <li><code>--btn-danger-bg</code> · <code>-hover</code> · <code>--btn-danger-text</code> · <code>--btn-danger-ring</code></li>
+                <li><code>--btn-focus-ring</code> (Primary/Secondary/Ghost/Text/Icon 공통)</li>
+                <li>Ghost / Icon / Text는 기존 <code>--t1</code> · <code>--surf-hover</code> · <code>--stam</code> 재사용 (alias 토큰 후속 단계 결정)</li>
+              </ul>
+            </div>
+            <div class="bcp-rule-card">
+              <div class="bcp-rc-hdr">검증 기준</div>
+              <ul>
+                <li>본 Preview 문서를 라이트/다크 모두 캡처해서 staging과 비교</li>
+                <li>Docs 기존 <code>.tbtn</code> · <code>.sbadge</code> 회귀 없음</li>
+                <li>1440 / 1600 / 1920 가로폭에서 가로 스크롤 없음</li>
+                <li>console error / warning 0건</li>
+                <li>git diff에 허용 파일 외 변경 없음</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>핸드오프 시 명시</strong>
+            Cursor는 본 Preview 문서를 “구현 후 결과 화면의 시각 기준”으로 본다.
+            Preview 전용 <code>.bcp-btn</code> 클래스는 실제 구현 시 <code>.stam-btn</code>으로 매핑되며,
+            Preview 전용 <code>--bcp-*</code> 변수는 <code>--btn-*</code>로 매핑된다.
+            새 토큰명·새 클래스명을 본 문서 범위 밖에서 임의로 추가하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S11 Related Links
+           ────────────────────────────────────────────────────────── -->
+      <section id="s11" class="sec" data-screen-label="11 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Related Links — 참고 문서</span>
+          <span class="sbadge guide">관련</span>
+        </div>
+        <div class="sec-body">
+          <div class="bcp-rel-grid">
+            <a class="bcp-rel-card" href="STAM-Docs-Index.html">
+              <span class="bcp-rl-title">STAM Docs Index</span>
+              <span class="bcp-rl-sub">전체 기준 문서 인덱스</span>
+            </a>
+            <a class="bcp-rel-card" href="STAM-Button-Token-Mapping-v1.html">
+              <span class="bcp-rl-title">Button Token Mapping v1</span>
+              <span class="bcp-rl-sub">variant × size × state 토큰 매핑 확정</span>
+            </a>
+            <a class="bcp-rel-card" href="STAM-Token-Inventory-v1.html">
+              <span class="bcp-rl-title">Token Inventory v1</span>
+              <span class="bcp-rl-sub">P0 / P1 / P2 토큰 후보 목록</span>
+            </a>
+            <a class="bcp-rel-card" href="STAM-P0-Decision-Approval-Sheet-v1.html">
+              <span class="bcp-rl-title">P0 Decision Approval Sheet v1</span>
+              <span class="bcp-rl-sub">P0 결정값 PM 승인 후보</span>
+            </a>
+            <a class="bcp-rel-card" href="STAM-Implementation-Readiness-Dashboard-v1.html">
+              <span class="bcp-rl-title">Implementation Readiness Dashboard v1</span>
+              <span class="bcp-rl-sub">구현 착수 전 준비 상태 대시보드</span>
+            </a>
+            <a class="bcp-rel-card" href="components/STAM-Button-Guide.html">
+              <span class="bcp-rl-title">Button Guide</span>
+              <span class="bcp-rl-sub">Button variant · size · state · icon · group 상세</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
