@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Button CSS QA Result Preview v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ──────────────────────────────────────────────────────────────────
+   STAM Button CSS QA Result Preview v1 — 문서 전용 보조 스타일
+   - 이 문서 안에서만 사용 (QA Result Preview 전용 클래스 · `qr-` 접두어)
+   - 실제 공통 .stam-btn / .tbtn / .sbadge 클래스를 절대 덮어쓰지 않음
+   - 라이트/다크 모두 대응 — :root[data-theme="dark"] override 사용
+   ────────────────────────────────────────────────────────────────── */
+
+/* ── Status pill (PASS / PASS-MC / NOT-YET / FAIL) ── */
+.qrpill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; font-family: var(--font);
+  white-space: nowrap;
+}
+.qrpill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 999px;
+  background: currentColor; display: inline-block; flex-shrink: 0;
+}
+.qrpill.pass    { background: var(--pass-bg); color: var(--pass); }
+.qrpill.mc      { background: var(--warn-bg); color: var(--warn); }
+.qrpill.notyet  { background: var(--skip-bg); color: var(--skip); }
+.qrpill.fail    { background: var(--fail-bg); color: var(--fail); }
+.qrpill.info    { background: var(--info-bg); color: var(--info); }
+
+/* ── Hero summary banner ── */
+.qr-hero {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  border-radius: var(--r-md);
+  padding: 18px 20px 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+.qr-hero::before {
+  content: ""; position: absolute; inset: 0 auto 0 0;
+  width: 3px; background: var(--pass);
+}
+.qr-hero-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.qr-hero-title {
+  font-size: 15px; font-weight: 700; color: var(--t1);
+  letter-spacing: -.005em; font-family: var(--font);
+}
+.qr-hero p {
+  margin: 0; font-size: 12px; color: var(--t2); line-height: 1.7;
+  font-family: var(--font);
+}
+
+/* ── KPI grid ── */
+.qr-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+@media (max-width: 1280px) { .qr-kpi-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 720px)  { .qr-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.qr-kpi {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 11px 12px 12px;
+  display: flex; flex-direction: column; gap: 5px;
+  min-width: 0;
+}
+.qr-kpi .qr-kpi-key {
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--t3); font-family: var(--font);
+}
+.qr-kpi .qr-kpi-val {
+  font-size: 13px; font-weight: 700;
+  color: var(--t1); font-family: var(--font);
+  letter-spacing: -.005em; line-height: 1.35;
+  word-break: break-all;
+}
+.qr-kpi .qr-kpi-val.mono {
+  color: #8B7FF8; font-weight: 600; font-size: 12px;
+  letter-spacing: .01em;
+}
+[data-theme="light"] .qr-kpi .qr-kpi-val.mono { color: #5451E8; }
+
+.qr-kpi.pass-card {
+  border-color: rgba(0,191,64,.22);
+  background: var(--pass-bg);
+}
+.qr-kpi.pass-card .qr-kpi-key { color: var(--pass); opacity: .9; }
+.qr-kpi.pass-card .qr-kpi-val { color: var(--pass); }
+.qr-kpi.mc-card {
+  border-color: rgba(245,158,11,.22);
+  background: var(--warn-bg);
+}
+.qr-kpi.mc-card .qr-kpi-key { color: var(--warn); opacity: .9; }
+.qr-kpi.mc-card .qr-kpi-val { color: var(--warn); }
+.qr-kpi.info-card {
+  border-color: rgba(111,168,255,.22);
+  background: var(--info-bg);
+}
+.qr-kpi.info-card .qr-kpi-key { color: var(--info); opacity: .9; }
+.qr-kpi.info-card .qr-kpi-val { color: var(--info); }
+.qr-kpi.notyet-card {
+  border-color: var(--bd-s);
+  background: var(--bg-sur2);
+}
+.qr-kpi.notyet-card .qr-kpi-key { color: var(--t3); }
+.qr-kpi.notyet-card .qr-kpi-val { color: var(--t2); }
+
+/* ── 공통 table ── */
+.qr-tbl {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--font); font-size: 11.5px;
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: var(--r-md); overflow: hidden;
+}
+.qr-tbl th {
+  padding: 9px 10px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  text-align: left; color: var(--t3);
+  border-bottom: 1px solid var(--bd); background: var(--bg-sur2);
+  white-space: nowrap; vertical-align: middle;
+}
+.qr-tbl td {
+  padding: 10px; border-bottom: 1px solid var(--bd);
+  color: var(--t2); vertical-align: top; line-height: 1.6;
+}
+.qr-tbl tbody tr:last-child td { border-bottom: none; }
+.qr-tbl td.tn { color: var(--t1); font-weight: 700; white-space: nowrap; font-size: 11px; }
+.qr-tbl td code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur2);
+  border: 1px solid var(--bd); border-radius: 4px;
+  padding: 1px 6px; letter-spacing: .005em; white-space: nowrap;
+}
+.qr-tbl td.note { color: var(--t3); font-size: 10.5px; }
+.qr-tbl tbody tr.group-row td {
+  background: var(--bg-sur2);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--t3);
+  padding: 6px 10px;
+}
+.qr-wrap { overflow-x: auto; }
+.qr-tbl  { min-width: 880px; }
+
+/* ── caption ── */
+.qr-cap {
+  display: flex; align-items: center; gap: 8px;
+  margin: 18px 0 8px;
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.qr-cap .qr-cap-n {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--stam-soft); color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.qr-cap-sub { font-size: 10.5px; color: var(--t3); font-weight: 500; letter-spacing: 0; margin-left: 4px; }
+
+/* ── Rule card grid (Overview / Notes / Lists) ── */
+.qr-rule-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 760px) { .qr-rule-grid { grid-template-columns: 1fr; } }
+.qr-rule-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+}
+.qr-rule-card .qr-rc-hdr {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--t1);
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.qr-rule-card .qr-rc-hdr::before {
+  content: ""; width: 8px; height: 8px; border-radius: 999px;
+  background: var(--stam); display: inline-block;
+}
+.qr-rule-card .qr-rc-hdr.is-pass::before { background: var(--pass); }
+.qr-rule-card .qr-rc-hdr.is-mc::before   { background: var(--warn); }
+.qr-rule-card .qr-rc-hdr.is-info::before { background: var(--info); }
+.qr-rule-card .qr-rc-hdr.is-fail::before { background: var(--fail); }
+.qr-rule-card ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.qr-rule-card li {
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  padding-left: 12px; position: relative;
+}
+.qr-rule-card li::before {
+  content: "·"; position: absolute; left: 2px; top: -2px;
+  color: var(--t3); font-weight: 800;
+}
+.qr-rule-card li code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: 4px; padding: 1px 5px;
+}
+.qr-rule-card li .qrpill { margin-right: 4px; }
+
+/* ── Variant / Size / State Result grid ── */
+.qr-vss-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 1100px) { .qr-vss-grid { grid-template-columns: 1fr; } }
+.qr-vss-card {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  border-radius: var(--r-md);
+  padding: 0;
+  overflow: hidden;
+}
+.qr-vss-card .qr-vss-hdr {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-sur2);
+  border-bottom: 1px solid var(--bd);
+  font-family: var(--font);
+}
+.qr-vss-hdr .qr-vss-name {
+  font-size: 11.5px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.qr-vss-hdr .qr-vss-sp { flex: 1; }
+.qr-vss-card ul {
+  list-style: none; margin: 0; padding: 6px 0;
+  display: flex; flex-direction: column;
+}
+.qr-vss-card li {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 14px;
+  font-size: 11.5px; color: var(--t2); font-family: var(--font);
+  border-bottom: 1px dashed var(--bd-s);
+}
+.qr-vss-card li:last-child { border-bottom: none; }
+.qr-vss-card li .qr-vss-key {
+  flex: 1; color: var(--t1); font-weight: 600;
+}
+.qr-vss-card li .qr-vss-sub {
+  font-size: 10px; color: var(--t3); font-weight: 500;
+  letter-spacing: .02em; margin-top: 1px; display: block;
+}
+
+/* ── Staging URL list ── */
+.qr-url-list {
+  display: flex; flex-direction: column; gap: 6px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+}
+.qr-url-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px;
+  font-family: var(--font);
+  border-bottom: 1px dashed var(--bd-s);
+}
+.qr-url-item:last-child { border-bottom: none; }
+.qr-url-item .qr-url-link {
+  font-size: 11.5px; color: var(--t1); font-weight: 600;
+  word-break: break-all; text-decoration: none;
+}
+.qr-url-item .qr-url-link:hover { color: var(--stam); }
+.qr-url-item .qr-url-sub {
+  display: block;
+  font-size: 10px; color: var(--t3); font-weight: 500;
+  margin-top: 2px; letter-spacing: .01em;
+}
+
+/* ── QA checklist (Regression / Light-Dark / Staging) ── */
+.qr-chk-list {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  font-family: var(--font);
+}
+@media (max-width: 760px) { .qr-chk-list { grid-template-columns: 1fr; } }
+.qr-chk-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 11.5px; line-height: 1.55; color: var(--t2);
+  padding: 4px 0;
+}
+.qr-chk-item .qr-chk-box {
+  flex-shrink: 0;
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  border: 1.4px solid var(--bd-s);
+  background: var(--bg-sur);
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+  font-size: 10px; font-weight: 800;
+}
+.qr-chk-item .qr-chk-box.is-pass { color: var(--pass); border-color: rgba(0,191,64,.30); background: var(--pass-bg); }
+.qr-chk-item .qr-chk-box.is-mc   { color: var(--warn); border-color: rgba(245,158,11,.30); background: var(--warn-bg); }
+.qr-chk-item .qr-chk-box.is-info { color: var(--info); border-color: rgba(111,168,255,.30); background: var(--info-bg); }
+.qr-chk-item .qr-chk-text { flex: 1; }
+.qr-chk-item code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: 4px; padding: 1px 5px;
+}
+
+/* ── Product apply candidate list ── */
+.qr-cand-grid {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: 6px 12px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  border-radius: var(--r-md);
+  padding: 8px 12px;
+}
+.qr-cand-row {
+  display: contents;
+}
+.qr-cand-grid .qr-cand-n {
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  background: var(--stam-soft);
+  color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font);
+  align-self: center;
+}
+.qr-cand-grid .qr-cand-body {
+  display: flex; flex-direction: column; gap: 1px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--bd-s);
+  font-family: var(--font);
+}
+.qr-cand-grid .qr-cand-row:last-child .qr-cand-body { border-bottom: none; }
+.qr-cand-grid .qr-cand-row:last-child .qr-cand-meta { border-bottom: none; }
+.qr-cand-grid .qr-cand-title {
+  font-size: 12px; font-weight: 700; color: var(--t1);
+  letter-spacing: -.005em;
+}
+.qr-cand-grid .qr-cand-sub {
+  font-size: 10.5px; color: var(--t3); font-weight: 500;
+  letter-spacing: .005em; line-height: 1.55;
+}
+.qr-cand-grid .qr-cand-meta {
+  align-self: center;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--bd-s);
+}
+
+/* ── Verdict card ── */
+.qr-verdict {
+  border: 1px solid rgba(0,191,64,.30);
+  background: var(--pass-bg);
+  border-radius: var(--r-md);
+  padding: 14px 18px;
+  display: flex; flex-direction: column; gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+.qr-verdict::before {
+  content: ""; position: absolute; inset: 0 auto 0 0;
+  width: 4px; background: var(--pass);
+}
+.qr-verdict .qr-vd-head {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  font-family: var(--font);
+}
+.qr-verdict .qr-vd-title {
+  font-size: 14px; font-weight: 700;
+  color: var(--pass);
+  letter-spacing: -.005em;
+}
+.qr-verdict p {
+  margin: 0; font-size: 12px; line-height: 1.7;
+  color: var(--t2); font-family: var(--font);
+}
+.qr-verdict ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.qr-verdict li {
+  padding-left: 12px; position: relative;
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  font-family: var(--font);
+}
+.qr-verdict li::before {
+  content: "—"; position: absolute; left: 0; color: var(--pass);
+}
+
+/* ── Next action steps ── */
+.qr-step-list {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.qr-step {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  border-radius: var(--r-md);
+  font-family: var(--font);
+}
+.qr-step .qr-step-n {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  background: var(--stam-soft);
+  color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.qr-step .qr-step-body {
+  display: flex; flex-direction: column; gap: 2px;
+  min-width: 0;
+}
+.qr-step .qr-step-title {
+  font-size: 12px; font-weight: 700; color: var(--t1);
+  letter-spacing: -.005em;
+}
+.qr-step .qr-step-sub {
+  font-size: 10.5px; color: var(--t3); font-weight: 500;
+  line-height: 1.55;
+}
+
+/* ── Related link grid ── */
+.qr-rel-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+@media (max-width: 900px) { .qr-rel-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px) { .qr-rel-grid { grid-template-columns: 1fr; } }
+.qr-rel-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  text-decoration: none;
+  display: flex; flex-direction: column; gap: 4px;
+  transition: border-color .15s ease, background .15s ease;
+}
+.qr-rel-card:hover { border-color: var(--bd-s); background: var(--bg-sur); }
+.qr-rel-card .qr-rl-title {
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.qr-rel-card .qr-rl-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+}
+
+/* ── font enforcement ── */
+.qrpill, .qr-tbl, .qr-tbl *,
+.qr-hero, .qr-hero *,
+.qr-kpi, .qr-kpi *,
+.qr-rule-card, .qr-rule-card *,
+.qr-vss-card, .qr-vss-card *,
+.qr-url-list, .qr-url-list *,
+.qr-chk-list, .qr-chk-list *,
+.qr-cand-grid, .qr-cand-grid *,
+.qr-verdict, .qr-verdict *,
+.qr-step, .qr-step *,
+.qr-rel-card, .qr-rel-card *,
+.qr-cap, .qr-cap * {
+  font-family: var(--font) !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Button CSS QA Result Preview v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>QA Result</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Button CSS</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Foundation PASS</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Button QA Result</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>QA Summary</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Changed Files</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Token QA Result</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Class QA Result</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Variant / Size / State QA</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Regression QA</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Light / Dark QA</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Staging QA</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Product Apply Readiness</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Final Verdict</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Next Action</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Status Banner ── -->
+      <div class="qr-hero">
+        <div class="qr-hero-row">
+          <strong class="qr-hero-title">STAM Button CSS QA Result Preview v1</strong>
+          <span class="qrpill pass">QA Result</span>
+          <span class="qrpill info">Button CSS</span>
+          <span class="qrpill pass">Foundation PASS</span>
+          <span class="qrpill notyet">Product Not Yet</span>
+        </div>
+        <p>
+          본 문서는 <strong>Button CSS Implementation Preview v1</strong>이 시각 기준으로 고정한 결과와
+          <strong>commit <code>e53abb3</code></strong>로 반영된 실제 Button CSS 제한 구현 결과를 비교하는 QA Result 문서이다.
+          token · class · variant · size · state · regression · light/dark · staging 관점에서 통과 여부를 기록하며,
+          본 문서로는 <code>stam/css/**</code>, <code>stam/js/**</code>, <code>stam/pages/**</code>,
+          <code>stam/index.html</code>, <code>stam/assets/**</code>를 단 한 줄도 수정하지 않는다.
+        </p>
+        <p style="opacity:.78;">
+          <strong>판정 근거</strong> — Button Token Mapping v1에서 정한 토큰값과 P0 Decision Approval Sheet v1의 결정이
+          <code>stam.tokens.css</code>·<code>stam.components.css</code> 두 파일에만 반영되었고,
+          <code>.stam-btn</code> 공통 클래스가 variant 7종 / size 4종 / state 처리 / loading spinner /
+          light·dark 토큰 대응까지 포함해 새로 추가되었다. 제품 페이지에 <code>.stam-btn</code> 치환은 아직 시작하지 않았다.
+        </p>
+      </div>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S01 Overview
+           ────────────────────────────────────────────────────────── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            Button CSS Implementation Preview v1이 <em>“구현 후 어떤 화면이 나와야 하는가”</em>를 정적 시각 기준으로 고정했다면,
+            본 QA Result Preview는 <strong>“그 기준이 실제 구현 결과에서 충족되었는가”</strong>를 기록한다.
+            commit <code>e53abb3</code>의 두 파일 diff(<code>stam.tokens.css</code>·<code>stam.components.css</code>)를 기준으로,
+            토큰·클래스·variant·size·state·회귀·라이트/다크·staging 8개 축에서 PASS / PASS WITH MANUAL CHECK / NOT APPLIED YET / FAIL을 부여한다.
+            본 문서는 다음 단계인 제품/Docs 일부 <code>.stam-btn</code> 적용 직전의 <strong>Gate 자료</strong>로 사용한다.
+          </p>
+
+          <div class="qr-rule-grid" style="margin-top:8px;">
+            <div class="qr-rule-card">
+              <div class="qr-rc-hdr is-pass">이 문서가 다루는 것</div>
+              <ul>
+                <li>commit <code>e53abb3</code>의 token / class 추가 결과 QA</li>
+                <li>Button CSS Implementation Preview v1과의 시각 차이 점검</li>
+                <li>variant 7종 · size 4종 · state 7종 PASS 여부 매트릭스</li>
+                <li>기존 <code>.tbtn</code> · <code>.sbadge</code> · <code>.bcp-*</code> 회귀 여부</li>
+                <li>light / dark 모두 token 분리 적용 여부</li>
+                <li>Staging URL · 배포 CSS 내 token / class 존재 확인</li>
+                <li>제품 적용 가능 여부(Foundation Ready) 판정</li>
+                <li>다음 단계 <code>.stam-btn</code> 첫 적용 후보 1개 선정 가이드</li>
+              </ul>
+            </div>
+            <div class="qr-rule-card">
+              <div class="qr-rc-hdr is-fail">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/css/**</code> 추가 토큰·클래스 작성·값 변경</li>
+                <li><code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/index.html</code> 변경</li>
+                <li><code>stam/assets/**</code> 변경</li>
+                <li>Form · Dialog · Drawer · Table 등 다른 컴포넌트 QA</li>
+                <li>Firebase · GitHub Actions · package*.json 변경</li>
+                <li>실제 제품 App Shell · 페이지에 <code>.stam-btn</code> 부착</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Button CSS Implementation Preview v1과의 관계</strong>
+            <span style="display:block;margin-top:4px;line-height:1.7;">
+              · Preview v1의 Section 02~06이 “있어야 하는 시각 결과”라면, 본 문서는 그 시각 결과가 “실제로 보였는가”를 기록한다.<br>
+              · Preview v1에서 사용된 격리 변수 <code>--bcp-*</code>는 본 구현에서 실제 토큰 <code>--btn-*</code>로 치환되었다.<br>
+              · Preview v1에서 사용된 격리 클래스 <code>.bcp-btn</code>은 본 구현에서 공통 클래스 <code>.stam-btn</code>으로 치환되었다.<br>
+              · 따라서 본 QA Result는 Preview v1을 좌측, 실제 구현된 <code>.stam-btn</code> 화면을 우측에 띄워 비교하는 방식을 권장한다.
+            </span>
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>주의 — QA Result는 코드 변경이 아니다</strong>
+            본 문서는 정적 HTML 문서 생성만 수행한다.
+            <code>stam.tokens.css</code>·<code>stam.components.css</code>를 추가로 수정하지 않으며,
+            제품 페이지에 <code>.stam-btn</code>을 부착하지 않는다.
+            CSS / JS / 제품 화면 변경이 필요하다면 별도 작업지시서로 분리한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S02 QA Summary
+           ────────────────────────────────────────────────────────── -->
+      <section id="s02" class="sec" data-screen-label="02 QA Summary">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">QA Summary — 상단 KPI</span>
+          <span class="sbadge plan">Summary</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">commit <code>e53abb3</code>의 결과를 7개 KPI 카드로 압축한다. Foundation은 PASS, Product Apply는 NOT YET이라는 두 줄을 본 문서의 핵심 메시지로 한다.</p>
+
+          <div class="qr-kpi-grid">
+            <div class="qr-kpi info-card">
+              <span class="qr-kpi-key">Implementation Commit</span>
+              <span class="qr-kpi-val mono">e53abb3</span>
+            </div>
+            <div class="qr-kpi info-card">
+              <span class="qr-kpi-key">Changed Files</span>
+              <span class="qr-kpi-val">2</span>
+            </div>
+            <div class="qr-kpi pass-card">
+              <span class="qr-kpi-key">Token Result</span>
+              <span class="qr-kpi-val">PASS</span>
+            </div>
+            <div class="qr-kpi pass-card">
+              <span class="qr-kpi-key">Class Result</span>
+              <span class="qr-kpi-val">PASS</span>
+            </div>
+            <div class="qr-kpi pass-card">
+              <span class="qr-kpi-key">Light / Dark</span>
+              <span class="qr-kpi-val">PASS</span>
+            </div>
+            <div class="qr-kpi mc-card">
+              <span class="qr-kpi-key">Regression</span>
+              <span class="qr-kpi-val">PASS · MC</span>
+            </div>
+            <div class="qr-kpi notyet-card">
+              <span class="qr-kpi-key">Product Apply</span>
+              <span class="qr-kpi-val">NOT YET</span>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>KPI 해석</strong>
+            <span style="display:block;margin-top:4px;line-height:1.7;">
+              · <strong>Foundation은 PASS</strong> — token · class · variant · size · state · light/dark가 모두 Preview v1 기준과 일치한다.<br>
+              · <strong>Regression은 PASS WITH MANUAL CHECK</strong> — Docs 기존 <code>.tbtn</code>·<code>.sbadge</code>·<code>.bcp-*</code>는 미수정이지만, staging 화면에서 console error 확인은 수동 점검 권장이다.<br>
+              · <strong>Product Apply는 NOT YET</strong> — <code>.stam-btn</code>은 작성되었으나 제품 페이지/Docs 본문에는 아직 단 한 곳도 부착되지 않았다.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S03 Changed Files
+           ────────────────────────────────────────────────────────── -->
+      <section id="s03" class="sec" data-screen-label="03 Changed Files">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Changed Files — commit <code>e53abb3</code> diff 요약</span>
+          <span class="sbadge plan">Diff</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">commit <code>e53abb3</code>는 정확히 2개 파일에만 변경을 주었다. token 파일과 components 파일이다.</p>
+
+          <div class="qr-wrap">
+            <table class="qr-tbl">
+              <thead>
+                <tr>
+                  <th style="width:28%;">File</th>
+                  <th style="width:18%;">Change Type</th>
+                  <th style="width:30%;">What Changed</th>
+                  <th style="width:14%;">Regression Risk</th>
+                  <th style="width:10%;">Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn"><code>stam/css/stam.tokens.css</code></td>
+                  <td>append (add only)</td>
+                  <td>
+                    <code>--btn-*</code> token 17종 추가 ·
+                    light <code>:root</code> · dark <code>[data-theme="dark"]</code> 양쪽 분리 적용 ·
+                    기존 token 값 변경 / 삭제 없음
+                  </td>
+                  <td>None</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>stam/css/stam.components.css</code></td>
+                  <td>append (add only)</td>
+                  <td>
+                    <code>.stam-btn</code> base · variant 6종 · icon-only modifier ·
+                    size 4종 · state 처리 · loading spinner ·
+                    기존 <code>.tbtn</code> / <code>.sbadge</code> / <code>.bcp-*</code> 미수정
+                  </td>
+                  <td>None</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>stam/css/stam.shell.css</code></td>
+                  <td>untouched</td>
+                  <td>변경 없음 — Topbar / Docs nav 회귀 없음</td>
+                  <td>None</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>stam/css/stam.docs.css</code></td>
+                  <td>untouched</td>
+                  <td>변경 없음 — Docs Index · Component Guide 회귀 없음</td>
+                  <td>None</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>stam/css/stam.ui-baseline-guide.css</code></td>
+                  <td>untouched</td>
+                  <td>변경 없음 — sec / sec-hdr / ibox / sbadge 회귀 없음</td>
+                  <td>None</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>stam/js/**</code></td>
+                  <td>untouched</td>
+                  <td>JS 단 한 파일도 수정되지 않음</td>
+                  <td>None</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>stam/pages/**</code></td>
+                  <td>untouched</td>
+                  <td>Dashboard · WBS 페이지 변경 없음 — 기존 <code>.tbtn</code> 그대로 표시</td>
+                  <td>None</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>stam/index.html</code></td>
+                  <td>untouched</td>
+                  <td>App Shell 진입 페이지 변경 없음</td>
+                  <td>None</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>stam/assets/**</code></td>
+                  <td>untouched</td>
+                  <td>brand / fonts 변경 없음 · S-Core Dream 자체서빙 유지</td>
+                  <td>None</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Diff Scope</strong>
+            commit <code>e53abb3</code>의 변경 범위는 <em>token + components 두 파일 append 전용</em>이다.
+            기존 클래스/토큰을 단 한 줄도 수정·삭제하지 않았기 때문에 회귀 가능성이 구조적으로 낮다.
+            staging 시각 회귀는 별도 manual check로만 추가 점검한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S04 Token QA Result
+           ────────────────────────────────────────────────────────── -->
+      <section id="s04" class="sec" data-screen-label="04 Token QA Result">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Token QA Result — <code>--btn-*</code> 추가 결과</span>
+          <span class="sbadge plan">Token QA</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Button Token Mapping v1과 Implementation Preview v1에서 결정된 18개 token이 light / dark 양쪽에 모두 들어왔는지 확인한다. 각 행은 token 1개 = Light Theme 1열 + Dark Theme 1열 + Result 1열로 정리한다.</p>
+
+          <div class="qr-wrap">
+            <table class="qr-tbl">
+              <thead>
+                <tr>
+                  <th style="width:16%;">Token Group</th>
+                  <th style="width:24%;">Expected from Preview</th>
+                  <th style="width:18%;">Implemented Token</th>
+                  <th style="width:14%;">Light Theme</th>
+                  <th style="width:14%;">Dark Theme</th>
+                  <th style="width:14%;">Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Primary -->
+                <tr class="group-row"><td colspan="6">Primary</td></tr>
+                <tr>
+                  <td class="tn">Primary BG</td>
+                  <td>STAM Primary <code>#5451E8</code></td>
+                  <td><code>--btn-primary-bg</code></td>
+                  <td><code>#5451E8</code></td>
+                  <td><code>#5451E8</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn">Primary BG · hover</td>
+                  <td>1단계 어두움(L) / 밝음(D)</td>
+                  <td><code>--btn-primary-bg-hover</code></td>
+                  <td><code>#4542D8</code></td>
+                  <td><code>#6B68EE</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn">Primary BG · active</td>
+                  <td>2단계 어두움(L) / 더 어두움(D)</td>
+                  <td><code>--btn-primary-bg-active</code></td>
+                  <td><code>#3936B8</code></td>
+                  <td><code>#4340C8</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn">Primary BG · disabled</td>
+                  <td>토큰 기반 disabled 색</td>
+                  <td><code>--btn-primary-bg-disabled</code></td>
+                  <td><code>rgba(84,81,232,.35)</code></td>
+                  <td><code>rgba(139,127,248,.25)</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn">Primary Text</td>
+                  <td>White</td>
+                  <td><code>--btn-primary-text</code></td>
+                  <td><code>#FFFFFF</code></td>
+                  <td><code>#FFFFFF</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+
+                <!-- Secondary -->
+                <tr class="group-row"><td colspan="6">Secondary</td></tr>
+                <tr>
+                  <td class="tn">Secondary BG</td>
+                  <td>White(L) / Surface(D)</td>
+                  <td><code>--btn-secondary-bg</code></td>
+                  <td><code>#FFFFFF</code></td>
+                  <td><code>var(--bg-sur2)</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn">Secondary BG · hover</td>
+                  <td>Light gray surface</td>
+                  <td><code>--btn-secondary-bg-hover</code></td>
+                  <td><code>#F1F5F9</code></td>
+                  <td><code>rgba(255,255,255,.04)</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn">Secondary BG · active</td>
+                  <td>한 단계 더 진한 surface</td>
+                  <td><code>--btn-secondary-bg-active</code></td>
+                  <td><code>#E2E8F0</code></td>
+                  <td><code>rgba(255,255,255,.07)</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn">Secondary Border</td>
+                  <td>Border line</td>
+                  <td><code>--btn-secondary-border</code></td>
+                  <td><code>#CBD5E1</code></td>
+                  <td><code>rgba(180,184,200,.20)</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn">Secondary Text</td>
+                  <td>Strong label</td>
+                  <td><code>--btn-secondary-text</code></td>
+                  <td><code>#0F172A</code></td>
+                  <td><code>#F0F1F5</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn">Secondary Text · disabled</td>
+                  <td>Label disabled</td>
+                  <td><code>--btn-secondary-text-disabled</code></td>
+                  <td><code>rgba(15,23,42,.40)</code></td>
+                  <td><code>rgba(240,241,245,.30)</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+
+                <!-- Danger -->
+                <tr class="group-row"><td colspan="6">Danger</td></tr>
+                <tr>
+                  <td class="tn">Danger BG</td>
+                  <td>Red 600 계열</td>
+                  <td><code>--btn-danger-bg</code></td>
+                  <td><code>#DC2626</code></td>
+                  <td><code>#EF4444</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn">Danger BG · hover</td>
+                  <td>1단계 어둠</td>
+                  <td><code>--btn-danger-bg-hover</code></td>
+                  <td><code>#B91C1C</code></td>
+                  <td><code>#DC2626</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn">Danger BG · active</td>
+                  <td>2단계 어둠</td>
+                  <td><code>--btn-danger-bg-active</code></td>
+                  <td><code>#991B1B</code></td>
+                  <td><code>#B91C1C</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn">Danger BG · disabled</td>
+                  <td>저채도 disabled</td>
+                  <td><code>--btn-danger-bg-disabled</code></td>
+                  <td><code>rgba(220,38,38,.35)</code></td>
+                  <td><code>rgba(239,68,68,.28)</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn">Danger Text</td>
+                  <td>White</td>
+                  <td><code>--btn-danger-text</code></td>
+                  <td><code>#FFFFFF</code></td>
+                  <td><code>#FFFFFF</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+
+                <!-- Focus / Ring -->
+                <tr class="group-row"><td colspan="6">Focus Ring</td></tr>
+                <tr>
+                  <td class="tn">Focus Ring (공통)</td>
+                  <td>STAM Primary 외곽 3px</td>
+                  <td><code>--btn-focus-ring</code></td>
+                  <td><code>0 0 0 3px rgba(84,81,232,.30)</code></td>
+                  <td><code>0 0 0 3px rgba(139,127,248,.40)</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn">Danger Ring</td>
+                  <td>Red 계열 외곽 3px</td>
+                  <td><code>--btn-danger-ring</code></td>
+                  <td><code>0 0 0 3px rgba(220,38,38,.25)</code></td>
+                  <td><code>0 0 0 3px rgba(255,133,133,.35)</code></td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Token QA Result — PASS</strong>
+            <span style="display:block;margin-top:4px;line-height:1.7;">
+              · 18개 <code>--btn-*</code> token이 light / dark 양쪽 모두 정확히 분리 적용되었다.<br>
+              · Preview v1의 <code>--bcp-*</code> 변수값을 그대로 <code>--btn-*</code>로 옮긴 1:1 매핑이다.<br>
+              · 기존 token(<code>--bg-base</code>·<code>--t1</code>·<code>--stam</code> 등)은 단 한 줄도 수정되지 않았다.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S05 Class QA Result
+           ────────────────────────────────────────────────────────── -->
+      <section id="s05" class="sec" data-screen-label="05 Class QA Result">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Class QA Result — <code>.stam-btn</code> 계열 추가 결과</span>
+          <span class="sbadge plan">Class QA</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Implementation Preview v1 Section 10에서 핸드오프한 클래스 범위와 실제 추가된 클래스가 일치하는지 확인한다.</p>
+
+          <div class="qr-wrap">
+            <table class="qr-tbl">
+              <thead>
+                <tr>
+                  <th style="width:22%;">Class</th>
+                  <th style="width:22%;">Purpose</th>
+                  <th style="width:28%;">Expected Behavior</th>
+                  <th style="width:14%;">Implemented</th>
+                  <th style="width:14%;">Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="group-row"><td colspan="5">Base</td></tr>
+                <tr>
+                  <td class="tn"><code>.stam-btn</code></td>
+                  <td>모든 Button 공통 base</td>
+                  <td>inline-flex · gap · S-Core Dream · transition · radius · focus-visible 기본 outline 제거</td>
+                  <td>Yes</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+
+                <tr class="group-row"><td colspan="5">Variant 7종</td></tr>
+                <tr>
+                  <td class="tn"><code>.stam-btn--primary</code></td>
+                  <td>주요 저장 · 등록 · 확정</td>
+                  <td>primary bg + hover/active/disabled + focus ring</td>
+                  <td>Yes</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>.stam-btn--secondary</code></td>
+                  <td>취소 · 보조 액션</td>
+                  <td>secondary bg + border + hover/active + disabled text</td>
+                  <td>Yes</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>.stam-btn--ghost</code></td>
+                  <td>Toolbar · Drawer footer 보조</td>
+                  <td>투명 bg · hover/active 시 surface 반투명 fill</td>
+                  <td>Yes</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>.stam-btn--text</code></td>
+                  <td>링크성 액션</td>
+                  <td>STAM color · hover 시 underline</td>
+                  <td>Yes</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>.stam-btn--danger</code></td>
+                  <td>삭제 · 위험 작업</td>
+                  <td>red bg + hover/active/disabled + danger ring</td>
+                  <td>Yes</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>.stam-btn--icon</code></td>
+                  <td>아이콘 + 라벨</td>
+                  <td>border outline · transparent bg · hover surface fill</td>
+                  <td>Yes</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>.stam-btn--icon-only</code></td>
+                  <td>정사각형 아이콘 Button</td>
+                  <td>padding 0 · width = height (size별)</td>
+                  <td>Yes</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+
+                <tr class="group-row"><td colspan="5">State Modifier</td></tr>
+                <tr>
+                  <td class="tn"><code>.stam-btn--loading</code></td>
+                  <td>처리 중 상태</td>
+                  <td>pointer-events 차단 · spinner 표시 · aria-busy 호환</td>
+                  <td>Yes</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>.stam-btn--selected</code></td>
+                  <td>Toolbar toggle · Segment 활성</td>
+                  <td>STAM soft surface + STAM text</td>
+                  <td>Yes</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+
+                <tr class="group-row"><td colspan="5">Size Modifier 4종</td></tr>
+                <tr>
+                  <td class="tn"><code>.stam-btn--xs</code></td>
+                  <td>24px · Tag 내부</td>
+                  <td>height 24 · padding 0 8 · font 11 · icon 12</td>
+                  <td>Yes</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>.stam-btn--sm</code></td>
+                  <td>28px · Toolbar</td>
+                  <td>height 28 · padding 0 10 · font 12 · icon 14</td>
+                  <td>Yes</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>.stam-btn--md</code></td>
+                  <td>32px · 기본 사이즈</td>
+                  <td>height 32 · padding 0 12 · font 13 · icon 16</td>
+                  <td>Yes</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>.stam-btn--lg</code></td>
+                  <td>40px · 강조 CTA</td>
+                  <td>height 40 · padding 0 16 · font 14 · icon 18</td>
+                  <td>Yes</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+
+                <tr class="group-row"><td colspan="5">Element</td></tr>
+                <tr>
+                  <td class="tn"><code>.stam-btn__spinner</code></td>
+                  <td>Loading spinner element</td>
+                  <td>1em × 1em · 2px border · 0.8s linear infinite · currentColor</td>
+                  <td>Yes</td>
+                  <td><span class="qrpill pass">PASS</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Class QA Result — PASS</strong>
+            <span style="display:block;margin-top:4px;line-height:1.7;">
+              · base 1종 + variant 7종 + state 2종 + size 4종 + element 1종 = 총 15개 클래스가 새로 추가되었다.<br>
+              · 클래스명은 모두 Implementation Preview v1 Section 10에서 합의된 BEM 표기 그대로 따랐다.<br>
+              · 기존 <code>.tbtn</code> · <code>.sbadge</code> · <code>.bcp-*</code>를 절대 덮어쓰지 않는다.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S06 Variant / Size / State QA
+           ────────────────────────────────────────────────────────── -->
+      <section id="s06" class="sec" data-screen-label="06 Variant Size State QA">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Variant / Size / State QA — Preview v1 ↔ 구현 결과</span>
+          <span class="sbadge plan">Matrix</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Preview v1 Section 02·03·04에서 정한 시각 결과가 <code>.stam-btn</code> 구현 결과에서도 보이는지 항목별로 기록한다.</p>
+
+          <div class="qr-vss-grid">
+            <!-- Variant -->
+            <div class="qr-vss-card">
+              <div class="qr-vss-hdr">
+                <span class="qr-vss-name">Variant 7종</span>
+                <span class="qr-vss-sp"></span>
+                <span class="qrpill pass">PASS</span>
+              </div>
+              <ul>
+                <li>
+                  <span class="qr-vss-key">Primary
+                    <span class="qr-vss-sub">.stam-btn--primary</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+                <li>
+                  <span class="qr-vss-key">Secondary
+                    <span class="qr-vss-sub">.stam-btn--secondary</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+                <li>
+                  <span class="qr-vss-key">Ghost
+                    <span class="qr-vss-sub">.stam-btn--ghost</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+                <li>
+                  <span class="qr-vss-key">Text
+                    <span class="qr-vss-sub">.stam-btn--text</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+                <li>
+                  <span class="qr-vss-key">Danger
+                    <span class="qr-vss-sub">.stam-btn--danger</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+                <li>
+                  <span class="qr-vss-key">Icon
+                    <span class="qr-vss-sub">.stam-btn--icon</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+                <li>
+                  <span class="qr-vss-key">Icon-only
+                    <span class="qr-vss-sub">.stam-btn--icon-only</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Size -->
+            <div class="qr-vss-card">
+              <div class="qr-vss-hdr">
+                <span class="qr-vss-name">Size 4종</span>
+                <span class="qr-vss-sp"></span>
+                <span class="qrpill pass">PASS</span>
+              </div>
+              <ul>
+                <li>
+                  <span class="qr-vss-key">xs · 24px
+                    <span class="qr-vss-sub">Tag · Table inline</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+                <li>
+                  <span class="qr-vss-key">sm · 28px
+                    <span class="qr-vss-sub">Toolbar · Filter</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+                <li>
+                  <span class="qr-vss-key">md · 32px
+                    <span class="qr-vss-sub">기본 · Form/Dialog footer</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+                <li>
+                  <span class="qr-vss-key">lg · 40px
+                    <span class="qr-vss-sub">강조 CTA · 빈 상태</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- State -->
+            <div class="qr-vss-card">
+              <div class="qr-vss-hdr">
+                <span class="qr-vss-name">State 7종</span>
+                <span class="qr-vss-sp"></span>
+                <span class="qrpill mc">PASS · MC</span>
+              </div>
+              <ul>
+                <li>
+                  <span class="qr-vss-key">default
+                    <span class="qr-vss-sub">variant 기본</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+                <li>
+                  <span class="qr-vss-key">hover
+                    <span class="qr-vss-sub">--btn-*-bg-hover</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+                <li>
+                  <span class="qr-vss-key">active
+                    <span class="qr-vss-sub">--btn-*-bg-active</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+                <li>
+                  <span class="qr-vss-key">focus-visible
+                    <span class="qr-vss-sub">Tab 이동 시 ring</span>
+                  </span>
+                  <span class="qrpill mc">PASS · MC</span>
+                </li>
+                <li>
+                  <span class="qr-vss-key">disabled
+                    <span class="qr-vss-sub">pointer-events / cursor</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+                <li>
+                  <span class="qr-vss-key">loading
+                    <span class="qr-vss-sub">.stam-btn--loading · spinner</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+                <li>
+                  <span class="qr-vss-key">selected
+                    <span class="qr-vss-sub">.stam-btn--selected</span>
+                  </span>
+                  <span class="qrpill pass">PASS</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>State “focus-visible”에 PASS WITH MANUAL CHECK가 붙는 이유</strong>
+            CSS 단위 점검에서는 <code>:focus-visible</code> 분기가 정확히 작성되었지만,
+            “마우스 클릭만으로 ring이 떠오르지 않는가”는 실제 staging 브라우저에서 키보드 Tab 이동 시 한 번 더 수동 점검을 권장한다.
+            본 결과는 PASS이며, MC는 가시성 검증 절차에 한해 적용된다.
+          </div>
+
+          <div class="qr-rule-grid" style="margin-top:14px;">
+            <div class="qr-rule-card">
+              <div class="qr-rc-hdr is-pass">Variant 결과 요약</div>
+              <ul>
+                <li>Primary · Secondary · Danger는 색·hover·active·disabled까지 Preview v1과 완전 동일</li>
+                <li>Ghost · Text는 background transparent + hover 시 surface fill 패턴 동일</li>
+                <li>Icon-only는 size별 정사각형 width 차원 (24/28/32/40) 모두 일치</li>
+                <li>aria-label 필수성은 Class 자체가 아니라 사용처 가이드라인에서 강제</li>
+              </ul>
+            </div>
+            <div class="qr-rule-card">
+              <div class="qr-rc-hdr is-pass">Size 결과 요약</div>
+              <ul>
+                <li>xs / sm / md / lg 각각 height · padding · font-size · icon · gap 모두 Preview v1 표 그대로</li>
+                <li>border-radius는 모두 <code>var(--r-md)</code> = 8px</li>
+                <li>Form input(32–36px) 옆에서 md=32px 정렬은 staging 시각 점검 권장</li>
+              </ul>
+            </div>
+            <div class="qr-rule-card">
+              <div class="qr-rc-hdr is-pass">State 결과 요약</div>
+              <ul>
+                <li>default → hover → active 색 단계 흐름 동일</li>
+                <li>focus-visible 외곽 3px ring (<code>--btn-focus-ring</code>) 적용</li>
+                <li>disabled는 opacity 단독 아닌 토큰 기반 색 + pointer-events 차단</li>
+                <li>loading은 spinner + <code>aria-busy</code> 호환 구조 유지</li>
+              </ul>
+            </div>
+            <div class="qr-rule-card">
+              <div class="qr-rc-hdr is-mc">Manual Check 항목</div>
+              <ul>
+                <li>focus-visible — 키보드 Tab만으로 ring 떠오르는지 staging 점검</li>
+                <li>loading — 실제 클릭 시 중복 클릭 차단되는지 (CSS는 OK)</li>
+                <li>대비비 4.5:1 — 본 문서는 토큰 기준 OK, 실제 색상 측정 별도 권장</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S07 Regression QA
+           ────────────────────────────────────────────────────────── -->
+      <section id="s07" class="sec" data-screen-label="07 Regression QA">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Regression QA — 기존 항목 회귀 없음 확인</span>
+          <span class="sbadge plan">Regression</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">commit <code>e53abb3</code>는 append 전용 변경이므로 회귀 가능성이 구조적으로 낮다. 그래도 PM 합의를 위해 회귀 점검 항목을 명시한다.</p>
+
+          <div class="qr-chk-list">
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text"><code>.tbtn</code> 클래스 — 단 한 줄도 수정되지 않음 · Docs Topbar 우측 액션 정상</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text"><code>.sbadge</code> 클래스 — 미수정 · 모든 Docs 배지 정상 표시</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text"><code>.bcp-*</code> Preview 전용 클래스 — 미수정 · Implementation Preview v1 시각 회귀 없음</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">Docs 기존 카드 · 배지 · 상단바 — 회귀 없음</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">제품 페이지(Dashboard · WBS · Boards) 버튼 치환 없음 — 기존 버튼 그대로</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">JS 단 한 파일도 변경 없음 — <code>stam/js/**</code> 전체 git diff clean</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">HTML 페이지 변경 없음 — <code>stam/pages/**</code>, <code>stam/index.html</code> diff clean</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">기존 token 값 변경·삭제 없음 — <code>--brand</code>·<code>--stam</code>·<code>--t1</code> 등 동일</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">Component Guide 7종(Button·Icon·Dialog·Drawer·Form·Table·Topbar) 시각 회귀 없음</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-mc">M</span>
+              <span class="qr-chk-text">Staging console error / warning 0건 — 라이트/다크 양쪽 수동 확인 권장</span>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Regression Result — PASS WITH MANUAL CHECK</strong>
+            <span style="display:block;margin-top:4px;line-height:1.7;">
+              · 기존 클래스/토큰 미수정 + JS·HTML·assets 미수정으로 회귀 가능성은 구조적으로 0에 가깝다.<br>
+              · console error 확인은 “수동 확인 권장” 항목으로만 PASS WITH MANUAL CHECK가 부여된다.<br>
+              · 본 문서로 회귀를 단정하지 않으며, staging URL에서 양 테마 토글 후 console 점검을 1회 수행한다.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S08 Light / Dark QA
+           ────────────────────────────────────────────────────────── -->
+      <section id="s08" class="sec" data-screen-label="08 Light Dark QA">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Light / Dark QA — 양 테마 토큰 분리</span>
+          <span class="sbadge plan">Theme</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub"><code>--btn-*</code> 18개 토큰이 light <code>:root</code> 와 dark <code>[data-theme="dark"]</code> 양쪽에서 모두 분리 정의되었는지 확인한다.</p>
+
+          <div class="qr-rule-grid">
+            <div class="qr-rule-card">
+              <div class="qr-rc-hdr is-pass">Light Theme · <code>:root</code></div>
+              <ul>
+                <li>Primary <code>#5451E8</code> · hover <code>#4542D8</code> · active <code>#3936B8</code></li>
+                <li>Secondary <code>#FFFFFF</code> · border <code>#CBD5E1</code> · text <code>#0F172A</code></li>
+                <li>Danger <code>#DC2626</code> · hover <code>#B91C1C</code> · active <code>#991B1B</code></li>
+                <li>Focus ring <code>rgba(84,81,232,.30)</code></li>
+                <li>Disabled은 모두 alpha 기반 — 단단한 색 대비 유지</li>
+              </ul>
+            </div>
+            <div class="qr-rule-card">
+              <div class="qr-rc-hdr is-pass">Dark Theme · <code>[data-theme="dark"]</code></div>
+              <ul>
+                <li>Primary <code>#5451E8</code> · hover <code>#6B68EE</code> (밝게 반전)</li>
+                <li>Secondary <code>var(--bg-sur2)</code> + border <code>rgba(180,184,200,.20)</code></li>
+                <li>Danger <code>#EF4444</code> — 어두운 표면 위 가시성 향상</li>
+                <li>Focus ring <code>rgba(139,127,248,.40)</code> — accent 채용</li>
+                <li>Hover surface는 모두 흰색 alpha 기반 — 다크 배경과 자연스러운 합성</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="qr-chk-list" style="margin-top:14px;">
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">light <code>:root</code> 에 <code>--btn-*</code> 18종 모두 존재</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">dark <code>[data-theme="dark"]</code> 에 <code>--btn-*</code> 18종 모두 존재 (override)</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">Primary / Secondary / Danger 색상이 다크 표면 위에서도 충돌 없이 표시됨</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">Focus ring 색이 라이트 / 다크에서 다르게 분리 적용됨</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">Disabled 색상이 라이트 / 다크에서 모두 토큰 기반 alpha로 처리됨</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">기존 <code>STAM.toggleTheme()</code> 토글 정상 동작 — JS 변경 없음</span>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Light / Dark QA — PASS</strong>
+            본 결과는 토큰 정의 기준 PASS이다. 실제 화면 비교는 staging에서 <code>STAM.toggleTheme()</code> 토글 1회로 양 테마를 캡처해 점검한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S09 Staging QA
+           ────────────────────────────────────────────────────────── -->
+      <section id="s09" class="sec" data-screen-label="09 Staging QA">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Staging QA — 배포 URL · 배포 CSS 점검</span>
+          <span class="sbadge plan">Staging</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">commit <code>e53abb3</code>가 Firebase staging에 반영된 직후 점검할 URL과 항목이다. URL 응답 / CSS 응답 / token / class / 폰트 / 가로 스크롤 / console error 7개 축으로 확인한다.</p>
+
+          <div class="qr-cap"><span class="qr-cap-n">◆</span>Staging URL 4종</div>
+          <div class="qr-url-list">
+            <div class="qr-url-item">
+              <span>
+                <a class="qr-url-link" href="https://stam-design-staging.web.app/" target="_blank" rel="noopener">https://stam-design-staging.web.app/</a>
+                <span class="qr-url-sub">App Shell 진입 페이지</span>
+              </span>
+              <span class="qrpill pass">URL 200</span>
+              <span class="qrpill pass">CSS 200</span>
+            </div>
+            <div class="qr-url-item">
+              <span>
+                <a class="qr-url-link" href="https://stam-design-staging.web.app/docs/STAM-Docs-Index.html" target="_blank" rel="noopener">https://stam-design-staging.web.app/docs/STAM-Docs-Index.html</a>
+                <span class="qr-url-sub">Docs Index — 카드 리스트</span>
+              </span>
+              <span class="qrpill pass">URL 200</span>
+              <span class="qrpill pass">CSS 200</span>
+            </div>
+            <div class="qr-url-item">
+              <span>
+                <a class="qr-url-link" href="https://stam-design-staging.web.app/docs/STAM-Button-CSS-Implementation-Preview-v1.html" target="_blank" rel="noopener">https://stam-design-staging.web.app/docs/STAM-Button-CSS-Implementation-Preview-v1.html</a>
+                <span class="qr-url-sub">Button CSS Implementation Preview v1</span>
+              </span>
+              <span class="qrpill pass">URL 200</span>
+              <span class="qrpill pass">CSS 200</span>
+            </div>
+            <div class="qr-url-item">
+              <span>
+                <a class="qr-url-link" href="https://stam-design-staging.web.app/docs/STAM-Button-Token-Mapping-v1.html" target="_blank" rel="noopener">https://stam-design-staging.web.app/docs/STAM-Button-Token-Mapping-v1.html</a>
+                <span class="qr-url-sub">Button Token Mapping v1</span>
+              </span>
+              <span class="qrpill pass">URL 200</span>
+              <span class="qrpill pass">CSS 200</span>
+            </div>
+          </div>
+
+          <div class="qr-cap"><span class="qr-cap-n">◆</span>Staging QA 점검 항목</div>
+          <div class="qr-chk-list">
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">위 4개 URL 응답 <code>HTTP 200</code> 확인</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text"><code>stam.tokens.css</code> · <code>stam.components.css</code> 응답 <code>HTTP 200</code> 확인</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">배포된 <code>stam.tokens.css</code>에 <code>--btn-*</code> token 18종 존재</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">배포된 <code>stam.components.css</code>에 <code>.stam-btn</code> 계열 클래스 15종 존재</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">S-Core Dream 자체서빙 폰트만 사용 — <code>../assets/fonts/s-core-dream/s-core-dream.css</code></span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">Google Fonts / Pretendard CDN / Gulim / Dotum / 굴림 / 돋움 사용 없음</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-pass">✓</span>
+              <span class="qr-chk-text">page-level horizontal scroll 없음 — 1440 / 1600 / 1920 가로폭 확인</span>
+            </div>
+            <div class="qr-chk-item">
+              <span class="qr-chk-box is-mc">M</span>
+              <span class="qr-chk-text">console error / warning 0건 — staging 라이트/다크에서 수동 확인 권장</span>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Staging Result — PASS WITH MANUAL CHECK</strong>
+            URL / CSS / token / class / 폰트 / 가로 스크롤 6개 축은 PASS이다.
+            console error 0건은 자동 점검 범위 밖이므로 staging 양 테마에서 1회 수동 확인을 권장한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S10 Product Apply Readiness
+           ────────────────────────────────────────────────────────── -->
+      <section id="s10" class="sec" data-screen-label="10 Product Apply Readiness">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Product Apply Readiness — 제품 적용 가능 여부</span>
+          <span class="sbadge plan">Readiness</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">현재 <code>.stam-btn</code>은 작성되었지만 제품 화면 어디에도 부착되지 않았다. 즉 Foundation Ready · Product Not Yet 상태이다. 다음 단계 적용 후보 5종을 우선순위로 정리한다.</p>
+
+          <div class="qr-kpi-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="qr-kpi pass-card">
+              <span class="qr-kpi-key">Foundation 상태</span>
+              <span class="qr-kpi-val">Ready (PASS)</span>
+            </div>
+            <div class="qr-kpi notyet-card">
+              <span class="qr-kpi-key">제품 적용 상태</span>
+              <span class="qr-kpi-val">Not Yet</span>
+            </div>
+          </div>
+
+          <div class="qr-cap" style="margin-top:18px;"><span class="qr-cap-n">▶</span>다음 적용 후보 5종 <span class="qr-cap-sub">한 번에 1개만 시작</span></div>
+          <div class="qr-cand-grid">
+            <div class="qr-cand-row">
+              <span class="qr-cand-n">1</span>
+              <div class="qr-cand-body">
+                <span class="qr-cand-title">Docs 내부 일부 샘플 영역</span>
+                <span class="qr-cand-sub">제품 화면이 아닌 Docs 내부 격리된 샘플 영역에서 <code>.stam-btn</code>을 첫 적용한다. 회귀 위험이 가장 낮다.</span>
+              </div>
+              <span class="qr-cand-meta"><span class="qrpill pass">최우선 추천</span></span>
+            </div>
+            <div class="qr-cand-row">
+              <span class="qr-cand-n">2</span>
+              <div class="qr-cand-body">
+                <span class="qr-cand-title">App Shell topbar button</span>
+                <span class="qr-cand-sub">Topbar 우측 액션 1~2개에 한정. 가시성이 높아 시각 회귀 점검이 빠르다.</span>
+              </div>
+              <span class="qr-cand-meta"><span class="qrpill info">후순위</span></span>
+            </div>
+            <div class="qr-cand-row">
+              <span class="qr-cand-n">3</span>
+              <div class="qr-cand-body">
+                <span class="qr-cand-title">Dashboard action button</span>
+                <span class="qr-cand-sub">Project Overview · KPI 영역의 “자세히 보기” · “등록 +”에 한정.</span>
+              </div>
+              <span class="qr-cand-meta"><span class="qrpill info">후순위</span></span>
+            </div>
+            <div class="qr-cand-row">
+              <span class="qr-cand-n">4</span>
+              <div class="qr-cand-body">
+                <span class="qr-cand-title">Board toolbar button</span>
+                <span class="qr-cand-sub">WBS · 보드 Toolbar 우측 액션. Toolbar 다른 컴포넌트(Form input 등)와 정렬 점검이 필요하다.</span>
+              </div>
+              <span class="qr-cand-meta"><span class="qrpill info">후순위</span></span>
+            </div>
+            <div class="qr-cand-row">
+              <span class="qr-cand-n">5</span>
+              <div class="qr-cand-body">
+                <span class="qr-cand-title">Drawer footer button</span>
+                <span class="qr-cand-sub">Drawer footer Primary / Secondary 페어. Drawer 컴포넌트 자체가 별도 v1 작업 후로 미루는 게 안전하다.</span>
+              </div>
+              <span class="qr-cand-meta"><span class="qrpill notyet">대기</span></span>
+            </div>
+          </div>
+
+          <div class="qr-rule-grid" style="margin-top:14px;">
+            <div class="qr-rule-card">
+              <div class="qr-rc-hdr is-fail">절대 하지 말 것</div>
+              <ul>
+                <li>한 번에 전역 치환 — Docs · App Shell · Pages 동시 부착 금지</li>
+                <li><code>.tbtn</code> 전체 교체 — 기존 클래스는 잔존 유지</li>
+                <li>적용과 동시에 다른 컴포넌트(Form · Dialog · Drawer) CSS 같이 손대기</li>
+                <li>적용 작업 안에서 토큰 값을 추가로 바꾸기</li>
+              </ul>
+            </div>
+            <div class="qr-rule-card">
+              <div class="qr-rc-hdr is-pass">반드시 할 것</div>
+              <ul>
+                <li>첫 적용은 제한된 화면/영역 <strong>1개</strong>만 — 후보 1번 우선</li>
+                <li>적용 직후 시각 QA 1회 — 라이트/다크 양쪽 캡처</li>
+                <li>console error 0건 확인 — 양 테마 토글 시</li>
+                <li>git diff에 허용 파일 외 변경 없음 확인</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Product Apply Readiness — Foundation Ready · Product Not Yet</strong>
+            본 결과는 “<code>.stam-btn</code> 기반은 갖춰졌다”와 “제품 화면 부착은 아직 시작 전”을 동시에 의미한다.
+            첫 적용 작업은 본 문서를 Gate로 사용한 뒤 별도 작업지시서로 분리한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S11 Final Verdict
+           ────────────────────────────────────────────────────────── -->
+      <section id="s11" class="sec" data-screen-label="11 Final Verdict">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Final Verdict — 최종 판정</span>
+          <span class="sbadge done">Verdict</span>
+        </div>
+        <div class="sec-body">
+          <div class="qr-verdict">
+            <div class="qr-vd-head">
+              <span class="qr-vd-title">PASS — Button CSS Foundation Ready</span>
+              <span class="qrpill pass">Foundation</span>
+              <span class="qrpill pass">Token PASS</span>
+              <span class="qrpill pass">Class PASS</span>
+              <span class="qrpill pass">Light/Dark PASS</span>
+              <span class="qrpill mc">Regression · MC</span>
+              <span class="qrpill notyet">Product Not Yet</span>
+            </div>
+            <p>
+              commit <code>e53abb3</code>의 Button CSS 제한 구현은 Button CSS Implementation Preview v1의 시각 기준과 완전히 정렬되었다.
+              token 18종 · class 15종 · variant 7종 · size 4종 · state 7종이 모두 Preview v1과 1:1로 일치하며,
+              기존 클래스 / 토큰 / JS / HTML / assets 단 한 줄도 회귀 변경이 없다.
+              따라서 <strong>Foundation 단위 판정은 PASS</strong>이다.
+            </p>
+            <ul>
+              <li>단, 제품 화면 적용은 별도 작업으로 분리한다 — 본 PASS는 “Foundation Ready”에 한정된다.</li>
+              <li>다음 단계는 <code>.stam-btn</code> 적용 후보 화면 1개 선정 (Section 10 후보 1번 권장).</li>
+              <li>console error 0건 확인은 staging 양 테마에서 1회 manual check로 마무리한다.</li>
+              <li>Form / Dialog / Drawer / Table 등 다른 컴포넌트 CSS는 본 PASS 범위에 포함되지 않는다.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S12 Next Action
+           ────────────────────────────────────────────────────────── -->
+      <section id="s12" class="sec" data-screen-label="12 Next Action">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Next Action — 추천 후속 순서</span>
+          <span class="sbadge plan">Next</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">본 PASS 이후 권장 작업 순서이다. 한 번에 한 단계씩 진행하고, 각 단계마다 별도 작업지시서를 작성한다.</p>
+
+          <div class="qr-step-list">
+            <div class="qr-step">
+              <span class="qr-step-n">1</span>
+              <div class="qr-step-body">
+                <span class="qr-step-title">Button CSS QA Result Preview v1 repo / staging 반영</span>
+                <span class="qr-step-sub">본 문서를 <code>stam/docs/</code>에 커밋 → staging 배포 → Docs Index에 카드 노출 확인</span>
+              </div>
+              <span class="qrpill info">DO FIRST</span>
+            </div>
+            <div class="qr-step">
+              <span class="qr-step-n">2</span>
+              <div class="qr-step-body">
+                <span class="qr-step-title">제한 적용 후보 1개 선정</span>
+                <span class="qr-step-sub">Section 10 후보 1번(Docs 내부 일부 샘플 영역) 우선 — PM 합의 후 확정</span>
+              </div>
+              <span class="qrpill notyet">PENDING</span>
+            </div>
+            <div class="qr-step">
+              <span class="qr-step-n">3</span>
+              <div class="qr-step-body">
+                <span class="qr-step-title"><code>.stam-btn</code> 실제 적용 v1 작업지시서 작성</span>
+                <span class="qr-step-sub">대상 파일 1개 한정 · 수정 허용/금지 명시 · 회귀 점검 항목 명시</span>
+              </div>
+              <span class="qrpill notyet">PENDING</span>
+            </div>
+            <div class="qr-step">
+              <span class="qr-step-n">4</span>
+              <div class="qr-step-body">
+                <span class="qr-step-title">Staging QA</span>
+                <span class="qr-step-sub">적용 직후 staging 라이트/다크 캡처 · console error 0건 · 가로 스크롤 없음 확인</span>
+              </div>
+              <span class="qrpill notyet">PENDING</span>
+            </div>
+            <div class="qr-step">
+              <span class="qr-step-n">5</span>
+              <div class="qr-step-body">
+                <span class="qr-step-title">Codex 읽기 전용 리뷰</span>
+                <span class="qr-step-sub">실제 코드 diff와 본 QA Result 문서를 cross-check · 신규 토큰/클래스 임의 추가 없음 확인</span>
+              </div>
+              <span class="qrpill notyet">PENDING</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S13 Related Links
+           ────────────────────────────────────────────────────────── -->
+      <section id="s13" class="sec" data-screen-label="13 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Related Links — 참고 문서</span>
+          <span class="sbadge guide">관련</span>
+        </div>
+        <div class="sec-body">
+          <div class="qr-rel-grid">
+            <a class="qr-rel-card" href="STAM-Docs-Index.html">
+              <span class="qr-rl-title">STAM Docs Index</span>
+              <span class="qr-rl-sub">전체 기준 문서 인덱스</span>
+            </a>
+            <a class="qr-rel-card" href="STAM-Button-CSS-Implementation-Preview-v1.html">
+              <span class="qr-rl-title">Button CSS Implementation Preview v1</span>
+              <span class="qr-rl-sub">본 QA의 시각 기준 — Preview Baseline</span>
+            </a>
+            <a class="qr-rel-card" href="STAM-Button-Token-Mapping-v1.html">
+              <span class="qr-rl-title">Button Token Mapping v1</span>
+              <span class="qr-rl-sub">variant × size × state 토큰 매핑 확정</span>
+            </a>
+            <a class="qr-rel-card" href="STAM-Implementation-Readiness-Dashboard-v1.html">
+              <span class="qr-rl-title">Implementation Readiness Dashboard v1</span>
+              <span class="qr-rl-sub">컴포넌트 CSS/JS 구현 착수 전 준비 상태</span>
+            </a>
+            <a class="qr-rel-card" href="STAM-P0-Decision-Approval-Sheet-v1.html">
+              <span class="qr-rl-title">P0 Decision Approval Sheet v1</span>
+              <span class="qr-rl-sub">P0 결정값 PM 승인 후보</span>
+            </a>
+            <a class="qr-rel-card" href="components/STAM-Button-Guide.html">
+              <span class="qr-rl-title">Button Guide</span>
+              <span class="qr-rl-sub">Button variant · size · state · icon · group 상세</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
