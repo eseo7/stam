@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM WBS Top / Left / Shell Applied Preview v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ============================================================
+ * STAM WBS Top / Left / Shell Applied Preview v1
+ * - 문서 전용 보조 스타일 (격리 prefix: ws-)
+ * - 실제 .stam-btn / .doc-nav / .gitem / .glabel 등을 절대 덮어쓰지 않음
+ * - 라이트/다크 모두 대응
+ * ============================================================ */
+
+/* ── Status pill ── */
+.ws-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; font-family: var(--font);
+  white-space: nowrap;
+}
+.ws-pill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 999px;
+  background: currentColor; display: inline-block; flex-shrink: 0;
+}
+.ws-pill.pass    { background: var(--pass-bg); color: var(--pass); }
+.ws-pill.warn    { background: var(--warn-bg); color: var(--warn); }
+.ws-pill.fail    { background: var(--fail-bg); color: var(--fail); }
+.ws-pill.info    { background: var(--info-bg); color: var(--info); }
+.ws-pill.brand   { background: var(--stam-soft); color: var(--stam); }
+.ws-pill.notyet  { background: var(--skip-bg); color: var(--skip); }
+
+/* ── Hero summary banner ── */
+.ws-hero {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  border-radius: var(--r-md);
+  padding: 18px 20px 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+.ws-hero::before {
+  content: ""; position: absolute; inset: 0 auto 0 0;
+  width: 3px; background: var(--stam);
+}
+.ws-hero-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.ws-hero-title {
+  font-size: 15px; font-weight: 700; color: var(--t1);
+  letter-spacing: -.005em; font-family: var(--font);
+}
+.ws-hero p {
+  margin: 0; font-size: 12px; color: var(--t2); line-height: 1.7;
+  font-family: var(--font);
+}
+.ws-hero code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur2);
+  border: 1px solid var(--bd); border-radius: 4px;
+  padding: 1px 6px;
+}
+
+/* ── KPI grid ── */
+.ws-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+@media (max-width: 1280px) { .ws-kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 720px)  { .ws-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+.ws-kpi {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 11px 12px 12px;
+  display: flex; flex-direction: column; gap: 5px;
+  min-width: 0;
+}
+.ws-kpi .ws-kpi-key {
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--t3); font-family: var(--font);
+}
+.ws-kpi .ws-kpi-val {
+  font-size: 13px; font-weight: 700;
+  color: var(--t1); font-family: var(--font);
+  letter-spacing: -.005em; line-height: 1.35;
+}
+.ws-kpi.brand   { border-color: rgba(84,81,232,.22); background: var(--stam-soft); }
+.ws-kpi.brand .ws-kpi-key { color: var(--stam); opacity: .9; }
+.ws-kpi.brand .ws-kpi-val { color: var(--stam); }
+.ws-kpi.info    { border-color: rgba(111,168,255,.22); background: var(--info-bg); }
+.ws-kpi.info .ws-kpi-key { color: var(--info); opacity: .9; }
+.ws-kpi.info .ws-kpi-val { color: var(--info); }
+.ws-kpi.warn    { border-color: rgba(245,158,11,.22); background: var(--warn-bg); }
+.ws-kpi.warn .ws-kpi-key { color: var(--warn); opacity: .9; }
+.ws-kpi.warn .ws-kpi-val { color: var(--warn); }
+
+/* ── caption ── */
+.ws-cap {
+  display: flex; align-items: center; gap: 8px;
+  margin: 18px 0 8px;
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.ws-cap .ws-cap-n {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--stam-soft); color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.ws-cap-sub { font-size: 10.5px; color: var(--t3); font-weight: 500; letter-spacing: 0; margin-left: 4px; }
+
+/* ── 공통 table ── */
+.ws-tbl-wrap { overflow-x: auto; border-radius: var(--r-md); border: 1px solid var(--bd); }
+.ws-tbl {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--font); font-size: 11.5px;
+  background: var(--bg-sur);
+  min-width: 880px;
+}
+.ws-tbl th {
+  padding: 9px 10px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  text-align: left; color: var(--t3);
+  border-bottom: 1px solid var(--bd); background: var(--bg-sur2);
+  white-space: nowrap; vertical-align: middle;
+}
+.ws-tbl td {
+  padding: 10px; border-bottom: 1px solid var(--bd);
+  color: var(--t2); vertical-align: top; line-height: 1.6;
+}
+.ws-tbl tbody tr:last-child td { border-bottom: none; }
+.ws-tbl td.tn { color: var(--t1); font-weight: 700; white-space: nowrap; font-size: 11px; }
+.ws-tbl td code, .ws-tbl th code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur2);
+  border: 1px solid var(--bd); border-radius: 4px;
+  padding: 1px 6px; letter-spacing: .005em; white-space: nowrap;
+}
+.ws-tbl td.before { color: var(--fail); }
+.ws-tbl td.after  { color: var(--pass); }
+.ws-tbl td.note { color: var(--t3); font-size: 10.5px; }
+
+/* ── Rule card grid ── */
+.ws-rule-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 760px) { .ws-rule-grid { grid-template-columns: 1fr; } }
+.ws-rule-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+}
+.ws-rule-card .ws-rc-hdr {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--t1);
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.ws-rule-card .ws-rc-hdr::before {
+  content: ""; width: 8px; height: 8px; border-radius: 999px;
+  background: var(--stam); display: inline-block;
+}
+.ws-rule-card .ws-rc-hdr.is-pass::before { background: var(--pass); }
+.ws-rule-card .ws-rc-hdr.is-warn::before { background: var(--warn); }
+.ws-rule-card .ws-rc-hdr.is-info::before { background: var(--info); }
+.ws-rule-card .ws-rc-hdr.is-fail::before { background: var(--fail); }
+.ws-rule-card ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.ws-rule-card li {
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  padding-left: 12px; position: relative;
+}
+.ws-rule-card li::before {
+  content: "·"; position: absolute; left: 2px; top: -2px;
+  color: var(--t3); font-weight: 800;
+}
+.ws-rule-card li code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: 4px; padding: 1px 5px;
+}
+
+/* ============================================================
+ * MOCK App Shell — 격리 미리보기
+ * .ws-mock 안에서만 .ws-* 요소가 살아있음. 외부 .doc-nav, .gitem 영향 없음
+ * ============================================================ */
+.ws-mock {
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--bg-base);
+  box-shadow: 0 4px 20px rgba(0,0,0,.18);
+  font-family: var(--font);
+}
+.ws-mock-label {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 12px;
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--t3);
+  background: var(--bg-sur2);
+  border-bottom: 1px solid var(--bd);
+  font-family: var(--font);
+}
+.ws-mock-label .ws-mock-tag {
+  font-size: 9px; font-weight: 700;
+  padding: 1px 6px; border-radius: 4px;
+  background: var(--stam-soft); color: var(--stam);
+  letter-spacing: .04em;
+}
+
+/* ── MOCK Topbar (48px, dark) ── */
+.ws-topbar {
+  height: 48px;
+  background: #0A0E1A;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  display: flex; align-items: stretch;
+  font-family: var(--font);
+  flex-shrink: 0;
+}
+.ws-tb-left {
+  display: flex; align-items: center; gap: 0;
+  flex-shrink: 0;
+}
+.ws-tb-center {
+  flex: 1; display: flex; align-items: center;
+  padding: 0 16px;
+  min-width: 0;
+}
+.ws-tb-right {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 12px 0 6px;
+  flex-shrink: 0;
+}
+.ws-tb-logo {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 14px;
+  height: 100%;
+  border-right: 1px solid rgba(255,255,255,.07);
+}
+.ws-tb-logo-mark {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #6663ec, #4340c8);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; color: #fff;
+  letter-spacing: .04em;
+}
+.ws-tb-logo-txt {
+  font-size: 13px; font-weight: 700;
+  color: rgba(255,255,255,.90); letter-spacing: .06em;
+}
+.ws-tb-proj {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 12px;
+  height: 100%;
+  border-right: 1px solid rgba(255,255,255,.07);
+  color: rgba(255,255,255,.78);
+  font-size: 11.5px; font-weight: 600;
+  cursor: pointer;
+}
+.ws-tb-proj svg { width: 11px; height: 11px; opacity: .55; }
+.ws-tb-crumb {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 14px;
+  font-size: 11.5px;
+  color: rgba(255,255,255,.42);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.ws-tb-crumb .sep { color: rgba(255,255,255,.18); font-size: 9px; }
+.ws-tb-crumb .here {
+  color: rgba(255,255,255,.92);
+  font-weight: 700;
+}
+.ws-tb-search {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; max-width: 360px;
+  margin: 0 auto;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 7px;
+  padding: 5px 10px;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+.ws-tb-search:focus-within {
+  border-color: rgba(139,127,248,.55);
+  box-shadow: 0 0 0 2px rgba(84,81,232,.18);
+}
+.ws-tb-search svg { width: 12px; height: 12px; color: rgba(255,255,255,.42); flex-shrink: 0; }
+.ws-tb-search input {
+  flex: 1; min-width: 0;
+  background: none; border: none; outline: none;
+  font-family: var(--font);
+  font-size: 11.5px;
+  color: rgba(255,255,255,.88);
+}
+.ws-tb-search input::placeholder { color: rgba(255,255,255,.34); }
+.ws-tb-search .kbd {
+  font-family: var(--font);
+  font-size: 9px; font-weight: 700;
+  color: rgba(255,255,255,.40);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 4px;
+  padding: 1px 5px;
+  letter-spacing: .04em;
+}
+.ws-tb-act {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 5px;
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.78);
+  border: 1px solid rgba(255,255,255,.06);
+  cursor: pointer;
+  font-family: var(--font);
+}
+.ws-tb-act:hover { background: rgba(255,255,255,.10); color: #fff; }
+.ws-tb-act svg { width: 13px; height: 13px; }
+.ws-tb-act.has-dot { position: relative; }
+.ws-tb-act.has-dot::after {
+  content: ""; position: absolute; top: 5px; right: 5px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #FF8585; box-shadow: 0 0 0 2px #0A0E1A;
+}
+.ws-tb-user {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 4px 0 8px;
+  border-radius: 6px;
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.78);
+  border: 1px solid rgba(255,255,255,.06);
+  font-size: 11px; font-weight: 600;
+  cursor: pointer;
+}
+.ws-tb-user-av {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: linear-gradient(135deg,#8B7FF8,#5451E8);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800; color: #fff;
+}
+
+/* Region label overlays — only in anatomy mock */
+.ws-tb-region-tag {
+  display: inline-flex; align-items: center;
+  font-size: 9px; font-weight: 800; letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(139,127,248,.20);
+  color: #c9c2fb;
+  font-family: var(--font);
+  margin-right: 8px;
+}
+.ws-tb-region-tag.center { background: rgba(70,201,125,.22); color: #8be4ad; }
+.ws-tb-region-tag.right  { background: rgba(240,178,78,.22); color: #f1c97d; }
+
+.ws-tb-divider-vert {
+  width: 1px; height: 22px; background: rgba(255,255,255,.10);
+  margin: 0 4px;
+}
+
+/* ── MOCK Shell body ── */
+.ws-shell {
+  display: flex;
+  min-height: 460px;
+}
+.ws-shell-left {
+  width: 200px;
+  background: #0A0E1A;
+  border-right: 1px solid rgba(255,255,255,.06);
+  display: flex; flex-direction: column;
+  flex-shrink: 0;
+}
+.ws-shell-left .ws-ll-search {
+  padding: 9px 10px 8px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.ws-shell-left .ws-ll-search-input {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 10.5px; color: rgba(255,255,255,.42);
+}
+.ws-shell-left .ws-ll-search-input svg { width: 10px; height: 10px; }
+.ws-shell-left .ws-ll-scroll {
+  flex: 1;
+  overflow: hidden;
+  padding: 4px 0 8px;
+}
+.ws-grp {
+  padding: 8px 6px 2px;
+  font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .09em;
+  color: rgba(255,255,255,.28);
+  display: flex; align-items: center; gap: 6px;
+}
+.ws-grp.active { color: rgba(139,127,248,.84); }
+.ws-grp .ws-grp-cnt {
+  font-size: 8.5px; font-weight: 700;
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.25);
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+.ws-grp.active .ws-grp-cnt { background: rgba(84,81,232,.22); color: rgba(139,127,248,.9); }
+.ws-itm {
+  display: flex; align-items: center; gap: 6px;
+  margin: 1px 4px;
+  padding: 5px 8px 5px 14px;
+  border-radius: 6px;
+  font-size: 11px;
+  color: rgba(255,255,255,.44);
+}
+.ws-itm-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: rgba(255,255,255,.16);
+  flex-shrink: 0;
+}
+.ws-itm.on {
+  background: rgba(84,81,232,.22);
+  color: #fff; font-weight: 600;
+}
+.ws-itm.on .ws-itm-dot { background: #8B7FF8; box-shadow: 0 0 4px rgba(139,127,248,.55); }
+.ws-itm .ws-itm-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-itm .ws-itm-badge {
+  font-size: 8.5px; font-weight: 700;
+  padding: 1px 4px; border-radius: 3px;
+  background: rgba(34,197,94,.15); color: #46C97D;
+}
+.ws-shell-left-foot {
+  padding: 8px 10px;
+  border-top: 1px solid rgba(255,255,255,.05);
+  font-size: 10px;
+  color: rgba(255,255,255,.32);
+  display: flex; align-items: center; gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ── Content area ── */
+.ws-shell-content {
+  flex: 1;
+  background: var(--bg-base);
+  display: flex; flex-direction: column;
+  min-width: 0;
+}
+
+/* Page toolbar (suggested) */
+.ws-page-tb {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 18px;
+  background: var(--bg-sur);
+  border-bottom: 1px solid var(--bd);
+}
+.ws-pt-title {
+  display: flex; align-items: baseline; gap: 8px;
+}
+.ws-pt-title h3 {
+  font-size: 14px; font-weight: 700; color: var(--t1);
+  letter-spacing: -.005em;
+}
+.ws-pt-title .ws-pt-cnt {
+  font-size: 10.5px; font-weight: 600;
+  color: var(--stam);
+  background: var(--stam-soft);
+  padding: 1px 7px;
+  border-radius: 999px;
+}
+.ws-pt-sp { flex: 1; }
+.ws-pt-group { display: flex; align-items: center; gap: 6px; }
+.ws-pt-div { width: 1px; height: 16px; background: var(--bd); }
+
+/* Sample buttons — visual mock of .stam-btn variants */
+.ws-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-weight: 600;
+  letter-spacing: -.003em;
+  cursor: pointer;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  line-height: 1;
+}
+.ws-btn svg { width: 1em; height: 1em; flex-shrink: 0; }
+.ws-btn.sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+.ws-btn.md { height: 32px; padding: 0 12px; font-size: 12px; }
+.ws-btn.lg { height: 36px; padding: 0 14px; font-size: 13px; }
+.ws-btn.primary {
+  background: var(--stam); color: #fff;
+  border-color: var(--stam);
+}
+.ws-btn.primary:hover { background: var(--stam-h); border-color: var(--stam-h); }
+.ws-btn.secondary {
+  background: var(--bg-sur2); color: var(--t1);
+  border-color: var(--bd);
+}
+.ws-btn.secondary:hover { background: var(--bg-sur3); }
+.ws-btn.ghost {
+  background: transparent; color: var(--t2);
+  border-color: transparent;
+}
+.ws-btn.ghost:hover { background: var(--surf-hover); color: var(--t1); }
+.ws-btn.icon-only { width: 28px; padding: 0; }
+.ws-btn.icon-only.md { width: 32px; }
+.ws-btn.icon-only.lg { width: 36px; }
+
+/* Content / Table mock */
+.ws-content-body {
+  flex: 1;
+  padding: 16px 18px;
+  overflow: hidden;
+  display: flex; flex-direction: column; gap: 10px;
+  min-width: 0;
+}
+.ws-filter-row {
+  display: flex; align-items: center; gap: 6px;
+  flex-wrap: wrap;
+}
+.ws-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10.5px; font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  color: var(--t2);
+  font-family: var(--font);
+}
+.ws-chip.on { background: var(--stam-soft); border-color: rgba(84,81,232,.30); color: var(--stam); }
+
+.ws-table-wrap {
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  background: var(--bg-sur);
+  overflow: hidden;
+  flex: 1;
+  display: flex; flex-direction: column;
+  min-width: 0;
+}
+.ws-table-scroll { overflow-x: auto; flex: 1; }
+.ws-mini-tbl { width: 100%; border-collapse: collapse; font-size: 11.5px; font-family: var(--font); min-width: 760px; }
+.ws-mini-tbl th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--t3);
+  background: var(--bg-sur2);
+  border-bottom: 1px solid var(--bd);
+  white-space: nowrap;
+}
+.ws-mini-tbl td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--bd);
+  color: var(--t2);
+}
+.ws-mini-tbl tbody tr:last-child td { border-bottom: none; }
+.ws-mini-tbl tbody tr:hover td { background: var(--row-hover); }
+.ws-mini-tbl .ws-mini-status {
+  font-size: 9.5px; font-weight: 700;
+  padding: 1px 6px; border-radius: 4px;
+}
+.ws-mini-tbl .ws-mini-status.done { background: var(--pass-bg); color: var(--pass); }
+.ws-mini-tbl .ws-mini-status.run  { background: var(--info-bg); color: var(--info); }
+.ws-mini-tbl .ws-mini-status.wait { background: var(--skip-bg); color: var(--skip); }
+
+/* Drawer footer mock */
+.ws-drawer-foot {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  font-family: var(--font);
+}
+.ws-drawer-foot .ws-foot-meta {
+  font-size: 11px; color: var(--t3);
+  margin-right: auto;
+}
+
+/* Annotation legend (for the anatomy mock) */
+.ws-anno-legend {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  margin-top: 10px;
+  font-size: 10.5px; font-family: var(--font);
+  color: var(--t3);
+}
+.ws-anno-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.ws-anno-legend i {
+  display: inline-block; width: 10px; height: 10px; border-radius: 3px;
+  background: rgba(139,127,248,.55);
+}
+.ws-anno-legend i.c { background: rgba(70,201,125,.55); }
+.ws-anno-legend i.r { background: rgba(240,178,78,.55); }
+
+/* ── Cursor handoff candidate list ── */
+.ws-cand-grid {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: 6px 12px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  border-radius: var(--r-md);
+  padding: 8px 12px;
+}
+.ws-cand-row { display: contents; }
+.ws-cand-n {
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  background: var(--stam-soft);
+  color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font);
+  align-self: center;
+}
+.ws-cand-body {
+  display: flex; flex-direction: column; gap: 1px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--bd-s);
+  font-family: var(--font);
+}
+.ws-cand-row:last-child .ws-cand-body,
+.ws-cand-row:last-child .ws-cand-meta { border-bottom: none; }
+.ws-cand-title {
+  font-size: 12px; font-weight: 700; color: var(--t1);
+  letter-spacing: -.005em; font-family: var(--font);
+}
+.ws-cand-sub {
+  font-size: 10.5px; color: var(--t3); font-weight: 500;
+  letter-spacing: .005em; line-height: 1.55;
+  font-family: var(--font);
+}
+.ws-cand-meta {
+  align-self: center;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--bd-s);
+}
+.ws-cand-meta code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur2);
+  border: 1px solid var(--bd); border-radius: 4px; padding: 1px 6px;
+}
+
+/* QA checklist */
+.ws-chk-list {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  font-family: var(--font);
+}
+@media (max-width: 760px) { .ws-chk-list { grid-template-columns: 1fr; } }
+.ws-chk-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 11.5px; line-height: 1.55; color: var(--t2);
+  padding: 4px 0;
+}
+.ws-chk-item .ws-chk-box {
+  flex-shrink: 0;
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  border: 1.4px solid var(--bd-s);
+  background: var(--bg-sur);
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+  font-size: 10px; font-weight: 800;
+  color: var(--t3);
+}
+.ws-chk-item .ws-chk-box.is-pass { color: var(--pass); border-color: rgba(0,191,64,.30); background: var(--pass-bg); }
+.ws-chk-item .ws-chk-box.is-warn { color: var(--warn); border-color: rgba(245,158,11,.30); background: var(--warn-bg); }
+.ws-chk-item code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: 4px; padding: 1px 5px;
+}
+
+/* Related link grid */
+.ws-rel-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+@media (max-width: 900px) { .ws-rel-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px) { .ws-rel-grid { grid-template-columns: 1fr; } }
+.ws-rel-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  text-decoration: none;
+  display: flex; flex-direction: column; gap: 4px;
+  transition: border-color .15s ease, background .15s ease;
+}
+.ws-rel-card:hover { border-color: var(--bd-s); background: var(--bg-sur); }
+.ws-rel-card .ws-rl-title {
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.ws-rel-card .ws-rl-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+}
+
+/* ── font enforcement ── */
+.ws-pill, .ws-hero, .ws-hero *,
+.ws-kpi, .ws-kpi *,
+.ws-tbl, .ws-tbl *,
+.ws-rule-card, .ws-rule-card *,
+.ws-mock, .ws-mock *,
+.ws-cand-grid, .ws-cand-grid *,
+.ws-chk-list, .ws-chk-list *,
+.ws-rel-card, .ws-rel-card *,
+.ws-cap, .ws-cap * {
+  font-family: var(--font) !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">WBS Top / Left / Shell Applied Preview v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Preview</span>
+  <span class="doc-nav-pill"><span class="dot"></span>WBS</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Topbar · Left · Shell</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">WBS Top/Left/Shell</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>App Shell</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Topbar Anatomy</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Page Toolbar</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Left Navigation</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>WBS Content</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Button Applied</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Before / After</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Cursor Handoff</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Guardrails</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>QA Checklist</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Related</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Hero ── -->
+      <div class="ws-hero">
+        <div class="ws-hero-row">
+          <strong class="ws-hero-title">STAM WBS Top / Left / Shell Applied Preview v1</strong>
+          <span class="ws-pill brand">Preview</span>
+          <span class="ws-pill info">WBS Board</span>
+          <span class="ws-pill notyet">Product Not Yet</span>
+        </div>
+        <p>
+          본 문서는 <strong>WBS 작업 화면</strong>에 STAM 공통 <strong>Topbar Anatomy · Left Navigation · App Shell</strong>
+          가이드를 적용한 후 어떤 화면이 나와야 하는지 시각 기준을 고정한다.
+          현재 WBS 화면은 topbar가 48px보다 얇아 보이고, LEFT / CENTER / RIGHT 영역 분리가 약하며,
+          CENTER 검색 영역이 비어 있고, RIGHT 액션이 과밀해 있다.
+          Cursor가 실제 제품을 보정하기 전에 본 시안으로 <em>기준 화면</em>을 먼저 합의한다.
+        </p>
+        <p style="opacity:.78;">
+          <strong>적용 범위</strong> — 본 문서는 <code>stam/docs/**</code> 하위 1개 HTML만 생성하며,
+          <code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code>, <code>stam/index.html</code>,
+          <code>stam/assets/**</code>는 단 한 줄도 수정하지 않는다.
+          Docs Index에는 카드 1개를 추가한다. 적용은 Cursor가 별도 commit에서 수행한다.
+        </p>
+        <div class="ws-kpi-grid">
+          <div class="ws-kpi brand"><span class="ws-kpi-key">Topbar Height</span><span class="ws-kpi-val">48px</span></div>
+          <div class="ws-kpi info"><span class="ws-kpi-key">Topbar Regions</span><span class="ws-kpi-val">LEFT / CENTER / RIGHT</span></div>
+          <div class="ws-kpi"><span class="ws-kpi-key">Left Nav Width</span><span class="ws-kpi-val">256px</span></div>
+          <div class="ws-kpi"><span class="ws-kpi-key">Page Toolbar</span><span class="ws-kpi-val">Separated</span></div>
+          <div class="ws-kpi"><span class="ws-kpi-key">Page Scroll</span><span class="ws-kpi-val">No Horizontal</span></div>
+          <div class="ws-kpi warn"><span class="ws-kpi-key">Current Status</span><span class="ws-kpi-val">Mismatch</span></div>
+        </div>
+      </div>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S01 Overview
+           ────────────────────────────────────────────────────────── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            현재 WBS 화면의 topbar / left / shell 구조가 STAM 가이드 기준과 다르게 보인다.
+            본 문서는 <strong>Cursor가 실제 코드를 수정하기 전에</strong> “가이드가 적용된 WBS 화면이 어떻게 보여야 하는가”를
+            정적 시각 기준으로 고정하기 위한 Preview이다.
+            본 문서는 단일 페이지 안에서 격리 스타일(<code>.ws-*</code> prefix)로 동작하며,
+            실제 App Shell · 공통 CSS · 페이지에 영향을 주지 않는다.
+          </p>
+
+          <div class="ws-rule-grid">
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-pass">이 문서가 다루는 것</div>
+              <ul>
+                <li>WBS 화면 기준 <strong>Topbar 48px · 3영역(LEFT/CENTER/RIGHT)</strong> 분리</li>
+                <li>CENTER <code>현재 화면 검색</code> input 신규 배치</li>
+                <li>RIGHT 액션 정리안 — 알림 / 사용자 / 테마 + Quick Action 1~2</li>
+                <li>WBS 본문 상단 <strong>Page Toolbar</strong> 분리안</li>
+                <li>Left Navigation 고정 / 스크롤 / 현재 메뉴 active 표시</li>
+                <li>WBS 본문 가로 스크롤 금지 · 테이블 내부 overflow만 허용</li>
+                <li>topbar / page toolbar / drawer footer 버튼 사이즈 기준</li>
+                <li>Cursor가 실제 적용할 후보 파일 명시</li>
+              </ul>
+            </div>
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-fail">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code> 직접 수정</li>
+                <li><code>stam/index.html</code>, <code>stam/assets/**</code> 변경</li>
+                <li>가이드 문서(<em>Topbar Guide · UI Baseline Guide</em>) 자체 수정</li>
+                <li>전역 <code>.tbtn</code> 일괄 치환 / 다른 화면 일괄 적용</li>
+                <li>Drawer open/close · 전체 보기 · 등록·수정·상세 등 기능 로직 변경</li>
+                <li>Firebase · GitHub Actions · package.json 변경</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S02 App Shell
+           ────────────────────────────────────────────────────────── -->
+      <section id="s02" class="sec" data-screen-label="02 App Shell">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">App Shell — 전체 레이아웃 기준</span>
+          <span class="sbadge guide">기준</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            WBS 화면도 STAM App Shell 기준을 그대로 따른다.
+            topbar 48px → left 256px · content flex 영역으로 분할되며,
+            <strong>페이지 레벨 가로 스크롤은 발생하지 않는다.</strong>
+            content 내부의 테이블 / drawer만 필요 시 자체 overflow를 가진다.
+          </p>
+
+          <div class="ws-cap"><span class="ws-cap-n">M</span>Applied App Shell (WBS) <span class="ws-cap-sub">topbar 48px · left 256px · content flex</span></div>
+
+          <div class="ws-mock">
+            <div class="ws-mock-label">
+              <span>WBS Applied Mock</span>
+              <span class="ws-mock-tag">Topbar 48</span>
+              <span class="ws-mock-tag">Left 256</span>
+              <span class="ws-mock-tag">No Page Hscroll</span>
+            </div>
+
+            <!-- Topbar -->
+            <div class="ws-topbar">
+              <div class="ws-tb-left">
+                <div class="ws-tb-logo">
+                  <span class="ws-tb-logo-mark">S</span>
+                  <span class="ws-tb-logo-txt">STAM</span>
+                </div>
+                <div class="ws-tb-proj">
+                  <span>STAM 본사</span>
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l3 3 3-3"/></svg>
+                </div>
+                <div class="ws-tb-crumb">
+                  <span>업무</span>
+                  <span class="sep">›</span>
+                  <span>보드</span>
+                  <span class="sep">›</span>
+                  <span class="here">WBS 작업</span>
+                </div>
+              </div>
+              <div class="ws-tb-center">
+                <div class="ws-tb-search">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>
+                  <input type="text" placeholder="현재 화면 검색" readonly>
+                  <span class="kbd">⌘ K</span>
+                </div>
+              </div>
+              <div class="ws-tb-right">
+                <button class="ws-tb-act has-dot" title="알림">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5a4 4 0 0 1 8 0v2l1 2H2l1-2v-2z"/><path d="M5.5 11a1.5 1.5 0 0 0 3 0"/></svg>
+                </button>
+                <button class="ws-tb-act" title="테마">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 8.5A4 4 0 0 1 5.5 3a4 4 0 1 0 5.5 5.5z"/></svg>
+                </button>
+                <span class="ws-tb-divider-vert"></span>
+                <span class="ws-tb-user">
+                  <span class="ws-tb-user-av">EJ</span>
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:9px;height:9px;opacity:.6;"><path d="M3 5l3 3 3-3"/></svg>
+                </span>
+              </div>
+            </div>
+
+            <!-- Shell body -->
+            <div class="ws-shell">
+              <aside class="ws-shell-left">
+                <div class="ws-ll-search">
+                  <div class="ws-ll-search-input">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="5" r="3.2"/><path d="M7.3 7.3l2 2"/></svg>
+                    <span>메뉴 검색</span>
+                  </div>
+                </div>
+                <div class="ws-ll-scroll">
+                  <div class="ws-grp">
+                    <span>A · 대시보드</span>
+                    <span class="ws-grp-cnt">3</span>
+                  </div>
+                  <div class="ws-itm"><span class="ws-itm-dot"></span><span class="ws-itm-name">홈</span></div>
+                  <div class="ws-itm"><span class="ws-itm-dot"></span><span class="ws-itm-name">프로젝트 개요</span></div>
+
+                  <div class="ws-grp active">
+                    <span>B · 업무 보드</span>
+                    <span class="ws-grp-cnt">5</span>
+                  </div>
+                  <div class="ws-itm on">
+                    <span class="ws-itm-dot"></span>
+                    <span class="ws-itm-name">WBS 작업</span>
+                    <span class="ws-itm-badge">Live</span>
+                  </div>
+                  <div class="ws-itm"><span class="ws-itm-dot"></span><span class="ws-itm-name">이슈</span></div>
+                  <div class="ws-itm"><span class="ws-itm-dot"></span><span class="ws-itm-name">결재</span></div>
+                  <div class="ws-itm"><span class="ws-itm-dot"></span><span class="ws-itm-name">회의</span></div>
+
+                  <div class="ws-grp">
+                    <span>C · 인력 / 자원</span>
+                  </div>
+                  <div class="ws-itm"><span class="ws-itm-dot"></span><span class="ws-itm-name">팀</span></div>
+                </div>
+                <div class="ws-shell-left-foot">
+                  <span>v3.3 · 9c3f0b1</span>
+                </div>
+              </aside>
+
+              <div class="ws-shell-content">
+                <!-- Page Toolbar -->
+                <div class="ws-page-tb">
+                  <div class="ws-pt-title">
+                    <h3>WBS 작업</h3>
+                    <span class="ws-pt-cnt">128건</span>
+                  </div>
+                  <div class="ws-pt-sp"></div>
+                  <div class="ws-pt-group">
+                    <button class="ws-btn sm ghost">
+                      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h10M3.5 7h7M5 10h4"/></svg>
+                      필터
+                    </button>
+                    <button class="ws-btn sm ghost">
+                      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="4" height="4"/><rect x="8" y="2" width="4" height="4"/><rect x="2" y="8" width="4" height="4"/><rect x="8" y="8" width="4" height="4"/></svg>
+                      보기
+                    </button>
+                    <span class="ws-pt-div"></span>
+                    <button class="ws-btn sm secondary">
+                      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v7M4 6l3 3 3-3M2 12h10"/></svg>
+                      내보내기
+                    </button>
+                    <button class="ws-btn sm primary">
+                      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 3v8M3 7h8"/></svg>
+                      신규 등록
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Content -->
+                <div class="ws-content-body">
+                  <div class="ws-filter-row">
+                    <span class="ws-chip on">전체</span>
+                    <span class="ws-chip">진행중</span>
+                    <span class="ws-chip">완료</span>
+                    <span class="ws-chip">대기</span>
+                    <span class="ws-chip">담당: EJ</span>
+                  </div>
+
+                  <div class="ws-table-wrap">
+                    <div class="ws-table-scroll">
+                      <table class="ws-mini-tbl">
+                        <thead>
+                          <tr>
+                            <th style="width:48px;">ID</th>
+                            <th>업무명</th>
+                            <th style="width:90px;">담당</th>
+                            <th style="width:80px;">상태</th>
+                            <th style="width:90px;">기한</th>
+                            <th style="width:80px;">우선순위</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>W-101</td>
+                            <td>토큰 시스템 정리 — Button / Form / Layer</td>
+                            <td>EJ</td>
+                            <td><span class="ws-mini-status run">진행중</span></td>
+                            <td>06-12</td>
+                            <td>High</td>
+                          </tr>
+                          <tr>
+                            <td>W-102</td>
+                            <td>WBS Drawer 전체 보기 보정</td>
+                            <td>EJ</td>
+                            <td><span class="ws-mini-status done">완료</span></td>
+                            <td>06-09</td>
+                            <td>Mid</td>
+                          </tr>
+                          <tr>
+                            <td>W-103</td>
+                            <td>Topbar / Left / Shell 가이드 적용</td>
+                            <td>Claude</td>
+                            <td><span class="ws-mini-status wait">대기</span></td>
+                            <td>06-14</td>
+                            <td>High</td>
+                          </tr>
+                          <tr>
+                            <td>W-104</td>
+                            <td>Staging QA 회귀 점검</td>
+                            <td>QA</td>
+                            <td><span class="ws-mini-status wait">대기</span></td>
+                            <td>06-16</td>
+                            <td>Mid</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>App Shell 핵심 규칙</strong>
+            topbar 48px 고정. left 256px 고정. content는 <code>flex:1</code>로 남은 영역 차지.
+            body에 <code>overflow-x: hidden</code>이 이미 적용되어 있으므로 페이지 레벨 가로 스크롤은 절대 발생하지 않는다.
+            테이블이 좁아 보이면 <strong>테이블 wrap 내부만 <code>overflow-x:auto</code></strong>로 처리한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S03 Topbar Anatomy
+           ────────────────────────────────────────────────────────── -->
+      <section id="s03" class="sec" data-screen-label="03 Topbar Anatomy">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Topbar Anatomy — LEFT / CENTER / RIGHT</span>
+          <span class="sbadge guide">기준</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="ws-cap"><span class="ws-cap-n">A</span>Topbar 3영역 분리 <span class="ws-cap-sub">48px 고정 · 다크 navy</span></div>
+
+          <div class="ws-mock">
+            <div class="ws-mock-label">
+              <span>Topbar Region Anatomy</span>
+              <span class="ws-mock-tag">48px</span>
+              <span class="ws-mock-tag">LEFT · CENTER · RIGHT</span>
+            </div>
+            <div class="ws-topbar">
+              <div class="ws-tb-left">
+                <div class="ws-tb-logo">
+                  <span class="ws-tb-region-tag">L</span>
+                  <span class="ws-tb-logo-mark">S</span>
+                  <span class="ws-tb-logo-txt">STAM</span>
+                </div>
+                <div class="ws-tb-proj">
+                  <span>STAM 본사</span>
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l3 3 3-3"/></svg>
+                </div>
+                <div class="ws-tb-crumb">
+                  <span>업무</span>
+                  <span class="sep">›</span>
+                  <span>보드</span>
+                  <span class="sep">›</span>
+                  <span class="here">WBS 작업</span>
+                </div>
+              </div>
+              <div class="ws-tb-center">
+                <div class="ws-tb-search">
+                  <span class="ws-tb-region-tag center">C</span>
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>
+                  <input type="text" placeholder="현재 화면 검색" readonly>
+                  <span class="kbd">⌘ K</span>
+                </div>
+              </div>
+              <div class="ws-tb-right">
+                <span class="ws-tb-region-tag right">R</span>
+                <button class="ws-tb-act has-dot" title="알림">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5a4 4 0 0 1 8 0v2l1 2H2l1-2v-2z"/><path d="M5.5 11a1.5 1.5 0 0 0 3 0"/></svg>
+                </button>
+                <button class="ws-tb-act" title="테마">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 8.5A4 4 0 0 1 5.5 3a4 4 0 1 0 5.5 5.5z"/></svg>
+                </button>
+                <span class="ws-tb-divider-vert"></span>
+                <span class="ws-tb-user">
+                  <span class="ws-tb-user-av">EJ</span>
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:9px;height:9px;opacity:.6;"><path d="M3 5l3 3 3-3"/></svg>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ws-anno-legend">
+            <span><i></i>LEFT — 브랜드 / 프로젝트 / 위치</span>
+            <span><i class="c"></i>CENTER — 현재 화면 검색</span>
+            <span><i class="r"></i>RIGHT — 시스템 액션 (알림 · 테마 · 사용자)</span>
+          </div>
+
+          <div class="ws-rule-grid" style="margin-top:14px;">
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr">LEFT 영역 — Brand &amp; Location</div>
+              <ul>
+                <li>STAM 로고 (22px) + Wordmark</li>
+                <li><strong>Project Switcher</strong> — 현재 프로젝트, 클릭 시 dropdown</li>
+                <li>Breadcrumb — 업무 › 보드 › <strong>WBS 작업</strong></li>
+                <li>현재 화면 제목은 breadcrumb 마지막 segment로 표시</li>
+                <li>버튼이 아닌 <code>label</code> 성격. 클릭 영역은 chevron이 있을 때만</li>
+              </ul>
+            </div>
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-pass">CENTER 영역 — 현재 화면 검색</div>
+              <ul>
+                <li>가운데 정렬 <code>max-width: 360~480px</code> input</li>
+                <li>placeholder: <code>현재 화면 검색</code></li>
+                <li>우측 끝에 <code>⌘ K</code> 키 힌트</li>
+                <li>focus 시 brand 1.5px ring (rgba(84,81,232,.18))</li>
+                <li>검색 영역이 없는 화면에서도 <strong>center slot은 비워두고 유지</strong></li>
+              </ul>
+            </div>
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-warn">RIGHT 영역 — System Actions</div>
+              <ul>
+                <li>알림 / 테마 / 사용자 메뉴 — 항상 표시</li>
+                <li>Quick Action은 <strong>최대 1~2개</strong>만 노출</li>
+                <li>내보내기 / PM / 보기 등 <strong>업무 액션은 page toolbar로 이동</strong></li>
+                <li>아이콘 버튼 사이즈: 28×28 (icon-only sm)</li>
+                <li>사용자 메뉴는 avatar + chevron, label 생략</li>
+              </ul>
+            </div>
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-info">공통 규칙</div>
+              <ul>
+                <li>높이 <code>48px</code> 고정 · 배경 <code>#0A0E1A</code></li>
+                <li>border-bottom <code>rgba(255,255,255,.07)</code></li>
+                <li>LEFT / CENTER / RIGHT — flex layout · CENTER만 <code>flex:1</code></li>
+                <li>모바일 폭에서 CENTER는 숨김 가능, LEFT / RIGHT는 유지</li>
+                <li>topbar는 라이트 테마에서도 다크로 고정</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S04 Page Toolbar
+           ────────────────────────────────────────────────────────── -->
+      <section id="s04" class="sec" data-screen-label="04 Page Toolbar">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Page Toolbar — 업무 액션 분리안</span>
+          <span class="sbadge plan">분리안</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            현재 WBS topbar에 몰려 있는 <strong>내보내기 / 필터 / 보기 / 신규 등록</strong>은 topbar가 아닌
+            본문 상단 별도 <strong>Page Toolbar</strong>로 이동한다.
+            topbar는 “시스템 전역 컨텍스트(LEFT/CENTER/RIGHT)”에 집중하고, page toolbar는 “현재 화면 업무 액션”에 집중한다.
+          </p>
+
+          <div class="ws-cap"><span class="ws-cap-n">B</span>WBS Page Toolbar 구성</div>
+
+          <div class="ws-mock">
+            <div class="ws-mock-label">
+              <span>Page Toolbar Mock — WBS</span>
+              <span class="ws-mock-tag">title + count</span>
+              <span class="ws-mock-tag">view actions</span>
+              <span class="ws-mock-tag">primary CTA</span>
+            </div>
+            <div class="ws-page-tb">
+              <div class="ws-pt-title">
+                <h3>WBS 작업</h3>
+                <span class="ws-pt-cnt">128건</span>
+              </div>
+              <div class="ws-pt-sp"></div>
+              <div class="ws-pt-group">
+                <button class="ws-btn sm ghost">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h10M3.5 7h7M5 10h4"/></svg>
+                  필터
+                </button>
+                <button class="ws-btn sm ghost">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="4" height="4"/><rect x="8" y="2" width="4" height="4"/><rect x="2" y="8" width="4" height="4"/><rect x="8" y="8" width="4" height="4"/></svg>
+                  보기
+                </button>
+                <span class="ws-pt-div"></span>
+                <button class="ws-btn sm secondary">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v7M4 6l3 3 3-3M2 12h10"/></svg>
+                  내보내기
+                </button>
+                <button class="ws-btn sm primary">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 3v8M3 7h8"/></svg>
+                  신규 등록
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="ws-rule-grid" style="margin-top:12px;">
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-pass">Page Toolbar에 두는 것</div>
+              <ul>
+                <li>현재 화면 <strong>제목 + 카운트</strong></li>
+                <li>화면 내 <strong>필터 / 보기 옵션</strong> (sm ghost)</li>
+                <li>내보내기 — secondary</li>
+                <li>신규 등록 — primary CTA (sm 또는 md)</li>
+                <li>화면별 추가 액션 1~2개까지 허용</li>
+              </ul>
+            </div>
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-fail">Page Toolbar에 두지 않는 것</div>
+              <ul>
+                <li>알림 · 테마 · 사용자 메뉴 (topbar RIGHT 영역)</li>
+                <li>프로젝트 전환 (topbar LEFT)</li>
+                <li>현재 화면 검색 (topbar CENTER)</li>
+                <li>전체 메뉴 / 사이드 트리거 (left nav)</li>
+                <li>5개 이상 액션 (over-packing 금지)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S05 Left Navigation
+           ────────────────────────────────────────────────────────── -->
+      <section id="s05" class="sec" data-screen-label="05 Left Navigation">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Left Navigation — 좌측 영역 기준안</span>
+          <span class="sbadge guide">기준</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            Left Navigation은 topbar 아래에 들어가며, topbar와 겹치지 않는다.
+            상단 <strong>고정 영역</strong>(검색)과 <strong>스크롤 영역</strong>(그룹 + 메뉴), 하단 <strong>고정 푸터</strong>로 구성된다.
+            WBS는 <strong>B 그룹 — 업무 보드</strong>에 속하며, 메뉴 항목은 항상 <strong>active</strong> 표시를 갖는다.
+          </p>
+
+          <div class="ws-cap"><span class="ws-cap-n">L</span>Left Navigation 구조</div>
+
+          <div class="ws-mock" style="max-width:300px;">
+            <div class="ws-mock-label">
+              <span>Left Nav · WBS Active</span>
+              <span class="ws-mock-tag">256px</span>
+            </div>
+            <div class="ws-shell" style="min-height:380px;">
+              <aside class="ws-shell-left" style="width:100%;">
+                <div class="ws-ll-search">
+                  <div class="ws-ll-search-input">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="5" r="3.2"/><path d="M7.3 7.3l2 2"/></svg>
+                    <span>메뉴 검색</span>
+                  </div>
+                </div>
+                <div class="ws-ll-scroll" style="flex:1;overflow-y:auto;">
+                  <div class="ws-grp">
+                    <span>A · 대시보드</span>
+                    <span class="ws-grp-cnt">3</span>
+                  </div>
+                  <div class="ws-itm"><span class="ws-itm-dot"></span><span class="ws-itm-name">홈</span></div>
+                  <div class="ws-itm"><span class="ws-itm-dot"></span><span class="ws-itm-name">프로젝트 개요</span></div>
+
+                  <div class="ws-grp active">
+                    <span>B · 업무 보드</span>
+                    <span class="ws-grp-cnt">5</span>
+                  </div>
+                  <div class="ws-itm on">
+                    <span class="ws-itm-dot"></span>
+                    <span class="ws-itm-name">WBS 작업</span>
+                    <span class="ws-itm-badge">Live</span>
+                  </div>
+                  <div class="ws-itm"><span class="ws-itm-dot"></span><span class="ws-itm-name">이슈</span></div>
+                  <div class="ws-itm"><span class="ws-itm-dot"></span><span class="ws-itm-name">결재</span></div>
+                  <div class="ws-itm"><span class="ws-itm-dot"></span><span class="ws-itm-name">회의</span></div>
+                  <div class="ws-itm"><span class="ws-itm-dot"></span><span class="ws-itm-name">위험</span></div>
+
+                  <div class="ws-grp">
+                    <span>C · 인력 / 자원</span>
+                  </div>
+                  <div class="ws-itm"><span class="ws-itm-dot"></span><span class="ws-itm-name">팀</span></div>
+                  <div class="ws-itm"><span class="ws-itm-dot"></span><span class="ws-itm-name">권한</span></div>
+                </div>
+                <div class="ws-shell-left-foot">
+                  <span>v3.3 · 9c3f0b1</span>
+                </div>
+              </aside>
+            </div>
+          </div>
+
+          <div class="ws-rule-grid" style="margin-top:14px;">
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr">고정 영역 / 스크롤 영역 분리</div>
+              <ul>
+                <li>상단 <strong>메뉴 검색</strong> — 고정 (스크롤 안 됨)</li>
+                <li>중앙 <strong>그룹 + 메뉴 목록</strong> — 스크롤</li>
+                <li>하단 <strong>버전 / 빌드 정보</strong> — 고정</li>
+                <li>스크롤바 폭 3~4px · 부드러운 indigo</li>
+              </ul>
+            </div>
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-pass">현재 메뉴 active 표시</div>
+              <ul>
+                <li>현재 화면(WBS 작업)이 속한 그룹(B) 라벨도 active 색상</li>
+                <li>그룹 카운트 badge는 brand soft 컬러</li>
+                <li>메뉴 dot은 brand purple + soft glow</li>
+                <li>active 라벨은 white · weight 600</li>
+                <li>WBS가 어느 그룹인지 한눈에 확인 가능</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:12px;">
+            <strong>Topbar 겹침 방지</strong>
+            Left Navigation은 <code>top: var(--topbar-h, 48px)</code> 아래에서 시작한다.
+            topbar가 <code>position: sticky</code>이므로 left 영역은 topbar height만큼 내려간 곳에서 100% 높이를 가진다.
+            현재 화면에서 left 상단이 topbar에 가려진 형태로 보인다면 이 기준이 깨진 것이다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S06 WBS Content
+           ────────────────────────────────────────────────────────── -->
+      <section id="s06" class="sec" data-screen-label="06 WBS Content">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">WBS Content — 본문 / Scroll Policy</span>
+          <span class="sbadge guide">기준</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            WBS 본문은 page toolbar 아래에서 시작한다.
+            <strong>페이지 자체에는 가로 스크롤이 발생하지 않는다.</strong>
+            테이블이 좁아 보일 때는 테이블 컨테이너만 자체 가로 스크롤을 갖는다.
+          </p>
+
+          <div class="ws-rule-grid">
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-pass">허용되는 Overflow</div>
+              <ul>
+                <li>테이블 wrap 내부 <code>overflow-x: auto</code></li>
+                <li>Drawer 내부 long-form content <code>overflow-y: auto</code></li>
+                <li>Left Navigation 메뉴 목록 <code>overflow-y: auto</code></li>
+                <li>Filter chip row — <code>flex-wrap: wrap</code> (스크롤 X)</li>
+              </ul>
+            </div>
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-fail">금지되는 Overflow</div>
+              <ul>
+                <li>page-level <code>html, body</code> 가로 스크롤</li>
+                <li>App Shell content 영역 가로 스크롤</li>
+                <li>page toolbar 가로 스크롤</li>
+                <li>topbar 가로 스크롤 (3영역 분리로 해결)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Drawer footer 기준 유지</strong>
+            commit <code>9c3f0b1</code>에서 보정된 <strong>Drawer footer 전체 보기 버튼은 md 32px</strong> 기준을 유지한다.
+            본 시안의 Drawer footer mock도 동일한 사이즈로 표기되어 있다.
+            전체 보기 / 닫기 / 저장 등 footer 버튼은 모두 md 32px 기준으로 정렬된다.
+          </div>
+
+          <div class="ws-cap" style="margin-top:14px;"><span class="ws-cap-n">D</span>Drawer Footer 기준 — md 32px</div>
+          <div class="ws-drawer-foot">
+            <span class="ws-foot-meta">W-101 · 2026-06-09 18:24 저장됨</span>
+            <button class="ws-btn md ghost">닫기</button>
+            <button class="ws-btn md secondary">
+              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7L7 3l4 4M3 11h8"/></svg>
+              전체 보기
+            </button>
+            <button class="ws-btn md primary">저장</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S07 Button Applied Samples
+           ────────────────────────────────────────────────────────── -->
+      <section id="s07" class="sec" data-screen-label="07 Button Applied">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Button Applied — 영역별 사이즈 / 역할</span>
+          <span class="sbadge plan">샘플</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="ws-rule-grid">
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr">Topbar Button — sm</div>
+              <ul>
+                <li>icon-only 28×28 (<code>.stam-btn--sm.is-icon</code>)</li>
+                <li>역할: 알림 / 테마 / 사용자 메뉴 trigger</li>
+                <li>label 없음 — title attribute로 접근성 보장</li>
+              </ul>
+              <div style="display:flex;gap:6px;margin-top:10px;padding:10px;background:#0A0E1A;border-radius:6px;">
+                <button class="ws-btn sm ghost icon-only" style="color:rgba(255,255,255,.78);background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>
+                </button>
+                <button class="ws-btn sm ghost icon-only" style="color:rgba(255,255,255,.78);background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 8.5A4 4 0 0 1 5.5 3a4 4 0 1 0 5.5 5.5z"/></svg>
+                </button>
+                <button class="ws-btn sm ghost icon-only" style="color:rgba(255,255,255,.78);background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5a4 4 0 0 1 8 0v2l1 2H2l1-2v-2z"/><path d="M5.5 11a1.5 1.5 0 0 0 3 0"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-pass">Page Toolbar Button — sm / md</div>
+              <ul>
+                <li><strong>sm</strong>(28px) — 필터 · 보기 · 정렬 등 view actions</li>
+                <li><strong>md</strong>(32px) — 내보내기 · 신규 등록 · CTA</li>
+                <li>Primary — 신규 등록 / 등록 등 단일 핵심 CTA</li>
+                <li>Secondary — 보조 작업 (내보내기 / 저장 전 단계)</li>
+                <li>Ghost — view / 필터 toggle 등 부수 작업</li>
+              </ul>
+              <div style="display:flex;gap:6px;margin-top:10px;padding:10px;background:var(--bg-sur2);border-radius:6px;flex-wrap:wrap;">
+                <button class="ws-btn sm ghost">필터</button>
+                <button class="ws-btn sm ghost">보기</button>
+                <button class="ws-btn sm secondary">내보내기</button>
+                <button class="ws-btn md primary">신규 등록</button>
+              </div>
+            </div>
+
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-info">Drawer Footer Button — md</div>
+              <ul>
+                <li>md 32px 기준 — 모든 footer 버튼 정렬 통일</li>
+                <li>Primary — 저장 · 확인</li>
+                <li>Secondary — 전체 보기 (Drawer ↔ Full)</li>
+                <li>Ghost — 닫기 · 취소</li>
+                <li>commit <code>9c3f0b1</code>에서 이미 보정 완료</li>
+              </ul>
+              <div style="display:flex;gap:6px;margin-top:10px;padding:10px;background:var(--bg-sur2);border-radius:6px;">
+                <button class="ws-btn md ghost">닫기</button>
+                <button class="ws-btn md secondary">전체 보기</button>
+                <button class="ws-btn md primary">저장</button>
+              </div>
+            </div>
+
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-warn">변환 금지 / 부분 적용</div>
+              <ul>
+                <li>전역 <code>.tbtn</code> → <code>.stam-btn</code> 일괄 치환 금지</li>
+                <li>Docs 페이지의 <code>.tbtn</code>은 그대로 둔다</li>
+                <li>WBS 화면에 한정해서 <strong>새 사용처에만</strong> <code>.stam-btn</code> 적용</li>
+                <li>기존 동작(open/close, 등록/수정)은 절대 변경 금지</li>
+                <li>버튼 사이즈는 영역별 기준을 정확히 따른다</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S08 Before / After
+           ────────────────────────────────────────────────────────── -->
+      <section id="s08" class="sec" data-screen-label="08 Before / After">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Before / After — 현재 vs 적용 후</span>
+          <span class="sbadge guide">비교</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="ws-tbl-wrap">
+            <table class="ws-tbl">
+              <thead>
+                <tr>
+                  <th style="width:160px;">기준 축</th>
+                  <th>Before — 현재 WBS 화면</th>
+                  <th>After — 가이드 적용 시안</th>
+                  <th style="width:140px;">근거</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">Topbar Height</td>
+                  <td class="before">48px보다 얇아 보임 · 비율 가늠 어려움</td>
+                  <td class="after">48px 고정 · LEFT/CENTER/RIGHT 정렬 기준</td>
+                  <td class="note">Topbar Guide</td>
+                </tr>
+                <tr>
+                  <td class="tn">Region 분리</td>
+                  <td class="before">LEFT / CENTER / RIGHT 구분이 약함</td>
+                  <td class="after">3영역 명확 · LEFT divider · CENTER flex:1</td>
+                  <td class="note">Topbar Anatomy</td>
+                </tr>
+                <tr>
+                  <td class="tn">CENTER 검색</td>
+                  <td class="before">없음 · CENTER slot이 비어 있음</td>
+                  <td class="after"><code>현재 화면 검색</code> input + <code>⌘ K</code></td>
+                  <td class="note">UI Baseline Guide</td>
+                </tr>
+                <tr>
+                  <td class="tn">RIGHT 액션 수</td>
+                  <td class="before">검색 · 알림 · 내보내기 · PM · 테마 한 줄 압축 (5+)</td>
+                  <td class="after">알림 · 테마 · 사용자 · Quick 1~2 (≤4)</td>
+                  <td class="note">Topbar Guide</td>
+                </tr>
+                <tr>
+                  <td class="tn">Left Nav 정렬</td>
+                  <td class="before">topbar와 겹치거나 상단 잘림 의심</td>
+                  <td class="after">topbar height 아래에서 시작 · 고정/스크롤 분리</td>
+                  <td class="note">App Shell Guide</td>
+                </tr>
+                <tr>
+                  <td class="tn">Page Toolbar</td>
+                  <td class="before">없음 · 업무 액션이 topbar에 흡수됨</td>
+                  <td class="after">본문 상단 별도 toolbar · 필터/보기/내보내기/등록</td>
+                  <td class="note">본 문서 S04</td>
+                </tr>
+                <tr>
+                  <td class="tn">Button Size</td>
+                  <td class="before">topbar 안에 작은 액션이 과밀</td>
+                  <td class="after">topbar sm · page toolbar sm/md · drawer footer md</td>
+                  <td class="note">Button Guide</td>
+                </tr>
+                <tr>
+                  <td class="tn">Scroll Policy</td>
+                  <td class="before">테이블 폭에 따라 페이지 자체 가로 스크롤 가능</td>
+                  <td class="after">page-level 가로 스크롤 금지 · 테이블 내부만 허용</td>
+                  <td class="note">App Shell Guide</td>
+                </tr>
+                <tr>
+                  <td class="tn">Drawer Footer</td>
+                  <td class="before">버튼 사이즈 불균형 — 이미 보정됨 (<code>9c3f0b1</code>)</td>
+                  <td class="after">md 32px 기준 유지 · 변경하지 않음</td>
+                  <td class="note">commit 9c3f0b1</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S09 Cursor Handoff
+           ────────────────────────────────────────────────────────── -->
+      <section id="s09" class="sec" data-screen-label="09 Cursor Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Cursor Handoff Notes — 적용 후보 파일</span>
+          <span class="sbadge plan">Handoff</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            본 시안을 기반으로 Cursor가 실제 코드를 수정할 때 손댈 <strong>후보 파일</strong>을 미리 정의한다.
+            본 Preview 문서에서는 아래 파일을 단 한 줄도 수정하지 않는다.
+            Cursor는 별도 commit에서 WBS 화면에만 한정해서 보정한다.
+          </p>
+
+          <div class="ws-cand-grid">
+            <div class="ws-cand-row">
+              <span class="ws-cand-n">01</span>
+              <div class="ws-cand-body">
+                <span class="ws-cand-title">stam/pages/boards/wbs.html</span>
+                <span class="ws-cand-sub">WBS 페이지 루트 — page toolbar 마크업 추가 · topbar render 위치 점검</span>
+              </div>
+              <div class="ws-cand-meta"><code>pages</code></div>
+            </div>
+            <div class="ws-cand-row">
+              <span class="ws-cand-n">02</span>
+              <div class="ws-cand-body">
+                <span class="ws-cand-title">stam/js/stam.topbar-render.js</span>
+                <span class="ws-cand-sub">Topbar 3영역 render — LEFT / CENTER (search) / RIGHT 슬롯 분리. WBS에만 적용 옵션 제공</span>
+              </div>
+              <div class="ws-cand-meta"><code>js</code></div>
+            </div>
+            <div class="ws-cand-row">
+              <span class="ws-cand-n">03</span>
+              <div class="ws-cand-body">
+                <span class="ws-cand-title">stam/js/stam.wbs.js</span>
+                <span class="ws-cand-sub">WBS page toolbar 액션 바인딩 — 필터 / 보기 / 내보내기 / 신규 등록. Drawer 로직은 절대 변경 금지</span>
+              </div>
+              <div class="ws-cand-meta"><code>js</code></div>
+            </div>
+            <div class="ws-cand-row">
+              <span class="ws-cand-n">04</span>
+              <div class="ws-cand-body">
+                <span class="ws-cand-title">stam/css/stam.shell.css</span>
+                <span class="ws-cand-sub">Topbar 48px / 3영역 flex 보정이 필요할 때만. 기존 docs 화면 회귀 점검 필수</span>
+              </div>
+              <div class="ws-cand-meta"><code>css</code></div>
+            </div>
+            <div class="ws-cand-row">
+              <span class="ws-cand-n">05</span>
+              <div class="ws-cand-body">
+                <span class="ws-cand-title">stam/css/stam.wbs.css</span>
+                <span class="ws-cand-sub">WBS 전용 — page toolbar · filter chip · table overflow 처리. 다른 화면 영향 X</span>
+              </div>
+              <div class="ws-cand-meta"><code>css</code></div>
+            </div>
+            <div class="ws-cand-row">
+              <span class="ws-cand-n">06</span>
+              <div class="ws-cand-body">
+                <span class="ws-cand-title">stam/css/stam.components.css</span>
+                <span class="ws-cand-sub">필요 시 <code>.stam-btn--sm.is-icon</code> 변형 보강. <strong>기존 .stam-btn 토큰은 절대 변경 금지</strong></span>
+              </div>
+              <div class="ws-cand-meta"><code>옵션</code></div>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Cursor 적용 순서 권장</strong>
+            ① wbs.html에 page toolbar markup 먼저 → ② stam.wbs.css에 layout 보정 → ③ topbar-render.js의 WBS-only flag로 CENTER 검색 / RIGHT 정리 → ④ Drawer footer는 손대지 않는다 → ⑤ Docs / 다른 페이지 회귀 확인.
+            모든 단계에서 1440 / 1600 / 1920 폭으로 가로 스크롤 점검.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S10 Guardrails
+           ────────────────────────────────────────────────────────── -->
+      <section id="s10" class="sec" data-screen-label="10 Guardrails">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Implementation Guardrails — 적용 금지 / 제한</span>
+          <span class="sbadge lock">Guard</span>
+        </div>
+        <div class="sec-body">
+          <div class="ws-rule-grid">
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-fail">절대 금지</div>
+              <ul>
+                <li>가이드 문서(Topbar Guide · UI Baseline Guide) 수정</li>
+                <li>전역 <code>.tbtn</code> → <code>.stam-btn</code> 일괄 치환</li>
+                <li>Topbar 업무 액션 무조건 삭제</li>
+                <li>Drawer open/close, 전체 보기, 등록/수정/상세 로직 변경</li>
+                <li>Firebase · GitHub Actions · package*.json 변경</li>
+                <li><code>_ds/</code>, <code>uploads/</code>, <code>.firebase/</code>, <code>dist/</code>, <code>build/</code> 변경</li>
+              </ul>
+            </div>
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-warn">조건부 허용</div>
+              <ul>
+                <li>topbar 업무 액션 → <strong>page toolbar로 역할 분리</strong>하여 이동</li>
+                <li>WBS 화면에 한정해서 새 사용처에 <code>.stam-btn</code> 적용</li>
+                <li><code>stam.shell.css</code> 보정은 docs/다른 화면 회귀 확인 후만</li>
+                <li>새 컴포넌트 토큰 추가는 <em>다른 mapping 문서</em>에서 별도 결정</li>
+              </ul>
+            </div>
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-pass">필수 유지</div>
+              <ul>
+                <li>S-Core Dream 자체서빙 폰트만 사용</li>
+                <li>Google Fonts / Pretendard CDN / Gulim / Dotum 사용 금지</li>
+                <li>light / dark 양쪽 정상 동작</li>
+                <li>iframe 사용 금지</li>
+                <li>page-level horizontal scroll 금지</li>
+                <li>console error 0건</li>
+              </ul>
+            </div>
+            <div class="ws-rule-card">
+              <div class="ws-rc-hdr is-info">검증 폭</div>
+              <ul>
+                <li><strong>1440 / 1600 / 1920</strong> 폭 가로 스크롤 점검</li>
+                <li>Drawer 열림 / 닫힘 / 전체 보기 회귀</li>
+                <li>WBS 등록 / 수정 / 상세 회귀</li>
+                <li>Docs 화면 topbar 영향 없음 확인</li>
+                <li>Left Navigation 다른 페이지 영향 없음 확인</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S11 QA Checklist
+           ────────────────────────────────────────────────────────── -->
+      <section id="s11" class="sec" data-screen-label="11 QA Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">QA Checklist — 적용 후 점검</span>
+          <span class="sbadge plan">Checklist</span>
+        </div>
+        <div class="sec-body">
+          <div class="ws-chk-list">
+            <div class="ws-chk-item"><span class="ws-chk-box is-pass">✓</span><span>Topbar height <code>48px</code> 고정 확인</span></div>
+            <div class="ws-chk-item"><span class="ws-chk-box is-pass">✓</span><span>LEFT / CENTER / RIGHT 3영역 분리 확인</span></div>
+            <div class="ws-chk-item"><span class="ws-chk-box is-pass">✓</span><span>CENTER <code>현재 화면 검색</code> input 존재</span></div>
+            <div class="ws-chk-item"><span class="ws-chk-box is-pass">✓</span><span>RIGHT 액션 과밀 해소 — Quick Action ≤ 2</span></div>
+            <div class="ws-chk-item"><span class="ws-chk-box is-pass">✓</span><span>Page Toolbar 역할 분리 — 필터 / 보기 / 내보내기 / 등록</span></div>
+            <div class="ws-chk-item"><span class="ws-chk-box is-pass">✓</span><span>Left Navigation topbar와 겹침 없음</span></div>
+            <div class="ws-chk-item"><span class="ws-chk-box is-pass">✓</span><span>현재 메뉴 active 표시 (WBS 작업)</span></div>
+            <div class="ws-chk-item"><span class="ws-chk-box is-pass">✓</span><span>WBS 테이블 페이지 밀림 없음 — 내부 overflow만</span></div>
+            <div class="ws-chk-item"><span class="ws-chk-box is-pass">✓</span><span>Drawer footer md 32px 기준 유지 (회귀 0)</span></div>
+            <div class="ws-chk-item"><span class="ws-chk-box is-pass">✓</span><span>Light / Dark 양쪽 정상 동작</span></div>
+            <div class="ws-chk-item"><span class="ws-chk-box is-pass">✓</span><span>S-Core Dream 자체서빙 폰트만 사용</span></div>
+            <div class="ws-chk-item"><span class="ws-chk-box is-pass">✓</span><span>Console error 0건</span></div>
+            <div class="ws-chk-item"><span class="ws-chk-box is-warn">!</span><span>1440 / 1600 / 1920 폭에서 가로 스크롤 점검</span></div>
+            <div class="ws-chk-item"><span class="ws-chk-box is-warn">!</span><span>Docs 화면 topbar 영향 없음 확인</span></div>
+            <div class="ws-chk-item"><span class="ws-chk-box is-warn">!</span><span>WBS 등록 / 수정 / 상세 회귀</span></div>
+            <div class="ws-chk-item"><span class="ws-chk-box is-warn">!</span><span>금지 파일 변경 0 (<code>_ds/</code>, <code>uploads/</code>, <code>*.zip</code>, <code>.env*</code>)</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S12 Related
+           ────────────────────────────────────────────────────────── -->
+      <section id="s12" class="sec" data-screen-label="12 Related">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Related Links</span>
+          <span class="sbadge guide">참고</span>
+        </div>
+        <div class="sec-body">
+          <div class="ws-rel-grid">
+            <a class="ws-rel-card" href="components/STAM-Topbar-Guide.html">
+              <span class="ws-rl-title">STAM Topbar Guide</span>
+              <span class="ws-rl-sub">Doc Nav · App Topbar · Anatomy · Breadcrumb · Theme Toggle</span>
+            </a>
+            <a class="ws-rel-card" href="STAM-UI-Baseline-Guide.html">
+              <span class="ws-rl-title">STAM UI Baseline Guide</span>
+              <span class="ws-rl-sub">폰트 · 토큰 · 레이아웃 · Left Nav · Focus View 기준</span>
+            </a>
+            <a class="ws-rel-card" href="STAM-Button-CSS-Implementation-Preview-v1.html">
+              <span class="ws-rl-title">Button CSS Implementation Preview v1</span>
+              <span class="ws-rl-sub">.stam-btn variant · size · state 시각 기준</span>
+            </a>
+            <a class="ws-rel-card" href="STAM-Button-CSS-QA-Result-Preview-v1.html">
+              <span class="ws-rl-title">Button CSS QA Result Preview v1</span>
+              <span class="ws-rl-sub">Button CSS foundation 구현 결과 QA</span>
+            </a>
+            <a class="ws-rel-card" href="STAM-Drawer-Token-Mapping-v1.html">
+              <span class="ws-rl-title">Drawer Token Mapping v1</span>
+              <span class="ws-rl-sub">Drawer footer 보정 근거 (<code>9c3f0b1</code>)</span>
+            </a>
+            <a class="ws-rel-card" href="STAM-Docs-Index.html">
+              <span class="ws-rl-title">← STAM Docs Index</span>
+              <span class="ws-rl-sub">전체 문서 인덱스로 돌아가기</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
