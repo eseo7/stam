@@ -1,0 +1,2494 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Table Token Mapping v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ── Table Token Mapping v1 전용 보조 스타일 (이 문서 안에서만 사용) ── */
+
+/* status pill */
+.spill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase;
+  font-family: var(--font); white-space: nowrap;
+}
+.spill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 999px;
+  background: currentColor; display: inline-block; flex-shrink: 0;
+}
+.spill.ready    { background: var(--pass-bg); color: var(--pass); }
+.spill.partial  { background: var(--warn-bg); color: var(--warn); }
+.spill.missing  { background: var(--fail-bg); color: var(--fail); }
+.spill.decide   { background: var(--purple-bg); color: var(--purple); }
+.spill.candidate{ background: var(--info-bg); color: var(--info); }
+.spill.hold     { background: var(--skip-bg); color: var(--skip); }
+
+/* priority pill */
+.ppill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px 2px 7px; border-radius: 999px;
+  font-size: 10px; font-weight: 800; letter-spacing: .04em;
+  font-family: var(--font); white-space: nowrap;
+}
+.ppill::before {
+  content: ""; width: 5px; height: 5px; border-radius: 999px;
+  background: currentColor; display: inline-block; flex-shrink: 0;
+}
+.ppill.p0 { background: var(--fail-bg); color: var(--fail); }
+.ppill.p1 { background: var(--warn-bg); color: var(--warn); }
+.ppill.p2 { background: var(--info-bg); color: var(--info); }
+
+/* table scenario chip */
+.tchip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  font-family: var(--font); white-space: nowrap;
+  background: var(--bg-sur2); border: 1px solid var(--bd); color: var(--t1);
+}
+.tchip.basic    { background: var(--info-bg);   color: var(--info);   border-color: transparent; }
+.tchip.board    { background: var(--purple-bg); color: var(--purple); border-color: transparent; }
+.tchip.artifact { background: var(--pass-bg);   color: var(--pass);   border-color: transparent; }
+.tchip.wbs      { background: var(--warn-bg);   color: var(--warn);   border-color: transparent; }
+.tchip.test     { background: var(--info-bg);   color: var(--info);   border-color: transparent; }
+.tchip.defect   { background: var(--fail-bg);   color: var(--fail);   border-color: transparent; }
+.tchip.server   { background: var(--skip-bg);   color: var(--skip);   border-color: transparent; }
+.tchip.open     { background: var(--purple-bg); color: var(--purple); border-color: transparent; }
+.tchip.custom   { background: var(--stam-soft); color: var(--stam);   border-color: transparent; }
+.tchip.compact  { background: var(--bg-sur2);   color: var(--t2);     border-color: var(--bd); }
+.tchip.wide     { background: var(--bg-sur2);   color: var(--t2);     border-color: var(--bd); }
+
+/* row state chip */
+.stchip {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  font-family: var(--font); white-space: nowrap;
+  border: 1px solid var(--bd);
+}
+.stchip.default   { background: var(--bg-sur);    color: var(--t2);     }
+.stchip.hover     { background: var(--info-bg);   color: var(--info);   border-color: transparent; }
+.stchip.selected  { background: var(--stam-soft); color: var(--stam);   border-color: transparent; }
+.stchip.active    { background: var(--purple-bg); color: var(--purple); border-color: transparent; }
+.stchip.disabled  { background: var(--skip-bg);   color: var(--skip);   border-color: transparent; }
+.stchip.dimmed    { background: var(--bg-sur2);   color: var(--t3);     }
+.stchip.updated   { background: var(--info-bg);   color: var(--info);   border-color: transparent; }
+.stchip.warning   { background: var(--warn-bg);   color: var(--warn);   border-color: transparent; }
+.stchip.error     { background: var(--fail-bg);   color: var(--fail);   border-color: transparent; }
+.stchip.success   { background: var(--pass-bg);   color: var(--pass);   border-color: transparent; }
+.stchip.locked    { background: var(--skip-bg);   color: var(--skip);   border-color: transparent; }
+.stchip.readonly  { background: var(--bg-sur2);   color: var(--t3);     }
+
+/* cell type chip */
+.cchip {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  font-family: var(--font); white-space: nowrap;
+  background: var(--bg-sur2); border: 1px solid var(--bd); color: var(--t1);
+}
+
+/* density chip */
+.dchip {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 800; letter-spacing: .05em;
+  font-family: var(--font); white-space: nowrap; text-transform: uppercase;
+  background: var(--stam-soft); color: var(--stam);
+}
+.dchip.large      { background: var(--purple-bg); color: var(--purple); }
+.dchip.comfortable{ background: var(--info-bg);   color: var(--info);   }
+.dchip.normal     { background: var(--pass-bg);   color: var(--pass);   }
+.dchip.compact    { background: var(--warn-bg);   color: var(--warn);   }
+.dchip.dense      { background: var(--fail-bg);   color: var(--fail);   }
+
+/* viewport / size chip */
+.szchip {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 800; letter-spacing: .05em;
+  font-family: var(--font); white-space: nowrap;
+  background: var(--stam-soft); color: var(--stam);
+}
+
+/* generic mapping table */
+.fm-tbl {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--font); font-size: 11.5px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: var(--r-md);
+  overflow: hidden;
+}
+.fm-tbl th {
+  padding: 9px 10px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em; text-align: left;
+  color: var(--t3); border-bottom: 1px solid var(--bd);
+  background: var(--bg-sur2); white-space: nowrap; vertical-align: middle;
+}
+.fm-tbl td {
+  padding: 10px; border-bottom: 1px solid var(--bd);
+  color: var(--t2); vertical-align: top; line-height: 1.6;
+}
+.fm-tbl tbody tr:last-child td { border-bottom: none; }
+.fm-tbl td.tn { color: var(--t1); font-weight: 700; white-space: nowrap; font-size: 11px; }
+.fm-tbl td code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur2); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 6px; letter-spacing: .005em; white-space: nowrap;
+}
+.fm-tbl td.note { color: var(--t3); font-size: 10.5px; }
+.fm-tbl td.zval { font-weight: 800; color: var(--stam); white-space: nowrap; }
+
+.fm-wrap { overflow-x: auto; }
+.fm-tbl  { min-width: 880px; }
+
+/* caption */
+.fm-cap {
+  display: flex; align-items: center; gap: 8px;
+  margin: 18px 0 8px;
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.fm-cap .fm-cap-n {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--stam-soft); color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.fm-cap-sub {
+  font-size: 10.5px; color: var(--t3); font-weight: 500; letter-spacing: 0; margin-left: 4px;
+}
+
+/* scope cards grid */
+.scope-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+}
+@media (max-width: 1100px) { .scope-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px)  { .scope-grid { grid-template-columns: 1fr; } }
+.scope-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.scope-card .sc-top {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11.5px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.scope-card .sc-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55; letter-spacing: .005em;
+}
+.scope-card .sc-z {
+  font-size: 10px; font-weight: 800; color: var(--stam);
+  letter-spacing: .02em; margin-top: 2px;
+}
+
+/* gate / step */
+.gate-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 760px) { .gate-grid { grid-template-columns: 1fr; } }
+.gate-step {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.gate-step .gs-n {
+  flex: 0 0 auto; width: 22px; height: 22px; border-radius: 6px;
+  background: var(--stam-soft); color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center; letter-spacing: .02em;
+}
+.gate-step .gs-body {
+  flex: 1 1 auto; font-size: 12px; color: var(--t1); line-height: 1.55; font-weight: 600;
+}
+.gate-step .gs-sub {
+  display: block; margin-top: 3px;
+  font-size: 10.5px; color: var(--t3); font-weight: 500; letter-spacing: .01em;
+}
+.gate-step .gs-sub code {
+  font-family: var(--font); font-size: 10px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 4px; padding: 0 5px;
+}
+
+/* rule grid */
+.rule-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 760px) { .rule-grid { grid-template-columns: 1fr; } }
+.rule-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+}
+.rule-card .rc-hdr {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--t1); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.rule-card .rc-hdr::before {
+  content: ""; width: 8px; height: 8px; border-radius: 999px;
+  background: var(--stam); display: inline-block;
+}
+.rule-card ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.rule-card li {
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  padding-left: 12px; position: relative;
+}
+.rule-card li::before {
+  content: "·"; position: absolute; left: 2px; top: -2px;
+  color: var(--t3); font-weight: 800;
+}
+.rule-card li code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 5px;
+}
+
+/* do / don't grid */
+.dd-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+@media (max-width: 760px) { .dd-grid { grid-template-columns: 1fr; } }
+.dd-col {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 14px 16px;
+}
+.dd-col.good { border-color: rgba(0,191,64,.22); }
+.dd-col.bad  { border-color: rgba(255,66,66,.22); }
+.dd-col .dd-hdr {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.dd-col.good .dd-hdr { color: var(--pass); }
+.dd-col.bad  .dd-hdr { color: var(--fail); }
+.dd-col ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.dd-col li {
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  padding-left: 14px; position: relative;
+}
+.dd-col.good li::before { content: "✓"; position: absolute; left: 0; color: var(--pass); font-weight: 800; }
+.dd-col.bad  li::before { content: "✕"; position: absolute; left: 0; color: var(--fail); font-weight: 800; }
+.dd-col li code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 5px;
+}
+
+/* sync rule grid */
+.sync-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+@media (max-width: 760px) { .sync-grid { grid-template-columns: 1fr; } }
+.sync-col {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 14px 16px;
+}
+.sync-col .sy-hdr {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  font-size: 11px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--t1);
+}
+.sync-col .sy-hdr .sy-tag {
+  font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+  letter-spacing: .04em; background: var(--stam-soft); color: var(--stam); text-transform: uppercase;
+}
+.sync-col ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.sync-col li {
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  padding-left: 14px; position: relative;
+}
+.sync-col li::before {
+  content: "→"; position: absolute; left: 0; color: var(--stam); font-weight: 800;
+}
+.sync-col li code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 5px;
+}
+
+/* table anatomy visualization */
+.tanat {
+  display: flex; flex-direction: column; gap: 0;
+  margin-top: 14px;
+  border: 1px dashed var(--bd-s); background: var(--bg-sur);
+  border-radius: var(--r-md); padding: 14px;
+}
+.tanat-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-sm);
+  font-size: 11px; font-weight: 700; color: var(--t1);
+  margin-bottom: 4px;
+}
+.tanat-row:last-child { margin-bottom: 0; }
+.tanat-row .tr-area {
+  font-family: var(--font); font-size: 11px; font-weight: 800;
+  color: var(--t1); letter-spacing: -.005em; flex: 0 0 170px;
+}
+.tanat-row .tr-role {
+  flex: 1 1 auto; font-size: 11px; font-weight: 500; color: var(--t2); letter-spacing: .005em;
+}
+.tanat-row .tr-tag {
+  font-family: var(--font); font-size: 10px; color: var(--t3);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 6px; font-weight: 600; white-space: nowrap;
+}
+.tanat-row.tool    { background: var(--info-bg);   border-color: transparent; }
+.tanat-row.tool    .tr-role { color: var(--info); }
+.tanat-row.head    { background: var(--bg-sur2); }
+.tanat-row.body    { background: var(--bg-sur2); }
+.tanat-row.foot    { background: var(--warn-bg);   border-color: transparent; }
+.tanat-row.foot    .tr-role { color: var(--warn); }
+.tanat-row.scroll  { background: var(--stam-soft); border-color: transparent; }
+.tanat-row.scroll  .tr-role { color: var(--stam); }
+
+/* density viz */
+.dens-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+  margin-top: 14px;
+}
+@media (max-width: 1100px) { .dens-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px)  { .dens-grid { grid-template-columns: 1fr; } }
+.dens-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.dens-card .dn-top {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+}
+.dens-card .dn-name {
+  font-family: var(--font); font-size: 11.5px; font-weight: 800;
+  color: var(--t1); letter-spacing: .04em; text-transform: uppercase;
+}
+.dens-card .dn-h {
+  font-family: var(--font); font-size: 16px; font-weight: 800;
+  color: var(--stam); letter-spacing: -.01em;
+}
+.dens-card .dn-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55; letter-spacing: .005em;
+}
+.dens-card .dn-use {
+  font-size: 10.5px; color: var(--t2); line-height: 1.55; font-weight: 600;
+}
+.dens-card .dn-bars {
+  display: flex; flex-direction: column; gap: 2px; margin-top: 6px;
+  background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 4px; padding: 4px;
+}
+.dens-card .dn-bars span {
+  display: block; background: var(--bd-s); border-radius: 2px;
+}
+.dens-card.large .dn-bars span      { height: 14px; }
+.dens-card.comfortable .dn-bars span{ height: 12px; }
+.dens-card.normal .dn-bars span     { height: 9px; }
+.dens-card.compact .dn-bars span    { height: 7px; }
+.dens-card.dense .dn-bars span      { height: 5px; }
+
+/* layout viz: table + drawer interaction */
+.layout-viz {
+  display: flex; flex-direction: column; gap: 10px; margin-top: 14px;
+}
+.layout-viz .lv-row {
+  display: flex; align-items: stretch; gap: 0;
+  border: 1px dashed var(--bd-s); background: var(--bg-sur);
+  border-radius: var(--r-md); padding: 12px; min-height: 120px;
+}
+.layout-viz .lv-content {
+  flex: 1 1 60%;
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-sm);
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  padding: 12px 16px;
+  font-size: 11px; font-weight: 700; color: var(--t1);
+}
+.layout-viz .lv-content .lv-sub {
+  font-size: 10.5px; color: var(--t3); font-weight: 500; margin-top: 4px;
+}
+.layout-viz .lv-drawer {
+  flex: 0 0 40%; margin-left: 8px;
+  border: 1px solid var(--stam); background: var(--stam-soft);
+  border-radius: var(--r-sm);
+  display: flex; flex-direction: column; padding: 12px 14px;
+  font-size: 11px; font-weight: 800; color: var(--stam);
+}
+.layout-viz .lv-drawer .lv-sub {
+  font-size: 10.5px; color: var(--stam); opacity: .8; font-weight: 600; margin-top: 4px;
+}
+.layout-viz .lv-drawer .lv-rows {
+  display: flex; flex-direction: column; gap: 4px; margin-top: 10px;
+}
+.layout-viz .lv-drawer .lv-rows span {
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 6px 8px;
+  font-size: 10px; font-weight: 600; color: var(--t2);
+}
+.layout-viz .lv-full {
+  flex: 1 1 100%;
+  border: 1px solid var(--stam); background: var(--stam-soft);
+  border-radius: var(--r-sm);
+  display: flex; flex-direction: column; padding: 12px 16px;
+  font-size: 11px; font-weight: 800; color: var(--stam);
+}
+.layout-viz .lv-full .lv-sub {
+  font-size: 10.5px; color: var(--stam); opacity: .8; font-weight: 600; margin-top: 4px;
+}
+
+/* scroll matrix */
+.scroll-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px;
+}
+@media (max-width: 900px) { .scroll-grid { grid-template-columns: 1fr; } }
+.scroll-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.scroll-card .sl-hdr {
+  font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--t1);
+  display: flex; align-items: center; gap: 6px;
+}
+.scroll-card .sl-hdr::before {
+  content: ""; width: 8px; height: 8px; border-radius: 999px;
+  background: var(--stam); display: inline-block;
+}
+.scroll-card.bad .sl-hdr::before  { background: var(--fail); }
+.scroll-card.good .sl-hdr::before { background: var(--pass); }
+.scroll-card .sl-sub {
+  font-size: 10.5px; color: var(--t2); line-height: 1.55;
+}
+.scroll-card .sl-vis {
+  margin-top: 4px;
+  border: 1px solid var(--bd); border-radius: 4px;
+  background: var(--bg-sur); padding: 8px;
+  display: flex; align-items: center; justify-content: center;
+  height: 60px;
+  font-size: 10px; color: var(--t3); font-weight: 600;
+}
+.scroll-card.good .sl-vis { border-color: rgba(0,191,64,.22); }
+.scroll-card.bad  .sl-vis { border-color: rgba(255,66,66,.22); }
+
+/* row state viz */
+.rowstate-viz {
+  display: flex; flex-direction: column; gap: 4px; margin-top: 14px;
+  border: 1px dashed var(--bd-s); background: var(--bg-sur);
+  border-radius: var(--r-md); padding: 12px;
+}
+.rowstate-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: var(--r-sm);
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  font-size: 11px; font-weight: 700; color: var(--t1);
+}
+.rowstate-row .rs-lbl {
+  flex: 0 0 110px; font-family: var(--font); font-size: 11px; font-weight: 800;
+  color: var(--t1); letter-spacing: .04em; text-transform: uppercase;
+}
+.rowstate-row .rs-cells {
+  flex: 1 1 auto; display: flex; gap: 6px;
+}
+.rowstate-row .rs-cell {
+  flex: 1 1 0; height: 18px; border-radius: 3px;
+  background: var(--bd-s); opacity: .35;
+}
+.rowstate-row.hover    { background: rgba(0,128,255,.06);  border-color: transparent; }
+.rowstate-row.selected { background: var(--stam-soft);     border-color: transparent; }
+.rowstate-row.active   { background: var(--purple-bg);     border-color: transparent; }
+.rowstate-row.disabled { background: var(--bg-sur);        opacity: .55; }
+.rowstate-row.warning  { background: var(--warn-bg);       border-color: transparent; }
+.rowstate-row.error    { background: var(--fail-bg);       border-color: transparent; }
+.rowstate-row.success  { background: var(--pass-bg);       border-color: transparent; }
+.rowstate-row.updated  { background: var(--info-bg);       border-color: transparent; }
+.rowstate-row.locked   { background: var(--skip-bg);       border-color: transparent; }
+.rowstate-row.readonly { background: var(--bg-sur2);       border-color: var(--bd); opacity: .8; }
+.rowstate-row.dimmed   { background: var(--bg-sur2);       opacity: .55; }
+
+/* board flow viz */
+.flow-viz {
+  display: flex; align-items: stretch; gap: 12px; margin-top: 14px;
+}
+@media (max-width: 900px) { .flow-viz { flex-direction: column; } }
+.flow-card {
+  flex: 1 1 0;
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 6px;
+  position: relative;
+}
+.flow-card .fc-step {
+  font-family: var(--font); font-size: 10px; font-weight: 800;
+  color: var(--stam); letter-spacing: .06em; text-transform: uppercase;
+}
+.flow-card .fc-name {
+  font-size: 12px; font-weight: 800; color: var(--t1); letter-spacing: -.005em;
+}
+.flow-card .fc-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+}
+.flow-card .fc-tok {
+  font-family: var(--font); font-size: 10px; color: var(--t2);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 2px 6px; font-weight: 600;
+  align-self: flex-start; margin-top: 4px;
+}
+.flow-arrow {
+  align-self: center;
+  font-family: var(--font); font-size: 18px; font-weight: 800;
+  color: var(--stam); letter-spacing: 0;
+}
+@media (max-width: 900px) { .flow-arrow { transform: rotate(90deg); } }
+
+/* related link grid */
+.rel-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+@media (max-width: 900px) { .rel-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px) { .rel-grid { grid-template-columns: 1fr; } }
+.rel-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  text-decoration: none;
+  display: flex; flex-direction: column; gap: 4px;
+  transition: border-color .15s ease, background .15s ease;
+}
+.rel-card:hover { border-color: var(--bd-s); background: var(--bg-sur); }
+.rel-card .rl-title {
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.rel-card .rl-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+}
+
+/* force S-Core Dream */
+.spill, .ppill, .tchip, .stchip, .cchip, .dchip, .szchip,
+.fm-tbl, .fm-tbl *,
+.scope-card, .scope-card *, .gate-step, .gate-step *,
+.rule-card, .rule-card *, .dd-col, .dd-col *,
+.sync-col, .sync-col *, .fm-cap, .fm-cap *,
+.tanat, .tanat *, .dens-card, .dens-card *,
+.layout-viz, .layout-viz *,
+.scroll-card, .scroll-card *,
+.rowstate-row, .rowstate-row *,
+.flow-card, .flow-card *, .flow-arrow,
+.rel-card, .rel-card * {
+  font-family: var(--font) !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Table Token Mapping v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Mapping Draft</span>
+  <span class="doc-nav-pill"><span class="dot"></span>CSS Implementation Hold</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Board / List Standard</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Table Mapping</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Table Scope</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Structure Matrix</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Density / Size</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Column Rule</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Sticky / Scroll</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Row State</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Cell Type</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Token Mapping</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Board / Drawer Link</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Accessibility</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Do / Don't</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Gate Checklist</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Cursor Handoff</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Status Banner ── -->
+      <div class="ibox info" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <strong>STAM Table Token Mapping v1</strong>
+          <span class="sbadge plan" style="margin-left:auto;">Mapping Draft</span>
+        </div>
+        <p style="margin:0 0 8px;font-size:.88em;line-height:1.7;opacity:.9;">
+          본 문서는 <strong>실제 Table CSS 구현이 아니라, 요구사항 · 메뉴/화면목록 · 화면설계서 · 테이블 정의서 · WBS · 테스트 · 결함관리 · 서버 정보 · 오픈 시나리오 등 STAM의 모든 게시판형 화면에 공통 적용되는 Table UI의 structure · density · column · header · sticky · scroll · row · cell · token 기준을 토큰 기반으로 사전 확정하는 매핑 문서</strong>이다.
+          Table은 STAM 산출물 게시판의 기본 목록 UI이며, 목록 컬럼은 프로젝트 · 고객사 · 게시판별로 사용자가 커스텀할 수 있어야 한다.
+          본 문서로는 <code>stam/css/**</code>, <code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/index.html</code>, <code>stam/assets/**</code>를 절대 수정하지 않는다.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:6px;">
+          <span class="sbadge plan">Mapping Draft</span>
+          <span class="sbadge lock">CSS Implementation Hold</span>
+          <span class="sbadge guide">Board / List Standard</span>
+          <span class="sbadge guide">Pre-Implementation</span>
+          <span class="sbadge lock">No CSS Edit</span>
+        </div>
+        <p style="margin:10px 0 0;font-size:.82em;line-height:1.65;opacity:.78;">
+          <strong>판정 근거</strong> — Drawer Token Mapping v1에서 “리스트 row → Drawer 상세 → Full Detail”의 진입 흐름이 결정되었고, Layer Token Mapping v1에서 “좌측 Nav 위, Drawer 아래”의 stacking이 결정되었으며, Form Token Mapping v1에서 “Drawer · Full Detail · Dialog가 같은 입력 컴포넌트를 공유”라는 원칙이 확정되었다. 그러나 Table 자체의 density · column · header · sticky · scroll · row state · cell type · token 기준은 확정되지 않은 상태이다. 게시판마다 Table CSS가 따로 만들어지거나, 페이지 레벨 가로 스크롤이 발생하거나, 컬럼 커스텀이 CSS 하드코딩으로 처리되는 사고를 사전에 차단하기 위해 본 문서로 Table 매핑과 운영 원칙을 확정한다.
+        </p>
+      </div>
+
+      <!-- ── S01 Overview ── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            Drawer Token Mapping v1이 “리스트에서 한 건을 빠르게 보고 / 등록 / 수정하는 진입 UI”를 확정했다면,
+            본 Table Token Mapping v1은 그 앞 단계인 <strong>리스트 그 자체 — Basic List · Work Board · Artifact Board · WBS · Test Scenario · Defect · Server Info · Open Scenario · Custom Column · Compact · Wide Data Table</strong>의
+            structure · density · column · header · sticky · scroll · row state · cell type · token · board / drawer / full detail 흐름을 1:1로 매핑한다.
+            STAM에서 Table은 “전체 산출물 게시판 · 요구사항 · 결함 · WBS · 테스트 · 서버 · 오픈 시나리오 등 모든 목록형 화면의 공통 기본 UI”이며,
+            모든 게시판에서 사용자(고객사 · 프로젝트 · 게시판 단위)는 <strong>표시 컬럼 · 순서 · width · 정렬 · 필터 · 내보내기 포함 여부</strong>를 커스텀할 수 있어야 한다.
+            기획자 · PM은 “어떤 게시판이 어떤 density / column 기준을 따르는지”, 디자이너는 “Table 내 영역 · 상태 · 셀 유형”을, 개발자는 “토큰명 · sticky / scroll 정책 · row → Drawer 흐름 기준”을 본 문서 하나로 읽고 승인할 수 있어야 한다.
+          </p>
+
+          <div class="dd-grid" style="margin-top:8px;">
+            <div class="dd-col good">
+              <div class="dd-hdr">이 문서가 다루는 것</div>
+              <ul>
+                <li>Table 범위 정의 (Basic List · Work Board · Artifact Board · WBS · Test · Defect · Server · Open Scenario · Custom Column · Compact · Wide Data 11종)</li>
+                <li>Table Structure Matrix (Container · Toolbar · Filter · Header · Header Cell · Body · Row · Cell · Checkbox · Action · Status · Empty · Pagination · H-Scroll 14개)</li>
+                <li>Density / Size Rule (large · comfortable · normal · compact · dense 5종 · WBS / 시나리오 / 빔프로젝터 모드 후보)</li>
+                <li>Column Rule (표시/숨김 · 순서 변경 · width · 필수 · 고정 · export · 검색/필터/정렬 · 커스텀 · 목록과 상세 분리)</li>
+                <li>Sticky / Scroll Rule (좌측 Nav 고정 · 세로 브라우저 scroll · table 내부 가로 scroll만 허용 · page-level h-scroll 금지)</li>
+                <li>Row State Matrix (default · hover · selected · active · disabled · dimmed · updated · warning · error · success · locked · readonly 12종)</li>
+                <li>Cell Type Matrix (Text · Number · Date · Status Badge · Assignee · Priority · Progress · Link · Attachment · Comment · Action · Checkbox · Custom 13종)</li>
+                <li>Table Token 후보 17종 (<code>--table-bg</code> ~ <code>--table-scrollbar-thumb</code>)</li>
+                <li>Board / Drawer / Full Detail Link Rule (row click → Drawer → Full Detail 일관성)</li>
+                <li>Accessibility / Interaction Rule (header–cell 의미 연결 · keyboard nav · focus ring · dark 대비)</li>
+                <li>Gate Checklist · Cursor 핸드오프 기준</li>
+              </ul>
+            </div>
+            <div class="dd-col bad">
+              <div class="dd-hdr">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/css/**</code> 토큰 추가 / 값 변경 / 실제 Table 클래스 작성</li>
+                <li><code>stam/css/stam.tokens.css</code>의 table 토큰 정의 코드 작성</li>
+                <li><code>stam/css/stam.components.css</code>의 table 클래스 / animation 적용</li>
+                <li><code>stam/js/**</code> Table 정렬 / 필터 / 컬럼 설정 / 가상 스크롤 구현</li>
+                <li><code>stam/pages/**</code>, <code>stam/index.html</code> 변경</li>
+                <li><code>stam/assets/**</code>, <code>_ds/**</code>, <code>uploads/**</code> 변경</li>
+                <li>Drawer · Dialog · Form · Button · Layer 등 다른 컴포넌트의 토큰 정의 변경</li>
+                <li>Table Guide · Drawer Guide · Component Guide 본문 수정</li>
+                <li>Firebase / GitHub Actions / package*.json 변경</li>
+                <li>데이터 필드명 · API 스펙 변경 (Table은 UI 레이어만)</li>
+                <li>spreadsheet식 inline edit 기본화 — 본 v1 범위 밖 · 후속 분리</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>선행 문서와의 관계</strong>
+            <span style="display:block;margin-top:4px;line-height:1.7;">
+              · <a href="STAM-UI-Baseline-Guide.html" style="color:var(--stam);">UI Baseline Guide</a> — 폰트 · 레이아웃 · Forbidden Rules 기준<br>
+              · <a href="STAM-Component-Guide.html" style="color:var(--stam);">Component Guide</a> — 컴포넌트 전체 변형 · 사이즈 · 상태 정의<br>
+              · <a href="components/STAM-Table-Guide.html" style="color:var(--stam);">Table Guide</a> — Table Anatomy · 정렬 · 페이지네이션 · Empty State<br>
+              · <a href="STAM-CSS-Token-Readiness-Check.html" style="color:var(--stam);">CSS Token Readiness Check</a> — 12 카테고리 Ready / Partial / Missing 점검<br>
+              · <a href="STAM-Token-Inventory-v1.html" style="color:var(--stam);">Token Inventory v1</a> — Table · Row · Cell 토큰 후보<br>
+              · <a href="STAM-Button-Token-Mapping-v1.html" style="color:var(--stam);">Button Token Mapping v1</a> — Toolbar / Action Cell 버튼 매핑 (선행)<br>
+              · <a href="STAM-Form-Token-Mapping-v1.html" style="color:var(--stam);">Form Token Mapping v1</a> — Filter Area · Inline Edit (후속) 매핑 (선행)<br>
+              · <a href="STAM-Layer-Token-Mapping-v1.html" style="color:var(--stam);">Layer Token Mapping v1</a> — Sticky · Dropdown · Popup z-index 매핑 (선행)<br>
+              · <a href="STAM-Drawer-Token-Mapping-v1.html" style="color:var(--stam);">Drawer Token Mapping v1</a> — row click → Drawer → Full Detail 흐름 (선행)<br>
+              · <a href="STAM-Dialog-Token-Mapping-v1.html" style="color:var(--stam);">Dialog Token Mapping v1</a> — 삭제 · 위험 액션 confirm 매핑 (선행)<br>
+              · <strong>STAM Table Token Mapping v1</strong> <em style="opacity:.6;">(현재 문서)</em> — Table · 게시판 토큰 매핑
+            </span>
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>주의 — Mapping은 코드 변경이 아니다</strong>
+            본 문서의 Candidate 토큰명 · Suggested Value · Used By는 모두 <em>매핑 기준 후보</em>이며,
+            실제 토큰 추가 · CSS 클래스 작성 · sticky / scroll 구현 · 컬럼 설정 JS는 후속 Table CSS / JS 구현 단위에서 코드 변경과 함께 확정한다.
+            본 문서만으로 <code>stam.tokens.css</code> · <code>stam.components.css</code> · 어떤 JS 파일도 수정하지 않는다.
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>핵심 원칙 — 게시판은 같은 Table을 쓴다</strong>
+            요구사항 · 결함 · WBS · 테스트 · 서버 · 오픈 시나리오 등 게시판마다 Table CSS를 새로 작성하는 것은 금지된다.
+            모든 게시판은 <strong>같은 Table 컴포넌트 · 같은 토큰 · 같은 sticky / scroll 규칙</strong>을 따르며,
+            게시판별 차이는 “density · 표시 컬럼 · 컬럼 순서 · width · 필터 · 정렬 · 내보내기 포함 여부”의 <strong>설정값</strong>으로만 표현한다.
+            “이 게시판은 컬럼이 많으니 별도 CSS” 같은 분기는 v2 합의 없이는 만들지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Table Scope ── -->
+      <section id="s02" class="sec" data-screen-label="02 Table Scope">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Table Scope — 본 매핑이 다루는 Table 범위</span>
+          <span class="sbadge plan">범위</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아래 11개 시나리오가 본 매핑의 대상이다. 일반 목록 / 작업 게시판 / 산출물 게시판 / WBS / 테스트 / 결함 / 서버 / 오픈 시나리오 / 커스텀 컬럼 / Compact / Wide Data Table을 포함한다. 게시판별로 시각·동작이 다르지 않으며, 한 가지 Table 컴포넌트가 density · column 설정으로 모든 화면을 커버한다.</p>
+
+          <div class="scope-grid">
+            <div class="scope-card">
+              <div class="sc-top"><span class="tchip basic">Basic List Table</span></div>
+              <div class="sc-sub">일반 산출물 게시판 · 평이한 칼럼 5~10개 · row click → Drawer.</div>
+              <div class="sc-z">Density: normal</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="tchip board">Work Board Table</span></div>
+              <div class="sc-sub">작업 / 이슈 / 진행 상태 위주 게시판 · 상태 badge · 담당자.</div>
+              <div class="sc-z">Density: normal</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="tchip artifact">Artifact Board Table</span></div>
+              <div class="sc-sub">산출물 게시판 · 첨부 · 버전 · 댓글 수 · 다운로드.</div>
+              <div class="sc-z">Density: normal</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="tchip wbs">WBS Table</span></div>
+              <div class="sc-sub">WBS · 계층 · 기간 · 진행률 · 컬럼 다수 · 빔프로젝터 공유 대응.</div>
+              <div class="sc-z">Density: compact / large 후보</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="tchip test">Test Scenario Table</span></div>
+              <div class="sc-sub">테스트 시나리오 · pass / fail · 단계 · 컬럼 다수.</div>
+              <div class="sc-z">Density: compact</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="tchip defect">Defect Table</span></div>
+              <div class="sc-sub">결함관리 · 심각도 · 우선순위 · 상태 흐름 · 담당자.</div>
+              <div class="sc-z">Density: normal / compact</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="tchip server">Server Info Table</span></div>
+              <div class="sc-sub">서버 정보 · IP · 환경 · 상태 · 점검 일시 · 보안 attribute.</div>
+              <div class="sc-z">Density: normal</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="tchip open">Open Scenario Table</span></div>
+              <div class="sc-sub">오픈 시나리오 · 단계 / 책임자 / 시간대 · 빔프로젝터 공유 대응.</div>
+              <div class="sc-z">Density: compact / large 후보</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="tchip custom">Custom Column Table</span></div>
+              <div class="sc-sub">고객사 / 프로젝트 / 게시판별로 추가된 사용자 정의 컬럼.</div>
+              <div class="sc-z">Config: 컬럼 설정 기능</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="tchip compact">Compact Table</span></div>
+              <div class="sc-sub">Drawer / Dialog 내부 · 좁은 영역의 보조 목록.</div>
+              <div class="sc-z">Density: compact / dense</div>
+            </div>
+            <div class="scope-card">
+              <div class="sc-top"><span class="tchip wide">Wide Data Table</span></div>
+              <div class="sc-sub">컬럼 다수로 가로 폭이 컨텐츠 영역을 초과하는 케이스.</div>
+              <div class="sc-z">Scroll: container 내부 H-Scroll</div>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>본 문서가 다루지 않는 UI</strong>
+            Calendar · Kanban · Gantt · Tree-only · Pivot · Excel-like inline grid는 본 v1 범위 밖이다.
+            Drawer / Dialog 내부의 보조 목록은 Compact Table로 포함되며, “Drawer 안의 form”은 Form Token Mapping v1을 따른다.
+            Toast · Tooltip · Pagination 컴포넌트 자체는 Component Guide / Layer Mapping v1에서 정의하며, 본 문서는 그 위치 · 토큰 사용 기준만 다룬다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 Table Structure Matrix ── -->
+      <section id="s03" class="sec" data-screen-label="03 Table Structure">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Table Structure Matrix — Table 내부 영역 매핑</span>
+          <span class="sbadge plan">구조</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Table은 Container · Toolbar · Filter Area · Header · Body · Footer (Pagination) · Horizontal Scroll Area 7단으로 구성된다. 14개 영역의 역할 · 토큰 · 인터랙션 · 위험 · 결정 상태를 한 표로 정리한다.</p>
+
+          <!-- Anatomy visualization -->
+          <div class="tanat">
+            <div class="tanat-row tool">
+              <span class="tr-area">Toolbar</span>
+              <span class="tr-role">상단 액션 · 검색 · 컬럼 설정 · 내보내기 · 새 글</span>
+              <span class="tr-tag">--table-toolbar-height · Button Mapping v1</span>
+            </div>
+            <div class="tanat-row tool">
+              <span class="tr-area">Filter Area</span>
+              <span class="tr-role">조건 필터 · Form Mapping v1 컴포넌트 · 다중 조건</span>
+              <span class="tr-tag">Form Mapping v1 / Layer dropdown</span>
+            </div>
+            <div class="tanat-row head">
+              <span class="tr-area">Header</span>
+              <span class="tr-role">컬럼명 · 정렬 · sticky (table 내부 또는 page)</span>
+              <span class="tr-tag">--table-header-bg · --table-header-text</span>
+            </div>
+            <div class="tanat-row head">
+              <span class="tr-area">Header Cell</span>
+              <span class="tr-role">한 컬럼 헤더 · 정렬 아이콘 · resize handle (후속)</span>
+              <span class="tr-tag">--table-cell-padding-x · --table-header-text</span>
+            </div>
+            <div class="tanat-row body">
+              <span class="tr-area">Body</span>
+              <span class="tr-role">데이터 영역 · 세로 scroll은 브라우저 기본 사용</span>
+              <span class="tr-tag">--table-bg · --table-border</span>
+            </div>
+            <div class="tanat-row body">
+              <span class="tr-area">Row</span>
+              <span class="tr-role">한 행 · 클릭 → Drawer 상세 진입 · 12가지 row state</span>
+              <span class="tr-tag">--table-row-bg · --table-row-hover-bg · --table-row-height</span>
+            </div>
+            <div class="tanat-row body">
+              <span class="tr-area">Cell</span>
+              <span class="tr-role">기본 텍스트 셀 · 13가지 cell type</span>
+              <span class="tr-tag">--table-cell-text · --table-cell-padding-*</span>
+            </div>
+            <div class="tanat-row body">
+              <span class="tr-area">Checkbox Cell</span>
+              <span class="tr-role">선택 · 다중 선택 · 헤더 전체 선택</span>
+              <span class="tr-tag">Form Mapping v1 checkbox</span>
+            </div>
+            <div class="tanat-row body">
+              <span class="tr-area">Action Cell</span>
+              <span class="tr-role">우측 quick action · Drawer / Full Detail 액션과 비충돌</span>
+              <span class="tr-tag">Button Mapping v1 ghost / icon</span>
+            </div>
+            <div class="tanat-row body">
+              <span class="tr-area">Status Cell</span>
+              <span class="tr-role">상태 badge · 색만으로 의미 전달 금지</span>
+              <span class="tr-tag">Component Guide chip</span>
+            </div>
+            <div class="tanat-row body">
+              <span class="tr-area">Empty State</span>
+              <span class="tr-role">데이터 0건 · 안내 · CTA · 권한 없음 별도</span>
+              <span class="tr-tag">type / color 토큰 재사용</span>
+            </div>
+            <div class="tanat-row foot">
+              <span class="tr-area">Pagination</span>
+              <span class="tr-role">하단 · 페이지 이동 · row 수 변경 · 정보 표시</span>
+              <span class="tr-tag">Button Mapping v1 / type 토큰</span>
+            </div>
+            <div class="tanat-row scroll">
+              <span class="tr-area">H-Scroll Area</span>
+              <span class="tr-role">Wide Data Table · table container 내부에서만 발생</span>
+              <span class="tr-tag">--table-scrollbar-bg · --table-scrollbar-thumb</span>
+            </div>
+            <div class="tanat-row scroll">
+              <span class="tr-area">Container</span>
+              <span class="tr-role">전체 wrapper · sticky / scroll의 경계</span>
+              <span class="tr-tag">--table-bg · --table-border</span>
+            </div>
+          </div>
+
+          <div class="fm-cap" style="margin-top:18px;"><span class="fm-cap-n">①</span>Table Structure Matrix <span class="fm-cap-sub">14개 영역 — Required Tokens · Interaction · Risk</span></div>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:14%;">Area</th>
+                <th style="width:18%;">Role</th>
+                <th style="width:22%;">Required Tokens</th>
+                <th style="width:20%;">Interaction Rule</th>
+                <th style="width:16%;">Risk</th>
+                <th style="width:10%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn">Container</td>
+                <td>Table 전체 wrapper</td>
+                <td><code>--table-bg</code> · <code>--table-border</code></td>
+                <td>sticky / scroll의 경계 · 가로 scroll 발생 시 container 내부에서만</td>
+                <td>container 밖으로 가로 scroll 새면 페이지 레벨 가로 scroll</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Toolbar</td>
+                <td>상단 액션 · 검색 · 컬럼 설정 · 내보내기 · 새 글</td>
+                <td><code>--table-toolbar-height</code> · Button Mapping v1</td>
+                <td>좌측 정보 / 우측 액션 · scroll에 흔들리지 않음</td>
+                <td>game-changing 액션이 묻혀 사용자가 못 찾음</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Filter Area</td>
+                <td>조건 필터 · 다중 조건 · 적용 / 초기화</td>
+                <td>Form Token Mapping v1 · Layer dropdown 토큰</td>
+                <td>접기 / 펼치기 · Filter Drawer로 전환 옵션</td>
+                <td>filter 적용 결과가 table에 반영되지 않으면 사용자 혼란</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Header</td>
+                <td>컬럼명 영역 · 정렬</td>
+                <td><code>--table-header-bg</code> · <code>--table-header-text</code></td>
+                <td>정렬 표시 · sticky (table 또는 page) · 다중 정렬은 후속</td>
+                <td>sticky가 table / page에서 임의로 섞이면 layer 충돌</td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Header Cell</td>
+                <td>한 컬럼 헤더 · 정렬 · resize handle (후속)</td>
+                <td><code>--table-cell-padding-x</code> · <code>--table-header-text</code></td>
+                <td>클릭 → 정렬 토글 · 우측 아이콘 · 줄바꿈 금지 · ellipsis</td>
+                <td>긴 컬럼명이 header 높이를 늘려 layout shift</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Body</td>
+                <td>데이터 영역</td>
+                <td><code>--table-bg</code> · <code>--table-border</code></td>
+                <td>세로 scroll은 브라우저 기본 사용 · row click 영역</td>
+                <td>body에 자체 세로 scroll을 두면 sticky / popup 충돌</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Row</td>
+                <td>한 행 · 클릭 → Drawer 상세 진입</td>
+                <td><code>--table-row-bg</code> · <code>--table-row-hover-bg</code> · <code>--table-row-selected-bg</code> · <code>--table-row-height</code></td>
+                <td>행 클릭 → Drawer · 체크박스 / action 클릭은 row click 차단</td>
+                <td>row click과 action click이 충돌하면 의도치 않은 Drawer open</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Cell</td>
+                <td>기본 텍스트 셀</td>
+                <td><code>--table-cell-text</code> · <code>--table-cell-muted</code> · <code>--table-cell-padding-x</code> · <code>--table-cell-padding-y</code></td>
+                <td>1줄 ellipsis 기본 · 줄바꿈은 cell type별로 명시</td>
+                <td>cell이 줄바꿈해서 row height가 흔들리면 reading rhythm 깨짐</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Checkbox Cell</td>
+                <td>선택 · 다중 선택</td>
+                <td>Form Mapping v1 checkbox 토큰</td>
+                <td>고정 좌측 · 헤더 전체 선택 · row click 차단</td>
+                <td>checkbox 클릭이 row click을 같이 트리거</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Action Cell</td>
+                <td>우측 quick action</td>
+                <td>Button Mapping v1 ghost / icon</td>
+                <td>row click 차단 · 위험 액션은 Dialog confirm</td>
+                <td>action이 row click을 같이 트리거하면 Drawer 잘못 열림</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Status Cell</td>
+                <td>상태 badge</td>
+                <td>Component Guide chip · color 토큰</td>
+                <td>색 + 라벨 · 색만으로 의미 전달 금지</td>
+                <td>색만으로 의미를 전달하면 다크 모드 / 접근성 실패</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Empty State</td>
+                <td>데이터 0건 · 안내 · CTA</td>
+                <td>type / color 토큰 재사용</td>
+                <td>“데이터 없음” + 등록 CTA · 권한 없음 별도</td>
+                <td>empty와 권한 없음 / 로딩 실패가 같은 화면이면 사용자 혼란</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Pagination</td>
+                <td>하단 페이지 이동 · row 수 변경</td>
+                <td>Button Mapping v1 · type 토큰</td>
+                <td>페이지 이동 · 현재 페이지 표시 · row 수 변경 select</td>
+                <td>pagination이 sticky 안 되면 긴 list에서 매번 끝까지 scroll</td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+              <tr>
+                <td class="tn">H-Scroll Area</td>
+                <td>Wide Data Table 가로 스크롤</td>
+                <td><code>--table-scrollbar-bg</code> · <code>--table-scrollbar-thumb</code> · <code>--table-sticky-shadow</code></td>
+                <td>table container 내부에서만 발생 · page-level h-scroll 금지</td>
+                <td>가로 scroll이 페이지 전체로 새면 좌측 Nav까지 잘림</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Toolbar · Header · Body · Pagination 4단 원칙</strong>
+            모든 STAM Table은 Toolbar(+Filter) · Header · Body · Pagination 4단 구조를 따른다.
+            Toolbar의 액션 종류와 Body의 row state · cell type만 게시판별로 다르며, 시각 · 토큰 · 인터랙션 규칙은 동일하다.
+            Header / Pagination의 sticky 여부는 Section 06에서 결정한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Density / Size Rule ── -->
+      <section id="s04" class="sec" data-screen-label="04 Density Size">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Table Density / Size Rule — row height · padding 기준</span>
+          <span class="sbadge plan">밀도</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Table은 게시판마다 CSS를 새로 만들지 않고 <strong>density 토큰 / class 조합</strong>으로 row height · padding · font · icon size만 바꾼다. 일반 게시판은 normal, WBS / 테스트 / 오픈 시나리오처럼 컬럼이 많은 화면은 compact 또는 dense, 회의실 / 빔프로젝터 공유 화면은 large(readability mode)를 후보로 둔다.</p>
+
+          <!-- density viz -->
+          <div class="dens-grid">
+            <div class="dens-card large">
+              <div class="dn-top"><span class="dn-name">large</span><span class="dn-h">56px</span></div>
+              <div class="dn-sub">회의실 / 빔프로젝터 공유 · 가독성 우선</div>
+              <div class="dn-use">Open Scenario / WBS 발표 모드 후보</div>
+              <div class="dn-bars"><span></span><span></span><span></span></div>
+            </div>
+            <div class="dens-card comfortable">
+              <div class="dn-top"><span class="dn-name">comfortable</span><span class="dn-h">48px</span></div>
+              <div class="dn-sub">텍스트 위주 · 댓글 · 첨부 강조</div>
+              <div class="dn-use">Artifact Board / 일반 산출물 후보</div>
+              <div class="dn-bars"><span></span><span></span><span></span><span></span></div>
+            </div>
+            <div class="dens-card normal">
+              <div class="dn-top"><span class="dn-name">normal</span><span class="dn-h">40px</span></div>
+              <div class="dn-sub">표준 · 일반 게시판 권장</div>
+              <div class="dn-use">Basic List / Work Board / Defect / Server</div>
+              <div class="dn-bars"><span></span><span></span><span></span><span></span><span></span></div>
+            </div>
+            <div class="dens-card compact">
+              <div class="dn-top"><span class="dn-name">compact</span><span class="dn-h">32px</span></div>
+              <div class="dn-sub">컬럼 다수 · 한 화면 정보량 우선</div>
+              <div class="dn-use">WBS / Test Scenario / Defect</div>
+              <div class="dn-bars"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            </div>
+            <div class="dens-card dense">
+              <div class="dn-top"><span class="dn-name">dense</span><span class="dn-h">28px</span></div>
+              <div class="dn-sub">분석 / 스프레드시트형 · 가독성 ▼</div>
+              <div class="dn-use">Custom · Wide Data · 분석 화면</div>
+              <div class="dn-bars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            </div>
+          </div>
+
+          <div class="fm-cap" style="margin-top:18px;"><span class="fm-cap-n">②</span>Density × Row Height × Padding × Font · Usage <span class="fm-cap-sub">5종 · 토큰 / class 조합으로 제어</span></div>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:12%;">Density</th>
+                <th style="width:14%;">Row Height Candidate</th>
+                <th style="width:14%;">Cell Padding X</th>
+                <th style="width:10%;">Font Size</th>
+                <th style="width:10%;">Icon Size</th>
+                <th style="width:28%;">Usage</th>
+                <th style="width:12%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn"><span class="dchip large">large</span></td>
+                <td class="zval">56px</td>
+                <td class="zval">20px</td>
+                <td class="zval">15px</td>
+                <td class="zval">20px</td>
+                <td>회의실 / 빔프로젝터 공유 · 발표 모드 — Open Scenario · WBS 발표 후보</td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="dchip comfortable">comfortable</span></td>
+                <td class="zval">48px</td>
+                <td class="zval">16px</td>
+                <td class="zval">14px</td>
+                <td class="zval">18px</td>
+                <td>텍스트 위주 게시판 — Artifact Board · 댓글·첨부 강조</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="dchip normal">normal</span></td>
+                <td class="zval">40px</td>
+                <td class="zval">14px</td>
+                <td class="zval">13px</td>
+                <td class="zval">16px</td>
+                <td><strong>일반 산출물 게시판 권장</strong> — Basic List · Work Board · Defect · Server</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="dchip compact">compact</span></td>
+                <td class="zval">32px</td>
+                <td class="zval">10px</td>
+                <td class="zval">12px</td>
+                <td class="zval">14px</td>
+                <td>컬럼 다수 · 한 화면 정보량 우선 — WBS · Test Scenario · Defect 압축</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="dchip dense">dense</span></td>
+                <td class="zval">28px</td>
+                <td class="zval">8px</td>
+                <td class="zval">12px</td>
+                <td class="zval">14px</td>
+                <td>분석 / 스프레드시트형 · 가독성 ▼ — Custom Column · Wide Data 분석</td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="rule-grid" style="margin-top:14px;">
+            <div class="rule-card">
+              <div class="rc-hdr">density 선택 원칙</div>
+              <ul>
+                <li>일반 산출물 게시판은 <strong>normal</strong>이 기본 — 별도 설정 없이 사용</li>
+                <li>WBS · Test · Open Scenario처럼 컬럼이 많은 화면은 <strong>compact</strong> 또는 <strong>dense</strong> 후보</li>
+                <li>빔프로젝터 · 회의실 공유는 <strong>large(readability mode)</strong>를 별도 후보로 둠</li>
+                <li>한 게시판에서 사용자 선택으로 density를 toggle 할지 / 게시판마다 고정할지 PM 결정</li>
+                <li>density는 row height · padding · font · icon size만 바꿈 — 색 · 토큰은 동일</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">제어 방식 원칙</div>
+              <ul>
+                <li><strong>token / class 조합</strong>으로만 제어 — 게시판마다 별도 CSS 작성 금지</li>
+                <li>density 변경은 <code>--table-row-height</code> · <code>--table-cell-padding-x</code> · <code>--table-cell-padding-y</code> 3개 token만 swap</li>
+                <li>JS · DOM 구조 변경 없이 density 전환 가능해야 함</li>
+                <li>density 토큰은 Component Guide의 size scale과 정합 — Form / Button과 일관</li>
+                <li>한 화면에서 density가 row 별로 다르게 적용되지 않음 — table-level 단일 density</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">가독성 / 접근성 기준</div>
+              <ul>
+                <li>dense는 12px 이하 폰트 금지 · 접근성 최소 기준 유지</li>
+                <li>compact / dense에서도 row click 영역은 row 전체 — 작은 row height에서도 hit 보장</li>
+                <li>large는 회의실 환경에서 5~7m 거리에서 읽을 수 있어야 함</li>
+                <li>density 전환 시 row 위치 / scroll 위치가 흔들리지 않도록 가급적 유지</li>
+                <li>density 전환은 페이지 단위가 아닌 게시판 단위 설정 우선</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">density 결정 우선순위</div>
+              <ul>
+                <li>P0 — <strong>normal</strong> (기본) · 일반 게시판 즉시 사용</li>
+                <li>P0 — <strong>compact</strong> · WBS · Test · Defect 압축 화면</li>
+                <li>P1 — <strong>comfortable</strong> · Artifact Board 텍스트 위주</li>
+                <li>P1 — <strong>dense</strong> · Custom / Wide Data 분석 화면</li>
+                <li>P2 — <strong>large</strong> · 빔프로젝터 / 회의실 발표 모드 (Decision Needed)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Decision Needed — large(readability mode) 적용 범위</strong>
+            빔프로젝터 / 회의실 공유 화면에서 large mode를 별도로 둘지 / 사용자 “발표 모드” toggle로 둘지 PM 결정이 필요하다.
+            기본 후보는 Open Scenario · WBS 두 게시판에 한정 적용이며,
+            ALL pages 적용은 Toolbar 위치 / Pagination 위치를 함께 검토해야 한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 Column Rule ── -->
+      <section id="s05" class="sec" data-screen-label="05 Column Rule">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Column Rule — 컬럼 설정 · 커스텀 · 표시 / 숨김 / 순서 / Width 기준</span>
+          <span class="sbadge plan">컬럼</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">목록 컬럼은 <strong>고객사 / 프로젝트 / 게시판별로 사용자가 커스텀</strong>할 수 있어야 한다. 표시 / 숨김 · 순서 변경 · width 조정 · 필수 / 고정 · 내보내기 포함 여부 · 검색 / 필터 / 정렬 포함 여부 · 목록 컬럼과 상세 입력 항목 분리 등 9개 설정 기준을 정리한다.</p>
+
+          <div class="fm-cap"><span class="fm-cap-n">③</span>Column Setting Matrix <span class="fm-cap-sub">9개 항목 — Purpose · Applies To · Required Token / Config</span></div>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:18%;">Column Setting</th>
+                <th style="width:20%;">Purpose</th>
+                <th style="width:18%;">Applies To</th>
+                <th style="width:22%;">Required Token / Config</th>
+                <th style="width:12%;">Risk</th>
+                <th style="width:10%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn">표시 / 숨김</td>
+                <td>컬럼을 목록에서 보일지 결정</td>
+                <td>모든 Table</td>
+                <td>per-column <code>visible</code> config · header / body 동시 hide</td>
+                <td>숨긴 컬럼 데이터가 export에 누락</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">순서 변경</td>
+                <td>컬럼 순서 재배치</td>
+                <td>모든 Table</td>
+                <td>per-column <code>order</code> · drag handle (Toolbar / 설정 패널)</td>
+                <td>순서 변경 후 sort / filter 동작 미반영</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Width 후보</td>
+                <td>컬럼별 폭 정의</td>
+                <td>모든 Table</td>
+                <td>per-column <code>width</code> (px / fr / auto) · min / max 후보</td>
+                <td>합계 폭이 container 초과 시 가로 scroll 발생</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">필수 / 고정 컬럼</td>
+                <td>사용자가 숨길 수 없는 컬럼 / 좌측 고정</td>
+                <td>모든 Table · ID / 제목 등</td>
+                <td>per-column <code>required</code> · <code>pinned</code> (left 후속)</td>
+                <td>필수 컬럼을 숨겨 row 식별 불가</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">내보내기 포함</td>
+                <td>Excel / CSV export 포함 여부</td>
+                <td>Export 가능 Table</td>
+                <td>per-column <code>exportable</code> · default true</td>
+                <td>민감 정보 컬럼이 export에 포함</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">검색 / 필터</td>
+                <td>컬럼이 검색 / 필터 대상인지</td>
+                <td>모든 Table</td>
+                <td>per-column <code>searchable</code> · <code>filterable</code> · filter type</td>
+                <td>filter 결과가 다른 컬럼에 영향을 주지 않음</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">정렬 포함</td>
+                <td>컬럼이 정렬 대상인지</td>
+                <td>모든 Table</td>
+                <td>per-column <code>sortable</code> · 정렬 아이콘</td>
+                <td>정렬 가능 / 불가가 시각적으로 구분 안 되면 헷갈림</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">목록 / 상세 분리</td>
+                <td>목록 컬럼과 상세 입력 항목 따로 설정</td>
+                <td>Drawer 상세 / Full Detail</td>
+                <td><strong>list columns ≠ detail fields</strong> · 별도 config</td>
+                <td>목록에 보이지 않는 항목이 상세에도 누락</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">고객사 / 프로젝트 / 게시판 커스텀</td>
+                <td>scope별 컬럼 설정 저장</td>
+                <td>모든 Table</td>
+                <td>scope = customer / project / board · 우선순위 정의 필요</td>
+                <td>scope 우선순위 미정 시 사용자별 설정 충돌</td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="rule-grid" style="margin-top:14px;">
+            <div class="rule-card">
+              <div class="rc-hdr">커스텀 컬럼 원칙</div>
+              <ul>
+                <li>표시 컬럼 · 순서 · width는 <strong>설정 데이터</strong>로 저장 · CSS 하드코딩 금지</li>
+                <li>고객사 → 프로젝트 → 게시판 → 사용자 순으로 설정 override (후보)</li>
+                <li>필수 컬럼은 사용자가 숨길 수 없음 · 시각적으로도 “필수” 표시</li>
+                <li>좌측 고정 컬럼(pinned)은 후속 구현 대상으로 분리 — v1 범위 밖</li>
+                <li>컬럼 설정 변경은 <strong>실시간 반영</strong> · 페이지 새로고침 없이 적용</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">목록과 상세 분리 원칙</div>
+              <ul>
+                <li>목록 컬럼과 상세 입력 항목은 <strong>별도 설정</strong> — 같은 데이터 모델이라도 다름</li>
+                <li>목록에 보이지 않아도 상세에서는 입력 / 조회 가능해야 함</li>
+                <li>Drawer 상세 / Full Detail의 항목은 Form Mapping v1을 따름</li>
+                <li>“이 컬럼은 목록에서 숨김” = 데이터 자체 삭제가 아님</li>
+                <li>상세에서만 입력 가능한 항목은 목록에 노출되지 않아도 정상</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">컬럼 설정 UI 위치</div>
+              <ul>
+                <li>Toolbar 우측 “컬럼 설정” 버튼 → Dropdown 또는 Drawer로 설정 UI 열림</li>
+                <li>설정 UI는 표시 / 숨김 toggle · 순서 변경 drag handle · width 조정 후보</li>
+                <li>“기본값 복원” 버튼 제공 — 사용자 설정 초기화</li>
+                <li>설정 저장은 즉시 / 저장 버튼 명시 중 PM 결정 필요</li>
+                <li>설정 UI는 Layer Mapping v1 dropdown 또는 Drawer Mapping v1 사용</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">컬럼 설정 구현 분리</div>
+              <ul>
+                <li>본 v1은 <strong>설정 기준</strong>만 확정 · 실제 컬럼 설정 기능 구현은 별도 작업</li>
+                <li>표시 / 숨김 · 순서 · width의 데이터 모델만 미리 합의</li>
+                <li>저장 위치(localStorage / 서버 설정 API) PM 결정 필요</li>
+                <li>컬럼 설정 변경 권한(관리자만 / 사용자도) 정책 필요</li>
+                <li>커스텀 컬럼 “추가”(스키마 변경) 기능은 본 v1 범위 밖</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Decision Needed — 설정 scope 우선순위 / 저장 위치</strong>
+            고객사 / 프로젝트 / 게시판 / 사용자 4단 scope 중 어디까지 컬럼 설정을 분리할지,
+            설정 저장을 localStorage / 서버 API 어디에 둘지 PM 결정 필요.
+            기본 후보는 “게시판 단위 + 사용자별 override · 서버 저장”이며,
+            v1 구현 단위에서 우선순위 / 저장 위치 함께 결정 권장.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 Sticky / Scroll Rule ── -->
+      <section id="s06" class="sec" data-screen-label="06 Sticky Scroll">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Sticky / Scroll Rule — sticky · 가로 / 세로 scroll 정책</span>
+          <span class="sbadge plan">스크롤</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">STAM Table의 scroll 정책은 단순하다. <strong>좌측 Nav 고정 · 페이지 세로 scroll은 브라우저 기본 · 가로 scroll은 table container 내부에서만 발생 · 페이지 레벨 가로 scroll 금지</strong>. sticky header는 필요 시 table 내부 또는 page 기준 중 하나로 결정한다. sticky column은 후속 구현 대상이다.</p>
+
+          <div class="scroll-grid">
+            <div class="scroll-card good">
+              <div class="sl-hdr">PASS — 권장 scroll 패턴</div>
+              <div class="sl-sub">좌측 Nav는 고정 · 페이지 세로 scroll은 브라우저 기본 · Wide Table은 container 내부 가로 scroll.</div>
+              <div class="sl-vis">↕ page scroll · ↔ table-only scroll</div>
+            </div>
+            <div class="scroll-card bad">
+              <div class="sl-hdr">FAIL — 금지 패턴</div>
+              <div class="sl-sub">페이지 전체 가로 scroll · body 자체 세로 scroll · sticky가 table / page에서 임의 혼용.</div>
+              <div class="sl-vis">⛔ page-level h-scroll</div>
+            </div>
+            <div class="scroll-card good">
+              <div class="sl-hdr">CONDITIONAL — sticky / pagination</div>
+              <div class="sl-sub">sticky header / pagination 적용 범위는 PM 결정 — table 내부 or page 기준 중 하나로 통일.</div>
+              <div class="sl-vis">≡ sticky header · ◐ sticky pagination</div>
+            </div>
+          </div>
+
+          <div class="fm-cap" style="margin-top:18px;"><span class="fm-cap-n">④</span>Sticky / Scroll Matrix <span class="fm-cap-sub">Area × 정책 × 위험 × 결정</span></div>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:18%;">Area</th>
+                <th style="width:22%;">Policy</th>
+                <th style="width:22%;">Required Tokens / Layer</th>
+                <th style="width:18%;">Risk</th>
+                <th style="width:12%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn">좌측 Nav (Sidebar)</td>
+                <td>고정 — Table 화면 전체에서 항상 보임</td>
+                <td>Layer Mapping v1 <code>--z-sidebar</code></td>
+                <td>좌측 Nav가 page-level h-scroll에 잘리면 ALL pages 실패</td>
+                <td><span class="spill ready">확정</span></td>
+              </tr>
+              <tr>
+                <td class="tn">세로 Scroll</td>
+                <td>페이지 단위 브라우저 scroll 사용 · table body 자체 세로 scroll 금지</td>
+                <td>—</td>
+                <td>body 자체 세로 scroll 시 sticky / popup 충돌</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn">가로 Scroll</td>
+                <td>table container 내부에서만 허용 · page-level h-scroll 금지</td>
+                <td><code>--table-scrollbar-bg</code> · <code>--table-scrollbar-thumb</code></td>
+                <td>가로 scroll이 페이지 전체로 새면 좌측 Nav까지 잘림</td>
+                <td><span class="spill ready">확정</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Sticky Header</td>
+                <td>table 내부 또는 page 기준 중 하나로 통일 · 임의 혼용 금지</td>
+                <td><code>--table-header-bg</code> · <code>--table-sticky-shadow</code> · Layer Mapping v1</td>
+                <td>두 기준이 한 화면에 섞이면 컬럼 정렬 / popup 충돌</td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Sticky Column</td>
+                <td>후속 구현 대상으로 분리 — v1 범위 밖</td>
+                <td><code>--table-sticky-shadow</code> (좌측)</td>
+                <td>v1에서 무리 적용 시 가로 scroll · drawer 충돌</td>
+                <td><span class="spill hold">v2</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Sticky Pagination</td>
+                <td>긴 list에서 권장 — table 내부 또는 page 하단 fixed</td>
+                <td>Button Mapping v1 · type 토큰</td>
+                <td>sticky 미적용 시 매번 끝까지 scroll</td>
+                <td><span class="spill decide">결정 필요</span></td>
+              </tr>
+              <tr>
+                <td class="tn">Drawer / Dialog / Dropdown popup vs Table scroll</td>
+                <td>popup은 portal · Table scroll 영역과 충돌 금지</td>
+                <td>Layer Mapping v1 <code>--z-drawer</code> · <code>--z-dialog</code> · <code>--z-dropdown</code></td>
+                <td>popup이 scroll에 잘리거나 sticky header 뒤로 깔리면 FAIL</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="rule-grid" style="margin-top:14px;">
+            <div class="rule-card">
+              <div class="rc-hdr">세로 scroll 원칙</div>
+              <ul>
+                <li>세로 scroll은 <strong>페이지 단위 브라우저 scroll</strong>만 사용</li>
+                <li>table body 자체 세로 scroll(고정 높이 container) 금지 — sticky / popup 충돌</li>
+                <li>row 수가 많으면 pagination 또는 virtualization(후속)으로 해결</li>
+                <li>row click → Drawer 흐름에서 scroll 위치는 유지 — Drawer 닫힘 후 같은 위치</li>
+                <li>filter 적용 시 scroll 위치는 최상단으로 리셋</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">가로 scroll 원칙</div>
+              <ul>
+                <li>가로 scroll은 <strong>table container 내부에서만</strong> 발생 · page-level 금지</li>
+                <li>1440 · 1600 · 1920 가로 폭에서 페이지 레벨 가로 scroll 없음 — QA 필수</li>
+                <li>Wide Data Table은 container 내부 가로 scroll로 처리 · drawer 진입 시에도 잘리지 않음</li>
+                <li>scrollbar 자체도 토큰 — <code>--table-scrollbar-bg</code> · <code>--table-scrollbar-thumb</code></li>
+                <li>좌측 Nav · Drawer 진입 시 가로 scroll 보장 — page-level은 절대 금지</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">Sticky header · pagination 원칙</div>
+              <ul>
+                <li>sticky header는 <strong>table 내부 또는 page 기준 중 하나</strong>로 통일 · 임의 혼용 금지</li>
+                <li>sticky pagination은 긴 list에서 권장 · scroll에 흔들리지 않음</li>
+                <li>sticky 영역은 Layer Mapping v1 z-index 토큰만 사용 · 임의 숫자 금지</li>
+                <li>sticky 영역의 그림자는 <code>--table-sticky-shadow</code>로 통일</li>
+                <li>sticky header / pagination이 Drawer / Dialog popup과 충돌하지 않음</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">popup 충돌 방지</div>
+              <ul>
+                <li>Drawer · Dialog · Dropdown은 모두 <strong>portal 렌더링</strong> — table scroll에 갇히지 않음</li>
+                <li>Drawer panel은 Table 위에 dim layer를 두고 row click을 차단</li>
+                <li>Drawer / Dialog 진입 시 페이지 가로 scroll 발생 금지</li>
+                <li>Drawer 닫힘 시 Table scroll 위치는 그대로 유지</li>
+                <li>filter / 컬럼 설정 dropdown은 Layer Mapping v1 <code>--z-dropdown</code> 사용</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Decision Needed — Sticky Header / Pagination 기준 단일화</strong>
+            sticky header를 “table container 내부” 기준으로 잡을지 “page top” 기준으로 잡을지 PM 결정 필요.
+            기본 후보는 <strong>table 내부 sticky</strong>이며, Toolbar / Filter는 page top sticky로 분리.
+            sticky pagination 적용 여부는 게시판별 row 수 분포 검토 후 결정 권장.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 Row State Matrix ── -->
+      <section id="s07" class="sec" data-screen-label="07 Row State">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Row State Matrix — Row 상태 매핑</span>
+          <span class="sbadge plan">상태</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Row는 default · hover · selected · active · disabled · dimmed · updated · warning · error · success · locked · readonly 12개 상태를 가진다. 각 상태별 토큰 후보 · light / dark · usage · 결정 상태를 정리한다. 색만으로 의미를 전달하지 않으며, 항상 라벨 / 아이콘과 함께 사용한다.</p>
+
+          <!-- row state visualization -->
+          <div class="rowstate-viz">
+            <div class="rowstate-row">
+              <span class="rs-lbl">default</span>
+              <div class="rs-cells"><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span></div>
+            </div>
+            <div class="rowstate-row hover">
+              <span class="rs-lbl">hover</span>
+              <div class="rs-cells"><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span></div>
+            </div>
+            <div class="rowstate-row selected">
+              <span class="rs-lbl">selected</span>
+              <div class="rs-cells"><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span></div>
+            </div>
+            <div class="rowstate-row active">
+              <span class="rs-lbl">active</span>
+              <div class="rs-cells"><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span></div>
+            </div>
+            <div class="rowstate-row updated">
+              <span class="rs-lbl">updated</span>
+              <div class="rs-cells"><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span></div>
+            </div>
+            <div class="rowstate-row warning">
+              <span class="rs-lbl">warning</span>
+              <div class="rs-cells"><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span></div>
+            </div>
+            <div class="rowstate-row error">
+              <span class="rs-lbl">error</span>
+              <div class="rs-cells"><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span></div>
+            </div>
+            <div class="rowstate-row success">
+              <span class="rs-lbl">success</span>
+              <div class="rs-cells"><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span></div>
+            </div>
+            <div class="rowstate-row dimmed">
+              <span class="rs-lbl">dimmed</span>
+              <div class="rs-cells"><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span></div>
+            </div>
+            <div class="rowstate-row disabled">
+              <span class="rs-lbl">disabled</span>
+              <div class="rs-cells"><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span></div>
+            </div>
+            <div class="rowstate-row locked">
+              <span class="rs-lbl">locked</span>
+              <div class="rs-cells"><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span></div>
+            </div>
+            <div class="rowstate-row readonly">
+              <span class="rs-lbl">readonly</span>
+              <div class="rs-cells"><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span><span class="rs-cell"></span></div>
+            </div>
+          </div>
+
+          <div class="fm-cap" style="margin-top:18px;"><span class="fm-cap-n">⑤</span>Row State × Token × Light / Dark · Usage <span class="fm-cap-sub">12종 row state — 모든 게시판 공통</span></div>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:12%;">Row State</th>
+                <th style="width:22%;">Required Tokens</th>
+                <th style="width:17%;">Light Candidate</th>
+                <th style="width:17%;">Dark Candidate</th>
+                <th style="width:22%;">Usage</th>
+                <th style="width:10%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn"><span class="stchip default">default</span></td>
+                <td><code>--table-row-bg</code> · <code>--table-cell-text</code></td>
+                <td>#FFFFFF / #0F172A</td>
+                <td>#1B1C1F / #E7E9EE</td>
+                <td>일반 상태 · 클릭 가능</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip hover">hover</span></td>
+                <td><code>--table-row-hover-bg</code></td>
+                <td>#F8FAFC</td>
+                <td>rgba(255,255,255,.04)</td>
+                <td>마우스 hover · 클릭 의도 표시</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip selected">selected</span></td>
+                <td><code>--table-row-selected-bg</code></td>
+                <td>rgba(56,113,255,.08)</td>
+                <td>rgba(110,170,255,.12)</td>
+                <td>checkbox 선택 · 다중 선택</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip active">active</span></td>
+                <td><code>--table-row-selected-bg</code> 강조</td>
+                <td>rgba(56,113,255,.14)</td>
+                <td>rgba(110,170,255,.18)</td>
+                <td>현재 Drawer로 열려 있는 row 표시</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip disabled">disabled</span></td>
+                <td><code>--table-cell-muted</code> · opacity</td>
+                <td>opacity .55</td>
+                <td>opacity .45</td>
+                <td>권한 없음 / 정책 잠금 · 클릭 무반응</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip dimmed">dimmed</span></td>
+                <td><code>--table-cell-muted</code></td>
+                <td>opacity .7</td>
+                <td>opacity .6</td>
+                <td>filter 적용 / 검색 매칭 외 row 색약화</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip updated">updated</span></td>
+                <td><code>--table-row-bg</code> + info tone</td>
+                <td>rgba(56,113,255,.06)</td>
+                <td>rgba(110,170,255,.08)</td>
+                <td>최근 수정된 row 강조 · 일정 시간 후 자동 해제</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip warning">warning</span></td>
+                <td><code>--table-row-warning-bg</code></td>
+                <td>rgba(255,146,0,.08)</td>
+                <td>rgba(255,166,40,.12)</td>
+                <td>주의 필요 row · 기한 임박 · 검토 대상</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip error">error</span></td>
+                <td><code>--table-row-error-bg</code></td>
+                <td>rgba(229,34,34,.06)</td>
+                <td>rgba(255,80,80,.10)</td>
+                <td>오류 상태 row · 저장 실패 · 충돌</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip success">success</span></td>
+                <td><code>--table-row-bg</code> + pass tone</td>
+                <td>rgba(0,191,64,.06)</td>
+                <td>rgba(48,210,98,.08)</td>
+                <td>승인 완료 · 정상 처리 row · 일시적 표시</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip locked">locked</span></td>
+                <td><code>--table-cell-muted</code> + lock icon</td>
+                <td>—</td>
+                <td>—</td>
+                <td>편집 잠금 · 다른 사용자 점유 / 정책 잠금</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="stchip readonly">readonly</span></td>
+                <td><code>--table-cell-muted</code></td>
+                <td>—</td>
+                <td>—</td>
+                <td>조회 권한만 보유 · inline 액션 미노출</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>row state 우선순위</strong>
+            한 row가 여러 상태를 동시에 가질 수 있다 (예: hover + selected + warning).
+            우선순위는 <strong>error / warning</strong> (의미)이 배경, <strong>selected / active</strong>가 상호작용 표시, <strong>hover</strong>가 인터랙션 보조다.
+            disabled / locked / readonly는 hover · selected · active를 차단한다. updated는 일정 시간 후 자동 해제되며 default로 돌아간다.
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>색만으로 의미 전달 금지</strong>
+            warning / error / success / locked / disabled는 반드시 <strong>색 + 라벨 또는 아이콘</strong>으로 함께 표현해야 한다.
+            다크 모드에서 색 차이가 약해질 수 있으며, 색약 사용자에게 정보가 전달되지 않는다.
+            status badge(Section 08)와 row state는 서로 보완 — 둘 중 하나만으로 의미가 완성되지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Cell Type Matrix ── -->
+      <section id="s08" class="sec" data-screen-label="08 Cell Type">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Cell Type Matrix — 셀 유형 매핑</span>
+          <span class="sbadge plan">셀</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Cell은 Text · Number · Date · Status Badge · Assignee · Priority · Progress · Link · Attachment · Comment Count · Action Button · Checkbox · Custom Field 13개 유형을 가진다. 각 유형별 사용처 · 토큰 · 인터랙션 · export 규칙 · 결정 상태를 정리한다.</p>
+
+          <div class="fm-cap"><span class="fm-cap-n">⑥</span>Cell Type Matrix <span class="fm-cap-sub">13종 — Usage · Tokens · Interaction · Export</span></div>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:14%;">Cell Type</th>
+                <th style="width:22%;">Usage</th>
+                <th style="width:22%;">Required Tokens</th>
+                <th style="width:18%;">Interaction Rule</th>
+                <th style="width:14%;">Export Rule</th>
+                <th style="width:10%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn"><span class="cchip">Text</span></td>
+                <td>제목 · 설명 · 일반 텍스트</td>
+                <td><code>--table-cell-text</code> · <code>--table-cell-padding-*</code></td>
+                <td>1줄 ellipsis · row click → Drawer</td>
+                <td>그대로 export</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="cchip">Number</span></td>
+                <td>건수 · 금액 · 진행률(텍스트)</td>
+                <td><code>--table-cell-text</code> · 우측 정렬</td>
+                <td>우측 정렬 · 천 단위 separator · 0은 muted</td>
+                <td>숫자 그대로 export</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="cchip">Date</span></td>
+                <td>등록일 · 수정일 · 기한</td>
+                <td><code>--table-cell-text</code> · <code>--table-cell-muted</code></td>
+                <td>형식 통일 (YYYY-MM-DD) · 기한 임박은 warning row</td>
+                <td>ISO 형식 export</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="cchip">Status Badge</span></td>
+                <td>상태 (진행중 / 완료 / 반려 등)</td>
+                <td>Component Guide chip · color 토큰</td>
+                <td>색 + 라벨 동시 · 색만 금지</td>
+                <td>라벨 텍스트로 export</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="cchip">Assignee</span></td>
+                <td>담당자 · 작성자</td>
+                <td>Avatar 토큰 · type</td>
+                <td>아바타 + 이름 · 다중 담당자 stack</td>
+                <td>이름 텍스트로 export</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="cchip">Priority</span></td>
+                <td>우선순위 (P0/P1/P2 / 긴급 / 일반)</td>
+                <td>Component Guide chip · color 토큰</td>
+                <td>색 + 라벨 · 정렬 기본 후보</td>
+                <td>라벨 텍스트로 export</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="cchip">Progress</span></td>
+                <td>진행률 · 완료율</td>
+                <td>Progress 토큰 · color</td>
+                <td>bar + % 동시 · 정렬 기본 후보</td>
+                <td>% 텍스트로 export</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="cchip">Link</span></td>
+                <td>외부 URL · 다른 화면 링크</td>
+                <td><code>--table-cell-text</code> + link color</td>
+                <td>click → 새 탭 · row click과 충돌 차단</td>
+                <td>URL 텍스트로 export</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="cchip">Attachment</span></td>
+                <td>첨부 파일 수 · 다운로드</td>
+                <td>아이콘 + count · type</td>
+                <td>click → 첨부 목록 popover (Layer Mapping v1)</td>
+                <td>개수 export 또는 제외</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="cchip">Comment Count</span></td>
+                <td>댓글 수</td>
+                <td>아이콘 + count · type</td>
+                <td>click → Drawer 댓글 탭으로 진입</td>
+                <td>개수 export 또는 제외</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="cchip">Action Button</span></td>
+                <td>quick action · 수정 · 삭제 · 더보기</td>
+                <td>Button Mapping v1 ghost / icon</td>
+                <td>row click 차단 · 위험 액션은 Dialog confirm</td>
+                <td>export 제외</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="cchip">Checkbox</span></td>
+                <td>다중 선택</td>
+                <td>Form Mapping v1 checkbox</td>
+                <td>row click 차단 · 헤더 전체 선택 sync</td>
+                <td>export 제외</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><span class="cchip">Custom Field</span></td>
+                <td>고객사 / 프로젝트 / 게시판별 추가 컬럼</td>
+                <td>기본 텍스트 / number / date / chip 재사용</td>
+                <td>type별로 위 규칙 그대로 적용</td>
+                <td>type별로 export 규칙 적용</td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>inline edit는 v1 범위 밖</strong>
+            Table 셀에서 select · date picker · 텍스트 등을 inline 편집하는 스프레드시트식 UI는 본 v1에서 기본화하지 않는다.
+            모든 수정은 row click → Drawer 또는 Full Detail에서 진행한다. inline edit는 후속 고도화로 분리하며,
+            적용 시에도 Drawer / Full Detail과 같은 컴포넌트(Form Mapping v1)를 portal로 mount한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Table Token Mapping Table ── -->
+      <section id="s09" class="sec" data-screen-label="09 Token Mapping">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Table Token Mapping Table — 토큰 후보</span>
+          <span class="sbadge plan">P0 매핑</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Token Inventory v1의 Table 후보를 풀어 정리한다. background / border / header / row / cell / padding / row height / sticky shadow / scrollbar 17종 토큰이 Table 전체를 정의한다. row state 색은 row state-specific 토큰으로 분리하고, row height / padding은 density 토큰으로 swap한다.</p>
+
+          <div class="fm-wrap">
+          <table class="fm-tbl">
+            <thead>
+              <tr>
+                <th style="width:20%;">Token Candidate</th>
+                <th style="width:14%;">Purpose</th>
+                <th style="width:18%;">Used By</th>
+                <th style="width:14%;">Light Candidate</th>
+                <th style="width:14%;">Dark Candidate</th>
+                <th style="width:8%;">Required</th>
+                <th style="width:12%;">Decision Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn"><code>--table-bg</code></td>
+                <td>Table 배경</td>
+                <td>Container · Body</td>
+                <td>#FFFFFF</td>
+                <td>#1B1C1F</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-border</code></td>
+                <td>Table 경계 · row separator</td>
+                <td>Container · Row 사이</td>
+                <td>rgba(0,0,0,.06)</td>
+                <td>rgba(255,255,255,.08)</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-header-bg</code></td>
+                <td>Header 배경</td>
+                <td>Header · Header Cell</td>
+                <td>#F8FAFC</td>
+                <td>#23252A</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-header-text</code></td>
+                <td>Header 텍스트 색</td>
+                <td>Header Cell</td>
+                <td>#64748B</td>
+                <td>rgba(200,204,220,.5)</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-row-bg</code></td>
+                <td>Row 기본 배경 (default)</td>
+                <td>Row</td>
+                <td>#FFFFFF</td>
+                <td>#1B1C1F</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-row-hover-bg</code></td>
+                <td>Row hover 배경</td>
+                <td>Row hover</td>
+                <td>#F8FAFC</td>
+                <td>rgba(255,255,255,.04)</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-row-selected-bg</code></td>
+                <td>Row selected / active 배경</td>
+                <td>Row selected / active</td>
+                <td>rgba(56,113,255,.08)</td>
+                <td>rgba(110,170,255,.12)</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-row-warning-bg</code></td>
+                <td>Row warning 배경</td>
+                <td>Row warning</td>
+                <td>rgba(255,146,0,.08)</td>
+                <td>rgba(255,166,40,.12)</td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-row-error-bg</code></td>
+                <td>Row error 배경</td>
+                <td>Row error</td>
+                <td>rgba(229,34,34,.06)</td>
+                <td>rgba(255,80,80,.10)</td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-cell-text</code></td>
+                <td>Cell 텍스트 색</td>
+                <td>Cell</td>
+                <td>#0F172A</td>
+                <td>#E7E9EE</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-cell-muted</code></td>
+                <td>Cell 보조 텍스트 / muted</td>
+                <td>Date · Number 0 · readonly · disabled</td>
+                <td>#64748B</td>
+                <td>rgba(200,204,220,.55)</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-cell-padding-x</code></td>
+                <td>Cell 가로 padding</td>
+                <td>Cell · Header Cell · density 별 swap</td>
+                <td class="zval">14px</td>
+                <td class="zval">14px</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-cell-padding-y</code></td>
+                <td>Cell 세로 padding</td>
+                <td>Cell · Header Cell · density 별 swap</td>
+                <td class="zval">10px</td>
+                <td class="zval">10px</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-row-height</code></td>
+                <td>Row 높이</td>
+                <td>Row · density 별 swap</td>
+                <td class="zval">40px</td>
+                <td class="zval">40px</td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-sticky-shadow</code></td>
+                <td>Sticky header / column shadow</td>
+                <td>Sticky 영역 경계</td>
+                <td>0 1px 2px rgba(0,0,0,.06)</td>
+                <td>0 1px 2px rgba(0,0,0,.32)</td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-scrollbar-bg</code></td>
+                <td>scrollbar track 색</td>
+                <td>H-Scroll Area</td>
+                <td>rgba(0,0,0,.04)</td>
+                <td>rgba(255,255,255,.04)</td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+              <tr>
+                <td class="tn"><code>--table-scrollbar-thumb</code></td>
+                <td>scrollbar thumb 색</td>
+                <td>H-Scroll Area</td>
+                <td>rgba(0,0,0,.18)</td>
+                <td>rgba(255,255,255,.22)</td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="spill candidate">후보</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>토큰 네이밍 원칙</strong>
+            모든 토큰은 <code>--table-*</code> prefix로 통일한다. row state 색은 별도 row state-specific 토큰(<code>--table-row-hover-bg</code> · <code>--table-row-selected-bg</code> · <code>--table-row-warning-bg</code> · <code>--table-row-error-bg</code>)으로 분리한다.
+            row height · padding은 density 토큰(<code>--table-row-height</code> · <code>--table-cell-padding-x</code> · <code>--table-cell-padding-y</code>)으로 density 별 swap하며, 게시판마다 별도 CSS를 만들지 않는다.
+            z-index는 Layer Token Mapping v1의 <code>--z-sidebar</code> · <code>--z-dropdown</code> · <code>--z-drawer</code> · <code>--z-dialog</code>만 사용 · 별도 <code>--z-table-*</code> 정의 금지.
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>Light / Dark 동시 정의 원칙</strong>
+            모든 색 토큰은 light / dark 두 값을 동시 정의한다. dark에서 row-hover · selected 차이가 약하면 사용자가 hover / 선택 상태를 인지 못한다 (기본 후보: light .08 / dark .12).
+            warning / error는 다크에서 더 강한 알파로 두어 row 식별을 보장한다. selected는 hover와 명확히 다른 톤을 유지해야 한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S10 Board / Drawer / Full Detail Link Rule ── -->
+      <section id="s10" class="sec" data-screen-label="10 Board Drawer Link">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Board / Drawer / Full Detail Link Rule — row → Drawer → Full Detail 흐름</span>
+          <span class="sbadge guide">흐름</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">목록 row 클릭은 Drawer 상세 진입의 기본 트리거다. Drawer 안에서 “전체 보기”로 Full Detail에 진입할 수 있다. Table row · Drawer 상세 · Full Detail은 같은 데이터 기준을 사용하며, Table 내 quick action / checkbox / link cell은 row click과 충돌하지 않아야 한다. spreadsheet식 inline edit는 본 v1 범위 밖이다.</p>
+
+          <!-- handoff flow viz -->
+          <div class="flow-viz">
+            <div class="flow-card">
+              <span class="fc-step">Step 01 — Table Row</span>
+              <span class="fc-name">Row Click</span>
+              <span class="fc-sub">한 행을 클릭하면 Drawer 상세가 우측에서 슬라이드 진입 · checkbox / action click은 차단</span>
+              <span class="fc-tok">--table-row-selected-bg (active)</span>
+            </div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-card">
+              <span class="fc-step">Step 02 — Drawer</span>
+              <span class="fc-name">Drawer 상세</span>
+              <span class="fc-sub">Drawer Mapping v1 기준 · 같은 데이터 · 같은 Form / Button / Select / Date Picker</span>
+              <span class="fc-tok">--drawer-width · --z-drawer (1100)</span>
+            </div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-card">
+              <span class="fc-step">Step 03 — Full Detail</span>
+              <span class="fc-name">Full Detail</span>
+              <span class="fc-sub">“전체 보기” 클릭 시 Drawer 닫힘 · 본문 100% · 같은 컴포넌트 · 같은 검증</span>
+              <span class="fc-tok">Form Mapping v1 · Button Mapping v1</span>
+            </div>
+          </div>
+
+          <div class="fm-cap" style="margin-top:18px;"><span class="fm-cap-n">⑦</span>Board / Drawer / Full Detail Link Rule <span class="fm-cap-sub">데이터 · 컴포넌트 · 검증 · 액션</span></div>
+
+          <div class="sync-grid">
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must</span>row → Drawer 진입 원칙</div>
+              <ul>
+                <li>목록 row 클릭은 <strong>Drawer 상세 진입</strong>의 기본 트리거</li>
+                <li>Drawer에서 “전체 보기”로 Full Detail 진입 가능 (Drawer Mapping v1)</li>
+                <li>Table row와 Drawer 상세 · Full Detail은 같은 데이터 기준을 사용</li>
+                <li>현재 Drawer로 열려 있는 row는 <code>active</code> 상태로 표시 (<code>--table-row-selected-bg</code> 강조)</li>
+                <li>Drawer 닫힘 시 active 표시는 default로 복귀 · scroll 위치는 유지</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must Not</span>row → Drawer 금지 원칙</div>
+              <ul>
+                <li>checkbox / action cell / link cell 클릭이 row click을 같이 트리거하면 <strong>실패</strong></li>
+                <li>Drawer에서 보는 화면과 Full Detail에서 보는 화면이 다른 UI면 <strong>실패</strong></li>
+                <li>Drawer에서 “전체 보기” 시 입력값이 손실되면 <strong>실패</strong> (dirty 시 confirm)</li>
+                <li>row click → 같은 페이지 라우팅(다른 페이지 이동)으로 빠지면 <strong>실패</strong></li>
+                <li>Table에서 직접 select / date picker inline 편집을 기본화하면 <strong>실패</strong> (v1 범위 밖)</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Action</span>Table quick action 원칙</div>
+              <ul>
+                <li>Table 내 quick action(수정 · 삭제 · 더보기)은 row click과 충돌 차단 (<code>stopPropagation</code>)</li>
+                <li>위험 액션(삭제 등)은 Dialog Mapping v1 confirm 사용 · inline confirm 금지</li>
+                <li>quick action은 Drawer 안 같은 액션과 의미가 일치해야 함</li>
+                <li>Toolbar의 일괄 액션(다중 선택 + 일괄 처리)은 checkbox와 연동</li>
+                <li>action cell은 우측 정렬 · width 고정 · density에 따라 크기만 변경</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Data</span>데이터 일관성 원칙</div>
+              <ul>
+                <li>같은 항목을 Table · Drawer · Full Detail에서 보면 같은 값 · 같은 상태</li>
+                <li>Drawer / Full Detail에서 수정 후 저장 시 Table row가 자동 갱신</li>
+                <li>저장 후 row는 일정 시간 동안 <code>updated</code> 상태로 강조 (Section 07)</li>
+                <li>저장 실패 시 row는 <code>error</code> 상태 · 재시도 가능</li>
+                <li>다른 사용자의 동시 수정은 row <code>locked</code> 또는 충돌 안내로 표시 (후속)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>inline edit는 후속 고도화로 분리</strong>
+            Table 셀에서 select / date / 텍스트를 직접 inline 편집하는 스프레드시트식 UI는 본 v1 범위 밖이다.
+            v1에서 모든 수정은 row click → Drawer 또는 Full Detail에서 진행한다.
+            추후 inline edit를 검토할 때도 Drawer / Full Detail과 같은 Form Mapping v1 컴포넌트를 portal로 mount하며, Table 전용 input · select 컴포넌트는 만들지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S11 Accessibility / Interaction Rule ── -->
+      <section id="s11" class="sec" data-screen-label="11 Accessibility">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Accessibility / Interaction Rule — 접근성 · 키보드 · focus · dark</span>
+          <span class="sbadge guide">접근성</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Table은 데이터 격자다. 시멘틱한 <code>&lt;table&gt;</code> 또는 ARIA <code>role=table/row/cell</code>을 사용하여 header와 cell의 의미를 연결하고, 키보드 row navigation · checkbox 접근성 · action button aria-label · focus ring을 보장한다. hover에만 의존하지 않으며, status / row state는 색만으로 의미를 전달하지 않는다.</p>
+
+          <div class="sync-grid">
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Must</span>의미 연결 원칙</div>
+              <ul>
+                <li>시멘틱 <code>&lt;table&gt;</code> 또는 ARIA <code>role=table</code> · <code>row</code> · <code>columnheader</code> · <code>cell</code> 사용</li>
+                <li>header cell과 body cell의 의미 연결 (<code>scope=col</code> · <code>headers</code>)</li>
+                <li>정렬 가능 컬럼은 <code>aria-sort=ascending / descending / none</code> 표시</li>
+                <li>row 선택 상태는 <code>aria-selected</code> 또는 <code>aria-checked</code> 표시</li>
+                <li>row state(warning / error / success)는 <code>aria-label</code>로 의미를 명시</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Keyboard</span>키보드 nav 후보</div>
+              <ul>
+                <li>row navigation 후보 — ↑/↓로 row 이동, Enter로 Drawer open (Decision Needed)</li>
+                <li>checkbox는 Space로 toggle · 헤더 checkbox는 전체 선택 / 해제</li>
+                <li>action button은 Tab으로 진입 · Enter / Space로 실행</li>
+                <li>정렬 가능 header cell은 Enter / Space로 정렬 토글</li>
+                <li>Drawer open 시 focus는 Drawer 내부로 이동 · 닫힘 시 같은 row로 복귀</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Focus</span>focus / hover 원칙</div>
+              <ul>
+                <li>focus ring은 모든 interactive 요소에서 명확히 유지 (Button / Form Mapping v1)</li>
+                <li>row · action · checkbox · header cell 모두 focus ring 가짐</li>
+                <li>hover에만 의존하지 않음 — 키보드 / 터치 사용자도 동일 정보 접근 가능</li>
+                <li>focus ring 색은 Button / Form과 일관 — Table 전용 focus 색 추가 금지</li>
+                <li>focus 상태는 dark mode에서도 명확히 보임</li>
+              </ul>
+            </div>
+            <div class="sync-col">
+              <div class="sy-hdr"><span class="sy-tag">Color</span>색 / 대비 원칙</div>
+              <ul>
+                <li>status badge / row state는 <strong>색 + 라벨 또는 아이콘</strong>으로 동시 전달</li>
+                <li>색만으로 의미 전달 금지 — 색약 / 모노 인쇄 / 다크 모드 대비 보장</li>
+                <li>모든 텍스트는 WCAG AA 대비 기준 충족</li>
+                <li>dark mode 대비 확보 — row state 색 토큰을 dark 별도 정의 (Section 09)</li>
+                <li>action button의 aria-label 필수 — 아이콘만 있는 버튼도 의미 전달</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Decision Needed — 키보드 row navigation 정책</strong>
+            ↑/↓로 row 포커스 이동 시 Drawer를 자동 열지 / Enter로 명시적으로 열지 PM 결정 필요.
+            자동 열기는 빠르지만 의도치 않은 Drawer open · 잦은 API 호출 위험이 있다.
+            기본 후보는 “Enter로 명시 open · ↑/↓는 row focus 이동만”.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S12 Do / Don't ── -->
+      <section id="s12" class="sec" data-screen-label="12 Do Don't">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Do / Don't — 실무 체크리스트</span>
+          <span class="sbadge guide">규칙</span>
+        </div>
+        <div class="sec-body">
+          <div class="dd-grid">
+            <div class="dd-col good">
+              <div class="dd-hdr">Do — 권장 패턴</div>
+              <ul>
+                <li><strong>token 기반 구현</strong> — 색 · 폭 · padding · row height 모두 <code>--table-*</code> 토큰만 사용</li>
+                <li><strong>board / table 공통 구조 사용</strong> — 모든 게시판이 같은 Table 컴포넌트 사용</li>
+                <li>컬럼 설정과 visual token 분리 — 설정은 데이터, 토큰은 시각</li>
+                <li>compact / dense mode 기준 문서화 — Section 04 density 토큰 swap만으로 처리</li>
+                <li>1440 / 1600 / 1920 가로 폭 QA — 페이지 레벨 가로 scroll 없음 확인</li>
+                <li>row click → Drawer · 같은 데이터 · 같은 컴포넌트 보장</li>
+                <li>status / row state는 색 + 라벨 동시 사용</li>
+                <li>light / dark 두 테마에서 동시 QA — row hover · selected · warning · error 대비 확인</li>
+                <li>sticky header / pagination 기준은 단일화 — 임의 혼용 금지</li>
+                <li>action / checkbox / link cell은 row click과 충돌 차단 (<code>stopPropagation</code>)</li>
+              </ul>
+            </div>
+            <div class="dd-col bad">
+              <div class="dd-hdr">Don't — 금지 패턴</div>
+              <ul>
+                <li>화면마다 table CSS 따로 만들기 — 동일 컴포넌트가 게시판별로 분기되면 실패</li>
+                <li>페이지 레벨 가로 scroll 만들기 — 좌측 Nav까지 잘림</li>
+                <li>스프레드시트식 inline edit를 기본값으로 넣기 — v1 범위 밖</li>
+                <li>컬럼 커스텀을 CSS 하드코딩으로 처리 — 데이터 모델로만 처리</li>
+                <li>sticky header / pagination 기준을 한 화면에 임의로 섞기</li>
+                <li>전체 컴포넌트 CSS를 한 번에 구현 — Table만 제한 구현</li>
+                <li>row state · status badge에 색만으로 의미 전달</li>
+                <li>row click과 action / checkbox / link click이 동시 트리거되도록 두기</li>
+                <li>Table 전용 input · select · date picker 컴포넌트 만들기 (Form Mapping v1 사용)</li>
+                <li>z-index 임의 숫자 부여 — Layer Mapping v1 토큰만 사용</li>
+                <li>table body 자체 세로 scroll(고정 높이 container) — sticky / popup 충돌</li>
+                <li>density를 row 별로 다르게 적용 — table-level 단일 density만</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S13 Gate Checklist ── -->
+      <section id="s13" class="sec" data-screen-label="13 Gate Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Implementation Gate Checklist — 구현 전 승인 항목</span>
+          <span class="sbadge plan">게이트</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아래 12개 항목이 모두 승인된 뒤에만 실제 CSS · JS 구현 단위를 시작한다. 한 항목이라도 미승인 상태로 코드 변경이 발생하면 즉시 revert + 본 문서 v2 합의로 이동한다.</p>
+
+          <div class="gate-grid">
+            <div class="gate-step">
+              <span class="gs-n">01</span>
+              <span class="gs-body">Table Token Mapping v1 승인
+                <span class="gs-sub">Section 09 17종 token 후보 · light / dark · P0/P1/P2 우선순위 동결</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">02</span>
+              <span class="gs-body">Column Rule 승인
+                <span class="gs-sub">Section 05 9개 설정 기준 · scope 우선순위 · 저장 위치 PM 결정 (Decision Needed)</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">03</span>
+              <span class="gs-body">Sticky / Scroll Rule 승인
+                <span class="gs-sub">Section 06 sticky header 기준 단일화 (table 내부 / page) · sticky pagination 적용 여부</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">04</span>
+              <span class="gs-body">Density 기준 승인
+                <span class="gs-sub">Section 04 5종 density · normal 기본 · WBS/test/시나리오 compact · 빔프로젝터 large 결정</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">05</span>
+              <span class="gs-body">Drawer Mapping v1과 row → drawer 흐름 충돌 없음
+                <span class="gs-sub">Section 10 · Drawer Mapping v1 “전체 보기” 흐름 일관성 점검</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">06</span>
+              <span class="gs-body">Layer Mapping v1과 dropdown / popup 충돌 없음
+                <span class="gs-sub">filter dropdown · 컬럼 설정 popup · attachment popover가 Drawer / Dialog와 충돌 없음 확인</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">07</span>
+              <span class="gs-body">수정 허용 파일 범위 확정
+                <span class="gs-sub"><code>stam/css/stam.tokens.css</code> · <code>stam/css/stam.components.css</code> · 필요 시 table 전용 JS 파일 1개만 허용</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">08</span>
+              <span class="gs-body">Table만 제한 구현
+                <span class="gs-sub">첫 구현은 <strong>density / row height / token</strong> 또는 <strong>header / row state token</strong> 중 하나만</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">09</span>
+              <span class="gs-body">Drawer / Dialog / Form 동시 수정 금지
+                <span class="gs-sub">Table 구현 중 Drawer · Dialog · Form · Layer · Button 토큰 / 컴포넌트 동시 수정 금지</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">10</span>
+              <span class="gs-body">Accessibility 정책 승인
+                <span class="gs-sub">Section 11 시멘틱 · keyboard nav · focus ring · 색 + 라벨 동시 표시 PM 결정</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">11</span>
+              <span class="gs-body">Row State · Cell Type 매트릭스 승인
+                <span class="gs-sub">Section 07 12종 row state · Section 08 13종 cell type 인벤토리 동결 (Decision Needed 포함)</span>
+              </span>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">12</span>
+              <span class="gs-body">inline edit 분리 동결
+                <span class="gs-sub">스프레드시트식 inline edit는 v1 범위 밖 · 후속 고도화로 분리 합의</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S14 Cursor Handoff Notes ── -->
+      <section id="s14" class="sec" data-screen-label="14 Cursor Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Cursor Handoff Notes — 구현 핸드오프 기준</span>
+          <span class="sbadge guide">핸드오프</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Section 13 Gate가 통과되면, 아래 기준으로 Cursor에게 Table 구현 단위를 넘긴다.</p>
+
+          <div class="rule-grid">
+            <div class="rule-card">
+              <div class="rc-hdr">첫 구현 대상 · 범위</div>
+              <ul>
+                <li><strong>첫 구현은 Table density / row height token 또는 header / row state token 중 하나만</strong></li>
+                <li>컬럼 설정 기능 구현은 별도 작업으로 분리 — v1 후속</li>
+                <li>한 번에 하나의 단위만 — Drawer · Dialog · Form · Layer · Button 동시 수정 금지</li>
+                <li>수정 허용 파일: <code>stam/css/stam.tokens.css</code> · <code>stam/css/stam.components.css</code> · Table 전용 JS 파일 1개</li>
+                <li><code>stam/pages/**</code> · <code>stam/index.html</code> · <code>stam/assets/**</code> · <code>_ds/**</code> · <code>uploads/**</code> 수정 금지</li>
+                <li>데이터 구조 · API 변경 금지 — Table은 UI 레이어만</li>
+                <li>Firebase / GitHub Actions / package*.json 변경 금지</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">구현 시 원칙</div>
+              <ul>
+                <li>Table · Drawer · Form · Button · Layer · Dialog Mapping 기준 준수 — 별도 토큰 추가 금지</li>
+                <li>Section 09의 17개 token 외 어떤 table 토큰도 추가하지 않음</li>
+                <li>Suggested Value는 본 문서 후보값 그대로 사용 — 변경이 필요하면 v2 합의</li>
+                <li>density는 token / class swap만으로 처리 — 게시판별 CSS 추가 금지</li>
+                <li>row click → Drawer 진입 시 active row 표시 보장</li>
+                <li>z-index는 Layer Mapping v1 token만 사용 — 임의 숫자 금지</li>
+                <li>Table 내부 select · date picker · checkbox는 Form Mapping v1 컴포넌트만 사용</li>
+                <li>inline edit는 본 구현 단위에서 추가하지 않음 — 후속 고도화로 분리</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">QA 기준</div>
+              <ul>
+                <li><code>git diff</code> 확인 — 허용 파일 외 변경 없음</li>
+                <li>light / dark 동시 QA — row hover · selected · warning · error 대비 명확</li>
+                <li>1440 / 1600 / 1920 가로 폭에서 <strong>페이지 레벨 가로 scroll 없음</strong></li>
+                <li>Wide Data Table은 <strong>table container 내부 가로 scroll</strong>만 발생</li>
+                <li>row click → Drawer 흐름 QA — active row 표시 · Drawer 닫힘 후 같은 위치</li>
+                <li>checkbox / action / link cell click이 row click을 같이 트리거하지 않음</li>
+                <li>Drawer / Dialog / Dropdown popup이 Table sticky / scroll에 잘리지 않음</li>
+                <li>density 전환 QA — row height · padding · font swap만 발생 · 색 변경 없음</li>
+                <li>staging 배포 후 URL (<code>https://stam-design-staging.web.app/</code>)에서 QA 진행</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">롤백 기준</div>
+              <ul>
+                <li>Docs 또는 제품 화면에서 Table 회귀 1건 이상 발생 시 즉시 revert</li>
+                <li>토큰명 충돌(기존 <code>--th-fg</code> · <code>--row-hover</code> 등)이 본 문서 후보와 불일치 시 v2 합의</li>
+                <li>페이지 레벨 가로 scroll이 한 viewport에서라도 발생하면 즉시 revert</li>
+                <li>light / dark 중 한 테마에서만 row state가 깨지면 즉시 revert</li>
+                <li>row click → Drawer 흐름이 action / checkbox / link click과 충돌하면 즉시 revert</li>
+                <li>게시판별 Table CSS 분기가 1건이라도 발견되면 즉시 revert</li>
+                <li>inline edit가 기본값으로 들어가면 즉시 revert (v1 범위 밖)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>핸드오프 시 명시 사항</strong>
+            본 문서는 매핑 기준 문서이며, CSS · JS · 페이지 · 자산 변경 권한을 포함하지 않는다.
+            Cursor는 Section 03 Structure · Section 04 Density · Section 06 Sticky/Scroll · Section 07 Row State · Section 08 Cell Type · Section 09 Token Mapping · Section 10–11 Rule만 코드로 옮기며,
+            새로운 토큰명 · 값을 임의로 추가하거나, 게시판마다 별도 변형 컴포넌트를 만들지 않는다.
+            데이터 구조 · 저장 API · 필드명 변경은 Table 디자인 작업 범위에 포함되지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S15 Related Links ── -->
+      <section id="s15" class="sec" data-screen-label="15 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">Related Links — 참고 문서</span>
+          <span class="sbadge guide">관련</span>
+        </div>
+        <div class="sec-body">
+          <div class="rel-grid">
+            <a class="rel-card" href="STAM-Docs-Index.html">
+              <span class="rl-title">STAM Docs Index</span>
+              <span class="rl-sub">전체 기준 문서 인덱스</span>
+            </a>
+            <a class="rel-card" href="STAM-CSS-Token-Readiness-Check.html">
+              <span class="rl-title">CSS Token Readiness Check</span>
+              <span class="rl-sub">12 카테고리 토큰 준비상태 점검</span>
+            </a>
+            <a class="rel-card" href="STAM-Token-Inventory-v1.html">
+              <span class="rl-title">Token Inventory v1</span>
+              <span class="rl-sub">P0 / P1 / P2 토큰 후보 목록</span>
+            </a>
+            <a class="rel-card" href="STAM-Button-Token-Mapping-v1.html">
+              <span class="rl-title">Button Token Mapping v1</span>
+              <span class="rl-sub">Toolbar / Action Cell 버튼 매핑 (선행)</span>
+            </a>
+            <a class="rel-card" href="STAM-Form-Token-Mapping-v1.html">
+              <span class="rl-title">Form Token Mapping v1</span>
+              <span class="rl-sub">Filter Area · 후속 inline edit 컴포넌트 (선행)</span>
+            </a>
+            <a class="rel-card" href="STAM-Layer-Token-Mapping-v1.html">
+              <span class="rl-title">Layer Token Mapping v1</span>
+              <span class="rl-sub">Sticky · Dropdown · Drawer · Dialog z-index 매핑 (선행)</span>
+            </a>
+            <a class="rel-card" href="STAM-Drawer-Token-Mapping-v1.html">
+              <span class="rl-title">Drawer Token Mapping v1</span>
+              <span class="rl-sub">row click → Drawer → Full Detail 흐름 (선행)</span>
+            </a>
+            <a class="rel-card" href="STAM-Dialog-Token-Mapping-v1.html">
+              <span class="rl-title">Dialog Token Mapping v1</span>
+              <span class="rl-sub">삭제 · 위험 액션 confirm 매핑 (선행)</span>
+            </a>
+            <a class="rel-card" href="STAM-Component-Guide.html">
+              <span class="rl-title">Component Guide</span>
+              <span class="rl-sub">컴포넌트 전체 인덱스 · 공통 규칙</span>
+            </a>
+            <a class="rel-card" href="components/STAM-Table-Guide.html">
+              <span class="rl-title">Table Guide</span>
+              <span class="rl-sub">Table Anatomy · 정렬 · 페이지네이션 · Empty State</span>
+            </a>
+            <a class="rel-card" href="STAM-UI-Baseline-Guide.html">
+              <span class="rl-title">UI Baseline Guide</span>
+              <span class="rl-sub">폰트 · 레이아웃 · Forbidden Rules 기준</span>
+            </a>
+            <a class="rel-card" href="STAM-List-First-Board-Map-Preview.html">
+              <span class="rl-title">List-First Board Map Preview</span>
+              <span class="rl-sub">게시판 / 목록 우선 IA 미리보기</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
