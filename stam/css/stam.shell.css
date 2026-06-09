@@ -549,19 +549,22 @@ mark.nav-highlight {
   flex-shrink: 0;
 }
 
-/* CENTER search pill */
-.po-topbar.stam-topbar .stam-topbar-search {
+/* CENTER search pill — ghost variant보다 우선 (pill surface 유지) */
+.po-topbar.stam-topbar .stam-topbar-search.stam-btn--ghost,
+.po-topbar.stam-topbar button.stam-topbar-search {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  box-sizing: border-box;
   width: 100%;
+  min-width: 240px;
   max-width: 360px;
   height: 28px;
   padding: 0 12px;
   border-radius: 99px;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.10);
-  color: rgba(255,255,255,.55);
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.14);
+  color: rgba(255,255,255,.58);
   font-size: 12px;
   font-weight: 500;
   font-family: var(--font);
@@ -571,14 +574,23 @@ mark.nav-highlight {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.po-topbar.stam-topbar .stam-topbar-search:hover {
-  background: rgba(255,255,255,.09);
-  border-color: rgba(255,255,255,.16);
-  color: rgba(255,255,255,.78);
+.po-topbar.stam-topbar .stam-topbar-search.stam-btn--ghost:hover,
+.po-topbar.stam-topbar button.stam-topbar-search:hover {
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.20);
+  color: rgba(255,255,255,.82);
+}
+.po-topbar.stam-topbar .stam-topbar-search.stam-btn--ghost:focus-visible,
+.po-topbar.stam-topbar button.stam-topbar-search:focus-visible {
+  outline: none;
+  border-color: rgba(139,127,248,.55);
+  box-shadow: 0 0 0 2px rgba(84,81,232,.18);
 }
 .po-topbar.stam-topbar .stam-topbar-search svg {
   flex-shrink: 0;
-  color: rgba(255,255,255,.45);
+  width: 14px;
+  height: 14px;
+  color: rgba(255,255,255,.50);
 }
 .po-topbar.stam-topbar .stam-topbar-search-label {
   flex: 1;
@@ -586,6 +598,7 @@ mark.nav-highlight {
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: left;
+  color: rgba(255,255,255,.48);
 }
 
 .stam-topbar-user-chev {
@@ -595,16 +608,78 @@ mark.nav-highlight {
 }
 
 /* Notification icon + badge */
-.stam-topbar-notif-btn {
+.po-topbar.stam-topbar .stam-topbar-notif-btn {
   position: relative;
+  overflow: visible;
 }
-.stam-topbar-notif-badge {
+.po-topbar.stam-topbar .stam-topbar-notif-badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 99px;
+  background: #E52222;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font) !important;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   margin-left: 0;
   border: 2px solid #0A0E1A;
+  pointer-events: none;
+  letter-spacing: -.02em;
 }
+
+/* Theme toggle — topbar dark context icon-only */
+.po-topbar.stam-topbar .stam-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  padding: 0;
+  flex-shrink: 0;
+  border-radius: 7px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(255,255,255,.72);
+  cursor: pointer;
+  box-shadow: none;
+  font-size: 0;
+  line-height: 1;
+  overflow: hidden;
+  transition: background 120ms, border-color 120ms, color 120ms;
+}
+.po-topbar.stam-topbar .stam-theme-toggle:hover {
+  background: rgba(255,255,255,.10);
+  color: #fff;
+  border-color: rgba(255,255,255,.16);
+  box-shadow: none;
+}
+.po-topbar.stam-topbar .stam-theme-toggle:active {
+  background: rgba(255,255,255,.14);
+}
+.po-topbar.stam-topbar .stam-theme-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(84,81,232,.28);
+}
+.po-topbar.stam-topbar .stam-theme-icon {
+  display: none;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+[data-theme="light"] .po-topbar.stam-topbar .stam-theme-moon { display: block; }
+[data-theme="dark"]  .po-topbar.stam-topbar .stam-theme-sun  { display: block; }
 
 /* Dark topbar — .stam-btn overrides (topbar is always dark) */
 .po-topbar.stam-topbar .stam-btn--ghost {

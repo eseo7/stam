@@ -26,11 +26,13 @@
 /* WBS topbar — responsive center search */
 @media (max-width: 1280px) {
   .wbs-page .stam-topbar-center {
-    max-width: 280px;
+    max-width: 300px;
     padding: 0 10px;
   }
-  .wbs-page .stam-topbar-search {
-    max-width: 240px;
+  .wbs-page .stam-topbar-search.stam-btn--ghost,
+  .wbs-page button.stam-topbar-search {
+    min-width: 220px;
+    max-width: 280px;
   }
 }
 @media (max-width: 1100px) {
@@ -2715,74 +2717,9 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
 }
 
 /* ============================================================
- * 27. 테마 토글 버튼 — stam-theme-toggle (topbar 전용, 독립 클래스)
- *     wbs-prefix 없음 / tbtn 상속 없음 / !important 고정
+ * 27. 테마 토글 — topbar 스타일은 stam.shell.css에서 관리
+ *     (icon-only dark context) · 아래는 레거시 클래스 방어만
  * ============================================================ */
-
-/* ── 버튼 본체 ── */
-.stam-theme-toggle {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  align-self: center !important;
-  box-sizing: border-box !important;
-  width: 28px !important;
-  height: 28px !important;
-  min-width: 28px !important;
-  min-height: 28px !important;
-  max-width: 28px !important;
-  max-height: 28px !important;
-  padding: 0 !important;
-  flex-shrink: 0 !important;
-  border-radius: 7px !important;
-  background: #ffffff !important;
-  border: 1px solid rgba(0,0,0,.16) !important;
-  color: #1c1c1e !important;
-  cursor: pointer !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,.08) !important;
-  transition: background 120ms, box-shadow 120ms !important;
-  font-size: 0 !important;
-  line-height: 1 !important;
-  overflow: hidden !important;
-  vertical-align: middle !important;
-}
-.stam-theme-toggle:hover {
-  background: #f2f2f7 !important;
-  box-shadow: 0 2px 6px rgba(0,0,0,.12) !important;
-}
-.stam-theme-toggle:active {
-  background: #e5e5ea !important;
-  box-shadow: none !important;
-}
-
-/* ── 다크모드에서도 버튼은 흰색 계열 유지 ── */
-[data-theme="dark"] .stam-theme-toggle {
-  background: rgba(255,255,255,.92) !important;
-  border-color: rgba(255,255,255,.20) !important;
-  color: #1c1c1e !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,.30) !important;
-}
-[data-theme="dark"] .stam-theme-toggle:hover {
-  background: rgba(255,255,255,.82) !important;
-}
-
-/* ── 아이콘 — 기본 숨김 ── */
-.stam-theme-icon {
-  display: none;
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-  pointer-events: none;
-  overflow: visible;
-}
-
-/* ── 라이트모드: 달 아이콘 표시 ── */
-[data-theme="light"] .stam-theme-moon { display: block; }
-
-/* ── 다크모드: 태양 아이콘 표시 ── */
-[data-theme="dark"]  .stam-theme-sun  { display: block; }
-
-/* ── 구 클래스 완전 방어 ── */
 .wbs-theme-btn   { display: none !important; }
 .tbtn.tbtn-icon  { display: none !important; }
 
