@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Guide Application Audit Report v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ── Guide Application Audit v1 — 문서 전용 (ga- 접두어) ── */
+.ga-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; font-family: var(--font); white-space: nowrap;
+}
+.ga-pill::before { content: ""; width: 6px; height: 6px; border-radius: 999px; background: currentColor; flex-shrink: 0; }
+.ga-pill.pass   { background: var(--pass-bg); color: var(--pass); }
+.ga-pill.gap    { background: var(--warn-bg); color: var(--warn); }
+.ga-pill.hold   { background: var(--skip-bg); color: var(--skip); }
+.ga-pill.fail   { background: var(--fail-bg); color: var(--fail); }
+.ga-pill.info   { background: var(--info-bg); color: var(--info); }
+.ga-pill.audit  { background: rgba(139,127,248,.14); color: #8B7FF8; }
+
+.ga-hero {
+  border: 1px solid var(--bd); background: var(--bg-sur);
+  border-radius: var(--r-md); padding: 18px 20px 16px;
+  display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+.ga-hero::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: #8B7FF8; }
+.ga-hero p { margin: 0; font-size: 12px; color: var(--t2); line-height: 1.7; font-family: var(--font); }
+
+.ga-kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 20px; }
+@media (max-width: 1100px) { .ga-kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px)  { .ga-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+.ga-kpi {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 11px 12px;
+  display: flex; flex-direction: column; gap: 4px; min-width: 0;
+}
+.ga-kpi-k { font-size: 9.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); }
+.ga-kpi-v { font-size: 13px; font-weight: 700; color: var(--t1); line-height: 1.35; word-break: break-all; }
+.ga-kpi-v.mono { color: #8B7FF8; font-size: 12px; font-weight: 600; }
+
+.ga-tbl { width: 100%; border-collapse: collapse; font-size: 12px; font-family: var(--font); }
+.ga-tbl th {
+  text-align: left; padding: 8px 10px; font-size: 10px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--t3);
+  border-bottom: 1px solid var(--bd); background: var(--bg-sur2);
+}
+.ga-tbl td { padding: 9px 10px; border-bottom: 1px solid var(--bd); color: var(--t2); vertical-align: top; line-height: 1.55; }
+.ga-tbl tr:last-child td { border-bottom: none; }
+.ga-tbl .tn { font-family: var(--mono); font-size: 11px; color: #8B7FF8; }
+[data-theme="light"] .ga-tbl .tn { color: #5451E8; }
+.ga-tbl .cnt { font-weight: 700; color: var(--t1); text-align: center; }
+
+.ga-pri { display: inline-flex; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: .04em; }
+.ga-pri.p0 { background: var(--fail-bg); color: var(--fail); }
+.ga-pri.p1 { background: var(--warn-bg); color: var(--warn); }
+.ga-pri.p2 { background: var(--skip-bg); color: var(--skip); }
+.ga-pri.keep { background: var(--pass-bg); color: var(--pass); }
+.ga-pri.dnt  { background: rgba(139,127,248,.12); color: #8B7FF8; }
+
+.ga-list { margin: 0; padding-left: 18px; font-size: 12px; color: var(--t2); line-height: 1.7; }
+.ga-list li { margin-bottom: 6px; }
+.ga-list code { font-size: 11px; }
+
+.ga-step { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--bd); }
+.ga-step:last-child { border-bottom: none; }
+.ga-step-n {
+  width: 24px; height: 24px; border-radius: 999px; flex-shrink: 0;
+  background: rgba(139,127,248,.14); color: #8B7FF8;
+  font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+}
+.ga-step-body { flex: 1; min-width: 0; }
+.ga-step-title { font-size: 12.5px; font-weight: 700; color: var(--t1); margin-bottom: 3px; }
+.ga-step-sub { font-size: 11.5px; color: var(--t3); line-height: 1.55; }
+
+.ga-tbl, .ga-tbl *, .ga-hero, .ga-hero *, .ga-kpi, .ga-kpi * { font-family: var(--font) !important; }
+</style>
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Guide Application Audit Report v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Audit</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Button · Top · Drawer</span>
+  <span class="doc-nav-pill"><span class="dot"></span>a4c7ccd</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Audit v1</span>
+      <span class="toc-ver-pill">2026-06-09</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Status Summary</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Button Foundation</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Class Usage Inventory</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Top Area Audit</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Drawer / Full Detail</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Guide vs Actual Gap</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Fix Candidates</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Keep / Do Not Touch</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Fix Order</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Cursor Next Action</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- 01 Overview -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview</span>
+          <span class="sbadge plan">Audit v1</span>
+        </div>
+        <div class="sec-body">
+          <div class="ga-hero">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <strong style="font-size:15px;color:var(--t1);">STAM Guide 적용 정합성 점검 보고서 v1</strong>
+              <span class="ga-pill audit">Audit Only</span>
+              <span class="ga-pill gap">Product Not Yet</span>
+            </div>
+            <p>
+              기준 커밋 <code>a4c7ccd</code> (<em>fix(docs): apply STAM button guide to preview actions</em>) 시점에서
+              Button foundation · token · <code>.stam-btn</code> 구현은 완료되었으나, 실제 화면 전체 적용 상태는 불명확했다.
+              본 보고서는 <strong>조사·기록만</strong> 수행하며 CSS/JS/pages/index/assets 수정은 하지 않았다.
+            </p>
+            <p>
+              조사 범위: <code>stam/docs/**/*.html</code>, <code>stam/index.html</code>, <code>stam/pages/**/*.html</code>,
+              <code>stam/css/stam.tokens.css</code>, <code>stam.components.css</code>, <code>stam.docs.css</code>, <code>stam.shell.css</code>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 02 Status Summary -->
+      <section id="s02" class="sec" data-screen-label="02 Status Summary">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Current Status Summary</span>
+        </div>
+        <div class="sec-body">
+          <div class="ga-kpi-grid">
+            <div class="ga-kpi">
+              <span class="ga-kpi-k">Foundation</span>
+              <span class="ga-kpi-v"><span class="ga-pill pass">READY</span></span>
+            </div>
+            <div class="ga-kpi">
+              <span class="ga-kpi-k">.stam-btn HTML 적용</span>
+              <span class="ga-kpi-v mono">1 file · 8 elements</span>
+            </div>
+            <div class="ga-kpi">
+              <span class="ga-kpi-k">.tbtn 잔존 (docs nav)</span>
+              <span class="ga-kpi-v mono">~30 files · ~58 elements</span>
+            </div>
+            <div class="ga-kpi">
+              <span class="ga-kpi-k">Top pilot (.stam-btn)</span>
+              <span class="ga-kpi-v mono">QA Result v1 only</span>
+            </div>
+            <div class="ga-kpi">
+              <span class="ga-kpi-k">Drawer 전체보기</span>
+              <span class="ga-kpi-v"><span class="ga-pill fail">GAP</span></span>
+            </div>
+            <div class="ga-kpi">
+              <span class="ga-kpi-k">전역 .tbtn 일괄교체</span>
+              <span class="ga-kpi-v"><span class="ga-pill keep">금지</span></span>
+            </div>
+          </div>
+          <div class="ibox info">
+            <strong>핵심 판정</strong> — Foundation은 PASS이나 Product Apply는 NOT YET.
+            <code>a4c7ccd</code>는 <code>STAM-Button-CSS-QA-Result-Preview-v1.html</code>의 doc-nav + Section 13 격리 샘플에만
+            <code>.stam-btn</code>을 부착했다. 나머지 Docs · index · pages는 기존 <code>.tbtn</code> / <code>.wbs-btn</code> / 페이지 전용 class를 그대로 사용한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- 03 Button Foundation -->
+      <section id="s03" class="sec" data-screen-label="03 Button Foundation">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Button Foundation Status</span>
+          <span class="sbadge done">PASS</span>
+        </div>
+        <div class="sec-body">
+          <table class="ga-tbl">
+            <thead>
+              <tr>
+                <th>항목</th><th>상태</th><th>구현 위치</th><th>비고</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>--btn-*</code> token</td>
+                <td><span class="ga-pill pass">존재</span></td>
+                <td class="tn">stam/css/stam.tokens.css L148–181 (light), L292–321 (dark)</td>
+                <td>primary · secondary · danger · ghost · icon · focus-ring · text-color</td>
+              </tr>
+              <tr>
+                <td><code>.stam-btn</code> base</td>
+                <td><span class="ga-pill pass">존재</span></td>
+                <td class="tn">stam/css/stam.components.css L480–500</td>
+                <td>default height 32px (md), inline-flex, center align</td>
+              </tr>
+              <tr>
+                <td>Variant (7종)</td>
+                <td><span class="ga-pill pass">구현</span></td>
+                <td class="tn">stam.components.css L537–682</td>
+                <td>primary · secondary · ghost · text · danger · icon · icon-only</td>
+              </tr>
+              <tr>
+                <td>Size (4종)</td>
+                <td><span class="ga-pill pass">구현</span></td>
+                <td class="tn">stam.components.css L511–534</td>
+                <td>xs 24px · sm 28px · md 32px · lg 40px</td>
+              </tr>
+              <tr>
+                <td>State</td>
+                <td><span class="ga-pill pass">구현</span></td>
+                <td class="tn">stam.components.css L685–755</td>
+                <td>disabled · loading + <code>.stam-btn__spinner</code> · selected</td>
+              </tr>
+              <tr>
+                <td>Legacy <code>.tbtn</code></td>
+                <td><span class="ga-pill hold">잔존</span></td>
+                <td class="tn">stam.components.css L6–20</td>
+                <td>dark topbar 전용 ghost-like. 삭제·일괄교체 금지 (호환 유지)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 04 Class Usage Inventory -->
+      <section id="s04" class="sec" data-screen-label="04 Class Usage Inventory">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Actual Button Class Usage Inventory</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">전수 검색 기준: <code>stam/docs</code>, <code>stam/index.html</code>, <code>stam/pages</code>, <code>stam/js</code> (렌더 문자열 포함)</p>
+          <table class="ga-tbl">
+            <thead>
+              <tr>
+                <th>File</th><th>Button Class Type</th><th>Count</th><th>Usage Area</th><th>Guide Match</th><th>Risk</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn">docs/STAM-Button-CSS-QA-Result-Preview-v1.html</td>
+                <td><code>.stam-btn</code> (sm ghost · md variants)</td>
+                <td class="cnt">8</td>
+                <td>doc-nav 2 · Section 13 topbar demo 3 · drawer footer demo 3</td>
+                <td><span class="ga-pill pass">Match</span></td>
+                <td>Low — 의도된 pilot</td>
+              </tr>
+              <tr>
+                <td class="tn">docs/* (30 files)</td>
+                <td><code>.tbtn</code></td>
+                <td class="cnt">~58</td>
+                <td>doc-nav 다크모드 · Docs Index 복귀 링크</td>
+                <td><span class="ga-pill gap">Partial</span></td>
+                <td>Med — top sm ghost 미적용 (QA pilot 제외)</td>
+              </tr>
+              <tr>
+                <td class="tn">index.html</td>
+                <td><code>.tbtn</code></td>
+                <td class="cnt">1</td>
+                <td>Staging hub doc-nav 다크모드</td>
+                <td><span class="ga-pill gap">Gap</span></td>
+                <td>Low — staging 전용, 후속 적용 대상</td>
+              </tr>
+              <tr>
+                <td class="tn">pages/dashboard/project-overview.html</td>
+                <td><code>.tbtn.po-card-btn</code></td>
+                <td class="cnt">1</td>
+                <td>카드 헤더 보조 액션 “전체 보기 →”</td>
+                <td><span class="ga-pill fail">Mismatch</span></td>
+                <td>Med — xs/chip 크기(10px) · ghost 아님</td>
+              </tr>
+              <tr>
+                <td class="tn">pages/boards/wbs.html</td>
+                <td><code>.wbs-btn</code> / <code>.wbs-btn-primary</code> / <code>.wbs-btn-fullview</code></td>
+                <td class="cnt">23+</td>
+                <td>toolbar · drawer footer · filter</td>
+                <td><span class="ga-pill fail">Mismatch</span></td>
+                <td>High — 제품 핵심 CTA·전체보기 모두 legacy</td>
+              </tr>
+              <tr>
+                <td class="tn">js/stam.topbar-render.js</td>
+                <td><code>.tbtn</code> (문자열 렌더)</td>
+                <td class="cnt">4</td>
+                <td>제품 topbar 데모 (검색·알림·보내기·PM)</td>
+                <td><span class="ga-pill gap">Gap</span></td>
+                <td>Med — 제품 topbar 미이관</td>
+              </tr>
+              <tr>
+                <td class="tn">docs/STAM-Button-CSS-Implementation-Preview-v1.html</td>
+                <td><code>.bcp-btn</code> (preview-only)</td>
+                <td class="cnt">~100</td>
+                <td>문서 내 격리 variant/size/state 데모</td>
+                <td><span class="ga-pill info">Preview</span></td>
+                <td>None — 문서 전용, 공통 class 미덮어씀</td>
+              </tr>
+              <tr>
+                <td class="tn">docs/components/STAM-Button-Guide.html</td>
+                <td><code>.bd-btn</code> (guide-only)</td>
+                <td class="cnt">37</td>
+                <td>가이드 variant/size 예시 · “전체 보기” md ghost 샘플</td>
+                <td><span class="ga-pill info">Guide Demo</span></td>
+                <td>None — 참조용 격리 class</td>
+              </tr>
+              <tr>
+                <td class="tn">docs/components/STAM-Drawer-Guide.html</td>
+                <td><code>.dw-btn.fullview</code> (guide-only)</td>
+                <td class="cnt">8</td>
+                <td>Drawer footer 전체보기 예시 (md ghost 의도)</td>
+                <td><span class="ga-pill info">Guide Demo</span></td>
+                <td>None — 실제 product 미반영</td>
+              </tr>
+              <tr>
+                <td class="tn">docs/* (다수)</td>
+                <td><code>.sbadge</code></td>
+                <td class="cnt">~300+</td>
+                <td>상태 배지 (버튼 아님)</td>
+                <td><span class="ga-pill pass">N/A</span></td>
+                <td>None</td>
+              </tr>
+              <tr>
+                <td class="tn">docs/STAM-Button-CSS-QA-Result-Preview-v1.html</td>
+                <td><code>.qrpill</code> (doc-only)</td>
+                <td class="cnt">~20</td>
+                <td>QA 상태 pill (버튼 아님)</td>
+                <td><span class="ga-pill pass">N/A</span></td>
+                <td>None</td>
+              </tr>
+              <tr>
+                <td class="tn">docs/* (7 files)</td>
+                <td><code>.doc-nav-back</code> (text link)</td>
+                <td class="cnt">7</td>
+                <td>Component Guide · UI Baseline 복귀 링크</td>
+                <td><span class="ga-pill hold">Legacy Nav</span></td>
+                <td>Low — 버튼이 아닌 text link, topbar 48px 내 수직 중앙</td>
+              </tr>
+              <tr>
+                <td class="tn">pages/boards/wbs.html</td>
+                <td>inline style button</td>
+                <td class="cnt">3</td>
+                <td><code>margin-left:auto</code> on 저장/등록/초기화</td>
+                <td><span class="ga-pill gap">Gap</span></td>
+                <td>Low — layout only, class 체계와 무관</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 05 Top Area Audit -->
+      <section id="s05" class="sec" data-screen-label="05 Top Area Audit">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Top Area Consistency Audit</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">공통 shell: <code>.doc-nav</code> height 48px · <code>align-items:center</code> · background <code>#0A0E1A</code> (stam.shell.css). 보조 액션 권장: <code>.stam-btn--sm .stam-btn--ghost</code> (28px).</p>
+          <table class="ga-tbl">
+            <thead>
+              <tr>
+                <th>Screen / Doc</th><th>복귀 버튼</th><th>다크모드</th><th>높이·정렬</th><th>.tbtn 유지</th><th>.stam-btn</th><th>즉시 수정?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>STAM-Docs-Index.html</td>
+                <td>없음</td>
+                <td><code>.tbtn</code></td>
+                <td>48px bar 내 OK</td>
+                <td>Yes</td>
+                <td>No</td>
+                <td><span class="ga-pri p2">P2</span></td>
+              </tr>
+              <tr>
+                <td>STAM-Button-CSS-QA-Result-Preview-v1.html</td>
+                <td><code>.stam-btn--sm--ghost</code></td>
+                <td><code>.stam-btn--sm--ghost</code></td>
+                <td>sm 28px · 중앙 정렬 OK</td>
+                <td>No (pilot)</td>
+                <td>Yes</td>
+                <td><span class="ga-pri keep">Keep</span> pilot 기준</td>
+              </tr>
+              <tr>
+                <td>STAM-Button-CSS-Implementation-Preview-v1.html</td>
+                <td><code>.tbtn</code></td>
+                <td><code>.tbtn</code></td>
+                <td>~26px 추정 · OK</td>
+                <td>Yes</td>
+                <td>No</td>
+                <td><span class="ga-pri p1">P1</span> QA pilot과 불일치</td>
+              </tr>
+              <tr>
+                <td>STAM-Implementation-Readiness-Dashboard-v1.html</td>
+                <td><code>.tbtn</code></td>
+                <td><code>.tbtn</code></td>
+                <td>OK</td>
+                <td>Yes</td>
+                <td>No</td>
+                <td><span class="ga-pri p1">P1</span></td>
+              </tr>
+              <tr>
+                <td>STAM-P0-Decision-Approval-Sheet-v1.html</td>
+                <td><code>.tbtn</code></td>
+                <td><code>.tbtn</code></td>
+                <td>OK</td>
+                <td>Yes</td>
+                <td>No</td>
+                <td><span class="ga-pri p1">P1</span></td>
+              </tr>
+              <tr>
+                <td>STAM-Decision-Needed-Register-v1.html</td>
+                <td><code>.tbtn</code></td>
+                <td><code>.tbtn</code></td>
+                <td>OK</td>
+                <td>Yes</td>
+                <td>No</td>
+                <td><span class="ga-pri p1">P1</span></td>
+              </tr>
+              <tr>
+                <td>STAM-Drawer-Token-Mapping-v1.html</td>
+                <td><code>.tbtn</code></td>
+                <td><code>.tbtn</code></td>
+                <td>OK</td>
+                <td>Yes</td>
+                <td>No</td>
+                <td><span class="ga-pri p1">P1</span></td>
+              </tr>
+              <tr>
+                <td>STAM-Table-Token-Mapping-v1.html</td>
+                <td><code>.tbtn</code></td>
+                <td><code>.tbtn</code></td>
+                <td>OK</td>
+                <td>Yes</td>
+                <td>No</td>
+                <td><span class="ga-pri p1">P1</span></td>
+              </tr>
+              <tr>
+                <td>index.html (Staging Hub)</td>
+                <td>없음</td>
+                <td><code>.tbtn</code></td>
+                <td>OK · ghost 대비 양호</td>
+                <td>Yes</td>
+                <td>No</td>
+                <td><span class="ga-pri p2">P2</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>Top 영역 요약</strong> — <code>.tbtn</code>은 dark navy topbar(<code>#0A0E1A</code>)에서 시각적으로 동작하나 Guide 기준 sm ghost(28px)와 토큰 연동이 없다.
+            <code>a4c7ccd</code> 이후 <strong>단 1개 문서</strong>만 <code>.stam-btn</code> pilot을 적용했다. 나머지 Gate 문서 top nav는 아직 legacy <code>.tbtn</code>이다.
+            <code>.doc-nav-back</code>은 버튼 class가 아닌 text link이며 Component Guide 계열에서 유지 중이다.
+          </div>
+        </div>
+      </section>
+
+      <!-- 06 Drawer / Full Detail -->
+      <section id="s06" class="sec" data-screen-label="06 Drawer Full Detail">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Drawer / Full Detail Button Audit</span>
+        </div>
+        <div class="sec-body">
+          <table class="ga-tbl">
+            <thead>
+              <tr>
+                <th>위치</th><th>라벨</th><th>역할</th><th>Class</th><th>Size 추정</th><th>Guide Match</th><th>Risk</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tn">pages/boards/wbs.html — detail footer</td>
+                <td>전체 상세</td>
+                <td>Footer 주요 전환 (Full Detail)</td>
+                <td><code>.wbs-btn.wbs-btn-primary.wbs-fv-trigger-btn</code></td>
+                <td>~30px (padding 6×13)</td>
+                <td><span class="ga-pill fail">FAIL</span></td>
+                <td><span class="ga-pri p0">P0</span> Primary variant 오용 · Ghost md 권장</td>
+              </tr>
+              <tr>
+                <td class="tn">pages/boards/wbs.html — edit footer</td>
+                <td>전체 수정화면</td>
+                <td>Footer 좌측 Full Detail handoff</td>
+                <td><code>.wbs-btn.wbs-btn-fullview.wbs-fv-trigger-btn</code></td>
+                <td>~22px (11px · pad 4×10)</td>
+                <td><span class="ga-pill fail">FAIL</span></td>
+                <td><span class="ga-pri p0">P0</span> xs/chip 수준 · md 32px 필요</td>
+              </tr>
+              <tr>
+                <td class="tn">pages/boards/wbs.html — create footer</td>
+                <td>전체 등록화면</td>
+                <td>Footer 좌측 Full Detail handoff</td>
+                <td><code>.wbs-btn.wbs-btn-fullview.wbs-fv-trigger-btn</code></td>
+                <td>~22px</td>
+                <td><span class="ga-pill fail">FAIL</span></td>
+                <td><span class="ga-pri p0">P0</span> 라벨·크기 모두 Guide 불일치</td>
+              </tr>
+              <tr>
+                <td class="tn">pages/dashboard/project-overview.html</td>
+                <td>전체 보기 →</td>
+                <td>카드 헤더 보조 액션 (Drawer 아님)</td>
+                <td><code>.tbtn.po-card-btn</code></td>
+                <td>~18px (10px font · pad 2×8)</td>
+                <td><span class="ga-pill fail">FAIL</span></td>
+                <td><span class="ga-pri p1">P1</span> table/card 보조 xs·sm 가능하나 과소</td>
+              </tr>
+              <tr>
+                <td class="tn">docs/components/STAM-Button-Guide.html</td>
+                <td>전체 보기</td>
+                <td>가이드 Drawer footer 예시</td>
+                <td><code>.bd-btn.ghost.md</code></td>
+                <td>32px (의도)</td>
+                <td><span class="ga-pill pass">Guide Ref</span></td>
+                <td>None — 참조 기준</td>
+              </tr>
+              <tr>
+                <td class="tn">docs/components/STAM-Drawer-Guide.html</td>
+                <td>전체 보기</td>
+                <td>가이드 footer 예시</td>
+                <td><code>.dw-btn.fullview</code></td>
+                <td>22px (데모)</td>
+                <td><span class="ga-pill gap">Demo Gap</span></td>
+                <td>Low — 가이드 데모 자체도 md 미달 (문서 정합 후속)</td>
+              </tr>
+              <tr>
+                <td class="tn">docs/STAM-Button-CSS-QA-Result-Preview-v1.html §13</td>
+                <td>전체보기</td>
+                <td>격리 Drawer footer 샘플</td>
+                <td><code>.stam-btn--md.stam-btn--ghost</code></td>
+                <td>32px</td>
+                <td><span class="ga-pill pass">Match</span></td>
+                <td>None — 올바른 pilot</td>
+              </tr>
+              <tr>
+                <td class="tn">js/stam.wbs.js</td>
+                <td>—</td>
+                <td><code>.wbs-fv-trigger-btn</code> click handler</td>
+                <td>class selector only</td>
+                <td>—</td>
+                <td><span class="ga-pill hold">Logic OK</span></td>
+                <td><span class="ga-pri dnt">Do Not Touch</span> class명 변경 시 JS 동시 수정 필요</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="ibox fail" style="margin-top:14px;">
+            <strong>전체보기 버튼 요약</strong> — 실제 제품 구현은 <code>wbs.html</code> Drawer footer에만 존재한다.
+            Guide는 Footer 좌측 Ghost md(32px) · 라벨 “전체 보기”를 권장하나, WBS는
+            (1) detail 모드에서 Primary CTA로 표시,
+            (2) edit/create 모드에서 <code>.wbs-btn-fullview</code> chip 스타일(11px) 사용,
+            (3) 라벨이 “전체 수정화면” / “전체 등록화면” / “전체 상세”로 분기되어 있다.
+          </div>
+        </div>
+      </section>
+
+      <!-- 07 Guide vs Actual Gap -->
+      <section id="s07" class="sec" data-screen-label="07 Guide vs Actual Gap">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Guide vs Actual Gap Table</span>
+        </div>
+        <div class="sec-body">
+          <table class="ga-tbl">
+            <thead>
+              <tr><th>Guide 기준</th><th>실제 적용</th><th>Gap</th><th>우선순위</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Drawer footer 주요 전환 · md 32px Ghost</td>
+                <td><code>.wbs-btn-fullview</code> ~22px chip / detail은 Primary</td>
+                <td><span class="ga-pill fail">Critical</span></td>
+                <td><span class="ga-pri p0">P0</span></td>
+              </tr>
+              <tr>
+                <td>Top 보조 액션 · sm 28px Ghost</td>
+                <td><code>.tbtn</code> ~26px (30 docs) · pilot 1 docs only <code>.stam-btn--sm</code></td>
+                <td><span class="ga-pill gap">Partial</span></td>
+                <td><span class="ga-pri p1">P1</span></td>
+              </tr>
+              <tr>
+                <td>Table row / chip 보조 · xs/sm</td>
+                <td><code>.tbtn.po-card-btn</code> 10px font</td>
+                <td><span class="ga-pill gap">Undersized</span></td>
+                <td><span class="ga-pri p1">P1</span></td>
+              </tr>
+              <tr>
+                <td>Primary = 주요 CTA (저장·등록)</td>
+                <td>WBS drawer 저장/등록 <code>.wbs-btn-primary</code> — 의도 일치</td>
+                <td><span class="ga-pill pass">OK</span></td>
+                <td><span class="ga-pri keep">Keep</span></td>
+              </tr>
+              <tr>
+                <td>Secondary/Ghost = 보조 액션</td>
+                <td>전체보기가 Primary 또는 chip으로 표시됨</td>
+                <td><span class="ga-pill fail">Wrong Role</span></td>
+                <td><span class="ga-pri p0">P0</span></td>
+              </tr>
+              <tr>
+                <td>Danger = 삭제/위험</td>
+                <td><code>.wbs-btn-delete</code> 별도 (WBS)</td>
+                <td><span class="ga-pill gap">Legacy</span></td>
+                <td><span class="ga-pri p2">P2</span></td>
+              </tr>
+              <tr>
+                <td>전역 <code>.tbtn</code> 일괄 교체 금지</td>
+                <td>일괄 교체 없음 · pilot 1 file only</td>
+                <td><span class="ga-pill pass">Compliant</span></td>
+                <td><span class="ga-pri keep">Keep</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 08 Fix Candidates -->
+      <section id="s08" class="sec" data-screen-label="08 Fix Candidates">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">P0 / P1 / P2 Fix Candidate List</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub"><span class="ga-pri p0">P0</span> — 지금 바로 잡아야 할 정합성 문제</p>
+          <ul class="ga-list">
+            <li>WBS Drawer detail footer “전체 상세” — <code>.wbs-btn-primary</code> → Ghost md 전환 버튼으로 역할 수정</li>
+            <li>WBS Drawer edit/create footer <code>.wbs-btn-fullview</code> — 11px chip → md 32px Ghost (<code>.stam-btn--md.stam-btn--ghost</code> 후보)</li>
+            <li>전체보기 라벨 통일 — Guide 권장 “전체 보기” (현재: 전체 수정화면 / 전체 등록화면 / 전체 상세)</li>
+            <li>Footer 좌측 배치 원칙 — 전체보기를 우측 Primary 그룹과 분리 (현재 detail slot은 timestamp 옆 혼재)</li>
+          </ul>
+          <p class="sub" style="margin-top:18px;"><span class="ga-pri p1">P1</span> — Button 적용 1차에서 고칠 문제</p>
+          <ul class="ga-list">
+            <li>Gate Docs top nav — QA Result pilot 패턴으로 점진 적용 (<code>.stam-btn--sm.stam-btn--ghost</code>, 파일 단위)</li>
+            <li><code>STAM-Button-CSS-Implementation-Preview-v1.html</code> top nav — QA Result와 동일 패턴 정렬</li>
+            <li><code>project-overview.html</code> <code>.po-card-btn</code> — text/ghost sm 보조 액션으로 교체 검토</li>
+            <li>Drawer Token Mapping · P0 Decision 문서의 footer 다이어그램과 WBS 실제 마크업 대조표 작성</li>
+          </ul>
+          <p class="sub" style="margin-top:18px;"><span class="ga-pri p2">P2</span> — 후속 컴포넌트 작업 때 고칠 문제</p>
+          <ul class="ga-list">
+            <li>WBS toolbar 전체 <code>.wbs-btn</code> → <code>.stam-btn</code> 이관 (한 화면 단위)</li>
+            <li><code>stam.topbar-render.js</code> 제품 topbar <code>.tbtn</code> → <code>.stam-btn</code></li>
+            <li><code>index.html</code> staging hub top nav 적용</li>
+            <li>Component Guide <code>.bd-btn</code> / <code>.dw-btn</code> 데모를 <code>.stam-btn</code> 예시로 갱신 (가이드 문서)</li>
+            <li><code>.wbs-btn-delete</code> → <code>.stam-btn--danger</code></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 09 Keep / Do Not Touch -->
+      <section id="s09" class="sec" data-screen-label="09 Keep Do Not Touch">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Keep / Do Not Touch List</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub"><span class="ga-pri keep">Keep</span> — 기존 유지해도 되는 부분</p>
+          <ul class="ga-list">
+            <li><code>.tbtn</code> CSS 정의 (<code>stam.components.css</code>) — 호환 레이어로 유지</li>
+            <li>QA Result v1 <code>.stam-btn</code> pilot (doc-nav + §13) — 첫 적용 기준본</li>
+            <li><code>.bcp-btn</code> in Implementation Preview — preview-only 격리</li>
+            <li><code>.sbadge</code> 상태 배지 — 버튼 아님, 변경 불필요</li>
+            <li><code>.doc-nav-back</code> text link — Component Guide 네비게이션</li>
+            <li>WBS Primary 저장/등록 <code>.wbs-btn-primary</code> — 역할은 Guide와 일치 (class만 후속 이관)</li>
+          </ul>
+          <p class="sub" style="margin-top:18px;"><span class="ga-pri dnt">Do Not Touch</span> — 지금 건드리면 안 되는 부분</p>
+          <ul class="ga-list">
+            <li><code>stam/css/**</code> · <code>stam/js/**</code> · <code>stam/pages/**</code> — 본 audit는 수정 없음</li>
+            <li><code>stam.wbs.js</code> <code>.wbs-fv-trigger-btn</code> 핸들러 — class 변경 시 반드시 쌍으로 수정</li>
+            <li>전역 <code>.tbtn</code> → <code>.stam-btn</code> 일괄 치환</li>
+            <li>firebase · GitHub workflow · package.json</li>
+            <li>Production/live 배포 · React dist 배포</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 10 Fix Order -->
+      <section id="s10" class="sec" data-screen-label="10 Fix Order">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Recommended Fix Order</span>
+        </div>
+        <div class="sec-body">
+          <div class="ga-step"><span class="ga-step-n">1</span><div class="ga-step-body"><div class="ga-step-title">P0 Decision 확인</div><div class="ga-step-sub">전체보기 버튼 위치(Footer 좌측 Ghost) · 라벨(“전체 보기”) — P0 Decision Approval Sheet v1 PM 승인 후 착수</div></div></div>
+          <div class="ga-step"><span class="ga-step-n">2</span><div class="ga-step-body"><div class="ga-step-title">WBS Drawer footer 마크업 1차</div><div class="ga-step-sub">class · variant · size · label · 좌우 배치만 수정. JS selector 유지 또는 동시 변경</div></div></div>
+          <div class="ga-step"><span class="ga-step-n">3</span><div class="ga-step-body"><div class="ga-step-title">Gate Docs top nav pilot 확장</div><div class="ga-step-sub">Implementation Preview → Readiness Dashboard → Token Mapping 순, 파일 1개씩 <code>.stam-btn--sm--ghost</code></div></div></div>
+          <div class="ga-step"><span class="ga-step-n">4</span><div class="ga-step-body"><div class="ga-step-title">project-overview 카드 보조 액션</div><div class="ga-step-sub"><code>.po-card-btn</code> → sm text/ghost</div></div></div>
+          <div class="ga-step"><span class="ga-step-n">5</span><div class="ga-step-body"><div class="ga-step-title">WBS toolbar · product topbar</div><div class="ga-step-sub">화면 단위 <code>.stam-btn</code> 이관 + staging QA</div></div></div>
+        </div>
+      </section>
+
+      <!-- 11 Cursor Next Action -->
+      <section id="s11" class="sec" data-screen-label="11 Cursor Next Action">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Cursor Next Action Proposal</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>권장 다음 작업 (구현 단계)</strong>
+            <ol class="ga-list" style="margin-top:8px;">
+              <li><strong>STAM Button Apply v1 작업지시서</strong> 작성 — WBS Drawer footer 전체보기만 범위 한정</li>
+              <li>마크업: <code>.stam-btn.stam-btn--md.stam-btn--ghost.wbs-fv-trigger-btn</code> + 라벨 “전체 보기” 통일</li>
+              <li>detail slot: Primary 제거 → Ghost 좌측 배치 · 저장/등록 Primary는 우측 유지</li>
+              <li>적용 후 staging에서 WBS drawer 3 mode × light/dark 수동 QA</li>
+              <li>Gate Docs top nav 2번째 pilot: <code>STAM-Button-CSS-Implementation-Preview-v1.html</code></li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- 12 Related Links -->
+      <section id="s12" class="sec" data-screen-label="12 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Related Links</span>
+        </div>
+        <div class="sec-body">
+          <div class="doc-card-list">
+            <a href="STAM-Button-CSS-QA-Result-Preview-v1.html" class="doc-card">
+              <div class="doc-card-ico">BQ</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">Button CSS QA Result Preview v1</span>
+                <span class="doc-card-sub">.stam-btn pilot 기준본 · Foundation PASS</span>
+              </div>
+              <div class="doc-card-meta"><span class="sbadge done">QA</span></div>
+            </a>
+            <a href="components/STAM-Button-Guide.html" class="doc-card">
+              <div class="doc-card-ico">BT</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">Button Guide</span>
+                <span class="doc-card-sub">Variant · Size · Drawer footer 전체보기 기준</span>
+              </div>
+              <div class="doc-card-meta"><span class="sbadge done">v1</span></div>
+            </a>
+            <a href="STAM-Drawer-Token-Mapping-v1.html" class="doc-card">
+              <div class="doc-card-ico">DR</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">Drawer Token Mapping v1</span>
+                <span class="doc-card-sub">Full Detail handoff · Footer Ghost action</span>
+              </div>
+              <div class="doc-card-meta"><span class="sbadge plan">Mapping</span></div>
+            </a>
+            <a href="STAM-P0-Decision-Approval-Sheet-v1.html" class="doc-card">
+              <div class="doc-card-ico">P0</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">P0 Decision Approval Sheet v1</span>
+                <span class="doc-card-sub">전체보기 버튼 위치 · URL 라우팅 결정</span>
+              </div>
+              <div class="doc-card-meta"><span class="sbadge lock">Gate</span></div>
+            </a>
+            <a href="../pages/boards/wbs.html" class="doc-card">
+              <div class="doc-card-ico">WB</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">WBS Board (Product)</span>
+                <span class="doc-card-sub">실제 Drawer footer 전체보기 구현 위치</span>
+              </div>
+              <div class="doc-card-meta"><span class="sbadge plan">Product</span></div>
+            </a>
+            <a href="https://stam-design-staging.web.app/" class="doc-card" target="_blank" rel="noopener">
+              <div class="doc-card-ico">ST</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">Staging</span>
+                <span class="doc-card-sub">stam-design-staging.web.app</span>
+              </div>
+              <div class="doc-card-meta"><span class="sbadge plan">Staging</span></div>
+            </a>
+          </div>
+          <p style="margin-top:16px;font-size:11px;color:var(--t3);">
+            Audit 기준 커밋: <code>a4c7ccd</code> · 작성일: 2026-06-09 · 조사만 수행 · 금지 파일 미수정 확인됨
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.core.js"></script>
+</body>
+</html>
