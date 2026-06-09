@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Decision Needed Register v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ── Decision Needed Register v1 전용 보조 스타일 (이 문서 안에서만 사용) ── */
+
+/* priority pill */
+.ppill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px 2px 7px; border-radius: 999px;
+  font-size: 10px; font-weight: 800; letter-spacing: .04em;
+  font-family: var(--font); white-space: nowrap;
+}
+.ppill::before {
+  content: ""; width: 5px; height: 5px; border-radius: 999px;
+  background: currentColor; display: inline-block; flex-shrink: 0;
+}
+.ppill.p0 { background: var(--fail-bg); color: var(--fail); }
+.ppill.p1 { background: var(--warn-bg); color: var(--warn); }
+.ppill.p2 { background: var(--info-bg); color: var(--info); }
+
+/* decision status pill */
+.dpill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase;
+  font-family: var(--font); white-space: nowrap;
+}
+.dpill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 999px;
+  background: currentColor; display: inline-block; flex-shrink: 0;
+}
+.dpill.pending    { background: var(--warn-bg);   color: var(--warn); }
+.dpill.recommended{ background: var(--info-bg);   color: var(--info); }
+.dpill.approved   { background: var(--pass-bg);   color: var(--pass); }
+.dpill.deferred   { background: var(--skip-bg);   color: var(--skip); }
+.dpill.blocked    { background: var(--fail-bg);   color: var(--fail); }
+.dpill.needs-pm   { background: var(--purple-bg); color: var(--purple); }
+.dpill.needs-design{ background: var(--stam-soft); color: var(--stam); }
+.dpill.needs-dev  { background: var(--info-bg);   color: var(--info); }
+
+/* owner chip */
+.opill {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 800; letter-spacing: .05em;
+  text-transform: uppercase; font-family: var(--font); white-space: nowrap;
+  border: 1px solid var(--bd); background: var(--bg-sur);
+}
+.opill.pm     { background: var(--purple-bg); color: var(--purple); border-color: transparent; }
+.opill.design { background: var(--stam-soft); color: var(--stam);   border-color: transparent; }
+.opill.dev    { background: var(--info-bg);   color: var(--info);   border-color: transparent; }
+.opill.pm-dev { background: var(--warn-bg);   color: var(--warn);   border-color: transparent; }
+.opill.all    { background: var(--bg-sur2);   color: var(--t2); }
+
+/* area chip */
+.achip {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .05em;
+  text-transform: uppercase; font-family: var(--font); white-space: nowrap;
+}
+.achip.button { background: var(--info-bg);   color: var(--info); }
+.achip.form   { background: var(--pass-bg);   color: var(--pass); }
+.achip.layer  { background: var(--purple-bg); color: var(--purple); }
+.achip.drawer { background: var(--stam-soft); color: var(--stam); }
+.achip.dialog { background: var(--warn-bg);   color: var(--warn); }
+.achip.table  { background: var(--fail-bg);   color: var(--fail); }
+.achip.cross  { background: var(--bg-sur2);   color: var(--t2); border: 1px solid var(--bd); }
+
+/* due chip */
+.duechip {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 700;
+  font-family: var(--font); white-space: nowrap;
+  background: var(--bg-sur); border: 1px solid var(--bd); color: var(--t2);
+}
+.duechip.gate { background: var(--fail-bg); color: var(--fail); border-color: transparent; }
+.duechip.css  { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
+.duechip.v2   { background: var(--skip-bg); color: var(--skip); border-color: transparent; }
+
+/* register table */
+.dr-wrap { overflow-x: auto; }
+.dr-tbl {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--font); font-size: 11.5px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: var(--r-md);
+  overflow: hidden; min-width: 1080px;
+}
+.dr-tbl th {
+  padding: 9px 10px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em; text-align: left;
+  color: var(--t3); border-bottom: 1px solid var(--bd);
+  background: var(--bg-sur2); white-space: nowrap; vertical-align: middle;
+}
+.dr-tbl td {
+  padding: 10px; border-bottom: 1px solid var(--bd);
+  color: var(--t2); vertical-align: top; line-height: 1.6;
+}
+.dr-tbl tbody tr:last-child td { border-bottom: none; }
+.dr-tbl td.id { color: var(--t1); font-weight: 800; white-space: nowrap; font-size: 11px; font-family: var(--font); letter-spacing: .03em; }
+.dr-tbl td.title { color: var(--t1); font-weight: 700; line-height: 1.55; }
+.dr-tbl td.title small {
+  display: block; margin-top: 3px;
+  color: var(--t3); font-size: 10.5px; font-weight: 500; letter-spacing: .005em; line-height: 1.5;
+}
+.dr-tbl td code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur2); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 6px; letter-spacing: .005em; white-space: nowrap;
+}
+.dr-tbl td .opts {
+  margin: 0; padding-left: 14px;
+  font-size: 10.5px; color: var(--t2); line-height: 1.6;
+}
+.dr-tbl td .opts li { margin-bottom: 2px; }
+.dr-tbl td .rec {
+  display: block; font-size: 11px; font-weight: 700; color: var(--stam);
+  letter-spacing: -.005em; line-height: 1.5;
+}
+.dr-tbl td .rec small {
+  display: block; margin-top: 3px;
+  color: var(--t3); font-size: 10.5px; font-weight: 500;
+}
+
+/* summary cards */
+.sum-grid {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
+}
+@media (max-width: 1280px) { .sum-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 720px)  { .sum-grid { grid-template-columns: repeat(2, 1fr); } }
+.sum-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 14px 14px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.sum-card .sm-n {
+  font-family: var(--font); font-size: 28px; font-weight: 800;
+  color: var(--t1); letter-spacing: -.02em; line-height: 1.1;
+}
+.sum-card .sm-l {
+  font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--t3);
+}
+.sum-card .sm-s {
+  font-size: 10.5px; color: var(--t3); margin-top: 4px; line-height: 1.55;
+}
+.sum-card.p0  .sm-n { color: var(--fail); }
+.sum-card.p1  .sm-n { color: var(--warn); }
+.sum-card.p2  .sm-n { color: var(--info); }
+.sum-card.own .sm-n { color: var(--purple); }
+.sum-card.hold .sm-n { color: var(--stam); }
+
+/* legend grid */
+.lg-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+}
+@media (max-width: 1100px) { .lg-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px)  { .lg-grid { grid-template-columns: 1fr; } }
+.lg-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.lg-card .lg-top {
+  display: flex; align-items: center; gap: 6px;
+}
+.lg-card .lg-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55; letter-spacing: .005em;
+}
+
+/* gate / step */
+.gate-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 760px) { .gate-grid { grid-template-columns: 1fr; } }
+.gate-step {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.gate-step .gs-n {
+  flex: 0 0 auto; width: 22px; height: 22px; border-radius: 6px;
+  background: var(--stam-soft); color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center; letter-spacing: .02em;
+}
+.gate-step .gs-body {
+  flex: 1 1 auto; font-size: 12px; color: var(--t1); line-height: 1.55; font-weight: 600;
+}
+.gate-step .gs-sub {
+  display: block; margin-top: 3px;
+  font-size: 10.5px; color: var(--t3); font-weight: 500; letter-spacing: .01em;
+}
+.gate-step .gs-sub code {
+  font-family: var(--font); font-size: 10px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 4px; padding: 0 5px;
+}
+
+/* recommended box */
+.rec-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 760px) { .rec-grid { grid-template-columns: 1fr; } }
+.rec-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.rec-card .rc-area {
+  font-size: 10px; font-weight: 800; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--t3); margin-bottom: 2px;
+}
+.rec-card .rc-q {
+  font-size: 11.5px; font-weight: 700; color: var(--t1); line-height: 1.5;
+  letter-spacing: -.005em;
+}
+.rec-card .rc-a {
+  margin-top: 4px;
+  font-size: 11px; font-weight: 700; color: var(--stam); line-height: 1.55;
+}
+.rec-card .rc-a code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 5px;
+}
+.rec-card .rc-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55; margin-top: 2px;
+}
+
+/* rule grid (used for handoff / overview) */
+.rule-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 760px) { .rule-grid { grid-template-columns: 1fr; } }
+.rule-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+}
+.rule-card .rc-hdr {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--t1); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.rule-card .rc-hdr::before {
+  content: ""; width: 8px; height: 8px; border-radius: 999px;
+  background: var(--stam); display: inline-block;
+}
+.rule-card ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.rule-card li {
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  padding-left: 12px; position: relative;
+}
+.rule-card li::before {
+  content: "·"; position: absolute; left: 2px; top: -2px;
+  color: var(--t3); font-weight: 800;
+}
+.rule-card li code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 5px;
+}
+
+/* do / don't */
+.dd-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+@media (max-width: 760px) { .dd-grid { grid-template-columns: 1fr; } }
+.dd-col {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 14px 16px;
+}
+.dd-col.good { border-color: rgba(0,191,64,.22); }
+.dd-col.bad  { border-color: rgba(255,66,66,.22); }
+.dd-col .dd-hdr {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.dd-col.good .dd-hdr { color: var(--pass); }
+.dd-col.bad  .dd-hdr { color: var(--fail); }
+.dd-col ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.dd-col li {
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  padding-left: 14px; position: relative;
+}
+.dd-col.good li::before { content: "✓"; position: absolute; left: 0; color: var(--pass); font-weight: 800; }
+.dd-col.bad  li::before { content: "✕"; position: absolute; left: 0; color: var(--fail); font-weight: 800; }
+.dd-col li code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 5px;
+}
+
+/* related links */
+.rel-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+@media (max-width: 900px) { .rel-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px) { .rel-grid { grid-template-columns: 1fr; } }
+.rel-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 4px;
+  text-decoration: none; color: inherit;
+  transition: border-color .15s ease, background .15s ease;
+}
+.rel-card:hover { border-color: var(--bd-s); background: var(--bg-sur); }
+.rel-card .rl-title {
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.rel-card .rl-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+}
+
+/* caption */
+.fm-cap {
+  display: flex; align-items: center; gap: 8px;
+  margin: 18px 0 8px;
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.fm-cap .fm-cap-n {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--stam-soft); color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.fm-cap-sub {
+  font-size: 10.5px; color: var(--t3); font-weight: 500; letter-spacing: 0; margin-left: 4px;
+}
+
+/* font lock */
+.dr-tbl, .dr-tbl *,
+.sum-card, .sum-card *,
+.lg-card, .lg-card *,
+.gate-step, .gate-step *,
+.rec-card, .rec-card *,
+.rule-card, .rule-card *,
+.dd-col, .dd-col *,
+.rel-card, .rel-card *,
+.ppill, .dpill, .opill, .achip, .duechip {
+  font-family: var(--font) !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Decision Needed Register v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Decision Register</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Implementation Gate</span>
+  <span class="doc-nav-pill"><span class="dot"></span>PM Review Required</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Decision Register</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Decision Summary</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>P0 Critical Decisions</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Button Decisions</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Form Decisions</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Layer Decisions</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Drawer Decisions</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Dialog Decisions</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Table Decisions</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Recommended Set</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Implementation Gate</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Cursor Handoff</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Status Legend</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Status Banner ── -->
+      <div class="ibox info" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <strong>STAM Decision Needed Register v1</strong>
+          <span class="sbadge plan" style="margin-left:auto;">Decision Register</span>
+        </div>
+        <p style="margin:0 0 8px;font-size:.88em;line-height:1.7;opacity:.9;">
+          본 문서는 Button · Form · Layer · Drawer · Dialog · Table 6종 Mapping 문서에 분산된 <strong>Decision Needed / Pending / TBD 항목을 단일 Register로 통합 정리</strong>한 것이다.
+          실제 CSS · JS · 제품 화면 구현 전 PM · 디자인 · 개발이 결정해야 할 항목을 우선순위(P0 / P1 / P2)와 Owner · Due Point · Status별로 한 곳에서 추적한다.
+          본 문서로는 <code>stam/css/**</code>, <code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/index.html</code>, <code>stam/assets/**</code>를 절대 수정하지 않는다.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:6px;">
+          <span class="sbadge plan">Decision Register</span>
+          <span class="sbadge lock">Implementation Gate</span>
+          <span class="sbadge guide">PM Review Required</span>
+          <span class="sbadge guide">Pre-Implementation</span>
+          <span class="sbadge lock">No CSS Edit</span>
+        </div>
+        <p style="margin:10px 0 0;font-size:.82em;line-height:1.65;opacity:.78;">
+          <strong>판정 근거</strong> — 6종 Mapping 문서(Button / Form / Layer / Drawer / Dialog / Table)는 각각 “Decision Needed · Suggested · Hold · Candidate · TBD” 항목을 본문 안에 분산 보관하고 있다. 구현 단위가 분리되어 있어, Cursor에 작업을 넘길 때 PM이 결정한 항목과 결정하지 않은 항목이 섞여 그대로 CSS · JS에 박힐 위험이 있다. 본 Register는 그 위험을 차단하기 위해 “이 항목이 결정되지 않으면 어떤 컴포넌트 CSS도 시작할 수 없다”는 Gate 기준표 역할을 한다.
+        </p>
+      </div>
+
+      <!-- ── S01 Overview ── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적 · Mapping 문서와의 관계</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM은 현재 7종 Component Guide v1과 6종 Token Mapping v1(Button · Form · Layer · Drawer · Dialog · Table)이 완료된 상태이다.
+            각 Mapping 문서는 “토큰 후보 · Suggested Value · 사용처”까지는 정리했지만, 일부 항목은 <strong>“PM 결정 필요”, “디자인 결정 필요”, “v2로 이연”, “구현 단위에서 확정”</strong> 상태로 남아 있다.
+            본 Register는 그 결정 항목만 6종 문서에서 뽑아 하나의 우선순위표로 정리한다.
+            기획자 · PM은 “지금 무엇을 결정해야 구현이 시작되는가”, 디자이너는 “시각/상호작용 의사결정이 필요한 항목”, 개발자는 “구현 전에 막혀 있는 Gate 항목”을 본 문서 하나로 확인할 수 있어야 한다.
+          </p>
+
+          <div class="dd-grid" style="margin-top:8px;">
+            <div class="dd-col good">
+              <div class="dd-hdr">이 문서가 다루는 것</div>
+              <ul>
+                <li>Button / Form / Layer / Drawer / Dialog / Table 6종 Mapping의 미결정 항목 통합</li>
+                <li>P0 Critical · P1 Before Component CSS · P2 Later 우선순위 분류</li>
+                <li>Decision Item별 Options · Recommended Option · Impact · Owner · Due Point · Status</li>
+                <li>Recommended Decision Set — PM 승인 후보안</li>
+                <li>Implementation Gate — 어떤 결정 없이 어떤 구현이 시작 가능한가</li>
+                <li>Cursor Handoff Notes — 구현 위임 시 따라야 할 결정 게이트</li>
+                <li>Decision Status Legend — Pending · Recommended · Approved · Deferred · Blocked · Needs PM / Design / Dev</li>
+              </ul>
+            </div>
+            <div class="dd-col bad">
+              <div class="dd-hdr">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/css/**</code> 토큰 추가 / 값 변경 / 컴포넌트 클래스 작성</li>
+                <li><code>stam/js/**</code> 컴포넌트 동작 / 라우팅 / 상태 관리 구현</li>
+                <li><code>stam/pages/**</code>, <code>stam/index.html</code>, <code>stam/assets/**</code> 변경</li>
+                <li>각 Mapping 문서 본문 수정 — Register는 발췌·통합만, 원본은 변경하지 않는다</li>
+                <li>Firebase / GitHub Actions / package*.json / <code>_ds/**</code> / <code>uploads/**</code> 변경</li>
+                <li>Production / live 배포 의사결정 — 별도 운영 문서 책임</li>
+                <li>이미 Approved 항목의 재논의 — 결정된 토큰 · 값은 본 문서에서 다시 흔들지 않는다</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>선행 / 참조 문서</strong>
+            <span style="display:block;margin-top:4px;line-height:1.7;">
+              · <a href="STAM-CSS-Token-Readiness-Check.html" style="color:var(--stam);">CSS Token Readiness Check</a> — 12 카테고리 토큰 준비상태<br>
+              · <a href="STAM-Token-Inventory-v1.html" style="color:var(--stam);">Token Inventory v1</a> — P0 / P1 / P2 토큰 후보<br>
+              · <a href="STAM-Button-Token-Mapping-v1.html" style="color:var(--stam);">Button Token Mapping v1</a> — variant × size × state<br>
+              · <a href="STAM-Form-Token-Mapping-v1.html" style="color:var(--stam);">Form Token Mapping v1</a> — Input / Select / Date Picker<br>
+              · <a href="STAM-Layer-Token-Mapping-v1.html" style="color:var(--stam);">Layer Token Mapping v1</a> — z-index · Drawer / Dialog / Toast / Global Loading<br>
+              · <a href="STAM-Drawer-Token-Mapping-v1.html" style="color:var(--stam);">Drawer Token Mapping v1</a> — Drawer · Full Detail 흐름<br>
+              · <a href="STAM-Dialog-Token-Mapping-v1.html" style="color:var(--stam);">Dialog Token Mapping v1</a> — Confirm / Danger / Alert<br>
+              · <a href="STAM-Table-Token-Mapping-v1.html" style="color:var(--stam);">Table Token Mapping v1</a> — 게시판 / List Table<br>
+              · <strong>STAM Decision Needed Register v1</strong> <em style="opacity:.6;">(현재 문서)</em>
+            </span>
+          </div>
+
+          <div class="ibox warn" style="margin-top:10px;">
+            <strong>주의 — Register는 결정이 아니다</strong>
+            본 문서의 “Recommended Option”은 디자이너 관점에서의 <em>제안</em>이며, PM이 Approved 처리하지 않은 항목은 어떤 항목이라도 CSS / JS 구현에 반영하지 않는다.
+            결정이 끝난 항목은 각 Mapping 문서 본문에 반영하는 것이 정식 절차이며, 본 Register는 항상 “결정 전 단계”만을 정리한다.
+          </div>
+
+          <div class="ibox bad" style="margin-top:10px;">
+            <strong>금지 — Register만 보고 코드 변경 금지</strong>
+            본 문서는 등록부이지 명세가 아니다. P0 Pending 항목이 하나라도 남아 있는 영역의 컴포넌트 CSS · JS는 시작하지 않는다.
+            Cursor 핸드오프 시 “Register P0 모두 Approved”가 전제 조건이며, 그렇지 않은 상태로 구현을 시작하면 본 Register의 의미가 사라진다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Decision Summary ── -->
+      <section id="s02" class="sec" data-screen-label="02 Decision Summary">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Decision Summary — 전체 미결정 항목 현황</span>
+          <span class="sbadge plan">요약</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">현재 6종 Mapping 문서에서 도출된 미결정 항목 총계와 우선순위별 분포를 요약한다. 모든 수치는 본 문서 작성 시점 기준이며, Mapping 문서가 갱신되면 본 Register도 함께 갱신해야 한다.</p>
+
+          <div class="sum-grid">
+            <div class="sum-card">
+              <span class="sm-l">Total Decision Items</span>
+              <span class="sm-n">52</span>
+              <span class="sm-s">Button 5 · Form 7 · Layer 5 · Drawer 8 · Dialog 7 · Table 8 · P0 Critical 10 · Cross 2</span>
+            </div>
+            <div class="sum-card p0">
+              <span class="sm-l">P0 Critical</span>
+              <span class="sm-n">10</span>
+              <span class="sm-s">컴포넌트 CSS / JS 시작 전 PM Approved 필수.</span>
+            </div>
+            <div class="sum-card p1">
+              <span class="sm-l">P1 Before Component CSS</span>
+              <span class="sm-n">22</span>
+              <span class="sm-s">컴포넌트 단위 구현 시작 전까지 결정.</span>
+            </div>
+            <div class="sum-card p2">
+              <span class="sm-l">P2 Later</span>
+              <span class="sm-n">20</span>
+              <span class="sm-s">v1 구현 중 또는 v2로 이연 가능.</span>
+            </div>
+            <div class="sum-card own">
+              <span class="sm-l">Owner Needed</span>
+              <span class="sm-n">14</span>
+              <span class="sm-s">Owner가 PM / Design / Dev 중 무엇인지 미확정.</span>
+            </div>
+            <div class="sum-card hold">
+              <span class="sm-l">Implementation Hold</span>
+              <span class="sm-n">6</span>
+              <span class="sm-s">P0 미결정으로 컴포넌트 단위 CSS / JS 진행 불가.</span>
+            </div>
+          </div>
+
+          <div class="fm-cap"><span class="fm-cap-n">SUM</span>영역별 P0 분포 <span class="fm-cap-sub">P0 Critical 10건 — 어떤 컴포넌트가 막혀 있는가</span></div>
+          <div class="rule-grid">
+            <div class="rule-card">
+              <div class="rc-hdr">P0 by Area</div>
+              <ul>
+                <li><span class="achip layer">Layer</span> 1건 — Toast vs Global Loading 우선순위</li>
+                <li><span class="achip drawer">Drawer</span> 3건 — fullscreen breakpoint · 전체보기 위치 · Full Detail URL 라우팅</li>
+                <li><span class="achip form">Form</span> 2건 — Drawer/Full Detail 공통 init · Select/Date Picker custom 강제</li>
+                <li><span class="achip table">Table</span> 2건 — page-level h-scroll 금지 · 컬럼 설정 저장 위치</li>
+                <li><span class="achip dialog">Dialog</span> 2건 — Toast vs Global Loading 상하 · danger backdrop click</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">P0 by Owner</div>
+              <ul>
+                <li><span class="opill pm">PM</span> 6건 — fullscreen breakpoint · Full Detail URL · 컬럼 설정 저장 · backdrop 정책 등</li>
+                <li><span class="opill design">Design</span> 2건 — 전체보기 버튼 위치 · Toast/Loading 시각 우선순위</li>
+                <li><span class="opill dev">Dev</span> 1건 — 공통 init 함수 시그니처(타입/스키마)</li>
+                <li><span class="opill pm-dev">PM + Dev</span> 1건 — page-level h-scroll 금지의 구현 범위 확정</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 P0 Critical Decisions ── -->
+      <section id="s03" class="sec" data-screen-label="03 P0 Critical Decisions">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">P0 Critical Decisions — 구현 전 반드시 결정</span>
+          <span class="sbadge plan">P0</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">아래 10개 항목 중 하나라도 Pending이면 해당 영역의 CSS / JS 구현은 시작하지 않는다. PM Approved 처리 후에 비로소 컴포넌트 단위 구현이 가능하다.</p>
+
+          <div class="dr-wrap">
+          <table class="dr-tbl">
+            <thead>
+              <tr>
+                <th style="width:62px;">ID</th>
+                <th style="width:78px;">Area</th>
+                <th style="width:240px;">Decision Item</th>
+                <th>Options</th>
+                <th style="width:170px;">Recommended</th>
+                <th style="width:160px;">Impact</th>
+                <th style="width:90px;">Owner</th>
+                <th style="width:80px;">Due</th>
+                <th style="width:90px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">P0-01</td>
+                <td><span class="achip layer">Layer</span></td>
+                <td class="title">Toast vs Global Loading 우선순위<small>두 레이어 중 어느 쪽이 상위 z-index를 가지는가</small></td>
+                <td>
+                  <ul class="opts">
+                    <li>A. Toast &gt; Global Loading</li>
+                    <li>B. Global Loading &gt; Toast (별도 blackout)</li>
+                    <li>C. 동일 layer · 컨텍스트별 동작</li>
+                  </ul>
+                </td>
+                <td><span class="rec">A. Toast &gt; Dialog<small>Global Loading은 별도 blackout 정책으로 PM 결정</small></span></td>
+                <td>전체 z-index 토큰 확정 가능 여부</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="duechip gate">Gate</span></td>
+                <td><span class="dpill needs-pm">Needs PM</span></td>
+              </tr>
+              <tr>
+                <td class="id">P0-02</td>
+                <td><span class="achip drawer">Drawer</span></td>
+                <td class="title">Drawer fullscreen breakpoint<small>어느 viewport 폭부터 Drawer가 전체 화면으로 전환되는가</small></td>
+                <td>
+                  <ul class="opts">
+                    <li>A. ≤ 1024px</li>
+                    <li>B. ≤ 1280px</li>
+                    <li>C. Drawer를 항상 사이드로 유지(Full Detail로 진입)</li>
+                  </ul>
+                </td>
+                <td><span class="rec">B. ≤ 1280px<small>Dialog와 동일 기준으로 통일 권장</small></span></td>
+                <td>Drawer / Dialog 공통 breakpoint 토큰</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="duechip gate">Gate</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">P0-03</td>
+                <td><span class="achip drawer">Drawer</span></td>
+                <td class="title">전체 보기 버튼 위치<small>Drawer 헤더에서 “전체 보기”를 어디에 두는가</small></td>
+                <td>
+                  <ul class="opts">
+                    <li>A. 헤더 우측 끝(close 좌측)</li>
+                    <li>B. 헤더 좌측(타이틀 옆)</li>
+                    <li>C. 푸터 우측 액션바</li>
+                  </ul>
+                </td>
+                <td><span class="rec">A. 헤더 우측 끝(close 좌측)<small>close보다 한 칸 안쪽 · icon + label 조합</small></span></td>
+                <td>Drawer 헤더 레이아웃 · Action Cell 토큰</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="duechip gate">Gate</span></td>
+                <td><span class="dpill needs-design">Needs Design</span></td>
+              </tr>
+              <tr>
+                <td class="id">P0-04</td>
+                <td><span class="achip drawer">Drawer</span></td>
+                <td class="title">Full Detail URL 라우팅 여부<small>전체 보기 진입 시 URL을 바꾸는가, 내부 상태 전환인가</small></td>
+                <td>
+                  <ul class="opts">
+                    <li>A. v1: 내부 상태 전환만(URL 동일)</li>
+                    <li>B. v1: URL 라우팅 도입(<code>?detail=...</code>)</li>
+                    <li>C. v1: 신규 페이지 진입(<code>/detail/:id</code>)</li>
+                  </ul>
+                </td>
+                <td><span class="rec">A. v1 내부 상태 전환 · v2 URL 라우팅<small>v1은 라우터/히스토리 의존 최소화</small></span></td>
+                <td>Drawer / Page / 라우터 책임 경계</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="duechip gate">Gate</span></td>
+                <td><span class="dpill needs-pm">Needs PM</span></td>
+              </tr>
+              <tr>
+                <td class="id">P0-05</td>
+                <td><span class="achip form">Form</span></td>
+                <td class="title">Drawer / Full Detail 공통 init 함수 기준<small>같은 입력 화면을 어떻게 단일 진입점으로 만드는가</small></td>
+                <td>
+                  <ul class="opts">
+                    <li>A. <code>initFormView(mode, ctx)</code> 단일 함수</li>
+                    <li>B. Drawer / Full 각각 별도 init</li>
+                    <li>C. 컴포넌트 자체가 mode prop을 받아 분기</li>
+                  </ul>
+                </td>
+                <td><span class="rec">A. <code>initFormView(mode, ctx)</code><small>mode = <code>drawer | full | dialog</code> · ctx = id/scope/permissions</small></span></td>
+                <td>Form 진입점 일관성 · 테스트 가능성</td>
+                <td><span class="opill dev">Dev</span></td>
+                <td><span class="duechip gate">Gate</span></td>
+                <td><span class="dpill needs-dev">Needs Dev Review</span></td>
+              </tr>
+              <tr>
+                <td class="id">P0-06</td>
+                <td><span class="achip form">Form</span></td>
+                <td class="title">Select / Date Picker native UI 금지 기준<small>브라우저 기본 UI 허용 여부</small></td>
+                <td>
+                  <ul class="opts">
+                    <li>A. custom UI 강제(native 금지)</li>
+                    <li>B. desktop: custom · mobile: native</li>
+                    <li>C. native 허용 + 스타일 보정</li>
+                  </ul>
+                </td>
+                <td><span class="rec">A. custom UI 강제<small>모든 게시판/화면이 동일 UI · 한국어 라벨/접근성 보장</small></span></td>
+                <td>Form / Filter / Inline Edit 동작 일관성</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="duechip gate">Gate</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">P0-07</td>
+                <td><span class="achip table">Table</span></td>
+                <td class="title">Page-level h-scroll 금지 + table 내부 scroll 기준<small>가로 스크롤은 어디서만 허용되는가</small></td>
+                <td>
+                  <ul class="opts">
+                    <li>A. table container 내부에서만 허용</li>
+                    <li>B. content 영역까지 허용</li>
+                    <li>C. body 전체 허용</li>
+                  </ul>
+                </td>
+                <td><span class="rec">A. table container 내부 한정<small>Left Nav 위 page-level h-scroll 절대 금지</small></span></td>
+                <td>Layout 골격 / 모든 게시판 공통</td>
+                <td><span class="opill pm-dev">PM + Dev</span></td>
+                <td><span class="duechip gate">Gate</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">P0-08</td>
+                <td><span class="achip table">Table</span></td>
+                <td class="title">컬럼 설정 저장 위치<small>표시/숨김/순서/width 커스텀을 어디에 저장하는가</small></td>
+                <td>
+                  <ul class="opts">
+                    <li>A. v1: board schema / config 문서 기준(서버)</li>
+                    <li>B. v1: localStorage(개인화)</li>
+                    <li>C. v1: 둘 다 + 사용자 우선</li>
+                  </ul>
+                </td>
+                <td><span class="rec">A. v1 board schema · v2 사용자 개인화<small>v1에서는 게시판 단위만 · 사용자별 personalization은 v2</small></span></td>
+                <td>Table JS · Backend API Boundary</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="duechip gate">Gate</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">P0-09</td>
+                <td><span class="achip dialog">Dialog</span></td>
+                <td class="title">Toast vs Global Loading 상하 관계 (Dialog 관점)<small>Dialog 위에 Toast / Loading을 어떻게 올리는가</small></td>
+                <td>
+                  <ul class="opts">
+                    <li>A. Toast &gt; Dialog &gt; Global Loading(별도 blackout)</li>
+                    <li>B. Global Loading &gt; Toast &gt; Dialog</li>
+                    <li>C. Global Loading은 Dialog 내부에서만 표시</li>
+                  </ul>
+                </td>
+                <td><span class="rec">A. Toast &gt; Dialog<small>Global Loading은 “전역 차단”인지 “Dialog 내부 진행”인지 PM 분리 결정</small></span></td>
+                <td>Layer z-index 토큰 마무리</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="duechip gate">Gate</span></td>
+                <td><span class="dpill needs-pm">Needs PM</span></td>
+              </tr>
+              <tr>
+                <td class="id">P0-10</td>
+                <td><span class="achip dialog">Dialog</span></td>
+                <td class="title">Danger dialog backdrop click 정책<small>위험 액션 확인 다이얼로그의 backdrop 클릭 처리</small></td>
+                <td>
+                  <ul class="opts">
+                    <li>A. 기본 비활성(닫히지 않음)</li>
+                    <li>B. 닫힘 + 확인 토스트</li>
+                    <li>C. shake/highlight로 명시적 거절</li>
+                  </ul>
+                </td>
+                <td><span class="rec">A. 기본 비활성<small>esc / 닫기 버튼만 허용 · destructive 액션 보호</small></span></td>
+                <td>Dialog 동작 표준 · 모든 danger flow</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="duechip gate">Gate</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Button Decisions ── -->
+      <section id="s04" class="sec" data-screen-label="04 Button Decisions">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Button Decisions — Button Mapping 미결정 항목</span>
+          <span class="sbadge plan">Button</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Button Token Mapping v1에서 도출된 결정 필요 항목. variant · size · state · icon-only · focus ring 정책을 다룬다.</p>
+
+          <div class="dr-wrap">
+          <table class="dr-tbl">
+            <thead>
+              <tr>
+                <th style="width:62px;">ID</th>
+                <th style="width:240px;">Decision Item</th>
+                <th>Options</th>
+                <th style="width:170px;">Recommended</th>
+                <th style="width:140px;">Impact</th>
+                <th style="width:90px;">Owner</th>
+                <th style="width:60px;">P</th>
+                <th style="width:90px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">BT-01</td>
+                <td class="title">Button 기본 size<small>STAM 전반에서 사용하는 기본 사이즈</small></td>
+                <td><ul class="opts"><li>A. <code>md</code> (32px)</li><li>B. <code>lg</code> (40px)</li><li>C. 컨텍스트별 분리</li></ul></td>
+                <td><span class="rec">A. <code>md</code> 32px<small>Toolbar/Filter <code>sm</code>, Dialog 액션 <code>lg</code></small></span></td>
+                <td>Toolbar/Form/Dialog 공통</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">BT-02</td>
+                <td class="title">Primary / Secondary / Ghost / Danger 사용 기준<small>variant 선택 규칙</small></td>
+                <td><ul class="opts"><li>A. 화면당 Primary 1개 강제</li><li>B. Primary 다중 허용</li><li>C. Toolbar Primary 금지(Secondary만)</li></ul></td>
+                <td><span class="rec">A + C 조합<small>화면 Primary 1 · Toolbar는 Secondary/Ghost 위주 · Danger는 destructive 전용</small></span></td>
+                <td>전체 화면 일관성</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill needs-pm">Needs PM</span></td>
+              </tr>
+              <tr>
+                <td class="id">BT-03</td>
+                <td class="title">Icon-only button size<small>icon만 있는 버튼의 사이즈/hit area</small></td>
+                <td><ul class="opts"><li>A. 28px / 32px / 40px 3단</li><li>B. 32px 단일</li><li>C. Toolbar 32 · Table Action 28</li></ul></td>
+                <td><span class="rec">C. Toolbar 32 · Table Action 28<small>hit area는 둘 다 ≥ 32 보장(padding)</small></span></td>
+                <td>Toolbar/Action Cell</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">BT-04</td>
+                <td class="title">Disabled / Loading 처리 기준<small>둘의 시각/상호작용 차이</small></td>
+                <td><ul class="opts"><li>A. disabled = 비활성 / loading = spinner + 비활성</li><li>B. loading = label 유지 + spinner 우측</li><li>C. loading = label 교체</li></ul></td>
+                <td><span class="rec">A + B 조합<small>loading은 label 유지 + spinner · 클릭은 차단</small></span></td>
+                <td>모든 액션 버튼</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">BT-05</td>
+                <td class="title">Focus ring 정책<small>키보드 focus 시 ring을 어떻게 그리는가</small></td>
+                <td><ul class="opts"><li>A. 항상 표시(outline 2px)</li><li>B. <code>:focus-visible</code>만 표시</li><li>C. variant별 color 분리</li></ul></td>
+                <td><span class="rec">B. <code>:focus-visible</code><small>색은 <code>--focus-ring</code> 토큰 단일</small></span></td>
+                <td>접근성 · 키보드 nav</td>
+                <td><span class="opill dev">Dev</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 Form Decisions ── -->
+      <section id="s05" class="sec" data-screen-label="05 Form Decisions">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Form Decisions — Form Mapping 미결정 항목</span>
+          <span class="sbadge plan">Form</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Form Token Mapping v1에서 도출된 결정 필요 항목. Input / Select / Date Picker / 공통 init / validation 정책을 다룬다.</p>
+
+          <div class="dr-wrap">
+          <table class="dr-tbl">
+            <thead>
+              <tr>
+                <th style="width:62px;">ID</th>
+                <th style="width:240px;">Decision Item</th>
+                <th>Options</th>
+                <th style="width:170px;">Recommended</th>
+                <th style="width:140px;">Impact</th>
+                <th style="width:90px;">Owner</th>
+                <th style="width:60px;">P</th>
+                <th style="width:90px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">FM-01</td>
+                <td class="title">Input 기본 size<small>일반 form input 기본 높이</small></td>
+                <td><ul class="opts"><li>A. <code>md</code> 36px</li><li>B. <code>lg</code> 40px</li><li>C. Drawer 36 · Full Detail 40</li></ul></td>
+                <td><span class="rec">A. <code>md</code> 36px<small>Filter는 <code>sm</code> 32 권장</small></span></td>
+                <td>Drawer/Full/Filter 공통</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">FM-02</td>
+                <td class="title">Select custom dropdown 강제 여부<small>native <code>&lt;select&gt;</code> 허용?</small></td>
+                <td><ul class="opts"><li>A. 강제 custom</li><li>B. mobile만 native</li><li>C. native 허용</li></ul></td>
+                <td><span class="rec">A. 강제 custom<small>P0-06과 동일</small></span></td>
+                <td>Form / Filter / Inline Edit</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">FM-03</td>
+                <td class="title">Date Picker custom calendar 강제 여부<small>native datepicker 허용?</small></td>
+                <td><ul class="opts"><li>A. 강제 custom</li><li>B. mobile만 native</li><li>C. native 허용</li></ul></td>
+                <td><span class="rec">A. 강제 custom<small>한국어 요일/공휴일 표시 위해</small></span></td>
+                <td>Form / Filter</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">FM-04</td>
+                <td class="title">날짜 표시 형식<small>사용자에게 보여줄 포맷</small></td>
+                <td><ul class="opts"><li>A. <code>YYYY.MM.DD</code></li><li>B. <code>YYYY-MM-DD</code></li><li>C. 사용자 설정</li></ul></td>
+                <td><span class="rec">A 또는 B 중 하나로 통일<small>v1은 단일 포맷 고정 · 저장값과 분리</small></span></td>
+                <td>전체 화면 표시 일관성</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill needs-pm">Needs PM</span></td>
+              </tr>
+              <tr>
+                <td class="id">FM-05</td>
+                <td class="title">날짜 저장 형식<small>API / DB로 보내는 포맷</small></td>
+                <td><ul class="opts"><li>A. ISO 8601(<code>YYYY-MM-DD</code> 또는 timestamp)</li><li>B. UTC timestamp</li><li>C. 로컬 string</li></ul></td>
+                <td><span class="rec">A. ISO 8601 유지<small>표시값과 분리 · 시간대는 컬럼 단위로 결정</small></span></td>
+                <td>API / DB 일관성</td>
+                <td><span class="opill dev">Dev</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">FM-06</td>
+                <td class="title">Drawer / Full Detail 공통 init 함수 시그니처<small>P0-05의 세부 결정</small></td>
+                <td><ul class="opts"><li>A. <code>initFormView({ mode, scope, id, perm })</code></li><li>B. <code>initFormView(mode, ctx)</code></li><li>C. props 전달(컴포넌트 기반)</li></ul></td>
+                <td><span class="rec">A. 객체 인자형<small>확장 시 호환성 유지</small></span></td>
+                <td>Form 진입점</td>
+                <td><span class="opill dev">Dev</span></td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="dpill needs-dev">Needs Dev Review</span></td>
+              </tr>
+              <tr>
+                <td class="id">FM-07</td>
+                <td class="title">Validation message 위치<small>오류 텍스트가 어디에 붙는가</small></td>
+                <td><ul class="opts"><li>A. 입력 아래</li><li>B. 입력 우측</li><li>C. 폼 상단 요약</li></ul></td>
+                <td><span class="rec">A. 입력 아래<small>요약은 submit 실패 시에만 상단 ibox</small></span></td>
+                <td>Form 시각 일관성</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 Layer Decisions ── -->
+      <section id="s06" class="sec" data-screen-label="06 Layer Decisions">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Layer Decisions — Layer Mapping 미결정 항목</span>
+          <span class="sbadge plan">Layer</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Layer Token Mapping v1에서 도출된 결정 필요 항목. z-index 토큰의 suggested value를 확정하기 위해 필요한 결정.</p>
+
+          <div class="dr-wrap">
+          <table class="dr-tbl">
+            <thead>
+              <tr>
+                <th style="width:62px;">ID</th>
+                <th style="width:240px;">Decision Item</th>
+                <th>Options</th>
+                <th style="width:170px;">Recommended</th>
+                <th style="width:140px;">Impact</th>
+                <th style="width:90px;">Owner</th>
+                <th style="width:60px;">P</th>
+                <th style="width:90px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">LY-01</td>
+                <td class="title">Toast vs Global Loading 우선순위<small>P0-01과 동일</small></td>
+                <td><ul class="opts"><li>A. Toast &gt; Loading</li><li>B. Loading &gt; Toast(blackout)</li><li>C. 컨텍스트별 분리</li></ul></td>
+                <td><span class="rec">A + 별도 blackout 정책<small>PM이 “전역 차단”인지 “블록형 진행”인지 명시</small></span></td>
+                <td>전 z-index 토큰</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="dpill needs-pm">Needs PM</span></td>
+              </tr>
+              <tr>
+                <td class="id">LY-02</td>
+                <td class="title">Dropdown / Calendar portal 기준<small>어디에 render하는가</small></td>
+                <td><ul class="opts"><li>A. body portal 강제</li><li>B. 부모 내부 absolute</li><li>C. 컨텍스트별 분리</li></ul></td>
+                <td><span class="rec">A. body portal<small>Drawer/Dialog overflow 회피 · 단일 z-index 그룹</small></span></td>
+                <td>Form Select/Date · Filter</td>
+                <td><span class="opill dev">Dev</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">LY-03</td>
+                <td class="title">Drawer 내부 popup layer<small>Drawer 안 Select 등 popup 정책</small></td>
+                <td><ul class="opts"><li>A. body portal (위로 솟음)</li><li>B. Drawer 내부 render</li></ul></td>
+                <td><span class="rec">A. body portal<small>Drawer 헤더보다 위 · 단 backdrop은 Drawer에 종속</small></span></td>
+                <td>Drawer Form 동작</td>
+                <td><span class="opill dev">Dev</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">LY-04</td>
+                <td class="title">Dialog 내부 popup layer<small>Dialog 안 popup 처리</small></td>
+                <td><ul class="opts"><li>A. body portal + Dialog 위에 z-index</li><li>B. Dialog 내부 render</li></ul></td>
+                <td><span class="rec">A. body portal<small>Dialog 위에 안전하게 표시</small></span></td>
+                <td>Dialog Form 동작</td>
+                <td><span class="opill dev">Dev</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">LY-05</td>
+                <td class="title">z-index token suggested value 확정<small>실제 숫자 — Drawer/Dialog/Toast/Loading 등</small></td>
+                <td><ul class="opts"><li>A. Drawer 1000 / Dialog 1100 / Popup 1200 / Toast 1300 / Loading 1400</li><li>B. 1000 단위 + 100 step</li><li>C. semantic 토큰만, 숫자는 구현 단위에서</li></ul></td>
+                <td><span class="rec">A. 100 단위 ladder<small>LY-01 결정 후 Loading 위치만 확정</small></span></td>
+                <td>Layer 토큰 확정</td>
+                <td><span class="opill dev">Dev</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill pending">Pending</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 Drawer Decisions ── -->
+      <section id="s07" class="sec" data-screen-label="07 Drawer Decisions">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Drawer Decisions — Drawer Mapping 미결정 항목</span>
+          <span class="sbadge plan">Drawer</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Drawer Token Mapping v1에서 도출된 결정 필요 항목. 폭/breakpoint/전체보기/URL/dirty/role/close 정책을 다룬다.</p>
+
+          <div class="dr-wrap">
+          <table class="dr-tbl">
+            <thead>
+              <tr>
+                <th style="width:62px;">ID</th>
+                <th style="width:240px;">Decision Item</th>
+                <th>Options</th>
+                <th style="width:170px;">Recommended</th>
+                <th style="width:140px;">Impact</th>
+                <th style="width:90px;">Owner</th>
+                <th style="width:60px;">P</th>
+                <th style="width:90px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">DR-01</td>
+                <td class="title">Drawer 기본 폭<small>컨텐츠 영역 기준 비율 / max</small></td>
+                <td><ul class="opts"><li>A. 컨텐츠 폭의 40% · max 720px</li><li>B. 고정 640px</li><li>C. 고정 720px</li></ul></td>
+                <td><span class="rec">A. 40% · max 720px<small>고정 폭 게시판은 720 권장</small></span></td>
+                <td>Drawer 레이아웃</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">DR-02</td>
+                <td class="title">1440 / 1600 / 1920 권장 폭<small>대형 viewport 기준</small></td>
+                <td><ul class="opts"><li>A. 1440=640 · 1600=720 · 1920=800</li><li>B. 모두 720 고정</li><li>C. 비율 40% 일관</li></ul></td>
+                <td><span class="rec">A. step 60 ladder<small>viewport별 보기 편의 우선</small></span></td>
+                <td>Drawer 폭 토큰</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill pending">Pending</span></td>
+              </tr>
+              <tr>
+                <td class="id">DR-03</td>
+                <td class="title">Fullscreen breakpoint<small>P0-02</small></td>
+                <td><ul class="opts"><li>A. ≤ 1024</li><li>B. ≤ 1280</li><li>C. 항상 사이드</li></ul></td>
+                <td><span class="rec">B. ≤ 1280<small>Dialog와 동일</small></span></td>
+                <td>Drawer/Dialog 공통</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">DR-04</td>
+                <td class="title">전체 보기 버튼 위치<small>P0-03</small></td>
+                <td><ul class="opts"><li>A. 헤더 우측 끝</li><li>B. 헤더 좌측</li><li>C. 푸터</li></ul></td>
+                <td><span class="rec">A. 헤더 우측 끝(close 좌측)</span></td>
+                <td>Drawer 헤더</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="dpill needs-design">Needs Design</span></td>
+              </tr>
+              <tr>
+                <td class="id">DR-05</td>
+                <td class="title">Full Detail URL 라우팅 여부<small>P0-04</small></td>
+                <td><ul class="opts"><li>A. v1 내부 상태</li><li>B. v1 URL</li><li>C. v1 신규 페이지</li></ul></td>
+                <td><span class="rec">A. v1 내부 상태 · v2 URL</span></td>
+                <td>Drawer/Page 책임</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="dpill needs-pm">Needs PM</span></td>
+              </tr>
+              <tr>
+                <td class="id">DR-06</td>
+                <td class="title">Dirty 상태 닫기 confirm<small>입력 변경 후 close 시 처리</small></td>
+                <td><ul class="opts"><li>A. confirm dialog</li><li>B. autosave</li><li>C. 무조건 닫음</li></ul></td>
+                <td><span class="rec">A. confirm dialog<small>destructive 톤 · esc 닫기 동일 적용</small></span></td>
+                <td>Drawer/Form 협업</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">DR-07</td>
+                <td class="title">role="dialog" vs role="region"<small>접근성 역할</small></td>
+                <td><ul class="opts"><li>A. <code>role="dialog"</code> + aria-modal</li><li>B. <code>role="region"</code></li><li>C. native <code>&lt;dialog&gt;</code></li></ul></td>
+                <td><span class="rec">A. <code>role="dialog"</code> + aria-modal<small>focus trap 일관</small></span></td>
+                <td>접근성</td>
+                <td><span class="opill dev">Dev</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">DR-08</td>
+                <td class="title">Close tab order 포함 여부<small>키보드 tab 순서에 close 포함?</small></td>
+                <td><ul class="opts"><li>A. 포함(맨 뒤)</li><li>B. 포함(맨 앞)</li><li>C. 미포함(esc만)</li></ul></td>
+                <td><span class="rec">A. 포함(맨 뒤)<small>esc 동시 허용</small></span></td>
+                <td>키보드 nav</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Dialog Decisions ── -->
+      <section id="s08" class="sec" data-screen-label="08 Dialog Decisions">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Dialog Decisions — Dialog Mapping 미결정 항목</span>
+          <span class="sbadge plan">Dialog</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Dialog Token Mapping v1에서 도출된 결정 필요 항목. fullscreen / focus / backdrop / button order 정책을 다룬다.</p>
+
+          <div class="dr-wrap">
+          <table class="dr-tbl">
+            <thead>
+              <tr>
+                <th style="width:62px;">ID</th>
+                <th style="width:240px;">Decision Item</th>
+                <th>Options</th>
+                <th style="width:170px;">Recommended</th>
+                <th style="width:140px;">Impact</th>
+                <th style="width:90px;">Owner</th>
+                <th style="width:60px;">P</th>
+                <th style="width:90px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">DG-01</td>
+                <td class="title">Fullscreen breakpoint<small>모바일 폭 기준 전체화면</small></td>
+                <td><ul class="opts"><li>A. ≤ 640</li><li>B. ≤ 768</li><li>C. Drawer와 동일 (1280)</li></ul></td>
+                <td><span class="rec">B. ≤ 768<small>모바일 한정 · Drawer는 별도 1280</small></span></td>
+                <td>Dialog 레이아웃</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill needs-pm">Needs PM</span></td>
+              </tr>
+              <tr>
+                <td class="id">DG-02</td>
+                <td class="title">Close button tab order 포함 여부<small>키보드 순서</small></td>
+                <td><ul class="opts"><li>A. 포함(맨 뒤)</li><li>B. 미포함(esc만)</li></ul></td>
+                <td><span class="rec">A. 포함(맨 뒤)<small>Drawer DR-08과 통일</small></span></td>
+                <td>키보드 nav</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">DG-03</td>
+                <td class="title">Danger dialog backdrop click 정책<small>P0-10</small></td>
+                <td><ul class="opts"><li>A. 비활성</li><li>B. 닫힘 + 토스트</li><li>C. shake</li></ul></td>
+                <td><span class="rec">A. 비활성<small>esc + close 버튼만</small></span></td>
+                <td>Danger flow</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">DG-04</td>
+                <td class="title">Initial focus 위치<small>open 시 어디로 focus가 가는가</small></td>
+                <td><ul class="opts"><li>A. 첫 입력</li><li>B. Confirm/Primary 버튼</li><li>C. 컨테이너(none)</li></ul></td>
+                <td><span class="rec">A 또는 B 컨텍스트별<small>입력형 → A · 확인형 → B · Danger는 Cancel</small></span></td>
+                <td>접근성 / 안전성</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">DG-05</td>
+                <td class="title">Restore focus 기준<small>close 시 focus를 어디로</small></td>
+                <td><ul class="opts"><li>A. trigger element</li><li>B. body</li><li>C. 컨텍스트 root</li></ul></td>
+                <td><span class="rec">A. trigger element<small>trigger 사라진 경우 컨텍스트 root</small></span></td>
+                <td>접근성</td>
+                <td><span class="opill dev">Dev</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">DG-06</td>
+                <td class="title">Confirm / Danger button order<small>버튼 순서 — Cancel · Confirm 위치</small></td>
+                <td><ul class="opts"><li>A. 좌 Cancel · 우 Confirm(Primary)</li><li>B. 좌 Confirm · 우 Cancel</li><li>C. Danger는 좌 Cancel · 우 Danger(주의 색)</li></ul></td>
+                <td><span class="rec">A + C 조합<small>일반: 우 Primary · Danger: 우 Danger</small></span></td>
+                <td>모든 Confirm flow</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">DG-07</td>
+                <td class="title">Toast / Global Loading 상하 관계<small>P0-09</small></td>
+                <td><ul class="opts"><li>A. Toast &gt; Dialog &gt; Loading(blackout 분리)</li><li>B. Loading &gt; Toast &gt; Dialog</li><li>C. Loading은 Dialog 내부만</li></ul></td>
+                <td><span class="rec">A. Toast &gt; Dialog<small>Loading 위치 PM 결정 필수</small></span></td>
+                <td>z-index 마무리</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="dpill needs-pm">Needs PM</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Table Decisions ── -->
+      <section id="s09" class="sec" data-screen-label="09 Table Decisions">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Table Decisions — Table Mapping 미결정 항목</span>
+          <span class="sbadge plan">Table</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Table Token Mapping v1에서 도출된 결정 필요 항목. readability mode / column / sticky / keyboard / density / inline edit 정책을 다룬다.</p>
+
+          <div class="dr-wrap">
+          <table class="dr-tbl">
+            <thead>
+              <tr>
+                <th style="width:62px;">ID</th>
+                <th style="width:240px;">Decision Item</th>
+                <th>Options</th>
+                <th style="width:170px;">Recommended</th>
+                <th style="width:140px;">Impact</th>
+                <th style="width:90px;">Owner</th>
+                <th style="width:60px;">P</th>
+                <th style="width:90px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">TB-01</td>
+                <td class="title">Large readability mode 적용 범위<small>“빔프로젝터 모드” 어디까지</small></td>
+                <td><ul class="opts"><li>A. WBS 한정</li><li>B. WBS + 시나리오</li><li>C. 전체 Table 토글</li></ul></td>
+                <td><span class="rec">B. WBS + Test/Open Scenario<small>토글은 게시판 단위</small></span></td>
+                <td>Density 토큰</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">TB-02</td>
+                <td class="title">컬럼 설정 scope<small>설정 단위 — 사용자/프로젝트/게시판</small></td>
+                <td><ul class="opts"><li>A. 게시판 단위</li><li>B. 프로젝트 단위</li><li>C. 사용자 단위(개인화)</li></ul></td>
+                <td><span class="rec">A. v1 게시판 단위 · C는 v2</span></td>
+                <td>Backend API Boundary</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">TB-03</td>
+                <td class="title">컬럼 설정 저장 위치<small>P0-08</small></td>
+                <td><ul class="opts"><li>A. 서버 schema/config</li><li>B. localStorage</li><li>C. 둘 다</li></ul></td>
+                <td><span class="rec">A. v1 서버 · v2 사용자 personalization</span></td>
+                <td>Table JS · API</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="ppill p0">P0</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">TB-04</td>
+                <td class="title">Sticky header 기준<small>모든 Table에 sticky 적용?</small></td>
+                <td><ul class="opts"><li>A. 모든 Table 강제</li><li>B. row 50개 이상만</li><li>C. 게시판별 옵션</li></ul></td>
+                <td><span class="rec">A. 모든 Table<small>토큰 단일</small></span></td>
+                <td>Table CSS</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">TB-05</td>
+                <td class="title">Sticky pagination 적용 여부<small>하단 페이지네이션 sticky?</small></td>
+                <td><ul class="opts"><li>A. 항상 sticky</li><li>B. row 100개 이상만</li><li>C. sticky 안 함</li></ul></td>
+                <td><span class="rec">A. 항상 sticky<small>table container 내부 sticky</small></span></td>
+                <td>Table 푸터</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">TB-06</td>
+                <td class="title">Keyboard row navigation 정책<small>↑↓로 row 이동 / enter로 Drawer</small></td>
+                <td><ul class="opts"><li>A. v1 포함</li><li>B. v2 이연</li><li>C. focus만 지원, 단축키 없음</li></ul></td>
+                <td><span class="rec">B. v2 이연<small>v1은 click/tab만 · 접근성 마이그레이션 후</small></span></td>
+                <td>접근성</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="ppill p2">P2</span></td>
+                <td><span class="dpill deferred">Deferred</span></td>
+              </tr>
+              <tr>
+                <td class="id">TB-07</td>
+                <td class="title">Compact / Dense 기본 적용 화면<small>기본 density를 어디에 둘 것인가</small></td>
+                <td><ul class="opts"><li>A. 모든 Table normal</li><li>B. WBS/Test/Defect compact</li><li>C. 사용자 토글</li></ul></td>
+                <td><span class="rec">A + B 조합<small>일반 normal · 컬럼 많은 게시판 compact 기본</small></span></td>
+                <td>Density 적용</td>
+                <td><span class="opill design">Design</span></td>
+                <td><span class="ppill p1">P1</span></td>
+                <td><span class="dpill recommended">Recommended</span></td>
+              </tr>
+              <tr>
+                <td class="id">TB-08</td>
+                <td class="title">Inline edit 후속 분리 여부<small>spreadsheet식 inline edit</small></td>
+                <td><ul class="opts"><li>A. v1 포함</li><li>B. v2 별도 컴포넌트로 분리</li></ul></td>
+                <td><span class="rec">B. v2 분리<small>v1은 row click → Drawer 단일 진입</small></span></td>
+                <td>Table JS 범위</td>
+                <td><span class="opill pm">PM</span></td>
+                <td><span class="ppill p2">P2</span></td>
+                <td><span class="dpill deferred">Deferred</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S10 Recommended Decision Set ── -->
+      <section id="s10" class="sec" data-screen-label="10 Recommended Set">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Recommended Decision Set — PM 승인 후보안</span>
+          <span class="sbadge guide">제안</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">위 표의 Recommended 항목을 하나의 묶음으로 정리한 PM 승인 후보안. 그대로 Approved 처리하면 P0 + P1 대부분이 한 번에 해소된다.</p>
+
+          <div class="rec-grid">
+            <div class="rec-card">
+              <div class="rc-area">Drawer</div>
+              <div class="rc-q">fullscreen breakpoint</div>
+              <div class="rc-a"><code>≤ 1280px</code> · Dialog와 통일</div>
+              <div class="rc-sub">P0-02 / DR-03</div>
+            </div>
+            <div class="rec-card">
+              <div class="rc-area">Drawer</div>
+              <div class="rc-q">기본 폭</div>
+              <div class="rc-a">컨텐츠 영역 기준 <code>40%</code> · max <code>720px</code></div>
+              <div class="rc-sub">DR-01 / DR-02 ladder 60step</div>
+            </div>
+            <div class="rec-card">
+              <div class="rc-area">Drawer</div>
+              <div class="rc-q">Full Detail URL 라우팅</div>
+              <div class="rc-a">v1 내부 상태 전환 · v2에서 URL 라우팅</div>
+              <div class="rc-sub">P0-04 / DR-05</div>
+            </div>
+            <div class="rec-card">
+              <div class="rc-area">Form</div>
+              <div class="rc-q">Select / Date Picker</div>
+              <div class="rc-a">custom UI 강제 · native 금지</div>
+              <div class="rc-sub">P0-06 / FM-02 / FM-03</div>
+            </div>
+            <div class="rec-card">
+              <div class="rc-area">Form</div>
+              <div class="rc-q">Date 저장 형식</div>
+              <div class="rc-a"><code>ISO 8601</code> 유지 · 표시값과 분리</div>
+              <div class="rc-sub">FM-05</div>
+            </div>
+            <div class="rec-card">
+              <div class="rc-area">Form</div>
+              <div class="rc-q">Date 표시 형식</div>
+              <div class="rc-a"><code>YYYY.MM.DD</code> 또는 <code>YYYY-MM-DD</code> 중 하나로 통일</div>
+              <div class="rc-sub">FM-04 — 저장값과 표시값 분리 전제</div>
+            </div>
+            <div class="rec-card">
+              <div class="rc-area">Table</div>
+              <div class="rc-q">Horizontal scroll</div>
+              <div class="rc-a">table container 내부만 허용</div>
+              <div class="rc-sub">P0-07</div>
+            </div>
+            <div class="rec-card">
+              <div class="rc-area">Layout</div>
+              <div class="rc-q">Page-level horizontal scroll</div>
+              <div class="rc-a"><code>금지</code> — Left Nav 위 page-level scroll 절대 금지</div>
+              <div class="rc-sub">P0-07 + Layout 기준</div>
+            </div>
+            <div class="rec-card">
+              <div class="rc-area">Table</div>
+              <div class="rc-q">컬럼 설정 저장 위치</div>
+              <div class="rc-a">v1은 board schema / config 문서 기준 · 사용자 개인화는 v2</div>
+              <div class="rc-sub">P0-08 / TB-02 / TB-03</div>
+            </div>
+            <div class="rec-card">
+              <div class="rc-area">Layer</div>
+              <div class="rc-q">Toast / Dialog / Global Loading</div>
+              <div class="rc-a"><code>Toast &gt; Dialog</code> · Global Loading은 최상위 또는 별도 blackout 정책 — PM 결정 필요</div>
+              <div class="rc-sub">P0-01 / P0-09 / LY-01 / DG-07</div>
+            </div>
+            <div class="rec-card">
+              <div class="rc-area">Dialog</div>
+              <div class="rc-q">Danger dialog backdrop click</div>
+              <div class="rc-a">기본 비활성 — esc / 닫기 버튼만</div>
+              <div class="rc-sub">P0-10 / DG-03</div>
+            </div>
+            <div class="rec-card">
+              <div class="rc-area">Form</div>
+              <div class="rc-q">Drawer / Full Detail 공통 init</div>
+              <div class="rc-a"><code>initFormView({ mode, scope, id, perm })</code></div>
+              <div class="rc-sub">P0-05 / FM-06</div>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>승인 절차</strong>
+            본 후보안은 디자이너 제안이다. PM이 모든 항목을 일괄 Approved 처리하면 본 문서 S03/S04~S09의 Status를 일괄 <code>Approved</code>로 갱신하고, 각 Mapping 문서 본문에 결정 내용을 반영한 뒤 컴포넌트 CSS 구현을 시작한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S11 Implementation Gate ── -->
+      <section id="s11" class="sec" data-screen-label="11 Implementation Gate">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Implementation Gate — 구현 착수 조건</span>
+          <span class="sbadge plan">게이트</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">컴포넌트 CSS / JS 구현은 아래 6개 조건이 모두 충족되었을 때만 시작한다. 하나라도 미충족이면 시작하지 않는다.</p>
+
+          <div class="gate-grid">
+            <div class="gate-step">
+              <span class="gs-n">01</span>
+              <div class="gs-body">P0 Decision 전부 Approved
+                <span class="gs-sub">S03의 10개 항목 Status가 모두 <code>Approved</code>인가</span>
+              </div>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">02</span>
+              <div class="gs-body">6종 Mapping 문서 존재 및 최신
+                <span class="gs-sub">Button / Form / Layer / Drawer / Dialog / Table Mapping v1 모두 v1 유지</span>
+              </div>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">03</span>
+              <div class="gs-body">Docs Index 링크 정상
+                <span class="gs-sub">Docs Index에 Decision Register v1 카드 1개 추가 · 깨진 링크 없음</span>
+              </div>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">04</span>
+              <div class="gs-body">수정 허용 파일 범위 확정
+                <span class="gs-sub">예: <code>stam/css/stam.tokens.css</code>, <code>stam/css/stam.components.css</code>만 등 — 작업마다 명시</span>
+              </div>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">05</span>
+              <div class="gs-body">첫 구현 단위 1개만 선택
+                <span class="gs-sub">Button CSS 또는 Drawer Layout 중 하나만 — 동시 진행 금지</span>
+              </div>
+            </div>
+            <div class="gate-step">
+              <span class="gs-n">06</span>
+              <div class="gs-body">Git diff / Staging QA 기준 확정
+                <span class="gs-sub">staging 배포 후 URL / 콘솔 / light · dark / 가로 스크롤 QA 패스 기준 명시</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ibox bad" style="margin-top:14px;">
+            <strong>금지 — Gate 미통과 상태 구현</strong>
+            P0 Pending 항목이 1건이라도 남아 있는 영역의 컴포넌트 CSS / JS 구현은 시작하지 않는다.
+            예: Layer P0(Toast vs Loading)이 Pending이면 Drawer / Dialog / Toast 어느 컴포넌트도 z-index를 확정할 수 없으므로 구현 보류.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S12 Cursor Handoff Notes ── -->
+      <section id="s12" class="sec" data-screen-label="12 Cursor Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Cursor Handoff Notes — 구현 위임 기준</span>
+          <span class="sbadge guide">핸드오프</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Cursor에게 구현을 위임할 때 항상 본 Register와 함께 다음 7개 규칙을 명시한다.</p>
+
+          <div class="rule-grid">
+            <div class="rule-card">
+              <div class="rc-hdr">Cursor 작업 규칙 — 진입 조건</div>
+              <ul>
+                <li>Decision Register에서 해당 영역 <code>P0 Pending</code> 항목이 있으면 <strong>구현 금지</strong></li>
+                <li>첫 구현은 <code>Button CSS</code> 또는 <code>Drawer Layout</code> 중 <strong>하나만</strong> 선택</li>
+                <li>Button / Form / Drawer / Dialog / Table을 <strong>동시 구현 금지</strong></li>
+                <li>CSS / JS 수정 허용 파일을 작업마다 다시 지정 — 누적 명시 금지</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">Cursor 작업 규칙 — 배포 / QA</div>
+              <ul>
+                <li>배포 전 <code>git diff</code>로 변경 파일·범위 확인</li>
+                <li>Staging 배포 후 <code>URL / 콘솔 / light·dark / 가로 스크롤</code> QA 4종 패스</li>
+                <li><strong>Production / live 배포 금지</strong> — staging 까지만</li>
+                <li><strong>React dist 배포 금지</strong> — 정적 HTML 기준 유지</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>핸드오프 메시지 템플릿</strong>
+            “이번 작업: <code>{component}</code>의 CSS. 수정 허용: <code>{file list}</code>. 금지: 그 외 모든 파일. 사전 확인: STAM Decision Needed Register v1의 <code>{area}</code> 결정 P0 모두 Approved 여부. Staging URL / 콘솔 / light·dark / 가로 스크롤 QA 패스 후 보고.”
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S13 Decision Status Legend ── -->
+      <section id="s13" class="sec" data-screen-label="13 Status Legend">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Decision Status Legend — 상태값 정의</span>
+          <span class="sbadge guide">정의</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">본 Register의 Status 컬럼은 아래 8개 값 중 하나만 가진다. 다른 표현은 사용하지 않는다.</p>
+
+          <div class="lg-grid">
+            <div class="lg-card">
+              <div class="lg-top"><span class="dpill pending">Pending</span></div>
+              <div class="lg-sub">결정 필요. Owner / 일정 미확정 가능. 구현 진입 불가.</div>
+            </div>
+            <div class="lg-card">
+              <div class="lg-top"><span class="dpill recommended">Recommended</span></div>
+              <div class="lg-sub">디자이너 권장안 존재. PM 검토 대기 상태.</div>
+            </div>
+            <div class="lg-card">
+              <div class="lg-top"><span class="dpill approved">Approved</span></div>
+              <div class="lg-sub">PM 승인 완료. Mapping 문서 본문에 반영 후 구현 진입 가능.</div>
+            </div>
+            <div class="lg-card">
+              <div class="lg-top"><span class="dpill deferred">Deferred</span></div>
+              <div class="lg-sub">v2 또는 이후 단위로 이연. v1 구현 범위 밖.</div>
+            </div>
+            <div class="lg-card">
+              <div class="lg-top"><span class="dpill blocked">Blocked</span></div>
+              <div class="lg-sub">선행 결정/데이터 부재로 막힘. 해소 조건 명시 필요.</div>
+            </div>
+            <div class="lg-card">
+              <div class="lg-top"><span class="dpill needs-pm">Needs PM</span></div>
+              <div class="lg-sub">PM 의사결정 대기.</div>
+            </div>
+            <div class="lg-card">
+              <div class="lg-top"><span class="dpill needs-design">Needs Design</span></div>
+              <div class="lg-sub">디자인 의사결정 대기(시각/상호작용).</div>
+            </div>
+            <div class="lg-card">
+              <div class="lg-top"><span class="dpill needs-dev">Needs Dev Review</span></div>
+              <div class="lg-sub">개발 리뷰 대기(시그니처/구조).</div>
+            </div>
+          </div>
+
+          <div class="fm-cap"><span class="fm-cap-n">PRI</span>Priority Legend <span class="fm-cap-sub">P0 / P1 / P2 정의</span></div>
+          <div class="lg-grid">
+            <div class="lg-card">
+              <div class="lg-top"><span class="ppill p0">P0</span></div>
+              <div class="lg-sub">Critical — 컴포넌트 CSS / JS 시작 전 Approved 필수.</div>
+            </div>
+            <div class="lg-card">
+              <div class="lg-top"><span class="ppill p1">P1</span></div>
+              <div class="lg-sub">Before Component CSS — 컴포넌트 단위 구현 시작 전까지 결정.</div>
+            </div>
+            <div class="lg-card">
+              <div class="lg-top"><span class="ppill p2">P2</span></div>
+              <div class="lg-sub">Later — v1 구현 중 또는 v2로 이연 가능.</div>
+            </div>
+          </div>
+
+          <div class="fm-cap"><span class="fm-cap-n">OWN</span>Owner Legend <span class="fm-cap-sub">결정 책임 주체</span></div>
+          <div class="lg-grid">
+            <div class="lg-card">
+              <div class="lg-top"><span class="opill pm">PM</span></div>
+              <div class="lg-sub">제품 정책 · 범위 · v1/v2 분리 의사결정.</div>
+            </div>
+            <div class="lg-card">
+              <div class="lg-top"><span class="opill design">Design</span></div>
+              <div class="lg-sub">시각/상호작용/접근성/일관성 의사결정.</div>
+            </div>
+            <div class="lg-card">
+              <div class="lg-top"><span class="opill dev">Dev</span></div>
+              <div class="lg-sub">구조/시그니처/구현 방식 의사결정.</div>
+            </div>
+            <div class="lg-card">
+              <div class="lg-top"><span class="opill pm-dev">PM + Dev</span></div>
+              <div class="lg-sub">정책 + 구현 범위 공동 결정.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S14 Related Links ── -->
+      <section id="s14" class="sec" data-screen-label="14 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Related Links — 참고 문서</span>
+          <span class="sbadge guide">관련</span>
+        </div>
+        <div class="sec-body">
+          <div class="rel-grid">
+            <a class="rel-card" href="STAM-Docs-Index.html">
+              <span class="rl-title">STAM Docs Index</span>
+              <span class="rl-sub">전체 기준 문서 인덱스</span>
+            </a>
+            <a class="rel-card" href="STAM-CSS-Token-Readiness-Check.html">
+              <span class="rl-title">CSS Token Readiness Check</span>
+              <span class="rl-sub">12 카테고리 토큰 준비상태 점검</span>
+            </a>
+            <a class="rel-card" href="STAM-Token-Inventory-v1.html">
+              <span class="rl-title">Token Inventory v1</span>
+              <span class="rl-sub">P0 / P1 / P2 토큰 후보 목록</span>
+            </a>
+            <a class="rel-card" href="STAM-Button-Token-Mapping-v1.html">
+              <span class="rl-title">Button Token Mapping v1</span>
+              <span class="rl-sub">variant × size × state 토큰 매핑</span>
+            </a>
+            <a class="rel-card" href="STAM-Form-Token-Mapping-v1.html">
+              <span class="rl-title">Form Token Mapping v1</span>
+              <span class="rl-sub">Input / Select / Date Picker 토큰 매핑</span>
+            </a>
+            <a class="rel-card" href="STAM-Layer-Token-Mapping-v1.html">
+              <span class="rl-title">Layer Token Mapping v1</span>
+              <span class="rl-sub">Drawer / Dialog / Toast / Global Loading z-index</span>
+            </a>
+            <a class="rel-card" href="STAM-Drawer-Token-Mapping-v1.html">
+              <span class="rl-title">Drawer Token Mapping v1</span>
+              <span class="rl-sub">Drawer / Full Detail 흐름 매핑</span>
+            </a>
+            <a class="rel-card" href="STAM-Dialog-Token-Mapping-v1.html">
+              <span class="rl-title">Dialog Token Mapping v1</span>
+              <span class="rl-sub">Confirm / Danger / Alert 매핑</span>
+            </a>
+            <a class="rel-card" href="STAM-Table-Token-Mapping-v1.html">
+              <span class="rl-title">Table Token Mapping v1</span>
+              <span class="rl-sub">게시판 / List Table 매핑</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
