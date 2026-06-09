@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Implementation Readiness Dashboard v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ── STAM Implementation Readiness Dashboard v1 전용 보조 스타일 ── */
+
+/* status / area / owner chips */
+.rdpill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; font-family: var(--font); white-space: nowrap;
+}
+.rdpill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 999px;
+  background: currentColor; display: inline-block; flex-shrink: 0;
+}
+.rdpill.done    { background: var(--pass-bg); color: var(--pass); }
+.rdpill.ready   { background: var(--info-bg); color: var(--info); }
+.rdpill.pending { background: var(--warn-bg); color: var(--warn); }
+.rdpill.hold    { background: var(--fail-bg); color: var(--fail); }
+.rdpill.candidate { background: var(--info-bg); color: var(--info); }
+.rdpill.approved  { background: var(--pass-bg); color: var(--pass); }
+
+.areachip {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .05em;
+  text-transform: uppercase; font-family: var(--font); white-space: nowrap;
+}
+.areachip.button { background: var(--info-bg);   color: var(--info); }
+.areachip.form   { background: var(--pass-bg);   color: var(--pass); }
+.areachip.layer  { background: var(--purple-bg); color: var(--purple); }
+.areachip.drawer { background: var(--stam-soft); color: var(--stam); }
+.areachip.dialog { background: var(--warn-bg);   color: var(--warn); }
+.areachip.table  { background: var(--fail-bg);   color: var(--fail); }
+
+.riskchip {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; font-family: var(--font); white-space: nowrap;
+}
+.riskchip.low    { background: var(--pass-bg); color: var(--pass); }
+.riskchip.med    { background: var(--warn-bg); color: var(--warn); }
+.riskchip.high   { background: var(--fail-bg); color: var(--fail); }
+
+.allowchip {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; font-family: var(--font); white-space: nowrap;
+  border: 1px solid var(--bd); background: var(--bg-sur); color: var(--t2);
+}
+.allowchip.yes  { background: var(--pass-bg); color: var(--pass); border-color: transparent; }
+.allowchip.no   { background: var(--fail-bg); color: var(--fail); border-color: transparent; }
+.allowchip.cond { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
+
+.ordnum {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 6px;
+  font-size: 11px; font-weight: 800; letter-spacing: .02em;
+  background: var(--bg-sur); color: var(--t1); border: 1px solid var(--bd);
+  font-family: var(--font);
+}
+.ordnum.lead { background: var(--stam-soft); color: var(--stam); border-color: transparent; }
+
+/* readiness summary cards (6 columns) */
+.rs-grid {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
+}
+@media (max-width: 1280px) { .rs-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 720px)  { .rs-grid { grid-template-columns: repeat(2, 1fr); } }
+.rs-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 14px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.rs-card .rs-l {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--t3);
+}
+.rs-card .rs-n {
+  font-family: var(--font); font-size: 28px; font-weight: 800;
+  color: var(--t1); letter-spacing: -.02em; line-height: 1.15;
+}
+.rs-card .rs-s {
+  font-size: 10.5px; color: var(--t3); margin-top: 4px; line-height: 1.55;
+}
+.rs-card.total   .rs-n { color: var(--t1); }
+.rs-card.mapping .rs-n { color: var(--info); }
+.rs-card.gate    .rs-n { color: var(--purple); }
+.rs-card.ready   .rs-n { color: var(--pass); }
+.rs-card.hold    .rs-n { color: var(--fail); }
+.rs-card.first   .rs-n { color: var(--stam); font-size: 18px; line-height: 1.35; padding-top: 4px; }
+
+/* meta strip — Implementation status / Cursor status */
+.meta-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;
+}
+@media (max-width: 900px) { .meta-grid { grid-template-columns: 1fr; } }
+.meta-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.meta-card .mt-l {
+  font-size: 10px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--t3);
+}
+.meta-card .mt-v {
+  font-size: 13px; font-weight: 700; color: var(--t1); line-height: 1.5; letter-spacing: -.005em;
+}
+.meta-card .mt-v.accent { color: var(--stam); }
+.meta-card .mt-v.warn   { color: var(--warn); }
+.meta-card .mt-v.fail   { color: var(--fail); }
+.meta-card .mt-v.info   { color: var(--info); }
+.meta-card .mt-s {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+}
+
+/* document status board */
+.ds-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 980px) { .ds-grid { grid-template-columns: 1fr; } }
+.ds-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 8px;
+  text-decoration: none; color: inherit;
+  transition: border-color .15s ease, background .15s ease;
+}
+.ds-card:hover { border-color: var(--bd-s); background: var(--bg-sur); }
+.ds-card .ds-hdr {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.ds-card .ds-title {
+  font-size: 12.5px; font-weight: 700; color: var(--t1); letter-spacing: -.005em; line-height: 1.4;
+}
+.ds-card .ds-meta {
+  margin-left: auto; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.ds-card .ds-row {
+  display: grid; grid-template-columns: 90px 1fr; gap: 8px;
+  font-size: 11px; line-height: 1.55;
+}
+.ds-card .ds-row .ds-k {
+  font-size: 10px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--t3); padding-top: 2px;
+}
+.ds-card .ds-row .ds-v {
+  color: var(--t2);
+}
+.ds-card .ds-row .ds-v code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 5px;
+}
+
+/* component readiness matrix */
+.mx-wrap { overflow-x: auto; }
+.mx-tbl {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--font); font-size: 11.5px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: var(--r-md);
+  overflow: hidden; min-width: 920px;
+}
+.mx-tbl th {
+  padding: 9px 10px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em; text-align: left;
+  color: var(--t3); border-bottom: 1px solid var(--bd);
+  background: var(--bg-sur2); white-space: nowrap; vertical-align: middle;
+}
+.mx-tbl td {
+  padding: 10px; border-bottom: 1px solid var(--bd);
+  color: var(--t2); vertical-align: top; line-height: 1.6;
+}
+.mx-tbl tbody tr:last-child td { border-bottom: none; }
+.mx-tbl td.id { color: var(--t1); font-weight: 800; white-space: nowrap; font-size: 11px; font-family: var(--font); letter-spacing: .03em; }
+.mx-tbl td.title { color: var(--t1); font-weight: 700; line-height: 1.5; }
+.mx-tbl td.title small {
+  display: block; margin-top: 3px;
+  color: var(--t3); font-size: 10.5px; font-weight: 500; line-height: 1.5;
+}
+.mx-tbl td.ord { text-align: center; white-space: nowrap; }
+
+/* gate progress */
+.gp-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 760px) { .gp-grid { grid-template-columns: 1fr; } }
+.gp-step {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.gp-step .gp-n {
+  flex: 0 0 auto; width: 22px; height: 22px; border-radius: 6px;
+  background: var(--bg-sur); color: var(--t1); border: 1px solid var(--bd);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center; letter-spacing: .02em;
+  font-family: var(--font);
+}
+.gp-step.done .gp-n   { background: var(--pass-bg); color: var(--pass); border-color: transparent; }
+.gp-step.ready .gp-n  { background: var(--info-bg); color: var(--info); border-color: transparent; }
+.gp-step.pending .gp-n{ background: var(--warn-bg); color: var(--warn); border-color: transparent; }
+.gp-step.hold .gp-n   { background: var(--fail-bg); color: var(--fail); border-color: transparent; }
+.gp-step .gp-body {
+  flex: 1 1 auto; display: flex; flex-direction: column; gap: 4px;
+}
+.gp-step .gp-hd {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 12px; color: var(--t1); line-height: 1.5; font-weight: 700;
+}
+.gp-step .gp-sub {
+  font-size: 10.5px; color: var(--t3); font-weight: 500; line-height: 1.55; letter-spacing: .005em;
+}
+.gp-step .gp-sub code {
+  font-family: var(--font); font-size: 10px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 4px; padding: 0 5px;
+}
+
+/* P0 snapshot — 10 chips */
+.p0-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+}
+@media (max-width: 760px) { .p0-grid { grid-template-columns: 1fr; } }
+.p0-row {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 10px 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.p0-row .p0-id {
+  flex: 0 0 auto; font-size: 11px; font-weight: 800; color: var(--t1); letter-spacing: .03em;
+  font-family: var(--font); min-width: 42px;
+}
+.p0-row .p0-body {
+  flex: 1 1 auto; font-size: 11.5px; color: var(--t1); line-height: 1.5; font-weight: 600; letter-spacing: -.005em;
+}
+.p0-row .p0-body small {
+  display: block; margin-top: 2px;
+  font-size: 10px; color: var(--t3); font-weight: 500; letter-spacing: .005em;
+}
+.p0-row .p0-meta {
+  flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+}
+
+/* first implementation compare */
+.cmp-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+@media (max-width: 900px) { .cmp-grid { grid-template-columns: 1fr; } }
+.cmp-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.cmp-card.lead { border-color: rgba(0,191,64,.35); }
+.cmp-card .cmp-hdr {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.cmp-card .cmp-tag {
+  font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 4px;
+  background: var(--bg-sur); color: var(--t3); border: 1px solid var(--bd);
+}
+.cmp-card.lead .cmp-tag {
+  background: var(--pass-bg); color: var(--pass); border-color: transparent;
+}
+.cmp-card .cmp-title {
+  font-size: 13px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.cmp-card .cmp-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+}
+.cmp-card .cmp-row {
+  display: grid; grid-template-columns: 110px 1fr; gap: 8px;
+  padding-top: 8px; border-top: 1px dashed var(--bd);
+}
+.cmp-card .cmp-row:first-of-type { border-top: none; padding-top: 0; }
+.cmp-card .cmp-k {
+  font-size: 10px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--t3); padding-top: 2px;
+}
+.cmp-card .cmp-v {
+  font-size: 11.5px; color: var(--t1); line-height: 1.6; font-weight: 600;
+}
+.cmp-card .cmp-v code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 4px; padding: 1px 5px;
+}
+
+/* rule cards */
+.rule-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 760px) { .rule-grid { grid-template-columns: 1fr; } }
+.rule-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+}
+.rule-card .rc-hdr {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--t1); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.rule-card .rc-hdr::before {
+  content: ""; width: 8px; height: 8px; border-radius: 999px;
+  background: var(--stam); display: inline-block;
+}
+.rule-card.warn .rc-hdr::before { background: var(--warn); }
+.rule-card.fail .rc-hdr::before { background: var(--fail); }
+.rule-card.pass .rc-hdr::before { background: var(--pass); }
+.rule-card ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.rule-card li {
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  padding-left: 12px; position: relative;
+}
+.rule-card li::before {
+  content: "·"; position: absolute; left: 2px; top: -2px;
+  color: var(--t3); font-weight: 800;
+}
+.rule-card li code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 5px;
+}
+
+/* do/don't grid */
+.dd-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+@media (max-width: 760px) { .dd-grid { grid-template-columns: 1fr; } }
+.dd-col {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 14px 16px;
+}
+.dd-col.good { border-color: rgba(0,191,64,.22); }
+.dd-col.bad  { border-color: rgba(255,66,66,.22); }
+.dd-col .dd-hdr {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.dd-col.good .dd-hdr { color: var(--pass); }
+.dd-col.bad  .dd-hdr { color: var(--fail); }
+.dd-col ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.dd-col li {
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  padding-left: 14px; position: relative;
+}
+.dd-col.good li::before { content: "✓"; position: absolute; left: 0; color: var(--pass); font-weight: 800; }
+.dd-col.bad  li::before { content: "✕"; position: absolute; left: 0; color: var(--fail); font-weight: 800; }
+.dd-col li code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 5px;
+}
+
+/* related links */
+.rel-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+@media (max-width: 900px) { .rel-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px) { .rel-grid { grid-template-columns: 1fr; } }
+.rel-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 4px;
+  text-decoration: none; color: inherit;
+  transition: border-color .15s ease, background .15s ease;
+}
+.rel-card:hover { border-color: var(--bd-s); background: var(--bg-sur); }
+.rel-card .rl-title {
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.rel-card .rl-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+}
+
+/* caption */
+.fm-cap {
+  display: flex; align-items: center; gap: 8px;
+  margin: 18px 0 8px;
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.fm-cap .fm-cap-n {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--stam-soft); color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font);
+}
+.fm-cap-sub {
+  font-size: 10.5px; color: var(--t3); font-weight: 500; letter-spacing: 0; margin-left: 4px;
+}
+
+/* font lock */
+.rs-card, .rs-card *,
+.meta-card, .meta-card *,
+.ds-card, .ds-card *,
+.mx-tbl, .mx-tbl *,
+.gp-step, .gp-step *,
+.p0-row, .p0-row *,
+.cmp-card, .cmp-card *,
+.rule-card, .rule-card *,
+.dd-col, .dd-col *,
+.rel-card, .rel-card *,
+.rdpill, .areachip, .riskchip, .allowchip, .ordnum {
+  font-family: var(--font) !important;
+}
+
+/* no page-level horizontal scroll */
+html, body { overflow-x: hidden; }
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Implementation Readiness Dashboard v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Readiness Dashboard</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Implementation Gate</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Button First Recommended</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Readiness</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Readiness Summary</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Document Status Board</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Component Readiness Matrix</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Gate Progress</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>P0 Decision Snapshot</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>First Implementation</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Cursor Handoff Preview</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Risk / Hold Notes</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Status Banner ── -->
+      <div class="ibox info" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <strong>STAM Implementation Readiness Dashboard v1</strong>
+          <span class="sbadge plan" style="margin-left:auto;">Readiness Dashboard</span>
+        </div>
+        <p style="margin:0 0 8px;font-size:.88em;line-height:1.7;opacity:.9;">
+          본 문서는 실제 CSS · JS 구현 착수 직전 단계에서 STAM의 <strong>준비 상태</strong>를 한 화면에서 확인하기 위한 정적 HTML 대시보드이다.
+          어떤 기준 문서가 완료되어 있고, 어떤 Gate가 남아 있으며, 첫 구현 후보가 무엇인지 시각적으로 정리한다.
+          본 문서로는 <code>stam/css/**</code>, <code>stam/js/**</code>, <code>stam/pages/**</code>, <code>stam/index.html</code>, <code>stam/assets/**</code>를 <strong>절대 수정하지 않는다</strong>.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:6px;">
+          <span class="sbadge plan">Readiness Dashboard</span>
+          <span class="sbadge lock">Implementation Gate</span>
+          <span class="sbadge guide">Button First Recommended</span>
+          <span class="sbadge lock">No CSS Edit</span>
+          <span class="sbadge guide">No JS Edit</span>
+        </div>
+        <p style="margin:10px 0 0;font-size:.82em;line-height:1.65;opacity:.78;">
+          <strong>기준 시점</strong> — repo <code>github.com/eseo7/stam</code> · branch <code>main</code> · 최신 기준 커밋 <code>f51975d</code> (docs: add STAM decision needed register v1).
+          Staging — <code>stam-design-staging.web.app</code>. P0 Decision Approval Sheet v1은 디자인 결과 생성 완료, Cursor 반영 대기 상태.
+        </p>
+      </div>
+
+      <!-- ── S01 Overview ── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적 · 현재 단계</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM은 컴포넌트 가이드 v1 7종, 토큰 Readiness Check, Token Inventory v1, 6종 Token Mapping v1(Button · Form · Layer · Drawer · Dialog · Table),
+            Decision Needed Register v1, P0 Decision Approval Sheet v1까지 완료된 상태이다.
+            본 단계는 “기준 문서는 모두 만들어졌으나, 아직 CSS · JS 구현은 시작되지 않은” 게이트 직전 상태이다.
+            본 Dashboard는 PM · 디자인 · 개발 · Cursor가 같은 기준을 보고 다음 구현 단위를 선택할 수 있도록 준비 상태를 통합한다.
+          </p>
+
+          <div class="dd-grid" style="margin-top:8px;">
+            <div class="dd-col good">
+              <div class="dd-hdr">이 문서가 다루는 것</div>
+              <ul>
+                <li>완료된 기준 문서 / 남은 Gate / 첫 구현 후보를 한 화면에 시각화</li>
+                <li>Document Status Board — 문서별 Status · Purpose · Next Action</li>
+                <li>Component Readiness Matrix — 컴포넌트별 위험 · 구현 허용 · 권장 순서</li>
+                <li>Gate Progress — Token Readiness → P0 Approval → First Implementation 단계</li>
+                <li>P0 Decision Snapshot — 결재 후보 10건 상태 요약</li>
+                <li>First Implementation Recommendation — Button CSS vs Drawer Layout 비교</li>
+                <li>Cursor Handoff Preview — 위임 전 조건 / 금지 사항</li>
+              </ul>
+            </div>
+            <div class="dd-col bad">
+              <div class="dd-hdr">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/css/**</code> 토큰 추가 / 값 변경 / 컴포넌트 클래스 작성</li>
+                <li><code>stam/js/**</code> 컴포넌트 동작 / 라우팅 / 상태 관리 구현</li>
+                <li><code>stam/pages/**</code>, <code>stam/index.html</code>, <code>stam/assets/**</code> 변경</li>
+                <li>P0 Approval Sheet 본문 · Decision Register 본문의 결재 결과 갱신</li>
+                <li>Firebase / GitHub Actions / package*.json / <code>_ds/**</code> / <code>uploads/**</code> 변경</li>
+                <li>Production / live 배포 의사결정</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>현재 단계 — 실제 구현 전 준비 상태 대시보드</strong>
+            본 문서는 “기준 문서가 모두 만들어졌는지, 첫 구현으로 진입해도 안전한지”를 한 페이지에서 보여준다.
+            본 문서로는 CSS · JS · 제품 화면을 절대 수정하지 않으며, 결재 / 구현 / 배포 의사결정은 P0 Approval Sheet · Decision Register · Cursor Handoff 프로토콜에서 별도로 처리한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Readiness Summary ── -->
+      <section id="s02" class="sec" data-screen-label="02 Readiness Summary">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Readiness Summary — 준비 상태 KPI</span>
+          <span class="sbadge plan">요약</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">기준 문서 수량과 구현 진입 가능 여부를 KPI 카드로 요약한다. 수치는 본 문서 작성 시점 기준이며, 결재 / 구현 진행에 따라 갱신해야 한다.</p>
+
+          <div class="rs-grid">
+            <div class="rs-card total">
+              <span class="rs-l">Total Docs</span>
+              <span class="rs-n">10</span>
+              <span class="rs-s">Readiness · Inventory · 6 Mapping · Register · P0 Approval</span>
+            </div>
+            <div class="rs-card mapping">
+              <span class="rs-l">Mapping Docs</span>
+              <span class="rs-n">6</span>
+              <span class="rs-s">Button · Form · Layer · Drawer · Dialog · Table v1</span>
+            </div>
+            <div class="rs-card gate">
+              <span class="rs-l">Gate Docs</span>
+              <span class="rs-n">2</span>
+              <span class="rs-s">Decision Register v1 · P0 Approval Sheet v1</span>
+            </div>
+            <div class="rs-card ready">
+              <span class="rs-l">Ready for Review</span>
+              <span class="rs-n">10</span>
+              <span class="rs-s">전 기준 문서 작성 완료 · PM 검토 가능</span>
+            </div>
+            <div class="rs-card hold">
+              <span class="rs-l">Implementation Hold</span>
+              <span class="rs-n">10</span>
+              <span class="rs-s">P0 10건 Approval 완료 전 구현 금지</span>
+            </div>
+            <div class="rs-card first">
+              <span class="rs-l">First Candidate</span>
+              <span class="rs-n">Button CSS<br><span style="font-size:13px;color:var(--t3);font-weight:600;">또는 Drawer Layout</span></span>
+              <span class="rs-s">승인 후 단일 진입 단위 — 둘 중 하나만 선택</span>
+            </div>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-card">
+              <span class="mt-l">Implementation Status</span>
+              <span class="mt-v warn">Gate Review Required</span>
+              <span class="mt-s">P0 Approval Sheet v1 결재 통과 전에는 컴포넌트 CSS · JS 구현 시작 불가.</span>
+            </div>
+            <div class="meta-card">
+              <span class="mt-l">Cursor Status</span>
+              <span class="mt-v info">Ready after P0 Approval Sheet reflected</span>
+              <span class="mt-s">P0 Approval Sheet 반영 + Decision Register 동기화 완료 시 첫 구현 위임 가능.</span>
+            </div>
+            <div class="meta-card">
+              <span class="mt-l">First Implementation</span>
+              <span class="mt-v accent">Button CSS</span>
+              <span class="mt-s">영향 범위 작음 · JS 개입 적음 · 토큰 검증에 적합 — 첫 구현 권장.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 Document Status Board ── -->
+      <section id="s03" class="sec" data-screen-label="03 Document Status Board">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Document Status Board — 문서별 상태</span>
+          <span class="sbadge plan">Status</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">기준 문서 10종의 Status · Purpose · Next Action을 카드 단위로 정리한다. 카드 클릭 시 해당 문서로 이동한다.</p>
+
+          <div class="ds-grid">
+
+            <a class="ds-card" href="STAM-CSS-Token-Readiness-Check.html">
+              <div class="ds-hdr">
+                <span class="ds-title">CSS Token Readiness Check</span>
+                <span class="ds-meta">
+                  <span class="rdpill done">Done</span>
+                </span>
+              </div>
+              <div class="ds-row"><span class="ds-k">Purpose</span><span class="ds-v">12 카테고리 토큰 준비상태 · Gap · Priority · Gate 점검</span></div>
+              <div class="ds-row"><span class="ds-k">Next Action</span><span class="ds-v">Token Inventory · Mapping 문서에 Gap 반영 — 추가 변경 없음</span></div>
+            </a>
+
+            <a class="ds-card" href="STAM-Token-Inventory-v1.html">
+              <div class="ds-hdr">
+                <span class="ds-title">Token Inventory v1</span>
+                <span class="ds-meta">
+                  <span class="rdpill done">Done</span>
+                </span>
+              </div>
+              <div class="ds-row"><span class="ds-k">Purpose</span><span class="ds-v">STAM 공통 토큰 목록 · P0 / P1 / P2 토큰 후보 정리</span></div>
+              <div class="ds-row"><span class="ds-k">Next Action</span><span class="ds-v">P0 Approval 통과 후 <code>stam.tokens.css</code> 정합화에 사용</span></div>
+            </a>
+
+            <a class="ds-card" href="STAM-Button-Token-Mapping-v1.html">
+              <div class="ds-hdr">
+                <span class="ds-title">Button Token Mapping v1</span>
+                <span class="ds-meta">
+                  <span class="areachip button">Button</span>
+                  <span class="rdpill done">Done</span>
+                </span>
+              </div>
+              <div class="ds-row"><span class="ds-k">Purpose</span><span class="ds-v">variant × size × state 토큰 매핑 · 첫 구현 후보의 근거</span></div>
+              <div class="ds-row"><span class="ds-k">Next Action</span><span class="ds-v">P0 Approval 통과 후 Button CSS 제한 구현에 직접 참조</span></div>
+            </a>
+
+            <a class="ds-card" href="STAM-Form-Token-Mapping-v1.html">
+              <div class="ds-hdr">
+                <span class="ds-title">Form Token Mapping v1</span>
+                <span class="ds-meta">
+                  <span class="areachip form">Form</span>
+                  <span class="rdpill done">Done</span>
+                </span>
+              </div>
+              <div class="ds-row"><span class="ds-k">Purpose</span><span class="ds-v">Input · Select · Date Picker 토큰 매핑 · 공통 init 의존</span></div>
+              <div class="ds-row"><span class="ds-k">Next Action</span><span class="ds-v">P0-05 / P0-06 결재 통과 후 Form Input부터 단계 구현</span></div>
+            </a>
+
+            <a class="ds-card" href="STAM-Layer-Token-Mapping-v1.html">
+              <div class="ds-hdr">
+                <span class="ds-title">Layer Token Mapping v1</span>
+                <span class="ds-meta">
+                  <span class="areachip layer">Layer</span>
+                  <span class="rdpill done">Done</span>
+                </span>
+              </div>
+              <div class="ds-row"><span class="ds-k">Purpose</span><span class="ds-v">Dropdown / Calendar / Drawer / Dialog z-index 토큰 매핑</span></div>
+              <div class="ds-row"><span class="ds-k">Next Action</span><span class="ds-v">P0-01 / P0-09 결재 통과 후 z-index 토큰 확정</span></div>
+            </a>
+
+            <a class="ds-card" href="STAM-Drawer-Token-Mapping-v1.html">
+              <div class="ds-hdr">
+                <span class="ds-title">Drawer Token Mapping v1</span>
+                <span class="ds-meta">
+                  <span class="areachip drawer">Drawer</span>
+                  <span class="rdpill done">Done</span>
+                </span>
+              </div>
+              <div class="ds-row"><span class="ds-k">Purpose</span><span class="ds-v">Drawer / Full Detail 전환 · breakpoint · 진입점 매핑</span></div>
+              <div class="ds-row"><span class="ds-k">Next Action</span><span class="ds-v">P0-02 / P0-03 / P0-04 결재 통과 후 Drawer Layout 진입</span></div>
+            </a>
+
+            <a class="ds-card" href="STAM-Dialog-Token-Mapping-v1.html">
+              <div class="ds-hdr">
+                <span class="ds-title">Dialog Token Mapping v1</span>
+                <span class="ds-meta">
+                  <span class="areachip dialog">Dialog</span>
+                  <span class="rdpill done">Done</span>
+                </span>
+              </div>
+              <div class="ds-row"><span class="ds-k">Purpose</span><span class="ds-v">Confirm · Danger · Alert · backdrop 정책 매핑</span></div>
+              <div class="ds-row"><span class="ds-k">Next Action</span><span class="ds-v">P0-09 / P0-10 결재 통과 후 Dialog 베이스 구현</span></div>
+            </a>
+
+            <a class="ds-card" href="STAM-Table-Token-Mapping-v1.html">
+              <div class="ds-hdr">
+                <span class="ds-title">Table Token Mapping v1</span>
+                <span class="ds-meta">
+                  <span class="areachip table">Table</span>
+                  <span class="rdpill done">Done</span>
+                </span>
+              </div>
+              <div class="ds-row"><span class="ds-k">Purpose</span><span class="ds-v">게시판 · List Table · 컬럼 schema · scroll 기준 매핑</span></div>
+              <div class="ds-row"><span class="ds-k">Next Action</span><span class="ds-v">P0-07 / P0-08 + Backend API Boundary 정합화 후 진입</span></div>
+            </a>
+
+            <a class="ds-card" href="STAM-Decision-Needed-Register-v1.html">
+              <div class="ds-hdr">
+                <span class="ds-title">Decision Needed Register v1</span>
+                <span class="ds-meta">
+                  <span class="rdpill ready">Ready</span>
+                </span>
+              </div>
+              <div class="ds-row"><span class="ds-k">Purpose</span><span class="ds-v">P0 / P1 / P2 미결정 항목 통합 등록부</span></div>
+              <div class="ds-row"><span class="ds-k">Next Action</span><span class="ds-v">P0 Approval Sheet 결재 결과로 P0 10건 Status 동기화</span></div>
+            </a>
+
+            <a class="ds-card" href="STAM-P0-Decision-Approval-Sheet-v1.html">
+              <div class="ds-hdr">
+                <span class="ds-title">P0 Decision Approval Sheet v1</span>
+                <span class="ds-meta">
+                  <span class="rdpill pending">PM Sign-off Pending</span>
+                </span>
+              </div>
+              <div class="ds-row"><span class="ds-k">Purpose</span><span class="ds-v">P0 Critical 10건의 단일 결재 후보안 (Approved Candidate)</span></div>
+              <div class="ds-row"><span class="ds-k">Next Action</span><span class="ds-v">PM 일괄 결재 → Decision Register 동기화 → Cursor 반영</span></div>
+            </a>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Component Readiness Matrix ── -->
+      <section id="s04" class="sec" data-screen-label="04 Component Readiness Matrix">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Component Readiness Matrix — 컴포넌트별 준비 상태</span>
+          <span class="sbadge plan">Matrix</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">컴포넌트별 Mapping 완료 여부 · 결재 상태 · 구현 위험 · 첫 구현 허용 / 권장 순서를 한 표로 정리한다. Recommended Order는 P0 Approval Sheet의 First Implementation Order와 정합한다.</p>
+
+          <div class="mx-wrap">
+            <table class="mx-tbl">
+              <thead>
+                <tr>
+                  <th style="width:90px;">Component</th>
+                  <th style="width:150px;">Mapping Doc</th>
+                  <th style="width:160px;">Decision Status</th>
+                  <th style="width:130px;">Implementation Risk</th>
+                  <th style="width:160px;">First Impl. Allowed</th>
+                  <th style="width:140px;">Recommended Order</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="title"><span class="areachip button">Button</span></td>
+                  <td>Button Mapping v1 <br><small style="color:var(--t3);font-size:10px;">variant × size × state</small></td>
+                  <td>P0 직접 의존 없음<br><small style="color:var(--t3);font-size:10px;">결재와 독립적으로 진입 가능</small></td>
+                  <td><span class="riskchip low">Low</span></td>
+                  <td><span class="allowchip yes">Allowed</span></td>
+                  <td class="ord"><span class="ordnum lead">1</span></td>
+                </tr>
+                <tr>
+                  <td class="title"><span class="areachip drawer">Drawer</span></td>
+                  <td>Drawer Mapping v1<br><small style="color:var(--t3);font-size:10px;">breakpoint · header · footer</small></td>
+                  <td>P0-02 · P0-03 · P0-04 의존<br><small style="color:var(--t3);font-size:10px;">결재 통과 후 진입</small></td>
+                  <td><span class="riskchip med">Medium</span></td>
+                  <td><span class="allowchip cond">Conditional</span></td>
+                  <td class="ord"><span class="ordnum">2</span></td>
+                </tr>
+                <tr>
+                  <td class="title"><span class="areachip form">Form</span></td>
+                  <td>Form Mapping v1<br><small style="color:var(--t3);font-size:10px;">Input · Select · Date Picker</small></td>
+                  <td>P0-05 · P0-06 의존<br><small style="color:var(--t3);font-size:10px;">공통 init 시그니처 확정 필요</small></td>
+                  <td><span class="riskchip med">Medium</span></td>
+                  <td><span class="allowchip cond">Conditional</span></td>
+                  <td class="ord"><span class="ordnum">3</span></td>
+                </tr>
+                <tr>
+                  <td class="title"><span class="areachip layer">Layer</span></td>
+                  <td>Layer Mapping v1<br><small style="color:var(--t3);font-size:10px;">z-index 단계</small></td>
+                  <td>P0-01 · P0-09 의존<br><small style="color:var(--t3);font-size:10px;">Dialog / Drawer / Toast / Loading 정합</small></td>
+                  <td><span class="riskchip med">Medium</span></td>
+                  <td><span class="allowchip cond">Conditional</span></td>
+                  <td class="ord"><span class="ordnum">4</span></td>
+                </tr>
+                <tr>
+                  <td class="title"><span class="areachip dialog">Dialog</span></td>
+                  <td>Dialog Mapping v1<br><small style="color:var(--t3);font-size:10px;">Confirm · Danger · Alert</small></td>
+                  <td>P0-09 · P0-10 의존<br><small style="color:var(--t3);font-size:10px;">backdrop 정책 확정 필요</small></td>
+                  <td><span class="riskchip med">Medium</span></td>
+                  <td><span class="allowchip cond">Conditional</span></td>
+                  <td class="ord"><span class="ordnum">5</span></td>
+                </tr>
+                <tr>
+                  <td class="title"><span class="areachip table">Table</span></td>
+                  <td>Table Mapping v1<br><small style="color:var(--t3);font-size:10px;">게시판 / Column / Scroll</small></td>
+                  <td>P0-07 · P0-08 의존<br><small style="color:var(--t3);font-size:10px;">전체 게시판 영향 · 후순위</small></td>
+                  <td><span class="riskchip high">High</span></td>
+                  <td><span class="allowchip no">Hold</span></td>
+                  <td class="ord"><span class="ordnum">6</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Matrix 해석</strong>
+            Button만 P0 직접 의존이 없어 결재와 독립적으로 첫 구현 진입이 가능하다.
+            나머지는 모두 결재 통과(Conditional) 또는 후순위(Hold) 상태이며, 영향 범위가 가장 큰 Table은 마지막 순서로 둔다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 Gate Progress ── -->
+      <section id="s05" class="sec" data-screen-label="05 Gate Progress">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Gate Progress — 게이트 진행 상태</span>
+          <span class="sbadge plan">Gate</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">실제 구현 진입까지의 6단계 Gate를 표시한다. 각 단계는 Done · Ready · Pending · Hold 4단계로 분류한다.</p>
+
+          <div class="gp-grid">
+
+            <div class="gp-step done">
+              <span class="gp-n">01</span>
+              <div class="gp-body">
+                <div class="gp-hd">Step 1 — Token Readiness <span class="rdpill done">Done</span></div>
+                <div class="gp-sub">12 카테고리 토큰 준비상태 점검 완료 · <code>CSS Token Readiness Check</code> 기준 확정</div>
+              </div>
+            </div>
+
+            <div class="gp-step done">
+              <span class="gp-n">02</span>
+              <div class="gp-body">
+                <div class="gp-hd">Step 2 — Token Inventory <span class="rdpill done">Done</span></div>
+                <div class="gp-sub">P0 / P1 / P2 토큰 후보 목록화 완료 · <code>Token Inventory v1</code> 확정</div>
+              </div>
+            </div>
+
+            <div class="gp-step done">
+              <span class="gp-n">03</span>
+              <div class="gp-body">
+                <div class="gp-hd">Step 3 — Component Mapping <span class="rdpill done">Done</span></div>
+                <div class="gp-sub">Button · Form · Layer · Drawer · Dialog · Table 6종 Mapping v1 완료</div>
+              </div>
+            </div>
+
+            <div class="gp-step ready">
+              <span class="gp-n">04</span>
+              <div class="gp-body">
+                <div class="gp-hd">Step 4 — Decision Register <span class="rdpill ready">Ready</span></div>
+                <div class="gp-sub">미결정 항목 52건 통합 등록 · P0 10건 / P1 / P2 분류 · 결재 결과 반영 대기</div>
+              </div>
+            </div>
+
+            <div class="gp-step pending">
+              <span class="gp-n">05</span>
+              <div class="gp-body">
+                <div class="gp-hd">Step 5 — P0 Approval <span class="rdpill pending">Pending</span></div>
+                <div class="gp-sub">P0 10건 Approval Candidate 제출 완료 · PM Sign-off 대기 · Cursor 반영 대기</div>
+              </div>
+            </div>
+
+            <div class="gp-step hold">
+              <span class="gp-n">06</span>
+              <div class="gp-body">
+                <div class="gp-hd">Step 6 — First Implementation Handoff <span class="rdpill hold">Hold</span></div>
+                <div class="gp-sub">Step 5 완료 후 단일 컴포넌트(<code>Button CSS</code> 권장) 위임 · 동시 구현 금지</div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>다음 진입 조건</strong>
+            Step 5의 PM Sign-off가 완료되면 Decision Register v1의 P0 10건 Status를 <code>Approved</code>로 갱신하고,
+            그 결과를 Mapping 문서 본문 · Cursor Handoff 메시지에 반영해야 Step 6 진입이 허용된다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 P0 Decision Snapshot ── -->
+      <section id="s06" class="sec" data-screen-label="06 P0 Decision Snapshot">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">P0 Decision Snapshot — 결재 후보 10건 요약</span>
+          <span class="sbadge plan">P0</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">P0 Decision Approval Sheet v1의 10건을 영역 · 결재 상태 chip 형태로 요약한다. 모든 항목이 <code>Approved</code>가 되어야 컴포넌트 CSS · JS 구현이 시작된다.</p>
+
+          <div class="p0-grid">
+
+            <div class="p0-row">
+              <span class="p0-id">P0-01</span>
+              <div class="p0-body">Layer priority — Global Loading vs Toast 우선순위
+                <small>Loading 최상위 · Toast는 Dialog 위 / Loading 아래</small>
+              </div>
+              <div class="p0-meta">
+                <span class="areachip layer">Layer</span>
+                <span class="rdpill candidate">Candidate</span>
+              </div>
+            </div>
+
+            <div class="p0-row">
+              <span class="p0-id">P0-02</span>
+              <div class="p0-body">Drawer breakpoint — fullscreen 전환 기준
+                <small>≤ 1280px 미만에서 full-width drawer</small>
+              </div>
+              <div class="p0-meta">
+                <span class="areachip drawer">Drawer</span>
+                <span class="rdpill candidate">Candidate</span>
+              </div>
+            </div>
+
+            <div class="p0-row">
+              <span class="p0-id">P0-03</span>
+              <div class="p0-body">Drawer 전체 보기 버튼 위치
+                <small>Header 우측 + Footer ghost action 병행</small>
+              </div>
+              <div class="p0-meta">
+                <span class="areachip drawer">Drawer</span>
+                <span class="rdpill candidate">Candidate</span>
+              </div>
+            </div>
+
+            <div class="p0-row">
+              <span class="p0-id">P0-04</span>
+              <div class="p0-body">Full Detail URL 라우팅 여부
+                <small>v1 내부 상태 전환 · v2에서 URL routing</small>
+              </div>
+              <div class="p0-meta">
+                <span class="areachip drawer">Drawer</span>
+                <span class="rdpill candidate">Candidate</span>
+              </div>
+            </div>
+
+            <div class="p0-row">
+              <span class="p0-id">P0-05</span>
+              <div class="p0-body">Form 공통 init 함수 기준
+                <small><code style="font-size:10px;">initStamFormControls(rootElement)</code> 단일 진입점</small>
+              </div>
+              <div class="p0-meta">
+                <span class="areachip form">Form</span>
+                <span class="rdpill candidate">Candidate</span>
+              </div>
+            </div>
+
+            <div class="p0-row">
+              <span class="p0-id">P0-06</span>
+              <div class="p0-body">Native select / date 금지 기준
+                <small>custom UI 강제 · native UI 회귀는 QA 실패</small>
+              </div>
+              <div class="p0-meta">
+                <span class="areachip form">Form</span>
+                <span class="rdpill candidate">Candidate</span>
+              </div>
+            </div>
+
+            <div class="p0-row">
+              <span class="p0-id">P0-07</span>
+              <div class="p0-body">Table scroll rule — page-level h-scroll 금지
+                <small>가로 스크롤은 table container 내부에서만 발생</small>
+              </div>
+              <div class="p0-meta">
+                <span class="areachip table">Table</span>
+                <span class="rdpill candidate">Candidate</span>
+              </div>
+            </div>
+
+            <div class="p0-row">
+              <span class="p0-id">P0-08</span>
+              <div class="p0-body">컬럼 설정 저장 위치
+                <small>v1 board schema · 개인화는 v2</small>
+              </div>
+              <div class="p0-meta">
+                <span class="areachip table">Table</span>
+                <span class="rdpill candidate">Candidate</span>
+              </div>
+            </div>
+
+            <div class="p0-row">
+              <span class="p0-id">P0-09</span>
+              <div class="p0-body">Dialog / Toast / Loading 상하 관계
+                <small>Drawer &lt; Dialog &lt; Toast &lt; Global Loading</small>
+              </div>
+              <div class="p0-meta">
+                <span class="areachip dialog">Dialog</span>
+                <span class="rdpill candidate">Candidate</span>
+              </div>
+            </div>
+
+            <div class="p0-row">
+              <span class="p0-id">P0-10</span>
+              <div class="p0-body">Danger dialog backdrop click 정책
+                <small>backdrop click 닫기 비활성 · esc / 닫기 버튼만 허용</small>
+              </div>
+              <div class="p0-meta">
+                <span class="areachip dialog">Dialog</span>
+                <span class="rdpill candidate">Candidate</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="fm-cap"><span class="fm-cap-n">CHP</span>Chip 의미 <span class="fm-cap-sub">Recommended · Needs PM Sign-off · Ready to Approve · Approved</span></div>
+          <div class="rule-grid">
+            <div class="rule-card">
+              <div class="rc-hdr">현재 상태 — 모두 Candidate</div>
+              <ul>
+                <li><span class="rdpill candidate" style="margin-right:4px;">Candidate</span>디자이너가 제출한 단일 후보안(=Recommended) · PM 검토 대기</li>
+                <li><span class="rdpill pending" style="margin-right:4px;">Needs PM Sign-off</span>PM 결재 절차에 진입한 상태 · 본 문서 작성 시점 기준 10건 모두 해당</li>
+                <li><span class="rdpill ready" style="margin-right:4px;">Ready to Approve</span>결재 직전 — 추가 검토 / 수정 없이 승인만 남은 단계</li>
+              </ul>
+            </div>
+            <div class="rule-card pass">
+              <div class="rc-hdr">결재 완료 시</div>
+              <ul>
+                <li><span class="rdpill approved" style="margin-right:4px;">Approved</span>P0 Approval Sheet v1 본문에서 Status 갱신</li>
+                <li>Decision Register v1의 동일 항목 Status도 함께 <code>Approved</code>로 갱신</li>
+                <li>Step 6 — First Implementation Handoff 진입 허용</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 First Implementation Recommendation ── -->
+      <section id="s07" class="sec" data-screen-label="07 First Implementation">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">First Implementation Recommendation — 첫 구현 후보 비교</span>
+          <span class="sbadge plan">Decision</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">PM Sign-off 통과 이후 첫 구현으로 진입할 단위를 결정한다. Option A · Option B 두 후보를 동일 기준(Impact · Risk · Files · QA · Rollback)으로 비교한다.</p>
+
+          <div class="cmp-grid">
+
+            <!-- Option A — Button -->
+            <div class="cmp-card lead">
+              <div class="cmp-hdr">
+                <span class="areachip button">Button</span>
+                <span class="cmp-tag">Option A · Recommended</span>
+              </div>
+              <div>
+                <div class="cmp-title">Option A — Button CSS 제한 구현</div>
+                <div class="cmp-sub">variant × size × state 토큰을 실제 CSS에 반영. 첫 구현 단위로 가장 안전한 후보.</div>
+              </div>
+              <div class="cmp-row">
+                <span class="cmp-k">Impact</span>
+                <span class="cmp-v">전 화면 공통 액션 영역 — 변경이 즉시 시각적으로 검증 가능</span>
+              </div>
+              <div class="cmp-row">
+                <span class="cmp-k">Risk</span>
+                <span class="cmp-v"><span class="riskchip low">Low</span> &nbsp;다른 컴포넌트와의 의존이 가장 적음</span>
+              </div>
+              <div class="cmp-row">
+                <span class="cmp-k">Files likely touched</span>
+                <span class="cmp-v"><code>stam/css/stam.tokens.css</code> · <code>stam/css/stam.components.css</code></span>
+              </div>
+              <div class="cmp-row">
+                <span class="cmp-k">QA Scope</span>
+                <span class="cmp-v">staging URL · 콘솔 · 라이트/다크 · 가로 스크롤 4종 + Button hover / press 회귀</span>
+              </div>
+              <div class="cmp-row">
+                <span class="cmp-k">Rollback Risk</span>
+                <span class="cmp-v"><span class="riskchip low">Low</span> &nbsp;토큰 / 클래스 revert 단순 · staging만 영향</span>
+              </div>
+              <div class="cmp-row">
+                <span class="cmp-k">Recommendation</span>
+                <span class="cmp-v" style="color:var(--stam);">권장 — 첫 구현 단위</span>
+              </div>
+            </div>
+
+            <!-- Option B — Drawer -->
+            <div class="cmp-card">
+              <div class="cmp-hdr">
+                <span class="areachip drawer">Drawer</span>
+                <span class="cmp-tag">Option B</span>
+              </div>
+              <div>
+                <div class="cmp-title">Option B — Drawer Layout 제한 구현</div>
+                <div class="cmp-sub">Drawer header / footer / breakpoint 레이아웃을 CSS만 반영. JS 동작은 제외.</div>
+              </div>
+              <div class="cmp-row">
+                <span class="cmp-k">Impact</span>
+                <span class="cmp-v">상세 입력 · Full Detail 진입점 — 레이아웃 정합성 검증 효과 큼</span>
+              </div>
+              <div class="cmp-row">
+                <span class="cmp-k">Risk</span>
+                <span class="cmp-v"><span class="riskchip med">Medium</span> &nbsp;breakpoint · 진입점 · Form / Dialog와 정책 얽힘</span>
+              </div>
+              <div class="cmp-row">
+                <span class="cmp-k">Files likely touched</span>
+                <span class="cmp-v"><code>stam/css/stam.tokens.css</code> · <code>stam/css/stam.components.css</code> · drawer 관련 CSS 추가</span>
+              </div>
+              <div class="cmp-row">
+                <span class="cmp-k">QA Scope</span>
+                <span class="cmp-v">4종 + Drawer fullscreen breakpoint · Header · Footer · Full Detail 진입점</span>
+              </div>
+              <div class="cmp-row">
+                <span class="cmp-k">Rollback Risk</span>
+                <span class="cmp-v"><span class="riskchip med">Medium</span> &nbsp;레이아웃 변경 후 회귀 영역 넓어짐</span>
+              </div>
+              <div class="cmp-row">
+                <span class="cmp-k">Recommendation</span>
+                <span class="cmp-v">대안 — Button 이후 진입</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>권장 결론 — Button CSS 먼저</strong>
+            영향 범위가 작고 JS 개입이 적어 토큰 검증에 적합하다. Button 구현 직후 staging QA 4종 통과를 확인하고,
+            공통 init 시그니처(P0-05) 확정 이후 Drawer Layout으로 진입한다. 두 옵션을 동시에 진행하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Cursor Handoff Preview ── -->
+      <section id="s08" class="sec" data-screen-label="08 Cursor Handoff Preview">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Cursor Handoff Preview — 위임 전 조건</span>
+          <span class="sbadge guide">Handoff</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Cursor에게 첫 구현을 위임하기 전 충족해야 할 조건과, 위임 메시지에 반드시 포함해야 할 규칙을 정리한다. 본 문서 자체는 위임 메시지가 아니다.</p>
+
+          <div class="rule-grid">
+            <div class="rule-card pass">
+              <div class="rc-hdr">진입 조건 (Prerequisite)</div>
+              <ul>
+                <li>P0 Approval Sheet v1 본문이 모두 <code>Approved</code> · Cursor 반영 완료</li>
+                <li>Decision Register v1 P0 10건 Status가 <code>Approved</code>로 동기화</li>
+                <li>repo working tree clean — 작업 시작 전 <code>git status</code> 확인</li>
+                <li>수정 허용 파일을 위임 메시지에 명시 — 누적 / 암묵 명시 금지</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">구현 범위 (Scope)</div>
+              <ul>
+                <li>첫 구현은 <strong>Button CSS</strong>만 — Form / Drawer / Dialog / Table 동시 수정 금지</li>
+                <li>관련 토큰은 <code>stam/css/stam.tokens.css</code>에서만 추가 / 갱신</li>
+                <li>컴포넌트 클래스는 <code>stam/css/stam.components.css</code>에서만 작성</li>
+                <li>JS · 페이지 · 자산은 손대지 않음 — 이번 단계는 CSS 토큰 검증 단계</li>
+              </ul>
+            </div>
+            <div class="rule-card">
+              <div class="rc-hdr">QA / 배포</div>
+              <ul>
+                <li>Staging — <code>stam-design-staging.web.app</code> 배포 후 QA 진행</li>
+                <li>QA 4종 — URL · 콘솔 · 라이트/다크 · 가로 스크롤 PASS 확인</li>
+                <li>Production / live 배포 금지 — staging까지만</li>
+                <li>React dist 배포 금지 — 정적 HTML 기준 유지</li>
+              </ul>
+            </div>
+            <div class="rule-card warn">
+              <div class="rc-hdr">금지 (Forbidden)</div>
+              <ul>
+                <li><code>stam/css/**</code> 중 위임 범위 외 파일 변경 금지</li>
+                <li><code>stam/js/**</code> · <code>stam/pages/**</code> · <code>stam/index.html</code> · <code>stam/assets/**</code> 변경 금지</li>
+                <li><code>.firebaserc</code> · <code>firebase.json</code> · <code>.github/workflows/**</code> 변경 금지</li>
+                <li><code>package.json</code> · <code>package-lock.json</code> · <code>_ds/**</code> · <code>uploads/**</code> · <code>*.zip</code> · <code>.env*</code> 변경 금지</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>핸드오프 메시지 템플릿</strong>
+            “이번 작업: <code>Button CSS</code> 제한 구현. 수정 허용: <code>stam/css/stam.tokens.css</code> · <code>stam/css/stam.components.css</code>.
+            금지: 그 외 모든 파일. 사전 확인: P0 Approval Sheet v1 모두 <code>Approved</code>인가, Decision Register v1 동기화 완료인가.
+            staging URL / 콘솔 / 라이트·다크 / 가로 스크롤 QA 4종 패스 후 보고. Production 배포 금지 · React dist 배포 금지.”
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Risk / Hold Notes ── -->
+      <section id="s09" class="sec" data-screen-label="09 Risk / Hold Notes">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Risk / Hold Notes — 구현 전 주의</span>
+          <span class="sbadge guide">Risk</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">첫 구현 진입 전 인지해야 할 위험과 보류 항목을 정리한다. 본 항목들은 Cursor 위임 메시지에 동반 명시해야 한다.</p>
+
+          <div class="rule-grid">
+            <div class="rule-card fail">
+              <div class="rc-hdr">Form — Select / Date Picker</div>
+              <ul>
+                <li>JS 공통화(<code>initStamFormControls</code>) 확정 전에는 단독 구현 금지</li>
+                <li>native UI 회귀 위험 — staging QA 회귀 항목 유지 필요</li>
+                <li>관련 항목 — P0-05 · P0-06</li>
+              </ul>
+            </div>
+            <div class="rule-card fail">
+              <div class="rc-hdr">Drawer / Full Detail</div>
+              <ul>
+                <li>레이아웃 + 상태 전환이 함께 얽힘 — Layout(CSS)과 State(JS) 분리 진행</li>
+                <li>v1은 내부 상태 전환만 — URL routing 금지(P0-04)</li>
+                <li>관련 항목 — P0-02 · P0-03 · P0-04</li>
+              </ul>
+            </div>
+            <div class="rule-card fail">
+              <div class="rc-hdr">Table — 후순위</div>
+              <ul>
+                <li>전체 게시판에 영향 · 회귀 파급이 가장 큼</li>
+                <li>page-level h-scroll · 컬럼 schema(P0-07 · P0-08) 확정 후 진입</li>
+                <li>Backend API Boundary 정합화 필요</li>
+              </ul>
+            </div>
+            <div class="rule-card fail">
+              <div class="rc-hdr">Layer — Dialog / Drawer / Dropdown 충돌</div>
+              <ul>
+                <li>Layer 토큰은 Dialog / Drawer / Dropdown 충돌과 직접 관련</li>
+                <li>z-index 단계를 단일 토큰 표로 확정한 다음에만 컴포넌트 진입</li>
+                <li>관련 항목 — P0-01 · P0-09</li>
+              </ul>
+            </div>
+            <div class="rule-card warn">
+              <div class="rc-hdr">Global Loading / Toast 정책</div>
+              <ul>
+                <li>Global Loading 최상위 / Toast는 Dialog 위 / Loading 아래</li>
+                <li>전역 차단형 액션 진행 중 Toast 노출 보류 정책 필요</li>
+                <li>관련 항목 — P0-01 · P0-09</li>
+              </ul>
+            </div>
+            <div class="rule-card warn">
+              <div class="rc-hdr">동시 구현 금지</div>
+              <ul>
+                <li>Button · Drawer · Form · Dialog · Table 중 <strong>1개만</strong> 진행</li>
+                <li>각 단계 staging QA 통과 후 다음 단계 진입</li>
+                <li>순서 변경 시 본 Dashboard와 P0 Approval Sheet · Decision Register 함께 갱신</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S10 Related Links ── -->
+      <section id="s10" class="sec" data-screen-label="10 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Related Links — 참고 문서</span>
+          <span class="sbadge guide">관련</span>
+        </div>
+        <div class="sec-body">
+          <div class="rel-grid">
+            <a class="rel-card" href="STAM-Docs-Index.html">
+              <span class="rl-title">STAM Docs Index</span>
+              <span class="rl-sub">전체 기준 문서 인덱스</span>
+            </a>
+            <a class="rel-card" href="STAM-CSS-Token-Readiness-Check.html">
+              <span class="rl-title">CSS Token Readiness Check</span>
+              <span class="rl-sub">12 카테고리 토큰 준비상태 점검</span>
+            </a>
+            <a class="rel-card" href="STAM-Token-Inventory-v1.html">
+              <span class="rl-title">Token Inventory v1</span>
+              <span class="rl-sub">P0 / P1 / P2 토큰 후보 목록</span>
+            </a>
+            <a class="rel-card" href="STAM-Button-Token-Mapping-v1.html">
+              <span class="rl-title">Button Token Mapping v1</span>
+              <span class="rl-sub">variant × size × state 토큰 매핑</span>
+            </a>
+            <a class="rel-card" href="STAM-Form-Token-Mapping-v1.html">
+              <span class="rl-title">Form Token Mapping v1</span>
+              <span class="rl-sub">Input / Select / Date Picker 토큰 매핑</span>
+            </a>
+            <a class="rel-card" href="STAM-Layer-Token-Mapping-v1.html">
+              <span class="rl-title">Layer Token Mapping v1</span>
+              <span class="rl-sub">Drawer / Dialog / Toast / Loading z-index</span>
+            </a>
+            <a class="rel-card" href="STAM-Drawer-Token-Mapping-v1.html">
+              <span class="rl-title">Drawer Token Mapping v1</span>
+              <span class="rl-sub">Drawer / Full Detail 흐름 매핑</span>
+            </a>
+            <a class="rel-card" href="STAM-Dialog-Token-Mapping-v1.html">
+              <span class="rl-title">Dialog Token Mapping v1</span>
+              <span class="rl-sub">Confirm / Danger / Alert 매핑</span>
+            </a>
+            <a class="rel-card" href="STAM-Table-Token-Mapping-v1.html">
+              <span class="rl-title">Table Token Mapping v1</span>
+              <span class="rl-sub">게시판 / List Table 매핑</span>
+            </a>
+            <a class="rel-card" href="STAM-Decision-Needed-Register-v1.html">
+              <span class="rl-title">Decision Needed Register v1</span>
+              <span class="rl-sub">P0 / P1 / P2 미결정 항목 통합 등록부</span>
+            </a>
+            <a class="rel-card" href="STAM-P0-Decision-Approval-Sheet-v1.html">
+              <span class="rl-title">P0 Decision Approval Sheet v1</span>
+              <span class="rl-sub">P0 Critical 10건 결재 후보안</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
