@@ -482,6 +482,91 @@
 .qr-cap, .qr-cap * {
   font-family: var(--font) !important;
 }
+
+/* ── doc-nav: always-dark shell — stam-btn sm ghost on #0A0E1A ── */
+.doc-nav .stam-btn { flex-shrink: 0; }
+.doc-nav .stam-btn + .stam-btn { margin-left: 6px; }
+.doc-nav > .stam-btn:last-of-type,
+.doc-nav > a.stam-btn:last-of-type { margin-right: 12px; }
+.doc-nav .stam-btn--ghost {
+  color: rgba(255,255,255,.60);
+}
+.doc-nav .stam-btn--ghost:hover {
+  background: rgba(255,255,255,.10);
+  color: #fff;
+}
+
+/* ── Product Apply Demo v1 — 격리 샘플 (qr-apply-* only · .stam-btn 미덮어쓰기) ── */
+.qr-apply-demo {
+  display: flex; flex-direction: column; gap: 14px;
+}
+.qr-apply-block {
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  background: var(--bg-sur);
+  overflow: hidden;
+}
+.qr-apply-block-hdr {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--t3); font-family: var(--font);
+}
+.qr-apply-block-hdr .qr-apply-tag {
+  font-size: 9px; font-weight: 700; letter-spacing: .05em;
+  padding: 2px 7px; border-radius: 999px;
+  background: var(--stam-soft); color: var(--stam);
+  text-transform: none;
+}
+.qr-apply-topbar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-sur2);
+  border-bottom: 1px solid var(--bd);
+  min-height: 48px;
+}
+.qr-apply-topbar-title {
+  font-size: 12px; font-weight: 700; color: var(--t1);
+  letter-spacing: -.005em; font-family: var(--font);
+  white-space: nowrap;
+}
+.qr-apply-topbar-sp { flex: 1; }
+.qr-apply-topbar .stam-btn { flex-shrink: 0; }
+.qr-apply-drawer-hdr {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--bd);
+}
+.qr-apply-drawer-title {
+  font-size: 13px; font-weight: 700; color: var(--t1);
+  font-family: var(--font); letter-spacing: -.005em;
+}
+.qr-apply-drawer-close {
+  font-size: 10px; color: var(--t3); font-family: var(--font);
+}
+.qr-apply-drawer-body {
+  padding: 14px;
+  font-size: 11px; color: var(--t2); line-height: 1.65;
+  font-family: var(--font);
+  min-height: 72px;
+}
+.qr-apply-drawer-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  min-height: 52px;
+}
+.qr-apply-drawer-foot-r {
+  display: flex; align-items: center; gap: 8px; margin-left: auto;
+}
+.qr-apply-note {
+  margin: 0; font-size: 11px; color: var(--t3); line-height: 1.65;
+  font-family: var(--font);
+}
 </style>
 </head>
 <body>
@@ -497,8 +582,8 @@
   <span class="doc-nav-pill"><span class="dot"></span>Button CSS</span>
   <span class="doc-nav-pill"><span class="dot"></span>Foundation PASS</span>
   <div class="doc-nav-sp"></div>
-  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
-  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+  <a href="STAM-Docs-Index.html" class="stam-btn stam-btn--sm stam-btn--ghost" style="text-decoration:none;">← Docs Index</a>
+  <button type="button" class="stam-btn stam-btn--sm stam-btn--ghost" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
 </nav>
 
 <!-- ── Guide Shell ── -->
@@ -523,7 +608,8 @@
       <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Product Apply Readiness</a></li>
       <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Final Verdict</a></li>
       <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Next Action</a></li>
-      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Related Links</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Apply Demo v1</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Related Links</a></li>
     </ul>
   </aside>
 
@@ -538,7 +624,7 @@
           <span class="qrpill pass">QA Result</span>
           <span class="qrpill info">Button CSS</span>
           <span class="qrpill pass">Foundation PASS</span>
-          <span class="qrpill notyet">Product Not Yet</span>
+          <span class="qrpill pass">Apply v1</span>
         </div>
         <p>
           본 문서는 <strong>Button CSS Implementation Preview v1</strong>이 시각 기준으로 고정한 결과와
@@ -1346,7 +1432,7 @@
           <div class="qr-chk-list">
             <div class="qr-chk-item">
               <span class="qr-chk-box is-pass">✓</span>
-              <span class="qr-chk-text"><code>.tbtn</code> 클래스 — 단 한 줄도 수정되지 않음 · Docs Topbar 우측 액션 정상</span>
+              <span class="qr-chk-text"><code>.tbtn</code> — 다른 Docs · 제품 페이지 미수정 · 본 문서 <code>doc-nav</code>만 <code>.stam-btn--sm .stam-btn--ghost</code> Apply v1</span>
             </div>
             <div class="qr-chk-item">
               <span class="qr-chk-box is-pass">✓</span>
@@ -1577,7 +1663,7 @@
             </div>
             <div class="qr-kpi notyet-card">
               <span class="qr-kpi-key">제품 적용 상태</span>
-              <span class="qr-kpi-val">Not Yet</span>
+              <span class="qr-kpi-val">Apply v1 (Docs 샘플)</span>
             </div>
           </div>
 
@@ -1748,11 +1834,74 @@
       </section>
 
       <!-- ──────────────────────────────────────────────────────────
-           S13 Related Links
+           S13 Product Apply Demo v1
            ────────────────────────────────────────────────────────── -->
-      <section id="s13" class="sec" data-screen-label="13 Related Links">
+      <section id="s13" class="sec" data-screen-label="13 Apply Demo v1">
         <div class="sec-hdr">
           <span class="sec-n">13</span>
+          <span class="sec-title">Product Apply Demo v1 — top · Drawer footer 격리 샘플</span>
+          <span class="sbadge done">Apply v1</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Section 10 후보 1번(<em>Docs 내부 격리 샘플</em>)에 따라, 본 문서 안에서만 <code>.stam-btn</code>을 첫 적용한다. top 보조 액션은 <code>sm</code>, Drawer footer <strong>전체보기</strong>는 <code>md=32px</code> Ghost 기준이다.</p>
+
+          <div class="qr-apply-demo">
+            <div class="qr-apply-block">
+              <div class="qr-apply-block-hdr">
+                <span>Top toolbar mock</span>
+                <span class="qr-apply-tag">.stam-btn--sm</span>
+              </div>
+              <div class="qr-apply-topbar">
+                <span class="qr-apply-topbar-title">WBS · 작업 상세</span>
+                <span class="qr-apply-topbar-sp"></span>
+                <button type="button" class="stam-btn stam-btn--sm stam-btn--ghost">필터</button>
+                <button type="button" class="stam-btn stam-btn--sm stam-btn--secondary">내보내기</button>
+                <button type="button" class="stam-btn stam-btn--sm stam-btn--primary">등록 +</button>
+              </div>
+              <p class="qr-apply-note" style="padding:10px 14px 12px;">Toolbar 보조 액션 — Ghost · Secondary · Primary 각각 <code>sm=28px</code>. 본문 top 영역과 수직 중앙 정렬.</p>
+            </div>
+
+            <div class="qr-apply-block">
+              <div class="qr-apply-block-hdr">
+                <span>Drawer footer mock</span>
+                <span class="qr-apply-tag">전체보기 · md=32px</span>
+              </div>
+              <div class="qr-apply-drawer-hdr">
+                <span class="qr-apply-drawer-title">작업 상세 · Edit Drawer</span>
+                <span class="qr-apply-drawer-close">✕</span>
+              </div>
+              <div class="qr-apply-drawer-body">
+                Drawer body — 긴 폼·상세는 Footer 좌측 <strong>전체보기</strong>로 Full Detail 전환. xs(24px)는 tag/row 보조용이므로 주요 전환 버튼에는 사용하지 않는다.
+              </div>
+              <div class="qr-apply-drawer-foot">
+                <button type="button" class="stam-btn stam-btn--md stam-btn--ghost">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10V4h6M4 4l8 8"/></svg>
+                  <span>전체보기</span>
+                </button>
+                <div class="qr-apply-drawer-foot-r">
+                  <button type="button" class="stam-btn stam-btn--md stam-btn--secondary">취소</button>
+                  <button type="button" class="stam-btn stam-btn--md stam-btn--primary">저장</button>
+                </div>
+              </div>
+              <p class="qr-apply-note" style="padding:10px 14px 12px;">Footer 좌측 Ghost <code>md=32px</code> · 우측 Secondary + Primary 페어. gap 8px.</p>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>Apply v1 범위</strong>
+            · 본 문서 <code>doc-nav</code> 우측 액션 2종 + Section 13 격리 샘플만 <code>.stam-btn</code> 적용.<br>
+            · 다른 Docs · 제품 페이지의 <code>.tbtn</code>은 그대로 유지 — 전역 치환 없음.<br>
+            · 공통 <code>.stam-btn</code> 클래스 정의는 <code>stam.components.css</code> 그대로 — 본 문서는 class 부착만 수행.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S14 Related Links
+           ────────────────────────────────────────────────────────── -->
+      <section id="s14" class="sec" data-screen-label="14 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
           <span class="sec-title">Related Links — 참고 문서</span>
           <span class="sbadge guide">관련</span>
         </div>
