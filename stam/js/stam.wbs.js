@@ -955,7 +955,7 @@
   function initDrawerFeedback() {
     document.addEventListener('click', function(e) {
       if(!window.STAM||!window.STAM.wbsDialog)return;
-      var btn=e.target.closest?e.target.closest('.wbs-drawer-footer .wbs-btn'):null;if(!btn)return;
+      var btn=e.target.closest?e.target.closest('.wbs-drawer-footer .wbs-btn, .wbs-drawer-footer .stam-btn'):null;if(!btn)return;
       var panel=document.querySelector('.wbs-drawer-panel'),mode=panel?panel.getAttribute('data-mode'):'';
       if(btn.textContent.trim()==='임시저장'){window.STAM.wbsDialog.alert({title:'임시저장',msg:'작성 중인 내용이 임시저장되었습니다.',type:'info',okLabel:'확인'});return;}
       if(btn.classList.contains('wbs-btn-primary')&&!btn.classList.contains('wbs-fv-trigger-btn')&&!btn.closest('.wbs-fv-inline')){
