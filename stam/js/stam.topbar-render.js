@@ -19,19 +19,19 @@
   'use strict';
 
   var MOON_SVG =
-    '<svg class="stam-theme-icon stam-theme-moon" viewBox="0 0 16 16" fill="none"' +
+    '<svg class="stam-theme-icon stam-theme-moon" viewBox="0 0 24 24" fill="none"' +
     ' width="16" height="16" aria-hidden="true">' +
-    '<path d="M13.2 9.4a5.4 5.4 0 1 1-3.9-9.1 5.4 5.4 0 0 1 3.9 9.1z"' +
-    ' stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"' +
+    ' stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
     '</svg>';
 
   var SUN_SVG =
-    '<svg class="stam-theme-icon stam-theme-sun" viewBox="0 0 16 16" fill="none"' +
+    '<svg class="stam-theme-icon stam-theme-sun" viewBox="0 0 24 24" fill="none"' +
     ' width="16" height="16" aria-hidden="true">' +
-    '<circle cx="8" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/>' +
-    '<path d="M8 2.2v1.4M8 12.4v1.4M2.2 8h1.4M12.4 8h1.4M3.8 3.8l1 1M11.2 11.2l1 1' +
-    'M3.8 12.2l1-1M11.2 4.8l1-1"' +
-    ' stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>' +
+    '<circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>' +
+    '<path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41' +
+    'M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"' +
+    ' stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
     '</svg>';
 
   var DOWNLOAD_SVG =
