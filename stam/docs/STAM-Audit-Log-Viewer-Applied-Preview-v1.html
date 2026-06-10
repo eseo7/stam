@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Audit Log Viewer Applied Preview v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ============================================================
+ * STAM Audit Log Viewer Applied Preview v1
+ * - 문서 전용 격리 스타일 (prefix: alv-)
+ * - 실제 product CSS / class 절대 덮어쓰지 않음
+ * ============================================================ */
+.alv-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:var(--font);white-space:nowrap}
+.alv-pill::before{content:"";width:6px;height:6px;border-radius:999px;background:currentColor;display:inline-block;flex-shrink:0}
+.alv-pill.pass{background:var(--pass-bg);color:var(--pass)}
+.alv-pill.warn{background:var(--warn-bg);color:var(--warn)}
+.alv-pill.fail{background:var(--fail-bg);color:var(--fail)}
+.alv-pill.info{background:var(--info-bg);color:var(--info)}
+.alv-pill.brand{background:var(--stam-soft);color:var(--stam)}
+.alv-pill.notyet{background:var(--skip-bg);color:var(--skip)}
+
+.alv-hero{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:18px 20px 16px;display:flex;flex-direction:column;gap:12px;margin-bottom:24px;position:relative;overflow:hidden}
+.alv-hero::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--fail)}
+.alv-hero-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.alv-hero-title{font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.alv-hero p{margin:0;font-size:12px;color:var(--t2);line-height:1.7}
+.alv-hero code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px}
+
+.alv-kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+@media (max-width:1280px){.alv-kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:720px){.alv-kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.alv-kpi{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:11px 12px 12px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.alv-kpi .alv-kpi-key{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3)}
+.alv-kpi .alv-kpi-val{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.005em;line-height:1.35}
+.alv-kpi.brand{border-color:rgba(84,81,232,.22);background:var(--stam-soft)}
+.alv-kpi.brand .alv-kpi-key{color:var(--stam);opacity:.9}.alv-kpi.brand .alv-kpi-val{color:var(--stam)}
+.alv-kpi.info{border-color:rgba(111,168,255,.22);background:var(--info-bg)}
+.alv-kpi.info .alv-kpi-key{color:var(--info);opacity:.9}.alv-kpi.info .alv-kpi-val{color:var(--info)}
+.alv-kpi.warn{border-color:rgba(245,158,11,.22);background:var(--warn-bg)}
+.alv-kpi.warn .alv-kpi-key{color:var(--warn);opacity:.9}.alv-kpi.warn .alv-kpi-val{color:var(--warn)}
+.alv-kpi.fail{border-color:rgba(255,90,71,.22);background:var(--fail-bg)}
+.alv-kpi.fail .alv-kpi-key{color:var(--fail);opacity:.9}.alv-kpi.fail .alv-kpi-val{color:var(--fail)}
+.alv-kpi.pass{border-color:rgba(40,180,99,.22);background:var(--pass-bg)}
+.alv-kpi.pass .alv-kpi-key{color:var(--pass);opacity:.9}.alv-kpi.pass .alv-kpi-val{color:var(--pass)}
+
+.alv-cap{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.alv-cap .alv-cap-n{width:22px;height:22px;border-radius:6px;background:var(--fail-bg);color:var(--fail);font-size:10.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+.alv-cap-sub{font-size:10.5px;color:var(--t3);font-weight:500;letter-spacing:0;margin-left:4px}
+
+.alv-tbl-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--bd)}
+.alv-tbl{width:100%;border-collapse:collapse;font-family:var(--font);font-size:11.5px;background:var(--bg-sur);min-width:720px}
+.alv-tbl th{padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2);white-space:nowrap}
+.alv-tbl td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;line-height:1.6}
+.alv-tbl tbody tr:last-child td{border-bottom:none}
+.alv-tbl td.tn{color:var(--t1);font-weight:700;white-space:nowrap;font-size:11px}
+.alv-tbl td code,.alv-tbl th code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;letter-spacing:.005em;white-space:nowrap}
+.alv-tbl td.good{color:var(--pass);font-weight:700}
+.alv-tbl td.bad{color:var(--fail);font-weight:700}
+.alv-tbl td.warn{color:var(--warn);font-weight:700}
+.alv-tbl td.info{color:var(--info);font-weight:700}
+.alv-tbl td.note{color:var(--t3);font-size:10.5px}
+
+.alv-rule-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (max-width:760px){.alv-rule-grid{grid-template-columns:1fr}}
+.alv-rule-card{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:12px 14px}
+.alv-rule-card .alv-rc-hdr{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t1);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.alv-rule-card .alv-rc-hdr::before{content:"";width:8px;height:8px;border-radius:999px;background:var(--stam);display:inline-block}
+.alv-rule-card .alv-rc-hdr.is-pass::before{background:var(--pass)}
+.alv-rule-card .alv-rc-hdr.is-warn::before{background:var(--warn)}
+.alv-rule-card .alv-rc-hdr.is-info::before{background:var(--info)}
+.alv-rule-card .alv-rc-hdr.is-fail::before{background:var(--fail)}
+.alv-rule-card ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.alv-rule-card li{font-size:11.5px;line-height:1.6;color:var(--t2);padding-left:12px;position:relative}
+.alv-rule-card li::before{content:"·";position:absolute;left:2px;top:-2px;color:var(--t3);font-weight:800}
+.alv-rule-card li code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+
+.alv-chk-list{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 10px}
+@media (max-width:760px){.alv-chk-list{grid-template-columns:1fr}}
+.alv-chk-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);font-size:11.5px;line-height:1.55;color:var(--t2)}
+.alv-chk-item code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+.alv-chk-box{width:16px;height:16px;border-radius:4px;background:var(--pass-bg);color:var(--pass);font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.alv-chk-box.is-warn{background:var(--warn-bg);color:var(--warn)}
+.alv-chk-box.is-info{background:var(--info-bg);color:var(--info)}
+.alv-chk-box.is-fail{background:var(--fail-bg);color:var(--fail)}
+
+.alv-handoff-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:760px){.alv-handoff-list{grid-template-columns:1fr}}
+.alv-handoff-item{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.alv-handoff-item .alv-hf-path{font-family:var(--font);font-size:11px;font-weight:700;color:var(--t1);letter-spacing:.005em}
+.alv-handoff-item .alv-hf-role{font-size:10px;color:var(--t3);line-height:1.55}
+
+.alv-rel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:1100px){.alv-rel-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:720px){.alv-rel-grid{grid-template-columns:1fr}}
+.alv-rel-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px;text-decoration:none;transition:border-color 120ms,background 120ms}
+.alv-rel-card:hover{border-color:rgba(84,81,232,.35);background:rgba(84,81,232,.04)}
+.alv-rel-card .alv-rl-title{font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.alv-rel-card .alv-rl-sub{font-size:10.5px;color:var(--t3)}
+
+/* Mock primitives */
+.alv-mock-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.alv-mock-col{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1}
+.alv-mock-col-label{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);font-family:var(--font)}
+.alv-mock-col-label .alv-mock-col-tag{font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--stam-soft);color:var(--stam);letter-spacing:.04em}
+.alv-mock-col-label .alv-mock-col-tag.warn{background:var(--warn-bg);color:var(--warn)}
+.alv-mock-col-label .alv-mock-col-tag.fail{background:var(--fail-bg);color:var(--fail)}
+.alv-side-note{font-size:10.5px;color:var(--t3);line-height:1.65;max-width:280px;flex-shrink:0}
+.alv-side-note strong{color:var(--t1);display:block;margin-bottom:4px}
+
+/* PC frame */
+.alv-pc{background:#0F1320;border-radius:14px;border:1px solid rgba(255,255,255,.06);box-shadow:0 12px 30px rgba(0,0,0,.32);font-family:var(--font);overflow:hidden;display:flex;flex-direction:column;min-width:0;width:100%}
+[data-theme="light"] .alv-pc{background:#F5F7FB;border-color:rgba(20,22,30,.10);box-shadow:0 10px 24px rgba(20,22,30,.10)}
+.alv-pc-bar{height:26px;background:#0B0E1A;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:6px;padding:0 12px}
+[data-theme="light"] .alv-pc-bar{background:#E9ECF2;border-bottom-color:rgba(20,22,30,.06)}
+.alv-pc-dot{width:8px;height:8px;border-radius:99px;background:rgba(255,255,255,.20)}
+[data-theme="light"] .alv-pc-dot{background:rgba(20,22,30,.22)}
+.alv-pc-url{margin-left:8px;font-size:9.5px;color:rgba(255,255,255,.46);letter-spacing:.02em}
+[data-theme="light"] .alv-pc-url{color:rgba(20,22,30,.50)}
+.alv-pc-tag{margin-left:auto;font-size:9px;font-weight:800;padding:1px 7px;border-radius:4px;background:rgba(255,90,71,.20);color:#FF7D6E;letter-spacing:.05em}
+.alv-pc-body{display:flex;min-height:0;flex:1}
+.alv-pc-nav{width:148px;background:#131826;border-right:1px solid rgba(255,255,255,.04);padding:14px 10px;display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+[data-theme="light"] .alv-pc-nav{background:#FFFFFF;border-right-color:rgba(20,22,30,.06)}
+.alv-pc-nav-brand{font-size:10.5px;font-weight:800;color:rgba(255,255,255,.92);letter-spacing:.05em;padding:2px 4px 10px;border-bottom:1px solid rgba(255,255,255,.04);margin-bottom:4px}
+[data-theme="light"] .alv-pc-nav-brand{color:rgba(20,22,30,.92);border-bottom-color:rgba(20,22,30,.06)}
+.alv-pc-nav-it{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:6px;font-size:10.5px;color:rgba(255,255,255,.62);font-weight:600}
+[data-theme="light"] .alv-pc-nav-it{color:rgba(20,22,30,.66)}
+.alv-pc-nav-it.active{background:rgba(255,90,71,.18);color:#FF7D6E}
+[data-theme="light"] .alv-pc-nav-it.active{color:#c93c2a}
+.alv-pc-nav-it::before{content:"";width:5px;height:5px;border-radius:99px;background:currentColor;opacity:.75;flex-shrink:0}
+.alv-pc-content{flex:1;min-width:0;display:flex;flex-direction:column;background:#0F1320}
+[data-theme="light"] .alv-pc-content{background:#FAFBFC}
+.alv-pc-topbar{height:34px;background:#131826;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:8px;padding:0 14px;flex-shrink:0;font-size:10.5px;color:rgba(255,255,255,.62);font-weight:600}
+[data-theme="light"] .alv-pc-topbar{background:#FFFFFF;border-bottom-color:rgba(20,22,30,.06);color:rgba(20,22,30,.66)}
+.alv-pc-topbar .alv-pc-crumb-cur{color:rgba(255,255,255,.92);font-weight:700}
+[data-theme="light"] .alv-pc-topbar .alv-pc-crumb-cur{color:rgba(20,22,30,.92)}
+.alv-pc-topbar .alv-pc-tb-sp{flex:1}
+.alv-pc-topbar .alv-pc-tb-pill{padding:2px 7px;border-radius:5px;background:rgba(255,255,255,.06);font-size:9.5px;color:rgba(255,255,255,.62)}
+[data-theme="light"] .alv-pc-topbar .alv-pc-tb-pill{background:rgba(20,22,30,.05);color:rgba(20,22,30,.66)}
+.alv-pc-topbar .alv-pc-tb-pill.role{background:rgba(245,158,11,.18);color:#F5B14C;font-weight:800}
+.alv-pc-area{flex:1;min-width:0;padding:14px 16px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+
+/* Tabs */
+.alv-tabs{display:flex;gap:2px;border-bottom:1px solid rgba(255,255,255,.06);font-family:var(--font)}
+[data-theme="light"] .alv-tabs{border-bottom-color:rgba(20,22,30,.08)}
+.alv-tab{padding:8px 12px;font-size:10.5px;font-weight:700;color:rgba(255,255,255,.58);border-bottom:2px solid transparent;display:inline-flex;align-items:center;gap:6px}
+[data-theme="light"] .alv-tab{color:rgba(20,22,30,.58)}
+.alv-tab.active{color:rgba(255,255,255,.96);border-bottom-color:#5451E8}
+[data-theme="light"] .alv-tab.active{color:rgba(20,22,30,.94)}
+.alv-tab .ct{font-size:9.5px;font-weight:800;padding:1px 5px;border-radius:4px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.78)}
+[data-theme="light"] .alv-tab .ct{background:rgba(20,22,30,.06);color:rgba(20,22,30,.78)}
+.alv-tab.active .ct{background:rgba(84,81,232,.20);color:#a49bf9}
+.alv-tab.is-fail .ct{background:rgba(255,90,71,.20);color:#FF7D6E}
+.alv-tab.is-warn .ct{background:rgba(245,158,11,.20);color:#F5B14C}
+
+/* Toolbar */
+.alv-pc-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.alv-pc-search{height:30px;flex:1;min-width:170px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:6px;padding:0 10px;color:rgba(255,255,255,.62);font-size:10.5px}
+[data-theme="light"] .alv-pc-search{background:rgba(20,22,30,.02);border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.62)}
+.alv-pc-search svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+.alv-pc-btn{height:30px;padding:0 10px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:700;color:rgba(255,255,255,.86);display:inline-flex;align-items:center;gap:5px;font-family:var(--font)}
+[data-theme="light"] .alv-pc-btn{background:rgba(20,22,30,.02);border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.86)}
+.alv-pc-btn.is-primary{background:#5451E8;border-color:#5451E8;color:#fff}
+.alv-pc-btn.is-fail{background:rgba(255,90,71,.18);border-color:rgba(255,90,71,.40);color:#FF7D6E}
+.alv-pc-btn.is-warn{background:rgba(245,158,11,.18);border-color:rgba(245,158,11,.30);color:#F5B14C}
+.alv-pc-btn.is-info{background:rgba(111,168,255,.18);border-color:rgba(111,168,255,.30);color:#6FA8FF}
+.alv-pc-btn.is-ghost{background:transparent}
+.alv-pc-btn .car{font-size:8px;opacity:.7;margin-left:3px}
+
+/* Active filter chip row */
+.alv-afc-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 10px;background:rgba(84,81,232,.06);border:1px dashed rgba(84,81,232,.30);border-radius:8px}
+[data-theme="light"] .alv-afc-row{background:rgba(84,81,232,.04)}
+.alv-afc-label{font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#a49bf9}
+.alv-afc-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;background:rgba(84,81,232,.18);color:#a49bf9;font-size:10px;font-weight:700;font-family:var(--font)}
+.alv-afc-chip .x{font-size:11px;opacity:.65;margin-left:2px}
+.alv-afc-clear{margin-left:auto;font-size:9.5px;font-weight:700;color:#FF7D6E;text-decoration:underline;text-underline-offset:2px}
+
+/* Table */
+.alv-table-host{flex:1;min-height:0;background:#131826;border:1px solid rgba(255,255,255,.06);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+[data-theme="light"] .alv-table-host{background:#FFFFFF;border-color:rgba(20,22,30,.08)}
+.alv-tt{font-family:var(--font);width:100%;border-collapse:separate;border-spacing:0;min-width:100%}
+.alv-tt th,.alv-tt td{font-size:10.5px;padding:8px 10px;text-align:left;color:rgba(255,255,255,.82);border-bottom:1px solid rgba(255,255,255,.04);white-space:nowrap}
+[data-theme="light"] .alv-tt th,[data-theme="light"] .alv-tt td{color:rgba(20,22,30,.82);border-bottom-color:rgba(20,22,30,.05)}
+.alv-tt thead th{background:rgba(255,255,255,.04);color:rgba(255,255,255,.56);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;z-index:1}
+[data-theme="light"] .alv-tt thead th{background:#F4F6FA;color:rgba(20,22,30,.56);border-bottom-color:rgba(20,22,30,.06)}
+.alv-tt td.tn{font-weight:700;color:rgba(255,255,255,.96)}
+[data-theme="light"] .alv-tt td.tn{color:rgba(20,22,30,.94)}
+.alv-tt td.mono{font-family:var(--font);font-variant-numeric:tabular-nums;font-size:10px;letter-spacing:.005em;color:rgba(255,255,255,.62)}
+[data-theme="light"] .alv-tt td.mono{color:rgba(20,22,30,.62)}
+.alv-tt tr.is-risk td{background:rgba(255,90,71,.07)}
+.alv-tt tr.is-warn td{background:rgba(245,158,11,.06)}
+.alv-tt tr.is-sel td{background:rgba(84,81,232,.10)}
+.alv-tt td .ava{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:99px;background:#5451E8;color:#fff;font-size:8.5px;font-weight:800;margin-right:5px;vertical-align:middle}
+
+/* Result chip */
+.alv-result{display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:4px;font-size:9.5px;font-weight:800;letter-spacing:.02em;white-space:nowrap;text-transform:uppercase}
+.alv-result::before{content:"";width:5px;height:5px;border-radius:99px;background:currentColor}
+.alv-result.ok{background:rgba(52,199,89,.16);color:#34C759}
+.alv-result.dn{background:rgba(255,90,71,.18);color:#FF7D6E}
+.alv-result.fl{background:rgba(245,158,11,.18);color:#F5B14C}
+
+/* Action chip */
+.alv-act{display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:4px;font-size:9.5px;font-weight:700;font-family:var(--font);background:rgba(255,255,255,.06);color:rgba(255,255,255,.86);letter-spacing:.01em}
+[data-theme="light"] .alv-act{background:rgba(20,22,30,.06);color:rgba(20,22,30,.86)}
+.alv-act.read{background:rgba(111,168,255,.16);color:#6FA8FF}
+.alv-act.create{background:rgba(52,199,89,.16);color:#34C759}
+.alv-act.update{background:rgba(245,158,11,.18);color:#F5B14C}
+.alv-act.delete{background:rgba(255,90,71,.16);color:#FF7D6E}
+.alv-act.unmask{background:rgba(255,90,71,.20);color:#FF5A47;font-weight:800}
+.alv-act.export{background:rgba(255,90,71,.18);color:#FF7D6E;font-weight:800}
+.alv-act.download{background:rgba(255,90,71,.16);color:#FF7D6E;font-weight:800}
+.alv-act.admin{background:rgba(139,127,248,.20);color:#a49bf9}
+.alv-act.audit{background:rgba(139,127,248,.20);color:#a49bf9}
+.alv-act.login{background:rgba(52,199,89,.12);color:#34C759}
+.alv-act.logout{background:rgba(255,255,255,.06);color:rgba(255,255,255,.7)}
+.alv-act.lock{background:rgba(255,90,71,.18);color:#FF7D6E}
+
+/* Log type tag */
+.alv-ltype{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:99px;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;font-family:var(--font)}
+.alv-ltype.pdata{background:rgba(255,90,71,.16);color:#FF7D6E}
+.alv-ltype.dl{background:rgba(245,158,11,.16);color:#F5B14C}
+.alv-ltype.adm{background:rgba(139,127,248,.18);color:#a49bf9}
+.alv-ltype.lg{background:rgba(52,199,89,.16);color:#34C759}
+.alv-ltype.ss{background:rgba(111,168,255,.16);color:#6FA8FF}
+.alv-ltype.sec{background:rgba(255,90,71,.24);color:#FF5A47}
+.alv-ltype.dnd{background:rgba(180,184,200,.16);color:rgba(220,224,240,.85)}
+[data-theme="light"] .alv-ltype.dnd{background:rgba(20,22,30,.06);color:rgba(20,22,30,.78)}
+
+/* Risk pill */
+.alv-risk-pill{display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:4px;font-size:9.5px;font-weight:800;background:rgba(255,90,71,.18);color:#FF7D6E;letter-spacing:.04em}
+.alv-risk-pill.warn{background:rgba(245,158,11,.20);color:#F5B14C}
+.alv-risk-pill::before{content:"!";font-size:9px;font-weight:800;width:11px;height:11px;border-radius:3px;background:currentColor;color:#0F1320;display:inline-flex;align-items:center;justify-content:center;line-height:11px}
+[data-theme="light"] .alv-risk-pill::before{color:#fff}
+
+/* Masked value */
+.alv-mask{font-family:var(--font);font-size:10.5px;color:rgba(255,255,255,.78);background:rgba(255,255,255,.04);padding:1px 6px;border-radius:4px;border:1px solid rgba(255,255,255,.06);font-variant-numeric:tabular-nums}
+[data-theme="light"] .alv-mask{color:rgba(20,22,30,.78);background:rgba(20,22,30,.03);border-color:rgba(20,22,30,.06)}
+
+/* Drawer / Panel */
+.alv-drawer{width:520px;background:#131826;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px 20px 16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 18px 40px rgba(0,0,0,.40);font-family:var(--font);max-width:100%}
+[data-theme="light"] .alv-drawer{background:#FFFFFF;border-color:rgba(20,22,30,.10);box-shadow:0 14px 28px rgba(20,22,30,.18)}
+.alv-drawer-head{display:flex;align-items:center;gap:8px}
+.alv-drawer-title{font-size:14px;font-weight:800;color:rgba(255,255,255,.96);letter-spacing:-.005em}
+[data-theme="light"] .alv-drawer-title{color:rgba(20,22,30,.94)}
+.alv-drawer-sub{font-size:10.5px;color:rgba(255,255,255,.58)}
+[data-theme="light"] .alv-drawer-sub{color:rgba(20,22,30,.58)}
+.alv-drawer-close{margin-left:auto;font-size:14px;color:rgba(255,255,255,.50)}
+[data-theme="light"] .alv-drawer-close{color:rgba(20,22,30,.50)}
+
+.alv-input-row{display:flex;flex-direction:column;gap:4px}
+.alv-label{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.50);padding-left:2px}
+[data-theme="light"] .alv-label{color:rgba(20,22,30,.55)}
+.alv-input{width:100%;height:32px;padding:0 10px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);font-size:11px;color:rgba(255,255,255,.96);font-family:var(--font);display:flex;align-items:center;gap:6px}
+[data-theme="light"] .alv-input{background:#FFFFFF;border-color:rgba(20,22,30,.12);color:rgba(20,22,30,.94)}
+.alv-textarea{min-height:60px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);padding:8px 10px;font-size:11px;color:rgba(255,255,255,.78);font-family:var(--font);line-height:1.5}
+[data-theme="light"] .alv-textarea{background:#FFFFFF;border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.78)}
+
+.alv-chip-row{display:flex;flex-wrap:wrap;gap:4px}
+.alv-chip{padding:3px 8px;border-radius:99px;font-size:10px;font-weight:600;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.82);font-family:var(--font)}
+[data-theme="light"] .alv-chip{background:rgba(20,22,30,.03);border-color:rgba(20,22,30,.08);color:rgba(20,22,30,.78)}
+.alv-chip.on{background:rgba(84,81,232,.20);border-color:rgba(84,81,232,.36);color:#a49bf9;font-weight:700}
+.alv-chip.fail{background:rgba(255,90,71,.16);border-color:rgba(255,90,71,.28);color:#FF7D6E;font-weight:700}
+
+/* Detail panel */
+.alv-detail{display:grid;grid-template-columns:320px 1fr;gap:14px;align-items:start}
+@media (max-width:1100px){.alv-detail{grid-template-columns:1fr}}
+.alv-detail-side{background:#131826;border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
+[data-theme="light"] .alv-detail-side{background:#FFFFFF;border-color:rgba(20,22,30,.08)}
+.alv-detail-main{display:flex;flex-direction:column;gap:10px}
+.alv-id-block{display:flex;flex-direction:column;gap:5px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.06)}
+[data-theme="light"] .alv-id-block{border-bottom-color:rgba(20,22,30,.06)}
+.alv-id-block .alv-id-tag{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#FF7D6E;padding:1px 6px;border-radius:4px;background:rgba(255,90,71,.16);align-self:flex-start}
+.alv-id-block .alv-id-name{font-size:14px;font-weight:800;color:rgba(255,255,255,.96)}
+[data-theme="light"] .alv-id-block .alv-id-name{color:rgba(20,22,30,.94)}
+.alv-id-block .alv-id-meta{font-size:10.5px;color:rgba(255,255,255,.58)}
+[data-theme="light"] .alv-id-block .alv-id-meta{color:rgba(20,22,30,.58)}
+
+.alv-fact-row{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px}
+[data-theme="light"] .alv-fact-row{border-bottom-color:rgba(20,22,30,.05)}
+.alv-fact-row:last-child{border-bottom:none}
+.alv-fact-row .k{width:96px;font-size:9.5px;color:rgba(255,255,255,.50);font-weight:700;letter-spacing:.04em;text-transform:uppercase;flex-shrink:0;padding-top:1px}
+[data-theme="light"] .alv-fact-row .k{color:rgba(20,22,30,.50)}
+.alv-fact-row .v{color:rgba(255,255,255,.92);font-weight:600;line-height:1.55;word-break:break-all}
+[data-theme="light"] .alv-fact-row .v{color:rgba(20,22,30,.92)}
+.alv-fact-row .v code{font-family:var(--font);font-size:10px;background:rgba(255,255,255,.04);padding:1px 6px;border-radius:4px;border:1px solid rgba(255,255,255,.06)}
+[data-theme="light"] .alv-fact-row .v code{background:rgba(20,22,30,.04);border-color:rgba(20,22,30,.06)}
+
+.alv-section{background:#131826;border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
+[data-theme="light"] .alv-section{background:#FFFFFF;border-color:rgba(20,22,30,.08)}
+.alv-section-head{display:flex;align-items:center;gap:8px}
+.alv-section-title{font-size:12px;font-weight:800;color:rgba(255,255,255,.96);letter-spacing:-.005em}
+[data-theme="light"] .alv-section-title{color:rgba(20,22,30,.94)}
+
+/* state JSON-ish diff */
+.alv-state{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:760px){.alv-state{grid-template-columns:1fr}}
+.alv-state-card{border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);border-radius:8px;padding:10px 12px;font-family:var(--font);font-size:10.5px;color:rgba(255,255,255,.78);line-height:1.6}
+[data-theme="light"] .alv-state-card{border-color:rgba(20,22,30,.08);background:rgba(20,22,30,.02);color:rgba(20,22,30,.78)}
+.alv-state-card .alv-st-tag{font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.50);padding-bottom:6px;border-bottom:1px dashed rgba(255,255,255,.08);margin-bottom:6px;display:block}
+[data-theme="light"] .alv-state-card .alv-st-tag{color:rgba(20,22,30,.50);border-bottom-color:rgba(20,22,30,.08)}
+.alv-state-card.before .alv-st-tag{color:#FF7D6E}
+.alv-state-card.after .alv-st-tag{color:#34C759}
+.alv-state-card pre{margin:0;font-family:var(--font);font-size:10.5px;line-height:1.6;white-space:pre-wrap}
+.alv-state-card .k{color:rgba(255,255,255,.62)}
+[data-theme="light"] .alv-state-card .k{color:rgba(20,22,30,.58)}
+
+/* Timeline */
+.alv-tl{display:flex;flex-direction:column;gap:0;padding-left:14px;position:relative}
+.alv-tl::before{content:"";position:absolute;left:3px;top:6px;bottom:6px;width:1px;background:rgba(255,255,255,.10)}
+[data-theme="light"] .alv-tl::before{background:rgba(20,22,30,.10)}
+.alv-tl-item{position:relative;padding:8px 0 10px;font-size:11px;color:rgba(255,255,255,.82);border-bottom:1px dashed rgba(255,255,255,.04)}
+[data-theme="light"] .alv-tl-item{color:rgba(20,22,30,.82);border-bottom-color:rgba(20,22,30,.06)}
+.alv-tl-item:last-child{border-bottom:none}
+.alv-tl-item::before{content:"";position:absolute;left:-14px;top:13px;width:7px;height:7px;border-radius:99px;background:#5451E8;box-shadow:0 0 0 2px #131826}
+[data-theme="light"] .alv-tl-item::before{box-shadow:0 0 0 2px #FFFFFF}
+.alv-tl-item.is-warn::before{background:#F5B14C}
+.alv-tl-item.is-fail::before{background:#FF5A47}
+.alv-tl-item.is-pass::before{background:#34C759}
+.alv-tl-item.is-cur{background:rgba(84,81,232,.06);margin:0 -10px;padding:8px 10px 10px;border-radius:8px;border-bottom-color:transparent}
+.alv-tl-item.is-cur::before{left:-4px}
+.alv-tl-item .alv-tl-when{font-size:9.5px;color:rgba(255,255,255,.50);font-weight:600}
+[data-theme="light"] .alv-tl-item .alv-tl-when{color:rgba(20,22,30,.50)}
+.alv-tl-item .alv-tl-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.96)}
+[data-theme="light"] .alv-tl-item .alv-tl-title{color:rgba(20,22,30,.94)}
+.alv-tl-item .alv-tl-meta{font-size:10px;color:rgba(255,255,255,.62);line-height:1.5}
+[data-theme="light"] .alv-tl-item .alv-tl-meta{color:rgba(20,22,30,.62)}
+.alv-tl-item .alv-tl-meta code{font-family:var(--font);font-size:10px;background:rgba(255,255,255,.04);padding:1px 5px;border-radius:4px}
+[data-theme="light"] .alv-tl-item .alv-tl-meta code{background:rgba(20,22,30,.04)}
+
+/* Event card */
+.alv-evt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media (max-width:760px){.alv-evt-grid{grid-template-columns:1fr}}
+.alv-evt{border:1px solid rgba(255,90,71,.20);background:rgba(255,90,71,.06);border-radius:10px;padding:11px 12px;display:flex;flex-direction:column;gap:5px}
+.alv-evt.warn{border-color:rgba(245,158,11,.20);background:rgba(245,158,11,.06)}
+.alv-evt .alv-evt-head{display:flex;align-items:center;gap:8px}
+.alv-evt .alv-evt-sev{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:1px 6px;border-radius:4px;background:#FF5A47;color:#fff}
+.alv-evt.warn .alv-evt-sev{background:#F5B14C;color:#0F1320}
+.alv-evt .alv-evt-t{font-size:12px;font-weight:800;color:rgba(255,255,255,.96);letter-spacing:-.005em}
+[data-theme="light"] .alv-evt .alv-evt-t{color:rgba(20,22,30,.94)}
+.alv-evt .alv-evt-time{margin-left:auto;font-size:9.5px;color:rgba(255,255,255,.50)}
+[data-theme="light"] .alv-evt .alv-evt-time{color:rgba(20,22,30,.50)}
+.alv-evt .alv-evt-s{font-size:11px;color:rgba(255,255,255,.78);line-height:1.5}
+[data-theme="light"] .alv-evt .alv-evt-s{color:rgba(20,22,30,.78)}
+.alv-evt .alv-evt-act{font-size:10px;color:#a49bf9;font-weight:700;margin-top:2px}
+
+/* Modal */
+.alv-modal{width:460px;border-radius:14px;background:#131826;border:1px solid rgba(255,255,255,.08);padding:18px 20px 16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 18px 40px rgba(0,0,0,.40);font-family:var(--font)}
+[data-theme="light"] .alv-modal{background:#FFFFFF;border-color:rgba(20,22,30,.10);box-shadow:0 14px 28px rgba(20,22,30,.18)}
+.alv-modal-head{display:flex;align-items:center;gap:8px}
+.alv-modal-tag{font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:4px;background:var(--fail-bg);color:var(--fail)}
+.alv-modal-title{font-size:15px;font-weight:800;color:rgba(255,255,255,.96);letter-spacing:-.01em;line-height:1.4}
+[data-theme="light"] .alv-modal-title{color:rgba(20,22,30,.94)}
+.alv-modal-body{font-size:11.5px;color:rgba(255,255,255,.78);line-height:1.65}
+[data-theme="light"] .alv-modal-body{color:rgba(20,22,30,.78)}
+.alv-modal-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.alv-modal-warning{padding:9px 11px;border-radius:8px;background:rgba(255,90,71,.10);border:1px solid rgba(255,90,71,.22);font-size:10.5px;color:#FF7D6E;line-height:1.55}
+.alv-modal-warning.warn{background:rgba(245,158,11,.10);border-color:rgba(245,158,11,.22);color:#F5B14C}
+.alv-modal-info{padding:9px 11px;border-radius:8px;background:rgba(111,168,255,.08);border:1px solid rgba(111,168,255,.22);font-size:10.5px;color:#6FA8FF;line-height:1.55}
+.alv-check-row{display:flex;align-items:flex-start;gap:8px;padding:9px 11px;border-radius:7px;background:rgba(255,255,255,.04);font-size:11px;color:rgba(255,255,255,.78);font-weight:600;line-height:1.5}
+[data-theme="light"] .alv-check-row{background:rgba(20,22,30,.03);color:rgba(20,22,30,.78)}
+.alv-check-row .box{width:16px;height:16px;border-radius:4px;border:1.5px solid rgba(255,255,255,.30);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+[data-theme="light"] .alv-check-row .box{border-color:rgba(20,22,30,.30)}
+.alv-check-row .box.on{background:#FF5A47;border-color:#FF5A47;color:#fff;font-weight:800;font-size:11px}
+.alv-check-row .box.on::after{content:"✓"}
+
+/* Phone */
+.alv-phone{width:300px;background:#0A0E1A;border-radius:22px;padding:6px;border:1px solid rgba(255,255,255,.06);box-shadow:0 12px 30px rgba(0,0,0,.32);font-family:var(--font);flex-shrink:0}
+[data-theme="light"] .alv-phone{background:#1B1F2A;border-color:rgba(0,0,0,.10);box-shadow:0 10px 24px rgba(20,22,30,.18)}
+.alv-phone-screen{background:#0F1320;border-radius:16px;overflow:hidden;position:relative;height:600px;display:flex;flex-direction:column}
+[data-theme="light"] .alv-phone-screen{background:#FAFBFC}
+.alv-statusbar{height:18px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.78);background:#0F1320;letter-spacing:.03em;flex-shrink:0}
+[data-theme="light"] .alv-statusbar{background:#FAFBFC;color:rgba(20,22,30,.72)}
+.alv-topbar{height:46px;background:#131826;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:4px;padding:0 6px 0 8px;flex-shrink:0}
+[data-theme="light"] .alv-topbar{background:#FFFFFF;border-bottom-color:rgba(20,22,30,.08)}
+.alv-tb-iconbtn{width:38px;height:38px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,.86);background:transparent;flex-shrink:0}
+[data-theme="light"] .alv-tb-iconbtn{color:rgba(20,22,30,.78)}
+.alv-tb-iconbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.alv-tb-title{flex:1;min-width:0;font-size:13.5px;font-weight:700;color:rgba(255,255,255,.94);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.005em;padding:0 4px}
+[data-theme="light"] .alv-tb-title{color:rgba(20,22,30,.94)}
+.alv-tb-title .alv-tb-sub{display:block;font-size:9.5px;font-weight:600;color:rgba(255,255,255,.42);letter-spacing:.04em;margin-top:1px}
+[data-theme="light"] .alv-tb-title .alv-tb-sub{color:rgba(20,22,30,.44)}
+.alv-mcontent{flex:1;min-height:0;overflow:hidden;padding:10px;display:flex;flex-direction:column;gap:8px;font-family:var(--font)}
+.alv-mcard{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:5px}
+[data-theme="light"] .alv-mcard{background:#fff;border-color:rgba(20,22,30,.08)}
+.alv-mcard.is-risk{border-color:rgba(255,90,71,.30);background:rgba(255,90,71,.06)}
+.alv-mcard.is-warn{border-color:rgba(245,158,11,.28);background:rgba(245,158,11,.05)}
+.alv-mcard-head{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.alv-mcard-time{font-size:9.5px;color:rgba(255,255,255,.50);font-weight:700;margin-left:auto}
+[data-theme="light"] .alv-mcard-time{color:rgba(20,22,30,.50)}
+.alv-mcard-title{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.96);line-height:1.4;letter-spacing:-.005em}
+[data-theme="light"] .alv-mcard-title{color:rgba(20,22,30,.94)}
+.alv-mcard-meta{font-size:10px;color:rgba(255,255,255,.62);line-height:1.5}
+[data-theme="light"] .alv-mcard-meta{color:rgba(20,22,30,.62)}
+.alv-mfab{position:absolute;left:14px;right:14px;bottom:14px;display:flex;gap:8px;justify-content:space-between}
+.alv-mfab .alv-pc-btn{flex:1;height:42px;justify-content:center;font-size:11px;border-radius:9px}
+
+/* Empty / state */
+.alv-emp{padding:32px 18px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.alv-emp .alv-emp-ico{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.05);display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,.6);font-size:18px;font-weight:800;border:1px solid rgba(255,255,255,.06)}
+[data-theme="light"] .alv-emp .alv-emp-ico{background:rgba(20,22,30,.04);color:rgba(20,22,30,.6);border-color:rgba(20,22,30,.06)}
+.alv-emp.is-fail .alv-emp-ico{background:rgba(255,90,71,.10);border-color:rgba(255,90,71,.22);color:#FF7D6E}
+.alv-emp.is-warn .alv-emp-ico{background:rgba(245,158,11,.10);border-color:rgba(245,158,11,.22);color:#F5B14C}
+.alv-emp .alv-emp-t{font-size:13px;font-weight:800;color:rgba(255,255,255,.92);letter-spacing:-.005em}
+[data-theme="light"] .alv-emp .alv-emp-t{color:rgba(20,22,30,.92)}
+.alv-emp .alv-emp-s{font-size:11px;color:rgba(255,255,255,.58);line-height:1.55;max-width:320px}
+[data-theme="light"] .alv-emp .alv-emp-s{color:rgba(20,22,30,.58)}
+
+/* Bad mock — exposed pii */
+.alv-bad-row{background:rgba(255,90,71,.10);border:1px solid rgba(255,90,71,.30);border-radius:8px;padding:10px 12px;font-family:var(--font);font-size:11px;color:rgba(255,255,255,.92);line-height:1.6}
+[data-theme="light"] .alv-bad-row{color:rgba(20,22,30,.92)}
+.alv-bad-row strong{color:#FF5A47;text-decoration:underline}
+
+</style>
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Audit Log Viewer Applied Preview v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Preview</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Append-only</span>
+  <span class="doc-nav-pill"><span class="dot"></span>SECURITY_ADMIN</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr"><span class="toc-brand">Audit Viewer</span><span class="toc-ver-pill">v1</span></div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Principles</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Log Sources</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>IA</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Dashboard Summary</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Log Type Tabs</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Filter</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Search</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Unified Table</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Detail Panel</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Related Logs</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Security Event</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Export Control</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Retention</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>Viewer Permission</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>States</a></li>
+      <li class="toc-item"><a href="#s17"><span class="toc-n">17</span>Mobile</a></li>
+      <li class="toc-item"><a href="#s18"><span class="toc-n">18</span>Mock Index</a></li>
+      <li class="toc-item"><a href="#s19"><span class="toc-n">19</span>Good / Bad</a></li>
+      <li class="toc-item"><a href="#s20"><span class="toc-n">20</span>DB Mapping</a></li>
+      <li class="toc-item"><a href="#s21"><span class="toc-n">21</span>Handoff</a></li>
+      <li class="toc-item"><a href="#s22"><span class="toc-n">22</span>Guardrails</a></li>
+      <li class="toc-item"><a href="#s23"><span class="toc-n">23</span>QA</a></li>
+      <li class="toc-item"><a href="#s24"><span class="toc-n">24</span>Related</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Hero ── -->
+      <div class="alv-hero">
+        <div class="alv-hero-row">
+          <strong class="alv-hero-title">STAM Audit Log Viewer Applied Preview v1</strong>
+          <span class="alv-pill fail">Append-only</span>
+          <span class="alv-pill brand">Preview</span>
+          <span class="alv-pill notyet">Product Not Yet</span>
+        </div>
+        <p>
+          본 문서는 <a href="STAM-Security-Privacy-ISMSP-Architecture-DB-Policy-Guide-v1.html" style="color:var(--stam);font-weight:700;">Security / Privacy / ISMS-P Guide v1</a> 의
+          감사로그 정책과 <a href="STAM-Admin-Permission-Manager-Applied-Preview-v1.html" style="color:var(--stam);font-weight:700;">Admin Permission Manager v1</a> 의 변경 이력을
+          <strong>실제 운영 화면</strong>으로 풀어낸 기준 시안이다. 7 로그 소스 / Dashboard / Tabs / Filter / Detail / Related / Risk / Export / Retention / Mobile / 상태 화면을 다룬다.
+        </p>
+        <p style="opacity:.78;">
+          <strong>적용 범위</strong> — 본 작업은 <code>stam/docs/**</code> 하위 1개 HTML 생성과 <code>STAM-Docs-Index.html</code> 카드 1개 추가만 수행한다.
+          <code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code>, <code>stam/index.html</code>, <code>stam/assets/**</code>, <code>.firebaserc</code>, <code>firebase.json</code>,
+          <code>.github/workflows/**</code>, <code>package.json</code>, <code>_ds/**</code>, <code>uploads/**</code>, <code>*.zip</code>, <code>.env*</code>, <code>node_modules/**</code>, <code>dist/**</code>, <code>build/**</code>, <code>.firebase/**</code> 는
+          한 줄도 수정하지 않는다. DB schema · Firebase rules · API 도 본 문서 범위 밖이다.
+        </p>
+        <div class="alv-kpi-grid">
+          <div class="alv-kpi fail"><span class="alv-kpi-key">Default</span><span class="alv-kpi-val">append-only</span></div>
+          <div class="alv-kpi brand"><span class="alv-kpi-key">Source</span><span class="alv-kpi-val">7 로그 종류</span></div>
+          <div class="alv-kpi info"><span class="alv-kpi-key">Result</span><span class="alv-kpi-val">SUCCESS · DENIED · FAILED</span></div>
+          <div class="alv-kpi warn"><span class="alv-kpi-key">Viewer</span><span class="alv-kpi-val">SECURITY / SUPER</span></div>
+          <div class="alv-kpi"><span class="alv-kpi-key">PII</span><span class="alv-kpi-val">원문 비노출 · masked</span></div>
+          <div class="alv-kpi pass"><span class="alv-kpi-key">Mock</span><span class="alv-kpi-val">A ~ J (10종)</span></div>
+        </div>
+      </div>
+
+      <!-- ── S01 Overview ── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr"><span class="sec-n">01</span><span class="sec-title">Overview — 문서 목적</span><span class="sbadge guide">목적</span></div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM 감사로그 조회 화면은 단순한 "로그 목록"이 아니라 <strong>보안 운영 / 사고 추적 화면</strong>이다.
+            누가 언제 누구의 개인정보를 unmask 했는지, 다운로드 / 권한 변경 / 로그인 실패 사이의 인과관계를 추적하는 곳이며,
+            <strong>조회 자체도 audit 대상</strong>이다.
+          </p>
+          <div class="alv-rule-grid">
+            <div class="alv-rule-card">
+              <div class="alv-rc-hdr is-pass">이 문서가 다루는 것</div>
+              <ul>
+                <li>Security Guide v1 의 7 로그 소스 통합 조회 UI</li>
+                <li>Admin Permission Manager v1 의 변경 이력 → audit log linkage</li>
+                <li>Dashboard / Tabs (7) / Basic + Advanced Filter / Search</li>
+                <li>Unified Audit Log Table + Detail Panel + Related Timeline</li>
+                <li>Security Event Highlight (9 위험 패턴)</li>
+                <li>Export Control + Reason Modal + Watermark</li>
+                <li>Retention / Archive Notice (4 보존 정책)</li>
+                <li>Viewer Permission 정책 + Empty / Denied / Failed 상태</li>
+                <li>Mobile — 카드 리스트 · 긴급 조회 · export 금지</li>
+                <li>Mock A ~ J (Bad Example 포함)</li>
+              </ul>
+            </div>
+            <div class="alv-rule-card">
+              <div class="alv-rc-hdr is-fail">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code> 직접 수정</li>
+                <li>실제 DB 스키마 생성 / Firebase rules 수정 / API 구현</li>
+                <li>security event detector 알고리즘 구체 구현 (v2)</li>
+                <li>SIEM / 외부 보안 시스템 연동 (v2)</li>
+                <li>archive / cold storage 마이그레이션 (v2)</li>
+                <li>본인 셀프 조회 — v2 후보</li>
+                <li>전역 <code>.tbtn</code> 일괄 치환 · Firebase / package.json 변경</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Principles ── -->
+      <section id="s02" class="sec" data-screen-label="02 Principles">
+        <div class="sec-hdr"><span class="sec-n">02</span><span class="sec-title">Audit Log Viewer Principles</span><span class="sbadge plan">Principle</span></div>
+        <div class="sec-body">
+          <div class="alv-chk-list">
+            <div class="alv-chk-item"><span class="alv-chk-box is-fail">!</span><span><strong>감사로그는 append-only</strong> — 수정 / 삭제 기능 없음. 보존 기간까지 보관.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-fail">!</span><span><strong>일반 사용자 조회 불가</strong> — SECURITY_ADMIN / SUPER_ADMIN 만. PM 이하 차단.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-fail">!</span><span><strong>SECURITY_ADMIN 중심</strong> — 업무 데이터 read 와 분리. 감사 전용.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-warn">!</span><span><strong>조회 행위도 audit 대상</strong> — admin_action_logs 에 AUDIT_VIEW 로 기록.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span><strong>실패 / 거부 로그도 표시</strong> — DENIED / FAILED 가 가장 중요한 단서.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-fail">!</span><span><strong>개인정보 원문 비저장 · 비노출</strong> — targetMaskedLabel · targetId 만.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-warn">!</span><span><strong>로그 다운로드 = 강한 통제</strong> — 별도 사유 + 워터마크 + 범위 제한.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-info">i</span><span><strong>보존 / 파기 정책 표시</strong> — 각 로그의 retentionUntil 명시.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-info">i</span><span><strong>필터 / 검색은 강력하되 남용 방지</strong> — 광범위 쿼리는 경고 + 사유.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span><strong>SUCCESS / DENIED / FAILED 시각 위계</strong> — chip 컬러로 즉시 식별.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-warn">!</span><span><strong>실시간 동기화 X</strong> — 30초 polling 또는 manual refresh.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span><strong>모든 detail = 동일 logId 식별</strong> — URL 공유 시 다른 사람도 권한 검증 후 조회.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 Log Sources ── -->
+      <section id="s03" class="sec" data-screen-label="03 Log Sources">
+        <div class="sec-hdr"><span class="sec-n">03</span><span class="sec-title">Audit Log Sources — 7 종류</span><span class="sbadge plan">Source</span></div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            조회 대상 로그 7종. Security Guide v1 의 14 테이블 중 감사 관련 7개 + denied_access_logs / security_event_logs 후보 (v2).
+          </p>
+          <div class="alv-tbl-wrap">
+            <table class="alv-tbl">
+              <thead><tr><th style="width:200px;">로그 종류</th><th style="width:130px;">목적</th><th style="width:160px;">주요 actionType</th><th style="width:130px;">보존</th><th>조회 가능 role</th></tr></thead>
+              <tbody>
+                <tr><td class="tn"><span class="alv-ltype pdata">PERSONAL DATA</span> <code>personal_data_access_logs</code></td><td>개인정보 조회 / unmask 추적</td><td>VIEW · UNMASK · PRINT</td><td>3년</td><td>SUPER · SECURITY · ADMIN(제한)</td></tr>
+                <tr><td class="tn"><span class="alv-ltype dl">DOWNLOAD</span> <code>download_logs</code></td><td>파일 / Export 추적</td><td>DOWNLOAD · EXPORT</td><td>3년</td><td>SUPER · SECURITY · ADMIN(제한)</td></tr>
+                <tr><td class="tn"><span class="alv-ltype adm">ADMIN ACTION</span> <code>admin_action_logs</code></td><td>관리자 행위 / 권한 변경</td><td>ROLE_CHANGE · PWD_RESET · LOCK · POLICY · AUDIT_VIEW</td><td>장기 (5년+)</td><td>SUPER · SECURITY</td></tr>
+                <tr><td class="tn"><span class="alv-ltype lg">LOGIN</span> <code>login_logs</code></td><td>로그인 / 실패 / 잠금</td><td>LOGIN · LOGIN_FAIL · LOCK · UNLOCK</td><td>1년</td><td>SUPER · SECURITY · ADMIN</td></tr>
+                <tr><td class="tn"><span class="alv-ltype ss">SESSION</span> <code>session_logs</code></td><td>세션 시작 / 만료 / 강제종료</td><td>SESSION_START · TIMEOUT · FORCE_END</td><td>6개월</td><td>SUPER · SECURITY</td></tr>
+                <tr><td class="tn"><span class="alv-ltype sec">SECURITY EVENT</span> <code>security_event_logs</code> <em style="color:var(--t3);font-size:9px;">(v2)</em></td><td>이상행위 탐지 결과</td><td>BURST_VIEW · NIGHT_ACCESS · EXT_IP</td><td>3년</td><td>SUPER · SECURITY</td></tr>
+                <tr><td class="tn"><span class="alv-ltype dnd">DENIED</span> <code>denied_access_logs</code> <em style="color:var(--t3);font-size:9px;">(파생)</em></td><td>거부된 행위 (cross-cut)</td><td>result=DENIED 의 합집합 view</td><td>각 원본 로그 보존 기간 따름</td><td>SUPER · SECURITY</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="alv-rule-grid" style="margin-top:14px;">
+            <div class="alv-rule-card">
+              <div class="alv-rc-hdr is-fail">PERSONAL DATA / DOWNLOAD = 최우선</div>
+              <ul>
+                <li>ISMS-P 인증 시 가장 먼저 확인되는 로그</li>
+                <li>모든 행위에 사유 (reason) 필수</li>
+                <li>개인정보 원문 절대 비저장 · maskedLabel + targetId 만</li>
+                <li>대량 / 야간 / 외부 IP 패턴은 Security Event 로 승격</li>
+              </ul>
+            </div>
+            <div class="alv-rule-card">
+              <div class="alv-rc-hdr is-warn">ADMIN ACTION = 장기 보존</div>
+              <ul>
+                <li>권한 변경 / 정책 변경 / 잠금 / 비밀번호 초기화 / AUDIT_VIEW</li>
+                <li>최소 5년 보존 (PM 결정 — 7년 검토)</li>
+                <li>본인 행위 포함 — SUPER_ADMIN 도 예외 없음</li>
+                <li>beforeState / afterState JSON 보관 (개인정보 포함 시 마스킹)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 IA ── -->
+      <section id="s04" class="sec" data-screen-label="04 IA">
+        <div class="sec-hdr"><span class="sec-n">04</span><span class="sec-title">Audit Log IA</span><span class="sbadge plan">IA</span></div>
+        <div class="sec-body">
+          <div class="alv-tbl-wrap">
+            <table class="alv-tbl">
+              <thead><tr><th style="width:220px;">화면 / 컴포넌트</th><th style="width:140px;">분류</th><th>설명</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">Audit Dashboard Summary</td><td class="info">Summary</td><td>오늘 PII / UNMASK / DOWNLOAD / DENIED / 위험 이벤트 KPI</td></tr>
+                <tr><td class="tn">Unified Audit Log List</td><td class="info">List</td><td>7 로그 소스 통합 테이블 — 동일 컬럼 mapping</td></tr>
+                <tr><td class="tn">Log Type Tabs (7)</td><td class="info">Filter shortcut</td><td>All / Personal / Download / Admin / Login·Session / Denied / Security</td></tr>
+                <tr><td class="tn">Advanced Filter Drawer</td><td class="info">Filter</td><td>기간 / user / role / action / target / result / IP / risk</td></tr>
+                <tr><td class="tn">Log Detail Panel</td><td class="info">Detail</td><td>logId · facts · before/after · related</td></tr>
+                <tr><td class="tn">Related Logs Timeline</td><td class="warn">Linkage</td><td>같은 user / target / session 의 인과관계</td></tr>
+                <tr><td class="tn">Security Event Summary</td><td class="bad">Alert</td><td>9 위험 패턴 — 권장 조치 동반</td></tr>
+                <tr><td class="tn">Export Reason Modal</td><td class="bad">Control</td><td>사유 + 범위 + 워터마크 + 개인정보 포함 확인</td></tr>
+                <tr><td class="tn">Retention / Archive Notice</td><td class="info">Policy</td><td>보존 만료 / archive 상태 / 삭제 불가 명시</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 Dashboard ── -->
+      <section id="s05" class="sec" data-screen-label="05 Dashboard">
+        <div class="sec-hdr"><span class="sec-n">05</span><span class="sec-title">Audit Dashboard Summary</span><span class="sbadge plan">Mock A</span></div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            상단 요약 KPI 8 cell. 위험 이벤트는 강조, 일반 조회는 보조. 수치 클릭 시 해당 필터 자동 적용.
+          </p>
+          <div class="alv-pc" style="min-height:380px;">
+            <div class="alv-pc-bar"><span class="alv-pc-dot"></span><span class="alv-pc-dot"></span><span class="alv-pc-dot"></span><span class="alv-pc-url">stam.app / admin / audit-logs</span><span class="alv-pc-tag">SECURITY_ADMIN</span></div>
+            <div class="alv-pc-body">
+              <div class="alv-pc-nav">
+                <div class="alv-pc-nav-brand">STAM · AUDIT</div>
+                <div class="alv-pc-nav-it">권한 관리</div>
+                <div class="alv-pc-nav-it active">감사로그</div>
+                <div class="alv-pc-nav-it">보관 / 파기</div>
+                <div class="alv-pc-nav-it">보안 정책</div>
+                <div class="alv-pc-nav-it">이벤트</div>
+              </div>
+              <div class="alv-pc-content">
+                <div class="alv-pc-topbar"><span>관리</span> · <span class="alv-pc-crumb-cur">감사로그</span><span class="alv-pc-tb-sp"></span><span class="alv-pc-tb-pill role">SECURITY_ADMIN</span><span class="alv-pc-tb-pill">이도윤</span></div>
+                <div class="alv-pc-area">
+                  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+                    <div class="alv-kpi info"><span class="alv-kpi-key">오늘 개인정보 조회</span><span class="alv-kpi-val">128 → 자세히</span></div>
+                    <div class="alv-kpi warn"><span class="alv-kpi-key">오늘 UNMASK</span><span class="alv-kpi-val">42</span></div>
+                    <div class="alv-kpi fail"><span class="alv-kpi-key">오늘 DOWNLOAD</span><span class="alv-kpi-val">9 · 1,420 row</span></div>
+                    <div class="alv-kpi fail"><span class="alv-kpi-key">DENIED · FAILED</span><span class="alv-kpi-val">14</span></div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+                    <div class="alv-kpi fail"><span class="alv-kpi-key">위험 이벤트</span><span class="alv-kpi-val">3 High · 5 Med</span></div>
+                    <div class="alv-kpi brand"><span class="alv-kpi-key">최근 권한 변경 (7d)</span><span class="alv-kpi-val">12</span></div>
+                    <div class="alv-kpi warn"><span class="alv-kpi-key">대량 조회 후보</span><span class="alv-kpi-val">2 사용자</span></div>
+                    <div class="alv-kpi warn"><span class="alv-kpi-key">야간 접근 (00–06)</span><span class="alv-kpi-val">7</span></div>
+                  </div>
+                  <div class="alv-tabs">
+                    <span class="alv-tab active">전체 <span class="ct">12,408</span></span>
+                    <span class="alv-tab is-fail">Personal Data <span class="ct">3,712</span></span>
+                    <span class="alv-tab is-warn">Download <span class="ct">214</span></span>
+                    <span class="alv-tab">Admin Action <span class="ct">186</span></span>
+                    <span class="alv-tab">Login / Session <span class="ct">7,892</span></span>
+                    <span class="alv-tab is-fail">Denied / Failed <span class="ct">312</span></span>
+                    <span class="alv-tab is-fail">Security Event <span class="ct">92</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alv-rule-grid" style="margin-top:14px;">
+            <div class="alv-rule-card">
+              <div class="alv-rc-hdr is-fail">위험 KPI 의 시각 위계</div>
+              <ul>
+                <li>위험 이벤트 / DENIED·FAILED / DOWNLOAD — fail bg tint</li>
+                <li>UNMASK / 대량 조회 / 야간 접근 — warn bg tint</li>
+                <li>개인정보 조회 일반 — info bg tint</li>
+                <li>권한 변경 — brand bg tint (사고 추적 시작점)</li>
+                <li>모든 KPI 클릭 → 해당 조건 필터 자동 적용</li>
+              </ul>
+            </div>
+            <div class="alv-rule-card">
+              <div class="alv-rc-hdr is-info">기준 시점</div>
+              <ul>
+                <li>기본 — 오늘 (00:00 ~ 현재)</li>
+                <li>토글 — 24h / 7d / 30d</li>
+                <li>"오늘" 정의는 시스템 시간대 기준 (KST) 명시</li>
+                <li>실시간 X — 30초 polling 또는 manual refresh</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 Log Type Tabs ── -->
+      <section id="s06" class="sec" data-screen-label="06 Log Type Tabs">
+        <div class="sec-hdr"><span class="sec-n">06</span><span class="sec-title">Log Type Tabs</span><span class="sbadge plan">Tabs</span></div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            7 탭 — 각 탭은 기본 필터 + 기본 컬럼 셋을 가진 view preset. 사용자가 추가 필터 적용 시 active filter chip 으로 표시.
+          </p>
+          <div class="alv-tbl-wrap">
+            <table class="alv-tbl">
+              <thead><tr><th style="width:160px;">탭</th><th style="width:280px;">기본 필터</th><th>주요 컬럼</th></tr></thead>
+              <tbody>
+                <tr><td class="tn"><span class="alv-ltype dnd">ALL</span></td><td><code>logType = *</code></td><td>일시 · type · action · result · user · role · target · IP · risk</td></tr>
+                <tr><td class="tn"><span class="alv-ltype pdata">PERSONAL DATA</span></td><td><code>logType = personal_data_access</code></td><td>일시 · action(VIEW/UNMASK) · result · user · role · targetMasked · screen · reason · risk</td></tr>
+                <tr><td class="tn"><span class="alv-ltype dl">DOWNLOAD / EXPORT</span></td><td><code>logType IN (download, export)</code></td><td>일시 · action · result · user · file · rowCount · reason · watermarkId</td></tr>
+                <tr><td class="tn"><span class="alv-ltype adm">ADMIN ACTION</span></td><td><code>logType = admin_action</code></td><td>일시 · action · result · admin · targetUser · before → after · reason</td></tr>
+                <tr><td class="tn"><span class="alv-ltype lg">LOGIN / SESSION</span></td><td><code>logType IN (login, session)</code></td><td>일시 · action · result · user · IP · userAgent · sessionId · MFA</td></tr>
+                <tr><td class="tn"><span class="alv-ltype dnd">DENIED / FAILED</span></td><td><code>result IN (DENIED, FAILED)</code></td><td>일시 · type · action · user · target · deniedReason · IP</td></tr>
+                <tr><td class="tn"><span class="alv-ltype sec">SECURITY EVENT</span> <em style="color:var(--t3);font-size:9px;">(v2)</em></td><td><code>logType = security_event</code></td><td>일시 · severity · eventType · user · pattern · recommendedAction</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 Filter ── -->
+      <section id="s07" class="sec" data-screen-label="07 Filter">
+        <div class="sec-hdr"><span class="sec-n">07</span><span class="sec-title">Audit Filter Pattern</span><span class="sbadge plan">Mock C</span></div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            Basic filter (toolbar) + Advanced filter (drawer). 필터 조건은 active filter chip 으로 노출하고, 광범위 쿼리는 경고.
+          </p>
+          <div class="alv-mock-row">
+            <div class="alv-drawer">
+              <div class="alv-drawer-head">
+                <span class="alv-modal-tag" style="background:var(--info-bg);color:var(--info);">Advanced Filter</span>
+                <span class="alv-drawer-close">✕</span>
+              </div>
+              <div>
+                <div class="alv-drawer-title">고급 필터</div>
+                <div class="alv-drawer-sub">조건은 AND · 비어 있는 항목 무시 · 광범위 쿼리는 경고 표시</div>
+              </div>
+
+              <div class="alv-input-row">
+                <span class="alv-label">기간</span>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <span class="alv-chip on">최근 24h</span>
+                  <span class="alv-chip">7일</span>
+                  <span class="alv-chip">30일</span>
+                  <span class="alv-chip">사용자 지정 …</span>
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div class="alv-input-row">
+                  <span class="alv-label">사용자</span>
+                  <div class="alv-input">박지원 (U-001)</div>
+                </div>
+                <div class="alv-input-row">
+                  <span class="alv-label">Role</span>
+                  <div class="alv-input">ADMIN ▾</div>
+                </div>
+              </div>
+
+              <div class="alv-input-row">
+                <span class="alv-label">actionType (다중)</span>
+                <div class="alv-chip-row">
+                  <span class="alv-chip on">UNMASK</span>
+                  <span class="alv-chip on">EXPORT</span>
+                  <span class="alv-chip on">DOWNLOAD</span>
+                  <span class="alv-chip">VIEW</span>
+                  <span class="alv-chip">PRINT</span>
+                  <span class="alv-chip">ROLE_CHANGE</span>
+                  <span class="alv-chip">LOGIN_FAIL</span>
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div class="alv-input-row">
+                  <span class="alv-label">targetType</span>
+                  <div class="alv-input">CUSTOMER ▾</div>
+                </div>
+                <div class="alv-input-row">
+                  <span class="alv-label">targetId</span>
+                  <div class="alv-input"><code>CUST-2024-1284</code></div>
+                </div>
+              </div>
+
+              <div class="alv-input-row">
+                <span class="alv-label">result</span>
+                <div class="alv-chip-row">
+                  <span class="alv-chip on">SUCCESS</span>
+                  <span class="alv-chip fail">DENIED</span>
+                  <span class="alv-chip">FAILED</span>
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div class="alv-input-row">
+                  <span class="alv-label">screen</span>
+                  <div class="alv-input">customers · wbs · admin/perm …</div>
+                </div>
+                <div class="alv-input-row">
+                  <span class="alv-label">IP</span>
+                  <div class="alv-input">10.20.30.0/24</div>
+                </div>
+              </div>
+
+              <div class="alv-input-row">
+                <span class="alv-label">위험 flag</span>
+                <div class="alv-chip-row">
+                  <span class="alv-chip on fail">High</span>
+                  <span class="alv-chip on">Medium</span>
+                  <span class="alv-chip">External IP</span>
+                  <span class="alv-chip">야간</span>
+                  <span class="alv-chip">대량</span>
+                </div>
+              </div>
+
+              <div class="alv-modal-warning warn">
+                <strong>기간 30일 + 사용자 미지정</strong> = 대량 결과. 사유 입력이 권장됩니다.
+              </div>
+
+              <div class="alv-modal-foot">
+                <span class="alv-pc-btn">초기화</span>
+                <span class="alv-pc-btn is-primary">적용 (4,218 건 예상)</span>
+              </div>
+            </div>
+            <div class="alv-side-note">
+              <strong>Filter 정책</strong>
+              · 기본 — 24h / 7d / 30d / custom<br>
+              · 사용자 / role / action(다중) / target / result / screen / IP / risk<br>
+              · 비어있는 조건 무시<br>
+              · AND 조합 (OR 은 v2)<br>
+              · 광범위 쿼리는 경고<br>
+              · Saved Filter — v2 후보<br>
+              · 필터 변경도 audit 후보 (v2)
+            </div>
+          </div>
+
+          <div class="alv-afc-row" style="margin-top:14px;">
+            <span class="alv-afc-label">Active Filter</span>
+            <span class="alv-afc-chip">기간: 최근 24h <span class="x">✕</span></span>
+            <span class="alv-afc-chip">사용자: 박지원 <span class="x">✕</span></span>
+            <span class="alv-afc-chip">action: UNMASK, EXPORT, DOWNLOAD <span class="x">✕</span></span>
+            <span class="alv-afc-chip">target: CUST-2024-1284 <span class="x">✕</span></span>
+            <span class="alv-afc-chip">위험: High, Medium <span class="x">✕</span></span>
+            <a class="alv-afc-clear">전체 해제</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Search ── -->
+      <section id="s08" class="sec" data-screen-label="08 Search">
+        <div class="sec-hdr"><span class="sec-n">08</span><span class="sec-title">Audit Search Pattern</span><span class="sbadge plan">Search</span></div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            검색은 마스킹된 라벨 / 식별자 / 키워드 기반. <strong>개인정보 원문 검색은 금지</strong>.
+          </p>
+          <div class="alv-tbl-wrap">
+            <table class="alv-tbl">
+              <thead><tr><th style="width:200px;">검색 대상</th><th style="width:140px;">필드</th><th>예시</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">사용자 ID</td><td><code>userId</code></td><td>U-001</td></tr>
+                <tr><td class="tn">사용자명</td><td><code>userName</code></td><td>박지원</td></tr>
+                <tr><td class="tn">대상 라벨 (마스킹)</td><td><code>targetMaskedLabel</code></td><td>김**, 010-****-1234</td></tr>
+                <tr><td class="tn">대상 ID</td><td><code>targetId</code></td><td>CUST-2024-1284 · WBS-3201</td></tr>
+                <tr><td class="tn">로그 ID</td><td><code>logId</code></td><td>L-90213</td></tr>
+                <tr><td class="tn">IP</td><td><code>ipAddress</code></td><td>10.20.30.40 / 10.20.30.0/24</td></tr>
+                <tr><td class="tn">사유 키워드</td><td><code>reason LIKE</code></td><td>"인증" / "WBS 신규" / "정산"</td></tr>
+                <tr><td class="tn">관리자 행위 target</td><td><code>actionType + targetUser</code></td><td>ROLE_CHANGE · target=박지원</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>금지</strong> — 개인정보 원문 (실명 전체, 휴대폰 전체 번호, 이메일 전체, 주민번호) 으로의 검색.
+            데이터에 원문이 없으므로 매칭되지 않으며, 검색어 자체가 입력 기록에 남아 또 다른 개인정보 노출 위험.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Unified Table ── -->
+      <section id="s09" class="sec" data-screen-label="09 Unified Table">
+        <div class="sec-hdr"><span class="sec-n">09</span><span class="sec-title">Unified Audit Log Table</span><span class="sbadge plan">Mock B</span></div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            7 로그 소스 통합 테이블. type · action · result chip 으로 즉시 식별. targetMaskedLabel + targetId 만 노출. row click → S10 detail panel.
+          </p>
+          <div class="alv-pc" style="min-height:500px;">
+            <div class="alv-pc-bar"><span class="alv-pc-dot"></span><span class="alv-pc-dot"></span><span class="alv-pc-dot"></span><span class="alv-pc-url">stam.app / admin / audit-logs?tab=all</span><span class="alv-pc-tag">UNIFIED</span></div>
+            <div class="alv-pc-body">
+              <div class="alv-pc-content">
+                <div class="alv-pc-topbar"><span>관리</span> · <span class="alv-pc-crumb-cur">감사로그 · 전체</span><span class="alv-pc-tb-sp"></span><span class="alv-pc-tb-pill">12,408 건</span><span class="alv-pc-tb-pill role">SECURITY_ADMIN</span></div>
+                <div class="alv-pc-area">
+                  <div class="alv-pc-toolbar">
+                    <div class="alv-pc-search"><svg viewBox="0 0 18 18"><circle cx="8" cy="8" r="5"/><path d="M12 12l3.5 3.5"/></svg><span>logId / user / target / IP …</span></div>
+                    <div class="alv-pc-btn">기간: 최근 24h<span class="car">▾</span></div>
+                    <div class="alv-pc-btn">action: 3<span class="car">▾</span></div>
+                    <div class="alv-pc-btn is-warn">고급 필터</div>
+                    <div class="alv-pc-btn is-fail" style="margin-left:auto;">CSV 내보내기 (사유 필요)</div>
+                  </div>
+
+                  <div class="alv-afc-row" style="margin-top:0;">
+                    <span class="alv-afc-label">Active</span>
+                    <span class="alv-afc-chip">24h <span class="x">✕</span></span>
+                    <span class="alv-afc-chip">UNMASK · EXPORT · DOWNLOAD <span class="x">✕</span></span>
+                    <span class="alv-afc-chip">user: 박지원 <span class="x">✕</span></span>
+                    <a class="alv-afc-clear">전체 해제</a>
+                  </div>
+
+                  <div class="alv-table-host">
+                    <table class="alv-tt">
+                      <thead><tr>
+                        <th>일시</th><th>type</th><th>action</th><th>result</th><th>user · role</th><th>target</th><th>screen</th><th>IP</th><th>reason</th><th>risk</th>
+                      </tr></thead>
+                      <tbody>
+                        <tr class="is-risk is-sel">
+                          <td class="mono">06-10 14:48</td>
+                          <td><span class="alv-ltype dl">DL</span></td>
+                          <td><span class="alv-act export">EXPORT</span></td>
+                          <td><span class="alv-result ok">OK</span></td>
+                          <td class="tn"><span class="ava">박</span>박지원 · <span style="color:#a49bf9;font-weight:700;">ADMIN</span></td>
+                          <td><span class="alv-mask">customers.csv · 1,420 row</span></td>
+                          <td><code>/customers</code></td>
+                          <td class="mono">10.20.30.40</td>
+                          <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;">정산 자료 일괄 추출 …</td>
+                          <td><span class="alv-risk-pill">대량</span></td>
+                        </tr>
+                        <tr class="is-risk">
+                          <td class="mono">06-10 14:46</td>
+                          <td><span class="alv-ltype pdata">PII</span></td>
+                          <td><span class="alv-act unmask">UNMASK</span></td>
+                          <td><span class="alv-result ok">OK</span></td>
+                          <td class="tn"><span class="ava">박</span>박지원 · <span style="color:#a49bf9;font-weight:700;">ADMIN</span></td>
+                          <td><span class="alv-mask">김** · 010-****-1284</span></td>
+                          <td><code>/customers/CUST-2024-1284</code></td>
+                          <td class="mono">10.20.30.40</td>
+                          <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;">정산 검증 - 휴대폰 …</td>
+                          <td>—</td>
+                        </tr>
+                        <tr class="is-warn">
+                          <td class="mono">06-10 14:42</td>
+                          <td><span class="alv-ltype pdata">PII</span></td>
+                          <td><span class="alv-act unmask">UNMASK</span></td>
+                          <td><span class="alv-result ok">OK</span></td>
+                          <td class="tn"><span class="ava">박</span>박지원 · <span style="color:#a49bf9;font-weight:700;">ADMIN</span></td>
+                          <td><span class="alv-mask">박** · 010-****-9921</span></td>
+                          <td><code>/customers/CUST-2024-1281</code></td>
+                          <td class="mono">10.20.30.40</td>
+                          <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;">정산 검증 - 휴대폰 …</td>
+                          <td><span class="alv-risk-pill warn">반복</span></td>
+                        </tr>
+                        <tr class="is-risk">
+                          <td class="mono">06-10 14:12</td>
+                          <td><span class="alv-ltype adm">ADM</span></td>
+                          <td><span class="alv-act admin">ROLE_CHANGE</span></td>
+                          <td><span class="alv-result ok">OK</span></td>
+                          <td class="tn"><span class="ava">정</span>정유진 · <span style="color:#FF5A47;font-weight:700;">SUPER</span></td>
+                          <td><span class="alv-mask">박지원 (U-001) · MEMBER → ADMIN</span></td>
+                          <td><code>/admin/permissions</code></td>
+                          <td class="mono">10.20.30.55</td>
+                          <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;">WBS 프로젝트 권한 승급</td>
+                          <td><span class="alv-risk-pill">UPGRADE</span></td>
+                        </tr>
+                        <tr>
+                          <td class="mono">06-10 11:02</td>
+                          <td><span class="alv-ltype lg">LG</span></td>
+                          <td><span class="alv-act login">LOGIN</span></td>
+                          <td><span class="alv-result ok">OK</span></td>
+                          <td class="tn"><span class="ava">박</span>박지원 · <span style="color:#a49bf9;font-weight:700;">ADMIN</span></td>
+                          <td><span class="alv-mask">session S-92041</span></td>
+                          <td><code>/login</code></td>
+                          <td class="mono">10.20.30.40</td>
+                          <td>—</td>
+                          <td><span class="alv-risk-pill warn">MFA OFF</span></td>
+                        </tr>
+                        <tr class="is-risk">
+                          <td class="mono">06-10 09:14</td>
+                          <td><span class="alv-ltype dnd">DND</span></td>
+                          <td><span class="alv-act audit">AUDIT_VIEW</span></td>
+                          <td><span class="alv-result dn">DENIED</span></td>
+                          <td class="tn"><span class="ava">최</span>최서연 · <span style="color:#34C759;font-weight:700;">MEMBER</span></td>
+                          <td><span class="alv-mask">audit-logs page</span></td>
+                          <td><code>/admin/audit-logs</code></td>
+                          <td class="mono">10.20.30.62</td>
+                          <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;color:#FF7D6E;">권한 없음 (role &lt; SECURITY)</td>
+                          <td><span class="alv-risk-pill">권한 외</span></td>
+                        </tr>
+                        <tr class="is-risk">
+                          <td class="mono">06-10 03:42</td>
+                          <td><span class="alv-ltype pdata">PII</span></td>
+                          <td><span class="alv-act unmask">UNMASK</span></td>
+                          <td><span class="alv-result ok">OK</span></td>
+                          <td class="tn"><span class="ava">한</span>한승현 · <span style="color:#a49bf9;font-weight:700;">ADMIN</span></td>
+                          <td><span class="alv-mask">이** · 010-****-3402</span></td>
+                          <td><code>/customers/CUST-2024-0921</code></td>
+                          <td class="mono" style="color:#FF7D6E;">203.0.113.42</td>
+                          <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;">- (사유 짧음)</td>
+                          <td><span class="alv-risk-pill">야간 · 외부IP</span></td>
+                        </tr>
+                        <tr class="is-warn">
+                          <td class="mono">06-09 22:08</td>
+                          <td><span class="alv-ltype lg">LG</span></td>
+                          <td><span class="alv-act login">LOGIN_FAIL</span></td>
+                          <td><span class="alv-result fl">FAILED</span></td>
+                          <td class="tn">jiwon.park@stam.co</td>
+                          <td><span class="alv-mask">5회 연속 실패</span></td>
+                          <td><code>/login</code></td>
+                          <td class="mono">10.20.30.40</td>
+                          <td>비밀번호 오류 · 잠금 직전</td>
+                          <td><span class="alv-risk-pill warn">반복 실패</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alv-rule-grid" style="margin-top:14px;">
+            <div class="alv-rule-card">
+              <div class="alv-rc-hdr is-pass">시각 위계 규칙</div>
+              <ul>
+                <li>type 칩 — PII / DL / ADM / LG / SS / SEC / DND 7색</li>
+                <li>action 칩 — UNMASK / EXPORT / DOWNLOAD 는 강조 폰트</li>
+                <li>result 칩 — OK (pass) / DENIED (fail) / FAILED (warn)</li>
+                <li>row tint — High = fail · Medium = warn</li>
+                <li>target — 항상 <code>alv-mask</code> 박스 (원문 흔적 자체를 시각적으로 차단)</li>
+                <li>외부 IP / 야간 — IP 컬럼 자체를 fail color 로</li>
+              </ul>
+            </div>
+            <div class="alv-rule-card">
+              <div class="alv-rc-hdr is-info">정렬 / 페이지네이션</div>
+              <ul>
+                <li>기본 정렬 — createdAt DESC</li>
+                <li>다른 컬럼 정렬은 createdAt 보조 정렬과 함께 (안정성)</li>
+                <li>페이지네이션 — 50 / 100 / 200 row</li>
+                <li>무한 스크롤 X — 명시적 page 이동 (위치 기억)</li>
+                <li>1만 건 초과 결과는 export 권유</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S10 Detail Panel ── -->
+      <section id="s10" class="sec" data-screen-label="10 Detail Panel">
+        <div class="sec-hdr"><span class="sec-n">10</span><span class="sec-title">Log Detail Panel</span><span class="sbadge plan">Mock D</span></div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            행 클릭 시 우측 detail panel 또는 별도 화면. 모든 필드 + before/after state + related logs 1차 표시.
+          </p>
+          <div class="alv-detail">
+            <div class="alv-detail-side">
+              <div class="alv-id-block">
+                <span class="alv-id-tag">L-90213</span>
+                <div class="alv-id-name">ROLE_CHANGE</div>
+                <div class="alv-id-meta">admin_action · 2026-06-10 14:12:08 KST</div>
+              </div>
+              <div>
+                <div class="alv-fact-row"><span class="k">type</span><span class="v"><span class="alv-ltype adm">ADMIN ACTION</span></span></div>
+                <div class="alv-fact-row"><span class="k">action</span><span class="v"><span class="alv-act admin">ROLE_CHANGE</span></span></div>
+                <div class="alv-fact-row"><span class="k">result</span><span class="v"><span class="alv-result ok">SUCCESS</span></span></div>
+                <div class="alv-fact-row"><span class="k">변경자</span><span class="v">정유진 (U-000) · <span style="color:#FF5A47;font-weight:700;">SUPER_ADMIN</span></span></div>
+                <div class="alv-fact-row"><span class="k">대상</span><span class="v">박지원 (U-001) · <span class="alv-mask">USER</span></span></div>
+                <div class="alv-fact-row"><span class="k">screen</span><span class="v"><code>/admin/permissions/U-001</code></span></div>
+                <div class="alv-fact-row"><span class="k">IP</span><span class="v"><code>10.20.30.55</code> · 사내</span></div>
+                <div class="alv-fact-row"><span class="k">userAgent</span><span class="v" style="font-size:10px;">Mozilla/5.0 · Mac · Chrome 124</span></div>
+                <div class="alv-fact-row"><span class="k">sessionId</span><span class="v"><code>S-92038</code></span></div>
+                <div class="alv-fact-row"><span class="k">retentionUntil</span><span class="v" style="color:#F5B14C;">2031-06-10 (5년 보존)</span></div>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:4px;">
+                <span class="alv-pc-btn" style="flex:1;justify-content:center;">URL 복사</span>
+                <span class="alv-pc-btn is-fail" style="flex:1;justify-content:center;">CSV (사유)</span>
+              </div>
+            </div>
+
+            <div class="alv-detail-main">
+              <div class="alv-section">
+                <div class="alv-section-head">
+                  <span class="alv-section-title">사유 (reason)</span>
+                </div>
+                <div style="font-size:11.5px;color:rgba(255,255,255,.92);line-height:1.65;padding:9px 11px;border-radius:8px;background:rgba(255,255,255,.04);">
+                  WBS 프로젝트 권한 승급 — 신규 프로젝트 PM 역할
+                </div>
+              </div>
+
+              <div class="alv-section">
+                <div class="alv-section-head">
+                  <span class="alv-section-title">Before / After State</span>
+                  <span class="alv-pill warn" style="margin-left:auto;">UPGRADE</span>
+                </div>
+                <div class="alv-state">
+                  <div class="alv-state-card before">
+                    <span class="alv-st-tag">before</span>
+                    <pre><span class="k">role:</span>      <span style="color:#34C759;">MEMBER</span>
+<span class="k">scope:</span>     team
+<span class="k">menus:</span>     [dashboard, wbs, defects, tests]
+<span class="k">actions:</span>   [READ, CREATE, UPDATE]
+<span class="k">unmask:</span>    restricted
+<span class="k">download:</span>  restricted
+<span class="k">expireAt:</span>  null</pre>
+                  </div>
+                  <div class="alv-state-card after">
+                    <span class="alv-st-tag">after</span>
+                    <pre><span class="k">role:</span>      <span style="color:#F5B14C;">ADMIN</span>
+<span class="k">scope:</span>     all
+<span class="k">menus:</span>     [+사용자 관리, +감사로그(예외), +보안 정책 X]
+<span class="k">actions:</span>   [+DELETE, +EXPORT, +DOWNLOAD, +UNMASK, +ADMIN_MANAGE]
+<span class="k">unmask:</span>    enabled
+<span class="k">download:</span>  enabled
+<span class="k">expireAt:</span>  null</pre>
+                  </div>
+                </div>
+                <div class="alv-modal-warning warn" style="margin-top:4px;">
+                  before / after 에 개인정보 필드가 포함될 경우 자동 마스킹. 본 case 는 role / scope / 권한 이므로 마스킹 불요.
+                </div>
+              </div>
+
+              <div class="alv-section">
+                <div class="alv-section-head">
+                  <span class="alv-section-title">Related — 같은 sessionId / target</span>
+                  <a style="margin-left:auto;font-size:10.5px;color:var(--stam);font-weight:700;">Timeline →</a>
+                </div>
+                <div class="alv-tl">
+                  <div class="alv-tl-item is-pass"><span class="alv-tl-when">06-10 14:08 · S-92038</span><div class="alv-tl-title">감사로그 접근 — 박지원 사용자 상세 진입</div><div class="alv-tl-meta">정유진 (SUPER) · <code>L-90208</code></div></div>
+                  <div class="alv-tl-item is-warn is-cur"><span class="alv-tl-when">06-10 14:12 · S-92038</span><div class="alv-tl-title">ROLE_CHANGE — MEMBER → ADMIN (current)</div><div class="alv-tl-meta">정유진 (SUPER) · <code>L-90213</code></div></div>
+                  <div class="alv-tl-item"><span class="alv-tl-when">06-10 14:46 · S-92041</span><div class="alv-tl-title">UNMASK — 김** · CUST-2024-1284 (target 사용자가 새 권한으로)</div><div class="alv-tl-meta">박지원 (ADMIN) · <code>L-90305</code></div></div>
+                  <div class="alv-tl-item is-warn"><span class="alv-tl-when">06-10 14:48 · S-92041</span><div class="alv-tl-title">EXPORT — customers.csv (1,420 row)</div><div class="alv-tl-meta">박지원 (ADMIN) · <code>L-90312</code></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S11 Related Logs ── -->
+      <section id="s11" class="sec" data-screen-label="11 Related">
+        <div class="sec-hdr"><span class="sec-n">11</span><span class="sec-title">Related Logs Timeline</span><span class="sbadge plan">Mock E</span></div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            연관 로그는 6 축으로 연결 — 같은 userId / targetId / sessionId / downloadId / admin action chain / 권한 변경 전후 PII 조회.
+            상세 패널에서 timeline 으로 노출.
+          </p>
+          <div class="alv-tbl-wrap">
+            <table class="alv-tbl">
+              <thead><tr><th style="width:200px;">연결 축</th><th>유즈 케이스</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">같은 userId</td><td>특정 사용자의 24h 행위 흐름 (사고 추적의 기본)</td></tr>
+                <tr><td class="tn">같은 targetId</td><td>한 고객 / 한 사용자에 대한 모든 행위 (개인정보 노출 추적)</td></tr>
+                <tr><td class="tn">같은 sessionId</td><td>로그인 → 행위 → 로그아웃 흐름 (한 접속 내)</td></tr>
+                <tr><td class="tn">같은 downloadId</td><td>EXPORT → 후속 unmask / view 추적</td></tr>
+                <tr><td class="tn">admin action chain</td><td>권한 부여 → 행위 → 회수 (관리자 책임 추적)</td></tr>
+                <tr><td class="tn">권한 변경 → PII 조회</td><td>UPGRADE 직후 30분 내 UNMASK / EXPORT (가장 위험한 패턴)</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="alv-cap" style="margin-top:14px;"><span class="alv-cap-n">E</span>대표 시나리오 timeline — "권한 부여 → UNMASK → DOWNLOAD"</div>
+          <div class="alv-section">
+            <div class="alv-section-head">
+              <span class="alv-section-title">박지원 · 2026-06-10 14:00 ~ 15:00</span>
+              <span class="alv-risk-pill" style="margin-left:auto;">UPGRADE → PII → EXPORT</span>
+            </div>
+            <div class="alv-tl">
+              <div class="alv-tl-item"><span class="alv-tl-when">14:08 · 정유진 (SUPER) · S-92038</span><div class="alv-tl-title">감사로그 접근 (target=박지원)</div><div class="alv-tl-meta"><code>L-90208</code> · AUDIT_VIEW · OK</div></div>
+              <div class="alv-tl-item is-warn"><span class="alv-tl-when">14:12 · 정유진 (SUPER) · S-92038</span><div class="alv-tl-title">ROLE_CHANGE · MEMBER → ADMIN (UPGRADE)</div><div class="alv-tl-meta"><code>L-90213</code> · 사유: WBS 프로젝트 권한 승급</div></div>
+              <div class="alv-tl-item"><span class="alv-tl-when">14:38 · 박지원 (ADMIN) · S-92041</span><div class="alv-tl-title">LOGIN · 10.20.30.40 · MFA OFF</div><div class="alv-tl-meta"><code>L-90280</code> · SUCCESS</div></div>
+              <div class="alv-tl-item is-warn"><span class="alv-tl-when">14:42 · 박지원 (ADMIN) · S-92041</span><div class="alv-tl-title">UNMASK · 박** · CUST-2024-1281</div><div class="alv-tl-meta"><code>L-90298</code> · 사유: 정산 검증 - 휴대폰</div></div>
+              <div class="alv-tl-item is-warn"><span class="alv-tl-when">14:46 · 박지원 (ADMIN) · S-92041</span><div class="alv-tl-title">UNMASK · 김** · CUST-2024-1284</div><div class="alv-tl-meta"><code>L-90305</code> · 동일 사유 (반복)</div></div>
+              <div class="alv-tl-item is-fail is-cur"><span class="alv-tl-when">14:48 · 박지원 (ADMIN) · S-92041</span><div class="alv-tl-title">EXPORT · customers.csv (1,420 row) · WM #WM-08821</div><div class="alv-tl-meta"><code>L-90312</code> · 사유: 정산 자료 일괄 추출</div></div>
+            </div>
+            <div class="alv-modal-warning" style="margin-top:4px;">
+              <strong>의심 패턴</strong> — UPGRADE 후 30분 내 UNMASK 2건 + EXPORT 1,420 row. SECURITY_ADMIN 의 사후 검토 필요.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S12 Security Event ── -->
+      <section id="s12" class="sec" data-screen-label="12 Security Event">
+        <div class="sec-hdr"><span class="sec-n">12</span><span class="sec-title">Security Event Highlight</span><span class="sbadge plan">Mock F</span></div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            9 위험 패턴. 자동 탐지 (v2) — v1 에서는 화면 후보 + filter chip 으로 시각화.
+          </p>
+          <div class="alv-tbl-wrap">
+            <table class="alv-tbl">
+              <thead><tr><th style="width:240px;">패턴</th><th style="width:100px;">Severity</th><th>탐지 조건</th><th>권장 조치</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">짧은 시간 다수 조회 (Burst)</td><td class="bad">High</td><td>5분 내 UNMASK 20+건</td><td>사유 검토 / 사용자 알림</td></tr>
+                <tr><td class="tn">야간 조회 (00–06)</td><td class="warn">Medium</td><td>업무 외 시간 + PII</td><td>사유 검토</td></tr>
+                <tr><td class="tn">외부 IP 접근</td><td class="bad">High</td><td>회사 IP 대역 외 + 관리 기능</td><td>IP 차단 검토 / VPN 확인</td></tr>
+                <tr><td class="tn">대량 다운로드</td><td class="bad">High</td><td>1건 1,000+ row 또는 1일 5,000+</td><td>사유 / 워터마크 / 회수 검토</td></tr>
+                <tr><td class="tn">반복 DENIED</td><td class="warn">Medium</td><td>1h 내 DENIED 5+</td><td>권한 점검 / 시도자 확인</td></tr>
+                <tr><td class="tn">권한 상승 직후 PII 조회</td><td class="bad">High</td><td>UPGRADE 후 30m 내 UNMASK</td><td>승급 적절성 재검토</td></tr>
+                <tr><td class="tn">MFA OFF ADMIN 로그인</td><td class="warn">Medium</td><td>role≥ADMIN AND MFA=OFF</td><td>MFA 강제</td></tr>
+                <tr><td class="tn">휴면 / 퇴사자 접근 시도</td><td class="bad">High</td><td>status=DORMANT/LEAVE 인데 LOGIN_FAIL/SUCCESS</td><td>즉시 잠금</td></tr>
+                <tr><td class="tn">SUPER_ADMIN 단일 운영</td><td class="warn">Medium</td><td>SUPER 1명</td><td>2명 이상 운영</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="alv-cap" style="margin-top:14px;"><span class="alv-cap-n">F</span>Security Event 강조 view</div>
+          <div class="alv-evt-grid">
+            <div class="alv-evt">
+              <div class="alv-evt-head"><span class="alv-evt-sev">High</span><span class="alv-evt-t">권한 상승 직후 PII 조회</span><span class="alv-evt-time">14:42 (30m)</span></div>
+              <div class="alv-evt-s">14:12 박지원 ADMIN 승급 → 30분 내 UNMASK 2건 + EXPORT 1,420 row. 대상: CUST-2024-1281, 1284 + customers.csv.</div>
+              <div class="alv-evt-act">권장 조치 — SECURITY_ADMIN 의 사후 검토 / 승급 적절성 재확인 · ROLE_CHANGE log L-90213</div>
+            </div>
+            <div class="alv-evt">
+              <div class="alv-evt-head"><span class="alv-evt-sev">High</span><span class="alv-evt-t">야간 조회 + 외부 IP</span><span class="alv-evt-time">03:42 (off-hours)</span></div>
+              <div class="alv-evt-s">한승현 ADMIN · 외부 IP 203.0.113.42 (사내 대역 외) · 야간 03시 UNMASK · 사유 짧음.</div>
+              <div class="alv-evt-act">권장 조치 — 즉시 IP 차단 검토 / 본인 확인 / 휴면 잠금 후보</div>
+            </div>
+            <div class="alv-evt warn">
+              <div class="alv-evt-head"><span class="alv-evt-sev">Medium</span><span class="alv-evt-t">반복 DENIED</span><span class="alv-evt-time">09:14 (1h)</span></div>
+              <div class="alv-evt-s">최서연 MEMBER · 1시간 내 audit-logs 메뉴 3회 시도 → 모두 DENIED.</div>
+              <div class="alv-evt-act">권장 조치 — 본인 확인 / 권한 안내 / 권한 점검</div>
+            </div>
+            <div class="alv-evt warn">
+              <div class="alv-evt-head"><span class="alv-evt-sev">Medium</span><span class="alv-evt-t">대량 다운로드</span><span class="alv-evt-time">14:48</span></div>
+              <div class="alv-evt-s">박지원 ADMIN · customers.csv 1,420 row · 단일 export 1,000 row 임계 초과.</div>
+              <div class="alv-evt-act">권장 조치 — 사유 정성 검토 / 워터마크 ID 추적</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S13 Export ── -->
+      <section id="s13" class="sec" data-screen-label="13 Export">
+        <div class="sec-hdr"><span class="sec-n">13</span><span class="sec-title">Download / Export Control</span><span class="sbadge plan">Mock G</span></div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            감사로그 다운로드는 <strong>일반 export 보다 강한 통제</strong>. SECURITY_ADMIN 이상 · 사유 · 범위 · 워터마크 · 개인정보 포함 확인 · 자체 audit 기록.
+          </p>
+          <div class="alv-mock-row">
+            <div class="alv-modal">
+              <div class="alv-modal-head">
+                <span class="alv-modal-tag">감사로그 Export</span>
+                <span class="alv-drawer-close" style="margin-left:auto;">✕</span>
+              </div>
+              <div class="alv-modal-title">감사로그 CSV 내보내기 · 4,218 건</div>
+              <div class="alv-modal-body">감사로그 export 는 강한 통제 대상입니다. 사유는 5자 이상이며 admin_action_logs 에 기록됩니다.</div>
+
+              <div class="alv-input-row">
+                <span class="alv-label">범위 (현재 필터)</span>
+                <div style="font-size:11px;color:rgba(255,255,255,.78);padding:9px 11px;border-radius:8px;background:rgba(255,255,255,.04);">
+                  기간: 24h · user: 박지원 · action: UNMASK / EXPORT / DOWNLOAD · result: SUCCESS · 위험: High / Medium
+                </div>
+              </div>
+
+              <div class="alv-input-row">
+                <span class="alv-label">사유 (5자 이상)</span>
+                <div class="alv-textarea">사고 추적 — 박지원 ADMIN 의 06-10 권한 상승 직후 행위 패턴 검토용</div>
+              </div>
+
+              <div class="alv-modal-warning">
+                <strong>개인정보 포함 가능성</strong> — targetMaskedLabel 컬럼이 포함됩니다. 원문이 아니지만, 마스킹 라벨도 식별 가능 정보입니다.
+                다운로드 파일은 <strong>워터마크 #WM-08821</strong> 가 삽입되며 외부 유출 시 추적됩니다.
+              </div>
+
+              <div class="alv-check-row">
+                <span class="box on">✓</span>
+                <span>본 export 가 사고 추적 / 인증 대응 / 감사 목적임을 확인했습니다. 외부 공유 시 워터마크 #WM-08821 를 통해 본인이 추적됨에 동의합니다.</span>
+              </div>
+
+              <div class="alv-modal-foot">
+                <span class="alv-pc-btn">취소</span>
+                <span class="alv-pc-btn is-primary">내보내기 (사유 기록)</span>
+              </div>
+            </div>
+            <div class="alv-side-note">
+              <strong>Export 정책</strong>
+              · SECURITY_ADMIN / SUPER_ADMIN 만<br>
+              · 사유 5자+ 필수 · 빈값 거부<br>
+              · 범위 = 현재 필터 (확장 X)<br>
+              · 워터마크 ID 의무<br>
+              · admin_action_logs 에 AUDIT_EXPORT 기록<br>
+              · download_logs 에도 기록<br>
+              · 최대 50,000 row · 초과 시 분할<br>
+              · 1일 5회 한도 (v2)
+            </div>
+          </div>
+
+          <div class="alv-tbl-wrap" style="margin-top:14px;">
+            <table class="alv-tbl">
+              <thead><tr><th style="width:200px;">통제</th><th>v1 기준</th><th>v2 후보</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">권한</td><td>SECURITY_ADMIN / SUPER_ADMIN 만</td><td>ADMIN 도 본인 행위에 한해 허용</td></tr>
+                <tr><td class="tn">사유</td><td>5자+ 필수</td><td>20자+ + 카테고리 선택</td></tr>
+                <tr><td class="tn">범위</td><td>현재 필터만</td><td>커스텀 SQL 후보 (위험)</td></tr>
+                <tr><td class="tn">워터마크</td><td>고유 ID 삽입</td><td>비저장 ID + 사후 추적</td></tr>
+                <tr><td class="tn">최대 row</td><td>50,000</td><td>10,000 (강화)</td></tr>
+                <tr><td class="tn">한도</td><td>제한 없음</td><td>1일 5회 + 사후 알림</td></tr>
+                <tr><td class="tn">개인정보 포함</td><td>targetMaskedLabel 만</td><td>옵션 — 없이 export 도 가능</td></tr>
+                <tr><td class="tn">기록</td><td>admin_action_logs + download_logs</td><td>+ 2인 승인 (대량)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S14 Retention ── -->
+      <section id="s14" class="sec" data-screen-label="14 Retention">
+        <div class="sec-hdr"><span class="sec-n">14</span><span class="sec-title">Retention / Archive Notice</span><span class="sbadge plan">Policy</span></div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            각 로그의 보존 기간 / 만료 / archive 상태를 detail panel 과 footer banner 에 명시. <strong>수정 / 삭제 기능 자체가 없음</strong>을 사용자에게 안내.
+          </p>
+          <div class="alv-tbl-wrap">
+            <table class="alv-tbl">
+              <thead><tr><th style="width:240px;">로그</th><th style="width:120px;">보존</th><th style="width:140px;">archive</th><th>비고</th></tr></thead>
+              <tbody>
+                <tr><td class="tn"><code>personal_data_access_logs</code></td><td>3년</td><td>1년 후 cold</td><td>ISMS-P 기본 · 만료 → 자동 파기 (수동 X)</td></tr>
+                <tr><td class="tn"><code>download_logs</code></td><td>3년</td><td>1년 후 cold</td><td>워터마크 ID 추적 가능 기간</td></tr>
+                <tr><td class="tn"><code>admin_action_logs</code></td><td>5년 (장기)</td><td>2년 후 cold</td><td>권한 / 정책 변경 — PM 결정 7년 검토</td></tr>
+                <tr><td class="tn"><code>login_logs</code></td><td>1년</td><td>6개월 후 cold</td><td>일반 로그인 · 사고 시 hot 으로 복귀</td></tr>
+                <tr><td class="tn"><code>session_logs</code></td><td>6개월</td><td>3개월 후 cold</td><td>가장 짧은 보존</td></tr>
+                <tr><td class="tn"><code>password_history</code></td><td>최근 5개 + 1년</td><td>—</td><td>재사용 방지용</td></tr>
+                <tr><td class="tn">감사로그 자체 (AUDIT_VIEW / EXPORT)</td><td>5년</td><td>2년 후 cold</td><td>감사로그 조회도 admin_action_logs 의 일부</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>화면 안내 — Footer banner / Detail panel</strong><br>
+            · "본 로그는 <code>2031-06-10</code> 까지 보존됩니다. 수정 / 삭제는 불가합니다."<br>
+            · cold archive 로 이동된 로그는 조회 시 추가 지연 안내 (5–30초)<br>
+            · 보존 만료 임박 (30일 내) 로그는 별도 marker 표시
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S15 Viewer Permission ── -->
+      <section id="s15" class="sec" data-screen-label="15 Viewer Permission">
+        <div class="sec-hdr"><span class="sec-n">15</span><span class="sec-title">Audit Viewer Permission Policy</span><span class="sbadge plan">Permission</span></div>
+        <div class="sec-body">
+          <div class="alv-tbl-wrap">
+            <table class="alv-tbl">
+              <thead><tr><th style="width:160px;">role</th><th style="width:140px;">v1</th><th>설명</th></tr></thead>
+              <tbody>
+                <tr><td class="tn"><span style="color:#FF5A47;font-weight:800;">SUPER_ADMIN</span></td><td class="good">전체 허용</td><td>모든 로그 조회 + export. 본인 행위 포함.</td></tr>
+                <tr><td class="tn"><span style="color:#F5B14C;font-weight:800;">SECURITY_ADMIN</span></td><td class="good">전체 허용</td><td>감사 전용 — 업무 데이터 read 와 분리.</td></tr>
+                <tr><td class="tn"><span style="color:#a49bf9;font-weight:800;">ADMIN</span></td><td class="warn">제한</td><td>본인 행위 + 본인이 변경한 사용자 행위만 (v2). v1 은 차단 권장.</td></tr>
+                <tr><td class="tn"><span style="color:#6FA8FF;font-weight:800;">PM</span></td><td class="bad">차단</td><td>본인 행위 셀프 조회 가능 (v2).</td></tr>
+                <tr><td class="tn"><span style="color:#34C759;font-weight:800;">MEMBER</span></td><td class="bad">차단</td><td>접근 시 DENIED 기록.</td></tr>
+                <tr><td class="tn">VIEWER · EXTERNAL</td><td class="bad">차단</td><td>접근 시 DENIED 기록.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="alv-rule-grid" style="margin-top:14px;">
+            <div class="alv-rule-card">
+              <div class="alv-rc-hdr is-warn">SECURITY_ADMIN 의 분리</div>
+              <ul>
+                <li>업무 데이터 read 권한 없음 — WBS / 고객 / 결함 등</li>
+                <li>감사로그 read + 잠금 / 잠금 해제만 가능</li>
+                <li>role 변경 권한 없음 — SUPER 만 가능</li>
+                <li>감사로그 export 는 SUPER 와 동일하게 사유 + 워터마크</li>
+              </ul>
+            </div>
+            <div class="alv-rule-card">
+              <div class="alv-rc-hdr is-info">셀프 조회 (v2)</div>
+              <ul>
+                <li>모든 사용자가 본인 행위 셀프 조회 가능 — v2</li>
+                <li>본인 personal_data_access / download / login / session</li>
+                <li>다른 사용자의 행위 / 본인 권한 변경자는 비공개</li>
+                <li>v1 에서는 셀프 조회 제공하지 않음</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S16 States ── -->
+      <section id="s16" class="sec" data-screen-label="16 States">
+        <div class="sec-hdr"><span class="sec-n">16</span><span class="sec-title">Empty / Loading / Denied / Failed</span><span class="sbadge plan">Mock H</span></div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            9 상태 — loading / empty / no filter result / permission denied / archive unavailable / query failed / export denied / audit write failed / stale filter.
+          </p>
+          <div class="alv-mock-row">
+            <div class="alv-mock-col" style="min-width:300px;">
+              <div class="alv-mock-col-label"><span>Permission Denied</span><span class="alv-mock-col-tag fail">403</span></div>
+              <div class="alv-table-host" style="height:160px;justify-content:center;align-items:center;">
+                <div class="alv-emp is-fail">
+                  <span class="alv-emp-ico">!</span>
+                  <span class="alv-emp-t">감사로그 접근 권한이 없습니다</span>
+                  <span class="alv-emp-s">SECURITY_ADMIN 이상만 조회할 수 있습니다. 거부 행위는 <code>denied_access_logs</code> 에 기록됩니다.</span>
+                </div>
+              </div>
+            </div>
+            <div class="alv-mock-col" style="min-width:300px;">
+              <div class="alv-mock-col-label"><span>No Filter Result</span></div>
+              <div class="alv-table-host" style="height:160px;justify-content:center;align-items:center;">
+                <div class="alv-emp">
+                  <span class="alv-emp-ico">∅</span>
+                  <span class="alv-emp-t">조건에 해당하는 로그가 없습니다</span>
+                  <span class="alv-emp-s">기간 / 사용자 / action 조건을 완화해 보세요.</span>
+                </div>
+              </div>
+            </div>
+            <div class="alv-mock-col" style="min-width:300px;">
+              <div class="alv-mock-col-label"><span>Archive Unavailable</span><span class="alv-mock-col-tag warn">cold</span></div>
+              <div class="alv-table-host" style="height:160px;justify-content:center;align-items:center;">
+                <div class="alv-emp is-warn">
+                  <span class="alv-emp-ico">⟳</span>
+                  <span class="alv-emp-t">archive 에서 가져오는 중입니다 …</span>
+                  <span class="alv-emp-s">2년 이상 지난 로그는 cold storage 에서 조회되며 5–30초 지연됩니다.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alv-mock-row" style="margin-top:14px;">
+            <div class="alv-mock-col" style="min-width:300px;">
+              <div class="alv-mock-col-label"><span>Export Denied</span><span class="alv-mock-col-tag fail">차단</span></div>
+              <div class="alv-table-host" style="height:160px;justify-content:center;align-items:center;">
+                <div class="alv-emp is-fail">
+                  <span class="alv-emp-ico">!</span>
+                  <span class="alv-emp-t">감사로그 export 권한이 없습니다</span>
+                  <span class="alv-emp-s">SECURITY_ADMIN / SUPER_ADMIN 만 export 할 수 있습니다.</span>
+                </div>
+              </div>
+            </div>
+            <div class="alv-mock-col" style="min-width:300px;">
+              <div class="alv-mock-col-label"><span>Audit Write Failed</span><span class="alv-mock-col-tag fail">차단</span></div>
+              <div class="alv-table-host" style="height:160px;justify-content:center;align-items:center;">
+                <div class="alv-emp is-fail">
+                  <span class="alv-emp-ico">!</span>
+                  <span class="alv-emp-t">감사 기록 실패 — export 차단</span>
+                  <span class="alv-emp-s">조회 / export 행위의 audit 기록에 실패하여 export 가 중단되었습니다. (ERR-A-LOG-503)</span>
+                </div>
+              </div>
+            </div>
+            <div class="alv-mock-col" style="min-width:300px;">
+              <div class="alv-mock-col-label"><span>Stale Filter</span><span class="alv-mock-col-tag warn">재로딩</span></div>
+              <div class="alv-table-host" style="height:160px;justify-content:center;align-items:center;">
+                <div class="alv-emp is-warn">
+                  <span class="alv-emp-ico">⟳</span>
+                  <span class="alv-emp-t">5분 전 결과입니다</span>
+                  <span class="alv-emp-s">감사로그는 실시간이 아닙니다. 새로고침을 눌러 최신 결과를 불러오세요.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>거부도 기록</strong> — DENIED state 가 표시될 때, 그 거부 행위 자체가 <code>denied_access_logs</code> (또는 admin_action_logs 의 DENIED) 에 기록된다.
+            "권한 없음" 화면을 보여주는 것과 기록하는 것은 별개의 트랜잭션이며, 기록 실패 시 화면도 거부 메시지를 더 강하게 표시한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S17 Mobile ── -->
+      <section id="s17" class="sec" data-screen-label="17 Mobile">
+        <div class="sec-hdr"><span class="sec-n">17</span><span class="sec-title">Mobile Audit Viewer</span><span class="sbadge plan">Mock I</span></div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            모바일은 <strong>요약 / 긴급 조회 / 상세 읽기</strong> 중심. table 대신 card list, 대량 export 금지, advanced filter 는 bottom sheet.
+          </p>
+          <div class="alv-mock-row">
+            <div class="alv-phone">
+              <div class="alv-phone-screen" style="position:relative;">
+                <div class="alv-statusbar"><span>9:41</span><span>● ● ●</span></div>
+                <div class="alv-topbar">
+                  <div class="alv-tb-iconbtn"><svg viewBox="0 0 18 18"><path d="M3 9h12M3 4h12M3 14h12"/></svg></div>
+                  <div class="alv-tb-title">감사로그<span class="alv-tb-sub">최근 24h · 4,218</span></div>
+                  <div class="alv-tb-iconbtn"><svg viewBox="0 0 18 18"><path d="M3 9h12"/><path d="M5 5h8"/><path d="M7 13h4"/></svg></div>
+                </div>
+                <div class="alv-mcontent" style="padding-bottom:70px;">
+                  <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <span class="alv-chip on" style="font-size:10px;">전체 4,218</span>
+                    <span class="alv-chip fail" style="font-size:10px;">위험 8</span>
+                    <span class="alv-chip" style="font-size:10px;">DENIED 12</span>
+                  </div>
+                  <div class="alv-mcard is-risk">
+                    <div class="alv-mcard-head"><span class="alv-ltype dl">DL</span><span class="alv-act export">EXPORT</span><span class="alv-result ok">OK</span><span class="alv-mcard-time">14:48</span></div>
+                    <div class="alv-mcard-title">박지원 · customers.csv (1,420 row)</div>
+                    <div class="alv-mcard-meta">10.20.30.40 · 사유: 정산 자료 일괄 추출 · <span class="alv-risk-pill" style="font-size:9px;">대량</span></div>
+                  </div>
+                  <div class="alv-mcard is-risk">
+                    <div class="alv-mcard-head"><span class="alv-ltype pdata">PII</span><span class="alv-act unmask">UNMASK</span><span class="alv-result ok">OK</span><span class="alv-mcard-time">14:46</span></div>
+                    <div class="alv-mcard-title">박지원 · 김** · CUST-2024-1284</div>
+                    <div class="alv-mcard-meta"><code>/customers</code> · 정산 검증 - 휴대폰</div>
+                  </div>
+                  <div class="alv-mcard is-risk">
+                    <div class="alv-mcard-head"><span class="alv-ltype adm">ADM</span><span class="alv-act admin">ROLE_CHANGE</span><span class="alv-result ok">OK</span><span class="alv-mcard-time">14:12</span></div>
+                    <div class="alv-mcard-title">정유진 → 박지원 · MEMBER → ADMIN</div>
+                    <div class="alv-mcard-meta"><span class="alv-risk-pill" style="font-size:9px;">UPGRADE</span> · WBS 권한 승급</div>
+                  </div>
+                  <div class="alv-mcard is-warn">
+                    <div class="alv-mcard-head"><span class="alv-ltype dnd">DND</span><span class="alv-act audit">AUDIT_VIEW</span><span class="alv-result dn">DENIED</span><span class="alv-mcard-time">09:14</span></div>
+                    <div class="alv-mcard-title">최서연 · audit-logs 페이지</div>
+                    <div class="alv-mcard-meta" style="color:#FF7D6E;">권한 없음 (role &lt; SECURITY)</div>
+                  </div>
+                  <div class="ibox warn" style="font-size:10.5px;background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.22);color:#F5B14C;padding:8px 10px;border-radius:7px;line-height:1.55;">
+                    <strong>모바일 제한</strong> — 대량 export 와 advanced filter 의 일부는 PC 에서만 가능합니다.
+                  </div>
+                </div>
+                <div class="alv-mfab">
+                  <span class="alv-pc-btn is-warn">필터</span>
+                  <span class="alv-pc-btn is-primary">위험 이벤트</span>
+                </div>
+              </div>
+            </div>
+            <div class="alv-side-note">
+              <strong>Mobile 정책</strong>
+              · table 대신 카드 리스트<br>
+              · 카드 상단 — type / action / result / 시각<br>
+              · 카드 본문 — user · target · meta · risk<br>
+              · advanced filter — bottom sheet<br>
+              · export 차단 (긴급 export 는 PC)<br>
+              · 터치 타겟 ≥ 40px (FAB / chip)<br>
+              · 빠른 access: "위험 이벤트" FAB
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S18 Mock Index ── -->
+      <section id="s18" class="sec" data-screen-label="18 Mock Index">
+        <div class="sec-hdr"><span class="sec-n">18</span><span class="sec-title">Mock Screens — A ~ J</span><span class="sbadge plan">Visual</span></div>
+        <div class="sec-body">
+          <div class="ibox info">본 문서의 10 mock 은 각 섹션 안에 통합 배치. 이 섹션은 인덱스 역할.</div>
+          <div class="alv-tbl-wrap" style="margin-top:10px;">
+            <table class="alv-tbl">
+              <thead><tr><th style="width:40px;">#</th><th style="width:240px;">제목</th><th>설명</th><th style="width:80px;">위치</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">A</td><td class="tn">Audit Dashboard Summary</td><td>8 KPI cell + 7 log type tabs · 위험 / 일반 / 시간대 별 위계</td><td>S05</td></tr>
+                <tr><td class="tn">B</td><td class="tn">Unified Audit Log Table</td><td>type / action / result chip + active filter chip + 8 row 통합</td><td>S09</td></tr>
+                <tr><td class="tn">C</td><td class="tn">Advanced Filter Drawer</td><td>기간 / user / role / action(다중) / target / result / IP / risk + 광범위 쿼리 경고</td><td>S07</td></tr>
+                <tr><td class="tn">D</td><td class="tn">Log Detail Panel</td><td>좌측 facts (logId / type / action / result / 변경자 / 대상 / IP / retention) · 우측 before/after JSON-ish diff + related</td><td>S10</td></tr>
+                <tr><td class="tn">E</td><td class="tn">Related Logs Timeline</td><td>"UPGRADE → UNMASK → EXPORT" 인과 추적 6 step timeline</td><td>S11</td></tr>
+                <tr><td class="tn">F</td><td class="tn">Security Event Highlight</td><td>4 event card (High 2 + Medium 2) · severity / pattern / 권장 조치</td><td>S12</td></tr>
+                <tr><td class="tn">G</td><td class="tn">Audit Export Reason Modal</td><td>범위 / 사유 / 워터마크 / 개인정보 포함 확인 + v1/v2 정책 표</td><td>S13</td></tr>
+                <tr><td class="tn">H</td><td class="tn">Denied / Failed / Stale States</td><td>6 상태 — denied / no result / archive / export denied / audit failed / stale</td><td>S16</td></tr>
+                <tr><td class="tn">I</td><td class="tn">Mobile Audit Card List</td><td>카드 리스트 + 위험 / DENIED chip · "위험 이벤트" FAB · export 제한 안내</td><td>S17</td></tr>
+                <tr><td class="tn">J</td><td class="tn">Bad Example — 개인정보 원문 노출</td><td>잘못된 로그 — 실명 / 전화번호 / 이메일 원문이 그대로 저장된 케이스</td><td>S19</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S19 Good / Bad ── -->
+      <section id="s19" class="sec" data-screen-label="19 Good / Bad">
+        <div class="sec-hdr"><span class="sec-n">19</span><span class="sec-title">Good / Bad Comparison</span><span class="sbadge plan">비교</span></div>
+        <div class="sec-body">
+          <div class="alv-rule-grid">
+            <div class="alv-rule-card">
+              <div class="alv-rc-hdr is-pass">Good</div>
+              <ul>
+                <li>개인정보 원문 미저장 · 미노출 — targetMaskedLabel + targetId 만</li>
+                <li>actionType / result / reason 모두 명확</li>
+                <li>필터 강력 + active chip 노출 + 광범위 쿼리 경고</li>
+                <li>Detail panel 에 before/after + related timeline</li>
+                <li>위험 이벤트 자동 강조 + 권장 조치</li>
+                <li>Export 강한 통제 (사유 · 워터마크 · 범위 · 자체 audit)</li>
+                <li>감사로그 조회 자체도 기록</li>
+                <li>DENIED / FAILED 도 모두 표시</li>
+                <li>보존 기간 / 수정 불가 명시</li>
+              </ul>
+            </div>
+            <div class="alv-rule-card">
+              <div class="alv-rc-hdr is-fail">Bad</div>
+              <ul>
+                <li><strong>로그에 개인정보 원문 저장</strong> — 실명 / 전화번호 / 이메일 / 주소 그대로</li>
+                <li>result 구분 없음 — SUCCESS / DENIED / FAILED 동일하게 표시</li>
+                <li>denied / failed 로그 누락</li>
+                <li>필터 부족 — 기간만 가능</li>
+                <li>다운로드 무제한 · 사유 없이 · 워터마크 없이</li>
+                <li>감사로그 삭제 기능 제공 (정책 위반)</li>
+                <li>관리자 행위 미기록 — SUPER_ADMIN 의 본인 변경 누락</li>
+                <li>실시간이라고 광고하지만 정합성 깨짐</li>
+                <li>외부 IP / 야간 / 대량을 강조하지 않음</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="alv-cap" style="margin-top:14px;"><span class="alv-cap-n">J</span>Bad Example — 개인정보 원문이 로그에 노출된 잘못된 예</div>
+          <div class="alv-bad-row">
+            14:46 · 박지원 · UNMASK · target: <strong>김민서 · 010-9921-1284 · minseo@example.com · 서울시 강남구 …</strong> · result: OK
+            <div style="font-size:10px;color:#FF7D6E;font-weight:700;margin-top:6px;">
+              ✕ 잘못된 점 — 마스킹 라벨이 아니라 <strong>원문 그대로</strong> 저장. 감사로그 자체가 개인정보 노출 경로가 됨 (ISMS-P 통제 무효).
+            </div>
+          </div>
+          <div class="ibox info" style="margin-top:10px;">
+            <strong>올바른 형태</strong><br>
+            14:46 · 박지원 (U-001) · UNMASK · targetType=CUSTOMER · targetId=<code>CUST-2024-1284</code> · targetMasked=<span class="alv-mask">김** · 010-****-1284</span> · result: OK
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S20 DB Mapping ── -->
+      <section id="s20" class="sec" data-screen-label="20 DB Mapping">
+        <div class="sec-hdr"><span class="sec-n">20</span><span class="sec-title">DB / Backend Mapping Notes</span><span class="sbadge plan">DB</span></div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            본 문서는 DB 를 생성하지 않는다. 화면의 모든 필드는 Security Guide v1 의 DB 14 테이블 중 다음 9 와 매핑된다.
+          </p>
+          <div class="alv-tbl-wrap">
+            <table class="alv-tbl">
+              <thead><tr><th style="width:240px;">테이블</th><th style="width:120px;">관련 화면</th><th>주요 필드</th></tr></thead>
+              <tbody>
+                <tr><td class="tn"><code>personal_data_access_logs</code></td><td>S05 · S09 · S10</td><td>logId · userId · userName · role · actionType · targetType · targetId · targetMaskedLabel · reason · screenId · ipAddress · userAgent · sessionId · result · deniedReason · createdAt</td></tr>
+                <tr><td class="tn"><code>download_logs</code></td><td>S05 · S09 · S13</td><td>logId · userId · fileName · rowCount · reason · watermarkId · result · createdAt</td></tr>
+                <tr><td class="tn"><code>admin_action_logs</code></td><td>S09 · S10 · S11 · S13</td><td>logId · adminId · actionType · targetType · targetId · beforeState · afterState · reason · result · ipAddress</td></tr>
+                <tr><td class="tn"><code>login_logs</code></td><td>S09</td><td>logId · userId · ipAddress · userAgent · result · failReason · mfaUsed · createdAt</td></tr>
+                <tr><td class="tn"><code>session_logs</code></td><td>S09 · S10</td><td>sessionId · userId · startedAt · endedAt · endReason · ipAddress</td></tr>
+                <tr><td class="tn"><code>users</code> · <code>roles</code> · <code>user_roles</code></td><td>S09 · S10</td><td>snapshot 으로 logs 에 저장 — 사후 role 변경에도 당시 기록 유지</td></tr>
+                <tr><td class="tn"><code>security_policy_versions</code></td><td>S14</td><td>보존 기간 / 잠금 정책 변경 이력 — admin_action_logs 와 연결</td></tr>
+                <tr><td class="tn"><code>security_event_logs</code> <em style="color:var(--t3);font-size:9px;">(v2)</em></td><td>S05 · S12</td><td>eventId · severity · eventType · pattern · referenceLogIds · detectedAt · recommendedAction</td></tr>
+                <tr><td class="tn"><code>denied_access_logs</code> <em style="color:var(--t3);font-size:9px;">(view)</em></td><td>S09</td><td>각 원본 로그의 result=DENIED 합집합 — 별도 테이블 아닌 view</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>인덱스 / 파티션 (별도 Gate)</strong><br>
+            · 모든 logs: <code>createdAt</code> DESC index 필수<br>
+            · <code>userId · createdAt</code> 복합 — 사용자별 timeline<br>
+            · <code>targetId · createdAt</code> 복합 — 대상별 timeline (related logs)<br>
+            · <code>actionType · createdAt</code> · <code>result · createdAt</code> — 필터 / Dashboard<br>
+            · 월별 파티션 + 2년 후 cold storage (S14 retention 기준)<br>
+            · 대용량 query 는 LIMIT / cursor pagination · 1만 row 초과 시 export 권유
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S21 Handoff ── -->
+      <section id="s21" class="sec" data-screen-label="21 Handoff">
+        <div class="sec-hdr"><span class="sec-n">21</span><span class="sec-title">Cursor / Backend Handoff Notes</span><span class="sbadge plan">Handoff</span></div>
+        <div class="sec-body">
+          <div class="alv-handoff-list">
+            <div class="alv-handoff-item">
+              <span class="alv-hf-path">stam/pages/admin/audit-logs.html</span>
+              <span class="alv-hf-role">Dashboard + Tabs + Unified Table host (S05/S06/S09)</span>
+            </div>
+            <div class="alv-handoff-item">
+              <span class="alv-hf-path">stam/pages/admin/audit-logs/[logId].html</span>
+              <span class="alv-hf-role">Log Detail (S10) · URL 공유 가능 · 권한 재검증</span>
+            </div>
+            <div class="alv-handoff-item">
+              <span class="alv-hf-path">stam/js/stam.audit.js <em>(신규)</em></span>
+              <span class="alv-hf-role">query / filter / detail / related / event highlight</span>
+            </div>
+            <div class="alv-handoff-item">
+              <span class="alv-hf-path">stam/js/stam.permission.js</span>
+              <span class="alv-hf-role">감사로그 권한 검증 · viewer permission 정책</span>
+            </div>
+            <div class="alv-handoff-item">
+              <span class="alv-hf-path">stam/css/stam.admin.css <em>(신규)</em></span>
+              <span class="alv-hf-role">log type / action / result chip · timeline · event card</span>
+            </div>
+            <div class="alv-handoff-item">
+              <span class="alv-hf-path">server/api/audit-query-controller.ts <em>(BE)</em></span>
+              <span class="alv-hf-role">통합 query · filter · pagination · 광범위 쿼리 가드</span>
+            </div>
+            <div class="alv-handoff-item">
+              <span class="alv-hf-path">server/api/audit-detail-controller.ts <em>(BE)</em></span>
+              <span class="alv-hf-role">logId 단건 + related logs · 권한 재검증</span>
+            </div>
+            <div class="alv-handoff-item">
+              <span class="alv-hf-path">server/api/audit-export-controller.ts <em>(BE)</em></span>
+              <span class="alv-hf-role">사유 / 워터마크 / 자체 audit 기록 · 트랜잭션</span>
+            </div>
+            <div class="alv-handoff-item">
+              <span class="alv-hf-path">server/middleware/audit-viewer-permission.ts <em>(BE)</em></span>
+              <span class="alv-hf-role">SECURITY_ADMIN 이상 검증 · DENIED 도 기록</span>
+            </div>
+            <div class="alv-handoff-item">
+              <span class="alv-hf-path">server/jobs/security-event-detector.ts <em>(v2 BE)</em></span>
+              <span class="alv-hf-role">9 위험 패턴 batch 탐지 · security_event_logs 인서트</span>
+            </div>
+            <div class="alv-handoff-item">
+              <span class="alv-hf-path">db/migrations/ <em>(DB Gate)</em></span>
+              <span class="alv-hf-role">9 테이블 + 인덱스 + 월별 파티션</span>
+            </div>
+            <div class="alv-handoff-item">
+              <span class="alv-hf-path">db/archive/ <em>(DB Gate)</em></span>
+              <span class="alv-hf-role">cold storage 이관 / retention 자동 파기 잡</span>
+            </div>
+          </div>
+
+          <div class="alv-rule-grid" style="margin-top:14px;">
+            <div class="alv-rule-card">
+              <div class="alv-rc-hdr is-warn">실제 구현 전 순서</div>
+              <ul>
+                <li>1차: 7 로그 소스 schema + index + 파티션 확정 (별도 Gate)</li>
+                <li>2차: audit viewer permission middleware (DENIED 도 기록)</li>
+                <li>3차: 통합 query API + filter / pagination + 광범위 쿼리 가드</li>
+                <li>4차: Dashboard + Tabs + Unified Table (FE)</li>
+                <li>5차: Detail panel + before/after diff + related timeline</li>
+                <li>6차: Export (사유 / 워터마크 / 자체 audit 트랜잭션)</li>
+                <li>7차: Security Event Detector (v2) + Highlight view</li>
+                <li>8차: Mobile + 셀프 조회 (v2)</li>
+              </ul>
+            </div>
+            <div class="alv-rule-card">
+              <div class="alv-rc-hdr is-fail">한 커밋에 섞지 말 것</div>
+              <ul>
+                <li>DB 마이그레이션 + query API</li>
+                <li>일반 query + export (위험도 차등)</li>
+                <li>Dashboard + Detail / Related (상위 → 하위 분리)</li>
+                <li>v1 일반 조회 + v2 셀프 조회</li>
+                <li>v1 9 패턴 표시 + v2 자동 탐지</li>
+                <li>PC + Mobile 동시 도입</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>핵심 주의</strong><br>
+            · 감사로그 조회 화면만 먼저 만들면 안 됨 — DB schema / API / 권한 middleware 선행<br>
+            · 조회 행위 자체도 audit 대상 — AUDIT_VIEW 기록 누락 금지<br>
+            · DENIED 도 반드시 기록 — "거부 후 화면 표시" 의 두 단계가 모두 트랜잭션<br>
+            · Export 는 일반 export 보다 강한 통제 (사유 · 워터마크 · 범위 · 자체 audit · 트랜잭션)<br>
+            · 광범위 쿼리는 경고만 표시 (차단은 v2)<br>
+            · 대용량 로그는 pagination + 월별 파티션 + cold storage 전략 의무
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S22 Guardrails ── -->
+      <section id="s22" class="sec" data-screen-label="22 Guardrails">
+        <div class="sec-hdr"><span class="sec-n">22</span><span class="sec-title">Implementation Guardrails</span><span class="sbadge lock">Rule</span></div>
+        <div class="sec-body">
+          <div class="alv-chk-list">
+            <div class="alv-chk-item"><span class="alv-chk-box is-fail">!</span><span><strong>감사로그 수정 / 삭제 기능 금지</strong> — append-only · UI 자체에 버튼 없음.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-fail">!</span><span><strong>로그에 개인정보 원문 저장 금지</strong> — targetMaskedLabel + targetId 만.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-fail">!</span><span><strong>조회 권한 제한</strong> — SECURITY_ADMIN / SUPER_ADMIN 만. PM 이하 차단.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-warn">!</span><span><strong>조회 행위도 audit 기록</strong> — AUDIT_VIEW 누락 금지.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-fail">!</span><span><strong>DENIED / FAILED 로그 누락 금지</strong> — 가장 중요한 단서.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-fail">!</span><span><strong>export 사유 없이 다운로드 금지</strong> — 5자+ 의무.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-warn">!</span><span><strong>대량 export 제한</strong> — 50,000 row · 초과 시 분할 (v2 강화).</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-fail">!</span><span><strong>권한 없는 사용자의 audit 화면 접근 차단</strong> — FE + BE 양쪽.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-info">i</span><span><strong>전역 <code>.tbtn</code> 일괄 치환 금지</strong> — 도큐 nav 전용.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-info">i</span><span><strong>실제 보안 로직은 Backend / DB Gate 후 진행</strong> — UI 선반영 금지.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-warn">!</span><span><strong>before/after 의 개인정보 자동 마스킹</strong> — JSON snapshot 도 PII 노출 경로.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span><strong>실시간이라고 광고하지 않음</strong> — 30초 polling / manual refresh 명시.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span><strong>광범위 쿼리는 경고 표시</strong> — 기간 30일 + user 미지정 등.</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span><strong>cold archive 지연 안내</strong> — 5–30초 명시.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S23 QA ── -->
+      <section id="s23" class="sec" data-screen-label="23 QA">
+        <div class="sec-hdr"><span class="sec-n">23</span><span class="sec-title">QA Checklist</span><span class="sbadge plan">QA</span></div>
+        <div class="sec-body">
+          <div class="alv-chk-list">
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>summary card 8종 — 위험 / 일반 / 시간대 별 위계 정합</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>log type tabs 7종 — 클릭 시 필터 + 컬럼 preset 적용</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>basic filter (toolbar) + advanced filter (drawer) 모두 동작</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>active filter chip — 개별 ✕ + 전체 해제</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>unified table — type / action / result chip + masked target + risk row tint</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>log detail panel — facts + before/after + related timeline</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>related timeline — 6 축 (user / target / session / download / chain / upgrade→PII)</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>risk highlight — 9 패턴 chip + severity + 권장 조치</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>export reason modal — 사유 / 범위 / 워터마크 / 개인정보 확인</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>denied state — 권한 없음 화면 + 거부 로그 기록</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>audit write failed state — export 차단 + 에러 코드 노출</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>archive unavailable state — cold storage 지연 안내</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>stale filter state — 5분 이전 결과 안내 + 새로고침 권유</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>mobile card list — type / action / result + 위험 chip + FAB</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box is-fail">!</span><span><strong>개인정보 원문 비노출</strong> — 모든 mock 에서 targetMaskedLabel 만</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>light / dark 모두 시각 정합</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>S-Core Dream 자체서빙 폰트만 사용</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>iframe 미사용 · mock 전용 prefix <code>.alv-</code></span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>page-level horizontal scroll 없음</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>console error 없음</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>실제 product CSS / class / DB schema / Firebase rules 미수정</span></div>
+            <div class="alv-chk-item"><span class="alv-chk-box">✓</span><span>Docs Index 카드 1개 추가 · Admin Permission Manager 카드 근처</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S24 Related ── -->
+      <section id="s24" class="sec" data-screen-label="24 Related">
+        <div class="sec-hdr"><span class="sec-n">24</span><span class="sec-title">Related Documents</span><span class="sbadge guide">참고</span></div>
+        <div class="sec-body">
+          <div class="alv-rel-grid">
+            <a class="alv-rel-card" href="STAM-Security-Privacy-ISMSP-Architecture-DB-Policy-Guide-v1.html"><span class="alv-rl-title">Security / Privacy / ISMS-P Guide v1</span><span class="alv-rl-sub">감사로그 정책 / DB 14 테이블 — 본 문서의 baseline</span></a>
+            <a class="alv-rel-card" href="STAM-Admin-Permission-Manager-Applied-Preview-v1.html"><span class="alv-rl-title">Admin Permission Manager v1</span><span class="alv-rl-sub">권한 변경 이력 → audit log linkage 의 source</span></a>
+            <a class="alv-rel-card" href="STAM-Data-Table-Full-Table-Responsive-Guide-v1.html"><span class="alv-rl-title">Data Table / Full Table Responsive Guide v1</span><span class="alv-rl-sub">Unified table 의 베이스 컬럼 정책</span></a>
+            <a class="alv-rel-card" href="STAM-Form-Search-Filter-Mobile-Applied-Preview-v1.html"><span class="alv-rl-title">Form / Search / Filter Mobile v1</span><span class="alv-rl-sub">Advanced filter drawer + chip 베이스</span></a>
+            <a class="alv-rel-card" href="STAM-Topbar-Detail-Guide-v1.html"><span class="alv-rl-title">Topbar Detail Guide v1</span><span class="alv-rl-sub">알림 dot · 테마 토글 · breadcrumb</span></a>
+            <a class="alv-rel-card" href="STAM-Button-CSS-Implementation-Preview-v1.html"><span class="alv-rl-title">Button CSS Implementation Preview v1</span><span class="alv-rl-sub">Button CSS foundation</span></a>
+            <a class="alv-rel-card" href="STAM-UI-Baseline-Guide.html"><span class="alv-rl-title">STAM UI Baseline Guide</span><span class="alv-rl-sub">전역 폰트 · 토큰 · Layout · Forbidden Rules</span></a>
+            <a class="alv-rel-card" href="STAM-Component-Guide.html"><span class="alv-rl-title">STAM Component Guide</span><span class="alv-rl-sub">Form · Dialog · Drawer · Table · Topbar</span></a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  if (!main) return;
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
