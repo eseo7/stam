@@ -1,0 +1,1954 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Topbar Detail Guide v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ============================================================
+ * STAM Topbar Detail Guide v1
+ * - 문서 전용 보조 스타일 (격리 prefix: tdg-)
+ * - 실제 .stam-btn / .doc-nav / .stam-topbar-* 등을 절대 덮어쓰지 않음
+ * - mock 전용, 모든 topbar 시각은 .tdg-mock 내부에서만 동작
+ * - 라이트/다크 모두 대응
+ * ============================================================ */
+
+/* ── Status pill ── */
+.tdg-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; font-family: var(--font);
+  white-space: nowrap;
+}
+.tdg-pill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 999px;
+  background: currentColor; display: inline-block; flex-shrink: 0;
+}
+.tdg-pill.pass    { background: var(--pass-bg); color: var(--pass); }
+.tdg-pill.warn    { background: var(--warn-bg); color: var(--warn); }
+.tdg-pill.fail    { background: var(--fail-bg); color: var(--fail); }
+.tdg-pill.info    { background: var(--info-bg); color: var(--info); }
+.tdg-pill.brand   { background: var(--stam-soft); color: var(--stam); }
+.tdg-pill.notyet  { background: var(--skip-bg); color: var(--skip); }
+
+/* ── Hero ── */
+.tdg-hero {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  border-radius: var(--r-md);
+  padding: 18px 20px 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+.tdg-hero::before {
+  content: ""; position: absolute; inset: 0 auto 0 0;
+  width: 3px; background: var(--stam);
+}
+.tdg-hero-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.tdg-hero-title {
+  font-size: 15px; font-weight: 700; color: var(--t1);
+  letter-spacing: -.005em; font-family: var(--font);
+}
+.tdg-hero p {
+  margin: 0; font-size: 12px; color: var(--t2); line-height: 1.7;
+  font-family: var(--font);
+}
+.tdg-hero code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur2);
+  border: 1px solid var(--bd); border-radius: 4px;
+  padding: 1px 6px;
+}
+
+/* ── KPI ── */
+.tdg-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+@media (max-width: 1280px) { .tdg-kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 720px)  { .tdg-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+.tdg-kpi {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 11px 12px 12px;
+  display: flex; flex-direction: column; gap: 5px;
+  min-width: 0;
+}
+.tdg-kpi .tdg-kpi-key {
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--t3); font-family: var(--font);
+}
+.tdg-kpi .tdg-kpi-val {
+  font-size: 13px; font-weight: 700;
+  color: var(--t1); font-family: var(--font);
+  letter-spacing: -.005em; line-height: 1.35;
+}
+.tdg-kpi.brand   { border-color: rgba(84,81,232,.22); background: var(--stam-soft); }
+.tdg-kpi.brand .tdg-kpi-key { color: var(--stam); opacity: .9; }
+.tdg-kpi.brand .tdg-kpi-val { color: var(--stam); }
+.tdg-kpi.info    { border-color: rgba(111,168,255,.22); background: var(--info-bg); }
+.tdg-kpi.info .tdg-kpi-key { color: var(--info); opacity: .9; }
+.tdg-kpi.info .tdg-kpi-val { color: var(--info); }
+.tdg-kpi.warn    { border-color: rgba(245,158,11,.22); background: var(--warn-bg); }
+.tdg-kpi.warn .tdg-kpi-key { color: var(--warn); opacity: .9; }
+.tdg-kpi.warn .tdg-kpi-val { color: var(--warn); }
+.tdg-kpi.fail    { border-color: rgba(239,68,68,.22); background: var(--fail-bg); }
+.tdg-kpi.fail .tdg-kpi-key { color: var(--fail); opacity: .9; }
+.tdg-kpi.fail .tdg-kpi-val { color: var(--fail); }
+
+/* ── Caption ── */
+.tdg-cap {
+  display: flex; align-items: center; gap: 8px;
+  margin: 18px 0 8px;
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.tdg-cap .tdg-cap-n {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--stam-soft); color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.tdg-cap-sub { font-size: 10.5px; color: var(--t3); font-weight: 500; letter-spacing: 0; margin-left: 4px; }
+
+/* ── Table ── */
+.tdg-tbl-wrap { overflow-x: auto; border-radius: var(--r-md); border: 1px solid var(--bd); }
+.tdg-tbl {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--font); font-size: 11.5px;
+  background: var(--bg-sur);
+  min-width: 720px;
+}
+.tdg-tbl th {
+  padding: 9px 10px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  text-align: left; color: var(--t3);
+  border-bottom: 1px solid var(--bd); background: var(--bg-sur2);
+  white-space: nowrap; vertical-align: middle;
+}
+.tdg-tbl td {
+  padding: 10px; border-bottom: 1px solid var(--bd);
+  color: var(--t2); vertical-align: top; line-height: 1.6;
+}
+.tdg-tbl tbody tr:last-child td { border-bottom: none; }
+.tdg-tbl td.tn { color: var(--t1); font-weight: 700; white-space: nowrap; font-size: 11px; }
+.tdg-tbl td code, .tdg-tbl th code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur2);
+  border: 1px solid var(--bd); border-radius: 4px;
+  padding: 1px 6px; letter-spacing: .005em; white-space: nowrap;
+}
+.tdg-tbl td.before { color: var(--fail); }
+.tdg-tbl td.after  { color: var(--pass); }
+.tdg-tbl td.note   { color: var(--t3); font-size: 10.5px; }
+
+/* ── Rule cards ── */
+.tdg-rule-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 760px) { .tdg-rule-grid { grid-template-columns: 1fr; } }
+.tdg-rule-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+}
+.tdg-rule-card .tdg-rc-hdr {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--t1);
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.tdg-rule-card .tdg-rc-hdr::before {
+  content: ""; width: 8px; height: 8px; border-radius: 999px;
+  background: var(--stam); display: inline-block;
+}
+.tdg-rule-card .tdg-rc-hdr.is-pass::before { background: var(--pass); }
+.tdg-rule-card .tdg-rc-hdr.is-warn::before { background: var(--warn); }
+.tdg-rule-card .tdg-rc-hdr.is-info::before { background: var(--info); }
+.tdg-rule-card .tdg-rc-hdr.is-fail::before { background: var(--fail); }
+.tdg-rule-card ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.tdg-rule-card li {
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  padding-left: 12px; position: relative;
+}
+.tdg-rule-card li::before {
+  content: "·"; position: absolute; left: 2px; top: -2px;
+  color: var(--t3); font-weight: 800;
+}
+.tdg-rule-card li code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: 4px; padding: 1px 5px;
+}
+
+/* ── Spec card grid (3-up) ── */
+.tdg-spec-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+@media (max-width: 980px) { .tdg-spec-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px) { .tdg-spec-grid { grid-template-columns: 1fr; } }
+.tdg-spec {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 4px;
+  font-family: var(--font);
+}
+.tdg-spec .tdg-spec-key {
+  font-size: 9.5px; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--t3);
+}
+.tdg-spec .tdg-spec-val {
+  font-size: 13px; font-weight: 700; color: var(--t1);
+  letter-spacing: -.005em; line-height: 1.4;
+}
+.tdg-spec .tdg-spec-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+  margin-top: 2px;
+}
+
+/* ============================================================
+ * MOCK Topbar — 격리 미리보기
+ * .tdg-mock 안에서만 .tdg-tb-* 요소가 살아있음
+ * ============================================================ */
+.tdg-mock {
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--bg-base);
+  box-shadow: 0 4px 20px rgba(0,0,0,.18);
+  font-family: var(--font);
+}
+.tdg-mock-label {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 7px 12px;
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--t3);
+  background: var(--bg-sur2);
+  border-bottom: 1px solid var(--bd);
+  font-family: var(--font);
+}
+.tdg-mock-label .tdg-mock-tag {
+  font-size: 9px; font-weight: 700;
+  padding: 1px 6px; border-radius: 4px;
+  background: var(--stam-soft); color: var(--stam);
+  letter-spacing: .04em;
+}
+.tdg-mock-label .tdg-mock-tag.ok   { background: var(--pass-bg); color: var(--pass); }
+.tdg-mock-label .tdg-mock-tag.bad  { background: var(--fail-bg); color: var(--fail); }
+.tdg-mock-label .tdg-mock-tag.lite { background: var(--info-bg); color: var(--info); }
+.tdg-mock-label .tdg-mock-tag.warn { background: var(--warn-bg); color: var(--warn); }
+
+/* ── DARK topbar mock (matches stam shell dark) ── */
+.tdg-tb {
+  height: 48px;
+  background: #0A0E1A;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  display: flex; align-items: stretch;
+  font-family: var(--font);
+  flex-shrink: 0;
+  color: rgba(255,255,255,.88);
+}
+.tdg-tb-left {
+  display: flex; align-items: center; gap: 0;
+  flex-shrink: 0;
+}
+.tdg-tb-center {
+  flex: 1; display: flex; align-items: center;
+  padding: 0 16px;
+  min-width: 0;
+}
+.tdg-tb-right {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 12px 0 6px;
+  flex-shrink: 0;
+}
+.tdg-tb-logo {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 14px;
+  height: 100%;
+  border-right: 1px solid rgba(255,255,255,.07);
+}
+.tdg-tb-logo-mark {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #6663ec, #4340c8);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; color: #fff;
+  letter-spacing: .04em;
+}
+.tdg-tb-logo-txt {
+  font-size: 13px; font-weight: 700;
+  color: rgba(255,255,255,.90); letter-spacing: .06em;
+}
+.tdg-tb-crumb {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 14px;
+  font-size: 11.5px;
+  color: rgba(255,255,255,.42);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.tdg-tb-crumb .sep { color: rgba(255,255,255,.18); font-size: 9px; }
+.tdg-tb-crumb .here {
+  color: rgba(255,255,255,.92);
+  font-weight: 700;
+}
+
+/* search pill — GOOD (dark) */
+.tdg-tb-search {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%;
+  min-width: 240px; max-width: 320px;
+  margin: 0 auto;
+  height: 28px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 7px;
+  padding: 0 10px;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+.tdg-tb-search:focus-within {
+  border-color: rgba(139,127,248,.55);
+  box-shadow: 0 0 0 2px rgba(84,81,232,.18);
+}
+.tdg-tb-search svg { width: 12px; height: 12px; color: rgba(255,255,255,.50); flex-shrink: 0; }
+.tdg-tb-search input,
+.tdg-tb-search .tdg-tb-search-text {
+  flex: 1; min-width: 0;
+  background: none; border: none; outline: none;
+  font-family: var(--font);
+  font-size: 11.5px;
+  color: rgba(255,255,255,.88);
+}
+.tdg-tb-search input::placeholder,
+.tdg-tb-search .tdg-tb-search-text {
+  color: rgba(255,255,255,.40);
+}
+.tdg-tb-search .kbd {
+  font-family: var(--font);
+  font-size: 9px; font-weight: 700;
+  color: rgba(255,255,255,.46);
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 4px;
+  padding: 1px 5px;
+  letter-spacing: .04em;
+}
+
+/* search — BAD (text only, no pill) */
+.tdg-tb-search.bad {
+  background: transparent;
+  border: 1px dashed rgba(255,255,255,.10);
+  box-shadow: none;
+  color: rgba(255,255,255,.34);
+}
+.tdg-tb-search.bad svg { color: rgba(255,255,255,.28); }
+.tdg-tb-search.bad .tdg-tb-search-text { color: rgba(255,255,255,.34); }
+
+/* right-side action button — GOOD (icon-only 28×28, currentColor) */
+.tdg-tb-act {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255,255,255,.78);
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: background 120ms, color 120ms, border-color 120ms;
+}
+.tdg-tb-act:hover {
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  border-color: rgba(255,255,255,.10);
+}
+.tdg-tb-act:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(139,127,248,.55);
+  border-color: rgba(139,127,248,.55);
+}
+.tdg-tb-act svg { width: 14px; height: 14px; }
+
+/* notification dot — GOOD (8px red, 2px border using topbar bg) */
+.tdg-tb-act.has-dot::after {
+  content: ""; position: absolute;
+  top: 4px; right: 4px;
+  width: 8px; height: 8px; border-radius: 999px;
+  background: #FF5252;
+  border: 2px solid #0A0E1A;
+}
+
+/* notification BADGE — BAD (small unreadable number) */
+.tdg-tb-act.has-badge-bad::after {
+  content: "3";
+  position: absolute;
+  top: 0; right: -2px;
+  min-width: 12px; height: 12px;
+  padding: 0 2px;
+  border-radius: 999px;
+  background: #FF5252;
+  color: #fff;
+  font-family: var(--font);
+  font-size: 7px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+  line-height: 1;
+}
+.tdg-tb-act.has-badge-bad-2::after {
+  content: "12";
+}
+
+/* theme toggle BAD — white square */
+.tdg-tb-act.theme-bad {
+  background: #fff;
+  border: 1px solid #fff;
+  color: transparent;
+}
+.tdg-tb-act.theme-bad svg { display: none; }
+
+/* divider */
+.tdg-tb-divider-vert {
+  width: 1px; height: 22px; background: rgba(255,255,255,.10);
+  margin: 0 4px;
+}
+
+/* user menu */
+.tdg-tb-user {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 6px 0 8px;
+  border-radius: 6px;
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.82);
+  border: 1px solid rgba(255,255,255,.08);
+  font-size: 11px; font-weight: 600;
+  cursor: pointer;
+}
+.tdg-tb-user-av {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: linear-gradient(135deg,#8B7FF8,#5451E8);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800; color: #fff;
+}
+
+/* ── LIGHT topbar mock ── */
+.tdg-tb.light {
+  background: #FFFFFF;
+  border-bottom: 1px solid rgba(15,23,42,.08);
+  color: rgba(15,23,42,.88);
+}
+.tdg-tb.light .tdg-tb-logo { border-right-color: rgba(15,23,42,.06); }
+.tdg-tb.light .tdg-tb-logo-txt { color: rgba(15,23,42,.88); }
+.tdg-tb.light .tdg-tb-crumb { color: rgba(15,23,42,.42); }
+.tdg-tb.light .tdg-tb-crumb .sep { color: rgba(15,23,42,.18); }
+.tdg-tb.light .tdg-tb-crumb .here { color: rgba(15,23,42,.90); }
+.tdg-tb.light .tdg-tb-search {
+  background: #F4F5F7;
+  border-color: rgba(15,23,42,.10);
+}
+.tdg-tb.light .tdg-tb-search svg { color: rgba(15,23,42,.46); }
+.tdg-tb.light .tdg-tb-search input,
+.tdg-tb.light .tdg-tb-search .tdg-tb-search-text { color: rgba(15,23,42,.88); }
+.tdg-tb.light .tdg-tb-search input::placeholder,
+.tdg-tb.light .tdg-tb-search .tdg-tb-search-text { color: rgba(15,23,42,.42); }
+.tdg-tb.light .tdg-tb-search .kbd {
+  color: rgba(15,23,42,.50);
+  border-color: rgba(15,23,42,.16);
+}
+.tdg-tb.light .tdg-tb-act { color: rgba(15,23,42,.74); }
+.tdg-tb.light .tdg-tb-act:hover {
+  background: rgba(15,23,42,.06);
+  color: rgba(15,23,42,.92);
+  border-color: rgba(15,23,42,.08);
+}
+.tdg-tb.light .tdg-tb-act.has-dot::after { border-color: #FFFFFF; }
+.tdg-tb.light .tdg-tb-divider-vert { background: rgba(15,23,42,.10); }
+.tdg-tb.light .tdg-tb-user {
+  background: rgba(15,23,42,.04);
+  border-color: rgba(15,23,42,.08);
+  color: rgba(15,23,42,.82);
+}
+
+/* ── Mobile compact topbar (375px viewport mock) ── */
+.tdg-mob-frame {
+  width: 100%; max-width: 360px;
+  margin: 0 auto;
+  border: 1px solid var(--bd);
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--bg-base);
+  box-shadow: 0 8px 28px rgba(0,0,0,.22);
+  font-family: var(--font);
+}
+.tdg-mob-tb {
+  height: 56px;
+  background: #0A0E1A;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 10px;
+  color: rgba(255,255,255,.88);
+}
+.tdg-mob-tb .tdg-mob-brand {
+  display: flex; align-items: center; gap: 8px;
+  flex: 1; min-width: 0;
+}
+.tdg-mob-tb .tdg-mob-brand .tdg-tb-logo-mark { width: 24px; height: 24px; font-size: 11px; }
+.tdg-mob-tb .tdg-mob-brand .tdg-tb-logo-txt { font-size: 13px; }
+.tdg-mob-tb .tdg-mob-actions {
+  display: flex; align-items: center; gap: 4px;
+}
+.tdg-mob-tb .tdg-tb-act { width: 36px; height: 36px; border-radius: 8px; }
+.tdg-mob-tb .tdg-tb-act svg { width: 16px; height: 16px; }
+.tdg-mob-tb .tdg-tb-act.has-dot::after { top: 6px; right: 6px; }
+.tdg-mob-body {
+  height: 200px;
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase;
+  color: rgba(255,255,255,.32);
+  font-family: var(--font);
+}
+
+/* ── Bad-example callout (overlay arrows on the bad mock) ── */
+.tdg-callouts {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg-sur);
+  border-top: 1px solid var(--bd);
+  font-family: var(--font);
+}
+@media (max-width: 760px) { .tdg-callouts { grid-template-columns: 1fr; } }
+.tdg-callout {
+  display: flex; gap: 8px; align-items: flex-start;
+  font-size: 10.5px; color: var(--t2); line-height: 1.55;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+}
+.tdg-callout .tdg-callout-n {
+  width: 18px; height: 18px;
+  border-radius: 999px;
+  background: var(--fail-bg); color: var(--fail);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9.5px; font-weight: 800;
+  flex-shrink: 0;
+}
+.tdg-callout strong { color: var(--t1); font-weight: 700; }
+
+/* ── Token mapping ── */
+.tdg-token-list {
+  display: flex; flex-direction: column;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--bg-sur);
+  font-family: var(--font);
+}
+.tdg-token-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.2fr) 2fr;
+  gap: 16px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--bd);
+  font-size: 11.5px;
+  align-items: baseline;
+}
+.tdg-token-row:last-child { border-bottom: none; }
+.tdg-token-row code {
+  font-family: var(--font); font-size: 11px;
+  color: var(--t1); background: var(--bg-sur2);
+  border: 1px solid var(--bd); border-radius: 4px;
+  padding: 2px 7px; font-weight: 700;
+  letter-spacing: .005em;
+}
+.tdg-token-row .tdg-token-desc { color: var(--t2); line-height: 1.6; }
+.tdg-token-row .tdg-token-desc em { color: var(--t3); font-style: normal; font-size: 10.5px; display:block; margin-top:2px;}
+
+/* ── Do / Don't ── */
+.tdg-dd-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+@media (max-width: 760px) { .tdg-dd-grid { grid-template-columns: 1fr; } }
+.tdg-dd {
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  background: var(--bg-sur2);
+  padding: 14px 16px;
+  font-family: var(--font);
+}
+.tdg-dd .tdg-dd-hdr {
+  font-size: 11px; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 10px;
+}
+.tdg-dd.do  .tdg-dd-hdr { color: var(--pass); }
+.tdg-dd.dnt .tdg-dd-hdr { color: var(--fail); }
+.tdg-dd .tdg-dd-hdr::before {
+  content: ""; width: 9px; height: 9px; border-radius: 999px;
+  background: currentColor;
+}
+.tdg-dd ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.tdg-dd li {
+  position: relative; padding-left: 18px;
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+}
+.tdg-dd li::before {
+  position: absolute; left: 2px; top: 0;
+  font-size: 11px; font-weight: 800;
+}
+.tdg-dd.do  li::before { content: "✓"; color: var(--pass); }
+.tdg-dd.dnt li::before { content: "✕"; color: var(--fail); }
+.tdg-dd li code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: 4px; padding: 1px 5px;
+}
+
+/* ── Cursor handoff candidates ── */
+.tdg-cand-grid {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: 6px 12px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  border-radius: var(--r-md);
+  padding: 8px 12px;
+}
+.tdg-cand-row { display: contents; }
+.tdg-cand-n {
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  background: var(--stam-soft);
+  color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font);
+  align-self: center;
+}
+.tdg-cand-body {
+  display: flex; flex-direction: column; gap: 1px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--bd-s);
+  font-family: var(--font);
+}
+.tdg-cand-row:last-child .tdg-cand-body,
+.tdg-cand-row:last-child .tdg-cand-meta { border-bottom: none; }
+.tdg-cand-title {
+  font-size: 12px; font-weight: 700; color: var(--t1);
+  letter-spacing: -.005em; font-family: var(--font);
+}
+.tdg-cand-sub {
+  font-size: 10.5px; color: var(--t3); font-weight: 500;
+  letter-spacing: .005em; line-height: 1.55;
+  font-family: var(--font);
+}
+.tdg-cand-meta {
+  align-self: center;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--bd-s);
+}
+.tdg-cand-meta code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur2);
+  border: 1px solid var(--bd); border-radius: 4px; padding: 1px 6px;
+}
+
+/* ── QA checklist ── */
+.tdg-chk-list {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  font-family: var(--font);
+}
+@media (max-width: 760px) { .tdg-chk-list { grid-template-columns: 1fr; } }
+.tdg-chk-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 11.5px; line-height: 1.55; color: var(--t2);
+  padding: 4px 0;
+}
+.tdg-chk-item .tdg-chk-box {
+  flex-shrink: 0;
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  border: 1.4px solid var(--bd-s);
+  background: var(--bg-sur);
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+  font-size: 10px; font-weight: 800;
+  color: var(--t3);
+}
+.tdg-chk-item .tdg-chk-box.is-pass { color: var(--pass); border-color: rgba(0,191,64,.30); background: var(--pass-bg); }
+.tdg-chk-item .tdg-chk-box.is-warn { color: var(--warn); border-color: rgba(245,158,11,.30); background: var(--warn-bg); }
+.tdg-chk-item code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: 4px; padding: 1px 5px;
+}
+
+/* ── Related links ── */
+.tdg-rel-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+@media (max-width: 900px) { .tdg-rel-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px) { .tdg-rel-grid { grid-template-columns: 1fr; } }
+.tdg-rel-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+  text-decoration: none;
+  display: flex; flex-direction: column; gap: 4px;
+  transition: border-color .15s ease, background .15s ease;
+}
+.tdg-rel-card:hover { border-color: var(--bd-s); background: var(--bg-sur); }
+.tdg-rel-card .tdg-rl-title {
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.tdg-rel-card .tdg-rl-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+}
+
+/* ── Anatomy zoom card (close-up of a single icon button) ── */
+.tdg-zoom-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+@media (max-width: 900px) { .tdg-zoom-grid { grid-template-columns: 1fr; } }
+.tdg-zoom {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 14px 14px 12px;
+  display: flex; flex-direction: column; gap: 10px;
+  font-family: var(--font);
+}
+.tdg-zoom-stage {
+  height: 110px;
+  background: #0A0E1A;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.tdg-zoom-stage.light { background: #FFFFFF; border: 1px solid rgba(15,23,42,.06); }
+.tdg-zoom-stage .tdg-tb-act { transform: scale(2.4); transform-origin: center; }
+.tdg-zoom-stage .tdg-tb-act.theme-bad { transform: scale(2.4); }
+.tdg-zoom-foot {
+  display: flex; flex-direction: column; gap: 2px;
+  font-family: var(--font);
+}
+.tdg-zoom-foot .tdg-zoom-title {
+  font-size: 11.5px; font-weight: 700; color: var(--t1); letter-spacing: -.003em;
+}
+.tdg-zoom-foot .tdg-zoom-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+}
+.tdg-zoom-foot .tdg-zoom-bad { color: var(--fail); font-weight: 700; }
+.tdg-zoom-foot .tdg-zoom-good { color: var(--pass); font-weight: 700; }
+
+/* ── font enforcement ── */
+.tdg-pill, .tdg-hero, .tdg-hero *,
+.tdg-kpi, .tdg-kpi *,
+.tdg-tbl, .tdg-tbl *,
+.tdg-rule-card, .tdg-rule-card *,
+.tdg-spec, .tdg-spec *,
+.tdg-mock, .tdg-mock *,
+.tdg-mob-frame, .tdg-mob-frame *,
+.tdg-callout, .tdg-callout *,
+.tdg-token-row, .tdg-token-row *,
+.tdg-dd, .tdg-dd *,
+.tdg-cand-grid, .tdg-cand-grid *,
+.tdg-chk-list, .tdg-chk-list *,
+.tdg-rel-card, .tdg-rel-card *,
+.tdg-zoom, .tdg-zoom *,
+.tdg-cap, .tdg-cap * {
+  font-family: var(--font) !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Topbar Detail Guide v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Guide</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Topbar</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Notification · Theme · Search</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Topbar Detail</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Detail Scope</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Notification 결정</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Notification Dot Spec</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Theme Toggle Spec</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Search Pill Spec</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Right Action Spacing</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Topbar Detail Mock</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Token / Class Proposal</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Do / Don't</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Cursor Handoff</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>QA Checklist</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Related</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Hero ── -->
+      <div class="tdg-hero">
+        <div class="tdg-hero-row">
+          <strong class="tdg-hero-title">STAM Topbar Detail Guide v1</strong>
+          <span class="tdg-pill brand">Guide</span>
+          <span class="tdg-pill info">Topbar Detail</span>
+          <span class="tdg-pill notyet">Product Not Yet</span>
+        </div>
+        <p>
+          본 문서는 STAM 공통 <strong>Topbar 세부 컴포넌트 기준</strong>을 확정한다.
+          현재 WBS staging 화면에서 알림 숫자 badge가 작아 가독성이 낮고,
+          테마 토글이 흰 사각형처럼 보이며, CENTER 검색이 pill / input이 아니라 텍스트처럼 보이는 문제가 발견되었다.
+          Cursor가 임의로 수정하기 전에 본 문서에서 <strong>Notification Dot · Theme Toggle · Search Pill</strong>
+          기준을 먼저 확정한다. 이 기준은 WBS 뿐 아니라 향후 STAM 전체 topbar에 적용된다.
+        </p>
+        <p style="opacity:.78;">
+          <strong>적용 범위</strong> — 본 문서는 <code>stam/docs/**</code> 하위 1개 HTML만 생성하며,
+          <code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code>, <code>stam/index.html</code>,
+          <code>stam/assets/**</code>, <code>.firebaserc</code>, <code>firebase.json</code>,
+          <code>.github/workflows/**</code> 등 금지 파일은 단 한 줄도 수정하지 않는다.
+          Docs Index에는 카드 1개를 추가한다. 실제 반영은 Cursor가 별도 commit에서 수행한다.
+        </p>
+        <div class="tdg-kpi-grid">
+          <div class="tdg-kpi brand"><span class="tdg-kpi-key">Topbar Height</span><span class="tdg-kpi-val">48px 유지</span></div>
+          <div class="tdg-kpi info"><span class="tdg-kpi-key">Notification</span><span class="tdg-kpi-val">Red Dot only</span></div>
+          <div class="tdg-kpi info"><span class="tdg-kpi-key">Theme Toggle</span><span class="tdg-kpi-val">Icon-only 28px</span></div>
+          <div class="tdg-kpi info"><span class="tdg-kpi-key">Search Pill</span><span class="tdg-kpi-val">28h · 240~320w</span></div>
+          <div class="tdg-kpi"><span class="tdg-kpi-key">Right Action Gap</span><span class="tdg-kpi-val">6~8px</span></div>
+          <div class="tdg-kpi fail"><span class="tdg-kpi-key">Current Status</span><span class="tdg-kpi-val">Mismatch</span></div>
+        </div>
+      </div>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S01 Overview
+           ────────────────────────────────────────────────────────── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM Topbar Anatomy 가이드는 LEFT · CENTER · RIGHT 3영역의 큰 구조만 정의했지만,
+            세부 시각 기준(알림 표시 방식 · 테마 토글 · 검색 pill · 우측 액션 간격)이 부족해
+            <strong>WBS Top / Left / Shell Applied Preview v1</strong> 적용 단계에서 staging 화면이
+            기준과 어긋나는 현상이 발생했다.
+            본 문서는 그 세부 기준을 보강해 향후 STAM 전체 topbar에 일관 적용될 결정 기준을 고정한다.
+            본 문서는 <strong>Cursor가 실제 코드를 수정하기 전 단계</strong>의 디자인 결정 문서이며,
+            mock은 모두 <code>.tdg-</code> prefix 격리 스타일로 동작한다.
+          </p>
+
+          <div class="tdg-rule-grid">
+            <div class="tdg-rule-card">
+              <div class="tdg-rc-hdr is-pass">이 문서가 다루는 것</div>
+              <ul>
+                <li>Notification Indicator 방식 결정 — <strong>red dot only</strong></li>
+                <li>Notification Dot 시각 spec — 크기 · 색 · 위치 · border</li>
+                <li>Theme Toggle 시각 spec — icon-only · dark context 대응</li>
+                <li>Search Pill 시각 spec — desktop / mobile</li>
+                <li>Right Action 간격 · group 분리 기준</li>
+                <li>token / class mapping 후보 (구현 X, 제안만)</li>
+                <li>Cursor 실제 반영 시 후보 파일 · 주의 사항</li>
+                <li>QA 체크리스트</li>
+              </ul>
+            </div>
+            <div class="tdg-rule-card">
+              <div class="tdg-rc-hdr is-fail">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code> 직접 수정</li>
+                <li><code>stam/index.html</code>, <code>stam/assets/**</code> 변경</li>
+                <li>전역 <code>.tbtn</code> 일괄 치환 / 다른 화면 일괄 적용</li>
+                <li>Topbar Anatomy / UI Baseline Guide 본문 수정</li>
+                <li>알림 패널 / 드롭다운 내부 UI 자체 설계</li>
+                <li>Firebase · GitHub Actions · package.json 변경</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>관계 문서</strong><br>
+            본 문서는 다음 문서들의 <em>세부 보강</em> 위치에 있다.<br>
+            · <strong>STAM Topbar Anatomy 가이드</strong> — 3영역 구조 (LEFT/CENTER/RIGHT)<br>
+            · <strong>STAM WBS Top / Left / Shell Applied Preview v1</strong> — 적용 시안<br>
+            · <strong>STAM Guide Application Audit Report v1</strong> — 가이드 누락 감사<br>
+            · <strong>STAM Button CSS Implementation / QA Result Preview v1</strong> — icon-only 28px 기준 동조
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S02 Detail Scope
+           ────────────────────────────────────────────────────────── -->
+      <section id="s02" class="sec" data-screen-label="02 Detail Scope">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Topbar Detail Scope — 다루는 세부 항목</span>
+          <span class="sbadge plan">범위</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            본 문서가 시각 기준을 확정하는 세부 항목은 다음 7가지이다.
+            각 항목은 STAM Topbar의 RIGHT 영역 또는 CENTER 영역에서 사용되며,
+            모두 light / dark 양쪽 컨텍스트에서 일관되게 동작해야 한다.
+          </p>
+          <div class="tdg-spec-grid">
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">01 / Notification Indicator</span>
+              <span class="tdg-spec-val">알림 표시 방식</span>
+              <span class="tdg-spec-sub">숫자 badge vs red dot · topbar 내 표시 방식 결정</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">02 / Theme Toggle</span>
+              <span class="tdg-spec-val">테마 전환 버튼</span>
+              <span class="tdg-spec-sub">icon-only · 흰 사각형으로 보이지 않을 것</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">03 / Search Pill</span>
+              <span class="tdg-spec-val">CENTER 검색 입력</span>
+              <span class="tdg-spec-sub">텍스트가 아니라 pill / input 형태로 명확히 식별</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">04 / User Menu</span>
+              <span class="tdg-spec-val">사용자 메뉴</span>
+              <span class="tdg-spec-sub">avatar + chevron · 28px · dropdown 진입점</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">05 / Quick Action</span>
+              <span class="tdg-spec-val">우측 빠른 액션</span>
+              <span class="tdg-spec-sub">최대 1~2개 · 과밀하면 page toolbar로 이동</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">06 / Right Action Spacing</span>
+              <span class="tdg-spec-val">우측 액션 간격</span>
+              <span class="tdg-spec-sub">gap 6~8px · 업무 / utility 그룹 separator</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">07 / Light / Dark Context</span>
+              <span class="tdg-spec-val">테마 컨텍스트 일관성</span>
+              <span class="tdg-spec-sub">light · dark 둘 다 깨지지 않을 것</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S03 Notification 결정
+           ────────────────────────────────────────────────────────── -->
+      <section id="s03" class="sec" data-screen-label="03 Notification 결정">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Notification Indicator — 결정</span>
+          <span class="sbadge done">Decision</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="ibox info" style="margin-bottom:14px;">
+            <strong>결정 — Topbar 알림 표시는 숫자 badge 대신 red dot 만 사용한다.</strong><br>
+            <span style="font-size:.92em;opacity:.85;display:block;margin-top:6px;line-height:1.7;">
+              · Topbar 알림 아이콘에는 <strong>숫자를 표시하지 않는다.</strong><br>
+              · 알림 있음 상태는 <strong>red dot 만</strong> 표시한다.<br>
+              · 알림 개수는 알림 패널 / 드롭다운 내부에서 표시한다.<br>
+              · 2자리 · 99+ 숫자 badge는 topbar에서 사용하지 않는다.
+            </span>
+          </div>
+
+          <div class="tdg-cap"><span class="tdg-cap-n">R</span>결정 사유 <span class="tdg-cap-sub">왜 숫자 badge 대신 red dot 인가</span></div>
+
+          <div class="tdg-rule-grid">
+            <div class="tdg-rule-card">
+              <div class="tdg-rc-hdr is-fail">숫자 badge 의 문제</div>
+              <ul>
+                <li>Topbar icon button 자체가 작아 숫자 가독성이 떨어진다</li>
+                <li>2자리 이상이 되면 badge가 커져 아이콘을 가린다</li>
+                <li>99+ 표기는 topbar에서 시각적 균형을 깨뜨린다</li>
+                <li>모바일 36~40px 버튼에서는 badge가 잘리기 쉽다</li>
+                <li>light / dark 컨텍스트에서 badge 색이 어색해진다</li>
+              </ul>
+            </div>
+            <div class="tdg-rule-card">
+              <div class="tdg-rc-hdr is-pass">red dot 의 장점</div>
+              <ul>
+                <li>매우 작은 dot 만으로 "알림 있음"이 명확히 보인다</li>
+                <li>2자리 / 100건 이상 모든 상황에서 동일하게 안정적이다</li>
+                <li>모바일 / 데스크탑 모두 동일 시각 규칙으로 동작한다</li>
+                <li>아이콘 자체 가독성을 침해하지 않는다</li>
+                <li>알림 수는 패널 내부에서 더 정확히 보여줄 수 있다</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="tdg-cap" style="margin-top:18px;"><span class="tdg-cap-n">A</span>시각 비교 <span class="tdg-cap-sub">close-up — bad badge vs good dot</span></div>
+
+          <div class="tdg-zoom-grid">
+            <div class="tdg-zoom">
+              <div class="tdg-zoom-stage">
+                <button class="tdg-tb-act has-badge-bad" title="bad 1-digit">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5a4 4 0 0 1 8 0v2l1 2H2l1-2v-2z"/><path d="M5.5 11a1.5 1.5 0 0 0 3 0"/></svg>
+                </button>
+              </div>
+              <div class="tdg-zoom-foot">
+                <span class="tdg-zoom-title">Bad · 1자리 숫자 badge</span>
+                <span class="tdg-zoom-sub">28px 버튼 위에서 7px 글자는 가독성이 낮다. <span class="tdg-zoom-bad">금지</span></span>
+              </div>
+            </div>
+            <div class="tdg-zoom">
+              <div class="tdg-zoom-stage">
+                <button class="tdg-tb-act has-badge-bad has-badge-bad-2" title="bad 2-digit">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5a4 4 0 0 1 8 0v2l1 2H2l1-2v-2z"/><path d="M5.5 11a1.5 1.5 0 0 0 3 0"/></svg>
+                </button>
+              </div>
+              <div class="tdg-zoom-foot">
+                <span class="tdg-zoom-title">Bad · 2자리 / 99+ badge</span>
+                <span class="tdg-zoom-sub">badge가 커져 아이콘을 가린다. <span class="tdg-zoom-bad">금지</span></span>
+              </div>
+            </div>
+            <div class="tdg-zoom">
+              <div class="tdg-zoom-stage">
+                <button class="tdg-tb-act has-dot" title="good red dot">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5a4 4 0 0 1 8 0v2l1 2H2l1-2v-2z"/><path d="M5.5 11a1.5 1.5 0 0 0 3 0"/></svg>
+                </button>
+              </div>
+              <div class="tdg-zoom-foot">
+                <span class="tdg-zoom-title">Good · red dot only</span>
+                <span class="tdg-zoom-sub">알림 있음만 표시. 개수는 알림 패널에서 본다. <span class="tdg-zoom-good">권장</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S04 Notification Dot Spec
+           ────────────────────────────────────────────────────────── -->
+      <section id="s04" class="sec" data-screen-label="04 Notification Dot Spec">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Notification Dot — Visual Spec</span>
+          <span class="sbadge guide">Spec</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            알림 dot 의 시각 기준은 아래와 같다. dot 은 알림 있음 상태에서만 노출되며,
+            아이콘을 과하게 가리지 않도록 우상단에 topbar background 색의 1~2px border 와 함께 표시된다.
+            dot 내부에는 어떤 텍스트도 표시하지 않는다.
+          </p>
+
+          <div class="tdg-spec-grid">
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Size</span>
+              <span class="tdg-spec-val">7px 또는 8px</span>
+              <span class="tdg-spec-sub">기본 8px · 작은 dense topbar 에서만 7px 허용</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Border-radius</span>
+              <span class="tdg-spec-val">999px (완전 원)</span>
+              <span class="tdg-spec-sub">정원이 아니면 dot 으로 인식되지 않는다</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Color</span>
+              <span class="tdg-spec-val">red 계열 · #FF5252 권장</span>
+              <span class="tdg-spec-sub">danger token 과 일관 · light/dark 동일</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Border</span>
+              <span class="tdg-spec-val">1~2px solid topbar bg</span>
+              <span class="tdg-spec-sub">dot 과 아이콘 사이에 분리 공간을 만든다</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Position</span>
+              <span class="tdg-spec-val">icon button 우상단</span>
+              <span class="tdg-spec-sub">top 4px · right 4px (28px 버튼 기준)</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Text</span>
+              <span class="tdg-spec-val">없음</span>
+              <span class="tdg-spec-sub">숫자 / 글자 / 카운트 표시 금지</span>
+            </div>
+          </div>
+
+          <div class="tdg-cap" style="margin-top:16px;"><span class="tdg-cap-n">S</span>State by 알림 상태</div>
+
+          <div class="tdg-tbl-wrap">
+            <table class="tdg-tbl">
+              <thead>
+                <tr>
+                  <th style="width:24%;">State</th>
+                  <th style="width:30%;">Dot 노출</th>
+                  <th style="width:46%;">설명</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">no notification</td>
+                  <td><code>hidden</code></td>
+                  <td>알림 없음. dot 자체를 렌더링하지 않는다.</td>
+                </tr>
+                <tr>
+                  <td class="tn">has notification</td>
+                  <td><code>red dot visible</code></td>
+                  <td>읽지 않은 알림이 1건 이상. 개수는 표시하지 않고 dot 만 표시한다.</td>
+                </tr>
+                <tr>
+                  <td class="tn">unread high priority</td>
+                  <td><code>red dot · danger color 유지</code></td>
+                  <td>긴급 알림이 있는 경우에도 색만 유지하며 숫자를 표시하지 않는다.</td>
+                </tr>
+                <tr>
+                  <td class="tn">all read</td>
+                  <td><code>hidden</code></td>
+                  <td>모두 읽음. dot 제거.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S05 Theme Toggle Spec
+           ────────────────────────────────────────────────────────── -->
+      <section id="s05" class="sec" data-screen-label="05 Theme Toggle Spec">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Theme Toggle — Visual Spec</span>
+          <span class="sbadge guide">Spec</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            현재 staging 의 테마 토글은 dark topbar 위에서 <strong>흰 사각형처럼 보이는 문제</strong>가 있다.
+            테마 토글은 icon-only button 으로 정의되며, topbar 의 다른 우측 액션과 동일한 시각 규칙을 따른다.
+            <strong>currentColor 기반 아이콘</strong>으로 그려지며 light / dark 양쪽에서 같은 형태로 보여야 한다.
+          </p>
+
+          <div class="tdg-spec-grid">
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Variant</span>
+              <span class="tdg-spec-val">icon-only button</span>
+              <span class="tdg-spec-sub">label 없음 · moon / sun SVG 만 표시</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Desktop Size</span>
+              <span class="tdg-spec-val">28px × 28px</span>
+              <span class="tdg-spec-sub">Right Action 표준 size 와 동일</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Mobile Size</span>
+              <span class="tdg-spec-val">36 ~ 40px</span>
+              <span class="tdg-spec-sub">hit target 44px 보장 가능 영역</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Background</span>
+              <span class="tdg-spec-val">transparent · 또는 surface</span>
+              <span class="tdg-spec-sub">흰 사각형 금지 · topbar bg 와 자연스럽게 어울릴 것</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Border</span>
+              <span class="tdg-spec-val">subtle · 또는 없음</span>
+              <span class="tdg-spec-sub">hover 시에만 가벼운 surface border 권장</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Icon</span>
+              <span class="tdg-spec-val">currentColor moon / sun</span>
+              <span class="tdg-spec-sub">상태 전환 시 icon 만 교체</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Hover</span>
+              <span class="tdg-spec-val">subtle surface</span>
+              <span class="tdg-spec-sub">topbar bg 보다 한 단계 밝은 layer</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Focus</span>
+              <span class="tdg-spec-val">button focus ring</span>
+              <span class="tdg-spec-sub">stam focus ring 토큰 사용</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Light / Dark</span>
+              <span class="tdg-spec-val">양쪽에서 깨지지 않을 것</span>
+              <span class="tdg-spec-sub">아이콘 색 = 현재 topbar text color</span>
+            </div>
+          </div>
+
+          <div class="tdg-cap" style="margin-top:18px;"><span class="tdg-cap-n">A</span>시각 비교 <span class="tdg-cap-sub">흰 사각형(bad) vs icon-only(good)</span></div>
+
+          <div class="tdg-zoom-grid">
+            <div class="tdg-zoom">
+              <div class="tdg-zoom-stage">
+                <button class="tdg-tb-act theme-bad" title="bad theme toggle"></button>
+              </div>
+              <div class="tdg-zoom-foot">
+                <span class="tdg-zoom-title">Bad · 흰 사각형</span>
+                <span class="tdg-zoom-sub">background:#fff · icon 미노출. <span class="tdg-zoom-bad">금지</span></span>
+              </div>
+            </div>
+            <div class="tdg-zoom">
+              <div class="tdg-zoom-stage">
+                <button class="tdg-tb-act" title="good moon">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 8.5A4 4 0 0 1 5.5 3a4 4 0 1 0 5.5 5.5z"/></svg>
+                </button>
+              </div>
+              <div class="tdg-zoom-foot">
+                <span class="tdg-zoom-title">Good · dark · moon</span>
+                <span class="tdg-zoom-sub">transparent bg · currentColor moon. <span class="tdg-zoom-good">권장</span></span>
+              </div>
+            </div>
+            <div class="tdg-zoom">
+              <div class="tdg-zoom-stage light">
+                <button class="tdg-tb-act" style="color:rgba(15,23,42,.74);" title="good sun light">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="2.4"/><path d="M7 1.5v1.4M7 11.1v1.4M1.5 7h1.4M11.1 7h1.4M3.1 3.1l1 1M9.9 9.9l1 1M3.1 10.9l1-1M9.9 4.1l1-1"/></svg>
+                </button>
+              </div>
+              <div class="tdg-zoom-foot">
+                <span class="tdg-zoom-title">Good · light · sun</span>
+                <span class="tdg-zoom-sub">white bg · currentColor sun. light context 에서도 일관. <span class="tdg-zoom-good">권장</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S06 Search Pill Spec
+           ────────────────────────────────────────────────────────── -->
+      <section id="s06" class="sec" data-screen-label="06 Search Pill Spec">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Search Pill — Visual Spec</span>
+          <span class="sbadge guide">Spec</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            현재 staging 의 CENTER 검색은 텍스트만 보이는 상태로,
+            사용자가 그것을 검색 입력으로 인지하기 어렵다.
+            검색은 <strong>pill / input 형태로 명확히 식별 가능한 시각</strong>으로 표시되어야 한다.
+            모바일에서는 기본은 search icon, 탭 시 search bar / overlay 로 확장한다.
+          </p>
+
+          <div class="tdg-cap"><span class="tdg-cap-n">D</span>Desktop Search Pill</div>
+
+          <div class="tdg-spec-grid">
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Height</span>
+              <span class="tdg-spec-val">28px</span>
+              <span class="tdg-spec-sub">Right Action 28px 와 동일 높이</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Width</span>
+              <span class="tdg-spec-val">280 ~ 320px (min 240)</span>
+              <span class="tdg-spec-sub">CENTER 영역 안에서 가로 가운데 정렬</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Background</span>
+              <span class="tdg-spec-val">topbar bg 보다 한 단계 밝은 surface</span>
+              <span class="tdg-spec-sub">dark: rgba(255,255,255,.06) · light: #F4F5F7</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Border</span>
+              <span class="tdg-spec-val">1px subtle</span>
+              <span class="tdg-spec-sub">dark: rgba(255,255,255,.12) · light: rgba(15,23,42,.10)</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Radius</span>
+              <span class="tdg-spec-val">7px</span>
+              <span class="tdg-spec-sub">stam component radius md 와 일관</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Icon</span>
+              <span class="tdg-spec-val">좌측 search icon · currentColor</span>
+              <span class="tdg-spec-sub">12px · placeholder 색과 동일 tone</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Placeholder</span>
+              <span class="tdg-spec-val">"작업명·담당자 검색"</span>
+              <span class="tdg-spec-sub">컨텍스트에 맞게 변경 가능</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Shortcut hint</span>
+              <span class="tdg-spec-val">⌘ K 또는 / (선택)</span>
+              <span class="tdg-spec-sub">우측 kbd · 좁은 폭에서는 생략 가능</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Focus</span>
+              <span class="tdg-spec-val">brand border + 2px ring</span>
+              <span class="tdg-spec-sub">실제 filter input focus 와 연결 가능</span>
+            </div>
+          </div>
+
+          <div class="tdg-cap" style="margin-top:18px;"><span class="tdg-cap-n">M</span>Mobile Search</div>
+          <div class="tdg-rule-grid">
+            <div class="tdg-rule-card">
+              <div class="tdg-rc-hdr is-info">기본 상태</div>
+              <ul>
+                <li>topbar CENTER 가 좁기 때문에 <strong>검색 icon 만</strong> 표시한다</li>
+                <li>icon size 16~18px · button hit target 36~40px</li>
+                <li>위치: topbar RIGHT 또는 CENTER 우측</li>
+              </ul>
+            </div>
+            <div class="tdg-rule-card">
+              <div class="tdg-rc-hdr is-pass">탭 후 expand</div>
+              <ul>
+                <li>탭 시 topbar 내부에서 search bar 가 확장되거나</li>
+                <li>전체화면 search overlay 를 띄운다</li>
+                <li>overlay 는 페이지 stack 위 layer-modal 사용</li>
+                <li>닫기 = back button 또는 ✕</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="tdg-cap" style="margin-top:18px;"><span class="tdg-cap-n">B</span>시각 비교 <span class="tdg-cap-sub">텍스트만(bad) vs pill(good)</span></div>
+
+          <div class="tdg-mock">
+            <div class="tdg-mock-label">
+              <span>Search · Bad — 텍스트처럼 보임</span>
+              <span class="tdg-mock-tag bad">현재 staging</span>
+            </div>
+            <div class="tdg-tb">
+              <div class="tdg-tb-left">
+                <div class="tdg-tb-logo">
+                  <span class="tdg-tb-logo-mark">S</span>
+                  <span class="tdg-tb-logo-txt">STAM</span>
+                </div>
+                <div class="tdg-tb-crumb">
+                  <span>업무</span><span class="sep">›</span><span>보드</span><span class="sep">›</span><span class="here">WBS 작업</span>
+                </div>
+              </div>
+              <div class="tdg-tb-center">
+                <div class="tdg-tb-search bad">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>
+                  <span class="tdg-tb-search-text">작업명·담당자 검색</span>
+                </div>
+              </div>
+              <div class="tdg-tb-right">
+                <button class="tdg-tb-act"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5a4 4 0 0 1 8 0v2l1 2H2l1-2v-2z"/><path d="M5.5 11a1.5 1.5 0 0 0 3 0"/></svg></button>
+                <button class="tdg-tb-act"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 8.5A4 4 0 0 1 5.5 3a4 4 0 1 0 5.5 5.5z"/></svg></button>
+                <span class="tdg-tb-divider-vert"></span>
+                <span class="tdg-tb-user"><span class="tdg-tb-user-av">EJ</span></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tdg-mock" style="margin-top:14px;">
+            <div class="tdg-mock-label">
+              <span>Search · Good — pill 명확</span>
+              <span class="tdg-mock-tag ok">기준</span>
+            </div>
+            <div class="tdg-tb">
+              <div class="tdg-tb-left">
+                <div class="tdg-tb-logo">
+                  <span class="tdg-tb-logo-mark">S</span>
+                  <span class="tdg-tb-logo-txt">STAM</span>
+                </div>
+                <div class="tdg-tb-crumb">
+                  <span>업무</span><span class="sep">›</span><span>보드</span><span class="sep">›</span><span class="here">WBS 작업</span>
+                </div>
+              </div>
+              <div class="tdg-tb-center">
+                <div class="tdg-tb-search">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>
+                  <input type="text" placeholder="작업명·담당자 검색" readonly>
+                  <span class="kbd">⌘ K</span>
+                </div>
+              </div>
+              <div class="tdg-tb-right">
+                <button class="tdg-tb-act has-dot"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5a4 4 0 0 1 8 0v2l1 2H2l1-2v-2z"/><path d="M5.5 11a1.5 1.5 0 0 0 3 0"/></svg></button>
+                <button class="tdg-tb-act"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 8.5A4 4 0 0 1 5.5 3a4 4 0 1 0 5.5 5.5z"/></svg></button>
+                <span class="tdg-tb-divider-vert"></span>
+                <span class="tdg-tb-user">
+                  <span class="tdg-tb-user-av">EJ</span>
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:9px;height:9px;opacity:.6;"><path d="M3 5l3 3 3-3"/></svg>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S07 Right Action Spacing
+           ────────────────────────────────────────────────────────── -->
+      <section id="s07" class="sec" data-screen-label="07 Right Action Spacing">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Right Action — Spacing &amp; Grouping</span>
+          <span class="sbadge guide">Spec</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            Topbar 우측 액션은 utility 액션(알림 · 테마 · 사용자)과 업무 액션(Quick Action)으로 구분된다.
+            과밀하지 않도록 <strong>Quick Action 은 최대 1~2개</strong>까지만 두고,
+            추가 액션은 page toolbar 또는 overflow menu 로 이동한다.
+          </p>
+
+          <div class="tdg-spec-grid">
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Button Size</span>
+              <span class="tdg-spec-val">sm · 28px</span>
+              <span class="tdg-spec-sub">stam icon-only sm 기준과 동일</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Gap</span>
+              <span class="tdg-spec-val">6 ~ 8px</span>
+              <span class="tdg-spec-sub">utility 그룹 내부 gap</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Group Separator</span>
+              <span class="tdg-spec-val">1px vertical divider</span>
+              <span class="tdg-spec-sub">업무 액션 ↔ utility 액션 사이</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Quick Action</span>
+              <span class="tdg-spec-val">최대 1~2개</span>
+              <span class="tdg-spec-sub">새로 만들기 등 1차 액션만</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">Overflow</span>
+              <span class="tdg-spec-val">page toolbar / more menu</span>
+              <span class="tdg-spec-sub">topbar 에 동시 노출 금지</span>
+            </div>
+            <div class="tdg-spec">
+              <span class="tdg-spec-key">User Menu</span>
+              <span class="tdg-spec-val">우측 끝 고정</span>
+              <span class="tdg-spec-sub">utility 그룹의 마지막 위치</span>
+            </div>
+          </div>
+
+          <div class="tdg-cap" style="margin-top:16px;"><span class="tdg-cap-n">G</span>Right Group 순서 기준</div>
+          <div class="tdg-tbl-wrap">
+            <table class="tdg-tbl">
+              <thead>
+                <tr>
+                  <th style="width:14%;">순서</th>
+                  <th style="width:22%;">Group</th>
+                  <th style="width:30%;">항목</th>
+                  <th>비고</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">1</td>
+                  <td><code>actions-work</code></td>
+                  <td>Quick Action 1~2 (예: 새로 만들기)</td>
+                  <td class="note">없을 수도 있다 · 페이지에서 결정</td>
+                </tr>
+                <tr>
+                  <td class="tn">—</td>
+                  <td><code>divider</code></td>
+                  <td>1px vertical separator</td>
+                  <td class="note">업무 / utility 사이</td>
+                </tr>
+                <tr>
+                  <td class="tn">2</td>
+                  <td><code>actions-util</code></td>
+                  <td>알림 · 테마 토글</td>
+                  <td class="note">icon-only 28px</td>
+                </tr>
+                <tr>
+                  <td class="tn">—</td>
+                  <td><code>divider</code></td>
+                  <td>1px vertical separator</td>
+                  <td class="note">utility / user 사이 (선택)</td>
+                </tr>
+                <tr>
+                  <td class="tn">3</td>
+                  <td><code>user</code></td>
+                  <td>User Menu (avatar + chevron)</td>
+                  <td class="note">항상 우측 끝</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S08 Topbar Detail Mock
+           ────────────────────────────────────────────────────────── -->
+      <section id="s08" class="sec" data-screen-label="08 Topbar Detail Mock">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Topbar Detail Mock — Good / Bad / Light / Mobile</span>
+          <span class="sbadge plan">Mock</span>
+        </div>
+        <div class="sec-body">
+
+          <!-- A — Good Desktop Dark -->
+          <div class="tdg-cap"><span class="tdg-cap-n">A</span>Good Example — Desktop Dark <span class="tdg-cap-sub">기준 화면</span></div>
+          <div class="tdg-mock">
+            <div class="tdg-mock-label">
+              <span>Topbar · Good · Dark · 1440~1920</span>
+              <span class="tdg-mock-tag ok">Reference</span>
+              <span class="tdg-mock-tag">Search Pill</span>
+              <span class="tdg-mock-tag">Red Dot</span>
+              <span class="tdg-mock-tag">Icon Toggle</span>
+            </div>
+            <div class="tdg-tb">
+              <div class="tdg-tb-left">
+                <div class="tdg-tb-logo">
+                  <span class="tdg-tb-logo-mark">S</span>
+                  <span class="tdg-tb-logo-txt">STAM</span>
+                </div>
+                <div class="tdg-tb-crumb">
+                  <span>업무</span><span class="sep">›</span><span>보드</span><span class="sep">›</span><span class="here">WBS 작업</span>
+                </div>
+              </div>
+              <div class="tdg-tb-center">
+                <div class="tdg-tb-search">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>
+                  <input type="text" placeholder="작업명·담당자 검색" readonly>
+                  <span class="kbd">⌘ K</span>
+                </div>
+              </div>
+              <div class="tdg-tb-right">
+                <button class="tdg-tb-act" title="새로 만들기">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M3 7h8"/></svg>
+                </button>
+                <span class="tdg-tb-divider-vert"></span>
+                <button class="tdg-tb-act has-dot" title="알림">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5a4 4 0 0 1 8 0v2l1 2H2l1-2v-2z"/><path d="M5.5 11a1.5 1.5 0 0 0 3 0"/></svg>
+                </button>
+                <button class="tdg-tb-act" title="테마">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 8.5A4 4 0 0 1 5.5 3a4 4 0 1 0 5.5 5.5z"/></svg>
+                </button>
+                <span class="tdg-tb-divider-vert"></span>
+                <span class="tdg-tb-user">
+                  <span class="tdg-tb-user-av">EJ</span>
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:9px;height:9px;opacity:.6;"><path d="M3 5l3 3 3-3"/></svg>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- B — Bad Example: current issue -->
+          <div class="tdg-cap" style="margin-top:18px;"><span class="tdg-cap-n">B</span>Bad Example — Current Issue <span class="tdg-cap-sub">현재 staging 문제</span></div>
+          <div class="tdg-mock">
+            <div class="tdg-mock-label">
+              <span>Topbar · Bad · 현재 staging</span>
+              <span class="tdg-mock-tag bad">금지</span>
+              <span class="tdg-mock-tag bad">숫자 badge</span>
+              <span class="tdg-mock-tag bad">흰 사각형</span>
+              <span class="tdg-mock-tag bad">텍스트 검색</span>
+            </div>
+            <div class="tdg-tb">
+              <div class="tdg-tb-left">
+                <div class="tdg-tb-logo">
+                  <span class="tdg-tb-logo-mark">S</span>
+                  <span class="tdg-tb-logo-txt">STAM</span>
+                </div>
+                <div class="tdg-tb-crumb">
+                  <span>업무</span><span class="sep">›</span><span>보드</span><span class="sep">›</span><span class="here">WBS 작업</span>
+                </div>
+              </div>
+              <div class="tdg-tb-center">
+                <div class="tdg-tb-search bad">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>
+                  <span class="tdg-tb-search-text">작업명·담당자 검색</span>
+                </div>
+              </div>
+              <div class="tdg-tb-right">
+                <button class="tdg-tb-act has-badge-bad has-badge-bad-2" title="bad badge">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5a4 4 0 0 1 8 0v2l1 2H2l1-2v-2z"/><path d="M5.5 11a1.5 1.5 0 0 0 3 0"/></svg>
+                </button>
+                <button class="tdg-tb-act theme-bad" title="bad theme"></button>
+                <span class="tdg-tb-divider-vert"></span>
+                <span class="tdg-tb-user"><span class="tdg-tb-user-av">EJ</span></span>
+              </div>
+            </div>
+            <div class="tdg-callouts">
+              <div class="tdg-callout">
+                <span class="tdg-callout-n">1</span>
+                <span><strong>알림 숫자 badge 가독성 불가</strong> — 28px 버튼 위 7px 글자는 사용자에게 보이지 않으며, 2자리(12)가 되면 아이콘을 가린다.</span>
+              </div>
+              <div class="tdg-callout">
+                <span class="tdg-callout-n">2</span>
+                <span><strong>테마 토글이 흰 사각형</strong> — dark topbar 위에 background:#fff 가 그대로 사각형으로 보인다. icon 이 보이지 않는다.</span>
+              </div>
+              <div class="tdg-callout">
+                <span class="tdg-callout-n">3</span>
+                <span><strong>검색이 텍스트처럼 보임</strong> — 배경 / border 가 없어 CENTER 영역에 떠 있는 평문 텍스트로만 인식된다.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- C — Good Light -->
+          <div class="tdg-cap" style="margin-top:18px;"><span class="tdg-cap-n">C</span>Good Example — Light Mode <span class="tdg-cap-sub">light context 에서도 깨지지 않음</span></div>
+          <div class="tdg-mock">
+            <div class="tdg-mock-label">
+              <span>Topbar · Good · Light</span>
+              <span class="tdg-mock-tag lite">Light</span>
+              <span class="tdg-mock-tag">Search Pill</span>
+              <span class="tdg-mock-tag">Red Dot</span>
+              <span class="tdg-mock-tag">Sun Icon</span>
+            </div>
+            <div class="tdg-tb light">
+              <div class="tdg-tb-left">
+                <div class="tdg-tb-logo">
+                  <span class="tdg-tb-logo-mark">S</span>
+                  <span class="tdg-tb-logo-txt">STAM</span>
+                </div>
+                <div class="tdg-tb-crumb">
+                  <span>업무</span><span class="sep">›</span><span>보드</span><span class="sep">›</span><span class="here">WBS 작업</span>
+                </div>
+              </div>
+              <div class="tdg-tb-center">
+                <div class="tdg-tb-search">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>
+                  <input type="text" placeholder="작업명·담당자 검색" readonly>
+                  <span class="kbd">⌘ K</span>
+                </div>
+              </div>
+              <div class="tdg-tb-right">
+                <button class="tdg-tb-act has-dot" title="알림">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5a4 4 0 0 1 8 0v2l1 2H2l1-2v-2z"/><path d="M5.5 11a1.5 1.5 0 0 0 3 0"/></svg>
+                </button>
+                <button class="tdg-tb-act" title="테마">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="2.4"/><path d="M7 1.5v1.4M7 11.1v1.4M1.5 7h1.4M11.1 7h1.4M3.1 3.1l1 1M9.9 9.9l1 1M3.1 10.9l1-1M9.9 4.1l1-1"/></svg>
+                </button>
+                <span class="tdg-tb-divider-vert"></span>
+                <span class="tdg-tb-user">
+                  <span class="tdg-tb-user-av">EJ</span>
+                  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:9px;height:9px;opacity:.6;"><path d="M3 5l3 3 3-3"/></svg>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- D — Mobile Compact -->
+          <div class="tdg-cap" style="margin-top:18px;"><span class="tdg-cap-n">D</span>Mobile Compact Example <span class="tdg-cap-sub">360px viewport</span></div>
+          <div style="display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;">
+            <div class="tdg-mob-frame">
+              <div class="tdg-mob-tb">
+                <div class="tdg-mob-brand">
+                  <span class="tdg-tb-logo-mark">S</span>
+                  <span class="tdg-tb-logo-txt">STAM</span>
+                </div>
+                <div class="tdg-mob-actions">
+                  <button class="tdg-tb-act" title="search">
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg>
+                  </button>
+                  <button class="tdg-tb-act has-dot" title="알림">
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5a4 4 0 0 1 8 0v2l1 2H2l1-2v-2z"/><path d="M5.5 11a1.5 1.5 0 0 0 3 0"/></svg>
+                  </button>
+                  <button class="tdg-tb-act" title="more">
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="3" cy="7" r=".7"/><circle cx="7" cy="7" r=".7"/><circle cx="11" cy="7" r=".7"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="tdg-mob-body">WBS · Mobile body</div>
+            </div>
+            <div style="flex:1;min-width:240px;">
+              <div class="tdg-rule-card">
+                <div class="tdg-rc-hdr is-info">Mobile 기준</div>
+                <ul>
+                  <li>검색은 icon 만 → 탭 시 search overlay</li>
+                  <li>알림 dot 은 동일 spec · 36~40px 버튼 우상단</li>
+                  <li>theme toggle 은 more menu 또는 설정으로 이동 가능</li>
+                  <li>user menu 는 overflow 후보 — drawer 안으로 이동 가능</li>
+                  <li>액션은 search · 알림 · more · (선택) user 4개 한도</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S09 Token / Class Proposal
+           ────────────────────────────────────────────────────────── -->
+      <section id="s09" class="sec" data-screen-label="09 Token / Class Proposal">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Token / Class Mapping — Proposal</span>
+          <span class="sbadge plan">Proposal</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            아래 class 이름은 향후 구현 후보이며, <strong>본 문서에서는 실제 CSS 를 작성하지 않는다.</strong>
+            Cursor 가 실제 반영 시 본 제안을 시작점으로 활용한다.
+          </p>
+
+          <div class="tdg-token-list">
+            <div class="tdg-token-row">
+              <code>.stam-topbar-notification</code>
+              <span class="tdg-token-desc">알림 아이콘 버튼. icon-only 28px. <em>dot 자식 요소만 별도 spec.</em></span>
+            </div>
+            <div class="tdg-token-row">
+              <code>.stam-notification-dot</code>
+              <span class="tdg-token-desc">알림 있음 표시 dot. 8px · red · 2px topbar bg border. <em>있음 상태에서만 렌더링.</em></span>
+            </div>
+            <div class="tdg-token-row">
+              <code>.stam-topbar-search</code>
+              <span class="tdg-token-desc">CENTER 검색 pill. 28h · 240~320w · 1px border · 7px radius.</span>
+            </div>
+            <div class="tdg-token-row">
+              <code>.stam-topbar-theme</code>
+              <span class="tdg-token-desc">테마 토글 icon-only 28px. moon / sun currentColor.</span>
+            </div>
+            <div class="tdg-token-row">
+              <code>.stam-topbar-action</code>
+              <span class="tdg-token-desc">우측 icon-only 액션 공통. hover · focus 동일 규칙.</span>
+            </div>
+            <div class="tdg-token-row">
+              <code>.stam-topbar-actions-util</code>
+              <span class="tdg-token-desc">utility 그룹 컨테이너. 알림 · 테마 · 사용자 묶음.</span>
+            </div>
+            <div class="tdg-token-row">
+              <code>.stam-topbar-actions-work</code>
+              <span class="tdg-token-desc">업무 액션 그룹. Quick Action 최대 1~2.</span>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:12px;">
+            <strong>주의</strong>
+            class 이름은 제안 단계이며, 실제 정의는 Cursor 가 별도 commit 에서 CSS / JS 와 함께 결정한다.
+            본 문서는 <code>.stam-topbar-*</code> 어떤 class 도 실제로 정의하거나 적용하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S10 Do / Don't
+           ────────────────────────────────────────────────────────── -->
+      <section id="s10" class="sec" data-screen-label="10 Do / Don't">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Do / Don't</span>
+          <span class="sbadge guide">기준</span>
+        </div>
+        <div class="sec-body">
+          <div class="tdg-dd-grid">
+            <div class="tdg-dd do">
+              <div class="tdg-dd-hdr">Do</div>
+              <ul>
+                <li>알림은 <strong>red dot only</strong> 로 표시한다</li>
+                <li>icon-only 우측 액션 버튼은 <strong>28px</strong> 로 통일한다</li>
+                <li>CENTER 검색은 <strong>pill 형태로 visible</strong> 하게 표시한다</li>
+                <li>아이콘은 <strong>currentColor</strong> 기준으로 그린다</li>
+                <li>dark context 에 맞게 background / border override 한다</li>
+                <li>업무 / utility 그룹 사이에 1px <strong>vertical separator</strong> 둔다</li>
+                <li>알림 개수는 <strong>알림 패널 내부</strong>에서 표시한다</li>
+                <li>모바일에서는 검색을 <strong>icon → overlay</strong> 방식으로 둔다</li>
+              </ul>
+            </div>
+            <div class="tdg-dd dnt">
+              <div class="tdg-dd-hdr">Don't</div>
+              <ul>
+                <li>topbar 에 <strong>알림 숫자 badge</strong> 표시 금지</li>
+                <li>2자리 / 99+ badge 시도 금지</li>
+                <li>테마 토글을 <strong>흰 사각형</strong>으로 만들지 말 것</li>
+                <li>CENTER 검색을 <strong>텍스트만</strong>으로 두지 말 것</li>
+                <li>topbar 에 <strong>업무 액션 과다 배치</strong> 금지 (Quick Action ≤ 2)</li>
+                <li>전역 <code>.tbtn</code> 일괄 치환 금지</li>
+                <li>다른 화면 일괄 적용 금지 — WBS 부터 적용</li>
+                <li>icon 을 <strong>고정 색상</strong>으로 박지 말 것 (currentColor)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S11 Cursor Handoff
+           ────────────────────────────────────────────────────────── -->
+      <section id="s11" class="sec" data-screen-label="11 Cursor Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Cursor Handoff Notes</span>
+          <span class="sbadge plan">Handoff</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            본 기준이 확정되면, Cursor 가 별도 commit 에서 아래 파일들을 보정한다.
+            반드시 <strong>WBS topbar 만 먼저</strong> 적용하고, 다른 화면 / 다른 topbar 와 한 번에 섞지 않는다.
+          </p>
+
+          <div class="tdg-cand-grid">
+            <div class="tdg-cand-row">
+              <span class="tdg-cand-n">1</span>
+              <div class="tdg-cand-body">
+                <span class="tdg-cand-title">stam/js/stam.topbar-render.js</span>
+                <span class="tdg-cand-sub">알림 숫자 제거 → red dot 만 노출. CENTER 검색 pill 마크업 보강. theme toggle icon-only 렌더.</span>
+              </div>
+              <span class="tdg-cand-meta"><code>topbar render</code></span>
+            </div>
+            <div class="tdg-cand-row">
+              <span class="tdg-cand-n">2</span>
+              <div class="tdg-cand-body">
+                <span class="tdg-cand-title">stam/css/stam.shell.css</span>
+                <span class="tdg-cand-sub">notification dot · theme toggle · search pill 의 actual class 정의. topbar 48px 유지.</span>
+              </div>
+              <span class="tdg-cand-meta"><code>shell CSS</code></span>
+            </div>
+            <div class="tdg-cand-row">
+              <span class="tdg-cand-n">3</span>
+              <div class="tdg-cand-body">
+                <span class="tdg-cand-title">stam/css/stam.wbs.css</span>
+                <span class="tdg-cand-sub">필요 시 WBS topbar 한정 override · 단, shell 기준이 우선.</span>
+              </div>
+              <span class="tdg-cand-meta"><code>(조건부)</code></span>
+            </div>
+            <div class="tdg-cand-row">
+              <span class="tdg-cand-n">4</span>
+              <div class="tdg-cand-body">
+                <span class="tdg-cand-title">stam/pages/boards/wbs.html</span>
+                <span class="tdg-cand-sub">필요 시 검색 placeholder · 알림 hook 마크업 정리. 기능 로직 변경 금지.</span>
+              </div>
+              <span class="tdg-cand-meta"><code>(조건부)</code></span>
+            </div>
+          </div>
+
+          <div class="ibox warn" style="margin-top:14px;">
+            <strong>적용 시 주의</strong>
+            <div style="display:flex;flex-direction:column;gap:4px;margin-top:8px;font-size:.875em;line-height:1.7;">
+              <span>· <strong>WBS topbar 에만 먼저 적용한다.</strong> docs topbar / 제품 topbar 를 한 번에 섞지 않는다.</span>
+              <span>· 알림 숫자 표시 로직 제거 후 dot 으로 변경한다. 카운트 상태는 알림 패널에서만 사용한다.</span>
+              <span>· 검색 pill 의 background / border / height (28px) 를 보정한다.</span>
+              <span>· theme toggle 의 흰 사각형 문제를 제거하고 icon-only 로 통일한다.</span>
+              <span>· topbar 48px 유지. 기능 로직 (open/close · navigation · auth) 은 변경하지 않는다.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S12 QA Checklist
+           ────────────────────────────────────────────────────────── -->
+      <section id="s12" class="sec" data-screen-label="12 QA Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">QA Checklist — Cursor 적용 후 점검</span>
+          <span class="sbadge plan">QA</span>
+        </div>
+        <div class="sec-body">
+          <div class="tdg-chk-list">
+            <div class="tdg-chk-item"><span class="tdg-chk-box is-pass">✓</span><span>notification dot 의 <strong>visible / hidden</strong> 상태가 알림 유무에 따라 정확히 동작한다</span></div>
+            <div class="tdg-chk-item"><span class="tdg-chk-box is-pass">✓</span><span>notification dot 이 아이콘을 <strong>과하게 가리지 않는다</strong> (우상단 · 8px)</span></div>
+            <div class="tdg-chk-item"><span class="tdg-chk-box is-pass">✓</span><span>topbar 안에 <strong>숫자 badge 가 없다</strong> (1자리 · 2자리 · 99+ 전부)</span></div>
+            <div class="tdg-chk-item"><span class="tdg-chk-box is-pass">✓</span><span>theme toggle 이 <strong>icon-only</strong> 로 보인다 (moon / sun)</span></div>
+            <div class="tdg-chk-item"><span class="tdg-chk-box is-pass">✓</span><span>theme toggle 이 <strong>흰 사각형으로 보이지 않는다</strong></span></div>
+            <div class="tdg-chk-item"><span class="tdg-chk-box is-pass">✓</span><span>search pill 이 <strong>검색바처럼 보인다</strong> (배경 + border + icon)</span></div>
+            <div class="tdg-chk-item"><span class="tdg-chk-box is-pass">✓</span><span>search placeholder <code>작업명·담당자 검색</code> 의 가독성이 충분하다</span></div>
+            <div class="tdg-chk-item"><span class="tdg-chk-box is-pass">✓</span><span>desktop <strong>1440 / 1600 / 1920</strong> 모두에서 topbar 가 깨지지 않는다</span></div>
+            <div class="tdg-chk-item"><span class="tdg-chk-box is-pass">✓</span><span>mobile mock 기준 (360px) 에서 search icon · dot · more · user 가 표시된다</span></div>
+            <div class="tdg-chk-item"><span class="tdg-chk-box is-pass">✓</span><span><strong>light / dark</strong> 양쪽에서 dot · theme · search 가 모두 자연스럽게 보인다</span></div>
+            <div class="tdg-chk-item"><span class="tdg-chk-box is-pass">✓</span><span>console <strong>error 없음</strong></span></div>
+            <div class="tdg-chk-item"><span class="tdg-chk-box is-pass">✓</span><span>폰트는 <strong>S-Core Dream</strong> 만 사용 (Google Fonts / Pretendard CDN 금지)</span></div>
+            <div class="tdg-chk-item"><span class="tdg-chk-box is-warn">!</span><span>전역 <code>.tbtn</code> 일괄 치환이 발생하지 않았다</span></div>
+            <div class="tdg-chk-item"><span class="tdg-chk-box is-warn">!</span><span>WBS 외 다른 topbar 가 의도치 않게 변경되지 않았다</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S13 Related
+           ────────────────────────────────────────────────────────── -->
+      <section id="s13" class="sec" data-screen-label="13 Related">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Related — 관련 문서</span>
+          <span class="sbadge guide">참고</span>
+        </div>
+        <div class="sec-body">
+          <div class="tdg-rel-grid">
+            <a class="tdg-rel-card" href="STAM-WBS-Top-Left-Shell-Applied-Preview-v1.html">
+              <span class="tdg-rl-title">WBS Top / Left / Shell Applied Preview v1</span>
+              <span class="tdg-rl-sub">WBS 화면 적용 시안 · topbar 3영역 구조</span>
+            </a>
+            <a class="tdg-rel-card" href="STAM-Mobile-Shell-Top-Navigation-Guide-v1.html">
+              <span class="tdg-rl-title">Mobile Shell / Top / Navigation Guide v1</span>
+              <span class="tdg-rl-sub">모바일 topbar / navigation / drawer 기준</span>
+            </a>
+            <a class="tdg-rel-card" href="components/STAM-Topbar-Guide.html">
+              <span class="tdg-rl-title">STAM Topbar Guide</span>
+              <span class="tdg-rl-sub">Doc Nav · App Topbar · Anatomy · Breadcrumb · Theme Toggle</span>
+            </a>
+            <a class="tdg-rel-card" href="STAM-Button-CSS-Implementation-Preview-v1.html">
+              <span class="tdg-rl-title">Button CSS Implementation Preview v1</span>
+              <span class="tdg-rl-sub">icon-only 28px / sm 기준과 동조</span>
+            </a>
+            <a class="tdg-rel-card" href="STAM-Button-CSS-QA-Result-Preview-v1.html">
+              <span class="tdg-rl-title">Button CSS QA Result Preview v1</span>
+              <span class="tdg-rl-sub">버튼 사이즈 · variant QA</span>
+            </a>
+            <a class="tdg-rel-card" href="STAM-UI-Baseline-Guide.html">
+              <span class="tdg-rl-title">STAM UI Baseline Guide</span>
+              <span class="tdg-rl-sub">전체 UI 기준 · Forbidden Rules · Focus View</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>

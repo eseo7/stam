@@ -1,0 +1,2645 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Mobile Shell / Top / Navigation Guide v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ============================================================
+ * STAM Mobile Shell / Top / Navigation Guide v1
+ * - 문서 전용 보조 스타일 (격리 prefix: mb-)
+ * - 실제 .stam-btn / .doc-nav / .gitem 등은 절대 덮어쓰지 않음
+ * - 모든 모바일 mock은 문서 내부 격리 스타일
+ * - 라이트/다크 모두 대응
+ * ============================================================ */
+
+/* ── Status pill ── */
+.mb-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; font-family: var(--font);
+  white-space: nowrap;
+}
+.mb-pill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 999px;
+  background: currentColor; display: inline-block; flex-shrink: 0;
+}
+.mb-pill.pass    { background: var(--pass-bg); color: var(--pass); }
+.mb-pill.warn    { background: var(--warn-bg); color: var(--warn); }
+.mb-pill.fail    { background: var(--fail-bg); color: var(--fail); }
+.mb-pill.info    { background: var(--info-bg); color: var(--info); }
+.mb-pill.brand   { background: var(--stam-soft); color: var(--stam); }
+.mb-pill.notyet  { background: var(--skip-bg); color: var(--skip); }
+
+/* ── Hero ── */
+.mb-hero {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  border-radius: var(--r-md);
+  padding: 18px 20px 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+.mb-hero::before {
+  content: ""; position: absolute; inset: 0 auto 0 0;
+  width: 3px; background: var(--stam);
+}
+.mb-hero-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.mb-hero-title {
+  font-size: 15px; font-weight: 700; color: var(--t1);
+  letter-spacing: -.005em; font-family: var(--font);
+}
+.mb-hero p {
+  margin: 0; font-size: 12px; color: var(--t2); line-height: 1.7;
+  font-family: var(--font);
+}
+.mb-hero code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur2);
+  border: 1px solid var(--bd); border-radius: 4px;
+  padding: 1px 6px;
+}
+
+/* ── KPI grid ── */
+.mb-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+@media (max-width: 1280px) { .mb-kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 720px)  { .mb-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+.mb-kpi {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  padding: 11px 12px 12px;
+  display: flex; flex-direction: column; gap: 5px;
+  min-width: 0;
+}
+.mb-kpi .mb-kpi-key {
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--t3); font-family: var(--font);
+}
+.mb-kpi .mb-kpi-val {
+  font-size: 13px; font-weight: 700;
+  color: var(--t1); font-family: var(--font);
+  letter-spacing: -.005em; line-height: 1.35;
+}
+.mb-kpi.brand   { border-color: rgba(84,81,232,.22); background: var(--stam-soft); }
+.mb-kpi.brand .mb-kpi-key { color: var(--stam); opacity: .9; }
+.mb-kpi.brand .mb-kpi-val { color: var(--stam); }
+.mb-kpi.info    { border-color: rgba(111,168,255,.22); background: var(--info-bg); }
+.mb-kpi.info .mb-kpi-key { color: var(--info); opacity: .9; }
+.mb-kpi.info .mb-kpi-val { color: var(--info); }
+.mb-kpi.warn    { border-color: rgba(245,158,11,.22); background: var(--warn-bg); }
+.mb-kpi.warn .mb-kpi-key { color: var(--warn); opacity: .9; }
+.mb-kpi.warn .mb-kpi-val { color: var(--warn); }
+
+/* ── caption ── */
+.mb-cap {
+  display: flex; align-items: center; gap: 8px;
+  margin: 18px 0 8px;
+  font-size: 12px; font-weight: 700; color: var(--t1); letter-spacing: -.005em;
+}
+.mb-cap .mb-cap-n {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--stam-soft); color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.mb-cap-sub { font-size: 10.5px; color: var(--t3); font-weight: 500; letter-spacing: 0; margin-left: 4px; }
+
+/* ── 공통 table ── */
+.mb-tbl-wrap { overflow-x: auto; border-radius: var(--r-md); border: 1px solid var(--bd); }
+.mb-tbl {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--font); font-size: 11.5px;
+  background: var(--bg-sur);
+  min-width: 720px;
+}
+.mb-tbl th {
+  padding: 9px 10px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  text-align: left; color: var(--t3);
+  border-bottom: 1px solid var(--bd); background: var(--bg-sur2);
+  white-space: nowrap; vertical-align: middle;
+}
+.mb-tbl td {
+  padding: 10px; border-bottom: 1px solid var(--bd);
+  color: var(--t2); vertical-align: top; line-height: 1.6;
+}
+.mb-tbl tbody tr:last-child td { border-bottom: none; }
+.mb-tbl td.tn { color: var(--t1); font-weight: 700; white-space: nowrap; font-size: 11px; }
+.mb-tbl td code, .mb-tbl th code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur2);
+  border: 1px solid var(--bd); border-radius: 4px;
+  padding: 1px 6px; letter-spacing: .005em; white-space: nowrap;
+}
+.mb-tbl td.before { color: var(--fail); }
+.mb-tbl td.after  { color: var(--pass); }
+.mb-tbl td.note { color: var(--t3); font-size: 10.5px; }
+
+/* ── Rule card grid ── */
+.mb-rule-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 760px) { .mb-rule-grid { grid-template-columns: 1fr; } }
+.mb-rule-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+}
+.mb-rule-card .mb-rc-hdr {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--t1);
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.mb-rule-card .mb-rc-hdr::before {
+  content: ""; width: 8px; height: 8px; border-radius: 999px;
+  background: var(--stam); display: inline-block;
+}
+.mb-rule-card .mb-rc-hdr.is-pass::before { background: var(--pass); }
+.mb-rule-card .mb-rc-hdr.is-warn::before { background: var(--warn); }
+.mb-rule-card .mb-rc-hdr.is-info::before { background: var(--info); }
+.mb-rule-card .mb-rc-hdr.is-fail::before { background: var(--fail); }
+.mb-rule-card ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.mb-rule-card li {
+  font-size: 11.5px; line-height: 1.6; color: var(--t2);
+  padding-left: 12px; position: relative;
+}
+.mb-rule-card li::before {
+  content: "·"; position: absolute; left: 2px; top: -2px;
+  color: var(--t3); font-weight: 800;
+}
+.mb-rule-card li code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: 4px; padding: 1px 5px;
+}
+
+/* ============================================================
+ * Phone frames — 모바일 mock 격리 영역
+ * .mb-phone 안에서만 mock 요소가 살아있음
+ * ============================================================ */
+.mb-phone-row {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  align-items: flex-start;
+}
+.mb-phone-col {
+  display: flex; flex-direction: column; gap: 8px;
+  min-width: 0;
+}
+.mb-phone-col-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--t3); font-family: var(--font);
+}
+.mb-phone-col-label .mb-phone-col-w {
+  font-size: 9.5px; padding: 1px 6px; border-radius: 4px;
+  background: var(--bg-sur2); border: 1px solid var(--bd);
+  color: var(--t2); letter-spacing: .02em;
+}
+.mb-phone-col-label .mb-phone-col-tag {
+  font-size: 9px; font-weight: 700;
+  padding: 1px 6px; border-radius: 4px;
+  background: var(--stam-soft); color: var(--stam);
+  letter-spacing: .04em;
+}
+.mb-phone-col-label .mb-phone-col-tag.alt {
+  background: var(--info-bg); color: var(--info);
+}
+.mb-phone-col-label .mb-phone-col-tag.warn {
+  background: var(--warn-bg); color: var(--warn);
+}
+
+.mb-phone {
+  width: 280px;
+  background: #0A0E1A;
+  border-radius: 22px;
+  padding: 6px;
+  border: 1px solid rgba(255,255,255,.06);
+  box-shadow: 0 12px 30px rgba(0,0,0,.32);
+  font-family: var(--font);
+  flex-shrink: 0;
+}
+[data-theme="light"] .mb-phone {
+  background: #1B1F2A;
+  border-color: rgba(0,0,0,.10);
+  box-shadow: 0 10px 24px rgba(20,22,30,.18);
+}
+.mb-phone-screen {
+  background: #0F1320;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  height: 520px;
+  display: flex; flex-direction: column;
+}
+.mb-phone-screen.light {
+  background: #FAFBFC;
+}
+
+/* status bar (mock) */
+.mb-statusbar {
+  height: 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px;
+  font-size: 9.5px; font-weight: 700;
+  color: rgba(255,255,255,.78);
+  background: #0F1320;
+  letter-spacing: .03em;
+}
+.mb-phone-screen.light .mb-statusbar {
+  background: #FAFBFC;
+  color: rgba(20,22,30,.72);
+}
+.mb-statusbar-r {
+  display: inline-flex; gap: 4px; align-items: center;
+}
+.mb-statusbar-r .mb-sb-dot {
+  width: 3px; height: 3px; border-radius: 99px;
+  background: currentColor; opacity: .8;
+}
+
+/* ── Mobile Topbar (mock) ── */
+.mb-topbar {
+  height: 48px;
+  background: #131826;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  display: flex; align-items: center;
+  gap: 4px;
+  padding: 0 6px 0 8px;
+  flex-shrink: 0;
+}
+.mb-phone-screen.light .mb-topbar {
+  background: #FFFFFF;
+  border-bottom-color: rgba(20,22,30,.08);
+}
+.mb-topbar.h52 { height: 52px; }
+.mb-topbar.dim { background: #0F1424; }
+
+.mb-tb-iconbtn {
+  width: 40px; height: 40px;
+  border-radius: 9px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,.86);
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+.mb-tb-iconbtn:hover { background: rgba(255,255,255,.05); }
+.mb-phone-screen.light .mb-tb-iconbtn {
+  color: rgba(20,22,30,.78);
+}
+.mb-phone-screen.light .mb-tb-iconbtn:hover { background: rgba(20,22,30,.04); }
+.mb-tb-iconbtn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.mb-tb-iconbtn.has-dot::after {
+  content: ""; position: absolute;
+  top: 10px; right: 10px;
+  width: 7px; height: 7px;
+  border-radius: 99px;
+  background: #FF5A47;
+  border: 2px solid #131826;
+}
+.mb-phone-screen.light .mb-tb-iconbtn.has-dot::after { border-color: #FFFFFF; }
+
+.mb-tb-title {
+  flex: 1; min-width: 0;
+  font-size: 14px; font-weight: 700;
+  color: rgba(255,255,255,.94);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  letter-spacing: -.005em;
+  padding: 0 4px;
+}
+.mb-phone-screen.light .mb-tb-title { color: rgba(20,22,30,.94); }
+.mb-tb-title.center { text-align: center; }
+.mb-tb-title .mb-tb-title-sub {
+  display: block;
+  font-size: 9.5px; font-weight: 600;
+  color: rgba(255,255,255,.42);
+  letter-spacing: .04em;
+  margin-top: 1px;
+}
+.mb-phone-screen.light .mb-tb-title .mb-tb-title-sub { color: rgba(20,22,30,.44); }
+
+.mb-tb-logo {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0 6px;
+  flex-shrink: 0;
+}
+.mb-tb-logo-mark {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #6663ec, #4340c8);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; color: #fff;
+  letter-spacing: .04em;
+}
+.mb-tb-logo-txt {
+  font-size: 13px; font-weight: 700;
+  color: rgba(255,255,255,.92); letter-spacing: .06em;
+}
+.mb-phone-screen.light .mb-tb-logo-txt { color: rgba(20,22,30,.92); }
+
+/* ── Content area ── */
+.mb-content {
+  flex: 1; min-height: 0;
+  overflow: hidden;
+  padding: 12px;
+  display: flex; flex-direction: column; gap: 10px;
+  font-family: var(--font);
+}
+.mb-content.no-pad { padding: 0; }
+.mb-phone-screen.light .mb-content { color: rgba(20,22,30,.88); }
+
+.mb-section-title {
+  font-size: 11.5px; font-weight: 700;
+  color: rgba(255,255,255,.88);
+  letter-spacing: -.005em;
+}
+.mb-phone-screen.light .mb-section-title { color: rgba(20,22,30,.92); }
+.mb-section-sub {
+  font-size: 9.5px; font-weight: 600;
+  color: rgba(255,255,255,.40);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.mb-phone-screen.light .mb-section-sub { color: rgba(20,22,30,.44); }
+
+/* ── WBS card (mobile card list) ── */
+.mb-wbs-card {
+  border: 1px solid rgba(255,255,255,.07);
+  background: rgba(255,255,255,.03);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.mb-phone-screen.light .mb-wbs-card {
+  background: #fff;
+  border-color: rgba(20,22,30,.08);
+  box-shadow: 0 1px 0 rgba(20,22,30,.02);
+}
+.mb-wbs-card-top {
+  display: flex; align-items: flex-start; gap: 8px;
+  justify-content: space-between;
+}
+.mb-wbs-card-title {
+  font-size: 12.5px; font-weight: 700;
+  color: rgba(255,255,255,.92);
+  line-height: 1.4;
+  letter-spacing: -.005em;
+  min-width: 0;
+  flex: 1;
+}
+.mb-phone-screen.light .mb-wbs-card-title { color: rgba(20,22,30,.92); }
+.mb-wbs-card-meta {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 10px;
+  color: rgba(255,255,255,.50);
+  letter-spacing: .02em;
+}
+.mb-phone-screen.light .mb-wbs-card-meta { color: rgba(20,22,30,.52); }
+.mb-wbs-card-meta .dot { width: 3px; height: 3px; border-radius: 99px; background: currentColor; opacity: .6; }
+
+.mb-status {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.mb-status::before { content: ""; width: 5px; height: 5px; border-radius: 99px; background: currentColor; }
+.mb-status.todo { background: rgba(255,255,255,.06); color: rgba(255,255,255,.62); }
+.mb-status.prog { background: rgba(111,168,255,.16); color: #6FA8FF; }
+.mb-status.done { background: rgba(52,199,89,.16); color: #34C759; }
+.mb-status.delay { background: rgba(255,90,71,.18); color: #FF7D6E; }
+.mb-phone-screen.light .mb-status.todo { background: rgba(20,22,30,.05); color: rgba(20,22,30,.56); }
+
+.mb-wbs-card-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+  font-size: 10.5px;
+  color: rgba(255,255,255,.62);
+}
+.mb-phone-screen.light .mb-wbs-card-row { color: rgba(20,22,30,.66); }
+.mb-wbs-card-row .who {
+  display: inline-flex; align-items: center; gap: 5px;
+  color: rgba(255,255,255,.78);
+}
+.mb-phone-screen.light .mb-wbs-card-row .who { color: rgba(20,22,30,.82); }
+.mb-wbs-card-row .ava {
+  width: 18px; height: 18px; border-radius: 99px;
+  background: #5451E8;
+  font-size: 8.5px; font-weight: 800; color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  letter-spacing: .02em;
+}
+
+/* ── WBS scroll table (mobile) ── */
+.mb-wbs-scrolltbl {
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255,255,255,.03);
+}
+.mb-phone-screen.light .mb-wbs-scrolltbl {
+  background: #fff;
+  border-color: rgba(20,22,30,.08);
+}
+.mb-wbs-scrolltbl-inner {
+  overflow-x: auto;
+  font-size: 10px;
+  color: rgba(255,255,255,.78);
+  white-space: nowrap;
+}
+.mb-phone-screen.light .mb-wbs-scrolltbl-inner { color: rgba(20,22,30,.82); }
+.mb-wbs-scrolltbl table {
+  border-collapse: collapse;
+  font-family: var(--font);
+}
+.mb-wbs-scrolltbl th, .mb-wbs-scrolltbl td {
+  padding: 6px 8px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.mb-phone-screen.light .mb-wbs-scrolltbl th,
+.mb-phone-screen.light .mb-wbs-scrolltbl td {
+  border-bottom-color: rgba(20,22,30,.06);
+}
+.mb-wbs-scrolltbl th {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .05em;
+  color: rgba(255,255,255,.46);
+  background: rgba(255,255,255,.02);
+}
+.mb-phone-screen.light .mb-wbs-scrolltbl th { color: rgba(20,22,30,.50); background: rgba(20,22,30,.02); }
+
+/* ── Bottom nav (mock) ── */
+.mb-bottomnav {
+  height: 54px;
+  background: #131826;
+  border-top: 1px solid rgba(255,255,255,.06);
+  display: flex; align-items: stretch;
+  flex-shrink: 0;
+}
+.mb-phone-screen.light .mb-bottomnav {
+  background: #fff;
+  border-top-color: rgba(20,22,30,.08);
+}
+.mb-bn-item {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px;
+  color: rgba(255,255,255,.42);
+  cursor: pointer;
+}
+.mb-bn-item.active { color: #8B7FF8; }
+.mb-phone-screen.light .mb-bn-item { color: rgba(20,22,30,.48); }
+.mb-phone-screen.light .mb-bn-item.active { color: #5451E8; }
+.mb-bn-item svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.mb-bn-item .mb-bn-label {
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: .02em;
+}
+.mb-bn-item.has-fab { transform: translateY(-2px); }
+.mb-bn-fab {
+  width: 36px; height: 36px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6663ec, #4340c8);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff; flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(84,81,232,.4);
+}
+.mb-bn-fab svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; }
+
+/* ── Sticky bottom action ── */
+.mb-bottom-action {
+  height: 58px;
+  background: #131826;
+  border-top: 1px solid rgba(255,255,255,.06);
+  display: flex; align-items: center;
+  padding: 0 12px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.mb-phone-screen.light .mb-bottom-action {
+  background: #fff;
+  border-top-color: rgba(20,22,30,.08);
+}
+.mb-cta {
+  flex: 1;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6663ec, #4340c8);
+  color: #fff;
+  font-size: 12.5px; font-weight: 700;
+  letter-spacing: .005em;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+}
+.mb-cta.ghost {
+  background: transparent;
+  color: rgba(255,255,255,.78);
+  border: 1px solid rgba(255,255,255,.12);
+  flex: 0 0 88px;
+}
+.mb-phone-screen.light .mb-cta.ghost {
+  color: rgba(20,22,30,.78);
+  border-color: rgba(20,22,30,.12);
+}
+
+/* ── Drawer / sheet (mock) ── */
+.mb-fullsheet {
+  position: absolute; inset: 0;
+  background: #0F1320;
+  display: flex; flex-direction: column;
+}
+.mb-phone-screen.light .mb-fullsheet { background: #fff; }
+.mb-fullsheet-top {
+  height: 48px;
+  background: #131826;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  display: flex; align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  flex-shrink: 0;
+}
+.mb-phone-screen.light .mb-fullsheet-top {
+  background: #fff;
+  border-bottom-color: rgba(20,22,30,.08);
+}
+
+/* ── Bottom sheet (mock) ── */
+.mb-bottomsheet {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: #131826;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  padding: 8px 14px 18px;
+  display: flex; flex-direction: column; gap: 8px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.mb-phone-screen.light .mb-bottomsheet {
+  background: #fff;
+  border-top-color: rgba(20,22,30,.08);
+}
+.mb-bottomsheet-grab {
+  width: 36px; height: 4px;
+  border-radius: 99px;
+  background: rgba(255,255,255,.18);
+  align-self: center;
+  margin-bottom: 2px;
+}
+.mb-phone-screen.light .mb-bottomsheet-grab { background: rgba(20,22,30,.18); }
+.mb-bs-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0;
+  font-size: 12px; font-weight: 600;
+  color: rgba(255,255,255,.86);
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.mb-bs-item:last-child { border-bottom: none; }
+.mb-phone-screen.light .mb-bs-item {
+  color: rgba(20,22,30,.88);
+  border-bottom-color: rgba(20,22,30,.06);
+}
+.mb-bs-item svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; opacity: .68; }
+
+/* ── Drawer (left, mobile mock) ── */
+.mb-drawer {
+  position: absolute; inset: 0;
+  display: flex;
+}
+.mb-drawer-panel {
+  width: 80%;
+  background: #131826;
+  border-right: 1px solid rgba(255,255,255,.06);
+  display: flex; flex-direction: column;
+}
+.mb-phone-screen.light .mb-drawer-panel {
+  background: #fff;
+  border-right-color: rgba(20,22,30,.08);
+}
+.mb-drawer-scrim {
+  flex: 1;
+  background: rgba(0,0,0,.42);
+}
+.mb-drawer-hdr {
+  height: 48px;
+  display: flex; align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.mb-phone-screen.light .mb-drawer-hdr { border-bottom-color: rgba(20,22,30,.06); }
+.mb-drawer-list {
+  padding: 8px 6px;
+  display: flex; flex-direction: column; gap: 2px;
+  overflow: hidden;
+}
+.mb-dr-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 10px;
+  border-radius: 8px;
+  font-size: 12px; font-weight: 600;
+  color: rgba(255,255,255,.78);
+}
+.mb-dr-item.active {
+  background: rgba(84,81,232,.18);
+  color: #C0BAFF;
+}
+.mb-phone-screen.light .mb-dr-item { color: rgba(20,22,30,.78); }
+.mb-phone-screen.light .mb-dr-item.active { background: rgba(84,81,232,.10); color: #4340c8; }
+.mb-dr-item svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; opacity: .85; }
+
+/* ── Search overlay (mock) ── */
+.mb-search-overlay {
+  position: absolute; inset: 0;
+  background: #0F1320;
+  display: flex; flex-direction: column;
+}
+.mb-phone-screen.light .mb-search-overlay { background: #fff; }
+.mb-search-bar {
+  height: 48px;
+  display: flex; align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background: #131826;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.mb-phone-screen.light .mb-search-bar {
+  background: #fff;
+  border-bottom-color: rgba(20,22,30,.08);
+}
+.mb-search-input {
+  flex: 1;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  padding: 0 10px;
+  display: flex; align-items: center; gap: 8px;
+  color: rgba(255,255,255,.86);
+  font-size: 11.5px;
+}
+.mb-phone-screen.light .mb-search-input {
+  background: rgba(20,22,30,.03);
+  border-color: rgba(20,22,30,.10);
+  color: rgba(20,22,30,.88);
+}
+.mb-search-input svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; opacity: .68; }
+
+/* ── Search inline pill (under topbar) ── */
+.mb-search-inline {
+  margin: 0 12px 4px;
+  height: 36px;
+  border-radius: 9px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 10px;
+  color: rgba(255,255,255,.62);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.mb-phone-screen.light .mb-search-inline {
+  background: rgba(20,22,30,.03);
+  border-color: rgba(20,22,30,.08);
+  color: rgba(20,22,30,.62);
+}
+.mb-search-inline svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; opacity: .7; }
+
+/* ── Footer button area (drawer) ── */
+.mb-footer-buttons {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  background: #131826;
+}
+.mb-phone-screen.light .mb-footer-buttons {
+  background: #fff;
+  border-top-color: rgba(20,22,30,.08);
+}
+.mb-fb-btn {
+  flex: 1;
+  height: 44px;
+  border-radius: 10px;
+  font-size: 12px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.mb-fb-btn.primary {
+  background: linear-gradient(135deg, #6663ec, #4340c8);
+  color: #fff;
+}
+.mb-fb-btn.secondary {
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.86);
+  border: 1px solid rgba(255,255,255,.10);
+}
+.mb-phone-screen.light .mb-fb-btn.secondary {
+  background: rgba(20,22,30,.04);
+  color: rgba(20,22,30,.86);
+  border-color: rgba(20,22,30,.10);
+}
+.mb-fb-btn.ghost {
+  background: transparent;
+  color: rgba(255,255,255,.62);
+  border: 1px dashed rgba(255,255,255,.10);
+  flex: 0 0 110px;
+}
+.mb-phone-screen.light .mb-fb-btn.ghost {
+  color: rgba(20,22,30,.62);
+  border-color: rgba(20,22,30,.12);
+}
+
+/* ── Sample inline content blocks ── */
+.mb-list-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.mb-list-row:last-child { border-bottom: none; }
+.mb-phone-screen.light .mb-list-row { border-bottom-color: rgba(20,22,30,.06); }
+.mb-list-row .mb-lr-body { flex: 1; min-width: 0; }
+.mb-list-row .mb-lr-title {
+  font-size: 12px; font-weight: 700;
+  color: rgba(255,255,255,.90);
+  letter-spacing: -.005em;
+  margin-bottom: 2px;
+}
+.mb-phone-screen.light .mb-list-row .mb-lr-title { color: rgba(20,22,30,.92); }
+.mb-list-row .mb-lr-sub {
+  font-size: 10px;
+  color: rgba(255,255,255,.46);
+}
+.mb-phone-screen.light .mb-list-row .mb-lr-sub { color: rgba(20,22,30,.52); }
+
+/* ── Annotation badge ── */
+.mb-annot {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: .04em;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--stam-soft); color: var(--stam);
+  text-transform: uppercase;
+  font-family: var(--font);
+}
+
+/* ── Compare card (A/B/C 안) ── */
+.mb-opt-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 1100px) { .mb-opt-grid { grid-template-columns: 1fr; } }
+.mb-opt-card {
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  border-radius: var(--r-md);
+  padding: 14px 14px 12px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.mb-opt-card.recommend {
+  border-color: rgba(84,81,232,.42);
+  background: var(--stam-soft);
+}
+.mb-opt-hdr {
+  display: flex; align-items: center; gap: 8px;
+}
+.mb-opt-letter {
+  width: 26px; height: 26px;
+  border-radius: 8px;
+  background: var(--bg-sur2);
+  color: var(--t1);
+  font-size: 12px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+  letter-spacing: 0;
+}
+.mb-opt-card.recommend .mb-opt-letter {
+  background: var(--stam);
+  color: #fff;
+}
+.mb-opt-title {
+  font-size: 12.5px; font-weight: 700;
+  color: var(--t1); letter-spacing: -.005em;
+  flex: 1;
+}
+.mb-opt-card.recommend .mb-opt-title { color: var(--stam); }
+.mb-opt-body { font-size: 11px; line-height: 1.65; color: var(--t2); }
+.mb-opt-pros, .mb-opt-cons {
+  font-family: var(--font);
+  font-size: 10.5px; line-height: 1.65;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.mb-opt-pros li, .mb-opt-cons li {
+  position: relative; padding-left: 14px; list-style: none;
+}
+.mb-opt-pros li::before, .mb-opt-cons li::before {
+  position: absolute; left: 0; top: 0;
+  font-weight: 800; font-size: 11px;
+}
+.mb-opt-pros li::before { content: "+"; color: var(--pass); }
+.mb-opt-cons li::before { content: "−"; color: var(--fail); }
+.mb-opt-ul { margin: 0; padding: 0; }
+.mb-opt-hdr-row {
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--t3);
+  margin-top: 4px;
+}
+
+/* ── Checklist ── */
+.mb-chk-list {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 10px;
+}
+@media (max-width: 760px) { .mb-chk-list { grid-template-columns: 1fr; } }
+.mb-chk-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  border-radius: var(--r-md);
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--t2);
+}
+.mb-chk-item code {
+  font-family: var(--font); font-size: 10.5px;
+  color: var(--t1); background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: 4px; padding: 1px 5px;
+}
+.mb-chk-box {
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  background: var(--pass-bg); color: var(--pass);
+  font-size: 10px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.mb-chk-box.is-pass { background: var(--pass-bg); color: var(--pass); }
+.mb-chk-box.is-warn { background: var(--warn-bg); color: var(--warn); }
+.mb-chk-box.is-fail { background: var(--fail-bg); color: var(--fail); }
+.mb-chk-box.is-info { background: var(--info-bg); color: var(--info); }
+
+/* ── Touch-target spec ── */
+.mb-touch-row {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap;
+}
+.mb-touch-cell {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  border-radius: var(--r-md);
+  font-size: 11px;
+  color: var(--t2);
+}
+.mb-touch-square {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--stam-soft);
+  border: 1px dashed rgba(84,81,232,.55);
+  color: var(--stam);
+  border-radius: 8px;
+  font-size: 10px; font-weight: 700;
+}
+.mb-touch-square.sz-28 { width: 28px; height: 28px; font-size: 9px; }
+.mb-touch-square.sz-32 { width: 32px; height: 32px; }
+.mb-touch-square.sz-36 { width: 36px; height: 36px; }
+.mb-touch-square.sz-40 { width: 40px; height: 40px; }
+.mb-touch-square.sz-44 { width: 44px; height: 44px; }
+.mb-touch-row .mb-touch-square.bad { border-color: rgba(220,38,38,.5); color: var(--fail); background: var(--fail-bg); }
+.mb-touch-row .mb-touch-square.ok  { border-color: rgba(34,197,94,.5); color: var(--pass); background: var(--pass-bg); }
+
+/* ── Related cards ── */
+.mb-rel-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+@media (max-width: 1100px) { .mb-rel-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 720px)  { .mb-rel-grid { grid-template-columns: 1fr; } }
+.mb-rel-card {
+  border: 1px solid var(--bd); background: var(--bg-sur);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 4px;
+  text-decoration: none;
+  transition: border-color 120ms, background 120ms;
+}
+.mb-rel-card:hover {
+  border-color: rgba(84,81,232,.35);
+  background: rgba(84,81,232,.04);
+}
+.mb-rel-card .mb-rl-title {
+  font-size: 12px; font-weight: 700; color: var(--t1);
+  letter-spacing: -.005em;
+}
+.mb-rel-card .mb-rl-sub {
+  font-size: 10.5px; color: var(--t3);
+}
+.mb-rel-card .mb-rl-sub code {
+  font-family: var(--font); font-size: 10px;
+  color: var(--t1); background: var(--bg-sur2);
+  border: 1px solid var(--bd); border-radius: 4px; padding: 0 4px;
+}
+
+/* ── light theme phone tweaks ── */
+[data-theme="light"] .mb-phone-screen { background: #FAFBFC; }
+
+/* ── Anatomy callouts ── */
+.mb-anatomy {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+@media (max-width: 980px) { .mb-anatomy { grid-template-columns: 1fr; } }
+.mb-anatomy-callouts {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.mb-anatomy-callout {
+  display: flex; gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md);
+}
+.mb-anatomy-callout .mb-ac-n {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--stam-soft); color: var(--stam);
+  font-size: 10.5px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.mb-anatomy-callout .mb-ac-body { min-width: 0; }
+.mb-anatomy-callout .mb-ac-title {
+  font-size: 11.5px; font-weight: 700; color: var(--t1);
+  margin-bottom: 2px; letter-spacing: -.005em;
+}
+.mb-anatomy-callout .mb-ac-sub {
+  font-size: 10.5px; color: var(--t3); line-height: 1.55;
+}
+.mb-anatomy-callout .mb-ac-sub code {
+  font-family: var(--font); font-size: 10px;
+  background: var(--bg-sur); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 0 4px; color: var(--t1);
+}
+
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Mobile Shell / Top / Navigation Guide v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Guide</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Mobile</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Shell · Topbar · Nav</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Mobile Shell</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Breakpoint Policy</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Mobile App Shell</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Mobile Topbar</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Mobile Navigation</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Mobile Search</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Mobile WBS Board</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Drawer / Full Detail</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Button Guideline</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Action Priority</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>PC vs Mobile</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Cursor Handoff</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Guardrails &amp; QA</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Related</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Hero ── -->
+      <div class="mb-hero">
+        <div class="mb-hero-row">
+          <strong class="mb-hero-title">STAM Mobile Shell / Top / Navigation Guide v1</strong>
+          <span class="mb-pill brand">Guide</span>
+          <span class="mb-pill info">Mobile</span>
+          <span class="mb-pill notyet">Product Not Yet</span>
+        </div>
+        <p>
+          본 문서는 PC 기준 <strong>Topbar / Left Navigation / App Shell</strong>을 확정하기 전,
+          모바일 화면에서의 <strong>Shell · Topbar · Navigation · Search · Drawer · WBS 대응 원칙</strong>을 함께 정의한다.
+          나중에 모바일을 따로 붙이면 PC 구조와 충돌할 수 있으므로,
+          본 가이드를 먼저 합의한 뒤 Cursor가 PC 보정과 분리된 별도 커밋으로 적용한다.
+        </p>
+        <p style="opacity:.78;">
+          <strong>적용 범위</strong> — 본 문서는 <code>stam/docs/**</code> 하위 1개 HTML 생성과
+          <code>STAM-Docs-Index.html</code> 카드 1개 추가만 수행한다.
+          <code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code>, <code>stam/index.html</code>,
+          <code>stam/assets/**</code>, <code>.firebaserc</code>, <code>firebase.json</code>,
+          <code>.github/workflows/**</code>, <code>package.json</code>, <code>_ds/**</code>, <code>uploads/**</code>는 한 줄도 수정하지 않는다.
+        </p>
+        <div class="mb-kpi-grid">
+          <div class="mb-kpi brand"><span class="mb-kpi-key">Mobile Range</span><span class="mb-kpi-val">0–767px</span></div>
+          <div class="mb-kpi info"><span class="mb-kpi-key">Tablet Range</span><span class="mb-kpi-val">768–1023px</span></div>
+          <div class="mb-kpi"><span class="mb-kpi-key">Desktop</span><span class="mb-kpi-val">≥ 1024px</span></div>
+          <div class="mb-kpi"><span class="mb-kpi-key">Mobile Topbar</span><span class="mb-kpi-val">48px (기본)</span></div>
+          <div class="mb-kpi"><span class="mb-kpi-key">Touch Target</span><span class="mb-kpi-val">≥ 40px / 권장 44</span></div>
+          <div class="mb-kpi warn"><span class="mb-kpi-key">Page Hscroll</span><span class="mb-kpi-val">금지</span></div>
+        </div>
+      </div>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S01 Overview
+           ────────────────────────────────────────────────────────── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM은 PC 기준으로 Topbar / Left Navigation / App Shell이 정의되고 있다.
+            그러나 운영 단계에서 모바일은 반드시 별도 구조로 동작하므로,
+            지금 PC 기준을 닫기 전에 모바일에서의 동등 항목을 함께 확정해야 PC ↔ 모바일 사이의 충돌을 막을 수 있다.
+            본 가이드는 모바일 화면에서의 <strong>구조 / 액션 / 검색 / Drawer / 테이블 대응 기준</strong>을 단일 문서로 통합한다.
+          </p>
+
+          <div class="mb-rule-grid">
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-pass">이 문서가 다루는 것</div>
+              <ul>
+                <li>Breakpoint 정의 — mobile / tablet / desktop / drawer fullscreen 한계</li>
+                <li>Mobile App Shell — Topbar / Content / Bottom / Overlay drawer</li>
+                <li>Mobile Topbar — 48 vs 52 / LEFT / CENTER / RIGHT 액션 정리</li>
+                <li>Mobile Navigation 3안 (A 햄버거 / B Bottom / C Hybrid)</li>
+                <li>Mobile Search — icon → inline / overlay / pill 비교</li>
+                <li>Mobile WBS Board — 카드형 리스트, 가로 스크롤 테이블 모드</li>
+                <li>Drawer / Full Detail — 모바일에서 fullscreen sheet로 전환</li>
+                <li>Button / Touch target / Action priority / Guardrails / QA</li>
+              </ul>
+            </div>
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-fail">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code> 직접 수정</li>
+                <li><code>stam/index.html</code>, <code>stam/assets/**</code> 변경</li>
+                <li>PC Topbar / Left Nav / Shell 가이드 자체 수정</li>
+                <li>전역 <code>.tbtn</code> 일괄 치환 / 다른 화면 일괄 적용</li>
+                <li>Drawer open/close · 등록 / 수정 / 상세 기능 로직 변경</li>
+                <li>Firebase · GitHub Actions · package.json · _ds / uploads / *.zip 변경</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S02 Breakpoint Policy
+           ────────────────────────────────────────────────────────── -->
+      <section id="s02" class="sec" data-screen-label="02 Breakpoint Policy">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Breakpoint Policy — 모바일 / 태블릿 / 데스크탑</span>
+          <span class="sbadge guide">기준</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM은 PC 기준과 충돌이 없도록 <strong>3-tier breakpoint</strong>를 채택한다.
+            모바일은 0–767px, 태블릿은 768–1023px, 데스크탑은 1024px 이상이다.
+            1280px 이하 구간은 Drawer를 fullscreen 으로 전환할 수 있는 후보 구간이다.
+          </p>
+
+          <div class="mb-tbl-wrap">
+            <table class="mb-tbl">
+              <thead>
+                <tr>
+                  <th style="width:120px;">Tier</th>
+                  <th style="width:170px;">Range</th>
+                  <th>Layout</th>
+                  <th>Left Nav</th>
+                  <th>Drawer</th>
+                  <th>Topbar Search</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">Mobile</td>
+                  <td><code>0 – 767px</code></td>
+                  <td>Single column · Bottom action / nav 후보</td>
+                  <td>Overlay drawer (좌)</td>
+                  <td>Fullscreen sheet</td>
+                  <td>icon-only → overlay 확장</td>
+                </tr>
+                <tr>
+                  <td class="tn">Tablet</td>
+                  <td><code>768 – 1023px</code></td>
+                  <td>Single column 우선 · 일부 2-pane 허용</td>
+                  <td>Overlay drawer 또는 collapsed (64px)</td>
+                  <td>Fullscreen sheet 또는 right drawer</td>
+                  <td>icon + 짧은 input 가능</td>
+                </tr>
+                <tr>
+                  <td class="tn">Desktop</td>
+                  <td><code>≥ 1024px</code></td>
+                  <td>Topbar 48 / Left 256 / Content flex</td>
+                  <td>Persistent 256px</td>
+                  <td>Right drawer (PC 기준)</td>
+                  <td>CENTER 항상 노출 (input)</td>
+                </tr>
+                <tr>
+                  <td class="tn">Drawer Limit</td>
+                  <td><code>&lt; 1280px</code></td>
+                  <td>PC Right Drawer 폭 → fullscreen 으로 fallback 후보</td>
+                  <td class="note">Drawer 본문이 좁아져 PC 가독성 저하 우려</td>
+                  <td>fullscreen sheet 검토</td>
+                  <td>그대로</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mb-rule-grid" style="margin-top:14px;">
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-info">PC 기준과의 충돌 방지</div>
+              <ul>
+                <li>PC가 사용하는 <code>≥ 1024px</code> 구간은 그대로 둔다 — 기존 가이드 보존</li>
+                <li>모바일은 PC 코드의 <em>축소</em>가 아니라 <em>별도 분기</em>로 처리</li>
+                <li>Left Nav 256px 폭은 모바일에서 절대 그대로 유지되지 않는다</li>
+                <li>Right Drawer 폭은 PC에서 고정, 모바일에서는 fullscreen 으로 전환</li>
+                <li>Tablet은 모바일 규칙을 따르는 것을 기본으로 하고, 일부만 PC 룰 차용</li>
+              </ul>
+            </div>
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-warn">검토가 필요한 경계 케이스</div>
+              <ul>
+                <li>1280px ↓ 화면에서 PC Right Drawer 가 콘텐츠를 가리는 케이스</li>
+                <li>768–1023px 태블릿에서 Bottom Nav 노출 여부</li>
+                <li>가로모드(landscape)에서 mobile 정의의 적용 기준</li>
+                <li>UI baseline 변경 시 breakpoint 영향 회귀 점검</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S03 Mobile App Shell
+           ────────────────────────────────────────────────────────── -->
+      <section id="s03" class="sec" data-screen-label="03 Mobile App Shell">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Mobile App Shell — 기본 구조</span>
+          <span class="sbadge guide">구조</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            모바일 App Shell은 <strong>Topbar / Content / Bottom (action 또는 nav) / Overlay drawer</strong>의 4 영역으로 구성된다.
+            페이지 레벨 가로 스크롤은 절대 발생하지 않으며,
+            긴 콘텐츠는 Content 영역 내부 스크롤로만 처리된다.
+            safe-area-inset 은 Bottom action / Bottom nav 양쪽에 모두 반영된다.
+          </p>
+
+          <div class="mb-cap"><span class="mb-cap-n">M</span>Mobile App Shell — 기본 구성 <span class="mb-cap-sub">topbar 48 · content flex · bottom 영역 분리</span></div>
+
+          <div class="mb-anatomy">
+            <div class="mb-phone-row">
+              <div class="mb-phone-col">
+                <div class="mb-phone-col-label">
+                  <span>Mobile Shell</span>
+                  <span class="mb-phone-col-w">390 × auto</span>
+                  <span class="mb-phone-col-tag">Default</span>
+                </div>
+                <div class="mb-phone">
+                  <div class="mb-phone-screen">
+                    <div class="mb-statusbar">
+                      <span>09:41</span>
+                      <span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span>
+                    </div>
+                    <div class="mb-topbar">
+                      <button class="mb-tb-iconbtn" title="메뉴">
+                        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+                      </button>
+                      <div class="mb-tb-title">WBS 작업
+                        <span class="mb-tb-title-sub">STAM 본사</span>
+                      </div>
+                      <button class="mb-tb-iconbtn" title="검색">
+                        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg>
+                      </button>
+                      <button class="mb-tb-iconbtn has-dot" title="알림">
+                        <svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>
+                      </button>
+                    </div>
+                    <div class="mb-content">
+                      <div class="mb-section-sub">진행 중</div>
+                      <div class="mb-wbs-card">
+                        <div class="mb-wbs-card-top">
+                          <div class="mb-wbs-card-title">화면 설계 1차 리뷰</div>
+                          <span class="mb-status prog">진행</span>
+                        </div>
+                        <div class="mb-wbs-card-row">
+                          <span class="who"><span class="ava">EJ</span>이은주</span>
+                          <span>06.10 – 06.12</span>
+                        </div>
+                      </div>
+                      <div class="mb-wbs-card">
+                        <div class="mb-wbs-card-top">
+                          <div class="mb-wbs-card-title">DB 마이그레이션 PoC</div>
+                          <span class="mb-status delay">지연</span>
+                        </div>
+                        <div class="mb-wbs-card-row">
+                          <span class="who"><span class="ava">DK</span>김도경</span>
+                          <span>06.05 – 06.09</span>
+                        </div>
+                      </div>
+                      <div class="mb-wbs-card">
+                        <div class="mb-wbs-card-top">
+                          <div class="mb-wbs-card-title">권한 정책 정리</div>
+                          <span class="mb-status todo">예정</span>
+                        </div>
+                        <div class="mb-wbs-card-row">
+                          <span class="who"><span class="ava">SY</span>박서연</span>
+                          <span>06.12 – 06.15</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mb-bottom-action">
+                      <div class="mb-cta">＋ 작업 등록</div>
+                      <div class="mb-cta ghost">필터</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-anatomy-callouts">
+              <div class="mb-anatomy-callout">
+                <span class="mb-ac-n">1</span>
+                <div class="mb-ac-body">
+                  <div class="mb-ac-title">Topbar — 항상 상단 고정</div>
+                  <div class="mb-ac-sub">
+                    height <code>48px</code> (또는 <code>52px</code> 후보).
+                    safe-area 상단 inset 자동 반영. iOS notch / Android cutout 위에 background-extend.
+                  </div>
+                </div>
+              </div>
+              <div class="mb-anatomy-callout">
+                <span class="mb-ac-n">2</span>
+                <div class="mb-ac-body">
+                  <div class="mb-ac-title">Content — flex 1 / 내부 스크롤만</div>
+                  <div class="mb-ac-sub">
+                    page-level <code>overflow-x</code> 금지.
+                    가로 스크롤이 필요한 테이블은 Content 내부 컨테이너 안에서만 스크롤한다.
+                  </div>
+                </div>
+              </div>
+              <div class="mb-anatomy-callout">
+                <span class="mb-ac-n">3</span>
+                <div class="mb-ac-body">
+                  <div class="mb-ac-title">Bottom action / Bottom nav</div>
+                  <div class="mb-ac-sub">
+                    화면에 따라 둘 중 <em>하나만</em> 노출.
+                    sticky로 content 위에 떠 있을 수 있으며 <code>safe-area-inset-bottom</code> 만큼 padding-bottom 보존.
+                  </div>
+                </div>
+              </div>
+              <div class="mb-anatomy-callout">
+                <span class="mb-ac-n">4</span>
+                <div class="mb-ac-body">
+                  <div class="mb-ac-title">Overlay drawer — 좌측 슬라이드</div>
+                  <div class="mb-ac-sub">
+                    햄버거 / Back 액션에서 좌측 80% 폭으로 슬라이드 진입.
+                    scrim은 <code>rgba(0,0,0,.42)</code>, ESC / scrim tap / swipe로 닫는다.
+                  </div>
+                </div>
+              </div>
+              <div class="mb-anatomy-callout">
+                <span class="mb-ac-n">5</span>
+                <div class="mb-ac-body">
+                  <div class="mb-ac-title">Horizontal scroll 금지</div>
+                  <div class="mb-ac-sub">
+                    페이지 자체는 절대 가로 스크롤이 발생하지 않는다.
+                    테이블 / 카드 가로 스크롤은 Content 내부 컴포넌트 한정.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S04 Mobile Topbar
+           ────────────────────────────────────────────────────────── -->
+      <section id="s04" class="sec" data-screen-label="04 Mobile Topbar">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Mobile Topbar — Anatomy &amp; Height</span>
+          <span class="sbadge guide">Anatomy</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            모바일 Topbar는 PC와 동일하게 <strong>LEFT / CENTER / RIGHT</strong> 3영역으로 구성하되,
+            CENTER 는 기본적으로 비어있거나 현재 화면명만 노출되고,
+            검색은 RIGHT의 icon action으로 축약된다.
+            STAM compact logo는 LEFT 의 햄버거 옆 또는 Back 액션 옆에 배치할 수 있다.
+          </p>
+
+          <div class="mb-cap"><span class="mb-cap-n">H</span>Topbar Height 후보 비교 <span class="mb-cap-sub">48px (권장) vs 52px (밀도 낮음)</span></div>
+
+          <div class="mb-phone-row">
+            <!-- 48px -->
+            <div class="mb-phone-col">
+              <div class="mb-phone-col-label">
+                <span>Topbar 48px</span>
+                <span class="mb-phone-col-w">권장</span>
+                <span class="mb-phone-col-tag">A</span>
+              </div>
+              <div class="mb-phone">
+                <div class="mb-phone-screen">
+                  <div class="mb-statusbar"><span>09:41</span><span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span></div>
+                  <div class="mb-topbar">
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                    <div class="mb-tb-title">WBS 작업</div>
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                    <button class="mb-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="18" r="1.4"/></svg></button>
+                  </div>
+                  <div class="mb-content"><div class="mb-section-sub">콘텐츠 영역</div><div class="mb-wbs-card"><div class="mb-wbs-card-top"><div class="mb-wbs-card-title">샘플 카드 A</div><span class="mb-status prog">진행</span></div></div><div class="mb-wbs-card"><div class="mb-wbs-card-top"><div class="mb-wbs-card-title">샘플 카드 B</div><span class="mb-status todo">예정</span></div></div></div>
+                </div>
+              </div>
+            </div>
+            <!-- 52px -->
+            <div class="mb-phone-col">
+              <div class="mb-phone-col-label">
+                <span>Topbar 52px</span>
+                <span class="mb-phone-col-w">대체</span>
+                <span class="mb-phone-col-tag alt">B</span>
+              </div>
+              <div class="mb-phone">
+                <div class="mb-phone-screen">
+                  <div class="mb-statusbar"><span>09:41</span><span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span></div>
+                  <div class="mb-topbar h52">
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+                    <div class="mb-tb-title">WBS 작업<span class="mb-tb-title-sub">STAM 본사 / 업무 / 보드</span></div>
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                    <button class="mb-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                  </div>
+                  <div class="mb-content"><div class="mb-section-sub">콘텐츠 영역</div><div class="mb-wbs-card"><div class="mb-wbs-card-top"><div class="mb-wbs-card-title">샘플 카드 A</div><span class="mb-status prog">진행</span></div></div><div class="mb-wbs-card"><div class="mb-wbs-card-top"><div class="mb-wbs-card-title">샘플 카드 B</div><span class="mb-status todo">예정</span></div></div></div>
+                </div>
+              </div>
+            </div>
+            <!-- Logo + crumb -->
+            <div class="mb-phone-col">
+              <div class="mb-phone-col-label">
+                <span>Logo + 현재 화면</span>
+                <span class="mb-phone-col-w">홈 / 보드</span>
+                <span class="mb-phone-col-tag alt">C</span>
+              </div>
+              <div class="mb-phone">
+                <div class="mb-phone-screen">
+                  <div class="mb-statusbar"><span>09:41</span><span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span></div>
+                  <div class="mb-topbar">
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                    <div class="mb-tb-logo">
+                      <span class="mb-tb-logo-mark">S</span>
+                      <span class="mb-tb-logo-txt">STAM</span>
+                    </div>
+                    <div style="flex:1;"></div>
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                    <button class="mb-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                  </div>
+                  <div class="mb-content"><div class="mb-section-sub">홈</div><div class="mb-list-row"><div class="mb-lr-body"><div class="mb-lr-title">오늘 할 일</div><div class="mb-lr-sub">5 / 8 완료</div></div><span class="mb-status prog">진행</span></div><div class="mb-list-row"><div class="mb-lr-body"><div class="mb-lr-title">결재 대기</div><div class="mb-lr-sub">3건</div></div><span class="mb-status todo">예정</span></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-cap" style="margin-top:18px;"><span class="mb-cap-n">L</span>LEFT / CENTER / RIGHT — 영역별 책임</div>
+
+          <div class="mb-tbl-wrap">
+            <table class="mb-tbl">
+              <thead>
+                <tr>
+                  <th style="width:90px;">Region</th>
+                  <th>역할</th>
+                  <th>구성요소</th>
+                  <th>금지 / 주의</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">LEFT</td>
+                  <td>네비게이션 진입 / Back / 컨텍스트 식별</td>
+                  <td>햄버거 또는 Back · STAM compact logo (옵션) · 현재 화면명</td>
+                  <td class="note">햄버거 + Back 동시 노출 금지. logo + title 둘 다 잡아먹지 않도록 폭 관리</td>
+                </tr>
+                <tr>
+                  <td class="tn">CENTER</td>
+                  <td>기본은 비움 또는 화면 제목 정렬</td>
+                  <td>현재 화면 제목 (텍스트), title-sub (선택)</td>
+                  <td class="note">CENTER에 검색 input 직접 노출 금지 — 모바일은 icon → expand 패턴</td>
+                </tr>
+                <tr>
+                  <td class="tn">RIGHT</td>
+                  <td>화면 보조 액션</td>
+                  <td>검색 / 알림 / 더보기 · 사용자 메뉴는 더보기 안으로 이동 후보</td>
+                  <td class="note">Quick action 최대 1개 — 그 외는 더보기 / Bottom sheet 로 이관</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mb-rule-grid" style="margin-top:14px;">
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-pass">알림 Badge 모바일 기준</div>
+              <ul>
+                <li>icon button 위 dot — 직경 <code>7px</code>, 배경 <code>#FF5A47</code></li>
+                <li>icon button 컨테이너 외곽 <code>2px</code> 배경색 ring (overlap 안내)</li>
+                <li>count 노출은 모바일 topbar에서 금지 — dot만 표기</li>
+                <li>count는 알림 패널 / drawer 내부 항목에서만 표기</li>
+              </ul>
+            </div>
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-info">Quick Action 정책</div>
+              <ul>
+                <li>topbar 의 Quick action은 <strong>최대 1개</strong></li>
+                <li>등록 / 내보내기 / 필터 등은 Bottom action 또는 Bottom sheet 로</li>
+                <li>같은 화면에서 등록 CTA가 있으면 Quick action 노출 금지</li>
+                <li>WBS 보드는 등록을 Bottom sticky CTA 로 두는 것을 권장</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S05 Mobile Navigation
+           ────────────────────────────────────────────────────────── -->
+      <section id="s05" class="sec" data-screen-label="05 Mobile Navigation">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Mobile Navigation — 3안 비교</span>
+          <span class="sbadge guide">3안</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM은 산출물 SaaS 특성상 메뉴 수가 많고 deep navigation 이 필수이므로,
+            모바일 Navigation 은 <strong>A안(햄버거 + Drawer)</strong> 또는
+            <strong>C안(Hybrid · Bottom nav 4개 + Drawer 전체 메뉴)</strong> 중 하나가 적합하다.
+            Bottom navigation 단독(B안) 은 메뉴 폭을 감당하지 못해 권장하지 않는다.
+          </p>
+
+          <div class="mb-cap"><span class="mb-cap-n">N</span>네비게이션 3안 비교 <span class="mb-cap-sub">A 햄버거+Drawer · B Bottom · C Hybrid</span></div>
+
+          <div class="mb-phone-row" style="gap:18px;">
+            <!-- A -->
+            <div class="mb-phone-col">
+              <div class="mb-phone-col-label">
+                <span>A · Hamburger + Drawer</span>
+                <span class="mb-phone-col-tag">권장</span>
+              </div>
+              <div class="mb-phone">
+                <div class="mb-phone-screen">
+                  <div class="mb-statusbar"><span>09:41</span><span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span></div>
+                  <div class="mb-topbar">
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                    <div class="mb-tb-title">WBS 작업</div>
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                    <button class="mb-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                  </div>
+                  <div class="mb-drawer">
+                    <div class="mb-drawer-panel">
+                      <div class="mb-drawer-hdr">
+                        <div class="mb-tb-logo"><span class="mb-tb-logo-mark">S</span><span class="mb-tb-logo-txt">STAM</span></div>
+                      </div>
+                      <div class="mb-drawer-list">
+                        <div class="mb-dr-item"><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg>홈</div>
+                        <div class="mb-dr-item active"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 10h16"/></svg>WBS 작업</div>
+                        <div class="mb-dr-item"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>리스트</div>
+                        <div class="mb-dr-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>일정</div>
+                        <div class="mb-dr-item"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M8 10h8M8 14h5"/></svg>산출물</div>
+                        <div class="mb-dr-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 19a7 7 0 0 1 14 0"/></svg>구성원</div>
+                        <div class="mb-dr-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12h2M3 12h2M12 3v2M12 19v2"/></svg>설정</div>
+                      </div>
+                    </div>
+                    <div class="mb-drawer-scrim"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- B -->
+            <div class="mb-phone-col">
+              <div class="mb-phone-col-label">
+                <span>B · Bottom Navigation</span>
+                <span class="mb-phone-col-tag warn">한계 있음</span>
+              </div>
+              <div class="mb-phone">
+                <div class="mb-phone-screen">
+                  <div class="mb-statusbar"><span>09:41</span><span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span></div>
+                  <div class="mb-topbar">
+                    <div class="mb-tb-logo" style="margin-left:6px;"><span class="mb-tb-logo-mark">S</span><span class="mb-tb-logo-txt">STAM</span></div>
+                    <div style="flex:1;"></div>
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                    <button class="mb-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                  </div>
+                  <div class="mb-content">
+                    <div class="mb-section-sub">WBS 작업</div>
+                    <div class="mb-wbs-card"><div class="mb-wbs-card-top"><div class="mb-wbs-card-title">샘플 카드 A</div><span class="mb-status prog">진행</span></div></div>
+                    <div class="mb-wbs-card"><div class="mb-wbs-card-top"><div class="mb-wbs-card-title">샘플 카드 B</div><span class="mb-status delay">지연</span></div></div>
+                    <div class="mb-wbs-card"><div class="mb-wbs-card-top"><div class="mb-wbs-card-title">샘플 카드 C</div><span class="mb-status todo">예정</span></div></div>
+                  </div>
+                  <div class="mb-bottomnav">
+                    <div class="mb-bn-item"><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg><span class="mb-bn-label">홈</span></div>
+                    <div class="mb-bn-item active"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 10h16"/></svg><span class="mb-bn-label">WBS</span></div>
+                    <div class="mb-bn-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg><span class="mb-bn-label">일정</span></div>
+                    <div class="mb-bn-item"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M8 10h8M8 14h5"/></svg><span class="mb-bn-label">산출물</span></div>
+                    <div class="mb-bn-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 19a7 7 0 0 1 14 0"/></svg><span class="mb-bn-label">MY</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- C -->
+            <div class="mb-phone-col">
+              <div class="mb-phone-col-label">
+                <span>C · Hybrid</span>
+                <span class="mb-phone-col-tag">권장 후보</span>
+              </div>
+              <div class="mb-phone">
+                <div class="mb-phone-screen">
+                  <div class="mb-statusbar"><span>09:41</span><span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span></div>
+                  <div class="mb-topbar">
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                    <div class="mb-tb-title">WBS 작업</div>
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                    <button class="mb-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                  </div>
+                  <div class="mb-content">
+                    <div class="mb-section-sub">바로가기</div>
+                    <div class="mb-wbs-card"><div class="mb-wbs-card-top"><div class="mb-wbs-card-title">진행 중 작업</div><span class="mb-status prog">12</span></div></div>
+                    <div class="mb-wbs-card"><div class="mb-wbs-card-top"><div class="mb-wbs-card-title">결재 대기</div><span class="mb-status todo">3</span></div></div>
+                  </div>
+                  <div class="mb-bottomnav">
+                    <div class="mb-bn-item active"><svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg><span class="mb-bn-label">홈</span></div>
+                    <div class="mb-bn-item"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 10h16"/></svg><span class="mb-bn-label">WBS</span></div>
+                    <div class="mb-bn-item has-fab"><span class="mb-bn-fab"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></div>
+                    <div class="mb-bn-item"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M8 10h8M8 14h5"/></svg><span class="mb-bn-label">산출물</span></div>
+                    <div class="mb-bn-item"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="mb-bn-label">메뉴</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-opt-grid" style="margin-top:16px;">
+            <div class="mb-opt-card recommend">
+              <div class="mb-opt-hdr">
+                <span class="mb-opt-letter">A</span>
+                <span class="mb-opt-title">햄버거 + Left Drawer Navigation</span>
+                <span class="mb-pill brand">권장</span>
+              </div>
+              <div class="mb-opt-body">
+                topbar LEFT의 햄버거에서 좌측 80% drawer를 슬라이드 인. 모든 메뉴를 단일 트리로 노출.
+                STAM처럼 메뉴가 많은 산출물 SaaS에 가장 적합하다.
+              </div>
+              <div class="mb-opt-hdr-row">Pros</div>
+              <ul class="mb-opt-ul mb-opt-pros">
+                <li>모든 메뉴를 1depth로 평등하게 노출</li>
+                <li>PC Left Nav 와 정보 구조가 1:1로 대응 — 학습비용 낮음</li>
+                <li>화면 콘텐츠가 가장 넓어진다</li>
+              </ul>
+              <div class="mb-opt-hdr-row">Cons</div>
+              <ul class="mb-opt-ul mb-opt-cons">
+                <li>주요 화면 진입에 2 tap 필요 (햄버거 → 항목)</li>
+                <li>홈/탐색 빈도가 낮으면 단조롭게 느껴질 수 있음</li>
+              </ul>
+            </div>
+            <div class="mb-opt-card">
+              <div class="mb-opt-hdr">
+                <span class="mb-opt-letter">B</span>
+                <span class="mb-opt-title">Bottom Navigation 단독</span>
+                <span class="mb-pill warn">권장 아님</span>
+              </div>
+              <div class="mb-opt-body">
+                4–5 개의 핵심 영역만 Bottom nav에 노출. 햄버거 없음.
+                메뉴가 많은 STAM에는 부족.
+              </div>
+              <div class="mb-opt-hdr-row">Pros</div>
+              <ul class="mb-opt-ul mb-opt-pros">
+                <li>주요 화면 진입이 1 tap</li>
+                <li>모바일 사용자에게 친숙한 패턴</li>
+              </ul>
+              <div class="mb-opt-hdr-row">Cons</div>
+              <ul class="mb-opt-ul mb-opt-cons">
+                <li>STAM 메뉴 전부를 담을 수 없음</li>
+                <li>설정 / 산출물 / 권한 / 결재 등이 누락되거나 강제 압축됨</li>
+                <li>PC Left Nav 구조와 매핑이 깨진다</li>
+              </ul>
+            </div>
+            <div class="mb-opt-card recommend">
+              <div class="mb-opt-hdr">
+                <span class="mb-opt-letter">C</span>
+                <span class="mb-opt-title">Hybrid — Bottom 4개 + Drawer 전체</span>
+                <span class="mb-pill brand">대체 권장</span>
+              </div>
+              <div class="mb-opt-body">
+                자주 쓰는 4 영역(홈 / WBS / 산출물 / 메뉴)을 Bottom 으로,
+                전체 메뉴는 “메뉴” 항목 또는 햄버거로 Drawer 진입.
+                FAB를 통해 등록 등 page action을 노출 가능.
+              </div>
+              <div class="mb-opt-hdr-row">Pros</div>
+              <ul class="mb-opt-ul mb-opt-pros">
+                <li>주요 4 화면은 1 tap</li>
+                <li>전체 메뉴는 Drawer로 보장 (STAM 메뉴 폭 수용)</li>
+                <li>중앙 FAB로 등록 / 작성 액션 강조 가능</li>
+              </ul>
+              <div class="mb-opt-hdr-row">Cons</div>
+              <ul class="mb-opt-ul mb-opt-cons">
+                <li>구현/유지 비용 가장 큼 (Bottom + Drawer 동시 운영)</li>
+                <li>Bottom 4 + 메뉴 라벨링이 일관되어야 함</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="mb-rule-grid" style="margin-top:14px;">
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-pass">추천 결정</div>
+              <ul>
+                <li><strong>1차 권장:</strong> A안 (햄버거 + Drawer) — STAM 메뉴 폭, PC Left Nav 와의 1:1 매핑</li>
+                <li><strong>대체:</strong> C안 (Hybrid) — 주요 4개 노출이 사업적으로 중요해지는 시점에 전환</li>
+                <li>B안은 단독으로 채택하지 않는다 (STAM 메뉴 폭에 부적합)</li>
+                <li>최종 결정 전까지 본 가이드는 A안 mock 을 기준 시안으로 둔다</li>
+              </ul>
+            </div>
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-info">결정이 보류된 항목</div>
+              <ul>
+                <li>FAB 채택 여부 — C안 적용 시 활성, A안에서는 미사용 권장</li>
+                <li>Bottom Nav 위 sticky bottom action 동시 노출 정책</li>
+                <li>Drawer 내부 검색 input 노출 여부 (현재는 노출 안함)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S06 Mobile Search
+           ────────────────────────────────────────────────────────── -->
+      <section id="s06" class="sec" data-screen-label="06 Mobile Search">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Mobile Search — 검색 접근 패턴</span>
+          <span class="sbadge guide">패턴</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            모바일 topbar 의 CENTER는 검색을 직접 노출하지 않는다.
+            대신 RIGHT의 검색 아이콘을 누르면 <strong>topbar 아래로 inline search bar 가 확장</strong>되거나
+            (단순한 화면 검색),
+            <strong>full search overlay</strong> 가 위에 올라온다 (전역 검색).
+            WBS 처럼 테이블형 화면은 검색 접근성이 핵심이므로 검색 액션을 RIGHT 상단에 항상 고정한다.
+          </p>
+
+          <div class="mb-cap"><span class="mb-cap-n">S</span>검색 진입 3 패턴 <span class="mb-cap-sub">Inline expand · Full overlay · Filter sheet</span></div>
+
+          <div class="mb-phone-row" style="gap:18px;">
+            <!-- Inline expand -->
+            <div class="mb-phone-col">
+              <div class="mb-phone-col-label">
+                <span>Inline Search Expand</span>
+                <span class="mb-phone-col-tag">현재 화면 내 검색</span>
+              </div>
+              <div class="mb-phone">
+                <div class="mb-phone-screen">
+                  <div class="mb-statusbar"><span>09:41</span><span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span></div>
+                  <div class="mb-topbar">
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                    <div class="mb-tb-title">WBS 작업</div>
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                    <button class="mb-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                  </div>
+                  <div class="mb-search-inline">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg>
+                    <span>현재 화면 검색</span>
+                  </div>
+                  <div class="mb-content" style="padding-top:6px;">
+                    <div class="mb-wbs-card"><div class="mb-wbs-card-top"><div class="mb-wbs-card-title">설계 리뷰</div><span class="mb-status prog">진행</span></div></div>
+                    <div class="mb-wbs-card"><div class="mb-wbs-card-top"><div class="mb-wbs-card-title">설계 변경 안내</div><span class="mb-status todo">예정</span></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Full overlay -->
+            <div class="mb-phone-col">
+              <div class="mb-phone-col-label">
+                <span>Full Search Overlay</span>
+                <span class="mb-phone-col-tag">전역 검색</span>
+              </div>
+              <div class="mb-phone">
+                <div class="mb-phone-screen">
+                  <div class="mb-statusbar"><span>09:41</span><span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span></div>
+                  <div class="mb-search-overlay">
+                    <div class="mb-search-bar">
+                      <button class="mb-tb-iconbtn" style="width:32px;height:32px;"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+                      <div class="mb-search-input">
+                        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg>
+                        <span>STAM 전체 검색</span>
+                      </div>
+                    </div>
+                    <div class="mb-content">
+                      <div class="mb-section-sub">최근 검색</div>
+                      <div class="mb-list-row"><div class="mb-lr-body"><div class="mb-lr-title">설계 변경</div><div class="mb-lr-sub">WBS · 3건</div></div></div>
+                      <div class="mb-list-row"><div class="mb-lr-body"><div class="mb-lr-title">권한 정리</div><div class="mb-lr-sub">결재 · 2건</div></div></div>
+                      <div class="mb-list-row"><div class="mb-lr-body"><div class="mb-lr-title">PoC</div><div class="mb-lr-sub">산출물 · 5건</div></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Filter sheet -->
+            <div class="mb-phone-col">
+              <div class="mb-phone-col-label">
+                <span>Filter Bottom Sheet</span>
+                <span class="mb-phone-col-tag alt">조건 검색</span>
+              </div>
+              <div class="mb-phone">
+                <div class="mb-phone-screen">
+                  <div class="mb-statusbar"><span>09:41</span><span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span></div>
+                  <div class="mb-topbar">
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                    <div class="mb-tb-title">WBS 작업</div>
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                    <button class="mb-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                  </div>
+                  <div class="mb-content">
+                    <div class="mb-wbs-card"><div class="mb-wbs-card-top"><div class="mb-wbs-card-title">설계 리뷰</div><span class="mb-status prog">진행</span></div></div>
+                    <div class="mb-wbs-card"><div class="mb-wbs-card-top"><div class="mb-wbs-card-title">PoC 정리</div><span class="mb-status delay">지연</span></div></div>
+                  </div>
+                  <div class="mb-bottomsheet">
+                    <div class="mb-bottomsheet-grab"></div>
+                    <div class="mb-section-title">필터</div>
+                    <div class="mb-bs-item"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 10h16"/></svg>상태</div>
+                    <div class="mb-bs-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 19a7 7 0 0 1 14 0"/></svg>담당자</div>
+                    <div class="mb-bs-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>기간</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-tbl-wrap" style="margin-top:16px;">
+            <table class="mb-tbl">
+              <thead>
+                <tr>
+                  <th style="width:170px;">패턴</th>
+                  <th>적용 화면</th>
+                  <th>장점</th>
+                  <th>주의</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">Inline Expand</td>
+                  <td>WBS · 리스트 · 산출물 등 단일 화면 검색</td>
+                  <td>현재 화면 컨텍스트 유지, transition 가벼움</td>
+                  <td class="note">topbar 아래 36px 차지 — content 높이 보정 필요</td>
+                </tr>
+                <tr>
+                  <td class="tn">Full Overlay</td>
+                  <td>STAM 전체 검색 (홈 / 시스템 전역)</td>
+                  <td>최근 검색 / 그룹별 결과 보여줄 공간 확보</td>
+                  <td class="note">Back 으로 이전 화면 복귀, history 처리 명확화</td>
+                </tr>
+                <tr>
+                  <td class="tn">Filter Bottom Sheet</td>
+                  <td>WBS / 리스트의 조건 검색</td>
+                  <td>다중 조건을 한 번에 선택 가능, swipe로 닫기</td>
+                  <td class="note">검색 input 과는 별도 — filter 와 search 책임 분리</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S07 Mobile WBS Board
+           ────────────────────────────────────────────────────────── -->
+      <section id="s07" class="sec" data-screen-label="07 Mobile WBS Board">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Mobile WBS Board — Card / Table / Detail</span>
+          <span class="sbadge guide">WBS</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            모바일에서 PC WBS 테이블을 그대로 보여주지 않는다.
+            기본 표시는 <strong>카드형 리스트</strong>이며, 필요 시 <strong>가로 스크롤 테이블 모드</strong> 와
+            <strong>“전체 테이블 보기” 모드</strong> 를 별도로 제공한다.
+            모바일 카드에 표시되는 컬럼은 <em>작업명 · 담당자 · 상태 · 일정 · 위험/지연</em> 5개로 제한한다.
+          </p>
+
+          <div class="mb-cap"><span class="mb-cap-n">W</span>WBS 3 모드 비교 <span class="mb-cap-sub">카드형 · 가로 스크롤 테이블 · 전체 테이블</span></div>
+
+          <div class="mb-phone-row" style="gap:18px;">
+            <!-- Card list -->
+            <div class="mb-phone-col">
+              <div class="mb-phone-col-label">
+                <span>카드형 리스트</span>
+                <span class="mb-phone-col-tag">기본</span>
+              </div>
+              <div class="mb-phone">
+                <div class="mb-phone-screen">
+                  <div class="mb-statusbar"><span>09:41</span><span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span></div>
+                  <div class="mb-topbar">
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                    <div class="mb-tb-title">WBS 작업</div>
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                    <button class="mb-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                  </div>
+                  <div class="mb-content">
+                    <div class="mb-section-sub">진행 중 · 3건</div>
+                    <div class="mb-wbs-card">
+                      <div class="mb-wbs-card-top">
+                        <div class="mb-wbs-card-title">화면 설계 1차 리뷰</div>
+                        <span class="mb-status prog">진행</span>
+                      </div>
+                      <div class="mb-wbs-card-row">
+                        <span class="who"><span class="ava">EJ</span>이은주</span>
+                        <span>06.10 – 06.12</span>
+                      </div>
+                    </div>
+                    <div class="mb-wbs-card">
+                      <div class="mb-wbs-card-top">
+                        <div class="mb-wbs-card-title">DB 마이그레이션 PoC</div>
+                        <span class="mb-status delay">지연</span>
+                      </div>
+                      <div class="mb-wbs-card-row">
+                        <span class="who"><span class="ava">DK</span>김도경</span>
+                        <span>06.05 – 06.09 · D-3</span>
+                      </div>
+                    </div>
+                    <div class="mb-wbs-card">
+                      <div class="mb-wbs-card-top">
+                        <div class="mb-wbs-card-title">권한 정책 정리</div>
+                        <span class="mb-status todo">예정</span>
+                      </div>
+                      <div class="mb-wbs-card-row">
+                        <span class="who"><span class="ava">SY</span>박서연</span>
+                        <span>06.12 – 06.15</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-bottom-action">
+                    <div class="mb-cta">＋ 작업 등록</div>
+                    <div class="mb-cta ghost">필터</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Horizontal scroll table -->
+            <div class="mb-phone-col">
+              <div class="mb-phone-col-label">
+                <span>가로 스크롤 테이블</span>
+                <span class="mb-phone-col-tag alt">선택</span>
+              </div>
+              <div class="mb-phone">
+                <div class="mb-phone-screen">
+                  <div class="mb-statusbar"><span>09:41</span><span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span></div>
+                  <div class="mb-topbar">
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                    <div class="mb-tb-title">WBS · 테이블</div>
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="18" r="1.4"/></svg></button>
+                  </div>
+                  <div class="mb-content">
+                    <div class="mb-section-sub">표 모드 · 가로 스크롤 컨테이너 내부에서만</div>
+                    <div class="mb-wbs-scrolltbl">
+                      <div class="mb-wbs-scrolltbl-inner">
+                        <table>
+                          <thead>
+                            <tr><th>작업명</th><th>담당자</th><th>상태</th><th>일정</th><th>위험</th></tr>
+                          </thead>
+                          <tbody>
+                            <tr><td>화면 설계 1차 리뷰</td><td>이은주</td><td>진행</td><td>06.10–12</td><td>없음</td></tr>
+                            <tr><td>DB 마이그 PoC</td><td>김도경</td><td>지연</td><td>06.05–09</td><td>D-3</td></tr>
+                            <tr><td>권한 정책 정리</td><td>박서연</td><td>예정</td><td>06.12–15</td><td>없음</td></tr>
+                            <tr><td>리포트 v2 구조</td><td>최지훈</td><td>진행</td><td>06.08–14</td><td>주의</td></tr>
+                            <tr><td>알림 채널 통합</td><td>유지원</td><td>예정</td><td>06.15–20</td><td>없음</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <div class="mb-section-sub" style="margin-top:8px;">※ 페이지는 가로 스크롤 되지 않는다 — 위 표 컨테이너만 가로 스크롤</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Full table mode -->
+            <div class="mb-phone-col">
+              <div class="mb-phone-col-label">
+                <span>전체 테이블 보기</span>
+                <span class="mb-phone-col-tag alt">전용 화면</span>
+              </div>
+              <div class="mb-phone">
+                <div class="mb-phone-screen">
+                  <div class="mb-statusbar"><span>09:41</span><span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span></div>
+                  <div class="mb-topbar">
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+                    <div class="mb-tb-title">전체 테이블<span class="mb-tb-title-sub">WBS · 전 컬럼</span></div>
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M5 5h14M5 12h14M5 19h14"/></svg></button>
+                  </div>
+                  <div class="mb-content no-pad" style="padding:8px;">
+                    <div class="mb-wbs-scrolltbl">
+                      <div class="mb-wbs-scrolltbl-inner">
+                        <table>
+                          <thead>
+                            <tr><th>WBS</th><th>작업명</th><th>유형</th><th>상태</th><th>담당</th><th>승인</th><th>시작</th><th>종료</th><th>진척</th><th>위험</th></tr>
+                          </thead>
+                          <tbody>
+                            <tr><td>1.1.1</td><td>설계 리뷰</td><td>설계</td><td>진행</td><td>이은주</td><td>대기</td><td>06.10</td><td>06.12</td><td>40%</td><td>없음</td></tr>
+                            <tr><td>1.1.2</td><td>DB PoC</td><td>개발</td><td>지연</td><td>김도경</td><td>승인</td><td>06.05</td><td>06.09</td><td>60%</td><td>D-3</td></tr>
+                            <tr><td>1.2.1</td><td>권한 정리</td><td>운영</td><td>예정</td><td>박서연</td><td>대기</td><td>06.12</td><td>06.15</td><td>0%</td><td>없음</td></tr>
+                            <tr><td>2.1.1</td><td>리포트 v2</td><td>개발</td><td>진행</td><td>최지훈</td><td>대기</td><td>06.08</td><td>06.14</td><td>30%</td><td>주의</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-rule-grid" style="margin-top:14px;">
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-pass">카드형 5 컬럼 원칙</div>
+              <ul>
+                <li>작업명 — 타이틀, 2 line clamp</li>
+                <li>담당자 — 이름 + avatar 1개</li>
+                <li>상태 — 진행 / 예정 / 지연 / 완료</li>
+                <li>일정 — 시작–종료, D-n 또는 위험 표기 포함</li>
+                <li>위험/지연 — pill로 강조 (지연 시 red, 주의 시 warn)</li>
+              </ul>
+            </div>
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-warn">금지</div>
+              <ul>
+                <li>PC 컬럼 (WBS 코드 / 유형 / 승인 / 진척 / …) 을 카드에 모두 노출하는 것</li>
+                <li>PC 테이블을 그대로 모바일에 축소해 렌더링하는 것</li>
+                <li>페이지 자체가 가로 스크롤되는 모든 형태</li>
+                <li>카드 안 텍스트가 ellipsis 없이 줄바꿈 폭주하는 형태</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S08 Drawer / Full Detail
+           ────────────────────────────────────────────────────────── -->
+      <section id="s08" class="sec" data-screen-label="08 Drawer / Full Detail">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Mobile Drawer / Full Detail — 상세 / 등록 / 수정</span>
+          <span class="sbadge guide">상세</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            PC 우측 Drawer 는 모바일에서 <strong>fullscreen panel</strong> 로 전환된다.
+            “전체 보기” 액션은 모바일에서는 fullscreen 자체가 기본이므로
+            <em>역할이 사라지거나 “인쇄/공유” 같은 별개 액션으로 재정의</em>된다.
+            등록 / 수정 / 상세 화면도 모두 full-screen sheet로 동작한다.
+          </p>
+
+          <div class="mb-cap"><span class="mb-cap-n">D</span>PC Drawer → Mobile Fullscreen <span class="mb-cap-sub">footer 44px · primary / secondary / ghost</span></div>
+
+          <div class="mb-phone-row" style="gap:18px;">
+            <!-- Full detail -->
+            <div class="mb-phone-col">
+              <div class="mb-phone-col-label">
+                <span>WBS 상세 — Fullscreen</span>
+                <span class="mb-phone-col-tag">기본</span>
+              </div>
+              <div class="mb-phone">
+                <div class="mb-phone-screen">
+                  <div class="mb-statusbar"><span>09:41</span><span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span></div>
+                  <div class="mb-fullsheet">
+                    <div class="mb-fullsheet-top">
+                      <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                      <div class="mb-tb-title">화면 설계 1차 리뷰</div>
+                      <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="18" r="1.4"/></svg></button>
+                    </div>
+                    <div class="mb-content">
+                      <div class="mb-list-row"><div class="mb-lr-body"><div class="mb-lr-title">상태</div><div class="mb-lr-sub">진행</div></div><span class="mb-status prog">진행</span></div>
+                      <div class="mb-list-row"><div class="mb-lr-body"><div class="mb-lr-title">담당자</div><div class="mb-lr-sub">이은주</div></div></div>
+                      <div class="mb-list-row"><div class="mb-lr-body"><div class="mb-lr-title">일정</div><div class="mb-lr-sub">06.10 – 06.12</div></div></div>
+                      <div class="mb-list-row"><div class="mb-lr-body"><div class="mb-lr-title">설명</div><div class="mb-lr-sub">설계 검토 1차 — 화면 흐름 / 컴포넌트 분류</div></div></div>
+                    </div>
+                    <div class="mb-footer-buttons">
+                      <div class="mb-fb-btn ghost">삭제</div>
+                      <div class="mb-fb-btn secondary">수정</div>
+                      <div class="mb-fb-btn primary">완료 처리</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Edit / Create -->
+            <div class="mb-phone-col">
+              <div class="mb-phone-col-label">
+                <span>작업 등록 — Fullscreen</span>
+                <span class="mb-phone-col-tag alt">신규 등록</span>
+              </div>
+              <div class="mb-phone">
+                <div class="mb-phone-screen">
+                  <div class="mb-statusbar"><span>09:41</span><span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span></div>
+                  <div class="mb-fullsheet">
+                    <div class="mb-fullsheet-top">
+                      <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                      <div class="mb-tb-title">새 WBS 작업</div>
+                    </div>
+                    <div class="mb-content">
+                      <div class="mb-list-row"><div class="mb-lr-body"><div class="mb-lr-title">작업명</div><div class="mb-lr-sub">예: 화면 설계 2차 리뷰</div></div></div>
+                      <div class="mb-list-row"><div class="mb-lr-body"><div class="mb-lr-title">담당자</div><div class="mb-lr-sub">선택</div></div></div>
+                      <div class="mb-list-row"><div class="mb-lr-body"><div class="mb-lr-title">상태</div><div class="mb-lr-sub">예정</div></div></div>
+                      <div class="mb-list-row"><div class="mb-lr-body"><div class="mb-lr-title">시작 – 종료</div><div class="mb-lr-sub">06.15 – 06.18</div></div></div>
+                    </div>
+                    <div class="mb-footer-buttons">
+                      <div class="mb-fb-btn secondary">취소</div>
+                      <div class="mb-fb-btn primary">등록</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Bottom sheet for quick edit -->
+            <div class="mb-phone-col">
+              <div class="mb-phone-col-label">
+                <span>Quick Edit — Bottom Sheet</span>
+                <span class="mb-phone-col-tag alt">단일 액션</span>
+              </div>
+              <div class="mb-phone">
+                <div class="mb-phone-screen">
+                  <div class="mb-statusbar"><span>09:41</span><span class="mb-statusbar-r"><span class="mb-sb-dot"></span><span class="mb-sb-dot"></span></span></div>
+                  <div class="mb-topbar">
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                    <div class="mb-tb-title">WBS 작업</div>
+                    <button class="mb-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                    <button class="mb-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                  </div>
+                  <div class="mb-content">
+                    <div class="mb-wbs-card"><div class="mb-wbs-card-top"><div class="mb-wbs-card-title">설계 리뷰</div><span class="mb-status prog">진행</span></div></div>
+                  </div>
+                  <div class="mb-bottomsheet">
+                    <div class="mb-bottomsheet-grab"></div>
+                    <div class="mb-section-title">빠른 액션</div>
+                    <div class="mb-bs-item"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg>완료 처리</div>
+                    <div class="mb-bs-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 19a7 7 0 0 1 14 0"/></svg>담당자 변경</div>
+                    <div class="mb-bs-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>기간 변경</div>
+                    <div class="mb-bs-item"><svg viewBox="0 0 24 24"><path d="M6 7h12M6 12h12M6 17h6"/></svg>전체 상세 열기</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-tbl-wrap" style="margin-top:16px;">
+            <table class="mb-tbl">
+              <thead>
+                <tr>
+                  <th style="width:170px;">PC Drawer Role</th>
+                  <th>Mobile 변환</th>
+                  <th>Footer Button</th>
+                  <th>비고</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">상세 보기</td>
+                  <td>Fullscreen sheet (back / X로 닫음)</td>
+                  <td>ghost (삭제) · secondary (수정) · primary (완료/저장)</td>
+                  <td class="note">footer height <code>44px</code> 권장 (40 허용)</td>
+                </tr>
+                <tr>
+                  <td class="tn">등록 / 수정</td>
+                  <td>Fullscreen sheet · 키보드 열림 대응</td>
+                  <td>secondary (취소) · primary (등록/저장)</td>
+                  <td class="note">키보드 위 footer 띄움 (sticky)</td>
+                </tr>
+                <tr>
+                  <td class="tn">전체 보기</td>
+                  <td>역할 재정의 — 이미 fullscreen 이므로 “인쇄 / 공유 / 외부 링크” 등으로 전환</td>
+                  <td>action만 노출, primary 없음</td>
+                  <td class="note">“전체 보기” 그대로 두면 모바일에서 무의미</td>
+                </tr>
+                <tr>
+                  <td class="tn">빠른 액션</td>
+                  <td>Bottom sheet — 단일 컬럼 / swipe close</td>
+                  <td>없음 (각 row가 액션)</td>
+                  <td class="note">전체 상세 진입은 마지막 row로</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S09 Mobile Button Guideline
+           ────────────────────────────────────────────────────────── -->
+      <section id="s09" class="sec" data-screen-label="09 Button Guideline">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Mobile Button Guideline — Touch Target</span>
+          <span class="sbadge guide">버튼</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            모바일은 touch target 최소 <strong>40px</strong>, 권장 <strong>44px</strong>를 기준으로 한다.
+            PC의 <code>sm 28px</code> 버튼은 <strong>모바일 주요 액션에 사용 금지</strong>이며,
+            icon-only 버튼 또한 최소 40px 컨테이너 안에서 운용된다.
+            footer CTA는 44px 를 권장하고, topbar icon button 은 36 – 40px 사이를 채택한다.
+          </p>
+
+          <div class="mb-cap"><span class="mb-cap-n">T</span>Touch Target Spec <span class="mb-cap-sub">28 (금지) · 32 / 36 (보조) · 40 (최소) · 44 (권장)</span></div>
+
+          <div class="mb-touch-row">
+            <div class="mb-touch-cell">
+              <span class="mb-touch-square sz-28 bad">28</span>
+              <span>PC sm — 모바일 주요 액션 금지</span>
+            </div>
+            <div class="mb-touch-cell">
+              <span class="mb-touch-square sz-32">32</span>
+              <span>topbar 내 보조 icon (선택)</span>
+            </div>
+            <div class="mb-touch-cell">
+              <span class="mb-touch-square sz-36">36</span>
+              <span>topbar icon — 최소 후보</span>
+            </div>
+            <div class="mb-touch-cell">
+              <span class="mb-touch-square sz-40 ok">40</span>
+              <span>touch 최소 / icon-only 컨테이너</span>
+            </div>
+            <div class="mb-touch-cell">
+              <span class="mb-touch-square sz-44 ok">44</span>
+              <span>footer CTA · 권장 기본</span>
+            </div>
+          </div>
+
+          <div class="mb-tbl-wrap" style="margin-top:16px;">
+            <table class="mb-tbl">
+              <thead>
+                <tr>
+                  <th style="width:170px;">위치</th>
+                  <th>Variant</th>
+                  <th>Height</th>
+                  <th>참고</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">Topbar icon</td>
+                  <td>ghost icon-only</td>
+                  <td><code>36 – 40px</code> 컨테이너</td>
+                  <td class="note">icon glyph 18px · padding으로 hit-area 확보</td>
+                </tr>
+                <tr>
+                  <td class="tn">Bottom CTA (primary)</td>
+                  <td>primary</td>
+                  <td><code>44px</code> 권장 (40 허용)</td>
+                  <td class="note">화면 폭 전체에서 좌우 12px gutter</td>
+                </tr>
+                <tr>
+                  <td class="tn">Bottom CTA (secondary)</td>
+                  <td>secondary / ghost</td>
+                  <td><code>44px</code></td>
+                  <td class="note">primary 옆 fixed-width (88 – 110px)</td>
+                </tr>
+                <tr>
+                  <td class="tn">Fullscreen footer</td>
+                  <td>primary / secondary / ghost</td>
+                  <td><code>40 – 44px</code></td>
+                  <td class="note">PC drawer footer 32px → 모바일 40 + 권장</td>
+                </tr>
+                <tr>
+                  <td class="tn">Bottom nav item</td>
+                  <td>nav icon + label</td>
+                  <td><code>54px</code> bar 내부 / 각 item ≥ 64w</td>
+                  <td class="note">FAB 사용 시 중앙 item 만 -2px 띄움</td>
+                </tr>
+                <tr>
+                  <td class="tn">Card 내 inline action</td>
+                  <td>chip / pill</td>
+                  <td>실제 hit-area <code>≥ 40px</code></td>
+                  <td class="note">시각 padding 6px 라도 row 전체가 tap target</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mb-rule-grid" style="margin-top:14px;">
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-fail">금지</div>
+              <ul>
+                <li>PC <code>sm 28px</code> 버튼을 모바일 주요 CTA로 사용</li>
+                <li>icon-only 버튼을 <code>32px</code> 미만의 hit-area로 두는 것</li>
+                <li>두 개의 primary 버튼을 같은 footer 에 동시에 두는 것</li>
+                <li>Bottom action 안에 icon 만 있는 ghost 버튼만 두는 것 (의도 불명)</li>
+              </ul>
+            </div>
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-info">PC와의 정합성</div>
+              <ul>
+                <li>PC 의 button variant (primary / secondary / ghost) 명은 그대로 유지</li>
+                <li>size 토큰은 별도 — 모바일은 <code>md / lg</code> 만 사용</li>
+                <li>PC button CSS는 모바일에서 <em>덮어쓰지 않고</em> media query로 size 보강</li>
+                <li>실제 적용은 <code>stam/css/stam.components.css</code> 의 모바일 분기에서</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S10 Mobile Action Priority
+           ────────────────────────────────────────────────────────── -->
+      <section id="s10" class="sec" data-screen-label="10 Action Priority">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Mobile Action Priority — 어떤 액션을 어디에 두는가</span>
+          <span class="sbadge guide">우선순위</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            모바일 topbar 의 RIGHT 에 둘 수 있는 액션은 <strong>검색 / 알림 / 더보기</strong>로 한정한다.
+            등록 / 내보내기 / 필터 / 보기 옵션은 Bottom action 또는 Bottom sheet 로 이동한다.
+            sticky bottom action 은 content 위 fixed로 떠 있으나, scroll 시에도 content를 가리지 않도록
+            content 하단에 같은 높이의 spacer 를 자동으로 두는 것을 원칙으로 한다.
+          </p>
+
+          <div class="mb-tbl-wrap">
+            <table class="mb-tbl">
+              <thead>
+                <tr>
+                  <th style="width:150px;">액션</th>
+                  <th>Topbar</th>
+                  <th>Bottom action</th>
+                  <th>Bottom sheet / 더보기</th>
+                  <th>비고</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="tn">검색</td><td>RIGHT 아이콘</td><td>—</td><td>—</td><td class="note">전역 / 인라인 둘 다 검색은 topbar에서 시작</td></tr>
+                <tr><td class="tn">알림</td><td>RIGHT 아이콘 (badge)</td><td>—</td><td>—</td><td class="note">count는 알림 패널에서만 표시</td></tr>
+                <tr><td class="tn">사용자 메뉴</td><td>—</td><td>—</td><td>RIGHT 더보기 안</td><td class="note">topbar 직접 아바타 금지 (혼잡)</td></tr>
+                <tr><td class="tn">등록 / 작성</td><td>—</td><td>primary CTA</td><td>FAB (C안)</td><td class="note">화면당 1개로 제한</td></tr>
+                <tr><td class="tn">필터</td><td>—</td><td>secondary / ghost</td><td>bottom sheet</td><td class="note">조건 다수 시 bottom sheet 권장</td></tr>
+                <tr><td class="tn">보기 옵션 (카드/표)</td><td>RIGHT 더보기 안</td><td>—</td><td>bottom sheet</td><td class="note">표 모드 진입은 더보기 → 새 화면</td></tr>
+                <tr><td class="tn">내보내기 (Excel / PDF)</td><td>—</td><td>—</td><td>RIGHT 더보기 또는 상세 footer</td><td class="note">topbar 직접 노출 금지</td></tr>
+                <tr><td class="tn">정렬</td><td>—</td><td>—</td><td>bottom sheet</td><td class="note">drop-down 대신 시트로</td></tr>
+                <tr><td class="tn">상세 / 수정 / 삭제</td><td>—</td><td>—</td><td>상세 footer 또는 Quick Edit</td><td class="note">삭제는 ghost로만 노출</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mb-rule-grid" style="margin-top:14px;">
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-pass">우선순위 원칙</div>
+              <ul>
+                <li>topbar 액션 ≤ 3 — 검색 / 알림 / 더보기</li>
+                <li>page CTA 는 화면당 1개 — Bottom action 또는 FAB</li>
+                <li>같은 화면에서 Bottom nav 와 Bottom action 동시 노출은 신중하게 검토</li>
+                <li>“하나의 화면에 두 가지 primary action” 금지</li>
+              </ul>
+            </div>
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-warn">자주 발생하는 실수</div>
+              <ul>
+                <li>topbar 에 등록 + 알림 + 사용자 + 메뉴 모두 노출 → 36px 미만 압축</li>
+                <li>Bottom CTA 가 content 마지막 카드를 가림</li>
+                <li>“더보기” 안에 너무 많은 항목을 평면적으로 나열 — 그루핑 필요</li>
+                <li>filter 와 search 의 책임이 섞여서 단일 UI로 합쳐지는 경우</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S11 PC vs Mobile
+           ────────────────────────────────────────────────────────── -->
+      <section id="s11" class="sec" data-screen-label="11 PC vs Mobile">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">PC vs Mobile — 차이표</span>
+          <span class="sbadge guide">차이</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            아래는 같은 항목이 PC 와 Mobile 에서 어떻게 다른지를 한 줄로 정리한 표이다.
+            본 표가 PC ↔ Mobile 충돌 검토의 단일 참조 기준이 된다.
+          </p>
+
+          <div class="mb-tbl-wrap">
+            <table class="mb-tbl">
+              <thead>
+                <tr>
+                  <th style="width:170px;">Item</th>
+                  <th>PC (≥ 1024px)</th>
+                  <th>Mobile (0 – 767px)</th>
+                  <th>비고</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="tn">Topbar height</td><td>48px (고정)</td><td>48px 또는 52px</td><td class="note">기본은 48 권장</td></tr>
+                <tr><td class="tn">Topbar 영역</td><td>LEFT / CENTER / RIGHT 3분할</td><td>LEFT(메뉴/title) / RIGHT(액션) — CENTER 비움</td><td class="note">CENTER input 모바일 노출 금지</td></tr>
+                <tr><td class="tn">Left navigation</td><td>Persistent 256px</td><td>Overlay drawer (좌측 80%)</td><td class="note">햄버거로 진입</td></tr>
+                <tr><td class="tn">Search</td><td>topbar CENTER input · ⌘K</td><td>RIGHT icon → inline expand / overlay</td><td class="note">모바일은 항상 icon-first</td></tr>
+                <tr><td class="tn">Notification</td><td>RIGHT icon (count 또는 dot)</td><td>RIGHT icon (dot only)</td><td class="note">count 는 알림 패널에서만</td></tr>
+                <tr><td class="tn">User menu</td><td>RIGHT avatar + dropdown</td><td>RIGHT 더보기 안</td><td class="note">topbar 직접 avatar 금지</td></tr>
+                <tr><td class="tn">Drawer (상세)</td><td>Right Drawer (PC 폭)</td><td>Fullscreen sheet</td><td class="note">&lt;1280 PC는 fullscreen fallback 후보</td></tr>
+                <tr><td class="tn">Table (WBS)</td><td>전 컬럼 노출, sort / drawer 와 연동</td><td>카드형 5컬럼 기본 / 가로 스크롤 / 전체 테이블 모드</td><td class="note">PC 그대로 축소 금지</td></tr>
+                <tr><td class="tn">Footer action (drawer)</td><td>40px · ghost / secondary / primary</td><td>44px 권장 · 모바일은 sticky</td><td class="note">키보드 위 띄움</td></tr>
+                <tr><td class="tn">Button size</td><td>sm 28 / md 32 / lg 40</td><td>md 40 / lg 44 · sm 금지</td><td class="note">PC sm = 28 모바일 사용 안함</td></tr>
+                <tr><td class="tn">Scroll policy</td><td>page-level 세로 스크롤, 가로 컨테이너 한정</td><td>page-level 가로 스크롤 금지, content 내부만</td><td class="note">표 컨테이너만 가로 허용</td></tr>
+                <tr><td class="tn">Page action</td><td>page toolbar 분리</td><td>Bottom sticky action 또는 FAB</td><td class="note">화면당 primary 1개</td></tr>
+                <tr><td class="tn">Quick action</td><td>topbar RIGHT 다수 허용</td><td>최대 1개</td><td class="note">초과 시 더보기로 이관</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S12 Cursor Handoff
+           ────────────────────────────────────────────────────────── -->
+      <section id="s12" class="sec" data-screen-label="12 Cursor Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Cursor Handoff Notes — 실제 적용 후보 파일</span>
+          <span class="sbadge plan">핸드오프</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            본 가이드는 시안 단계이며, 실제 코드 적용은 Cursor 가 별도 commit 에서 수행한다.
+            아래는 모바일 보정 시 후보가 되는 파일들이다.
+            본 문서 단계에서는 한 줄도 수정하지 않는다.
+          </p>
+
+          <div class="mb-tbl-wrap">
+            <table class="mb-tbl">
+              <thead>
+                <tr>
+                  <th style="width:280px;">파일</th>
+                  <th>역할</th>
+                  <th>모바일 보정 시 다룰 항목</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>stam/pages/boards/wbs.html</code></td>
+                  <td>WBS 보드 페이지 마크업</td>
+                  <td>카드형 리스트 / 가로 스크롤 표 / 전체 테이블 진입 마크업</td>
+                </tr>
+                <tr>
+                  <td><code>stam/js/stam.topbar-render.js</code></td>
+                  <td>App topbar 렌더링</td>
+                  <td>모바일 분기 — LEFT 햄버거 · CENTER 비움 · RIGHT icon 한정</td>
+                </tr>
+                <tr>
+                  <td><code>stam/js/stam.nav-render.js</code></td>
+                  <td>Left navigation 렌더링</td>
+                  <td>모바일 overlay drawer 모드, scrim, swipe close</td>
+                </tr>
+                <tr>
+                  <td><code>stam/js/stam.wbs.js</code></td>
+                  <td>WBS 보드 로직</td>
+                  <td>표/카드 모드 전환, 가로 스크롤 컨테이너 토글</td>
+                </tr>
+                <tr>
+                  <td><code>stam/css/stam.shell.css</code></td>
+                  <td>App shell · topbar · left · content 레이아웃</td>
+                  <td>모바일 breakpoint — left overlay, content padding, safe-area</td>
+                </tr>
+                <tr>
+                  <td><code>stam/css/stam.wbs.css</code></td>
+                  <td>WBS 보드 스타일</td>
+                  <td>카드 / 가로 스크롤 표 / 전체 테이블 화면 스타일</td>
+                </tr>
+                <tr>
+                  <td class="note">신규</td>
+                  <td>모바일 전용 CSS section (옵션)</td>
+                  <td>shell / WBS / 공통 모바일 보정 — 기존 CSS 끝에 <code>@media (max-width: 767px)</code> 블록으로 추가하는 것이 우선, 분리 파일은 필요 시</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mb-rule-grid" style="margin-top:14px;">
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-info">Cursor 작업 가이드</div>
+              <ul>
+                <li>본 문서가 합의된 뒤에 적용 시작</li>
+                <li>PC 보정 commit 과 모바일 보정 commit 을 분리한다</li>
+                <li>적용은 한 화면(WBS) 부터 단계적으로 진행</li>
+                <li>전역 <code>.tbtn</code> 일괄 치환 금지 — 영향 범위가 큰 회귀 발생</li>
+                <li>기능 로직(등록 / 수정 / 상세 / drawer open/close) 변경 금지</li>
+              </ul>
+            </div>
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-warn">변경 금지 파일</div>
+              <ul>
+                <li><code>.firebaserc</code>, <code>firebase.json</code></li>
+                <li><code>.github/workflows/**</code>, <code>package.json</code>, <code>package-lock.json</code></li>
+                <li><code>_ds/**</code>, <code>uploads/**</code>, <code>*.zip</code>, <code>.env*</code></li>
+                <li><code>node_modules/**</code>, <code>dist/**</code>, <code>build/**</code>, <code>.firebase/**</code></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S13 Guardrails & QA
+           ────────────────────────────────────────────────────────── -->
+      <section id="s13" class="sec" data-screen-label="13 Guardrails &amp; QA">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Guardrails &amp; QA Checklist</span>
+          <span class="sbadge plan">QA</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            모바일 보정 적용 후 점검 기준이다.
+            테스트 폭은 <strong>360 / 390 / 430 / 768</strong> 네 단계로 한다.
+            모든 항목은 실제 디바이스 또는 정확한 device emulation 으로 확인한다.
+          </p>
+
+          <div class="mb-cap"><span class="mb-cap-n">G</span>Implementation Guardrails</div>
+
+          <div class="mb-rule-grid">
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-fail">엄격 금지</div>
+              <ul>
+                <li>PC 보정과 모바일 보정을 한 commit 에 섞는 것</li>
+                <li>모바일 실제 적용을 PC 기준 확정 전에 시작하는 것</li>
+                <li>모바일에서 PC 테이블을 그대로 축소하는 것</li>
+                <li>page-level 가로 스크롤이 발생하는 모든 형태</li>
+                <li>touch target <code>40px</code> 미만 요소를 주요 액션으로 두는 것</li>
+                <li>전역 <code>.tbtn</code> 일괄 치환</li>
+                <li>등록 / 수정 / 상세 / drawer 기능 로직 변경</li>
+              </ul>
+            </div>
+            <div class="mb-rule-card">
+              <div class="mb-rc-hdr is-info">우선 적용 순서</div>
+              <ul>
+                <li>1) PC Topbar / Left / Shell 가이드 확정 후 본 가이드 합의</li>
+                <li>2) 모바일 shell breakpoint 도입 (CSS)</li>
+                <li>3) topbar 모바일 분기 (JS)</li>
+                <li>4) left navigation overlay drawer 모드</li>
+                <li>5) WBS 카드형 리스트 (페이지 마크업 + CSS)</li>
+                <li>6) 가로 스크롤 표 / 전체 테이블 모드</li>
+                <li>7) Drawer → fullscreen 전환</li>
+                <li>8) Bottom action / Bottom sheet</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="mb-cap" style="margin-top:18px;"><span class="mb-cap-n">Q</span>QA Checklist <span class="mb-cap-sub">360 · 390 · 430 · 768</span></div>
+
+          <div class="mb-chk-list">
+            <div class="mb-chk-item"><span class="mb-chk-box is-pass">✓</span><span><code>360px</code> 폭에서 모든 화면 가로 스크롤 없음</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-pass">✓</span><span><code>390px</code> 폭에서 topbar 액션 겹침 없음</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-pass">✓</span><span><code>430px</code> 폭에서 카드 텍스트 정상 ellipsis</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-pass">✓</span><span><code>768px</code> 경계에서 모바일 ↔ 태블릿 전환 정상</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-pass">✓</span><span>모든 터치 타겟 <code>≥ 40px</code></span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-pass">✓</span><span>topbar icon button hit-area 36 – 40px 유지</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-pass">✓</span><span>drawer 진입 / 닫기 (햄버거 · scrim tap · swipe) 정상</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-pass">✓</span><span>fullscreen sheet 스크롤 정상 · footer 가림 없음</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-pass">✓</span><span>Bottom sticky action 이 content 마지막 row 를 가리지 않음</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-pass">✓</span><span>safe-area-inset (top / bottom) 정상 반영</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-pass">✓</span><span>light / dark 양쪽 정상</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-pass">✓</span><span>S-Core Dream 자체서빙 폰트만 사용 (Pretendard / Gulim / Dotum 금지)</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-pass">✓</span><span>iframe 사용 없음</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-pass">✓</span><span>Console error 0건</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-warn">!</span><span>WBS 카드 ↔ 가로 스크롤 표 ↔ 전체 테이블 모드 전환 회귀</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-warn">!</span><span>등록 / 수정 / 상세 화면 fullscreen 진입 / 복귀 회귀</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-warn">!</span><span>PC 화면 (≥ 1024) 변화 없음 — 회귀 0건</span></div>
+            <div class="mb-chk-item"><span class="mb-chk-box is-warn">!</span><span>금지 파일 변경 없음 (<code>_ds/</code>, <code>uploads/</code>, <code>*.zip</code>, <code>.env*</code>)</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────────────────────────────────────
+           S14 Related
+           ────────────────────────────────────────────────────────── -->
+      <section id="s14" class="sec" data-screen-label="14 Related">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Related Links</span>
+          <span class="sbadge guide">참고</span>
+        </div>
+        <div class="sec-body">
+          <div class="mb-rel-grid">
+            <a class="mb-rel-card" href="STAM-WBS-Top-Left-Shell-Applied-Preview-v1.html">
+              <span class="mb-rl-title">WBS Top / Left / Shell Applied Preview v1</span>
+              <span class="mb-rl-sub">PC 기준 — Topbar 48 · Left 256 · Content flex</span>
+            </a>
+            <a class="mb-rel-card" href="components/STAM-Topbar-Guide.html">
+              <span class="mb-rl-title">STAM Topbar Guide</span>
+              <span class="mb-rl-sub">PC App Topbar · Anatomy · Breadcrumb · Theme Toggle</span>
+            </a>
+            <a class="mb-rel-card" href="STAM-UI-Baseline-Guide.html">
+              <span class="mb-rl-title">STAM UI Baseline Guide</span>
+              <span class="mb-rl-sub">폰트 · 토큰 · 레이아웃 · Left Nav · Focus View 기준</span>
+            </a>
+            <a class="mb-rel-card" href="STAM-Button-CSS-Implementation-Preview-v1.html">
+              <span class="mb-rl-title">Button CSS Implementation Preview v1</span>
+              <span class="mb-rl-sub">.stam-btn variant · size · state 시각 기준</span>
+            </a>
+            <a class="mb-rel-card" href="STAM-Button-CSS-QA-Result-Preview-v1.html">
+              <span class="mb-rl-title">Button CSS QA Result Preview v1</span>
+              <span class="mb-rl-sub">Button CSS foundation 구현 결과 QA</span>
+            </a>
+            <a class="mb-rel-card" href="STAM-Drawer-Token-Mapping-v1.html">
+              <span class="mb-rl-title">Drawer Token Mapping v1</span>
+              <span class="mb-rl-sub">Drawer footer 보정 근거</span>
+            </a>
+            <a class="mb-rel-card" href="STAM-Docs-Index.html">
+              <span class="mb-rl-title">← STAM Docs Index</span>
+              <span class="mb-rl-sub">전체 문서 인덱스로 돌아가기</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

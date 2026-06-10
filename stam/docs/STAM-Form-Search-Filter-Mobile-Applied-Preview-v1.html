@@ -1,0 +1,2099 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Form / Search / Filter Mobile Applied Preview v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ============================================================
+ * STAM Form / Search / Filter Mobile Applied Preview v1
+ * - 문서 전용 격리 스타일 (prefix: fsf-)
+ * - 실제 product CSS / class 절대 덮어쓰지 않음
+ * ============================================================ */
+.fsf-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:var(--font);white-space:nowrap}
+.fsf-pill::before{content:"";width:6px;height:6px;border-radius:999px;background:currentColor;display:inline-block;flex-shrink:0}
+.fsf-pill.pass{background:var(--pass-bg);color:var(--pass)}
+.fsf-pill.warn{background:var(--warn-bg);color:var(--warn)}
+.fsf-pill.fail{background:var(--fail-bg);color:var(--fail)}
+.fsf-pill.info{background:var(--info-bg);color:var(--info)}
+.fsf-pill.brand{background:var(--stam-soft);color:var(--stam)}
+.fsf-pill.notyet{background:var(--skip-bg);color:var(--skip)}
+
+.fsf-hero{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:18px 20px 16px;display:flex;flex-direction:column;gap:12px;margin-bottom:24px;position:relative;overflow:hidden}
+.fsf-hero::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--stam)}
+.fsf-hero-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fsf-hero-title{font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.fsf-hero p{margin:0;font-size:12px;color:var(--t2);line-height:1.7}
+.fsf-hero code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px}
+
+.fsf-kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+@media (max-width:1280px){.fsf-kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:720px){.fsf-kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.fsf-kpi{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:11px 12px 12px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.fsf-kpi .fsf-kpi-key{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3)}
+.fsf-kpi .fsf-kpi-val{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.005em;line-height:1.35}
+.fsf-kpi.brand{border-color:rgba(84,81,232,.22);background:var(--stam-soft)}
+.fsf-kpi.brand .fsf-kpi-key{color:var(--stam);opacity:.9}
+.fsf-kpi.brand .fsf-kpi-val{color:var(--stam)}
+.fsf-kpi.info{border-color:rgba(111,168,255,.22);background:var(--info-bg)}
+.fsf-kpi.info .fsf-kpi-key{color:var(--info);opacity:.9}
+.fsf-kpi.info .fsf-kpi-val{color:var(--info)}
+.fsf-kpi.warn{border-color:rgba(245,158,11,.22);background:var(--warn-bg)}
+.fsf-kpi.warn .fsf-kpi-key{color:var(--warn);opacity:.9}
+.fsf-kpi.warn .fsf-kpi-val{color:var(--warn)}
+
+.fsf-cap{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.fsf-cap .fsf-cap-n{width:22px;height:22px;border-radius:6px;background:var(--stam-soft);color:var(--stam);font-size:10.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+.fsf-cap-sub{font-size:10.5px;color:var(--t3);font-weight:500;letter-spacing:0;margin-left:4px}
+
+.fsf-tbl-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--bd)}
+.fsf-tbl{width:100%;border-collapse:collapse;font-family:var(--font);font-size:11.5px;background:var(--bg-sur);min-width:720px}
+.fsf-tbl th{padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2);white-space:nowrap}
+.fsf-tbl td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;line-height:1.6}
+.fsf-tbl tbody tr:last-child td{border-bottom:none}
+.fsf-tbl td.tn{color:var(--t1);font-weight:700;white-space:nowrap;font-size:11px}
+.fsf-tbl td code,.fsf-tbl th code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;letter-spacing:.005em;white-space:nowrap}
+.fsf-tbl td.note{color:var(--t3);font-size:10.5px}
+.fsf-tbl td.mb{color:var(--stam);font-weight:600}
+
+.fsf-rule-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (max-width:760px){.fsf-rule-grid{grid-template-columns:1fr}}
+.fsf-rule-card{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:12px 14px}
+.fsf-rule-card .fsf-rc-hdr{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t1);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.fsf-rule-card .fsf-rc-hdr::before{content:"";width:8px;height:8px;border-radius:999px;background:var(--stam);display:inline-block}
+.fsf-rule-card .fsf-rc-hdr.is-pass::before{background:var(--pass)}
+.fsf-rule-card .fsf-rc-hdr.is-warn::before{background:var(--warn)}
+.fsf-rule-card .fsf-rc-hdr.is-info::before{background:var(--info)}
+.fsf-rule-card .fsf-rc-hdr.is-fail::before{background:var(--fail)}
+.fsf-rule-card ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.fsf-rule-card li{font-size:11.5px;line-height:1.6;color:var(--t2);padding-left:12px;position:relative}
+.fsf-rule-card li::before{content:"·";position:absolute;left:2px;top:-2px;color:var(--t3);font-weight:800}
+.fsf-rule-card li code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+
+.fsf-opt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:1100px){.fsf-opt-grid{grid-template-columns:1fr}}
+.fsf-opt-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:14px;display:flex;flex-direction:column;gap:10px}
+.fsf-opt-card.recommend{border-color:rgba(84,81,232,.42);background:var(--stam-soft)}
+.fsf-opt-hdr{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fsf-opt-letter{width:26px;height:26px;border-radius:8px;background:var(--bg-sur2);color:var(--t1);font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+.fsf-opt-card.recommend .fsf-opt-letter{background:var(--stam);color:#fff}
+.fsf-opt-title{font-size:12.5px;font-weight:700;color:var(--t1);letter-spacing:-.005em;flex:1}
+.fsf-opt-card.recommend .fsf-opt-title{color:var(--stam)}
+.fsf-opt-body{font-size:11px;line-height:1.65;color:var(--t2)}
+.fsf-opt-pros,.fsf-opt-cons{font-size:10.5px;line-height:1.65;display:flex;flex-direction:column;gap:3px;margin:0;padding:0;list-style:none}
+.fsf-opt-pros li,.fsf-opt-cons li{position:relative;padding-left:14px}
+.fsf-opt-pros li::before,.fsf-opt-cons li::before{position:absolute;left:0;top:0;font-weight:800;font-size:11px}
+.fsf-opt-pros li::before{content:"+";color:var(--pass)}
+.fsf-opt-cons li::before{content:"−";color:var(--fail)}
+.fsf-opt-hdr-row{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-top:4px}
+
+.fsf-chk-list{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 10px}
+@media (max-width:760px){.fsf-chk-list{grid-template-columns:1fr}}
+.fsf-chk-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);font-size:11.5px;line-height:1.55;color:var(--t2)}
+.fsf-chk-item code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+.fsf-chk-box{width:16px;height:16px;border-radius:4px;background:var(--pass-bg);color:var(--pass);font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.fsf-chk-box.is-warn{background:var(--warn-bg);color:var(--warn)}
+.fsf-chk-box.is-info{background:var(--info-bg);color:var(--info)}
+
+.fsf-handoff-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:760px){.fsf-handoff-list{grid-template-columns:1fr}}
+.fsf-handoff-item{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.fsf-handoff-item .fsf-hf-path{font-family:var(--font);font-size:11px;font-weight:700;color:var(--t1);letter-spacing:.005em}
+.fsf-handoff-item .fsf-hf-role{font-size:10px;color:var(--t3);line-height:1.55}
+
+.fsf-rel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:1100px){.fsf-rel-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:720px){.fsf-rel-grid{grid-template-columns:1fr}}
+.fsf-rel-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px;text-decoration:none;transition:border-color 120ms,background 120ms}
+.fsf-rel-card:hover{border-color:rgba(84,81,232,.35);background:rgba(84,81,232,.04)}
+.fsf-rel-card .fsf-rl-title{font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.fsf-rel-card .fsf-rl-sub{font-size:10.5px;color:var(--t3)}
+
+.fsf-tok-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media (max-width:760px){.fsf-tok-grid{grid-template-columns:1fr}}
+.fsf-tok{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.fsf-tok-k{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3)}
+.fsf-tok-v{font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.fsf-tok-d{font-size:10.5px;color:var(--t3);line-height:1.55}
+
+/* Phone frames */
+.fsf-phone-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.fsf-phone-col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.fsf-phone-col-label{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);font-family:var(--font)}
+.fsf-phone-col-label .fsf-phone-col-w{font-size:9.5px;padding:1px 6px;border-radius:4px;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t2);letter-spacing:.02em}
+.fsf-phone-col-label .fsf-phone-col-tag{font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--stam-soft);color:var(--stam);letter-spacing:.04em}
+.fsf-phone-col-label .fsf-phone-col-tag.alt{background:var(--info-bg);color:var(--info)}
+.fsf-phone-col-label .fsf-phone-col-tag.warn{background:var(--warn-bg);color:var(--warn)}
+.fsf-phone-col-label .fsf-phone-col-tag.fail{background:var(--fail-bg);color:var(--fail)}
+
+.fsf-phone{width:280px;background:#0A0E1A;border-radius:22px;padding:6px;border:1px solid rgba(255,255,255,.06);box-shadow:0 12px 30px rgba(0,0,0,.32);font-family:var(--font);flex-shrink:0}
+[data-theme="light"] .fsf-phone{background:#1B1F2A;border-color:rgba(0,0,0,.10);box-shadow:0 10px 24px rgba(20,22,30,.18)}
+.fsf-phone-screen{background:#0F1320;border-radius:16px;overflow:hidden;position:relative;height:560px;display:flex;flex-direction:column}
+.fsf-phone-screen.tall{height:600px}
+.fsf-phone-screen.short{height:460px}
+[data-theme="light"] .fsf-phone-screen{background:#FAFBFC}
+
+.fsf-statusbar{height:18px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.78);background:#0F1320;letter-spacing:.03em;flex-shrink:0}
+[data-theme="light"] .fsf-statusbar{background:#FAFBFC;color:rgba(20,22,30,.72)}
+.fsf-statusbar-r{display:inline-flex;gap:4px;align-items:center}
+.fsf-statusbar-r .fsf-sb-dot{width:3px;height:3px;border-radius:99px;background:currentColor;opacity:.8}
+
+.fsf-topbar{height:48px;background:#131826;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:4px;padding:0 6px 0 8px;flex-shrink:0}
+[data-theme="light"] .fsf-topbar{background:#FFFFFF;border-bottom-color:rgba(20,22,30,.08)}
+.fsf-tb-iconbtn{width:40px;height:40px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,.86);background:transparent;cursor:pointer;position:relative;flex-shrink:0}
+[data-theme="light"] .fsf-tb-iconbtn{color:rgba(20,22,30,.78)}
+.fsf-tb-iconbtn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.fsf-tb-iconbtn.has-dot::after{content:"";position:absolute;top:10px;right:10px;width:7px;height:7px;border-radius:99px;background:#FF5A47;border:2px solid #131826}
+[data-theme="light"] .fsf-tb-iconbtn.has-dot::after{border-color:#FFFFFF}
+.fsf-tb-title{flex:1;min-width:0;font-size:14px;font-weight:700;color:rgba(255,255,255,.94);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.005em;padding:0 4px}
+[data-theme="light"] .fsf-tb-title{color:rgba(20,22,30,.94)}
+.fsf-tb-title .fsf-tb-title-sub{display:block;font-size:9.5px;font-weight:600;color:rgba(255,255,255,.42);letter-spacing:.04em;margin-top:1px}
+[data-theme="light"] .fsf-tb-title .fsf-tb-title-sub{color:rgba(20,22,30,.44)}
+.fsf-tb-state{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:700;letter-spacing:.04em;color:rgba(255,255,255,.58);padding:0 6px;white-space:nowrap}
+[data-theme="light"] .fsf-tb-state{color:rgba(20,22,30,.62)}
+.fsf-tb-state.saved{color:#34C759}
+.fsf-tb-state.saving{color:#6FA8FF}
+.fsf-tb-state.dirty{color:#F5B14C}
+.fsf-tb-state.error{color:#FF5A47}
+.fsf-tb-state::before{content:"";width:5px;height:5px;border-radius:99px;background:currentColor;display:inline-block}
+
+.fsf-content{flex:1;min-height:0;overflow:hidden;padding:12px;display:flex;flex-direction:column;gap:10px;font-family:var(--font)}
+.fsf-content.no-pad{padding:0}
+.fsf-section-sub{font-size:9.5px;font-weight:600;color:rgba(255,255,255,.42);letter-spacing:.04em;text-transform:uppercase}
+[data-theme="light"] .fsf-section-sub{color:rgba(20,22,30,.44)}
+
+.fsf-status{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:4px;font-size:9.5px;font-weight:700;letter-spacing:.02em;white-space:nowrap;flex-shrink:0}
+.fsf-status::before{content:"";width:5px;height:5px;border-radius:99px;background:currentColor}
+.fsf-status.todo{background:rgba(255,255,255,.06);color:rgba(255,255,255,.62)}
+.fsf-status.prog{background:rgba(111,168,255,.16);color:#6FA8FF}
+.fsf-status.done{background:rgba(52,199,89,.16);color:#34C759}
+.fsf-status.hold{background:rgba(245,158,11,.18);color:#F5B14C}
+.fsf-status.delay{background:rgba(255,90,71,.18);color:#FF7D6E}
+.fsf-status.risk{background:rgba(255,66,66,.22);color:#FF5A47}
+[data-theme="light"] .fsf-status.todo{background:rgba(20,22,30,.05);color:rgba(20,22,30,.56)}
+
+.fsf-wbs-card{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+[data-theme="light"] .fsf-wbs-card{background:#fff;border-color:rgba(20,22,30,.08);box-shadow:0 1px 0 rgba(20,22,30,.02)}
+.fsf-wbs-card.is-delay{border-left:2px solid #FF7D6E}
+.fsf-wbs-card.is-risk{border-left:2px solid #FF5A47;background:rgba(255,90,71,.05)}
+.fsf-wbs-card-top{display:flex;align-items:flex-start;gap:8px;justify-content:space-between}
+.fsf-wbs-card-title{font-size:12.5px;font-weight:700;color:rgba(255,255,255,.92);line-height:1.4;letter-spacing:-.005em;min-width:0;flex:1}
+[data-theme="light"] .fsf-wbs-card-title{color:rgba(20,22,30,.92)}
+.fsf-wbs-card-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10.5px;color:rgba(255,255,255,.62)}
+[data-theme="light"] .fsf-wbs-card-row{color:rgba(20,22,30,.66)}
+.fsf-wbs-card-row .who{display:inline-flex;align-items:center;gap:5px;color:rgba(255,255,255,.78)}
+[data-theme="light"] .fsf-wbs-card-row .who{color:rgba(20,22,30,.82)}
+.fsf-ava{width:18px;height:18px;border-radius:99px;background:#5451E8;font-size:8.5px;font-weight:800;color:#fff;display:inline-flex;align-items:center;justify-content:center}
+
+/* Search inline */
+.fsf-search-inline{margin:0 12px 4px;height:36px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:8px;padding:0 10px;color:rgba(255,255,255,.62);font-size:11px;flex-shrink:0}
+[data-theme="light"] .fsf-search-inline{background:rgba(20,22,30,.03);border-color:rgba(20,22,30,.08);color:rgba(20,22,30,.62)}
+.fsf-search-inline.active{border-color:rgba(84,81,232,.42);color:rgba(255,255,255,.92);background:rgba(84,81,232,.06)}
+[data-theme="light"] .fsf-search-inline.active{color:rgba(20,22,30,.92)}
+.fsf-search-inline.focused{border-color:rgba(84,81,232,.55);background:rgba(84,81,232,.08)}
+.fsf-search-inline svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+.fsf-search-inline .fsf-si-q{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fsf-search-inline .fsf-si-clear{margin-left:auto;width:18px;height:18px;border-radius:99px;background:rgba(255,255,255,.12);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
+
+.fsf-result-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10px;font-weight:600;color:rgba(255,255,255,.58);padding:2px}
+[data-theme="light"] .fsf-result-bar{color:rgba(20,22,30,.58)}
+.fsf-result-bar .fsf-result-num{color:rgba(255,255,255,.86);font-weight:700}
+[data-theme="light"] .fsf-result-bar .fsf-result-num{color:rgba(20,22,30,.86)}
+.fsf-result-bar .fsf-result-q{flex:1;min-width:0;max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fsf-result-bar .fsf-result-q strong{color:rgba(255,255,255,.92);font-weight:700}
+[data-theme="light"] .fsf-result-bar .fsf-result-q strong{color:rgba(20,22,30,.92)}
+.fsf-result-bar .fsf-result-reset{font-size:10px;color:#8B7FF8;font-weight:700;flex-shrink:0}
+
+/* Filter chip row */
+.fsf-chip-row{display:flex;align-items:center;gap:6px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}
+.fsf-chip-row::-webkit-scrollbar{display:none}
+.fsf-chip{display:inline-flex;align-items:center;gap:4px;flex-shrink:0;padding:5px 10px;border-radius:99px;border:1px solid rgba(255,255,255,.10);font-size:10.5px;font-weight:600;color:rgba(255,255,255,.78);background:rgba(255,255,255,.03);white-space:nowrap;min-height:28px}
+[data-theme="light"] .fsf-chip{color:rgba(20,22,30,.78);border-color:rgba(20,22,30,.10);background:rgba(20,22,30,.02)}
+.fsf-chip.active{background:rgba(84,81,232,.20);border-color:rgba(84,81,232,.42);color:#C0BAFF}
+[data-theme="light"] .fsf-chip.active{color:#4340c8}
+.fsf-chip.clear-all{border-style:dashed;color:rgba(255,255,255,.46);background:transparent}
+[data-theme="light"] .fsf-chip.clear-all{color:rgba(20,22,30,.50)}
+.fsf-chip .fsf-chip-x{font-size:11px;font-weight:800;opacity:.8}
+.fsf-chip .fsf-chip-n{font-size:9px;padding:0 5px;border-radius:99px;background:rgba(255,255,255,.10);color:rgba(255,255,255,.92);font-weight:800}
+.fsf-chip.active .fsf-chip-n{background:rgba(84,81,232,.36);color:#fff}
+
+/* Bottom sheet */
+.fsf-bs-scrim{position:absolute;inset:0;background:rgba(0,0,0,.42);z-index:3}
+.fsf-bottomsheet{position:absolute;left:0;right:0;bottom:0;background:#131826;border-top-left-radius:16px;border-top-right-radius:16px;padding:8px 14px 14px;display:flex;flex-direction:column;gap:6px;border-top:1px solid rgba(255,255,255,.06);max-height:72%;overflow:hidden;z-index:4}
+[data-theme="light"] .fsf-bottomsheet{background:#fff;border-top-color:rgba(20,22,30,.08)}
+.fsf-bs-grab{width:36px;height:4px;border-radius:99px;background:rgba(255,255,255,.18);align-self:center;margin-bottom:2px}
+[data-theme="light"] .fsf-bs-grab{background:rgba(20,22,30,.18)}
+.fsf-bs-hdr{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700;color:rgba(255,255,255,.92);padding:2px 0 4px}
+[data-theme="light"] .fsf-bs-hdr{color:rgba(20,22,30,.92)}
+.fsf-bs-hdr .fsf-bs-action{font-size:10px;color:rgba(255,255,255,.58);font-weight:700;display:inline-flex;align-items:center;gap:8px}
+.fsf-bs-hdr .fsf-bs-action.reset{color:#8B7FF8}
+.fsf-bs-body{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+.fsf-bs-section{display:flex;flex-direction:column;gap:5px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.fsf-bs-section:last-of-type{border-bottom:none}
+[data-theme="light"] .fsf-bs-section{border-bottom-color:rgba(20,22,30,.06)}
+.fsf-bs-section-title{font-size:10px;font-weight:700;color:rgba(255,255,255,.62);letter-spacing:.04em;text-transform:uppercase}
+[data-theme="light"] .fsf-bs-section-title{color:rgba(20,22,30,.62)}
+.fsf-bs-chips{display:flex;flex-wrap:wrap;gap:5px}
+.fsf-bs-row{display:flex;align-items:center;justify-content:space-between;padding:8px 4px;font-size:11.5px;color:rgba(255,255,255,.86);border-bottom:1px solid rgba(255,255,255,.04)}
+.fsf-bs-row:last-child{border-bottom:none}
+[data-theme="light"] .fsf-bs-row{color:rgba(20,22,30,.88);border-bottom-color:rgba(20,22,30,.05)}
+.fsf-bs-row.is-selected{color:#C0BAFF;font-weight:600}
+[data-theme="light"] .fsf-bs-row.is-selected{color:#4340c8}
+.fsf-bs-row .fsf-bs-l{display:inline-flex;align-items:center;gap:8px}
+.fsf-bs-row .fsf-bs-check{width:16px;height:16px;border-radius:4px;border:1.5px solid rgba(255,255,255,.30);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:transparent;flex-shrink:0;font-weight:800}
+[data-theme="light"] .fsf-bs-row .fsf-bs-check{border-color:rgba(20,22,30,.30)}
+.fsf-bs-row.is-selected .fsf-bs-check{background:#5451E8;border-color:#5451E8;color:#fff}
+.fsf-bs-row .fsf-bs-radio{width:16px;height:16px;border-radius:99px;border:1.5px solid rgba(255,255,255,.30);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+[data-theme="light"] .fsf-bs-row .fsf-bs-radio{border-color:rgba(20,22,30,.30)}
+.fsf-bs-row.is-selected .fsf-bs-radio::after{content:"";width:8px;height:8px;border-radius:99px;background:#5451E8}
+.fsf-bs-footer{display:flex;gap:8px;padding-top:8px}
+
+/* CTA */
+.fsf-cta{flex:1;height:44px;border-radius:10px;background:linear-gradient(135deg,#6663ec,#4340c8);color:#fff;font-size:12.5px;font-weight:700;letter-spacing:.005em;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.fsf-cta.ghost{background:transparent;color:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.12);flex:0 0 84px}
+[data-theme="light"] .fsf-cta.ghost{color:rgba(20,22,30,.78);border-color:rgba(20,22,30,.12)}
+.fsf-cta.secondary{background:rgba(84,81,232,.16);color:#C0BAFF;flex:0 0 92px}
+[data-theme="light"] .fsf-cta.secondary{background:rgba(84,81,232,.10);color:#4340c8}
+.fsf-cta.is-loading::before{content:"";width:11px;height:11px;border:2px solid rgba(255,255,255,.36);border-top-color:#fff;border-radius:99px;animation:fsf-spin .8s linear infinite}
+@keyframes fsf-spin{to{transform:rotate(360deg)}}
+.fsf-cta.disabled{opacity:.42}
+
+/* sticky bottom action */
+.fsf-bottom-action{height:60px;background:#131826;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;padding:0 12px;gap:8px;flex-shrink:0}
+[data-theme="light"] .fsf-bottom-action{background:#fff;border-top-color:rgba(20,22,30,.08)}
+
+/* form fields */
+.fsf-form-section{display:flex;flex-direction:column;gap:10px;padding:10px 0 12px;border-bottom:1px solid rgba(255,255,255,.05)}
+.fsf-form-section:last-of-type{border-bottom:none}
+[data-theme="light"] .fsf-form-section{border-bottom-color:rgba(20,22,30,.06)}
+.fsf-form-section-title{font-size:10px;font-weight:700;color:rgba(255,255,255,.50);letter-spacing:.06em;text-transform:uppercase}
+[data-theme="light"] .fsf-form-section-title{color:rgba(20,22,30,.52)}
+.fsf-field{display:flex;flex-direction:column;gap:5px}
+.fsf-field-label{font-size:11px;font-weight:600;color:rgba(255,255,255,.78);display:flex;align-items:center;gap:4px}
+[data-theme="light"] .fsf-field-label{color:rgba(20,22,30,.82)}
+.fsf-field-label .fsf-req{color:#FF5A47;font-weight:800;font-size:12px}
+.fsf-field-label .fsf-opt{font-size:9.5px;font-weight:600;color:rgba(255,255,255,.42);padding:0 4px;border-radius:3px;background:rgba(255,255,255,.05);letter-spacing:.04em}
+[data-theme="light"] .fsf-field-label .fsf-opt{color:rgba(20,22,30,.42);background:rgba(20,22,30,.04)}
+.fsf-field-input{height:40px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:0 12px;display:flex;align-items:center;font-size:12px;color:rgba(255,255,255,.92);gap:6px}
+[data-theme="light"] .fsf-field-input{background:rgba(20,22,30,.02);border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.92)}
+.fsf-field-input.ph{color:rgba(255,255,255,.40)}
+[data-theme="light"] .fsf-field-input.ph{color:rgba(20,22,30,.40)}
+.fsf-field-input.is-focus{border-color:#6663EC;box-shadow:0 0 0 2px rgba(102,99,236,.20)}
+.fsf-field-input.is-error{border-color:#FF5A47;box-shadow:0 0 0 2px rgba(255,90,71,.18)}
+.fsf-field-input.is-disabled{opacity:.5}
+.fsf-field-input.is-readonly{background:transparent;border:1px dashed rgba(255,255,255,.10)}
+[data-theme="light"] .fsf-field-input.is-readonly{border-color:rgba(20,22,30,.14)}
+.fsf-field-input svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.7;margin-left:auto}
+.fsf-field-textarea{min-height:90px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:10px 12px;font-size:12px;color:rgba(255,255,255,.92);line-height:1.55}
+[data-theme="light"] .fsf-field-textarea{background:rgba(20,22,30,.02);border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.92)}
+.fsf-field-textarea.ph{color:rgba(255,255,255,.40)}
+[data-theme="light"] .fsf-field-textarea.ph{color:rgba(20,22,30,.40)}
+.fsf-field-helper{font-size:10.5px;color:rgba(255,255,255,.54);line-height:1.5}
+[data-theme="light"] .fsf-field-helper{color:rgba(20,22,30,.58)}
+.fsf-field-error{font-size:10.5px;color:#FF7D6E;line-height:1.5;display:flex;align-items:center;gap:5px}
+.fsf-field-error::before{content:"!";width:14px;height:14px;border-radius:99px;background:rgba(255,90,71,.20);color:#FF7D6E;font-weight:800;font-size:10px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.fsf-field-row{display:flex;gap:8px;align-items:flex-end}
+.fsf-field-row>.fsf-field{flex:1;min-width:0}
+.fsf-field-row>.fsf-field-sep{flex:0 0 14px;text-align:center;color:rgba(255,255,255,.50);font-size:12px;padding-bottom:11px}
+.fsf-section-error{display:flex;align-items:flex-start;gap:6px;padding:8px 10px;border-radius:8px;background:rgba(255,90,71,.08);border:1px solid rgba(255,90,71,.24);font-size:10.5px;color:#FF7D6E;line-height:1.55}
+.fsf-section-error::before{content:"!";width:14px;height:14px;border-radius:99px;background:rgba(255,90,71,.24);color:#FF5A47;font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.fsf-field-quick{display:flex;gap:5px;flex-wrap:wrap}
+.fsf-field-quick .fsf-chip{font-size:10px;padding:4px 8px;min-height:24px}
+
+/* calendar */
+.fsf-calendar{border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);padding:10px;display:flex;flex-direction:column;gap:6px}
+[data-theme="light"] .fsf-calendar{background:#fff;border-color:rgba(20,22,30,.08)}
+.fsf-cal-hdr{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-weight:700;color:rgba(255,255,255,.92)}
+[data-theme="light"] .fsf-cal-hdr{color:rgba(20,22,30,.92)}
+.fsf-cal-nav{width:26px;height:26px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,.62);background:rgba(255,255,255,.04);font-size:12px;font-weight:700}
+[data-theme="light"] .fsf-cal-nav{color:rgba(20,22,30,.62);background:rgba(20,22,30,.04)}
+.fsf-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:10.5px;text-align:center}
+.fsf-cal-grid .fsf-cal-wd{color:rgba(255,255,255,.42);font-weight:700;font-size:9.5px;padding:4px 0;text-transform:uppercase;letter-spacing:.04em}
+[data-theme="light"] .fsf-cal-grid .fsf-cal-wd{color:rgba(20,22,30,.46)}
+.fsf-cal-grid .fsf-cal-day{height:26px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,.78);font-weight:600}
+[data-theme="light"] .fsf-cal-grid .fsf-cal-day{color:rgba(20,22,30,.82)}
+.fsf-cal-grid .fsf-cal-day.dim{color:rgba(255,255,255,.28)}
+[data-theme="light"] .fsf-cal-grid .fsf-cal-day.dim{color:rgba(20,22,30,.28)}
+.fsf-cal-grid .fsf-cal-day.in-range{background:rgba(84,81,232,.14);color:#C0BAFF;border-radius:4px}
+[data-theme="light"] .fsf-cal-grid .fsf-cal-day.in-range{color:#4340c8}
+.fsf-cal-grid .fsf-cal-day.range-start,.fsf-cal-grid .fsf-cal-day.range-end{background:#5451E8;color:#fff;border-radius:99px}
+.fsf-cal-grid .fsf-cal-day.today{outline:1.5px solid rgba(84,81,232,.6);outline-offset:-2px}
+
+/* toast */
+.fsf-toast{position:absolute;left:14px;right:14px;bottom:78px;padding:10px 12px;border-radius:10px;background:rgba(20,22,30,.92);color:#fff;font-size:11px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.10);z-index:5}
+[data-theme="light"] .fsf-toast{background:#1B1F2A;color:#fff;border-color:rgba(0,0,0,.10)}
+.fsf-toast.pass::before{content:"✓";color:#34C759;font-weight:800}
+.fsf-toast.warn::before{content:"!";color:#F5B14C;font-weight:800}
+.fsf-toast.fail::before{content:"!";color:#FF5A47;font-weight:800}
+
+/* state spec mini */
+.fsf-state-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:1100px){.fsf-state-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.fsf-state-grid{grid-template-columns:1fr}}
+.fsf-state-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.fsf-state-card .fsf-state-name{font-size:12px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:6px}
+.fsf-state-card .fsf-state-name::before{content:"";width:8px;height:8px;border-radius:99px;background:var(--t3)}
+.fsf-state-card.is-pass .fsf-state-name::before{background:var(--pass)}
+.fsf-state-card.is-warn .fsf-state-name::before{background:var(--warn)}
+.fsf-state-card.is-info .fsf-state-name::before{background:var(--info)}
+.fsf-state-card.is-fail .fsf-state-name::before{background:var(--fail)}
+.fsf-state-card.is-brand .fsf-state-name::before{background:var(--stam)}
+.fsf-state-card .fsf-state-desc{font-size:10.5px;color:var(--t3);line-height:1.6}
+.fsf-state-card .fsf-state-mini{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);border-radius:8px;padding:8px 10px}
+[data-theme="light"] .fsf-state-card .fsf-state-mini{background:#fff;border-color:rgba(20,22,30,.08)}
+
+/* detail headline (form fullscreen) */
+.fsf-detail-hdr{padding:4px 0 6px}
+.fsf-detail-title{font-size:14px;font-weight:800;color:rgba(255,255,255,.96);line-height:1.35;letter-spacing:-.01em}
+[data-theme="light"] .fsf-detail-title{color:rgba(20,22,30,.96)}
+
+</style>
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Form / Search / Filter Mobile Applied Preview v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Preview</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Mobile</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Form · Search · Filter</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr"><span class="toc-brand">FSF Mobile</span><span class="toc-ver-pill">v1</span></div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Scope</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Search</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Result Summary</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Chip Row</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Filter Sheet</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Sort / View</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Form Field</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Select</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Date Picker</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Validation</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Create / Edit</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Dirty / Save</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Mock Screens</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>PC vs Mobile</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>Cursor Handoff</a></li>
+      <li class="toc-item"><a href="#s17"><span class="toc-n">17</span>Guardrails</a></li>
+      <li class="toc-item"><a href="#s18"><span class="toc-n">18</span>QA Checklist</a></li>
+      <li class="toc-item"><a href="#s19"><span class="toc-n">19</span>Related</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <div class="fsf-hero">
+        <div class="fsf-hero-row">
+          <strong class="fsf-hero-title">STAM Form / Search / Filter Mobile Applied Preview v1</strong>
+          <span class="fsf-pill brand">Preview</span>
+          <span class="fsf-pill info">Mobile · Form · Search · Filter</span>
+          <span class="fsf-pill notyet">Product Not Yet</span>
+        </div>
+        <p>
+          본 문서는 STAM 모바일 화면에서 사용할
+          <strong>Search · Filter · Form · Select · Date Picker · Validation</strong>의 공통 시각 기준을 확정한다.
+          WBS 모바일 카드 리스트의 검색 확장, 필터 bottom sheet, 등록/수정 fullscreen form에 그대로 적용 가능한 입력 UI 기준을 제공한다.
+        </p>
+        <p style="opacity:.78;">
+          <strong>적용 범위</strong> — 본 작업은 <code>stam/docs/**</code> 하위 1개 HTML 생성과
+          <code>STAM-Docs-Index.html</code> 카드 1개 추가만 수행한다.
+          <code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code>, <code>stam/index.html</code>,
+          <code>stam/assets/**</code>, <code>.firebaserc</code>, <code>firebase.json</code>,
+          <code>.github/workflows/**</code>, <code>package.json</code>, <code>_ds/**</code>, <code>uploads/**</code>,
+          <code>*.zip</code>, <code>.env*</code>, <code>node_modules/**</code>, <code>dist/**</code>, <code>build/**</code>,
+          <code>.firebase/**</code> 는 한 줄도 수정하지 않는다.
+        </p>
+        <div class="fsf-kpi-grid">
+          <div class="fsf-kpi brand"><span class="fsf-kpi-key">검색 진입</span><span class="fsf-kpi-val">Inline Expand</span></div>
+          <div class="fsf-kpi info"><span class="fsf-kpi-key">필터 합성</span><span class="fsf-kpi-val">Chip + Sheet</span></div>
+          <div class="fsf-kpi"><span class="fsf-kpi-key">Input H</span><span class="fsf-kpi-val">40 ~ 44px</span></div>
+          <div class="fsf-kpi"><span class="fsf-kpi-key">Touch Target</span><span class="fsf-kpi-val">≥ 40 · 권장 44</span></div>
+          <div class="fsf-kpi"><span class="fsf-kpi-key">Footer CTA</span><span class="fsf-kpi-val">44px</span></div>
+          <div class="fsf-kpi warn"><span class="fsf-kpi-key">Page Hscroll</span><span class="fsf-kpi-val">금지</span></div>
+        </div>
+      </div>
+
+      <!-- ── S01 Overview ── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            본 문서는 STAM 모바일에서 <strong>Search · Filter · Form · Select · Date · Validation</strong> 공통 적용 기준을 시각화한다.
+            <strong>Mobile Shell / Top / Navigation Guide v1</strong> 의 모바일 원칙(48px Topbar, Drawer, safe-area, page hscroll 금지)을 상속하고,
+            <strong>WBS Mobile Board Applied Preview v1</strong> 의 카드 리스트 / 검색 / 필터 시안을 입력 UI 관점에서 보완한다.
+            본 문서는 디자인 / Preview 작업으로 실제 제품 코드는 한 줄도 수정하지 않는다.
+          </p>
+          <div class="fsf-rule-grid">
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-pass">이 문서가 다루는 것</div>
+              <ul>
+                <li>Mobile Search — Inline Expand · Full Overlay · Search+Filter Sheet 3안 비교</li>
+                <li>Search Result Summary — 검색어 · 결과 수 · active filter · 초기화</li>
+                <li>Filter Chip Row — chip 유형, clear all, touch target</li>
+                <li>Filter Bottom Sheet — header / content / footer · safe-area 대응</li>
+                <li>Sort / View Option — Sheet 또는 Overflow 진입</li>
+                <li>Mobile Form Field — label / input / textarea / helper / error</li>
+                <li>Select / Date Picker — Bottom sheet · Calendar · 빠른 선택</li>
+                <li>Validation — field-level · section-level · save blocking</li>
+                <li>Create / Edit Fullscreen Form · Dirty / Saving / Saved / Error</li>
+              </ul>
+            </div>
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-fail">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code> 직접 수정</li>
+                <li><code>stam/index.html</code>, <code>stam/assets/**</code> 변경</li>
+                <li>Mobile Shell Guide / WBS Mobile Preview 정의 자체 수정</li>
+                <li>전역 <code>.tbtn</code> 일괄 치환 / 기능 로직 변경</li>
+                <li>Firebase · GitHub Actions · package.json · _ds / uploads / *.zip 변경</li>
+                <li>native select / date 채택 여부 — 별도 Gate</li>
+              </ul>
+            </div>
+          </div>
+          <div class="fsf-rule-grid" style="margin-top:14px;">
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-info">Mobile UX에서 Form / Search / Filter가 중요한 이유</div>
+              <ul>
+                <li>모바일은 1열 위주 — 입력 UI 가 화면의 절반 이상 차지</li>
+                <li>키보드 노출 시 viewport 가 절반으로 줄어 footer / sheet 정합성 필수</li>
+                <li>WBS 작업 등록 / 검색 / 필터는 모바일에서 가장 빈번한 액션 — 정합 기준 없으면 화면별 편차</li>
+                <li>PC drawer 폼을 그대로 축소하면 input 이 30px 이하로 줄어 사용 불가</li>
+              </ul>
+            </div>
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-warn">실제 구현 전 디자인 기준 문서</div>
+              <ul>
+                <li>본 문서는 <strong>구현 전 시각 기준</strong>이며 product 적용은 별도 Gate</li>
+                <li>적용 순서: 본 가이드 승인 → Form Token Mapping 매핑 → 모바일 분기 컨테이너 → 데이터 바인딩</li>
+                <li>모바일 form / select / date 적용은 PC form 과 분리 commit</li>
+                <li>충돌 시 Mobile Shell Guide / Form Token Mapping 이 우선</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Scope ── -->
+      <section id="s02" class="sec" data-screen-label="02 Scope">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Mobile Form / Search / Filter Scope</span>
+          <span class="sbadge guide">Scope</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            본 가이드가 정의하는 입력 UI 단위는 10가지이며, 각 항목은 모바일 한정 적용 기준이다.
+            모든 항목은 <strong>WBS 모바일 카드 리스트 · 검색 · 필터 · 등록 / 수정 form</strong> 에서 공통 적용된다.
+          </p>
+          <div class="fsf-tbl-wrap">
+            <table class="fsf-tbl">
+              <thead><tr><th style="width:200px;">단위</th><th style="width:140px;">형태</th><th>역할</th><th>대표 사용처</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">Mobile Search Expand</td><td>Inline · 36px</td><td>Topbar 검색 icon → search bar 확장</td><td>WBS / 산출물 / 요구사항 목록</td></tr>
+                <tr><td class="tn">Search Result Summary</td><td>1줄 메타 바</td><td>검색어 · 결과 수 · active filter · 초기화</td><td>검색 · 필터 active 상태</td></tr>
+                <tr><td class="tn">Filter Chip Row</td><td>가로 스크롤 chip</td><td>단일 조건 빠른 토글 · 활성 필터 표시</td><td>검색 bar 아래 고정</td></tr>
+                <tr><td class="tn">Filter Bottom Sheet</td><td>Bottom sheet</td><td>다중 조건 합성 · 적용 / 초기화</td><td>chip row <code>필터</code> 진입</td></tr>
+                <tr><td class="tn">Sort / View Option</td><td>Sheet · Overflow</td><td>정렬 / 보기 모드 전환</td><td>Topbar 더보기 · Bottom sheet</td></tr>
+                <tr><td class="tn">Mobile Form Field</td><td>40 ~ 44px input</td><td>label / input / helper / error</td><td>모든 모바일 form</td></tr>
+                <tr><td class="tn">Select / Date Trigger</td><td>Trigger + Sheet</td><td>native 미사용 · Bottom sheet picker</td><td>담당자 / 상태 / 일정</td></tr>
+                <tr><td class="tn">Validation / Error</td><td>field · section · banner</td><td>입력 검증 · 저장 차단 · 인라인 메시지</td><td>등록 · 수정 form</td></tr>
+                <tr><td class="tn">Sticky Footer Action</td><td>60px 행 + 44px CTA</td><td>취소 · 임시저장 · 등록 / 저장</td><td>Fullscreen form</td></tr>
+                <tr><td class="tn">Fullscreen Create / Edit</td><td>Fullscreen page</td><td>Back · Title · 섹션 · Footer</td><td>WBS 작업 등록 / 수정</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="fsf-rule-grid" style="margin-top:14px;">
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-pass">상속 / 결합되는 가이드</div>
+              <ul>
+                <li>STAM Mobile Shell / Top / Navigation Guide v1 — 모바일 원칙</li>
+                <li>STAM WBS Mobile Board Applied Preview v1 — 카드 리스트 / 검색 / 필터</li>
+                <li>STAM Topbar Detail Guide v1 — 알림 dot · 검색 pill · 우측 액션 간격</li>
+                <li>STAM Form Token Mapping v1 — input / select / date / validation 토큰</li>
+                <li>STAM Button CSS Implementation Preview v1 — 버튼 토큰 · 사이즈 · 상태</li>
+                <li>STAM UI Baseline Guide — 폰트 · 토큰 · Forbidden Rules</li>
+              </ul>
+            </div>
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-info">반복 적용 원칙</div>
+              <ul>
+                <li>모든 입력 UI 는 <strong>모바일 한정 기준</strong> — PC drawer 축소가 아님</li>
+                <li>같은 단위는 화면별로 다른 형태로 그리지 않고 본 가이드 형태 그대로 재사용</li>
+                <li>모바일 native select / date 사용 여부는 별도 결정</li>
+                <li>v1 은 custom bottom sheet 기준으로 작성</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 Search Pattern ── -->
+      <section id="s03" class="sec" data-screen-label="03 Search Pattern">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Mobile Search Pattern — 진입 방식 3안</span>
+          <span class="sbadge guide">Search</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM 모바일 검색은 <strong>현재 화면 검색</strong>이 기본 책임이다.
+            전역 검색은 별도 entry, 조건 검색은 Filter Bottom sheet 로 분리한다.
+            아래 3안 중 <strong>A안 (Inline Expand)</strong> 를 목록형 화면에 우선 적용한다.
+          </p>
+          <div class="fsf-opt-grid">
+            <div class="fsf-opt-card recommend">
+              <div class="fsf-opt-hdr">
+                <span class="fsf-opt-letter">A</span>
+                <span class="fsf-opt-title">Inline Search Expand</span>
+                <span class="fsf-pill brand">목록형 우선</span>
+              </div>
+              <div class="fsf-opt-body">Topbar 검색 icon 탭 → <strong>topbar 아래 36px search bar 확장</strong>. 현재 화면 컨텍스트 유지하면서 즉시 결과 갱신.</div>
+              <div class="fsf-opt-hdr-row">Pros</div>
+              <ul class="fsf-opt-pros"><li>화면 전환 없음 · 결과 즉시 노출</li><li>topbar + 36px 만 차지 — content 영향 최소</li><li>chip 필터와 AND 결합이 자연스럽다</li></ul>
+              <div class="fsf-opt-hdr-row">Cons</div>
+              <ul class="fsf-opt-cons"><li>최근 검색 / 자동완성을 한 화면에 모두 노출하기 어렵다</li></ul>
+            </div>
+            <div class="fsf-opt-card">
+              <div class="fsf-opt-hdr">
+                <span class="fsf-opt-letter">B</span>
+                <span class="fsf-opt-title">Full Search Overlay</span>
+                <span class="fsf-pill info">전역 검색</span>
+              </div>
+              <div class="fsf-opt-body">화면 전체를 검색 모드로 덮는다. 최근 검색 / 카테고리별 결과 노출 가능. STAM 전체(홈) 진입 검색에 적합.</div>
+              <div class="fsf-opt-hdr-row">Pros</div>
+              <ul class="fsf-opt-pros"><li>최근 검색 / 자동완성 / 그룹별 결과 모두 노출</li><li>history 분리 명확 (back 으로 이전 화면)</li></ul>
+              <div class="fsf-opt-hdr-row">Cons</div>
+              <ul class="fsf-opt-cons"><li>현재 화면 컨텍스트가 일시적으로 사라짐</li><li>WBS 단독 검색에는 과중</li></ul>
+            </div>
+            <div class="fsf-opt-card">
+              <div class="fsf-opt-hdr">
+                <span class="fsf-opt-letter">C</span>
+                <span class="fsf-opt-title">Search + Filter Bottom Sheet</span>
+                <span class="fsf-pill warn">복잡 조건 한정</span>
+              </div>
+              <div class="fsf-opt-body">Bottom sheet 안에 search input + 조건 chip 결합. <strong>복잡한 조건</strong>(상태 + 기간 + 담당자 + 분류) 한해 A안과 병행.</div>
+              <div class="fsf-opt-hdr-row">Pros</div>
+              <ul class="fsf-opt-pros"><li>검색어 + 조건을 한 흐름에서 합성 가능</li><li>적용 / 초기화 footer 와 자연스럽게 결합</li></ul>
+              <div class="fsf-opt-hdr-row">Cons</div>
+              <ul class="fsf-opt-cons"><li>키보드 + sheet 동시 점유 — 화면이 크다</li><li>1차 검색 진입으로는 비효율</li></ul>
+            </div>
+          </div>
+
+          <div class="fsf-cap" style="margin-top:18px;"><span class="fsf-cap-n">S</span>Inline Search Expand 상태 6종 <span class="fsf-cap-sub">default · focused · typing · result · empty · clear visible</span></div>
+
+          <div class="fsf-phone-row">
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>default</span><span class="fsf-phone-col-tag">A·1</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen short">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                  <button class="fsf-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                </div>
+                <div class="fsf-content">
+                  <div class="fsf-section-sub">진행 중 · 12건</div>
+                  <div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">화면 설계 1차 리뷰</div><span class="fsf-status prog">진행</span></div><div class="fsf-wbs-card-row"><span class="who"><span class="fsf-ava">EJ</span>이은주</span><span>06.10 – 12</span></div></div>
+                  <div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">권한 정책 정리</div><span class="fsf-status todo">예정</span></div><div class="fsf-wbs-card-row"><span class="who"><span class="fsf-ava">SY</span>박서연</span><span>06.12 – 15</span></div></div>
+                </div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>focused</span><span class="fsf-phone-col-tag alt">A·2</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen short">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                  <button class="fsf-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                </div>
+                <div class="fsf-search-inline focused">
+                  <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg>
+                  <span class="fsf-si-q" style="color:rgba(255,255,255,.42);">작업명·담당자 검색</span>
+                </div>
+                <div class="fsf-content" style="padding-top:6px;">
+                  <div class="fsf-section-sub">최근 검색</div>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                    <span class="fsf-chip">설계 변경</span><span class="fsf-chip">권한 정리</span><span class="fsf-chip">PoC</span><span class="fsf-chip">이은주</span>
+                  </div>
+                </div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>typing</span><span class="fsf-phone-col-tag alt">A·3</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen short">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                  <button class="fsf-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                </div>
+                <div class="fsf-search-inline active">
+                  <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg>
+                  <span class="fsf-si-q">설계 리</span>
+                  <span class="fsf-si-clear">×</span>
+                </div>
+                <div class="fsf-content" style="padding-top:6px;">
+                  <div class="fsf-section-sub">자동완성 · 3건</div>
+                  <div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">화면 <strong style="color:#C0BAFF;">설계 리</strong>뷰</div></div></div>
+                  <div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title"><strong style="color:#C0BAFF;">설계 리</strong>스트 정리</div></div></div>
+                </div>
+              </div></div>
+            </div>
+          </div>
+
+          <div class="fsf-phone-row" style="margin-top:10px;">
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>result count</span><span class="fsf-phone-col-tag alt">A·4</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen short">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                  <button class="fsf-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                </div>
+                <div class="fsf-search-inline active">
+                  <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg>
+                  <span class="fsf-si-q">설계 리뷰</span><span class="fsf-si-clear">×</span>
+                </div>
+                <div class="fsf-content" style="padding-top:6px;">
+                  <div class="fsf-result-bar"><span class="fsf-result-q">‘<strong>설계 리뷰</strong>’ · <span class="fsf-result-num">2</span>건</span><span class="fsf-result-reset">초기화</span></div>
+                  <div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">화면 설계 1차 리뷰</div><span class="fsf-status prog">진행</span></div></div>
+                  <div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">설계 변경 리뷰</div><span class="fsf-status todo">예정</span></div></div>
+                </div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>empty result</span><span class="fsf-phone-col-tag fail">A·5</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen short">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                  <button class="fsf-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                </div>
+                <div class="fsf-search-inline active">
+                  <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg>
+                  <span class="fsf-si-q">알수없음</span><span class="fsf-si-clear">×</span>
+                </div>
+                <div class="fsf-content" style="padding-top:6px;">
+                  <div class="fsf-result-bar"><span class="fsf-result-q">‘<strong>알수없음</strong>’ · <span class="fsf-result-num">0</span>건</span><span class="fsf-result-reset">초기화</span></div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:24px 8px;color:rgba(255,255,255,.46);font-size:11px;text-align:center;">
+                    <span style="font-size:24px;opacity:.5;">∅</span>
+                    <span>검색 결과가 없습니다</span>
+                    <span style="font-size:10px;opacity:.7;">필터 조건을 확인하거나 다시 검색해 보세요</span>
+                  </div>
+                </div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>긴 검색어 · clear</span><span class="fsf-phone-col-tag alt">A·6</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen short">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                  <button class="fsf-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                </div>
+                <div class="fsf-search-inline active">
+                  <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg>
+                  <span class="fsf-si-q">DB 마이그레이션 PoC 진행</span><span class="fsf-si-clear">×</span>
+                </div>
+                <div class="fsf-content" style="padding-top:6px;">
+                  <div class="fsf-result-bar"><span class="fsf-result-q"><span class="fsf-result-num">3</span>건 · 필터 2</span><span class="fsf-result-reset">초기화</span></div>
+                  <div class="fsf-wbs-card is-delay"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">DB 마이그레이션 PoC</div><span class="fsf-status delay">지연</span></div></div>
+                </div>
+              </div></div>
+            </div>
+          </div>
+
+          <div class="fsf-rule-grid" style="margin-top:14px;">
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-pass">Search 정책</div>
+              <ul>
+                <li>placeholder: <code>작업명·담당자 검색</code> · 또는 <code>현재 화면 검색</code></li>
+                <li>활성 시 search bar 상단 고정 — content 스크롤과 분리</li>
+                <li>입력 시 <strong>x clear 버튼</strong> 우측 노출</li>
+                <li>결과 수 노출: <code>n 건</code> · 검색어 따옴표 + 말줄임</li>
+                <li>chip 필터와 AND 결합 — 활성 chip 유지</li>
+                <li>검색 종료 = topbar 우측 닫기 (×)</li>
+              </ul>
+            </div>
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-info">권장 진입 매핑</div>
+              <ul>
+                <li>WBS / 산출물 / 요구사항 목록 — <strong>A안 (Inline Expand)</strong></li>
+                <li>전역 검색 / 홈 검색 — <strong>B안 (Full Overlay)</strong></li>
+                <li>복잡한 조건 합성 — <strong>C안 (Sheet)</strong> 을 A안과 병행</li>
+                <li>같은 화면에서 A + C 동시 노출은 허용 (A 가 우선)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Result Summary ── -->
+      <section id="s04" class="sec" data-screen-label="04 Result Summary">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Search Result Summary — 결과 표시 기준</span>
+          <span class="sbadge guide">Summary</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            검색 / 필터가 활성화된 상태에서 결과 위에 <strong>1줄 요약 bar</strong> 를 고정한다.
+            검색어 · 결과 수 · active filter count · 초기화 버튼을 동시에 표시하며, 360px 폭에서도 깨지지 않게 설계한다.
+          </p>
+          <div class="fsf-tbl-wrap">
+            <table class="fsf-tbl">
+              <thead><tr><th style="width:160px;">구성</th><th style="width:200px;">표시 형식</th><th>규칙</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">검색어</td><td><code>'설계 리뷰'</code></td><td>따옴표 감싸기 · 길면 말줄임 · 최대 62% 폭</td></tr>
+                <tr><td class="tn">결과 수</td><td><code>n 건</code></td><td>숫자만 <code>--t1</code> 강조 · 단위 회색</td></tr>
+                <tr><td class="tn">Active filter</td><td><code>· 필터 n</code></td><td>1개 이상이면 결과 수 옆에 도트 + 숫자. 0 이면 생략</td></tr>
+                <tr><td class="tn">초기화 버튼</td><td><code>초기화</code></td><td>우측 고정 · 검색어 + 필터 모두 해제 · 텍스트 버튼</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="fsf-cap" style="margin-top:18px;"><span class="fsf-cap-n">R</span>결과 요약 4 케이스 <span class="fsf-cap-sub">검색만 / 필터만 / 검색+필터 / 0건</span></div>
+          <div class="fsf-phone-row">
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>검색만</span><span class="fsf-phone-col-tag">R·1</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen short">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                </div>
+                <div class="fsf-search-inline active"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg><span class="fsf-si-q">설계</span><span class="fsf-si-clear">×</span></div>
+                <div class="fsf-content" style="padding-top:6px;">
+                  <div class="fsf-result-bar"><span class="fsf-result-q">'<strong>설계</strong>' · <span class="fsf-result-num">5</span>건</span><span class="fsf-result-reset">초기화</span></div>
+                  <div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">화면 설계 1차 리뷰</div><span class="fsf-status prog">진행</span></div></div>
+                  <div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">DB 설계 초안</div><span class="fsf-status done">완료</span></div></div>
+                </div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>필터만</span><span class="fsf-phone-col-tag alt">R·2</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen short">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                </div>
+                <div class="fsf-content">
+                  <div class="fsf-result-bar"><span class="fsf-result-q"><span class="fsf-result-num">7</span>건 · 필터 2</span><span class="fsf-result-reset">초기화</span></div>
+                  <div class="fsf-chip-row"><span class="fsf-chip active">진행 <span class="fsf-chip-x">×</span></span><span class="fsf-chip active">이은주 <span class="fsf-chip-x">×</span></span></div>
+                  <div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">화면 설계 1차 리뷰</div><span class="fsf-status prog">진행</span></div></div>
+                </div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>검색 + 필터</span><span class="fsf-phone-col-tag alt">R·3</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen short">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                </div>
+                <div class="fsf-search-inline active"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg><span class="fsf-si-q">리뷰</span><span class="fsf-si-clear">×</span></div>
+                <div class="fsf-content" style="padding-top:6px;">
+                  <div class="fsf-result-bar"><span class="fsf-result-q">'<strong>리뷰</strong>' · <span class="fsf-result-num">2</span>건 · 필터 1</span><span class="fsf-result-reset">초기화</span></div>
+                  <div class="fsf-chip-row"><span class="fsf-chip active">진행 <span class="fsf-chip-x">×</span></span></div>
+                  <div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">화면 설계 1차 리뷰</div><span class="fsf-status prog">진행</span></div></div>
+                </div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>0건</span><span class="fsf-phone-col-tag fail">R·4</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen short">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                </div>
+                <div class="fsf-search-inline active"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg><span class="fsf-si-q">없는검색어</span><span class="fsf-si-clear">×</span></div>
+                <div class="fsf-content" style="padding-top:6px;">
+                  <div class="fsf-result-bar"><span class="fsf-result-q">'<strong>없는검색어</strong>' · <span class="fsf-result-num">0</span>건</span><span class="fsf-result-reset">초기화</span></div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 8px;color:rgba(255,255,255,.46);font-size:11px;text-align:center;"><span style="font-size:22px;opacity:.5;">∅</span><span>검색 결과가 없습니다</span></div>
+                </div>
+              </div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 Filter Chip Row ── -->
+      <section id="s05" class="sec" data-screen-label="05 Filter Chip Row">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Mobile Filter Chip Row</span>
+          <span class="sbadge guide">Chip</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            상단 chip row 는 <strong>단일 조건 빠른 토글</strong> 용이다.
+            chip 자체 높이는 <strong>28 ~ 32px</strong>, 실제 tap 영역(상하 여유 포함)은 <strong>40px 이상</strong> 확보한다.
+            chip row 는 가로 스크롤을 허용하나 <em>페이지 자체 가로 스크롤</em>은 아니다.
+          </p>
+          <div class="fsf-tok-grid">
+            <div class="fsf-tok"><span class="fsf-tok-k">Chip Height</span><span class="fsf-tok-v">28 ~ 32px</span><span class="fsf-tok-d">visual height (text + padding)</span></div>
+            <div class="fsf-tok"><span class="fsf-tok-k">Tap 영역</span><span class="fsf-tok-v">≥ 40px</span><span class="fsf-tok-d">상하 여유 포함 · 권장 44</span></div>
+            <div class="fsf-tok"><span class="fsf-tok-k">Gap</span><span class="fsf-tok-v">6px</span><span class="fsf-tok-d">chip 간 간격</span></div>
+            <div class="fsf-tok"><span class="fsf-tok-k">Overflow</span><span class="fsf-tok-v">가로 스크롤</span><span class="fsf-tok-d">row 내부만 · scrollbar 비표시</span></div>
+          </div>
+
+          <div class="fsf-cap" style="margin-top:16px;"><span class="fsf-cap-n">C</span>Chip 유형 · 활성 · 전체해제 <span class="fsf-cap-sub">상태 · 담당자 · 지연/위험 · 기간 · 우선순위 · 분류</span></div>
+          <div class="fsf-phone-row">
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>chip row · 기본</span><span class="fsf-phone-col-w">scroll →</span><span class="fsf-phone-col-tag">기본</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                  <button class="fsf-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                </div>
+                <div class="fsf-content">
+                  <div class="fsf-chip-row">
+                    <span class="fsf-chip active">상태 <span class="fsf-chip-n">2</span></span>
+                    <span class="fsf-chip">담당자</span>
+                    <span class="fsf-chip">지연/위험</span>
+                    <span class="fsf-chip">기간</span>
+                    <span class="fsf-chip">우선순위</span>
+                    <span class="fsf-chip">분류</span>
+                  </div>
+                  <div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">화면 설계 1차 리뷰</div><span class="fsf-status prog">진행</span></div><div class="fsf-wbs-card-row"><span class="who"><span class="fsf-ava">EJ</span>이은주</span><span>06.10 – 12</span></div></div>
+                  <div class="fsf-wbs-card is-delay"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">DB 마이그레이션 PoC</div><span class="fsf-status delay">지연</span></div><div class="fsf-wbs-card-row"><span class="who"><span class="fsf-ava">DK</span>김도경</span><span>06.05 – 09 · D-3</span></div></div>
+                  <div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">권한 정책 정리</div><span class="fsf-status todo">예정</span></div><div class="fsf-wbs-card-row"><span class="who"><span class="fsf-ava">SY</span>박서연</span><span>06.12 – 15</span></div></div>
+                </div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>active + clear all</span><span class="fsf-phone-col-tag alt">active</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                  <button class="fsf-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                </div>
+                <div class="fsf-content">
+                  <div class="fsf-result-bar"><span class="fsf-result-q"><span class="fsf-result-num">5</span>건 · 필터 3</span><span class="fsf-result-reset">초기화</span></div>
+                  <div class="fsf-chip-row">
+                    <span class="fsf-chip clear-all">전체 해제 <span class="fsf-chip-x">×</span></span>
+                    <span class="fsf-chip active">진행 <span class="fsf-chip-x">×</span></span>
+                    <span class="fsf-chip active">이은주 <span class="fsf-chip-x">×</span></span>
+                    <span class="fsf-chip active">지연 <span class="fsf-chip-x">×</span></span>
+                    <span class="fsf-chip">기간</span>
+                    <span class="fsf-chip">분류</span>
+                  </div>
+                  <div class="fsf-wbs-card is-delay"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">DB 마이그레이션 PoC</div><span class="fsf-status delay">지연</span></div><div class="fsf-wbs-card-row"><span class="who"><span class="fsf-ava">EJ</span>이은주</span><span>06.05 – 09 · D-3</span></div></div>
+                  <div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">권한 검토 회의</div><span class="fsf-status prog">진행</span></div><div class="fsf-wbs-card-row"><span class="who"><span class="fsf-ava">EJ</span>이은주</span><span>06.13 – 14</span></div></div>
+                </div>
+              </div></div>
+            </div>
+          </div>
+
+          <div class="fsf-rule-grid" style="margin-top:14px;">
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-pass">Chip Row 규칙</div>
+              <ul>
+                <li>chip row 는 검색 bar 바로 아래에 고정</li>
+                <li>chip 활성 상태는 <code>--stam</code> 톤 (보라) — count badge 동반</li>
+                <li>chip 가로 스크롤 시 마지막 chip 우측 여백 12px 확보</li>
+                <li>chip 자체 <code>min-height: 28px</code> · 폼 활성 영역 <code>40px+</code></li>
+                <li>chip 텍스트 길어도 줄바꿈 금지 — <code>white-space: nowrap</code></li>
+              </ul>
+            </div>
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-info">Chip 유형 / 표기</div>
+              <ul>
+                <li>상태 · 담당자 · 지연/위험 · 기간 · 우선순위 · 분류</li>
+                <li>다중 선택은 chip 내 count badge 로 표기 (<code>상태 2</code>)</li>
+                <li>단일 선택은 chip 본문에 값 노출 (<code>이은주</code>) + 우측 <code>×</code></li>
+                <li>1개 이상 활성 시 <strong>전체 해제 chip</strong> 을 최상단에 prepend</li>
+                <li>chip 탭 = 해당 카테고리 Filter Sheet 진입</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 Filter Bottom Sheet ── -->
+      <section id="s06" class="sec" data-screen-label="06 Filter Bottom Sheet">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Filter Bottom Sheet — 다중 조건 합성</span>
+          <span class="sbadge guide">Sheet</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            chip row 의 <code>필터</code> chip 또는 우측 필터 icon 진입 시 <strong>Bottom sheet</strong> 가 열린다.
+            sheet 는 <em>header · content · footer</em> 3단으로 구성되며 적용 / 초기화 footer 가 항상 sticky 로 유지된다.
+            safe-area 하단을 고려해 padding 을 추가한다.
+          </p>
+
+          <div class="fsf-tbl-wrap">
+            <table class="fsf-tbl">
+              <thead><tr><th style="width:120px;">파트</th><th style="width:140px;">사이즈</th><th>구성</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">Header</td><td>40px</td><td>좌측 <code>필터</code> 타이틀 · 우측 <code>초기화</code> 텍스트 버튼 · 우측 <code>×</code> close</td></tr>
+                <tr><td class="tn">Grab handle</td><td>4 × 36px</td><td>드래그 핸들 · header 위쪽 중앙</td></tr>
+                <tr><td class="tn">Content</td><td>flex · max 60vh</td><td>섹션별 chip 그룹 / 라디오 / 체크박스 · 내부 스크롤</td></tr>
+                <tr><td class="tn">Footer</td><td>56 + safe-area</td><td>좌 <code>초기화</code> ghost · 우 <code>적용</code> primary <strong>44px</strong></td></tr>
+                <tr><td class="tn">Max height</td><td>72%</td><td>topbar / safe-area 가림 방지</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="fsf-cap" style="margin-top:18px;"><span class="fsf-cap-n">F</span>Filter Bottom Sheet — 기본 / 다중 선택 / 적용 직전</div>
+
+          <div class="fsf-phone-row">
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>기본</span><span class="fsf-phone-col-tag">F·1</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen tall">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                  <button class="fsf-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                </div>
+                <div class="fsf-content" style="opacity:.65;">
+                  <div class="fsf-chip-row"><span class="fsf-chip active">상태 <span class="fsf-chip-n">2</span></span><span class="fsf-chip">담당자</span><span class="fsf-chip">기간</span></div>
+                  <div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">화면 설계 1차 리뷰</div><span class="fsf-status prog">진행</span></div></div>
+                </div>
+                <div class="fsf-bs-scrim"></div>
+                <div class="fsf-bottomsheet">
+                  <div class="fsf-bs-grab"></div>
+                  <div class="fsf-bs-hdr"><span>필터</span><span class="fsf-bs-action"><span class="reset" style="color:#8B7FF8;">초기화</span><span style="opacity:.5;">×</span></span></div>
+                  <div class="fsf-bs-body">
+                    <div class="fsf-bs-section">
+                      <div class="fsf-bs-section-title">상태</div>
+                      <div class="fsf-bs-chips">
+                        <span class="fsf-chip">예정</span><span class="fsf-chip active">진행</span><span class="fsf-chip">완료</span><span class="fsf-chip">보류</span><span class="fsf-chip active">지연</span>
+                      </div>
+                    </div>
+                    <div class="fsf-bs-section">
+                      <div class="fsf-bs-section-title">담당자</div>
+                      <div class="fsf-bs-chips">
+                        <span class="fsf-chip">전체</span><span class="fsf-chip">내가 담당</span><span class="fsf-chip">이은주</span><span class="fsf-chip">박서연</span>
+                      </div>
+                    </div>
+                    <div class="fsf-bs-section">
+                      <div class="fsf-bs-section-title">지연 / 위험</div>
+                      <div class="fsf-bs-chips"><span class="fsf-chip">지연</span><span class="fsf-chip">위험</span><span class="fsf-chip">D-3 이내</span></div>
+                    </div>
+                  </div>
+                  <div class="fsf-bs-footer">
+                    <div class="fsf-cta ghost">초기화</div>
+                    <div class="fsf-cta">적용</div>
+                  </div>
+                </div>
+              </div></div>
+            </div>
+
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>다중 선택 + 스크롤</span><span class="fsf-phone-col-tag alt">F·2</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen tall">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                  <button class="fsf-tb-iconbtn has-dot"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                </div>
+                <div class="fsf-content" style="opacity:.55;"><div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">화면 설계 1차 리뷰</div></div></div></div>
+                <div class="fsf-bs-scrim"></div>
+                <div class="fsf-bottomsheet" style="max-height:80%;">
+                  <div class="fsf-bs-grab"></div>
+                  <div class="fsf-bs-hdr"><span>필터</span><span class="fsf-bs-action"><span class="reset" style="color:#8B7FF8;">초기화</span><span style="opacity:.5;">×</span></span></div>
+                  <div class="fsf-bs-body" style="overflow-y:auto;">
+                    <div class="fsf-bs-section">
+                      <div class="fsf-bs-section-title">담당자 · 3 선택</div>
+                      <div class="fsf-bs-row is-selected"><div class="fsf-bs-l"><span class="fsf-bs-check">✓</span>이은주</div><span style="font-size:10px;color:rgba(255,255,255,.46);">PM</span></div>
+                      <div class="fsf-bs-row is-selected"><div class="fsf-bs-l"><span class="fsf-bs-check">✓</span>김도경</div><span style="font-size:10px;color:rgba(255,255,255,.46);">BE</span></div>
+                      <div class="fsf-bs-row is-selected"><div class="fsf-bs-l"><span class="fsf-bs-check">✓</span>박서연</div><span style="font-size:10px;color:rgba(255,255,255,.46);">FE</span></div>
+                      <div class="fsf-bs-row"><div class="fsf-bs-l"><span class="fsf-bs-check"></span>임지윤</div><span style="font-size:10px;color:rgba(255,255,255,.46);">QA</span></div>
+                      <div class="fsf-bs-row"><div class="fsf-bs-l"><span class="fsf-bs-check"></span>최민호</div><span style="font-size:10px;color:rgba(255,255,255,.46);">DSGN</span></div>
+                    </div>
+                    <div class="fsf-bs-section">
+                      <div class="fsf-bs-section-title">우선순위</div>
+                      <div class="fsf-bs-chips"><span class="fsf-chip active">P0</span><span class="fsf-chip">P1</span><span class="fsf-chip">P2</span><span class="fsf-chip">P3</span></div>
+                    </div>
+                  </div>
+                  <div class="fsf-bs-footer">
+                    <div class="fsf-cta ghost">초기화</div>
+                    <div class="fsf-cta">적용 (5)</div>
+                  </div>
+                </div>
+              </div></div>
+            </div>
+
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>적용 직전 · light</span><span class="fsf-phone-col-tag warn">F·3</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen tall" style="background:#FAFBFC;">
+                <div class="fsf-statusbar" style="background:#FAFBFC;color:rgba(20,22,30,.72);"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar" style="background:#fff;border-bottom-color:rgba(20,22,30,.08);">
+                  <button class="fsf-tb-iconbtn" style="color:rgba(20,22,30,.78);"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title" style="color:rgba(20,22,30,.94);">WBS</div>
+                  <button class="fsf-tb-iconbtn" style="color:rgba(20,22,30,.78);"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                  <button class="fsf-tb-iconbtn has-dot" style="color:rgba(20,22,30,.78);"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v4l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></button>
+                </div>
+                <div class="fsf-content" style="opacity:.5;"><div class="fsf-wbs-card" style="background:#fff;border-color:rgba(20,22,30,.08);box-shadow:0 1px 0 rgba(20,22,30,.02);"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title" style="color:rgba(20,22,30,.92);">화면 설계 1차 리뷰</div></div></div></div>
+                <div class="fsf-bs-scrim"></div>
+                <div class="fsf-bottomsheet" style="background:#fff;border-top-color:rgba(20,22,30,.08);">
+                  <div class="fsf-bs-grab" style="background:rgba(20,22,30,.18);"></div>
+                  <div class="fsf-bs-hdr" style="color:rgba(20,22,30,.92);"><span>필터 · 4 선택</span><span class="fsf-bs-action"><span class="reset" style="color:#5451E8;">초기화</span><span style="opacity:.5;color:rgba(20,22,30,.58);">×</span></span></div>
+                  <div class="fsf-bs-body">
+                    <div class="fsf-bs-section" style="border-bottom-color:rgba(20,22,30,.06);">
+                      <div class="fsf-bs-section-title" style="color:rgba(20,22,30,.62);">상태</div>
+                      <div class="fsf-bs-chips"><span class="fsf-chip active" style="background:rgba(84,81,232,.10);color:#4340c8;border-color:rgba(84,81,232,.42);">진행</span><span class="fsf-chip active" style="background:rgba(84,81,232,.10);color:#4340c8;border-color:rgba(84,81,232,.42);">지연</span></div>
+                    </div>
+                    <div class="fsf-bs-section" style="border-bottom-color:rgba(20,22,30,.06);">
+                      <div class="fsf-bs-section-title" style="color:rgba(20,22,30,.62);">기간</div>
+                      <div class="fsf-bs-chips"><span class="fsf-chip" style="background:rgba(20,22,30,.02);color:rgba(20,22,30,.78);border-color:rgba(20,22,30,.10);">오늘</span><span class="fsf-chip active" style="background:rgba(84,81,232,.10);color:#4340c8;border-color:rgba(84,81,232,.42);">이번주</span><span class="fsf-chip" style="background:rgba(20,22,30,.02);color:rgba(20,22,30,.78);border-color:rgba(20,22,30,.10);">이번달</span></div>
+                    </div>
+                    <div class="fsf-bs-section">
+                      <div class="fsf-bs-section-title" style="color:rgba(20,22,30,.62);">관련 산출물</div>
+                      <div class="fsf-bs-chips"><span class="fsf-chip active" style="background:rgba(84,81,232,.10);color:#4340c8;border-color:rgba(84,81,232,.42);">설계 산출물</span><span class="fsf-chip" style="background:rgba(20,22,30,.02);color:rgba(20,22,30,.78);border-color:rgba(20,22,30,.10);">요구사항</span></div>
+                    </div>
+                  </div>
+                  <div class="fsf-bs-footer">
+                    <div class="fsf-cta ghost" style="color:rgba(20,22,30,.78);border-color:rgba(20,22,30,.12);">초기화</div>
+                    <div class="fsf-cta">적용 (4)</div>
+                  </div>
+                </div>
+              </div></div>
+            </div>
+          </div>
+
+          <div class="fsf-rule-grid" style="margin-top:14px;">
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-pass">Sheet 규칙</div>
+              <ul>
+                <li>scrim 진입 시 fade-in 120ms / sheet slide-up 200ms</li>
+                <li>sheet 내부 content 만 스크롤 · footer 는 sticky</li>
+                <li>footer CTA <strong>44px</strong> · 좌 ghost <em>초기화</em> · 우 primary <em>적용</em></li>
+                <li>적용 후 sheet 자동 닫힘 · chip row 활성 갱신</li>
+                <li>scrim tap 또는 swipe down = 닫기 (변경 사항 폐기)</li>
+              </ul>
+            </div>
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-info">섹션 구성</div>
+              <ul>
+                <li>상태 · 담당자 · 일정 · 지연/위험 · 우선순위 · 관련 산출물/요구사항</li>
+                <li>단일 선택 = 라디오 · 다중 선택 = 체크 · 빠른 선택 = chip</li>
+                <li>섹션이 많을 때 sheet max-height 80% 까지 허용</li>
+                <li>safe-area 하단 16px 이상 padding (footer 내부)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 Sort / View Option ── -->
+      <section id="s07" class="sec" data-screen-label="07 Sort / View">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Sort / View Option — 정렬 · 보기</span>
+          <span class="sbadge guide">Sort / View</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            모바일에서는 정렬 / 보기 옵션을 <strong>Topbar 가 아니라 Bottom sheet</strong> 또는 overflow menu 로 제공한다.
+            Topbar 우측은 알림 / 검색만 유지하고, 보기 옵션은 <em>더보기</em> 진입으로 분리한다.
+          </p>
+
+          <div class="fsf-tbl-wrap">
+            <table class="fsf-tbl">
+              <thead><tr><th style="width:140px;">옵션</th><th style="width:200px;">선택지</th><th>비고</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">정렬</td><td>최신순 / 마감 임박순 / 상태순 / 담당자순</td><td>라디오 · 단일 선택 · 기본값 최신순</td></tr>
+                <tr><td class="tn">보기</td><td>카드형 / 압축 카드 / 전체 테이블</td><td>라디오 · 단일 선택 · 기본값 카드형</td></tr>
+                <tr><td class="tn">진입</td><td>Topbar 더보기 또는 Bottom sheet</td><td>화면 우측 더보기(<code>⋯</code>) 또는 filter chip row 오른쪽 끝 <code>정렬</code> chip</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="fsf-cap" style="margin-top:18px;"><span class="fsf-cap-n">V</span>Sort / View Sheet — 정렬 / 보기 / 압축 모드 카드 리스트</div>
+          <div class="fsf-phone-row">
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>정렬 sheet</span><span class="fsf-phone-col-tag">V·1</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen tall">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="18" r="1.4"/></svg></button>
+                </div>
+                <div class="fsf-content" style="opacity:.5;"><div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">화면 설계 1차 리뷰</div></div></div></div>
+                <div class="fsf-bs-scrim"></div>
+                <div class="fsf-bottomsheet" style="max-height:54%;">
+                  <div class="fsf-bs-grab"></div>
+                  <div class="fsf-bs-hdr"><span>정렬</span><span class="fsf-bs-action"><span style="opacity:.5;">×</span></span></div>
+                  <div class="fsf-bs-body">
+                    <div class="fsf-bs-row is-selected"><div class="fsf-bs-l"><span class="fsf-bs-radio"></span>최신순</div><span style="font-size:10px;color:rgba(255,255,255,.46);">기본</span></div>
+                    <div class="fsf-bs-row"><div class="fsf-bs-l"><span class="fsf-bs-radio"></span>마감 임박순</div></div>
+                    <div class="fsf-bs-row"><div class="fsf-bs-l"><span class="fsf-bs-radio"></span>상태순</div></div>
+                    <div class="fsf-bs-row"><div class="fsf-bs-l"><span class="fsf-bs-radio"></span>담당자순</div></div>
+                  </div>
+                </div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>보기 sheet</span><span class="fsf-phone-col-tag alt">V·2</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen tall">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS</div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="18" r="1.4"/></svg></button>
+                </div>
+                <div class="fsf-content" style="opacity:.5;"><div class="fsf-wbs-card"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title">화면 설계 1차 리뷰</div></div></div></div>
+                <div class="fsf-bs-scrim"></div>
+                <div class="fsf-bottomsheet" style="max-height:52%;">
+                  <div class="fsf-bs-grab"></div>
+                  <div class="fsf-bs-hdr"><span>보기</span><span class="fsf-bs-action"><span style="opacity:.5;">×</span></span></div>
+                  <div class="fsf-bs-body">
+                    <div class="fsf-bs-row is-selected"><div class="fsf-bs-l"><span class="fsf-bs-radio"></span>카드형</div><span style="font-size:10px;color:rgba(255,255,255,.46);">기본</span></div>
+                    <div class="fsf-bs-row"><div class="fsf-bs-l"><span class="fsf-bs-radio"></span>압축 카드형</div></div>
+                    <div class="fsf-bs-row"><div class="fsf-bs-l"><span class="fsf-bs-radio"></span>전체 테이블 보기</div></div>
+                  </div>
+                </div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>압축 카드 적용</span><span class="fsf-phone-col-tag alt">V·3</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen tall">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+                  <div class="fsf-tb-title">WBS<span class="fsf-tb-title-sub">압축 카드 · 마감순</span></div>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="18" r="1.4"/></svg></button>
+                </div>
+                <div class="fsf-content" style="gap:4px;">
+                  <div class="fsf-wbs-card" style="padding:6px 12px;"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title" style="font-size:12px;">DB 마이그레이션 PoC</div><span class="fsf-status delay">D-3</span></div></div>
+                  <div class="fsf-wbs-card" style="padding:6px 12px;"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title" style="font-size:12px;">화면 설계 1차 리뷰</div><span class="fsf-status prog">D-2</span></div></div>
+                  <div class="fsf-wbs-card" style="padding:6px 12px;"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title" style="font-size:12px;">권한 정책 정리</div><span class="fsf-status todo">D+3</span></div></div>
+                  <div class="fsf-wbs-card" style="padding:6px 12px;"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title" style="font-size:12px;">결재 라인 통일</div><span class="fsf-status todo">D+5</span></div></div>
+                  <div class="fsf-wbs-card" style="padding:6px 12px;"><div class="fsf-wbs-card-top"><div class="fsf-wbs-card-title" style="font-size:12px;">검색 인덱스 점검</div><span class="fsf-status hold">D+7</span></div></div>
+                </div>
+              </div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Mobile Form Field ── -->
+      <section id="s08" class="sec" data-screen-label="08 Form Field">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Mobile Form Field Guideline</span>
+          <span class="sbadge guide">Field</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            모바일 입력 필드는 label · input · helper · error 4개 슬롯으로 표준화한다.
+            input 높이는 <strong>40 ~ 44px</strong> 범위, textarea 는 <strong>min-height 96px</strong>, touch target 은 <strong>40px 이상</strong> 보장한다.
+          </p>
+
+          <div class="fsf-tok-grid">
+            <div class="fsf-tok"><span class="fsf-tok-k">Input H</span><span class="fsf-tok-v">40 ~ 44px</span><span class="fsf-tok-d">기본 40 · 결재 / Date 트리거 44</span></div>
+            <div class="fsf-tok"><span class="fsf-tok-k">Textarea</span><span class="fsf-tok-v">min 96px</span><span class="fsf-tok-d">메모 · 설명에 사용</span></div>
+            <div class="fsf-tok"><span class="fsf-tok-k">Label</span><span class="fsf-tok-v">12 ~ 13px</span><span class="fsf-tok-d">font-weight 600</span></div>
+            <div class="fsf-tok"><span class="fsf-tok-k">Helper / Error</span><span class="fsf-tok-v">11 ~ 12px</span><span class="fsf-tok-d">error 시 색만 <code>fail</code> 톤</span></div>
+            <div class="fsf-tok"><span class="fsf-tok-k">Radius</span><span class="fsf-tok-v">8px</span><span class="fsf-tok-d">input / textarea / trigger 공통</span></div>
+            <div class="fsf-tok"><span class="fsf-tok-k">Touch Target</span><span class="fsf-tok-v">≥ 40px</span><span class="fsf-tok-d">label 포함 시 row 48px 권장</span></div>
+          </div>
+
+          <div class="fsf-cap" style="margin-top:18px;"><span class="fsf-cap-n">L</span>필드 상태 8종 <span class="fsf-cap-sub">default · placeholder · focus · filled · error · disabled · readonly · textarea</span></div>
+
+          <div class="fsf-state-grid">
+            <div class="fsf-state-card"><div class="fsf-state-name">default · placeholder</div><div class="fsf-state-desc">기본 라벨 + placeholder. 입력 전 상태.</div>
+              <div class="fsf-state-mini"><div class="fsf-field"><span class="fsf-field-label">작업명 <span class="fsf-req">*</span></span><div class="fsf-field-input ph">작업명을 입력하세요</div></div></div></div>
+            <div class="fsf-state-card is-brand"><div class="fsf-state-name">focused</div><div class="fsf-state-desc">탭 시 보더 + 외부 그림자 ring (brand)</div>
+              <div class="fsf-state-mini"><div class="fsf-field"><span class="fsf-field-label">작업명 <span class="fsf-req">*</span></span><div class="fsf-field-input is-focus">화면 설계 1차 리뷰</div></div></div></div>
+            <div class="fsf-state-card is-pass"><div class="fsf-state-name">filled</div><div class="fsf-state-desc">값 채워진 정상 상태. helper 노출 가능.</div>
+              <div class="fsf-state-mini"><div class="fsf-field"><span class="fsf-field-label">작업명 <span class="fsf-req">*</span></span><div class="fsf-field-input">화면 설계 1차 리뷰</div><span class="fsf-field-helper">최대 60자까지 입력할 수 있습니다.</span></div></div></div>
+            <div class="fsf-state-card is-fail"><div class="fsf-state-name">error</div><div class="fsf-state-desc">입력 검증 실패. 보더 / ring / message 모두 fail.</div>
+              <div class="fsf-state-mini"><div class="fsf-field"><span class="fsf-field-label">작업명 <span class="fsf-req">*</span></span><div class="fsf-field-input is-error"></div><span class="fsf-field-error">작업명을 입력하세요.</span></div></div></div>
+            <div class="fsf-state-card"><div class="fsf-state-name">disabled</div><div class="fsf-state-desc">조건부 비활성 (예: 상태가 완료일 때 시작일).</div>
+              <div class="fsf-state-mini"><div class="fsf-field"><span class="fsf-field-label">시작일</span><div class="fsf-field-input is-disabled">06.10 (월)</div></div></div></div>
+            <div class="fsf-state-card"><div class="fsf-state-name">readonly</div><div class="fsf-state-desc">표시 전용. 대시 border 로 구분.</div>
+              <div class="fsf-state-mini"><div class="fsf-field"><span class="fsf-field-label">WBS ID</span><div class="fsf-field-input is-readonly">WBS-2026-0341</div></div></div></div>
+            <div class="fsf-state-card is-info"><div class="fsf-state-name">textarea</div><div class="fsf-state-desc">multi-line 메모 / 설명. min 96px.</div>
+              <div class="fsf-state-mini"><div class="fsf-field"><span class="fsf-field-label">메모 <span class="fsf-opt">선택</span></span><div class="fsf-field-textarea" style="min-height:60px;">설계 1차 리뷰 일정 확정. 결과는 산출물로 첨부 예정.</div></div></div></div>
+            <div class="fsf-state-card is-warn"><div class="fsf-state-name">required mark</div><div class="fsf-state-desc">필수 항목은 라벨 옆 <code>*</code>(fail 톤)로 표시.</div>
+              <div class="fsf-state-mini"><div class="fsf-field"><span class="fsf-field-label">담당자 <span class="fsf-req">*</span></span><div class="fsf-field-input"><span style="color:rgba(255,255,255,.78);">이은주</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div></div></div>
+          </div>
+
+          <div class="fsf-rule-grid" style="margin-top:14px;">
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-pass">Field 규칙</div>
+              <ul>
+                <li>label 은 input 위에 항상 노출 — placeholder 만으로 의미 전달 금지</li>
+                <li>helper / error 영역은 input 아래 1줄 — 둘 다 있을 때는 error 우선</li>
+                <li>required 필드는 라벨 옆 <code>*</code> · 선택은 <code>선택</code> 칩</li>
+                <li>field gap 10px · section gap 14px</li>
+                <li>field-row(시작일 / 종료일)는 <code>~</code> 구분자 · 8px gap</li>
+              </ul>
+            </div>
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-info">금지 / 주의</div>
+              <ul>
+                <li>모바일 input 높이 <strong>40px 미만 금지</strong></li>
+                <li>한 row 에 input 2개 이상 가로 배치 — 360px 이하에서 금지</li>
+                <li>input 안 글자색은 <code>--t1</code> 톤, placeholder 는 <code>--t3</code></li>
+                <li>focus ring 외 box-shadow 추가 금지</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Select Pattern ── -->
+      <section id="s09" class="sec" data-screen-label="09 Select Pattern">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Mobile Select Pattern</span>
+          <span class="sbadge guide">Select</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            모바일에서는 <strong>native <code>&lt;select&gt;</code> 를 그대로 사용하지 않는다</strong>.
+            v1 기준은 <strong>Bottom sheet picker</strong> 와 옵션이 많을 때 <strong>Fullscreen picker</strong> 두 가지이다.
+            Inline dropdown 은 키보드 충돌과 좁은 화면 문제로 모바일에서는 제한한다.
+          </p>
+
+          <div class="fsf-opt-grid">
+            <div class="fsf-opt-card recommend">
+              <div class="fsf-opt-hdr"><span class="fsf-opt-letter">A</span><span class="fsf-opt-title">Bottom sheet select</span><span class="fsf-pill brand">기본</span></div>
+              <div class="fsf-opt-body">트리거 탭 → bottom sheet 진입. 옵션 ≤ 12 개에 적합.</div>
+              <ul class="fsf-opt-pros"><li>키보드 비활성 시 자연스러움</li><li>드래그 닫기 가능</li></ul>
+            </div>
+            <div class="fsf-opt-card">
+              <div class="fsf-opt-hdr"><span class="fsf-opt-letter">B</span><span class="fsf-opt-title">Fullscreen picker</span><span class="fsf-pill info">검색 가능</span></div>
+              <div class="fsf-opt-body">옵션이 많거나 검색 필요한 경우. 담당자 / 분류 / 산출물 매핑.</div>
+              <ul class="fsf-opt-pros"><li>search 가능 · 그룹 / 카테고리 노출</li><li>back 진입 명확</li></ul>
+            </div>
+            <div class="fsf-opt-card">
+              <div class="fsf-opt-hdr"><span class="fsf-opt-letter">C</span><span class="fsf-opt-title">Inline dropdown</span><span class="fsf-pill warn">제한</span></div>
+              <div class="fsf-opt-body">기본적으로 사용하지 않음. 데스크탑 dropdown 을 그대로 축소하지 말 것.</div>
+              <ul class="fsf-opt-cons"><li>좁은 화면 충돌</li><li>키보드와 겹침</li></ul>
+            </div>
+          </div>
+
+          <div class="fsf-cap" style="margin-top:18px;"><span class="fsf-cap-n">P</span>Select 상태 4종 / Sheet 예시</div>
+          <div class="fsf-phone-row">
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>trigger 4종</span><span class="fsf-phone-col-tag">P·1</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <div class="fsf-tb-title">작업 등록</div>
+                </div>
+                <div class="fsf-content">
+                  <div class="fsf-field"><span class="fsf-field-label">상태 <span class="fsf-req">*</span></span><div class="fsf-field-input ph">상태 선택<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div><span class="fsf-field-helper">default</span></div>
+                  <div class="fsf-field"><span class="fsf-field-label">상태</span><div class="fsf-field-input"><span class="fsf-status prog">진행</span><svg viewBox="0 0 24 24" style="margin-left:auto;"><path d="M6 9l6 6 6-6"/></svg></div><span class="fsf-field-helper">selected</span></div>
+                  <div class="fsf-field"><span class="fsf-field-label">상태 <span class="fsf-req">*</span></span><div class="fsf-field-input is-error">상태 선택<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div><span class="fsf-field-error">상태를 선택하세요.</span></div>
+                  <div class="fsf-field"><span class="fsf-field-label">상태</span><div class="fsf-field-input is-disabled">완료<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div><span class="fsf-field-helper">disabled</span></div>
+                </div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>Bottom sheet select</span><span class="fsf-phone-col-tag alt">P·2</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <div class="fsf-tb-title">작업 등록</div>
+                </div>
+                <div class="fsf-content" style="opacity:.5;">
+                  <div class="fsf-field"><span class="fsf-field-label">상태 <span class="fsf-req">*</span></span><div class="fsf-field-input is-focus">상태 선택<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+                </div>
+                <div class="fsf-bs-scrim"></div>
+                <div class="fsf-bottomsheet" style="max-height:62%;">
+                  <div class="fsf-bs-grab"></div>
+                  <div class="fsf-bs-hdr"><span>상태 선택</span><span class="fsf-bs-action"><span style="opacity:.5;">×</span></span></div>
+                  <div class="fsf-bs-body">
+                    <div class="fsf-bs-row"><div class="fsf-bs-l"><span class="fsf-bs-radio"></span><span class="fsf-status todo">예정</span></div></div>
+                    <div class="fsf-bs-row is-selected"><div class="fsf-bs-l"><span class="fsf-bs-radio"></span><span class="fsf-status prog">진행</span></div></div>
+                    <div class="fsf-bs-row"><div class="fsf-bs-l"><span class="fsf-bs-radio"></span><span class="fsf-status hold">보류</span></div></div>
+                    <div class="fsf-bs-row"><div class="fsf-bs-l"><span class="fsf-bs-radio"></span><span class="fsf-status done">완료</span></div></div>
+                    <div class="fsf-bs-row"><div class="fsf-bs-l"><span class="fsf-bs-radio"></span><span class="fsf-status delay">지연</span></div></div>
+                  </div>
+                </div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>Fullscreen + search</span><span class="fsf-phone-col-tag alt">P·3</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <div class="fsf-tb-title">담당자 선택</div>
+                  <button class="fsf-tb-iconbtn" style="font-size:11px;font-weight:700;color:#8B7FF8;">선택</button>
+                </div>
+                <div class="fsf-search-inline focused" style="margin-top:8px;"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg><span class="fsf-si-q" style="color:rgba(255,255,255,.42);">이름 검색</span></div>
+                <div class="fsf-content" style="padding-top:6px;">
+                  <div class="fsf-section-sub">최근</div>
+                  <div class="fsf-bs-row is-selected"><div class="fsf-bs-l"><span class="fsf-bs-check">✓</span><span class="fsf-ava">EJ</span>이은주 · PM</div></div>
+                  <div class="fsf-bs-row"><div class="fsf-bs-l"><span class="fsf-bs-check"></span><span class="fsf-ava" style="background:#FF7D6E;">DK</span>김도경 · BE</div></div>
+                  <div class="fsf-bs-row"><div class="fsf-bs-l"><span class="fsf-bs-check"></span><span class="fsf-ava" style="background:#6FA8FF;">SY</span>박서연 · FE</div></div>
+                  <div class="fsf-section-sub">전체</div>
+                  <div class="fsf-bs-row"><div class="fsf-bs-l"><span class="fsf-bs-check"></span><span class="fsf-ava" style="background:#34C759;">JY</span>임지윤 · QA</div></div>
+                  <div class="fsf-bs-row"><div class="fsf-bs-l"><span class="fsf-bs-check"></span><span class="fsf-ava" style="background:#F5B14C;">MH</span>최민호 · DSGN</div></div>
+                </div>
+              </div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S10 Date Picker ── -->
+      <section id="s10" class="sec" data-screen-label="10 Date Picker">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Mobile Date Picker Pattern</span>
+          <span class="sbadge guide">Date</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            모바일 날짜 입력은 <strong>text input 형태의 trigger</strong> 로 시작해 탭 시 <strong>Bottom sheet calendar</strong> 를 연다.
+            v1 기준은 <strong>custom bottom sheet calendar</strong> 이며, native picker 채택 여부는 별도 Gate.
+            기간 선택에서는 빠른 선택 chip(오늘 · 이번주 · 이번달) 을 함께 노출한다.
+          </p>
+
+          <div class="fsf-opt-grid">
+            <div class="fsf-opt-card recommend">
+              <div class="fsf-opt-hdr"><span class="fsf-opt-letter">A</span><span class="fsf-opt-title">Custom bottom sheet calendar</span><span class="fsf-pill brand">v1 기준</span></div>
+              <div class="fsf-opt-body">시각 일관성 · 다크 / 라이트 정합 · 기간 선택 UI 자유도 ↑</div>
+              <ul class="fsf-opt-pros"><li>chip 빠른 선택 결합</li><li>다크 / 라이트 톤 일치</li></ul>
+              <ul class="fsf-opt-cons"><li>구현 코스트가 native 대비 큼</li></ul>
+            </div>
+            <div class="fsf-opt-card">
+              <div class="fsf-opt-hdr"><span class="fsf-opt-letter">B</span><span class="fsf-opt-title">Native date picker</span><span class="fsf-pill info">옵션</span></div>
+              <div class="fsf-opt-body">iOS / Android native UI 사용. 구현 코스트 ↓.</div>
+              <ul class="fsf-opt-pros"><li>플랫폼 일관성</li><li>접근성 기본 지원</li></ul>
+              <ul class="fsf-opt-cons"><li>STAM 톤 / 다크 정합성 깨짐</li><li>기간 선택 UI 자유도 ↓</li></ul>
+            </div>
+            <div class="fsf-opt-card">
+              <div class="fsf-opt-hdr"><span class="fsf-opt-letter">C</span><span class="fsf-opt-title">Inline calendar</span><span class="fsf-pill warn">제한</span></div>
+              <div class="fsf-opt-body">필드 아래 인라인 펼침. 모바일에서는 화면을 너무 차지 — 비권장.</div>
+              <ul class="fsf-opt-cons"><li>키보드와 충돌</li><li>스크롤 흐름 깨짐</li></ul>
+            </div>
+          </div>
+
+          <div class="fsf-cap" style="margin-top:18px;"><span class="fsf-cap-n">D</span>Date trigger / Range picker / 빠른 선택</div>
+
+          <div class="fsf-phone-row">
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>trigger</span><span class="fsf-phone-col-tag">D·1</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen short">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <div class="fsf-tb-title">작업 등록</div>
+                </div>
+                <div class="fsf-content">
+                  <div class="fsf-form-section-title">일정</div>
+                  <div class="fsf-field-row">
+                    <div class="fsf-field"><span class="fsf-field-label">시작일 <span class="fsf-req">*</span></span><div class="fsf-field-input ph">YYYY.MM.DD<svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M4 10h16M8 4v4M16 4v4"/></svg></div></div>
+                    <div class="fsf-field-sep">~</div>
+                    <div class="fsf-field"><span class="fsf-field-label">종료일 <span class="fsf-req">*</span></span><div class="fsf-field-input ph">YYYY.MM.DD<svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M4 10h16M8 4v4M16 4v4"/></svg></div></div>
+                  </div>
+                  <span class="fsf-field-helper">시작일 이후 날짜만 선택할 수 있습니다.</span>
+                </div>
+              </div></div>
+            </div>
+
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>range picker</span><span class="fsf-phone-col-tag alt">D·2</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen tall">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <div class="fsf-tb-title">작업 등록</div>
+                </div>
+                <div class="fsf-content" style="opacity:.4;"><div class="fsf-field-row"><div class="fsf-field"><span class="fsf-field-label">시작일</span><div class="fsf-field-input">06.10</div></div><div class="fsf-field-sep">~</div><div class="fsf-field"><span class="fsf-field-label">종료일</span><div class="fsf-field-input">06.13</div></div></div></div>
+                <div class="fsf-bs-scrim"></div>
+                <div class="fsf-bottomsheet" style="max-height:78%;">
+                  <div class="fsf-bs-grab"></div>
+                  <div class="fsf-bs-hdr"><span>기간 선택</span><span class="fsf-bs-action"><span class="reset" style="color:#8B7FF8;">초기화</span><span style="opacity:.5;">×</span></span></div>
+                  <div class="fsf-bs-body">
+                    <div class="fsf-bs-section">
+                      <div class="fsf-field-quick">
+                        <span class="fsf-chip">오늘</span><span class="fsf-chip active">이번주</span><span class="fsf-chip">이번달</span><span class="fsf-chip">다음주</span><span class="fsf-chip">지정</span>
+                      </div>
+                    </div>
+                    <div class="fsf-bs-section">
+                      <div class="fsf-calendar">
+                        <div class="fsf-cal-hdr"><span class="fsf-cal-nav">‹</span><span>2026.06</span><span class="fsf-cal-nav">›</span></div>
+                        <div class="fsf-cal-grid">
+                          <span class="fsf-cal-wd">월</span><span class="fsf-cal-wd">화</span><span class="fsf-cal-wd">수</span><span class="fsf-cal-wd">목</span><span class="fsf-cal-wd">금</span><span class="fsf-cal-wd">토</span><span class="fsf-cal-wd">일</span>
+                          <span class="fsf-cal-day dim">26</span><span class="fsf-cal-day dim">27</span><span class="fsf-cal-day dim">28</span><span class="fsf-cal-day dim">29</span><span class="fsf-cal-day dim">30</span><span class="fsf-cal-day dim">31</span><span class="fsf-cal-day">1</span>
+                          <span class="fsf-cal-day">2</span><span class="fsf-cal-day">3</span><span class="fsf-cal-day">4</span><span class="fsf-cal-day">5</span><span class="fsf-cal-day">6</span><span class="fsf-cal-day">7</span><span class="fsf-cal-day">8</span>
+                          <span class="fsf-cal-day">9</span><span class="fsf-cal-day range-start">10</span><span class="fsf-cal-day in-range">11</span><span class="fsf-cal-day in-range">12</span><span class="fsf-cal-day range-end">13</span><span class="fsf-cal-day">14</span><span class="fsf-cal-day">15</span>
+                          <span class="fsf-cal-day">16</span><span class="fsf-cal-day today">17</span><span class="fsf-cal-day">18</span><span class="fsf-cal-day">19</span><span class="fsf-cal-day">20</span><span class="fsf-cal-day">21</span><span class="fsf-cal-day">22</span>
+                          <span class="fsf-cal-day">23</span><span class="fsf-cal-day">24</span><span class="fsf-cal-day">25</span><span class="fsf-cal-day">26</span><span class="fsf-cal-day">27</span><span class="fsf-cal-day">28</span><span class="fsf-cal-day">29</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fsf-bs-footer">
+                    <div class="fsf-cta ghost">초기화</div>
+                    <div class="fsf-cta">06.10 – 06.13 적용</div>
+                  </div>
+                </div>
+              </div></div>
+            </div>
+
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>filled · helper</span><span class="fsf-phone-col-tag alt">D·3</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen short">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <div class="fsf-tb-title">작업 등록</div>
+                </div>
+                <div class="fsf-content">
+                  <div class="fsf-field-row">
+                    <div class="fsf-field"><span class="fsf-field-label">시작일 <span class="fsf-req">*</span></span><div class="fsf-field-input">2026.06.10<svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M4 10h16M8 4v4M16 4v4"/></svg></div></div>
+                    <div class="fsf-field-sep">~</div>
+                    <div class="fsf-field"><span class="fsf-field-label">종료일 <span class="fsf-req">*</span></span><div class="fsf-field-input">2026.06.13<svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M4 10h16M8 4v4M16 4v4"/></svg></div></div>
+                  </div>
+                  <span class="fsf-field-helper">총 4일 · 이번주 범위 내</span>
+                  <div class="fsf-field-quick" style="margin-top:4px;"><span class="fsf-chip">오늘</span><span class="fsf-chip active">이번주</span><span class="fsf-chip">이번달</span></div>
+                </div>
+              </div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S11 Validation ── -->
+      <section id="s11" class="sec" data-screen-label="11 Validation">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Validation / Error Pattern</span>
+          <span class="sbadge guide">Validation</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            폼 오류는 <strong>field-level / section-level / save blocking</strong> 3계층으로 표현한다.
+            field 오류는 input 아래, section 오류는 섹션 상단 banner, save blocking 은 footer 상단 / toast 로 노출한다.
+            모든 오류는 <code>fail</code> 톤(<code>#FF5A47</code> / <code>#FF7D6E</code>) 으로 통일한다.
+          </p>
+
+          <div class="fsf-tbl-wrap">
+            <table class="fsf-tbl">
+              <thead><tr><th style="width:170px;">유형</th><th style="width:180px;">표시 위치</th><th>예시 메시지</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">Required field missing</td><td>field 하단 1줄</td><td>작업명을 입력하세요.</td></tr>
+                <tr><td class="tn">Date range error</td><td>field-row 하단</td><td>종료일이 시작일보다 빨라요. 다시 선택해 주세요.</td></tr>
+                <tr><td class="tn">Invalid assignee</td><td>field 하단</td><td>퇴사한 사용자입니다. 다른 담당자를 선택하세요.</td></tr>
+                <tr><td class="tn">Invalid status</td><td>field 하단</td><td>해당 상태로 변경할 수 없습니다. 권한을 확인하세요.</td></tr>
+                <tr><td class="tn">Section-level error</td><td>섹션 상단 banner</td><td>일정 섹션에 입력이 필요한 항목이 있습니다.</td></tr>
+                <tr><td class="tn">Save blocking</td><td>footer 위 banner · toast</td><td>필수 항목 3개를 확인하세요.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="fsf-cap" style="margin-top:18px;"><span class="fsf-cap-n">E</span>오류 표시 — field / section / blocking</div>
+          <div class="fsf-phone-row">
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>field error</span><span class="fsf-phone-col-tag fail">E·1</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <div class="fsf-tb-title">작업 등록</div>
+                </div>
+                <div class="fsf-content">
+                  <div class="fsf-field"><span class="fsf-field-label">작업명 <span class="fsf-req">*</span></span><div class="fsf-field-input is-error"></div><span class="fsf-field-error">작업명을 입력하세요.</span></div>
+                  <div class="fsf-field-row">
+                    <div class="fsf-field"><span class="fsf-field-label">시작일 <span class="fsf-req">*</span></span><div class="fsf-field-input">2026.06.13</div></div>
+                    <div class="fsf-field-sep">~</div>
+                    <div class="fsf-field"><span class="fsf-field-label">종료일 <span class="fsf-req">*</span></span><div class="fsf-field-input is-error">2026.06.10</div></div>
+                  </div>
+                  <span class="fsf-field-error">종료일이 시작일보다 빨라요.</span>
+                </div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>section banner</span><span class="fsf-phone-col-tag fail">E·2</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <div class="fsf-tb-title">작업 수정</div>
+                </div>
+                <div class="fsf-content">
+                  <div class="fsf-form-section-title">일정 · 필수 항목 누락</div>
+                  <div class="fsf-section-error"><div>일정 섹션에 입력이 필요한 항목이 2개 있습니다. 시작일과 종료일을 모두 선택해 주세요.</div></div>
+                  <div class="fsf-field-row">
+                    <div class="fsf-field"><span class="fsf-field-label">시작일 <span class="fsf-req">*</span></span><div class="fsf-field-input is-error ph">YYYY.MM.DD</div></div>
+                    <div class="fsf-field-sep">~</div>
+                    <div class="fsf-field"><span class="fsf-field-label">종료일 <span class="fsf-req">*</span></span><div class="fsf-field-input is-error ph">YYYY.MM.DD</div></div>
+                  </div>
+                </div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>save blocking · toast</span><span class="fsf-phone-col-tag fail">E·3</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <div class="fsf-tb-title">작업 등록<span class="fsf-tb-title-sub">필수 3개 확인 필요</span></div>
+                </div>
+                <div class="fsf-content">
+                  <div class="fsf-field"><span class="fsf-field-label">작업명 <span class="fsf-req">*</span></span><div class="fsf-field-input is-error ph">작업명을 입력하세요</div></div>
+                  <div class="fsf-field"><span class="fsf-field-label">담당자 <span class="fsf-req">*</span></span><div class="fsf-field-input is-error ph">담당자 선택</div></div>
+                  <div class="fsf-field"><span class="fsf-field-label">상태 <span class="fsf-req">*</span></span><div class="fsf-field-input is-error ph">상태 선택</div></div>
+                </div>
+                <div class="fsf-toast fail">필수 항목 3개를 확인하세요.</div>
+                <div class="fsf-bottom-action">
+                  <div class="fsf-cta ghost">취소</div>
+                  <div class="fsf-cta secondary">임시저장</div>
+                  <div class="fsf-cta disabled">등록</div>
+                </div>
+              </div></div>
+            </div>
+          </div>
+
+          <div class="fsf-rule-grid" style="margin-top:14px;">
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-fail">Error 표시 규칙</div>
+              <ul>
+                <li>field 오류 = input 보더 + ring + 메시지 (3 요소 모두)</li>
+                <li>field-row 오류는 row 아래 1줄에 통합 메시지</li>
+                <li>section banner 는 섹션 타이틀 바로 아래</li>
+                <li>save blocking = footer 상단 toast (3초 자동 해제) · CTA 비활성</li>
+                <li>오류 색: <code>#FF5A47</code> 보더 · <code>#FF7D6E</code> 텍스트</li>
+              </ul>
+            </div>
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-info">Validation 시점</div>
+              <ul>
+                <li>blur 시 1차 검증 (touched + dirty 인 경우)</li>
+                <li>submit 시 모든 필수 / 형식 검증 · 첫 오류 field 로 scroll</li>
+                <li>scroll 은 page 가 아닌 form container 단위</li>
+                <li>scroll-into-view 대신 form 내부 ref + scrollTo 권장</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S12 Create / Edit Form ── -->
+      <section id="s12" class="sec" data-screen-label="12 Create / Edit Form">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Mobile Create / Edit Form — Fullscreen</span>
+          <span class="sbadge guide">Form</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            WBS 등록 / 수정 폼은 모바일에서 <strong>Fullscreen page</strong> 로 제공한다.
+            PC drawer 를 그대로 축소하지 않는다. Topbar / 섹션 / Sticky footer 3단으로 구성하며 footer CTA 는 <strong>44px</strong>.
+          </p>
+
+          <div class="fsf-tbl-wrap">
+            <table class="fsf-tbl">
+              <thead><tr><th style="width:140px;">파트</th><th style="width:140px;">사이즈</th><th>구성</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">Topbar</td><td>48px</td><td>좌 <code>← Back</code> · 가운데 타이틀(작업 등록 / 작업 수정) + 선택적 save state · 우측 비움 또는 더보기</td></tr>
+                <tr><td class="tn">Section</td><td>auto</td><td>기본 정보 · 담당 / 상태 · 일정 · 관련 요구사항/산출물 · 메모</td></tr>
+                <tr><td class="tn">Section gap</td><td>14px</td><td>섹션 타이틀 + 필드 그룹 · 섹션 사이 구분선</td></tr>
+                <tr><td class="tn">Footer</td><td>60 + safe-area</td><td>좌 <code>취소</code> ghost · 중 <code>임시저장</code> secondary · 우 <code>등록 / 저장</code> primary 44px</td></tr>
+                <tr><td class="tn">Keyboard 처리</td><td>—</td><td>키보드 open 시 footer 가 가려지지 않도록 form content scroll 영역만 줄임</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="fsf-cap" style="margin-top:18px;"><span class="fsf-cap-n">F</span>Create / Edit Form — 등록 (빈 상태) / 수정 (값 채워짐) / Error</div>
+
+          <div class="fsf-phone-row">
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>작업 등록 · 빈 상태</span><span class="fsf-phone-col-tag">F·1</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen tall">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <div class="fsf-tb-title">작업 등록</div>
+                </div>
+                <div class="fsf-content">
+                  <div class="fsf-form-section">
+                    <div class="fsf-form-section-title">기본 정보</div>
+                    <div class="fsf-field"><span class="fsf-field-label">작업명 <span class="fsf-req">*</span></span><div class="fsf-field-input ph">작업명을 입력하세요</div></div>
+                    <div class="fsf-field"><span class="fsf-field-label">상위 작업</span><div class="fsf-field-input ph">선택 안 함<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+                  </div>
+                  <div class="fsf-form-section">
+                    <div class="fsf-form-section-title">담당 / 상태</div>
+                    <div class="fsf-field"><span class="fsf-field-label">담당자 <span class="fsf-req">*</span></span><div class="fsf-field-input ph">담당자 선택<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+                    <div class="fsf-field"><span class="fsf-field-label">상태 <span class="fsf-req">*</span></span><div class="fsf-field-input ph">상태 선택<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+                  </div>
+                </div>
+                <div class="fsf-bottom-action">
+                  <div class="fsf-cta ghost">취소</div>
+                  <div class="fsf-cta secondary">임시저장</div>
+                  <div class="fsf-cta">등록</div>
+                </div>
+              </div></div>
+            </div>
+
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>작업 수정 · dirty</span><span class="fsf-phone-col-tag alt">F·2</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen tall">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <div class="fsf-tb-title">작업 수정</div>
+                  <span class="fsf-tb-state dirty">변경됨</span>
+                </div>
+                <div class="fsf-content">
+                  <div class="fsf-form-section">
+                    <div class="fsf-form-section-title">기본 정보</div>
+                    <div class="fsf-field"><span class="fsf-field-label">작업명 <span class="fsf-req">*</span></span><div class="fsf-field-input">화면 설계 1차 리뷰</div></div>
+                  </div>
+                  <div class="fsf-form-section">
+                    <div class="fsf-form-section-title">담당 / 상태</div>
+                    <div class="fsf-field"><span class="fsf-field-label">담당자 <span class="fsf-req">*</span></span><div class="fsf-field-input"><span class="fsf-ava">EJ</span>이은주<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></div>
+                    <div class="fsf-field"><span class="fsf-field-label">상태 <span class="fsf-req">*</span></span><div class="fsf-field-input"><span class="fsf-status prog">진행</span><svg viewBox="0 0 24 24" style="margin-left:auto;"><path d="M6 9l6 6 6-6"/></svg></div></div>
+                  </div>
+                  <div class="fsf-form-section">
+                    <div class="fsf-form-section-title">일정</div>
+                    <div class="fsf-field-row"><div class="fsf-field"><span class="fsf-field-label">시작일 <span class="fsf-req">*</span></span><div class="fsf-field-input">2026.06.10</div></div><div class="fsf-field-sep">~</div><div class="fsf-field"><span class="fsf-field-label">종료일 <span class="fsf-req">*</span></span><div class="fsf-field-input">2026.06.13</div></div></div>
+                  </div>
+                </div>
+                <div class="fsf-bottom-action">
+                  <div class="fsf-cta ghost">취소</div>
+                  <div class="fsf-cta secondary">임시저장</div>
+                  <div class="fsf-cta">저장</div>
+                </div>
+              </div></div>
+            </div>
+
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>error · light</span><span class="fsf-phone-col-tag fail">F·3</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen tall" style="background:#FAFBFC;">
+                <div class="fsf-statusbar" style="background:#FAFBFC;color:rgba(20,22,30,.72);"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar" style="background:#fff;border-bottom-color:rgba(20,22,30,.08);">
+                  <button class="fsf-tb-iconbtn" style="color:rgba(20,22,30,.78);"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <div class="fsf-tb-title" style="color:rgba(20,22,30,.94);">작업 수정<span class="fsf-tb-title-sub" style="color:rgba(20,22,30,.44);">필수 2개 확인</span></div>
+                  <span class="fsf-tb-state error">오류</span>
+                </div>
+                <div class="fsf-content">
+                  <div class="fsf-form-section" style="border-bottom-color:rgba(20,22,30,.06);">
+                    <div class="fsf-form-section-title" style="color:rgba(20,22,30,.52);">기본 정보</div>
+                    <div class="fsf-field"><span class="fsf-field-label" style="color:rgba(20,22,30,.82);">작업명 <span class="fsf-req">*</span></span><div class="fsf-field-input is-error" style="background:rgba(255,90,71,.04);color:rgba(20,22,30,.92);"></div><span class="fsf-field-error">작업명을 입력하세요.</span></div>
+                  </div>
+                  <div class="fsf-form-section" style="border-bottom-color:rgba(20,22,30,.06);">
+                    <div class="fsf-form-section-title" style="color:rgba(20,22,30,.52);">일정</div>
+                    <div class="fsf-field-row"><div class="fsf-field"><span class="fsf-field-label" style="color:rgba(20,22,30,.82);">시작일 <span class="fsf-req">*</span></span><div class="fsf-field-input" style="background:rgba(20,22,30,.02);border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.92);">2026.06.13</div></div><div class="fsf-field-sep" style="color:rgba(20,22,30,.5);">~</div><div class="fsf-field"><span class="fsf-field-label" style="color:rgba(20,22,30,.82);">종료일 <span class="fsf-req">*</span></span><div class="fsf-field-input is-error" style="background:rgba(255,90,71,.04);color:rgba(20,22,30,.92);">2026.06.10</div></div></div>
+                    <span class="fsf-field-error">종료일이 시작일보다 빨라요.</span>
+                  </div>
+                </div>
+                <div class="fsf-bottom-action" style="background:#fff;border-top-color:rgba(20,22,30,.08);">
+                  <div class="fsf-cta ghost" style="color:rgba(20,22,30,.78);border-color:rgba(20,22,30,.12);">취소</div>
+                  <div class="fsf-cta secondary" style="background:rgba(84,81,232,.10);color:#4340c8;">임시저장</div>
+                  <div class="fsf-cta disabled">저장</div>
+                </div>
+              </div></div>
+            </div>
+          </div>
+
+          <div class="fsf-rule-grid" style="margin-top:14px;">
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-pass">Fullscreen Form 규칙</div>
+              <ul>
+                <li>topbar 좌측 back · 우측은 상태 표시(<code>변경됨 / 저장 중 / 저장됨</code>) 또는 더보기</li>
+                <li>섹션 타이틀은 상단 sticky 가 아니라 일반 흐름</li>
+                <li>footer CTA 는 항상 sticky 44px · 키보드 위로 push</li>
+                <li>임시저장 = secondary · 등록/저장 = primary</li>
+                <li>back 탭 시 dirty 상태면 confirm dialog</li>
+              </ul>
+            </div>
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-info">키보드 / Safe-area</div>
+              <ul>
+                <li>키보드 open 시 footer 는 화면 가장 아래에 유지</li>
+                <li>safe-area 하단 padding 은 footer 내부에서 처리</li>
+                <li>현재 focus field 가 가려지지 않도록 content scroll 자동 조정</li>
+                <li>iOS / Android visualViewport 대응 권장</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S13 Dirty / Save State ── -->
+      <section id="s13" class="sec" data-screen-label="13 Dirty / Save State">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Mobile Form Dirty / Save State</span>
+          <span class="sbadge guide">Save State</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            폼의 저장 상태는 topbar 우측의 작은 상태 텍스트와 footer CTA · toast 로 동시에 표시한다.
+            모든 상태는 한 단어 + 색으로만 구분한다.
+          </p>
+
+          <div class="fsf-tbl-wrap">
+            <table class="fsf-tbl">
+              <thead><tr><th style="width:120px;">상태</th><th style="width:140px;">Topbar 텍스트</th><th style="width:140px;">Footer CTA</th><th>피드백</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">clean</td><td>—</td><td>등록 / 저장</td><td>변경 사항 없음 — 표시 없음</td></tr>
+                <tr><td class="tn">dirty</td><td><span class="fsf-pill warn">변경됨</span></td><td>저장 active</td><td>topbar 우측 작은 점 + 텍스트 · back 시 confirm</td></tr>
+                <tr><td class="tn">saving</td><td><span class="fsf-pill info">저장 중</span></td><td>저장 loading spinner</td><td>CTA 비활성 + spinner · 다른 액션 lock</td></tr>
+                <tr><td class="tn">saved</td><td><span class="fsf-pill pass">저장됨</span></td><td>저장 (clean)</td><td>topbar 색 pass · toast 1.5s 노출</td></tr>
+                <tr><td class="tn">error</td><td><span class="fsf-pill fail">오류</span></td><td>다시 시도</td><td>banner + toast · 오류 메시지 노출</td></tr>
+                <tr><td class="tn">offline</td><td><span class="fsf-pill notyet">오프라인</span></td><td>임시저장 only</td><td>등록 비활성 · 임시저장으로 전환 안내</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="fsf-cap" style="margin-top:18px;"><span class="fsf-cap-n">S</span>저장 상태 6종 시안</div>
+          <div class="fsf-phone-row">
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>dirty</span><span class="fsf-phone-col-tag warn">S·1</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen short">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <div class="fsf-tb-title">작업 수정</div>
+                  <span class="fsf-tb-state dirty">변경됨</span>
+                </div>
+                <div class="fsf-content">
+                  <div class="fsf-field"><span class="fsf-field-label">작업명</span><div class="fsf-field-input">화면 설계 1차 리뷰 (수정)</div></div>
+                </div>
+                <div class="fsf-bottom-action"><div class="fsf-cta ghost">취소</div><div class="fsf-cta secondary">임시저장</div><div class="fsf-cta">저장</div></div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>saving</span><span class="fsf-phone-col-tag alt">S·2</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen short">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <div class="fsf-tb-title">작업 수정</div>
+                  <span class="fsf-tb-state saving">저장 중</span>
+                </div>
+                <div class="fsf-content" style="opacity:.7;">
+                  <div class="fsf-field"><span class="fsf-field-label">작업명</span><div class="fsf-field-input">화면 설계 1차 리뷰 (수정)</div></div>
+                </div>
+                <div class="fsf-bottom-action"><div class="fsf-cta ghost">취소</div><div class="fsf-cta secondary">임시저장</div><div class="fsf-cta is-loading">저장</div></div>
+              </div></div>
+            </div>
+            <div class="fsf-phone-col">
+              <div class="fsf-phone-col-label"><span>saved · toast</span><span class="fsf-phone-col-tag">S·3</span></div>
+              <div class="fsf-phone"><div class="fsf-phone-screen short">
+                <div class="fsf-statusbar"><span>09:41</span><span class="fsf-statusbar-r"><span class="fsf-sb-dot"></span><span class="fsf-sb-dot"></span></span></div>
+                <div class="fsf-topbar">
+                  <button class="fsf-tb-iconbtn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                  <div class="fsf-tb-title">작업 수정</div>
+                  <span class="fsf-tb-state saved">저장됨</span>
+                </div>
+                <div class="fsf-content">
+                  <div class="fsf-field"><span class="fsf-field-label">작업명</span><div class="fsf-field-input">화면 설계 1차 리뷰 (수정)</div></div>
+                </div>
+                <div class="fsf-toast pass">변경 사항이 저장되었습니다.</div>
+                <div class="fsf-bottom-action"><div class="fsf-cta ghost">취소</div><div class="fsf-cta secondary">임시저장</div><div class="fsf-cta">저장</div></div>
+              </div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S14 Mock Screens 인덱스 ── -->
+      <section id="s14" class="sec" data-screen-label="14 Mock Screens">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Form / Search / Filter Mock Screens 인덱스</span>
+          <span class="sbadge guide">Mocks</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            본 문서는 9종의 모바일 mock 을 포함한다.
+            아래 인덱스는 mock 의 위치(섹션) / 라벨 / 주제 / 상태 를 한 표로 정리한 것이다.
+          </p>
+          <div class="fsf-tbl-wrap">
+            <table class="fsf-tbl">
+              <thead><tr><th style="width:60px;">#</th><th style="width:220px;">Mock</th><th style="width:140px;">위치</th><th>주제</th><th style="width:120px;">테마</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">A</td><td>Mobile Search Collapsed</td><td><a href="#s03" style="color:var(--stam);">S03 · A·1</a></td><td>기본 WBS 카드 리스트 — 검색 닫힌 상태</td><td><span class="fsf-pill brand">Dark</span></td></tr>
+                <tr><td class="tn">B</td><td>Search Expanded with Results</td><td><a href="#s03" style="color:var(--stam);">S03 · A·4</a></td><td>typing → result count + active filter</td><td><span class="fsf-pill brand">Dark</span></td></tr>
+                <tr><td class="tn">C</td><td>Active Filter Chips</td><td><a href="#s05" style="color:var(--stam);">S05 · active</a></td><td>전체해제 + 활성 chip 3개 · result bar 결합</td><td><span class="fsf-pill brand">Dark</span></td></tr>
+                <tr><td class="tn">D</td><td>Filter Bottom Sheet</td><td><a href="#s06" style="color:var(--stam);">S06 · F·1, F·3</a></td><td>다중 선택 + 적용 footer · light 테마 포함</td><td><span class="fsf-pill brand">Dark</span> <span class="fsf-pill info">Light</span></td></tr>
+                <tr><td class="tn">E</td><td>Sort / View Option Sheet</td><td><a href="#s07" style="color:var(--stam);">S07 · V·1, V·2</a></td><td>정렬 / 보기 sheet · 압축 카드 적용 결과</td><td><span class="fsf-pill brand">Dark</span></td></tr>
+                <tr><td class="tn">F</td><td>WBS Create Form Fullscreen</td><td><a href="#s12" style="color:var(--stam);">S12 · F·1</a></td><td>빈 상태 등록 폼 · 3-CTA footer</td><td><span class="fsf-pill brand">Dark</span></td></tr>
+                <tr><td class="tn">G</td><td>WBS Edit Form · Validation Error</td><td><a href="#s12" style="color:var(--stam);">S12 · F·3</a></td><td>section banner + field-row error · light</td><td><span class="fsf-pill info">Light</span></td></tr>
+                <tr><td class="tn">H</td><td>Date Picker Bottom Sheet</td><td><a href="#s10" style="color:var(--stam);">S10 · D·2</a></td><td>range + 빠른 선택 chip + calendar</td><td><span class="fsf-pill brand">Dark</span></td></tr>
+                <tr><td class="tn">I</td><td>Select Bottom Sheet</td><td><a href="#s09" style="color:var(--stam);">S09 · P·2, P·3</a></td><td>상태 select sheet · 담당자 fullscreen+search</td><td><span class="fsf-pill brand">Dark</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p style="margin-top:10px;font-size:.88em;line-height:1.7;color:var(--t3);">
+            모든 mock 은 <strong>360 / 390 / 430px</strong> 폭 가정 · safe-area 하단 padding 포함.
+            mock 내부의 모든 input 은 40px+ touch target, footer CTA 44px 기준을 따른다.
+          </p>
+        </div>
+      </section>
+
+      <!-- ── S15 PC vs Mobile ── -->
+      <section id="s15" class="sec" data-screen-label="15 PC vs Mobile">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">PC vs Mobile — 주요 차이</span>
+          <span class="sbadge guide">Compare</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            동일 기능이라도 PC 와 모바일에서 다른 형태로 제공된다.
+            아래 비교표는 본 가이드 적용 시 화면 별로 무엇이 달라지는지를 한 줄로 정리한다.
+          </p>
+          <div class="fsf-tbl-wrap">
+            <table class="fsf-tbl">
+              <thead><tr><th style="width:160px;">항목</th><th>PC</th><th>Mobile (본 가이드)</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">검색 위치</td><td class="pc">Topbar 가운데 search pill — 항상 노출</td><td class="mb">Topbar 우측 icon → inline 36px expand</td></tr>
+                <tr><td class="tn">필터 위치</td><td class="pc">우측 Drawer 또는 좌측 사이드 panel</td><td class="mb">검색 아래 chip row + Bottom sheet</td></tr>
+                <tr><td class="tn">Select</td><td class="pc">Inline dropdown (작은 popover)</td><td class="mb">Bottom sheet · 옵션 多 시 fullscreen</td></tr>
+                <tr><td class="tn">Date picker</td><td class="pc">Inline popover calendar</td><td class="mb">Bottom sheet calendar + 빠른 선택 chip</td></tr>
+                <tr><td class="tn">Form 레이아웃</td><td class="pc">Drawer 2-col · label 좌 / input 우</td><td class="mb">Fullscreen 1-col · label 위 / input 아래</td></tr>
+                <tr><td class="tn">Validation</td><td class="pc">field-level + 우측 panel summary</td><td class="mb">field / section / save blocking 3계층</td></tr>
+                <tr><td class="tn">Footer action</td><td class="pc">Drawer footer 우측 정렬 36px</td><td class="mb">Sticky footer 44px · 3-CTA · safe-area</td></tr>
+                <tr><td class="tn">키보드 대응</td><td class="pc">해당 없음</td><td class="mb">visualViewport · footer 위로 push</td></tr>
+                <tr><td class="tn">Scroll policy</td><td class="pc">Drawer 내부 scroll</td><td class="mb">Form / Sheet 내부 scroll · 페이지 hscroll 금지</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S16 Cursor Handoff ── -->
+      <section id="s16" class="sec" data-screen-label="16 Cursor Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
+          <span class="sec-title">Cursor Handoff Notes</span>
+          <span class="sbadge guide">Handoff</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            본 가이드를 실제 제품에 적용하는 후속 작업은 Cursor 작업으로 분리한다.
+            현재 가이드는 디자인 / Preview 만이며, 아래 파일은 후속 단계에서 검토될 후보이다.
+          </p>
+          <div class="fsf-handoff-list">
+            <div class="fsf-handoff-item"><span class="fsf-hf-path">stam/pages/boards/wbs.html</span><span class="fsf-hf-role">모바일 WBS 카드 리스트 · 검색 · 필터 chip row · result bar</span></div>
+            <div class="fsf-handoff-item"><span class="fsf-hf-path">stam/js/stam.wbs.js</span><span class="fsf-hf-role">검색 · 필터 합성 / sort / view 상태 관리 · sheet 진입</span></div>
+            <div class="fsf-handoff-item"><span class="fsf-hf-path">stam/js/stam.topbar-render.js</span><span class="fsf-hf-role">Topbar 우측 검색 icon → inline expand 전환</span></div>
+            <div class="fsf-handoff-item"><span class="fsf-hf-path">stam/css/stam.wbs.css</span><span class="fsf-hf-role">카드 리스트 / chip row / sheet 모바일 분기 스타일</span></div>
+            <div class="fsf-handoff-item"><span class="fsf-hf-path">stam/css/stam.shell.css</span><span class="fsf-hf-role">Topbar 48px · safe-area · keyboard push · sticky footer</span></div>
+            <div class="fsf-handoff-item"><span class="fsf-hf-path">stam/css/stam.form.css (신규 후보)</span><span class="fsf-hf-role">모바일 form field · select · date · validation 토큰 매핑</span></div>
+            <div class="fsf-handoff-item"><span class="fsf-hf-path">stam/css/stam.sheet.css (신규 후보)</span><span class="fsf-hf-role">Bottom sheet · scrim · grab · footer 공통 컴포넌트</span></div>
+            <div class="fsf-handoff-item"><span class="fsf-hf-path">stam/js/stam.form.js (신규 후보)</span><span class="fsf-hf-role">필드 검증 · dirty / save / saving / saved / error 상태기</span></div>
+          </div>
+          <div class="fsf-rule-grid" style="margin-top:14px;">
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-warn">실제 구현 전 주의</div>
+              <ul>
+                <li>Search pill 보정과 모바일 search 구현을 한 commit 에 섞지 말 것</li>
+                <li>Filter bottom sheet 는 별도 기능 작업으로 분리</li>
+                <li>Create / Edit fullscreen form 은 별도 Gate 후 진행</li>
+                <li>PC WBS Drawer 기능을 깨지 않도록 breakpoint 기반으로 분기</li>
+                <li>모바일 form 적용은 PC form 과 분리 commit</li>
+              </ul>
+            </div>
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-info">Breakpoint 권장</div>
+              <ul>
+                <li><code>max-width: 768px</code> = 모바일 기준 (본 가이드 적용)</li>
+                <li><code>768 ~ 1024px</code> = 태블릿 · PC Drawer 축소 사용</li>
+                <li><code>≥ 1024px</code> = PC 기준 (기존 정의)</li>
+                <li>모바일 분기는 컨테이너 단위로 분리 (단일 selector 덮기 금지)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S17 Implementation Guardrails ── -->
+      <section id="s17" class="sec" data-screen-label="17 Guardrails">
+        <div class="sec-hdr">
+          <span class="sec-n">17</span>
+          <span class="sec-title">Implementation Guardrails</span>
+          <span class="sbadge guide">Rules</span>
+        </div>
+        <div class="sec-body">
+          <div class="fsf-rule-grid">
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-fail">반드시 지킬 것</div>
+              <ul>
+                <li>PC form 과 모바일 form 을 한 commit 에 섞지 말 것</li>
+                <li>모바일에서 PC drawer 를 그대로 축소하지 말 것</li>
+                <li>모바일 input touch target <strong>40px 미만 금지</strong></li>
+                <li>Footer CTA <strong>44px</strong> 권장</li>
+                <li>search / filter / form 기능 로직 변경은 별도 Gate</li>
+                <li>페이지 레벨 가로 스크롤 금지</li>
+                <li>전역 <code>.tbtn</code> 일괄 치환 금지</li>
+              </ul>
+            </div>
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-warn">결정 보류 / 별도 Gate</div>
+              <ul>
+                <li>native select / date 사용 여부는 별도 결정</li>
+                <li>v1 은 custom bottom sheet 기준</li>
+                <li>Search overlay (B안) 채택 여부 — 홈 / 통합 검색 단계에서 결정</li>
+                <li>임시저장 백엔드 동작 — 클라이언트 캐시 vs 서버 draft</li>
+                <li>offline candidate — sheet / form 동작 분리</li>
+              </ul>
+            </div>
+          </div>
+          <div class="fsf-rule-grid" style="margin-top:10px;">
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-pass">스타일 / 폰트</div>
+              <ul>
+                <li>폰트는 <strong>S-Core Dream</strong> 자체서빙만 사용</li>
+                <li>Google Fonts / Pretendard CDN / Gulim / Dotum 사용 금지</li>
+                <li>라이트 / 다크 두 테마 모두 대응</li>
+                <li>iframe 사용 금지</li>
+                <li>실제 제품 CSS / class 를 덮어쓰지 않음 — mock 은 <code>.fsf-</code> prefix 격리</li>
+              </ul>
+            </div>
+            <div class="fsf-rule-card">
+              <div class="fsf-rc-hdr is-info">분리 commit 권장 단위</div>
+              <ul>
+                <li>Topbar 모바일 search icon → expand 진입</li>
+                <li>chip row 컴포넌트</li>
+                <li>Filter bottom sheet</li>
+                <li>Sort / View bottom sheet</li>
+                <li>Form field · select · date · validation</li>
+                <li>Create / Edit fullscreen form</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S18 QA Checklist ── -->
+      <section id="s18" class="sec" data-screen-label="18 QA Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">18</span>
+          <span class="sec-title">QA Checklist</span>
+          <span class="sbadge guide">QA</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            본 가이드 적용 결과 검수 시 아래 항목을 모두 통과해야 한다.
+            QA 는 디바이스 4종 · 가독성 · 컴포넌트 동작 · 접근성 / Console 4 카테고리로 구성된다.
+          </p>
+          <div class="fsf-cap"><span class="fsf-cap-n">D</span>디바이스 폭 검사</div>
+          <div class="fsf-chk-list">
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>360px (Android Compact) — chip row · sheet · footer 가 모두 정합</div></div>
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>390px (iPhone Standard) — 본 가이드 1차 기준 폭</div></div>
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>430px (iPhone Pro Max) — 좌우 여백 / 카드 정합</div></div>
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>768px (Tablet) — 모바일 컴포넌트가 한 줄에 정렬 / 카드 max-width 적용</div></div>
+          </div>
+
+          <div class="fsf-cap"><span class="fsf-cap-n">V</span>가독성 / 정합</div>
+          <div class="fsf-chk-list">
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>Search expanded 시 search bar 가독성 — 검색어 / placeholder 색 대비 4.5:1 이상</div></div>
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>Filter chip row overflow 시 가로 스크롤만 — 페이지 hscroll 발생 없음</div></div>
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>Bottom sheet internal scroll — sheet 외부 페이지 scroll 락</div></div>
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>Form field touch target 모두 40px 이상</div></div>
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>Validation 메시지 가독성 — 색 대비 + 크기 11 ~ 12px 유지</div></div>
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>Date / Select picker — sheet 영역이 viewport 를 넘지 않음</div></div>
+          </div>
+
+          <div class="fsf-cap"><span class="fsf-cap-n">K</span>키보드 / Sticky footer</div>
+          <div class="fsf-chk-list">
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>키보드 open 시 footer 가려짐 없음 — visualViewport 또는 dvh 사용</div></div>
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>Sticky footer 가 content 의 마지막 row 를 가리지 않음</div></div>
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>safe-area 하단 padding 적용 — footer CTA 가 홈바와 겹치지 않음</div></div>
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>Sheet scrim tap → 닫힘 · scroll 락 해제</div></div>
+          </div>
+
+          <div class="fsf-cap"><span class="fsf-cap-n">A</span>테마 / Console</div>
+          <div class="fsf-chk-list">
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>light / dark 두 테마 모두 모든 컴포넌트 정합</div></div>
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>Page-level 가로 스크롤 없음 — <code>overflow-x: hidden</code> 가드</div></div>
+            <div class="fsf-chk-item"><span class="fsf-chk-box">✓</span><div>Console error 0 건 — 본 가이드는 정적 문서이므로 로딩 시 에러 없음</div></div>
+            <div class="fsf-chk-item"><span class="fsf-chk-box is-info">i</span><div>본 가이드는 정적 문서 — interaction logic QA 는 제품 적용 단계에서 별도 수행</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S19 Related Docs ── -->
+      <section id="s19" class="sec" data-screen-label="19 Related">
+        <div class="sec-hdr">
+          <span class="sec-n">19</span>
+          <span class="sec-title">Related Documents</span>
+          <span class="sbadge guide">Links</span>
+        </div>
+        <div class="sec-body">
+          <div class="fsf-rel-grid">
+            <a class="fsf-rel-card" href="STAM-Docs-Index.html"><span class="fsf-rl-title">Docs Index</span><span class="fsf-rl-sub">전체 STAM 문서 목록</span></a>
+            <a class="fsf-rel-card" href="STAM-WBS-Mobile-Board-Applied-Preview-v1.html"><span class="fsf-rl-title">WBS Mobile Board Applied Preview v1</span><span class="fsf-rl-sub">모바일 카드 리스트 · 검색 · 필터 시안</span></a>
+            <a class="fsf-rel-card" href="STAM-Button-CSS-Implementation-Preview-v1.html"><span class="fsf-rl-title">Button CSS Implementation Preview v1</span><span class="fsf-rl-sub">버튼 토큰 / 사이즈 / 상태 시안</span></a>
+            <a class="fsf-rel-card" href="STAM-Button-CSS-QA-Result-Preview-v1.html"><span class="fsf-rl-title">Button CSS QA Result Preview v1</span><span class="fsf-rl-sub">버튼 QA 결과</span></a>
+            <a class="fsf-rel-card" href="STAM-Button-Token-Mapping-v1.html"><span class="fsf-rl-title">Button Token Mapping v1</span><span class="fsf-rl-sub">버튼 토큰 매핑 기준</span></a>
+            <a class="fsf-rel-card" href="STAM-Backend-Architecture-API-Boundary-Guide.html"><span class="fsf-rl-title">Backend Architecture · API Boundary</span><span class="fsf-rl-sub">백엔드 API 경계 기준</span></a>
+          </div>
+        </div>
+      </section>
+
+      <div style="height:80px;"></div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  // STAM may attach theme on load
+  if (typeof STAM === 'undefined') { window.STAM = { toggleTheme(){ const h=document.documentElement; h.dataset.theme = (h.dataset.theme==='light'?'dark':'light'); }}; }
+</script>
+</body>
+</html>

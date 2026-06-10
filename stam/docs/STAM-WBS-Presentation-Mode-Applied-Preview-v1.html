@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM WBS Presentation Mode Applied Preview v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ============================================================
+ * STAM WBS Presentation Mode Applied Preview v1
+ * - 문서 전용 격리 스타일 (prefix: wpm-)
+ * - 실제 제품 CSS / class 절대 덮어쓰지 않음
+ * ============================================================ */
+.wpm-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:var(--font);white-space:nowrap}
+.wpm-pill::before{content:"";width:6px;height:6px;border-radius:999px;background:currentColor;display:inline-block;flex-shrink:0}
+.wpm-pill.pass{background:var(--pass-bg);color:var(--pass)}
+.wpm-pill.warn{background:var(--warn-bg);color:var(--warn)}
+.wpm-pill.fail{background:var(--fail-bg);color:var(--fail)}
+.wpm-pill.info{background:var(--info-bg);color:var(--info)}
+.wpm-pill.brand{background:var(--stam-soft);color:var(--stam)}
+.wpm-pill.notyet{background:var(--skip-bg);color:var(--skip)}
+
+.wpm-hero{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:18px 20px 16px;display:flex;flex-direction:column;gap:12px;margin-bottom:24px;position:relative;overflow:hidden}
+.wpm-hero::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--stam)}
+.wpm-hero-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wpm-hero-title{font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.wpm-hero p{margin:0;font-size:12px;color:var(--t2);line-height:1.7}
+.wpm-hero code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px}
+
+.wpm-kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+@media (max-width:1280px){.wpm-kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:720px){.wpm-kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.wpm-kpi{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:11px 12px 12px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.wpm-kpi .wpm-kpi-key{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3)}
+.wpm-kpi .wpm-kpi-val{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.005em;line-height:1.35}
+.wpm-kpi.brand{border-color:rgba(84,81,232,.22);background:var(--stam-soft)}
+.wpm-kpi.brand .wpm-kpi-key{color:var(--stam);opacity:.9}
+.wpm-kpi.brand .wpm-kpi-val{color:var(--stam)}
+.wpm-kpi.info{border-color:rgba(111,168,255,.22);background:var(--info-bg)}
+.wpm-kpi.info .wpm-kpi-key{color:var(--info);opacity:.9}
+.wpm-kpi.info .wpm-kpi-val{color:var(--info)}
+.wpm-kpi.warn{border-color:rgba(245,158,11,.22);background:var(--warn-bg)}
+.wpm-kpi.warn .wpm-kpi-key{color:var(--warn);opacity:.9}
+.wpm-kpi.warn .wpm-kpi-val{color:var(--warn)}
+.wpm-kpi.fail{border-color:rgba(255,90,71,.22);background:var(--fail-bg)}
+.wpm-kpi.fail .wpm-kpi-key{color:var(--fail);opacity:.9}
+.wpm-kpi.fail .wpm-kpi-val{color:var(--fail)}
+.wpm-kpi.pass{border-color:rgba(40,180,99,.22);background:var(--pass-bg)}
+.wpm-kpi.pass .wpm-kpi-key{color:var(--pass);opacity:.9}
+.wpm-kpi.pass .wpm-kpi-val{color:var(--pass)}
+
+.wpm-cap{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.wpm-cap .wpm-cap-n{width:22px;height:22px;border-radius:6px;background:var(--stam-soft);color:var(--stam);font-size:10.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+.wpm-cap-sub{font-size:10.5px;color:var(--t3);font-weight:500;letter-spacing:0;margin-left:4px}
+
+.wpm-tbl-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--bd)}
+.wpm-tbl{width:100%;border-collapse:collapse;font-family:var(--font);font-size:11.5px;background:var(--bg-sur);min-width:720px}
+.wpm-tbl th{padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2);white-space:nowrap}
+.wpm-tbl td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;line-height:1.6}
+.wpm-tbl tbody tr:last-child td{border-bottom:none}
+.wpm-tbl td.tn{color:var(--t1);font-weight:700;white-space:nowrap;font-size:11px}
+.wpm-tbl td code,.wpm-tbl th code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;letter-spacing:.005em;white-space:nowrap}
+.wpm-tbl td.note{color:var(--t3);font-size:10.5px}
+.wpm-tbl td.p0{color:var(--pass);font-weight:700}
+.wpm-tbl td.p1{color:var(--info);font-weight:700}
+.wpm-tbl td.p2{color:var(--warn);font-weight:700}
+.wpm-tbl td.p3{color:var(--t3);font-weight:600}
+.wpm-tbl td.good{color:var(--pass);font-weight:700}
+.wpm-tbl td.bad{color:var(--fail);font-weight:700}
+
+.wpm-rule-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (max-width:760px){.wpm-rule-grid{grid-template-columns:1fr}}
+.wpm-rule-card{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:12px 14px}
+.wpm-rule-card .wpm-rc-hdr{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t1);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.wpm-rule-card .wpm-rc-hdr::before{content:"";width:8px;height:8px;border-radius:999px;background:var(--stam);display:inline-block}
+.wpm-rule-card .wpm-rc-hdr.is-pass::before{background:var(--pass)}
+.wpm-rule-card .wpm-rc-hdr.is-warn::before{background:var(--warn)}
+.wpm-rule-card .wpm-rc-hdr.is-info::before{background:var(--info)}
+.wpm-rule-card .wpm-rc-hdr.is-fail::before{background:var(--fail)}
+.wpm-rule-card ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.wpm-rule-card li{font-size:11.5px;line-height:1.6;color:var(--t2);padding-left:12px;position:relative}
+.wpm-rule-card li::before{content:"·";position:absolute;left:2px;top:-2px;color:var(--t3);font-weight:800}
+.wpm-rule-card li code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+
+.wpm-opt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:1100px){.wpm-opt-grid{grid-template-columns:1fr}}
+.wpm-opt-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:14px;display:flex;flex-direction:column;gap:10px}
+.wpm-opt-card.recommend{border-color:rgba(84,81,232,.42);background:var(--stam-soft)}
+.wpm-opt-hdr{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.wpm-opt-letter{width:26px;height:26px;border-radius:8px;background:var(--bg-sur2);color:var(--t1);font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+.wpm-opt-card.recommend .wpm-opt-letter{background:var(--stam);color:#fff}
+.wpm-opt-title{font-size:12.5px;font-weight:700;color:var(--t1);letter-spacing:-.005em;flex:1}
+.wpm-opt-card.recommend .wpm-opt-title{color:var(--stam)}
+.wpm-opt-body{font-size:11px;line-height:1.65;color:var(--t2)}
+.wpm-opt-pros,.wpm-opt-cons{font-size:10.5px;line-height:1.65;display:flex;flex-direction:column;gap:3px;margin:0;padding:0;list-style:none}
+.wpm-opt-pros li,.wpm-opt-cons li{position:relative;padding-left:14px}
+.wpm-opt-pros li::before,.wpm-opt-cons li::before{position:absolute;left:0;top:0;font-weight:800;font-size:11px}
+.wpm-opt-pros li::before{content:"+";color:var(--pass)}
+.wpm-opt-cons li::before{content:"−";color:var(--fail)}
+
+.wpm-chk-list{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 10px}
+@media (max-width:760px){.wpm-chk-list{grid-template-columns:1fr}}
+.wpm-chk-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);font-size:11.5px;line-height:1.55;color:var(--t2)}
+.wpm-chk-item code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+.wpm-chk-box{width:16px;height:16px;border-radius:4px;background:var(--pass-bg);color:var(--pass);font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.wpm-chk-box.is-warn{background:var(--warn-bg);color:var(--warn)}
+.wpm-chk-box.is-info{background:var(--info-bg);color:var(--info)}
+.wpm-chk-box.is-fail{background:var(--fail-bg);color:var(--fail)}
+
+.wpm-handoff-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:760px){.wpm-handoff-list{grid-template-columns:1fr}}
+.wpm-handoff-item{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.wpm-handoff-item .wpm-hf-path{font-family:var(--font);font-size:11px;font-weight:700;color:var(--t1);letter-spacing:.005em}
+.wpm-handoff-item .wpm-hf-role{font-size:10px;color:var(--t3);line-height:1.55}
+
+.wpm-rel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:1100px){.wpm-rel-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:720px){.wpm-rel-grid{grid-template-columns:1fr}}
+.wpm-rel-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px;text-decoration:none;transition:border-color 120ms,background 120ms}
+.wpm-rel-card:hover{border-color:rgba(84,81,232,.35);background:rgba(84,81,232,.04)}
+.wpm-rel-card .wpm-rl-title{font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.wpm-rel-card .wpm-rl-sub{font-size:10.5px;color:var(--t3)}
+
+/* Column priority chips */
+.wpm-col-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:900px){.wpm-col-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:480px){.wpm-col-grid{grid-template-columns:1fr}}
+.wpm-col-card{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:10px 12px;display:flex;flex-direction:column;gap:5px}
+.wpm-col-card .wpm-col-name{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;display:inline-flex;align-items:center;gap:5px}
+.wpm-col-card .wpm-col-name::before{content:"";width:7px;height:7px;border-radius:99px}
+.wpm-col-card.p0 .wpm-col-name{color:var(--pass)}.wpm-col-card.p0 .wpm-col-name::before{background:var(--pass)}.wpm-col-card.p0{border-color:rgba(40,180,99,.22);background:var(--pass-bg)}
+.wpm-col-card.p1 .wpm-col-name{color:var(--info)}.wpm-col-card.p1 .wpm-col-name::before{background:var(--info)}.wpm-col-card.p1{border-color:rgba(111,168,255,.22);background:var(--info-bg)}
+.wpm-col-card.hide .wpm-col-name{color:var(--t3)}.wpm-col-card.hide .wpm-col-name::before{background:var(--t3)}
+.wpm-col-card .wpm-col-list{font-size:10.5px;line-height:1.6;color:var(--t1);font-weight:600;display:flex;flex-wrap:wrap;gap:4px 8px}
+
+/* density preview cards */
+.wpm-dens-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:1100px){.wpm-dens-grid{grid-template-columns:1fr}}
+.wpm-dens-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:12px;display:flex;flex-direction:column;gap:8px}
+.wpm-dens-card .wpm-dens-name{font-size:12px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:6px}
+.wpm-dens-card .wpm-dens-name::before{content:"";width:8px;height:8px;border-radius:99px;background:var(--stam)}
+.wpm-dens-card.is-info .wpm-dens-name::before{background:var(--info)}
+.wpm-dens-card.is-warn .wpm-dens-name::before{background:var(--warn)}
+.wpm-dens-card .wpm-dens-spec{font-size:10.5px;color:var(--t3);line-height:1.6}
+.wpm-dens-card .wpm-dens-spec b{color:var(--t1);font-weight:700}
+.wpm-dens-card .wpm-dens-mini{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);border-radius:8px;overflow:hidden}
+[data-theme="light"] .wpm-dens-card .wpm-dens-mini{background:#fff;border-color:rgba(20,22,30,.08)}
+.wpm-dens-card .wpm-dens-mini table{width:100%;border-collapse:collapse;font-family:var(--font)}
+.wpm-dens-card .wpm-dens-mini th,.wpm-dens-card .wpm-dens-mini td{padding:var(--dp,8px) 10px;font-size:var(--df,10.5px);color:rgba(255,255,255,.82);border-bottom:1px solid rgba(255,255,255,.04);text-align:left;white-space:nowrap}
+[data-theme="light"] .wpm-dens-card .wpm-dens-mini th,[data-theme="light"] .wpm-dens-card .wpm-dens-mini td{color:rgba(20,22,30,.82);border-bottom-color:rgba(20,22,30,.06)}
+.wpm-dens-card .wpm-dens-mini th{background:rgba(255,255,255,.04);color:rgba(255,255,255,.56);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:800}
+[data-theme="light"] .wpm-dens-card .wpm-dens-mini th{background:#F4F6FA;color:rgba(20,22,30,.56)}
+.wpm-dens-card.is-comf .wpm-dens-mini table{--dp:11px;--df:12px}
+.wpm-dens-card.is-comp .wpm-dens-mini table{--dp:6px;--df:10px}
+.wpm-dens-card.is-pres .wpm-dens-mini table{--dp:16px;--df:15px}
+
+/* ─────────────── Mock primitives ─────────────── */
+.wpm-mock-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.wpm-mock-col{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1}
+.wpm-mock-col-label{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);font-family:var(--font)}
+.wpm-mock-col-label .wpm-mock-col-w{font-size:9.5px;padding:1px 6px;border-radius:4px;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t2);letter-spacing:.02em}
+.wpm-mock-col-label .wpm-mock-col-tag{font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--stam-soft);color:var(--stam);letter-spacing:.04em}
+.wpm-mock-col-label .wpm-mock-col-tag.alt{background:var(--info-bg);color:var(--info)}
+.wpm-mock-col-label .wpm-mock-col-tag.warn{background:var(--warn-bg);color:var(--warn)}
+.wpm-mock-col-label .wpm-mock-col-tag.fail{background:var(--fail-bg);color:var(--fail)}
+.wpm-mock-col-label .wpm-mock-col-tag.pass{background:var(--pass-bg);color:var(--pass)}
+
+/* PC frame */
+.wpm-pc{background:#0F1320;border-radius:14px;border:1px solid rgba(255,255,255,.06);box-shadow:0 12px 30px rgba(0,0,0,.32);font-family:var(--font);overflow:hidden;display:flex;flex-direction:column;min-width:0;width:100%}
+[data-theme="light"] .wpm-pc{background:#F5F7FB;border-color:rgba(20,22,30,.10);box-shadow:0 10px 24px rgba(20,22,30,.10)}
+.wpm-pc-bar{height:26px;background:#0B0E1A;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:6px;padding:0 12px}
+[data-theme="light"] .wpm-pc-bar{background:#E9ECF2;border-bottom-color:rgba(20,22,30,.06)}
+.wpm-pc-bar .wpm-pc-dot{width:8px;height:8px;border-radius:99px;background:rgba(255,255,255,.20)}
+[data-theme="light"] .wpm-pc-bar .wpm-pc-dot{background:rgba(20,22,30,.22)}
+.wpm-pc-bar .wpm-pc-url{margin-left:8px;font-size:9.5px;color:rgba(255,255,255,.46);letter-spacing:.02em}
+[data-theme="light"] .wpm-pc-bar .wpm-pc-url{color:rgba(20,22,30,.50)}
+.wpm-pc-bar .wpm-pc-tag{margin-left:auto;font-size:9px;font-weight:800;padding:1px 7px;border-radius:4px;background:rgba(245,158,11,.20);color:#F5B14C;letter-spacing:.05em}
+.wpm-pc-bar .wpm-pc-tag.bad{background:rgba(255,90,71,.22);color:#FF7D6E}
+.wpm-pc-body{display:flex;min-height:0;flex:1}
+.wpm-pc-nav{width:148px;background:#131826;border-right:1px solid rgba(255,255,255,.04);padding:14px 10px;display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+[data-theme="light"] .wpm-pc-nav{background:#FFFFFF;border-right-color:rgba(20,22,30,.06)}
+.wpm-pc-nav.collapsed{width:56px;padding:14px 6px}
+.wpm-pc-nav-brand{font-size:10.5px;font-weight:800;color:rgba(255,255,255,.92);letter-spacing:.05em;padding:2px 4px 10px;border-bottom:1px solid rgba(255,255,255,.04);margin-bottom:4px}
+[data-theme="light"] .wpm-pc-nav-brand{color:rgba(20,22,30,.92);border-bottom-color:rgba(20,22,30,.06)}
+.wpm-pc-nav.collapsed .wpm-pc-nav-brand{text-align:center;padding:2px 0 10px}
+.wpm-pc-nav-it{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:6px;font-size:10.5px;color:rgba(255,255,255,.62);font-weight:600}
+[data-theme="light"] .wpm-pc-nav-it{color:rgba(20,22,30,.66)}
+.wpm-pc-nav-it.active{background:rgba(84,81,232,.18);color:#C0BAFF}
+[data-theme="light"] .wpm-pc-nav-it.active{color:#4340c8}
+.wpm-pc-nav-it::before{content:"";width:5px;height:5px;border-radius:99px;background:currentColor;opacity:.75;flex-shrink:0}
+.wpm-pc-nav.collapsed .wpm-pc-nav-it{justify-content:center;font-size:0;padding:8px 4px}
+.wpm-pc-nav.collapsed .wpm-pc-nav-it::before{width:8px;height:8px;opacity:.9}
+.wpm-pc-content{flex:1;min-width:0;display:flex;flex-direction:column;background:#0F1320}
+[data-theme="light"] .wpm-pc-content{background:#FAFBFC}
+.wpm-pc-topbar{height:38px;background:#131826;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:8px;padding:0 14px;flex-shrink:0;font-size:10.5px;color:rgba(255,255,255,.62);font-weight:600}
+[data-theme="light"] .wpm-pc-topbar{background:#FFFFFF;border-bottom-color:rgba(20,22,30,.06);color:rgba(20,22,30,.66)}
+.wpm-pc-topbar.compact{height:28px;font-size:10px}
+.wpm-pc-topbar .wpm-pc-crumb-cur{color:rgba(255,255,255,.92);font-weight:700}
+[data-theme="light"] .wpm-pc-topbar .wpm-pc-crumb-cur{color:rgba(20,22,30,.92)}
+.wpm-pc-topbar .wpm-pc-tb-sp{flex:1}
+.wpm-pc-topbar .wpm-pc-tb-pill{padding:2px 7px;border-radius:5px;background:rgba(255,255,255,.06);font-size:9.5px;color:rgba(255,255,255,.62)}
+[data-theme="light"] .wpm-pc-topbar .wpm-pc-tb-pill{background:rgba(20,22,30,.05);color:rgba(20,22,30,.66)}
+.wpm-pc-topbar .wpm-pc-tb-pill.pres{background:rgba(245,158,11,.20);color:#F5B14C;font-weight:800}
+.wpm-pc-topbar .wpm-pc-tb-pill.exit{background:rgba(255,90,71,.20);color:#FF7D6E;font-weight:800;padding:3px 9px;border-radius:6px}
+.wpm-pc-area{flex:1;min-width:0;padding:14px 16px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.wpm-pc-area.dense{padding:10px 12px;gap:8px}
+.wpm-pc-area.spacious{padding:22px 26px;gap:16px}
+
+/* PC Toolbar */
+.wpm-pc-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.wpm-pc-search{height:30px;flex:1;min-width:170px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:6px;padding:0 10px;color:rgba(255,255,255,.62);font-size:10.5px}
+[data-theme="light"] .wpm-pc-search{background:rgba(20,22,30,.02);border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.62)}
+.wpm-pc-search svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+.wpm-pc-btn{height:30px;padding:0 10px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:700;color:rgba(255,255,255,.86);display:inline-flex;align-items:center;gap:5px}
+[data-theme="light"] .wpm-pc-btn{background:rgba(20,22,30,.02);border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.86)}
+.wpm-pc-btn.is-primary{background:#5451E8;border-color:#5451E8;color:#fff}
+.wpm-pc-btn.is-warn{background:rgba(245,158,11,.18);border-color:rgba(245,158,11,.30);color:#F5B14C}
+.wpm-pc-btn.is-ghost{background:transparent}
+
+/* View mode segmented control */
+.wpm-seg{display:inline-flex;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:2px;font-size:10px;font-weight:700;color:rgba(255,255,255,.62);height:30px;align-items:center}
+[data-theme="light"] .wpm-seg{background:rgba(20,22,30,.03);border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.62)}
+.wpm-seg span{padding:0 9px;height:24px;display:inline-flex;align-items:center;border-radius:5px;cursor:default}
+.wpm-seg span.on{background:#5451E8;color:#fff}
+.wpm-seg span.on.warn{background:#F5B14C;color:#1B1F2A}
+
+/* PC Table container */
+.wpm-table-host{flex:1;min-height:0;background:#131826;border:1px solid rgba(255,255,255,.06);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+[data-theme="light"] .wpm-table-host{background:#FFFFFF;border-color:rgba(20,22,30,.08)}
+.wpm-tt{font-family:var(--font);width:100%;border-collapse:separate;border-spacing:0;min-width:100%}
+.wpm-tt th,.wpm-tt td{font-size:10.5px;padding:8px 10px;text-align:left;color:rgba(255,255,255,.82);border-bottom:1px solid rgba(255,255,255,.04);white-space:nowrap}
+[data-theme="light"] .wpm-tt th,[data-theme="light"] .wpm-tt td{color:rgba(20,22,30,.82);border-bottom-color:rgba(20,22,30,.05)}
+.wpm-tt thead th{background:rgba(255,255,255,.04);color:rgba(255,255,255,.56);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;position:sticky;top:0;z-index:2;border-bottom:1px solid rgba(255,255,255,.06)}
+[data-theme="light"] .wpm-tt thead th{background:#F4F6FA;color:rgba(20,22,30,.56);border-bottom-color:rgba(20,22,30,.06)}
+.wpm-tt td.tn{font-weight:700;color:rgba(255,255,255,.96)}
+[data-theme="light"] .wpm-tt td.tn{color:rgba(20,22,30,.94)}
+.wpm-tt tr:hover td{background:rgba(255,255,255,.02)}
+[data-theme="light"] .wpm-tt tr:hover td{background:rgba(20,22,30,.02)}
+.wpm-tt tr.sel td{background:rgba(84,81,232,.10)}
+.wpm-tt tr.dim td{opacity:.36}
+.wpm-tt tr.is-delay td{background:rgba(245,158,11,.06)}
+.wpm-tt tr.is-risk td{background:rgba(255,90,71,.08)}
+.wpm-tt tr.is-delay td:first-child{box-shadow:inset 3px 0 0 #F5B14C}
+.wpm-tt tr.is-risk td:first-child{box-shadow:inset 3px 0 0 #FF5A47}
+.wpm-tt td .ava{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:99px;background:#5451E8;color:#fff;font-size:8.5px;font-weight:800;margin-right:5px;vertical-align:middle}
+.wpm-tt td.r{text-align:right;font-variant-numeric:tabular-nums}
+.wpm-tt td .bar{width:60px;height:5px;border-radius:99px;background:rgba(255,255,255,.06);display:inline-block;position:relative;vertical-align:middle;margin-right:5px}
+[data-theme="light"] .wpm-tt td .bar{background:rgba(20,22,30,.08)}
+.wpm-tt td .bar::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--p,40%);border-radius:99px;background:linear-gradient(90deg,#5451E8,#7c79f3)}
+.wpm-tt td .bar.warn::after{background:#F5B14C}
+.wpm-tt td .bar.fail::after{background:#FF7D6E}
+.wpm-tt td .overdue{color:#FF7D6E;font-weight:700}
+.wpm-tt td .risk-ico{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;background:rgba(255,90,71,.20);color:#FF5A47;font-size:10px;font-weight:800;margin-right:4px}
+.wpm-tt td .risk-ico.warn{background:rgba(245,158,11,.20);color:#F5B14C}
+
+/* status chip in table */
+.wpm-stchip{display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:4px;font-size:9.5px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+.wpm-stchip::before{content:"";width:5px;height:5px;border-radius:99px;background:currentColor}
+.wpm-stchip.todo{background:rgba(255,255,255,.06);color:rgba(255,255,255,.62)}
+[data-theme="light"] .wpm-stchip.todo{background:rgba(20,22,30,.05);color:rgba(20,22,30,.58)}
+.wpm-stchip.prog{background:rgba(111,168,255,.16);color:#6FA8FF}
+.wpm-stchip.done{background:rgba(52,199,89,.16);color:#34C759}
+.wpm-stchip.hold{background:rgba(245,158,11,.18);color:#F5B14C}
+.wpm-stchip.delay{background:rgba(255,90,71,.18);color:#FF7D6E}
+.wpm-stchip.risk{background:rgba(255,66,66,.22);color:#FF5A47}
+
+/* sticky first column hint */
+.wpm-tt.sticky-first td.sticky,.wpm-tt.sticky-first th.sticky{position:sticky;left:0;z-index:3;background:#131826;box-shadow:1px 0 0 rgba(255,255,255,.06)}
+[data-theme="light"] .wpm-tt.sticky-first td.sticky,[data-theme="light"] .wpm-tt.sticky-first th.sticky{background:#FFFFFF;box-shadow:1px 0 0 rgba(20,22,30,.06)}
+.wpm-tt.sticky-first thead th.sticky{z-index:4}
+
+/* Presentation mode density on tables */
+.wpm-pres .wpm-tt th,.wpm-pres .wpm-tt td{font-size:16px;padding:14px 16px}
+.wpm-pres .wpm-tt thead th{font-size:11px;letter-spacing:.08em}
+.wpm-pres .wpm-stchip{font-size:13px;padding:3px 9px}
+.wpm-pres .wpm-stchip::before{width:7px;height:7px}
+.wpm-pres .wpm-tt td .ava{width:24px;height:24px;font-size:11px}
+.wpm-pres .wpm-tt tr.is-delay td:first-child{box-shadow:inset 5px 0 0 #F5B14C}
+.wpm-pres .wpm-tt tr.is-risk td:first-child{box-shadow:inset 5px 0 0 #FF5A47}
+
+/* Fullscreen / Bad frame variant */
+.wpm-pc.fullscreen{border-radius:6px}
+.wpm-pc.fullscreen .wpm-pc-bar{height:20px;background:#000}
+.wpm-pc.fullscreen .wpm-pc-bar .wpm-pc-dot{display:none}
+.wpm-pc.fullscreen .wpm-pc-bar .wpm-pc-url{color:rgba(255,255,255,.40);font-size:9px}
+
+/* ─────────────── Presentation Summary Bar ─────────────── */
+.wpm-summary{display:grid;grid-template-columns:repeat(7,1fr);gap:0;background:#131826;border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow:hidden;flex-shrink:0}
+[data-theme="light"] .wpm-summary{background:#FFFFFF;border-color:rgba(20,22,30,.08)}
+.wpm-summary.compact{grid-template-columns:repeat(5,1fr)}
+.wpm-sm-cell{padding:12px 14px;display:flex;flex-direction:column;gap:3px;border-right:1px solid rgba(255,255,255,.04);min-width:0}
+[data-theme="light"] .wpm-sm-cell{border-right-color:rgba(20,22,30,.05)}
+.wpm-sm-cell:last-child{border-right:none}
+.wpm-sm-cell .wpm-sm-key{font-size:9.5px;font-weight:800;color:rgba(255,255,255,.50);letter-spacing:.08em;text-transform:uppercase}
+[data-theme="light"] .wpm-sm-cell .wpm-sm-key{color:rgba(20,22,30,.50)}
+.wpm-sm-cell .wpm-sm-val{font-size:22px;font-weight:800;color:rgba(255,255,255,.95);line-height:1.1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+[data-theme="light"] .wpm-sm-cell .wpm-sm-val{color:rgba(20,22,30,.95)}
+.wpm-sm-cell .wpm-sm-sub{font-size:9.5px;color:rgba(255,255,255,.42);font-weight:600}
+[data-theme="light"] .wpm-sm-cell .wpm-sm-sub{color:rgba(20,22,30,.50)}
+.wpm-sm-cell.is-prog .wpm-sm-val{color:#6FA8FF}
+.wpm-sm-cell.is-done .wpm-sm-val{color:#34C759}
+.wpm-sm-cell.is-delay{background:rgba(245,158,11,.08)}
+.wpm-sm-cell.is-delay .wpm-sm-val{color:#F5B14C}
+.wpm-sm-cell.is-risk{background:rgba(255,90,71,.10)}
+.wpm-sm-cell.is-risk .wpm-sm-val{color:#FF5A47}
+.wpm-pres .wpm-summary{border-radius:14px}
+.wpm-pres .wpm-sm-cell{padding:18px 20px;gap:5px}
+.wpm-pres .wpm-sm-cell .wpm-sm-key{font-size:12px}
+.wpm-pres .wpm-sm-cell .wpm-sm-val{font-size:36px}
+.wpm-pres .wpm-sm-cell .wpm-sm-sub{font-size:12px}
+
+/* Filter chip row */
+.wpm-fchip-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.wpm-fchip{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.78)}
+[data-theme="light"] .wpm-fchip{background:rgba(20,22,30,.02);border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.78)}
+.wpm-fchip.on{background:#5451E8;border-color:#5451E8;color:#fff}
+.wpm-fchip.on.warn{background:#F5B14C;border-color:#F5B14C;color:#1B1F2A}
+.wpm-fchip.on.fail{background:#FF5A47;border-color:#FF5A47;color:#fff}
+.wpm-fchip.reset{background:transparent;border-color:rgba(255,255,255,.12);color:rgba(255,255,255,.62)}
+[data-theme="light"] .wpm-fchip.reset{border-color:rgba(20,22,30,.14);color:rgba(20,22,30,.62)}
+.wpm-pres .wpm-fchip{height:38px;padding:0 16px;font-size:14px;border-radius:8px}
+
+/* Active filter banner */
+.wpm-active-filter{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.30);border-radius:8px;flex-shrink:0}
+.wpm-active-filter .wpm-af-key{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#F5B14C}
+.wpm-active-filter .wpm-af-val{font-size:13px;font-weight:700;color:rgba(255,255,255,.96)}
+[data-theme="light"] .wpm-active-filter .wpm-af-val{color:rgba(20,22,30,.95)}
+.wpm-active-filter .wpm-af-cnt{margin-left:auto;font-size:11px;color:rgba(255,255,255,.62);font-weight:600}
+[data-theme="light"] .wpm-active-filter .wpm-af-cnt{color:rgba(20,22,30,.66)}
+.wpm-pres .wpm-active-filter{padding:14px 18px;border-radius:10px}
+.wpm-pres .wpm-active-filter .wpm-af-key{font-size:13px}
+.wpm-pres .wpm-active-filter .wpm-af-val{font-size:18px}
+.wpm-pres .wpm-active-filter .wpm-af-cnt{font-size:14px}
+
+/* Read-only detail panel */
+.wpm-detail-overlay{position:absolute;inset:0;background:rgba(11,13,22,.66);display:flex;justify-content:flex-end;backdrop-filter:blur(2px)}
+[data-theme="light"] .wpm-detail-overlay{background:rgba(20,22,30,.50)}
+.wpm-detail-panel{width:340px;background:#131826;border-left:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;padding:18px 18px 16px;gap:12px}
+[data-theme="light"] .wpm-detail-panel{background:#FFFFFF;border-left-color:rgba(20,22,30,.10)}
+.wpm-dp-head{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-shrink:0}
+.wpm-dp-head .wpm-dp-tag{font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--stam);background:var(--stam-soft);padding:2px 8px;border-radius:4px}
+.wpm-dp-head .wpm-dp-close{font-size:14px;color:rgba(255,255,255,.62)}
+[data-theme="light"] .wpm-dp-head .wpm-dp-close{color:rgba(20,22,30,.62)}
+.wpm-dp-title{font-size:18px;font-weight:800;color:rgba(255,255,255,.96);line-height:1.3;letter-spacing:-.01em}
+[data-theme="light"] .wpm-dp-title{color:rgba(20,22,30,.96)}
+.wpm-dp-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:11.5px}
+[data-theme="light"] .wpm-dp-row{border-bottom-color:rgba(20,22,30,.06)}
+.wpm-dp-row .k{width:74px;font-size:10px;color:rgba(255,255,255,.50);font-weight:700;letter-spacing:.04em;text-transform:uppercase;flex-shrink:0}
+[data-theme="light"] .wpm-dp-row .k{color:rgba(20,22,30,.50)}
+.wpm-dp-row .v{color:rgba(255,255,255,.92);font-weight:600}
+[data-theme="light"] .wpm-dp-row .v{color:rgba(20,22,30,.92)}
+.wpm-dp-foot{margin-top:auto;display:flex;gap:6px;flex-shrink:0}
+.wpm-dp-foot .wpm-pc-btn{flex:1;justify-content:center}
+.wpm-dp-note{padding:10px 12px;background:rgba(255,255,255,.04);border-radius:8px;font-size:10.5px;color:rgba(255,255,255,.72);line-height:1.55}
+[data-theme="light"] .wpm-dp-note{background:rgba(20,22,30,.04);color:rgba(20,22,30,.72)}
+.wpm-dp-note strong{color:rgba(255,255,255,.92);font-weight:700;display:block;margin-bottom:2px}
+[data-theme="light"] .wpm-dp-note strong{color:rgba(20,22,30,.92)}
+
+/* PC Bad example */
+.wpm-pc.bad .wpm-pc-area .wpm-pc-toolbar .wpm-pc-btn{height:22px;padding:0 6px;font-size:9px}
+.wpm-pc.bad .wpm-pc-area .wpm-pc-search{height:22px;font-size:9px}
+
+/* size scenario card */
+.wpm-size-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:1100px){.wpm-size-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.wpm-size-grid{grid-template-columns:1fr}}
+.wpm-size-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:11px 12px;display:flex;flex-direction:column;gap:5px}
+.wpm-size-card .wpm-size-w{font-size:14px;font-weight:800;color:var(--t1);letter-spacing:-.01em}
+.wpm-size-card .wpm-size-sub{font-size:10px;color:var(--t3);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.wpm-size-card ul{margin:6px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px}
+.wpm-size-card ul li{font-size:10.5px;color:var(--t2);line-height:1.55;padding-left:10px;position:relative}
+.wpm-size-card ul li::before{content:"·";position:absolute;left:0;top:-2px;color:var(--t3);font-weight:800}
+
+/* mock side notes */
+.wpm-side-note{font-size:10.5px;color:var(--t3);line-height:1.65;max-width:260px;flex-shrink:0}
+.wpm-side-note strong{color:var(--t1);display:block;margin-bottom:4px}
+
+/* status visual swatch grid */
+.wpm-stv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:780px){.wpm-stv-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:460px){.wpm-stv-grid{grid-template-columns:1fr}}
+.wpm-stv-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:11px 12px;display:flex;flex-direction:column;gap:6px}
+.wpm-stv-card .wpm-stv-name{font-size:11px;font-weight:800;color:var(--t1);letter-spacing:-.005em}
+.wpm-stv-card .wpm-stv-mini{display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:6px;background:var(--bg-sur2);font-size:11px;font-weight:700;color:var(--t1)}
+.wpm-stv-card .wpm-stv-mini.delay{box-shadow:inset 3px 0 0 #F5B14C;background:rgba(245,158,11,.10)}
+.wpm-stv-card .wpm-stv-mini.risk{box-shadow:inset 3px 0 0 #FF5A47;background:rgba(255,90,71,.12)}
+.wpm-stv-card .wpm-stv-spec{font-size:10px;color:var(--t3);line-height:1.55}
+
+</style>
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">WBS Presentation Mode Applied Preview v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Preview</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Meeting · Beam · Big Screen</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Read-first</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr"><span class="toc-brand">Presentation</span><span class="toc-ver-pill">v1</span></div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Purpose</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Entry / Exit</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Layout</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Summary Bar</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Column Policy</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Density</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Status / Risk</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Meeting Filter</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Interaction</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Detail Panel</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Scroll Policy</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Screen Size</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Mock Screens</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>Good / Bad</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>Work vs Present</a></li>
+      <li class="toc-item"><a href="#s17"><span class="toc-n">17</span>Cursor Handoff</a></li>
+      <li class="toc-item"><a href="#s18"><span class="toc-n">18</span>Guardrails</a></li>
+      <li class="toc-item"><a href="#s19"><span class="toc-n">19</span>QA Checklist</a></li>
+      <li class="toc-item"><a href="#s20"><span class="toc-n">20</span>Related</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Hero ── -->
+      <div class="wpm-hero">
+        <div class="wpm-hero-row">
+          <strong class="wpm-hero-title">STAM WBS Presentation Mode Applied Preview v1</strong>
+          <span class="wpm-pill brand">Preview</span>
+          <span class="wpm-pill warn">Meeting Mode</span>
+          <span class="wpm-pill notyet">Product Not Yet</span>
+        </div>
+        <p>
+          본 문서는 STAM WBS 를 <strong>회의실 빔 프로젝터 · 대형 모니터 · 화면 공유</strong> 환경에서
+          사용할 때 적용할 <strong>Presentation Mode</strong> 기준을 확정한다.
+          작업자용 WBS 가 <strong>정보량 · 편집 · 전체 컬럼</strong> 위주라면, 발표 모드는
+          <strong>가독성 · 핵심 컬럼 · 진행/지연/리스크 식별 · 회의 진행성</strong>이 우선이다.
+        </p>
+        <p style="opacity:.78;">
+          <strong>적용 범위</strong> — 본 작업은 <code>stam/docs/**</code> 하위 1개 HTML 생성과
+          <code>STAM-Docs-Index.html</code> 카드 1개 추가만 수행한다.
+          <code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code>, <code>stam/index.html</code>,
+          <code>stam/assets/**</code>, <code>.firebaserc</code>, <code>firebase.json</code>,
+          <code>.github/workflows/**</code>, <code>package.json</code>, <code>_ds/**</code>, <code>uploads/**</code>,
+          <code>*.zip</code>, <code>.env*</code>, <code>node_modules/**</code>, <code>dist/**</code>, <code>build/**</code>,
+          <code>.firebase/**</code> 는 한 줄도 수정하지 않는다.
+        </p>
+        <div class="wpm-kpi-grid">
+          <div class="wpm-kpi brand"><span class="wpm-kpi-key">기본 폰트</span><span class="wpm-kpi-val">16 ~ 18px</span></div>
+          <div class="wpm-kpi brand"><span class="wpm-kpi-key">Row Height</span><span class="wpm-kpi-val">52 ~ 56px</span></div>
+          <div class="wpm-kpi pass"><span class="wpm-kpi-key">P0 컬럼</span><span class="wpm-kpi-val">5 (이름·상태·담당·일정·위험)</span></div>
+          <div class="wpm-kpi info"><span class="wpm-kpi-key">Layout</span><span class="wpm-kpi-val">C — Dashboard + Table</span></div>
+          <div class="wpm-kpi warn"><span class="wpm-kpi-key">Entry</span><span class="wpm-kpi-val">명시적 진입만</span></div>
+          <div class="wpm-kpi fail"><span class="wpm-kpi-key">Edit</span><span class="wpm-kpi-val">기본 숨김</span></div>
+        </div>
+      </div>
+
+      <!-- ── S01 Overview ── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM WBS 는 평소에는 작업자가 자기 화면에서 사용하지만, 주간 회의 · 진척 점검 · 리스크 점검 · 외부 보고에서는
+            <strong>회의실 빔 프로젝터 · 대형 TV · 화면 공유</strong>로 띄워 공유된다.
+            이때 작업자용 정보 밀도와 편집 도구가 그대로 노출되면 <strong>글자가 작고 컬럼이 많아 회의가 산만</strong>해진다.
+            본 문서는 이 발표 시나리오를 위한 <strong>별도 모드</strong>의 기준을 확정한다.
+          </p>
+          <div class="wpm-rule-grid">
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-pass">이 문서가 다루는 것</div>
+              <ul>
+                <li>Presentation Mode Purpose — 작업자용과 발표용의 차이</li>
+                <li>Entry / Exit Pattern — 진입 / 종료 UX 후보</li>
+                <li>Layout 후보 3종 (A · B · C) 과 1차 추천 안</li>
+                <li>Summary Bar — 회의 시작 0.5초 안에 상황 파악</li>
+                <li>P0 / P1 / Hide 컬럼 우선순위와 발표 모드 노출 정책</li>
+                <li>Presentation 전용 Density · 폰트 / Row / Chip / Padding</li>
+                <li>Status / Risk Visual · Meeting Filter · Read-only Detail</li>
+                <li>Mock Screens 6종 (Dashboard · 1440 · Risk Filter · 담당자 · Detail · Fullscreen) 및 Bad Example</li>
+              </ul>
+            </div>
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-fail">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code> 직접 수정</li>
+                <li><code>stam/index.html</code>, <code>stam/assets/**</code>, <code>_ds/**</code>, <code>uploads/**</code> 변경</li>
+                <li>Fullscreen API · presentation feature flag 의 실제 구현 코드</li>
+                <li>WBS 의 컬럼 라인업 / IA / 필터 로직 자체 변경</li>
+                <li>외부 공유 링크 / Export PDF / Snapshot 기능 정의</li>
+                <li>전역 <code>.tbtn</code> 일괄 치환 · 기능 로직 변경 · Firebase / package.json 변경</li>
+              </ul>
+            </div>
+          </div>
+          <div class="wpm-rule-grid" style="margin-top:14px;">
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-info">사용 시나리오</div>
+              <ul>
+                <li>주간 / 격주 진척 회의 — 빔 프로젝터로 WBS 공유</li>
+                <li>리스크 점검 회의 — 지연 · 위험 항목만 필터</li>
+                <li>담당자별 업무 검토 — 담당자 보기</li>
+                <li>외부 (PM / 고객) 공유 — 일부 컬럼만 노출 · 편집 숨김</li>
+                <li>대형 TV 상시 표출 — 사무실 입구 / 팀룸 대시보드 후보</li>
+              </ul>
+            </div>
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-warn">실제 구현 전 디자인 기준 문서</div>
+              <ul>
+                <li>본 문서는 <strong>실제 구현 전 시각 기준</strong>이며 product 적용은 별도 Gate</li>
+                <li>적용 순서: 본 가이드 승인 → CSS / 레이아웃 분리 → 발표 모드 진입점 → fullscreen API 별도 Gate</li>
+                <li>발표 모드는 <strong>기본 WBS 를 덮어쓰지 않으며</strong> view mode 분기 또는 feature flag 로 진입</li>
+                <li>충돌 시 UI Baseline Guide / WBS Top·Left·Shell Preview / Data Table Guide 가 우선</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Purpose ── -->
+      <section id="s02" class="sec" data-screen-label="02 Purpose">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Presentation Mode Purpose</span>
+          <span class="sbadge plan">Purpose</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            발표 모드의 목표는 <strong>한눈에 현재 진행 상황을 파악</strong>하고, 지연 / 위험 업무를 즉시 식별하며,
+            담당자별 이슈를 빠르게 확인해 <strong>회의 중 다음 액션을 결정</strong>하는 데 있다.
+            편집 기능은 우선순위에서 뒤로 빠진다.
+          </p>
+
+          <div class="wpm-tbl-wrap">
+            <table class="wpm-tbl">
+              <thead><tr><th style="width:200px;">항목</th><th style="width:340px;">작업자용 WBS</th><th>Presentation Mode</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">목적</td><td>매일 자기 업무 처리 / 편집</td><td>회의 / 보고 / 리스크 점검</td></tr>
+                <tr><td class="tn">우선순위</td><td>정보량 · 편집 · 검색</td><td>가독성 · 진행률 · 지연 / 위험 · 결정</td></tr>
+                <tr><td class="tn">컬럼 수</td><td>10 ~ 14 (모든 컬럼)</td><td>5 (P0) ~ 7 (P0+P1)</td></tr>
+                <tr><td class="tn">기본 폰트</td><td>13 ~ 14px</td><td>16 ~ 18px (회의실 3 ~ 6m 가독)</td></tr>
+                <tr><td class="tn">Row Height</td><td>32 ~ 40 (compact / comfortable)</td><td>52 ~ 56 (presentation)</td></tr>
+                <tr><td class="tn">Action</td><td>편집 / 삭제 / 일괄 변경 노출</td><td>편집 숨김 · 읽기 중심</td></tr>
+                <tr><td class="tn">Filter</td><td>모든 필터 · 다중 조합</td><td>회의 필터 7종 (진행 · 지연 · 위험 · 마감 · 담당)</td></tr>
+                <tr><td class="tn">Detail</td><td>편집 가능 Drawer</td><td>읽기 전용 Panel</td></tr>
+                <tr><td class="tn">Scroll</td><td>세로 + 가로 모두 허용 (container)</td><td>세로 허용 · 가로 최소화 (P0만 노출)</td></tr>
+                <tr><td class="tn">Left Nav</td><td>표시</td><td>접거나 숨김 (1366 이하 숨김 후보)</td></tr>
+                <tr><td class="tn">Topbar</td><td>표시</td><td>최소화 · compact</td></tr>
+                <tr><td class="tn">Summary Bar</td><td>없음 (또는 보조)</td><td><strong>최상단 고정 · 7 cell</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="wpm-rule-grid" style="margin-top:14px;">
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-pass">발표 모드가 달성해야 하는 것</div>
+              <ul>
+                <li>0.5초 안에 전체 진행 / 지연 / 위험 수치 인지</li>
+                <li>3초 안에 가장 급한 1 ~ 2 건 확인</li>
+                <li>한 화면 안에서 회의 진행자가 다음 액션 결정 가능</li>
+                <li>참가자가 회의실 뒤에서도 글자가 읽힘 (3 ~ 6m)</li>
+                <li>회의 중 편집 충동을 의도적으로 차단 — 메모는 별도 후보</li>
+              </ul>
+            </div>
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-fail">발표 모드에서 일어나면 안 되는 것</div>
+              <ul>
+                <li>회의 중 누가 실수로 row 를 편집하거나 삭제</li>
+                <li>작은 icon-only action 버튼이 행마다 노출돼 시선 분산</li>
+                <li>10개 이상의 컬럼이 한 화면에 압축되어 글자가 8 ~ 10px</li>
+                <li>지연 / 위험이 색상만으로 표현되어 빔 프로젝터에서 묻힘</li>
+                <li>필터 적용 후에도 dim 처리된 행이 같이 보여 시선 산만</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 Entry / Exit Pattern ── -->
+      <section id="s03" class="sec" data-screen-label="03 Entry / Exit">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Entry / Exit Pattern</span>
+          <span class="sbadge plan">UX</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            발표 모드는 <strong>자동 진입 없음 · 사용자 명시적 전환</strong>만 허용한다.
+            일반 사용자가 평소 작업 중 의도치 않게 진입하지 않도록 진입 지점을 분리하고,
+            종료는 <code>ESC</code> · 상단 <strong>발표 종료</strong> 버튼 · view mode 기본 선택 3가지로 보장한다.
+          </p>
+
+          <div class="wpm-opt-grid">
+            <div class="wpm-opt-card recommend">
+              <div class="wpm-opt-hdr"><span class="wpm-opt-letter">A</span><span class="wpm-opt-title">WBS Toolbar · 발표 모드 버튼</span><span class="wpm-pill brand">recommend</span></div>
+              <p class="wpm-opt-body">툴바 우측에 <strong>발표 모드</strong> 버튼을 두고 클릭 시 view mode 가 <code>presentation</code> 으로 전환된다. 가장 직관적이며 사용자가 클릭하므로 사고 진입이 없다.</p>
+              <ul class="wpm-opt-pros"><li>발견 쉬움 — 누구나 한 번에 찾음</li><li>WBS 안에서 진입 — 컨텍스트 유지</li><li>회의 시작 시 한 번만 누르면 됨</li></ul>
+              <ul class="wpm-opt-cons"><li>툴바 영역 1슬롯 점유</li></ul>
+            </div>
+            <div class="wpm-opt-card">
+              <div class="wpm-opt-hdr"><span class="wpm-opt-letter">B</span><span class="wpm-opt-title">View Mode Segmented · 기본 / 압축 / 발표</span></div>
+              <p class="wpm-opt-body">WBS 상단에 view 전환 segmented control 을 두고 <strong>기본 · 압축 · 발표</strong> 3택. 작업자가 평소 압축 모드를 자주 쓰는 경우 효과적.</p>
+              <ul class="wpm-opt-pros"><li>여러 view 를 한 곳에서 관리</li><li>토글이 한 줄에 정리</li></ul>
+              <ul class="wpm-opt-cons"><li>실수로 발표 모드 진입 가능 — 클릭 거리 짧음</li><li>compact / presentation 의 시각 차이가 작으면 혼란</li></ul>
+            </div>
+            <div class="wpm-opt-card">
+              <div class="wpm-opt-hdr"><span class="wpm-opt-letter">C</span><span class="wpm-opt-title">Fullscreen 진입 = 발표 모드</span></div>
+              <p class="wpm-opt-body">Fullscreen API 진입과 발표 모드를 자동 동기화. F11 / 발표 모드 버튼이 같은 행위.</p>
+              <ul class="wpm-opt-pros"><li>한 행위로 두 효과 — 빔 환경 친화</li><li>Fullscreen 종료 = 발표 종료</li></ul>
+              <ul class="wpm-opt-cons"><li>Fullscreen API 별도 Gate 필요</li><li>전체화면 없이 발표 모드만 원하는 경우 대응 불가</li><li>일부 브라우저 권한 이슈</li></ul>
+            </div>
+          </div>
+
+          <div class="wpm-cap" style="margin-top:18px;"><span class="wpm-cap-n">B</span>진입 / 종료 액션 정리</div>
+          <div class="wpm-tbl-wrap">
+            <table class="wpm-tbl">
+              <thead><tr><th style="width:160px;">행위</th><th>진입 (Enter)</th><th>종료 (Exit)</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">툴바 버튼</td><td><code>발표 모드</code> 클릭</td><td>Topbar <code>발표 종료</code> 클릭</td></tr>
+                <tr><td class="tn">키보드</td><td>—</td><td><code>ESC</code></td></tr>
+                <tr><td class="tn">View mode</td><td>segmented · <code>발표</code> 선택</td><td>segmented · <code>기본</code> 선택</td></tr>
+                <tr><td class="tn">Fullscreen</td><td>F11 또는 fullscreen 버튼 (옵션)</td><td>Fullscreen 종료 시 자동 해제</td></tr>
+                <tr><td class="tn">URL</td><td><code>?present=1</code> 후보</td><td>flag 제거 시 자동 해제</td></tr>
+                <tr><td class="tn">자동 진입</td><td class="bad">금지</td><td>—</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>주의 — Fullscreen API 는 별도 Gate</strong><br>
+            본 문서는 <strong>발표 모드 UI 기준</strong>만 제안한다. 실제 fullscreen API 구현, URL flag,
+            view mode 분기 로직은 별도 Gate 에서 다룬다. 본 시안에서는 <code>?present=1</code> URL 만 시각화한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Layout ── -->
+      <section id="s04" class="sec" data-screen-label="04 Layout">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Presentation Layout</span>
+          <span class="sbadge plan">Layout</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            발표 모드의 레이아웃은 <strong>콘텐츠 영역을 최대화</strong>해야 한다.
+            Topbar 는 최소화 또는 compact, Left Navigation 은 접거나 숨기고,
+            테이블 가로 스크롤을 피하기 위해 핵심 컬럼만 노출한다.
+            <strong>페이지 전체 가로 스크롤은 어떤 경우에도 금지</strong>한다.
+          </p>
+
+          <div class="wpm-opt-grid">
+            <div class="wpm-opt-card">
+              <div class="wpm-opt-hdr"><span class="wpm-opt-letter">A</span><span class="wpm-opt-title">Compact Topbar + Collapsed Left Nav</span></div>
+              <p class="wpm-opt-body">기본 Shell 구조를 유지하되 Topbar 를 compact 로 줄이고 Left Nav 는 collapsed (icon-only) 로 접는다. 1366 ~ 1920 모두 동일 구조.</p>
+              <ul class="wpm-opt-pros"><li>구조 변동 최소 · 구현 부담 적음</li><li>발표 종료 후 복귀 부드러움</li></ul>
+              <ul class="wpm-opt-cons"><li>가로 56px 가 그대로 점유 — 1366 에서는 콘텐츠 폭 부족</li></ul>
+            </div>
+            <div class="wpm-opt-card">
+              <div class="wpm-opt-hdr"><span class="wpm-opt-letter">B</span><span class="wpm-opt-title">Fullscreen Table</span></div>
+              <p class="wpm-opt-body">Topbar · Left Nav 모두 숨김. 화면 전체가 테이블 + 작은 종료 버튼만.</p>
+              <ul class="wpm-opt-pros"><li>최대 폭 확보 — 빔 친화적</li><li>참가자가 표 외 요소에 시선이 가지 않음</li></ul>
+              <ul class="wpm-opt-cons"><li>회의 중 다른 메뉴 이동이 어려움</li><li>현재 위치 / breadcrumb 부재</li></ul>
+            </div>
+            <div class="wpm-opt-card recommend">
+              <div class="wpm-opt-hdr"><span class="wpm-opt-letter">C</span><span class="wpm-opt-title">Meeting Dashboard + Table Hybrid</span><span class="wpm-pill brand">recommend</span></div>
+              <p class="wpm-opt-body">상단에 <strong>Summary Bar</strong> (전체 · 진행 · 완료 · 지연 · 위험 · 오늘 · 이번 주) 를 큰 숫자로 두고, 그 아래 P0 컬럼 테이블. Topbar 는 compact, Left Nav 는 1440 이상 collapsed / 1366 이하 숨김.</p>
+              <ul class="wpm-opt-pros"><li>회의 시작 0.5초 안에 상황 파악</li><li>핵심 컬럼 + 상태 chip 시인성 최고</li><li>회의 진행자 시선이 표 위 ~ 표로 자연 이동</li></ul>
+              <ul class="wpm-opt-cons"><li>Summary Bar 컴포넌트 신규 정의 필요</li></ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>1차 추천 — C 안</strong>
+            상단 Summary Bar + 핵심 WBS 테이블 hybrid 구조. 발표 모드 진입 시 자동 적용되며,
+            Topbar 는 compact, Left Nav 는 viewport 폭에 따라 collapsed / hidden 자동 전환한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 Summary Bar ── -->
+      <section id="s05" class="sec" data-screen-label="05 Summary Bar">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Presentation Summary Bar</span>
+          <span class="sbadge plan">Component</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            발표 모드 최상단의 요약 영역. <strong>숫자는 크게</strong>, <strong>지연 / 위험은 강하게</strong>,
+            완료는 보조 톤으로 시인성 위계를 잡는다. 불필요한 설명은 최소화한다.
+          </p>
+
+          <div class="wpm-cap"><span class="wpm-cap-n">A</span>Summary Bar — 7 cell 기본형</div>
+          <div class="wpm-mock-col-label" style="margin-bottom:6px;"><span>Presentation · 1920</span><span class="wpm-mock-col-w">cell 7</span><span class="wpm-mock-col-tag">recommend</span></div>
+          <div class="wpm-pres">
+            <div class="wpm-summary">
+              <div class="wpm-sm-cell"><span class="wpm-sm-key">전체</span><span class="wpm-sm-val">82</span><span class="wpm-sm-sub">P-2026-001</span></div>
+              <div class="wpm-sm-cell is-prog"><span class="wpm-sm-key">진행</span><span class="wpm-sm-val">38</span><span class="wpm-sm-sub">46%</span></div>
+              <div class="wpm-sm-cell is-done"><span class="wpm-sm-key">완료</span><span class="wpm-sm-val">29</span><span class="wpm-sm-sub">35%</span></div>
+              <div class="wpm-sm-cell is-delay"><span class="wpm-sm-key">지연</span><span class="wpm-sm-val">9</span><span class="wpm-sm-sub">10%</span></div>
+              <div class="wpm-sm-cell is-risk"><span class="wpm-sm-key">위험</span><span class="wpm-sm-val">3</span><span class="wpm-sm-sub">3%</span></div>
+              <div class="wpm-sm-cell"><span class="wpm-sm-key">오늘 마감</span><span class="wpm-sm-val">4</span><span class="wpm-sm-sub">06-10</span></div>
+              <div class="wpm-sm-cell"><span class="wpm-sm-key">이번 주</span><span class="wpm-sm-val">11</span><span class="wpm-sm-sub">06-08 ~ 14</span></div>
+            </div>
+          </div>
+
+          <div class="wpm-cap" style="margin-top:20px;"><span class="wpm-cap-n">B</span>Summary Bar — 5 cell 압축형 (1366 이하)</div>
+          <div class="wpm-mock-col-label" style="margin-bottom:6px;"><span>Presentation · 1366</span><span class="wpm-mock-col-w">cell 5</span><span class="wpm-mock-col-tag alt">compact</span></div>
+          <div class="wpm-pres">
+            <div class="wpm-summary compact">
+              <div class="wpm-sm-cell"><span class="wpm-sm-key">전체</span><span class="wpm-sm-val">82</span><span class="wpm-sm-sub">P-2026-001</span></div>
+              <div class="wpm-sm-cell is-prog"><span class="wpm-sm-key">진행</span><span class="wpm-sm-val">38</span><span class="wpm-sm-sub">46%</span></div>
+              <div class="wpm-sm-cell is-delay"><span class="wpm-sm-key">지연</span><span class="wpm-sm-val">9</span><span class="wpm-sm-sub">10%</span></div>
+              <div class="wpm-sm-cell is-risk"><span class="wpm-sm-key">위험</span><span class="wpm-sm-val">3</span><span class="wpm-sm-sub">3%</span></div>
+              <div class="wpm-sm-cell"><span class="wpm-sm-key">오늘</span><span class="wpm-sm-val">4</span><span class="wpm-sm-sub">06-10</span></div>
+            </div>
+          </div>
+
+          <div class="wpm-tbl-wrap" style="margin-top:18px;">
+            <table class="wpm-tbl">
+              <thead><tr><th style="width:140px;">cell</th><th style="width:120px;">우선순위</th><th style="width:140px;">시각 강조</th><th>의미</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">전체</td><td class="p1">P1</td><td>중립 흰색</td><td>전체 업무 수 — 기준 컨텍스트</td></tr>
+                <tr><td class="tn">진행</td><td class="p1">P1</td><td>info blue 36px</td><td>현재 진행 중인 업무 수</td></tr>
+                <tr><td class="tn">완료</td><td class="p1">P1</td><td>pass green 36px</td><td>완료된 업무 수 — 보조 톤</td></tr>
+                <tr><td class="tn">지연</td><td class="p0">P0</td><td>warn bg + 36px</td><td>일정 초과 — <strong>강조</strong></td></tr>
+                <tr><td class="tn">위험</td><td class="p0">P0</td><td>fail bg + 36px</td><td>리스크 등록 / 즉시 조치 — <strong>최강조</strong></td></tr>
+                <tr><td class="tn">오늘 마감</td><td class="p1">P1</td><td>중립 + 날짜 sub</td><td>당일 마감 업무 수</td></tr>
+                <tr><td class="tn">이번 주</td><td class="p1">P1</td><td>중립 + 기간 sub</td><td>주간 마감 업무 수</td></tr>
+                <tr><td class="tn">담당자</td><td class="p2">옵션</td><td>avatar row</td><td>발표 시점 핵심 담당자 (담당자별 보기에서)</td></tr>
+                <tr><td class="tn">기준일</td><td class="p2">옵션</td><td>Topbar 영역</td><td>발표 시점 날짜 — 06-10 (수)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 Column Policy ── -->
+      <section id="s06" class="sec" data-screen-label="06 Column Policy">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Presentation Column Policy</span>
+          <span class="sbadge plan">Policy</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            발표 모드에서는 모든 컬럼을 노출하지 않는다. <strong>P0</strong> 는 항상 표시,
+            <strong>P1</strong> 은 viewport 폭과 사용자 선택에 따라 표시, <strong>P2 / 숨김</strong>은 발표 모드에서 노출 금지.
+          </p>
+
+          <div class="wpm-col-grid">
+            <div class="wpm-col-card p0">
+              <span class="wpm-col-name">P0 · 항상 표시</span>
+              <div class="wpm-col-list">
+                <span>작업명</span><span>상태</span><span>담당자</span><span>일정</span><span>지연 / 위험</span>
+              </div>
+            </div>
+            <div class="wpm-col-card p1">
+              <span class="wpm-col-name">P1 · 옵션 표시</span>
+              <div class="wpm-col-list">
+                <span>단계</span><span>진척률</span><span>요구사항 ID</span><span>메모 요약</span>
+              </div>
+            </div>
+            <div class="wpm-col-card hide">
+              <span class="wpm-col-name">숨김 · 발표 모드 비노출</span>
+              <div class="wpm-col-list">
+                <span>내부 ID</span><span>상세 로그</span><span>긴 설명</span><span>첨부 / 이력 세부</span><span>편집 전용 action</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="wpm-tbl-wrap" style="margin-top:14px;">
+            <table class="wpm-tbl">
+              <thead><tr><th style="width:160px;">컬럼</th><th style="width:90px;">우선순위</th><th style="width:120px;">표시 폭</th><th>비고</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">작업명</td><td class="p0">P0</td><td>≥ 240px</td><td>1줄 ellipsis · 위험 시 left accent bar 동반</td></tr>
+                <tr><td class="tn">상태</td><td class="p0">P0</td><td>110px</td><td>chip 14 ~ 15px · 텍스트 병행</td></tr>
+                <tr><td class="tn">담당자</td><td class="p0">P0</td><td>140px</td><td>avatar 24 + 이름 · 1명만 노출</td></tr>
+                <tr><td class="tn">일정</td><td class="p0">P0</td><td>180px</td><td>YY-MM-DD ~ YY-MM-DD · overdue 강조</td></tr>
+                <tr><td class="tn">지연 / 위험</td><td class="p0">P0</td><td>120px</td><td>아이콘 + 텍스트 · 색만 사용 금지</td></tr>
+                <tr><td class="tn">단계</td><td class="p1">P1</td><td>100px</td><td>분석 / 설계 / 구현 / 테스트 / 배포</td></tr>
+                <tr><td class="tn">진척률</td><td class="p1">P1</td><td>110px</td><td>progress bar 60 + % 텍스트</td></tr>
+                <tr><td class="tn">요구사항 ID</td><td class="p1">P1</td><td>110px</td><td>REQ-### · 외부 공유 시 숨김 후보</td></tr>
+                <tr><td class="tn">메모 요약</td><td class="p1">P1</td><td>≥ 160px</td><td>1줄 ellipsis · 발표용 핵심 요약만</td></tr>
+                <tr><td class="tn">내부 ID</td><td class="p3">숨김</td><td>—</td><td>UUID / DB key 등 — 발표 모드 비노출</td></tr>
+                <tr><td class="tn">상세 로그 / 이력</td><td class="p3">숨김</td><td>—</td><td>read-only detail panel 안에서만</td></tr>
+                <tr><td class="tn">첨부 / 댓글</td><td class="p3">숨김</td><td>—</td><td>read-only detail panel 안에서만</td></tr>
+                <tr><td class="tn">편집 action (… / 삭제)</td><td class="p3">숨김</td><td>—</td><td>발표 모드 전체 비노출</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 Density ── -->
+      <section id="s07" class="sec" data-screen-label="07 Density">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Presentation Density</span>
+          <span class="sbadge plan">Density</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            Data Table Guide 의 Density 기준을 상속하되, 발표 모드 전용 <strong>Presentation Density</strong> 를 추가 정의한다.
+            Comfortable / Compact 와 비교하면 본 모드는 <strong>밀도 가장 낮음 · 글자 가장 큼</strong>이다.
+          </p>
+
+          <div class="wpm-dens-grid">
+            <div class="wpm-dens-card is-info is-comf">
+              <div class="wpm-dens-name">Comfortable <span style="color:var(--t3);font-weight:600;font-size:10px;margin-left:auto;">작업자 기본</span></div>
+              <div class="wpm-dens-spec">row <b>40px</b> · font <b>13px</b> · padding <b>11 10</b> · chip <b>10px</b></div>
+              <div class="wpm-dens-mini">
+                <table>
+                  <thead><tr><th>작업명</th><th>상태</th><th>담당</th></tr></thead>
+                  <tbody>
+                    <tr><td>요건정의서 작성</td><td>진행</td><td>박지원</td></tr>
+                    <tr><td>DB 스키마 설계</td><td>진행</td><td>김민서</td></tr>
+                    <tr><td>로그인 구현</td><td>지연</td><td>최서연</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="wpm-dens-card is-comp">
+              <div class="wpm-dens-name">Compact <span style="color:var(--t3);font-weight:600;font-size:10px;margin-left:auto;">대량 view</span></div>
+              <div class="wpm-dens-spec">row <b>32px</b> · font <b>11.5px</b> · padding <b>6 8</b> · chip <b>9px</b></div>
+              <div class="wpm-dens-mini">
+                <table>
+                  <thead><tr><th>작업명</th><th>상태</th><th>담당</th></tr></thead>
+                  <tbody>
+                    <tr><td>요건정의서 작성</td><td>진행</td><td>박지원</td></tr>
+                    <tr><td>DB 스키마 설계</td><td>진행</td><td>김민서</td></tr>
+                    <tr><td>로그인 구현</td><td>지연</td><td>최서연</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="wpm-dens-card is-warn is-pres">
+              <div class="wpm-dens-name">Presentation <span style="color:var(--warn);font-weight:700;font-size:10px;margin-left:auto;">발표 전용</span></div>
+              <div class="wpm-dens-spec">row <b>52 ~ 56px</b> · font <b>16 ~ 18px</b> · padding <b>14 16</b> · chip <b>14 ~ 15px</b></div>
+              <div class="wpm-dens-mini">
+                <table>
+                  <thead><tr><th>작업명</th><th>상태</th><th>담당</th></tr></thead>
+                  <tbody>
+                    <tr><td>요건정의서 작성</td><td>진행</td><td>박지원</td></tr>
+                    <tr><td>DB 스키마 설계</td><td>진행</td><td>김민서</td></tr>
+                    <tr><td>로그인 구현</td><td>지연</td><td>최서연</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="wpm-tbl-wrap" style="margin-top:14px;">
+            <table class="wpm-tbl">
+              <thead><tr><th style="width:170px;">속성</th><th>Comfortable</th><th>Compact</th><th>Presentation</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">row height</td><td>40px</td><td>32px</td><td><strong style="color:var(--warn);">52 ~ 56px</strong></td></tr>
+                <tr><td class="tn">body font</td><td>13px</td><td>11.5px</td><td><strong style="color:var(--warn);">16 ~ 18px</strong></td></tr>
+                <tr><td class="tn">핵심 숫자 (summary)</td><td>—</td><td>—</td><td><strong style="color:var(--warn);">20 ~ 36px</strong></td></tr>
+                <tr><td class="tn">status chip</td><td>10px</td><td>9px</td><td><strong style="color:var(--warn);">14 ~ 15px</strong></td></tr>
+                <tr><td class="tn">cell padding</td><td>11 10</td><td>6 8</td><td><strong style="color:var(--warn);">14 16</strong></td></tr>
+                <tr><td class="tn">icon size</td><td>14px</td><td>12px</td><td><strong style="color:var(--warn);">16 ~ 18px</strong></td></tr>
+                <tr><td class="tn">avatar</td><td>18px</td><td>16px</td><td><strong style="color:var(--warn);">24px</strong></td></tr>
+                <tr><td class="tn">th letter-spacing</td><td>.06em</td><td>.06em</td><td>.08em</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Status / Risk Visual ── -->
+      <section id="s08" class="sec" data-screen-label="08 Status / Risk">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Presentation Status / Risk Visual</span>
+          <span class="sbadge plan">Visual</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            발표 모드의 가장 중요한 시각 정보는 <strong>상태와 위험</strong>이다.
+            빔 프로젝터 / 대형 모니터 / 화면 공유에서 색만으로 구분하면 환경에 따라 묻히므로,
+            <strong>chip + 텍스트 + 아이콘 + 행 강조</strong>를 병행한다.
+          </p>
+
+          <div class="wpm-stv-grid">
+            <div class="wpm-stv-card">
+              <span class="wpm-stv-name">대기 (todo)</span>
+              <div class="wpm-stv-mini"><span class="wpm-stchip todo">대기</span><span style="color:var(--t2);font-weight:600;">요건정의서 검토</span></div>
+              <div class="wpm-stv-spec">중립 — 강조 없음. row 색 변화 없음.</div>
+            </div>
+            <div class="wpm-stv-card">
+              <span class="wpm-stv-name">진행 (progress)</span>
+              <div class="wpm-stv-mini"><span class="wpm-stchip prog">진행</span><span style="color:var(--t2);font-weight:600;">DB 스키마 설계</span></div>
+              <div class="wpm-stv-spec">info blue chip. 가장 비중 큰 상태이므로 강조하지 않음.</div>
+            </div>
+            <div class="wpm-stv-card">
+              <span class="wpm-stv-name">완료 (done)</span>
+              <div class="wpm-stv-mini"><span class="wpm-stchip done">완료</span><span style="color:var(--t2);font-weight:600;">기능 명세 v1</span></div>
+              <div class="wpm-stv-spec">pass green chip. 보조 — 시선을 가져가지 않음.</div>
+            </div>
+            <div class="wpm-stv-card">
+              <span class="wpm-stv-name">보류 (hold)</span>
+              <div class="wpm-stv-mini"><span class="wpm-stchip hold">보류</span><span style="color:var(--t2);font-weight:600;">API Boundary 정의</span></div>
+              <div class="wpm-stv-spec">warn amber chip. 회의 안건 후보 — 약한 강조.</div>
+            </div>
+            <div class="wpm-stv-card">
+              <span class="wpm-stv-name">지연 (delay) <span style="color:var(--warn);font-size:9px;font-weight:800;margin-left:4px;">P0</span></span>
+              <div class="wpm-stv-mini delay"><span class="wpm-stchip delay">지연</span><span style="color:var(--t2);font-weight:600;">로그인 컴포넌트 구현</span></div>
+              <div class="wpm-stv-spec">row left accent bar 5px + warn bg. <strong>즉시 식별</strong>.</div>
+            </div>
+            <div class="wpm-stv-card">
+              <span class="wpm-stv-name">위험 (risk) <span style="color:var(--fail);font-size:9px;font-weight:800;margin-left:4px;">P0</span></span>
+              <div class="wpm-stv-mini risk"><span class="wpm-stchip risk">위험 고</span><span style="color:var(--t2);font-weight:600;">API Boundary 정의</span></div>
+              <div class="wpm-stv-spec">row left accent bar 5px + fail bg + 위험 아이콘. <strong>최강조</strong>.</div>
+            </div>
+          </div>
+
+          <div class="wpm-rule-grid" style="margin-top:14px;">
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-pass">시각 병행 원칙 — 색 + 텍스트 + 아이콘</div>
+              <ul>
+                <li>chip 은 <strong>색 + 한글 텍스트</strong> 동시 사용 — 색 단독 금지</li>
+                <li>지연 / 위험 row 는 <strong>왼쪽 5px accent bar</strong> 추가</li>
+                <li>위험은 <strong>! 아이콘</strong> 동반 — chip 좌측 또는 일정 셀 끝</li>
+                <li>overdue 날짜는 색 + <strong>밑줄 또는 굵게</strong></li>
+                <li>다크 / 라이트 모두에서 대비 4.5:1 이상 확보</li>
+              </ul>
+            </div>
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-fail">시각 금지 — 빔 프로젝터에서 묻힘</div>
+              <ul>
+                <li>색만으로 상태 구분 (chip 텍스트 없음)</li>
+                <li>지연 / 위험을 chip 하나로만 표현 — 행 전체 강조 없음</li>
+                <li>회색 톤 위에 회색 chip — 대비 부족</li>
+                <li>아이콘 없이 색 + 폰트 가중치만으로 위험 표시</li>
+                <li>overdue 날짜를 그냥 일반 톤으로 처리</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Meeting Filter ── -->
+      <section id="s09" class="sec" data-screen-label="09 Meeting Filter">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Meeting Filter Mode</span>
+          <span class="sbadge plan">Filter</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            발표 중 자주 쓰는 필터를 <strong>7 chip</strong> 으로 정리해 Summary Bar 아래 노출한다.
+            필터 선택 시 조건 외 행은 <strong>기본 제거</strong>한다. dim 처리는 비교 / 검토 모드에서만 사용한다.
+          </p>
+
+          <div class="wpm-cap"><span class="wpm-cap-n">A</span>Meeting Filter Chip Row</div>
+          <div class="wpm-pres">
+            <div class="wpm-fchip-row">
+              <span class="wpm-fchip on">전체</span>
+              <span class="wpm-fchip">진행중</span>
+              <span class="wpm-fchip">지연</span>
+              <span class="wpm-fchip">위험</span>
+              <span class="wpm-fchip">오늘 마감</span>
+              <span class="wpm-fchip">이번 주 마감</span>
+              <span class="wpm-fchip">담당자별</span>
+              <span class="wpm-fchip">내 담당</span>
+              <span class="wpm-fchip reset">초기화</span>
+            </div>
+          </div>
+
+          <div class="wpm-cap" style="margin-top:20px;"><span class="wpm-cap-n">B</span>위험 필터 active</div>
+          <div class="wpm-pres">
+            <div class="wpm-fchip-row" style="margin-bottom:12px;">
+              <span class="wpm-fchip">전체</span>
+              <span class="wpm-fchip">진행중</span>
+              <span class="wpm-fchip">지연</span>
+              <span class="wpm-fchip on fail">위험</span>
+              <span class="wpm-fchip">오늘 마감</span>
+              <span class="wpm-fchip">이번 주 마감</span>
+              <span class="wpm-fchip">담당자별</span>
+              <span class="wpm-fchip reset">초기화</span>
+            </div>
+            <div class="wpm-active-filter">
+              <span class="wpm-af-key">Active Filter</span>
+              <span class="wpm-af-val">위험 — 위험 고 + 위험 중</span>
+              <span class="wpm-af-cnt">3 / 82</span>
+            </div>
+          </div>
+
+          <div class="wpm-rule-grid" style="margin-top:18px;">
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-pass">필터 정책 — 기본</div>
+              <ul>
+                <li>필터 선택 → 조건 외 행 <strong>제거</strong></li>
+                <li>active filter 는 상단에 <strong>큰 banner</strong> 로 표시</li>
+                <li>chip 38px · font 14px · padding 0 16 — 빔에서 손가락 식별 가능</li>
+                <li>필터 초기화 버튼은 항상 우측 끝에 노출</li>
+                <li>필터 결과 0건이면 안내 화면 (S10 Interaction 참조)</li>
+              </ul>
+            </div>
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-warn">예외 — dim 처리는 언제만?</div>
+              <ul>
+                <li>비교 / 검토 모드에서만 dim 허용 — opacity .36</li>
+                <li>비교 / 검토 모드는 발표 모드 기본 진입에 없음 — 별도 토글</li>
+                <li>일반 필터에서는 dim 금지 — 시선 산만 유발</li>
+                <li>active filter 상태 변경 시 0.2s ease-out 짧은 fade</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S10 Interaction ── -->
+      <section id="s10" class="sec" data-screen-label="10 Interaction">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Presentation Interaction</span>
+          <span class="sbadge plan">Interaction</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            발표 모드의 상호작용은 <strong>읽기 · 필터 · 정렬 · 이동</strong>으로 제한한다.
+            편집 / 삭제 / 대량 변경 / 복잡한 컬럼 설정은 발표 모드 안에서 차단한다.
+          </p>
+
+          <div class="wpm-tbl-wrap">
+            <table class="wpm-tbl">
+              <thead><tr><th style="width:200px;">상호작용</th><th style="width:120px;">허용 여부</th><th>설명</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">필터 변경</td><td class="good">허용</td><td>meeting filter chip 7종</td></tr>
+                <tr><td class="tn">정렬 변경</td><td class="good">허용</td><td>마감일 / 상태 / 담당자 — 헤더 클릭</td></tr>
+                <tr><td class="tn">행 클릭 → 상세</td><td class="good">허용</td><td>읽기 전용 panel — S11 참조</td></tr>
+                <tr><td class="tn">담당자별 보기</td><td class="good">허용</td><td>group by 담당자 — 필터와 별도</td></tr>
+                <tr><td class="tn">전체화면 종료</td><td class="good">허용</td><td>ESC / Topbar 발표 종료</td></tr>
+                <tr><td class="tn">페이지 / 섹션 이동</td><td class="good">허용</td><td>스크롤 · 페이지네이션</td></tr>
+                <tr><td class="tn">즉시 편집 (inline)</td><td class="bad">금지</td><td>발표 모드 전체 비노출</td></tr>
+                <tr><td class="tn">행 삭제</td><td class="bad">금지</td><td>action 메뉴 자체 비노출</td></tr>
+                <tr><td class="tn">대량 변경 (bulk)</td><td class="bad">금지</td><td>selection 자체 비활성</td></tr>
+                <tr><td class="tn">복잡한 컬럼 설정</td><td class="bad">금지</td><td>P0 / P1 토글만 — 더 깊은 설정 비노출</td></tr>
+                <tr><td class="tn">작은 icon-only action</td><td class="bad">금지</td><td>행 마다 노출 시 시선 분산</td></tr>
+                <tr><td class="tn">검색 (선택)</td><td class="note">옵션</td><td>발표 중 빠른 찾기 후보 — Topbar 안</td></tr>
+                <tr><td class="tn">메모 추가</td><td class="note">옵션</td><td>회의 액션 메모 후보 — S11 참조</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S11 Detail Panel ── -->
+      <section id="s11" class="sec" data-screen-label="11 Detail Panel">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Read-only Detail Panel</span>
+          <span class="sbadge plan">Panel</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            행 클릭 시 상세는 <strong>읽기 중심</strong>으로 표시한다.
+            우측 panel 또는 modal 로 띄우며, 편집 버튼은 숨기거나 보조로 둔다.
+            회의 중 결정된 액션을 메모할 수 있는 영역만 추가 후보.
+          </p>
+
+          <div class="wpm-cap"><span class="wpm-cap-n">A</span>Read-only Panel (presentation 톤)</div>
+          <div class="wpm-mock-col-label" style="margin-bottom:6px;"><span>Presentation · Detail Panel</span><span class="wpm-mock-col-w">우측 340</span><span class="wpm-mock-col-tag">read-only</span></div>
+          <div class="wpm-pc" style="height:480px;">
+            <div class="wpm-pc-bar"><span class="wpm-pc-dot"></span><span class="wpm-pc-dot"></span><span class="wpm-pc-dot"></span><span class="wpm-pc-url">stam.app / wbs?present=1</span><span class="wpm-pc-tag">PRESENT</span></div>
+            <div class="wpm-pc-body">
+              <div class="wpm-pc-content" style="position:relative;">
+                <div class="wpm-pc-topbar compact"><span>WBS — Presentation</span><span class="wpm-pc-tb-sp"></span><span class="wpm-pc-tb-pill exit">발표 종료 (ESC)</span></div>
+                <div class="wpm-pc-area" style="opacity:.78;">
+                  <div class="wpm-pres">
+                    <div class="wpm-summary compact">
+                      <div class="wpm-sm-cell"><span class="wpm-sm-key">전체</span><span class="wpm-sm-val">82</span></div>
+                      <div class="wpm-sm-cell is-prog"><span class="wpm-sm-key">진행</span><span class="wpm-sm-val">38</span></div>
+                      <div class="wpm-sm-cell is-delay"><span class="wpm-sm-key">지연</span><span class="wpm-sm-val">9</span></div>
+                      <div class="wpm-sm-cell is-risk"><span class="wpm-sm-key">위험</span><span class="wpm-sm-val">3</span></div>
+                      <div class="wpm-sm-cell"><span class="wpm-sm-key">오늘</span><span class="wpm-sm-val">4</span></div>
+                    </div>
+                  </div>
+                  <div class="wpm-table-host">
+                    <table class="wpm-tt">
+                      <thead><tr><th>작업명</th><th>상태</th><th>담당</th><th>일정</th></tr></thead>
+                      <tbody>
+                        <tr class="sel"><td class="tn">API Boundary 정의</td><td><span class="wpm-stchip risk">위험 고</span></td><td><span class="ava">정</span>정유진</td><td>06-08 ~ 06-20</td></tr>
+                        <tr><td class="tn">로그인 컴포넌트 구현</td><td><span class="wpm-stchip delay">지연</span></td><td><span class="ava">최</span>최서연</td><td>06-05 ~ 06-18</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="wpm-detail-overlay">
+                  <div class="wpm-detail-panel">
+                    <div class="wpm-dp-head">
+                      <span class="wpm-dp-tag">Read-only</span>
+                      <span class="wpm-dp-close">✕</span>
+                    </div>
+                    <div class="wpm-dp-title">API Boundary 정의</div>
+                    <div class="wpm-dp-row"><span class="k">상태</span><span class="v"><span class="wpm-stchip risk">위험 고</span></span></div>
+                    <div class="wpm-dp-row"><span class="k">담당자</span><span class="v"><span class="ava" style="display:inline-flex;width:18px;height:18px;border-radius:99px;background:#5451E8;color:#fff;align-items:center;justify-content:center;font-size:8.5px;font-weight:800;margin-right:5px;">정</span>정유진</span></div>
+                    <div class="wpm-dp-row"><span class="k">일정</span><span class="v">06-08 ~ <span class="overdue" style="color:#FF7D6E;font-weight:700;">06-20 (D-10)</span></span></div>
+                    <div class="wpm-dp-row"><span class="k">진척</span><span class="v">18%</span></div>
+                    <div class="wpm-dp-row"><span class="k">단계</span><span class="v">설계</span></div>
+                    <div class="wpm-dp-row"><span class="k">요구사항</span><span class="v">REQ-005</span></div>
+                    <div class="wpm-dp-note">
+                      <strong>리스크</strong>
+                      외부 API 응답 스펙 변경으로 인터페이스 재정의 필요. 6/15 이전 결정 필요.
+                    </div>
+                    <div class="wpm-dp-foot">
+                      <span class="wpm-pc-btn is-ghost">메모 추가</span>
+                      <span class="wpm-pc-btn is-ghost">닫기</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wpm-rule-grid" style="margin-top:14px;">
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-pass">표시 규칙 — Detail Panel</div>
+              <ul>
+                <li>너비 340px · 우측 sheet · 백그라운드 dim + blur 2px</li>
+                <li>핵심 정보 6 row: 상태 / 담당자 / 일정 / 진척 / 단계 / 요구사항</li>
+                <li>리스크 / 메모는 별도 박스 강조</li>
+                <li>편집 버튼은 숨기거나 ghost — primary 톤 금지</li>
+                <li>회의 액션 메모는 옵션 — <code>메모 추가</code> 후보 버튼</li>
+                <li>ESC / 우측 외부 영역 클릭 / ✕ 모두 닫힘</li>
+              </ul>
+            </div>
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-fail">금지 — Detail Panel</div>
+              <ul>
+                <li>편집 가능한 inline input · select · date picker 노출</li>
+                <li>삭제 · 상태 변경 · 담당자 변경 등 primary action</li>
+                <li>긴 history 탭 · 첨부 미리보기 등 회의 흐름 끊는 내용</li>
+                <li>화면 전체를 덮는 modal — 표가 안 보임</li>
+                <li>풀폭 (전체 폭) drawer — 발표 흐름 끊김</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S12 Scroll Policy ── -->
+      <section id="s12" class="sec" data-screen-label="12 Scroll Policy">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Presentation Scroll Policy</span>
+          <span class="sbadge plan">Policy</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            발표 모드의 스크롤 정책은 Data Table Guide 와 동일한 기조를 따른다.
+            <strong>페이지 전체 가로 스크롤은 금지</strong>, 테이블 가로 스크롤은 P0 만 노출해 최소화한다.
+          </p>
+
+          <div class="wpm-tbl-wrap">
+            <table class="wpm-tbl">
+              <thead><tr><th style="width:200px;">스크롤</th><th style="width:120px;">정책</th><th>설명</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">브라우저 세로</td><td class="good">허용</td><td>Summary Bar 고정 · 표는 V-scroll</td></tr>
+                <tr><td class="tn">페이지 전체 가로</td><td class="bad">금지</td><td><code>body</code> / <code>html</code> / shell 에 <code>overflow-x:auto</code> 금지</td></tr>
+                <tr><td class="tn">테이블 가로 (container)</td><td class="note">최소화</td><td>P0 만 노출 → 1366 이상에서 거의 발생 X</td></tr>
+                <tr><td class="tn">긴 목록</td><td class="good">허용</td><td>섹션 분할 · pagination · sticky thead</td></tr>
+                <tr><td class="tn">Summary Bar</td><td class="good">sticky</td><td>스크롤해도 상단 고정</td></tr>
+                <tr><td class="tn">Sticky thead</td><td class="good">허용</td><td>긴 표에서 컬럼명 따라옴</td></tr>
+                <tr><td class="tn">Sticky first col</td><td class="note">옵션</td><td>P0 만 노출 시 보통 불필요</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="wpm-rule-grid" style="margin-top:14px;">
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-info">긴 목록 처리</div>
+              <ul>
+                <li>1단계: 회의 필터로 좁힘 — 보통 지연 / 위험 / 마감 임박만 봄</li>
+                <li>2단계: 섹션 분할 — 진행중 · 지연 · 위험 그룹</li>
+                <li>3단계: pagination (옵션) — 표 안에서만</li>
+                <li>4단계: 빔에 띄우는 경우 50 ~ 60 row 이상 한 화면 노출 금지</li>
+              </ul>
+            </div>
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-warn">스크롤 금지 — 페이지 전체 hscroll</div>
+              <ul>
+                <li>Left Nav 가 가로 스크롤에 같이 밀리는 구조 금지</li>
+                <li>Summary Bar 가 가로 스크롤에 잘리는 구조 금지</li>
+                <li>모든 row 를 보이려고 zoom-out 강요 금지</li>
+                <li>표 안에서 스크롤바 위치는 표 하단 — Topbar 위 금지</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S13 Screen Size Policy ── -->
+      <section id="s13" class="sec" data-screen-label="13 Screen Size">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Presentation Screen Size Policy</span>
+          <span class="sbadge plan">Viewport</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            발표 환경 기준 4종 — 회의실 노트북 · 회의실 대형 모니터 · 빔 프로젝터 · 사무실 TV.
+            viewport 폭에 따라 컬럼 수 / Left Nav / Topbar / Summary Bar 가 다르게 적용된다.
+          </p>
+
+          <div class="wpm-size-grid">
+            <div class="wpm-size-card">
+              <span class="wpm-size-w">1366</span>
+              <span class="wpm-size-sub">회의실 노트북</span>
+              <ul>
+                <li>컬럼 — P0 만 (5)</li>
+                <li>Left Nav — 숨김</li>
+                <li>Topbar — compact</li>
+                <li>Summary Bar — 5 cell (compact)</li>
+                <li>row height 52 · font 16</li>
+              </ul>
+            </div>
+            <div class="wpm-size-card">
+              <span class="wpm-size-w">1440</span>
+              <span class="wpm-size-sub">소규모 회의 화면</span>
+              <ul>
+                <li>컬럼 — P0 (5) + 진척률 옵션</li>
+                <li>Left Nav — collapsed (icon)</li>
+                <li>Topbar — compact</li>
+                <li>Summary Bar — 7 cell</li>
+                <li>row height 52 · font 16</li>
+              </ul>
+            </div>
+            <div class="wpm-size-card">
+              <span class="wpm-size-w">1600</span>
+              <span class="wpm-size-sub">중대형 모니터</span>
+              <ul>
+                <li>컬럼 — P0 + P1 일부 (6 ~ 7)</li>
+                <li>Left Nav — collapsed</li>
+                <li>Topbar — compact</li>
+                <li>Summary Bar — 7 cell</li>
+                <li>row height 56 · font 17</li>
+              </ul>
+            </div>
+            <div class="wpm-size-card">
+              <span class="wpm-size-w">1920</span>
+              <span class="wpm-size-sub">빔 / 대형 모니터</span>
+              <ul>
+                <li>컬럼 — P0 + P1 (7 ~ 8)</li>
+                <li>Left Nav — collapsed 또는 숨김</li>
+                <li>Topbar — compact</li>
+                <li>Summary Bar — 7 cell (큰 폰트)</li>
+                <li>row height 56 · font 18</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="wpm-tbl-wrap" style="margin-top:14px;">
+            <table class="wpm-tbl">
+              <thead><tr><th style="width:140px;">속성</th><th>1366</th><th>1440</th><th>1600</th><th>1920</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">컬럼 수</td><td>5 (P0)</td><td>6 (P0+진척)</td><td>6 ~ 7</td><td>7 ~ 8</td></tr>
+                <tr><td class="tn">row height</td><td>52</td><td>52</td><td>56</td><td>56</td></tr>
+                <tr><td class="tn">body font</td><td>16</td><td>16</td><td>17</td><td>18</td></tr>
+                <tr><td class="tn">summary 숫자</td><td>30</td><td>32</td><td>34</td><td>36</td></tr>
+                <tr><td class="tn">summary cell</td><td>5</td><td>7</td><td>7</td><td>7</td></tr>
+                <tr><td class="tn">left nav</td><td>hidden</td><td>collapsed</td><td>collapsed</td><td>collapsed</td></tr>
+                <tr><td class="tn">topbar</td><td>compact</td><td>compact</td><td>compact</td><td>compact</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S14 Mock Screens ── -->
+      <section id="s14" class="sec" data-screen-label="14 Mock Screens">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Presentation Mock Screens — A ~ G</span>
+          <span class="sbadge plan">Visual</span>
+        </div>
+        <div class="sec-body">
+
+          <!-- ── A. Presentation Dashboard + Table 1920 ── -->
+          <div class="wpm-cap"><span class="wpm-cap-n">A</span>Presentation Dashboard + Table <span class="wpm-cap-sub">1920 · 1차 추천</span></div>
+          <div class="wpm-mock-row">
+            <div class="wpm-mock-col" style="min-width:560px;">
+              <div class="wpm-mock-col-label"><span>PC · 1920 · Presentation</span><span class="wpm-mock-col-w">C 안</span><span class="wpm-mock-col-tag">recommend</span></div>
+              <div class="wpm-pc">
+                <div class="wpm-pc-bar"><span class="wpm-pc-dot"></span><span class="wpm-pc-dot"></span><span class="wpm-pc-dot"></span><span class="wpm-pc-url">stam.app / wbs?present=1</span><span class="wpm-pc-tag">PRESENT</span></div>
+                <div class="wpm-pc-body">
+                  <div class="wpm-pc-nav collapsed">
+                    <div class="wpm-pc-nav-brand">S</div>
+                    <div class="wpm-pc-nav-it active">·</div>
+                    <div class="wpm-pc-nav-it">·</div>
+                    <div class="wpm-pc-nav-it">·</div>
+                    <div class="wpm-pc-nav-it">·</div>
+                    <div class="wpm-pc-nav-it">·</div>
+                  </div>
+                  <div class="wpm-pc-content">
+                    <div class="wpm-pc-topbar compact"><span>WBS</span> · <span class="wpm-pc-crumb-cur">Presentation</span><span class="wpm-pc-tb-sp"></span><span class="wpm-pc-tb-pill">06-10 (수)</span><span class="wpm-pc-tb-pill exit">발표 종료 (ESC)</span></div>
+                    <div class="wpm-pc-area spacious wpm-pres">
+                      <div class="wpm-summary">
+                        <div class="wpm-sm-cell"><span class="wpm-sm-key">전체</span><span class="wpm-sm-val">82</span><span class="wpm-sm-sub">P-2026-001</span></div>
+                        <div class="wpm-sm-cell is-prog"><span class="wpm-sm-key">진행</span><span class="wpm-sm-val">38</span><span class="wpm-sm-sub">46%</span></div>
+                        <div class="wpm-sm-cell is-done"><span class="wpm-sm-key">완료</span><span class="wpm-sm-val">29</span><span class="wpm-sm-sub">35%</span></div>
+                        <div class="wpm-sm-cell is-delay"><span class="wpm-sm-key">지연</span><span class="wpm-sm-val">9</span><span class="wpm-sm-sub">10%</span></div>
+                        <div class="wpm-sm-cell is-risk"><span class="wpm-sm-key">위험</span><span class="wpm-sm-val">3</span><span class="wpm-sm-sub">3%</span></div>
+                        <div class="wpm-sm-cell"><span class="wpm-sm-key">오늘 마감</span><span class="wpm-sm-val">4</span><span class="wpm-sm-sub">06-10</span></div>
+                        <div class="wpm-sm-cell"><span class="wpm-sm-key">이번 주</span><span class="wpm-sm-val">11</span><span class="wpm-sm-sub">06-08 ~ 14</span></div>
+                      </div>
+                      <div class="wpm-fchip-row">
+                        <span class="wpm-fchip on">전체</span>
+                        <span class="wpm-fchip">진행중</span>
+                        <span class="wpm-fchip">지연</span>
+                        <span class="wpm-fchip">위험</span>
+                        <span class="wpm-fchip">오늘 마감</span>
+                        <span class="wpm-fchip">이번 주 마감</span>
+                        <span class="wpm-fchip">담당자별</span>
+                      </div>
+                      <div class="wpm-table-host">
+                        <table class="wpm-tt">
+                          <thead><tr><th>작업명</th><th>상태</th><th>담당</th><th>일정</th><th>위험</th></tr></thead>
+                          <tbody>
+                            <tr class="is-risk"><td class="tn"><span class="risk-ico">!</span>API Boundary 정의</td><td><span class="wpm-stchip risk">위험 고</span></td><td><span class="ava">정</span>정유진</td><td>06-08 ~ <span class="overdue">06-20</span></td><td>즉시 조치</td></tr>
+                            <tr class="is-delay"><td class="tn"><span class="risk-ico warn">!</span>로그인 컴포넌트 구현</td><td><span class="wpm-stchip delay">지연</span></td><td><span class="ava">최</span>최서연</td><td>06-05 ~ <span class="overdue">06-18</span></td><td>지연 3일</td></tr>
+                            <tr><td class="tn">DB 스키마 설계</td><td><span class="wpm-stchip prog">진행</span></td><td><span class="ava">김</span>김민서</td><td>06-04 ~ 06-15</td><td>—</td></tr>
+                            <tr><td class="tn">요건정의서 작성</td><td><span class="wpm-stchip prog">진행</span></td><td><span class="ava">박</span>박지원</td><td>06-02 ~ 06-12</td><td>—</td></tr>
+                            <tr><td class="tn">UI Baseline 적용</td><td><span class="wpm-stchip prog">진행</span></td><td><span class="ava">박</span>박지원</td><td>06-06 ~ 06-22</td><td>—</td></tr>
+                            <tr><td class="tn">기능 명세 v1</td><td><span class="wpm-stchip done">완료</span></td><td><span class="ava">이</span>이도윤</td><td>05-28 ~ 06-05</td><td>—</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:10.5px;color:var(--t3);line-height:1.65;">
+                Summary Bar 7 cell · 회의 필터 chip 38px · 위험 / 지연 row 강조 (left bar 5px + bg tint) · row 56 · font 18 · ESC 종료 노출.
+              </div>
+            </div>
+          </div>
+
+          <!-- ── B. 1440 Meeting View ── -->
+          <div class="wpm-cap" style="margin-top:24px;"><span class="wpm-cap-n">B</span>1440 Meeting View <span class="wpm-cap-sub">소규모 회의 화면</span></div>
+          <div class="wpm-mock-row">
+            <div class="wpm-mock-col" style="min-width:520px;">
+              <div class="wpm-mock-col-label"><span>PC · 1440 · Presentation</span><span class="wpm-mock-col-w">C 안 (collapsed)</span><span class="wpm-mock-col-tag alt">meeting</span></div>
+              <div class="wpm-pc">
+                <div class="wpm-pc-bar"><span class="wpm-pc-dot"></span><span class="wpm-pc-dot"></span><span class="wpm-pc-dot"></span><span class="wpm-pc-url">stam.app / wbs?present=1</span><span class="wpm-pc-tag">PRESENT</span></div>
+                <div class="wpm-pc-body">
+                  <div class="wpm-pc-nav collapsed">
+                    <div class="wpm-pc-nav-brand">S</div>
+                    <div class="wpm-pc-nav-it active">·</div>
+                    <div class="wpm-pc-nav-it">·</div>
+                    <div class="wpm-pc-nav-it">·</div>
+                  </div>
+                  <div class="wpm-pc-content">
+                    <div class="wpm-pc-topbar compact"><span class="wpm-pc-crumb-cur">WBS — Presentation</span><span class="wpm-pc-tb-sp"></span><span class="wpm-pc-tb-pill">06-10</span><span class="wpm-pc-tb-pill exit">발표 종료</span></div>
+                    <div class="wpm-pc-area wpm-pres">
+                      <div class="wpm-summary">
+                        <div class="wpm-sm-cell"><span class="wpm-sm-key">전체</span><span class="wpm-sm-val">82</span></div>
+                        <div class="wpm-sm-cell is-prog"><span class="wpm-sm-key">진행</span><span class="wpm-sm-val">38</span></div>
+                        <div class="wpm-sm-cell is-done"><span class="wpm-sm-key">완료</span><span class="wpm-sm-val">29</span></div>
+                        <div class="wpm-sm-cell is-delay"><span class="wpm-sm-key">지연</span><span class="wpm-sm-val">9</span></div>
+                        <div class="wpm-sm-cell is-risk"><span class="wpm-sm-key">위험</span><span class="wpm-sm-val">3</span></div>
+                        <div class="wpm-sm-cell"><span class="wpm-sm-key">오늘</span><span class="wpm-sm-val">4</span></div>
+                        <div class="wpm-sm-cell"><span class="wpm-sm-key">이번 주</span><span class="wpm-sm-val">11</span></div>
+                      </div>
+                      <div class="wpm-table-host">
+                        <table class="wpm-tt">
+                          <thead><tr><th>작업명</th><th>상태</th><th>담당</th><th>일정</th><th>진척</th></tr></thead>
+                          <tbody>
+                            <tr class="is-risk"><td class="tn"><span class="risk-ico">!</span>API Boundary 정의</td><td><span class="wpm-stchip risk">위험 고</span></td><td><span class="ava">정</span>정유진</td><td>06-08 ~ 20</td><td>18%</td></tr>
+                            <tr class="is-delay"><td class="tn">로그인 컴포넌트 구현</td><td><span class="wpm-stchip delay">지연</span></td><td><span class="ava">최</span>최서연</td><td>06-05 ~ <span class="overdue">06-18</span></td><td>34%</td></tr>
+                            <tr><td class="tn">DB 스키마 설계</td><td><span class="wpm-stchip prog">진행</span></td><td><span class="ava">김</span>김민서</td><td>06-04 ~ 15</td><td>48%</td></tr>
+                            <tr><td class="tn">UI Baseline 적용</td><td><span class="wpm-stchip prog">진행</span></td><td><span class="ava">박</span>박지원</td><td>06-06 ~ 22</td><td>55%</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="wpm-side-note">
+              <strong>1440 기준</strong>
+              · Summary Bar 7 cell 그대로<br>
+              · 컬럼 5 (P0) + 진척 옵션<br>
+              · Left Nav collapsed (56px)<br>
+              · row 52 · font 16<br>
+              · 위험 / 지연 row 상단 우선 정렬
+            </div>
+          </div>
+
+          <!-- ── C. Risk / Delay Filter Active ── -->
+          <div class="wpm-cap" style="margin-top:24px;"><span class="wpm-cap-n">C</span>Risk / Delay Filter Active <span class="wpm-cap-sub">위험 / 지연만 표시</span></div>
+          <div class="wpm-mock-row">
+            <div class="wpm-mock-col" style="min-width:520px;">
+              <div class="wpm-mock-col-label"><span>PC · 1600 · Presentation</span><span class="wpm-mock-col-w">filter active</span><span class="wpm-mock-col-tag fail">risk filter</span></div>
+              <div class="wpm-pc">
+                <div class="wpm-pc-bar"><span class="wpm-pc-dot"></span><span class="wpm-pc-dot"></span><span class="wpm-pc-dot"></span><span class="wpm-pc-url">stam.app / wbs?present=1&filter=risk</span><span class="wpm-pc-tag">PRESENT</span></div>
+                <div class="wpm-pc-body">
+                  <div class="wpm-pc-nav collapsed">
+                    <div class="wpm-pc-nav-brand">S</div>
+                    <div class="wpm-pc-nav-it active">·</div>
+                    <div class="wpm-pc-nav-it">·</div>
+                  </div>
+                  <div class="wpm-pc-content">
+                    <div class="wpm-pc-topbar compact"><span class="wpm-pc-crumb-cur">WBS — Presentation</span><span class="wpm-pc-tb-sp"></span><span class="wpm-pc-tb-pill exit">발표 종료</span></div>
+                    <div class="wpm-pc-area wpm-pres">
+                      <div class="wpm-summary">
+                        <div class="wpm-sm-cell"><span class="wpm-sm-key">전체</span><span class="wpm-sm-val">82</span></div>
+                        <div class="wpm-sm-cell is-prog"><span class="wpm-sm-key">진행</span><span class="wpm-sm-val">38</span></div>
+                        <div class="wpm-sm-cell is-done"><span class="wpm-sm-key">완료</span><span class="wpm-sm-val">29</span></div>
+                        <div class="wpm-sm-cell is-delay"><span class="wpm-sm-key">지연</span><span class="wpm-sm-val">9</span></div>
+                        <div class="wpm-sm-cell is-risk"><span class="wpm-sm-key">위험</span><span class="wpm-sm-val">3</span></div>
+                        <div class="wpm-sm-cell"><span class="wpm-sm-key">오늘</span><span class="wpm-sm-val">4</span></div>
+                        <div class="wpm-sm-cell"><span class="wpm-sm-key">이번 주</span><span class="wpm-sm-val">11</span></div>
+                      </div>
+                      <div class="wpm-fchip-row">
+                        <span class="wpm-fchip">전체</span>
+                        <span class="wpm-fchip on warn">지연</span>
+                        <span class="wpm-fchip on fail">위험</span>
+                        <span class="wpm-fchip">오늘</span>
+                        <span class="wpm-fchip reset">초기화</span>
+                      </div>
+                      <div class="wpm-active-filter">
+                        <span class="wpm-af-key">Active Filter</span>
+                        <span class="wpm-af-val">지연 + 위험</span>
+                        <span class="wpm-af-cnt">12 / 82</span>
+                      </div>
+                      <div class="wpm-table-host">
+                        <table class="wpm-tt">
+                          <thead><tr><th>작업명</th><th>상태</th><th>담당</th><th>일정</th><th>위험 사유</th></tr></thead>
+                          <tbody>
+                            <tr class="is-risk"><td class="tn"><span class="risk-ico">!</span>API Boundary 정의</td><td><span class="wpm-stchip risk">위험 고</span></td><td><span class="ava">정</span>정유진</td><td>06-08 ~ <span class="overdue">06-20</span></td><td>외부 API 스펙 변경</td></tr>
+                            <tr class="is-risk"><td class="tn"><span class="risk-ico">!</span>인증 토큰 만료 처리</td><td><span class="wpm-stchip risk">위험 중</span></td><td><span class="ava">최</span>최서연</td><td>06-09 ~ 06-19</td><td>재현 가능 / P1</td></tr>
+                            <tr class="is-risk"><td class="tn"><span class="risk-ico">!</span>결제 모듈 외부 종속</td><td><span class="wpm-stchip risk">위험 중</span></td><td><span class="ava">이</span>이도윤</td><td>06-10 ~ 06-25</td><td>외부 사업자 응답 지연</td></tr>
+                            <tr class="is-delay"><td class="tn">로그인 컴포넌트 구현</td><td><span class="wpm-stchip delay">지연 3일</span></td><td><span class="ava">최</span>최서연</td><td>06-05 ~ <span class="overdue">06-18</span></td><td>리뷰 병목</td></tr>
+                            <tr class="is-delay"><td class="tn">권한 모델 정의</td><td><span class="wpm-stchip delay">지연 1일</span></td><td><span class="ava">정</span>정유진</td><td>06-06 ~ <span class="overdue">06-12</span></td><td>의사결정 대기</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="wpm-side-note">
+              <strong>Risk / Delay 필터</strong>
+              · Active filter banner 강조<br>
+              · row 모두 강조 톤<br>
+              · 위험 사유 컬럼 P1 으로 합류<br>
+              · dim 사용 X — 조건 외 제거<br>
+              · 회의 진행자 의사결정 직결
+            </div>
+          </div>
+
+          <!-- ── D. 담당자별 보기 ── -->
+          <div class="wpm-cap" style="margin-top:24px;"><span class="wpm-cap-n">D</span>담당자별 보기 <span class="wpm-cap-sub">group by 담당자</span></div>
+          <div class="wpm-mock-row">
+            <div class="wpm-mock-col" style="min-width:520px;">
+              <div class="wpm-mock-col-label"><span>PC · 1600 · Presentation</span><span class="wpm-mock-col-w">group by 담당자</span><span class="wpm-mock-col-tag alt">group view</span></div>
+              <div class="wpm-pc">
+                <div class="wpm-pc-bar"><span class="wpm-pc-dot"></span><span class="wpm-pc-dot"></span><span class="wpm-pc-dot"></span><span class="wpm-pc-url">stam.app / wbs?present=1&group=owner</span><span class="wpm-pc-tag">PRESENT</span></div>
+                <div class="wpm-pc-body">
+                  <div class="wpm-pc-nav collapsed">
+                    <div class="wpm-pc-nav-brand">S</div>
+                    <div class="wpm-pc-nav-it active">·</div>
+                    <div class="wpm-pc-nav-it">·</div>
+                  </div>
+                  <div class="wpm-pc-content">
+                    <div class="wpm-pc-topbar compact"><span class="wpm-pc-crumb-cur">WBS — Presentation</span><span class="wpm-pc-tb-sp"></span><span class="wpm-pc-tb-pill">group: 담당자</span><span class="wpm-pc-tb-pill exit">발표 종료</span></div>
+                    <div class="wpm-pc-area wpm-pres">
+                      <div class="wpm-fchip-row">
+                        <span class="wpm-fchip">전체</span>
+                        <span class="wpm-fchip">지연</span>
+                        <span class="wpm-fchip">위험</span>
+                        <span class="wpm-fchip on">담당자별</span>
+                      </div>
+                      <div class="wpm-table-host">
+                        <table class="wpm-tt">
+                          <thead><tr><th style="width:200px;">담당 / 작업</th><th>상태</th><th>일정</th><th>위험</th></tr></thead>
+                          <tbody>
+                            <tr><td colspan="4" style="background:rgba(84,81,232,.12);font-weight:800;color:#C0BAFF;padding:14px 16px;font-size:18px;"><span class="ava">정</span>정유진 · 4건 · 위험 1 · 지연 1</td></tr>
+                            <tr class="is-risk"><td class="tn"><span class="risk-ico">!</span>API Boundary 정의</td><td><span class="wpm-stchip risk">위험 고</span></td><td>06-08 ~ <span class="overdue">06-20</span></td><td>즉시</td></tr>
+                            <tr class="is-delay"><td class="tn">권한 모델 정의</td><td><span class="wpm-stchip delay">지연 1일</span></td><td>06-06 ~ <span class="overdue">06-12</span></td><td>대기</td></tr>
+                            <tr><td class="tn">감사 로그 설계</td><td><span class="wpm-stchip prog">진행</span></td><td>06-10 ~ 06-22</td><td>—</td></tr>
+                            <tr><td colspan="4" style="background:rgba(84,81,232,.12);font-weight:800;color:#C0BAFF;padding:14px 16px;font-size:18px;"><span class="ava">최</span>최서연 · 3건 · 위험 1 · 지연 1</td></tr>
+                            <tr class="is-delay"><td class="tn">로그인 컴포넌트 구현</td><td><span class="wpm-stchip delay">지연 3일</span></td><td>06-05 ~ <span class="overdue">06-18</span></td><td>리뷰 병목</td></tr>
+                            <tr class="is-risk"><td class="tn">인증 토큰 만료 처리</td><td><span class="wpm-stchip risk">위험 중</span></td><td>06-09 ~ 06-19</td><td>P1</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="wpm-side-note">
+              <strong>담당자별 보기</strong>
+              · group header row (큰 폰트)<br>
+              · 담당자별 위험 / 지연 카운트<br>
+              · 회의 진행자가 담당자 한 명씩 호명 가능<br>
+              · group by 는 mode chip 으로 진입<br>
+              · 위험 / 지연 우선 정렬
+            </div>
+          </div>
+
+          <!-- ── E. Read-only Detail Panel ── -->
+          <div class="wpm-cap" style="margin-top:24px;"><span class="wpm-cap-n">E</span>Read-only Detail Panel <span class="wpm-cap-sub">S11 참조</span></div>
+          <div class="ibox info" style="margin-bottom:8px;">
+            상세 panel 시안은 <a href="#s11">S11 Read-only Detail Panel</a> 의 mock A 를 참조.
+            발표 모드에서 행 클릭 → 우측 340px panel · 편집 비활성 · 메모 추가 후보.
+          </div>
+
+          <!-- ── F. Fullscreen ── -->
+          <div class="wpm-cap" style="margin-top:18px;"><span class="wpm-cap-n">F</span>Fullscreen Presentation <span class="wpm-cap-sub">빔 / 사무실 TV</span></div>
+          <div class="wpm-mock-row">
+            <div class="wpm-mock-col" style="min-width:520px;">
+              <div class="wpm-mock-col-label"><span>PC · 1920 · Fullscreen</span><span class="wpm-mock-col-w">Topbar 최소</span><span class="wpm-mock-col-tag warn">fullscreen</span></div>
+              <div class="wpm-pc fullscreen">
+                <div class="wpm-pc-bar"><span class="wpm-pc-url">FULLSCREEN — STAM WBS · P-2026-001 · 06-10 (수)</span><span class="wpm-pc-tag">PRESENT · F</span></div>
+                <div class="wpm-pc-body">
+                  <div class="wpm-pc-content">
+                    <div class="wpm-pc-area spacious wpm-pres">
+                      <div class="wpm-summary">
+                        <div class="wpm-sm-cell"><span class="wpm-sm-key">전체</span><span class="wpm-sm-val">82</span><span class="wpm-sm-sub">P-2026-001</span></div>
+                        <div class="wpm-sm-cell is-prog"><span class="wpm-sm-key">진행</span><span class="wpm-sm-val">38</span><span class="wpm-sm-sub">46%</span></div>
+                        <div class="wpm-sm-cell is-done"><span class="wpm-sm-key">완료</span><span class="wpm-sm-val">29</span><span class="wpm-sm-sub">35%</span></div>
+                        <div class="wpm-sm-cell is-delay"><span class="wpm-sm-key">지연</span><span class="wpm-sm-val">9</span><span class="wpm-sm-sub">10%</span></div>
+                        <div class="wpm-sm-cell is-risk"><span class="wpm-sm-key">위험</span><span class="wpm-sm-val">3</span><span class="wpm-sm-sub">3%</span></div>
+                        <div class="wpm-sm-cell"><span class="wpm-sm-key">오늘</span><span class="wpm-sm-val">4</span><span class="wpm-sm-sub">06-10</span></div>
+                        <div class="wpm-sm-cell"><span class="wpm-sm-key">이번 주</span><span class="wpm-sm-val">11</span><span class="wpm-sm-sub">06-08 ~ 14</span></div>
+                      </div>
+                      <div class="wpm-table-host">
+                        <table class="wpm-tt">
+                          <thead><tr><th>작업명</th><th>상태</th><th>담당</th><th>일정</th><th>위험</th></tr></thead>
+                          <tbody>
+                            <tr class="is-risk"><td class="tn"><span class="risk-ico">!</span>API Boundary 정의</td><td><span class="wpm-stchip risk">위험 고</span></td><td><span class="ava">정</span>정유진</td><td>06-08 ~ <span class="overdue">06-20</span></td><td>즉시 조치</td></tr>
+                            <tr class="is-delay"><td class="tn">로그인 컴포넌트 구현</td><td><span class="wpm-stchip delay">지연</span></td><td><span class="ava">최</span>최서연</td><td>06-05 ~ <span class="overdue">06-18</span></td><td>지연 3일</td></tr>
+                            <tr><td class="tn">DB 스키마 설계</td><td><span class="wpm-stchip prog">진행</span></td><td><span class="ava">김</span>김민서</td><td>06-04 ~ 06-15</td><td>—</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="wpm-side-note">
+              <strong>Fullscreen</strong>
+              · Topbar / Left Nav 완전 숨김<br>
+              · 콘텐츠 최대 폭<br>
+              · 오른쪽 위 작은 종료 버튼<br>
+              · ESC 종료 보장<br>
+              · 사무실 TV 상시 표출 후보<br>
+              · Fullscreen API 별도 Gate
+            </div>
+          </div>
+
+          <!-- ── G. Bad Example ── -->
+          <div class="wpm-cap" style="margin-top:24px;"><span class="wpm-cap-n">G</span>Bad Example <span class="wpm-cap-sub">일반 WBS 그대로 빔에 띄움</span></div>
+          <div class="wpm-mock-row">
+            <div class="wpm-mock-col" style="min-width:520px;">
+              <div class="wpm-mock-col-label"><span>PC · 1920 · 일반 모드 그대로</span><span class="wpm-mock-col-w">summary 없음</span><span class="wpm-mock-col-tag fail">bad</span></div>
+              <div class="wpm-pc bad">
+                <div class="wpm-pc-bar"><span class="wpm-pc-dot"></span><span class="wpm-pc-dot"></span><span class="wpm-pc-dot"></span><span class="wpm-pc-url">stam.app / wbs</span><span class="wpm-pc-tag bad">BAD</span></div>
+                <div class="wpm-pc-body">
+                  <div class="wpm-pc-nav">
+                    <div class="wpm-pc-nav-brand">STAM</div>
+                    <div class="wpm-pc-nav-it active">WBS</div>
+                    <div class="wpm-pc-nav-it">작업요청</div>
+                    <div class="wpm-pc-nav-it">결함</div>
+                    <div class="wpm-pc-nav-it">테스트</div>
+                    <div class="wpm-pc-nav-it">산출물</div>
+                  </div>
+                  <div class="wpm-pc-content">
+                    <div class="wpm-pc-topbar"><span>프로젝트</span> · <span class="wpm-pc-crumb-cur">WBS</span><span class="wpm-pc-tb-sp"></span><span class="wpm-pc-tb-pill">P-2026-001</span></div>
+                    <div class="wpm-pc-area dense">
+                      <div class="wpm-pc-toolbar">
+                        <div class="wpm-pc-search"><svg viewBox="0 0 18 18"><circle cx="8" cy="8" r="5"></circle><path d="M12 12l3.5 3.5"></path></svg><span>검색</span></div>
+                        <div class="wpm-pc-btn">필터 2</div>
+                        <div class="wpm-pc-btn">정렬</div>
+                        <div class="wpm-pc-btn">컬럼</div>
+                        <div class="wpm-pc-btn">밀도</div>
+                        <div class="wpm-pc-btn">CSV</div>
+                        <div class="wpm-pc-btn">일괄</div>
+                        <div class="wpm-pc-btn is-primary">+ 새 작업</div>
+                      </div>
+                      <div class="wpm-table-host">
+                        <table class="wpm-tt">
+                          <thead><tr><th>ID</th><th>작업명</th><th>단계</th><th>상태</th><th>담당</th><th>시작</th><th>종료</th><th>진척</th><th>요구ID</th><th>위험</th><th>action</th></tr></thead>
+                          <tbody>
+                            <tr><td>T-001</td><td class="tn">요건정의서 작성</td><td>분석</td><td><span class="wpm-stchip prog">진행</span></td><td><span class="ava">박</span>박지원</td><td>06-02</td><td>06-12</td><td>62%</td><td>REQ-001</td><td>—</td><td>···</td></tr>
+                            <tr><td>T-002</td><td class="tn">기능 명세 v1</td><td>분석</td><td><span class="wpm-stchip done">완료</span></td><td><span class="ava">이</span>이도윤</td><td>05-28</td><td>06-05</td><td>100%</td><td>REQ-003</td><td>—</td><td>···</td></tr>
+                            <tr><td>T-003</td><td class="tn">DB 스키마 설계</td><td>설계</td><td><span class="wpm-stchip prog">진행</span></td><td><span class="ava">김</span>김민서</td><td>06-04</td><td>06-15</td><td>48%</td><td>REQ-008</td><td>중</td><td>···</td></tr>
+                            <tr><td>T-004</td><td class="tn">로그인 구현</td><td>구현</td><td><span class="wpm-stchip delay">지연</span></td><td><span class="ava">최</span>최서연</td><td>06-05</td><td>06-18</td><td>34%</td><td>REQ-012</td><td>지연</td><td>···</td></tr>
+                            <tr><td>T-005</td><td class="tn">API Boundary 정의</td><td>설계</td><td><span class="wpm-stchip hold">보류</span></td><td><span class="ava">정</span>정유진</td><td>06-08</td><td>06-20</td><td>18%</td><td>REQ-005</td><td>고</td><td>···</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="wpm-side-note">
+              <strong>왜 Bad 인가</strong>
+              · Summary 없음 — 회의 시작 시 상황 미파악<br>
+              · 컬럼 11 — 글자 작음<br>
+              · 위험 / 지연 row 강조 없음<br>
+              · 편집 action ··· 매 row<br>
+              · 회의 중 실수 편집 위험<br>
+              · 빔에서 8 ~ 10px 글자 가독 불가
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── S15 Good / Bad Comparison ── -->
+      <section id="s15" class="sec" data-screen-label="15 Good / Bad">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">Good / Bad Comparison</span>
+          <span class="sbadge plan">비교</span>
+        </div>
+        <div class="sec-body">
+          <div class="wpm-rule-grid">
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-pass">Good — 발표 모드의 옳은 모습</div>
+              <ul>
+                <li>핵심 컬럼만 표시 — P0 5종 (이름 · 상태 · 담당 · 일정 · 위험)</li>
+                <li>큰 글자 — body 16 ~ 18px · summary 숫자 30 ~ 36px</li>
+                <li>지연 / 위험 즉시 식별 — left bar + bg + 아이콘 + 텍스트</li>
+                <li>요약 bar 상단 고정 — 0.5초 안에 전체 상황 파악</li>
+                <li>회의 중 필터 빠름 — chip 38px · 한 번에 결과</li>
+                <li>편집 차단 — read-only panel · primary action 없음</li>
+                <li>ESC 종료 보장 — 회의 종료 후 작업자 화면으로 즉시 복귀</li>
+              </ul>
+            </div>
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-fail">Bad — 발표 모드에서 흔한 오류</div>
+              <ul>
+                <li>전체 컬럼 과다 노출 (10 ~ 14) — 글자 8 ~ 10px</li>
+                <li>작은 폰트 — 회의실 뒤에서 안 보임</li>
+                <li>가로 스크롤 — 정보가 화면 밖으로 나감</li>
+                <li>row 마다 ··· / 편집 / 삭제 action — 시선 분산</li>
+                <li>지연 / 위험이 chip 하나로만 표시 — 행 강조 없음 → 묻힘</li>
+                <li>edit UI 노출 → 회의 중 사고 편집 위험</li>
+                <li>발표 모드 진입점 없음 → 작업자용 화면 그대로 띄움</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S16 PC Working vs Presentation ── -->
+      <section id="s16" class="sec" data-screen-label="16 Work vs Present">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
+          <span class="sec-title">PC Working Mode vs Presentation Mode</span>
+          <span class="sbadge plan">비교</span>
+        </div>
+        <div class="sec-body">
+          <div class="wpm-tbl-wrap">
+            <table class="wpm-tbl">
+              <thead><tr><th style="width:160px;">항목</th><th>Working Mode (작업자용)</th><th>Presentation Mode (발표용)</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">목적</td><td>매일 자기 업무 처리 · 편집</td><td>회의 · 보고 · 리스크 점검</td></tr>
+                <tr><td class="tn">컬럼 수</td><td>10 ~ 14 (모든 컬럼)</td><td>5 (P0) ~ 7 (P0 + 일부 P1)</td></tr>
+                <tr><td class="tn">글자 크기</td><td>13 ~ 14px</td><td><strong style="color:var(--warn);">16 ~ 18px</strong></td></tr>
+                <tr><td class="tn">row height</td><td>32 ~ 40px</td><td><strong style="color:var(--warn);">52 ~ 56px</strong></td></tr>
+                <tr><td class="tn">action</td><td>… 메뉴 + inline + bulk</td><td>완전 비노출 — 읽기 중심</td></tr>
+                <tr><td class="tn">edit</td><td>허용 (drawer / inline)</td><td>금지 — read-only panel</td></tr>
+                <tr><td class="tn">filter</td><td>다중 조합 · 사이드 패널</td><td>회의 필터 chip 7종 · 상단</td></tr>
+                <tr><td class="tn">detail</td><td>편집 가능 Drawer</td><td>읽기 전용 Panel (340)</td></tr>
+                <tr><td class="tn">scroll</td><td>V · H 모두 (container)</td><td>V 만 · H 최소화</td></tr>
+                <tr><td class="tn">left nav</td><td>표시 (148)</td><td>collapsed (56) 또는 숨김</td></tr>
+                <tr><td class="tn">topbar</td><td>표시 (38)</td><td>compact (28)</td></tr>
+                <tr><td class="tn">density</td><td>Comfortable · Compact</td><td>Presentation (전용)</td></tr>
+                <tr><td class="tn">summary bar</td><td>없음</td><td>7 cell · 상단 고정 · 큰 숫자</td></tr>
+                <tr><td class="tn">진입</td><td>기본 진입</td><td>명시적 진입 (버튼 / segmented / fullscreen)</td></tr>
+                <tr><td class="tn">종료</td><td>—</td><td>ESC · 발표 종료 · 기본 선택</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S17 Cursor Handoff ── -->
+      <section id="s17" class="sec" data-screen-label="17 Cursor Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">17</span>
+          <span class="sec-title">Cursor Handoff Notes</span>
+          <span class="sbadge plan">Handoff</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            본 가이드를 실제 product 에 반영할 때 Cursor / 후속 작업자가 참고할 파일 후보와 적용 순서.
+          </p>
+
+          <div class="wpm-handoff-list">
+            <div class="wpm-handoff-item">
+              <span class="wpm-hf-path">stam/pages/boards/wbs.html</span>
+              <span class="wpm-hf-role">발표 모드 진입 토글 / view mode segmented / Summary Bar host.</span>
+            </div>
+            <div class="wpm-handoff-item">
+              <span class="wpm-hf-path">stam/js/stam.wbs.js</span>
+              <span class="wpm-hf-role">view mode 분기 · 발표 모드 진입 / 종료 · ESC 바인딩 · group by 담당자.</span>
+            </div>
+            <div class="wpm-handoff-item">
+              <span class="wpm-hf-path">stam/css/stam.wbs.css</span>
+              <span class="wpm-hf-role">WBS 전용 발표 컬럼 폭 · row 강조 · 위험 / 지연 row 색.</span>
+            </div>
+            <div class="wpm-handoff-item">
+              <span class="wpm-hf-path">stam/css/stam.shell.css</span>
+              <span class="wpm-hf-role">발표 모드 시 Topbar compact · Left Nav collapsed / hidden 정합.</span>
+            </div>
+            <div class="wpm-handoff-item">
+              <span class="wpm-hf-path">stam/css/stam.presentation.css <em>(신규 후보)</em></span>
+              <span class="wpm-hf-role">발표 모드 전용 CSS — Summary Bar / meeting filter / read-only panel / fullscreen. 별도 Gate.</span>
+            </div>
+            <div class="wpm-handoff-item">
+              <span class="wpm-hf-path">stam/js/stam.presentation.js <em>(신규 후보)</em></span>
+              <span class="wpm-hf-role">진입 / 종료 · URL flag · fullscreen API · ESC. 별도 Gate.</span>
+            </div>
+          </div>
+
+          <div class="wpm-rule-grid" style="margin-top:14px;">
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-warn">실제 구현 전 주의 — 순서</div>
+              <ul>
+                <li>1차: CSS / 레이아웃 Preview 수준 분리 — Summary Bar / table density / row 강조</li>
+                <li>2차: view mode 분기 (working / presentation) — feature flag 또는 URL flag</li>
+                <li>3차: meeting filter chip · read-only detail panel</li>
+                <li>4차: Fullscreen API 별도 Gate · ESC 핸들러</li>
+                <li>5차: 외부 공유 / Export PDF (별도 Gate)</li>
+              </ul>
+            </div>
+            <div class="wpm-rule-card">
+              <div class="wpm-rc-hdr is-fail">한 커밋에 섞지 말 것</div>
+              <ul>
+                <li>발표 모드 CSS + 기본 WBS 컬럼 정의 변경</li>
+                <li>발표 모드 진입 로직 + 편집 기능 동시 수정</li>
+                <li>Fullscreen API + 필터 로직</li>
+                <li>Summary Bar 신규 + Table Token 변경</li>
+                <li>view mode 분기 + group by 담당자 신규</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S18 Guardrails ── -->
+      <section id="s18" class="sec" data-screen-label="18 Guardrails">
+        <div class="sec-hdr">
+          <span class="sec-n">18</span>
+          <span class="sec-title">Implementation Guardrails</span>
+          <span class="sbadge lock">Rule</span>
+        </div>
+        <div class="sec-body">
+          <div class="wpm-chk-list">
+            <div class="wpm-chk-item"><span class="wpm-chk-box is-fail">!</span><span><strong>기본 WBS 테이블을 발표 모드로 강제 변경 금지</strong> — view mode 분기로만 적용.</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box is-fail">!</span><span><strong>자동 진입 금지</strong> — 사용자가 명시적으로 진입 (버튼 · segmented · URL flag).</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box is-fail">!</span><span><strong>페이지 전체 가로 스크롤 금지</strong> — Data Table Guide 정책 그대로 적용.</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box is-warn">!</span><span><strong>발표 모드에서 작은 action 버튼 과다 노출 금지</strong> — row 단위 ··· / 편집 / 삭제 비노출.</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box is-warn">!</span><span><strong>edit / delete action 기본 노출 금지</strong> — 읽기 중심.</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span><strong>필터 결과는 행 제거 방식</strong> — dim 은 비교 / 검토 모드에서만.</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span><strong>빔 모드에서도 S-Core Dream 유지</strong> — 외부 폰트 / Pretendard CDN / Google Fonts 금지.</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box is-warn">!</span><span><strong>기능 로직 변경은 별도 Gate</strong> — Sort / Filter 동작 정의 변경은 본 가이드 범위 밖.</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box is-fail">!</span><span><strong>전역 <code>.tbtn</code> 일괄 치환 금지</strong> — 도큐 nav 전용 클래스. 제품 버튼과 분리.</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box is-info">i</span><span><strong>Fullscreen API 는 별도 Gate</strong> — 본 문서는 UI 기준만 제안.</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box is-info">i</span><span><strong>발표 모드 진입 후 URL 에 flag 노출</strong> — 새로고침 / 공유 시 모드 보존 (<code>?present=1</code>).</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box is-info">i</span><span><strong>색 단독 표시 금지</strong> — 상태 / 위험 모두 색 + 텍스트 + 아이콘 병행.</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span><strong>발표 모드 종료 시 working mode 의 스크롤 / 필터 / 정렬 유지</strong> — 복귀 후 자연스러움.</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box is-warn">!</span><span><strong>read-only panel 의 primary 액션 금지</strong> — ghost / 메모 추가만 후보.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S19 QA ── -->
+      <section id="s19" class="sec" data-screen-label="19 QA Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">19</span>
+          <span class="sec-title">QA Checklist</span>
+          <span class="sbadge plan">QA</span>
+        </div>
+        <div class="sec-body">
+          <div class="wpm-chk-list">
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>1366 / 1440 / 1600 / 1920 — Summary Bar 가독성 (숫자 30 ~ 36)</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>P0 컬럼 (이름 · 상태 · 담당 · 일정 · 위험) 가독성 — 회의실 3 ~ 6m</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>status / risk chip — 14 ~ 15px · 색 + 텍스트 병행</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>지연 / 위험 row — left accent bar + bg 강조 동시 적용</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>page-level horizontal scroll 없음 — Data Table Guide 동일 정책</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>Left Nav collapse / hidden 기준 명확 — 1366 hidden / 1440+ collapsed</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>Topbar compact 기준 명확 — height 28 · 발표 종료 (ESC) pill 노출</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>read-only detail panel — 편집 비활성 · 메모 후보 ghost</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>light / dark 모두 시각 정합 — chip / row 강조 / panel 모두 확인</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>fullscreen 후보 화면 기준 — Topbar / Left Nav 모두 숨김, 종료 보장</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>meeting filter — 7 chip + 초기화 · active filter banner</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>S-Core Dream 자체 서빙 폰트만 사용 (CDN · Pretendard · Gulim · Dotum · Google Fonts 금지)</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>iframe 미사용 · mock 전용 prefix <code>.wpm-</code> 사용</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>console error 없음</span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>실제 제품 CSS / class 미수정 — <code>stam/css/**</code> · <code>stam/js/**</code> · <code>stam/pages/**</code></span></div>
+            <div class="wpm-chk-item"><span class="wpm-chk-box">✓</span><span>Docs Index 카드 1개 추가 · 위치는 Data Table Guide 카드 근처</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S20 Related ── -->
+      <section id="s20" class="sec" data-screen-label="20 Related">
+        <div class="sec-hdr">
+          <span class="sec-n">20</span>
+          <span class="sec-title">Related Documents</span>
+          <span class="sbadge guide">참고</span>
+        </div>
+        <div class="sec-body">
+          <div class="wpm-rel-grid">
+            <a class="wpm-rel-card" href="STAM-Data-Table-Full-Table-Responsive-Guide-v1.html"><span class="wpm-rl-title">Data Table / Full Table Responsive Guide v1</span><span class="wpm-rl-sub">PC · Tablet · Mobile · Presentation Density 베이스</span></a>
+            <a class="wpm-rel-card" href="STAM-WBS-Top-Left-Shell-Applied-Preview-v1.html"><span class="wpm-rl-title">WBS Top / Left / Shell Applied Preview v1</span><span class="wpm-rl-sub">WBS Shell · Left Nav · Topbar 적용 시안</span></a>
+            <a class="wpm-rel-card" href="STAM-WBS-Mobile-Board-Applied-Preview-v1.html"><span class="wpm-rl-title">WBS Mobile Board Applied Preview v1</span><span class="wpm-rl-sub">WBS 모바일 카드 / 검색 / 필터 / 전체 테이블</span></a>
+            <a class="wpm-rel-card" href="STAM-Topbar-Detail-Guide-v1.html"><span class="wpm-rl-title">Topbar Detail Guide v1</span><span class="wpm-rl-sub">알림 dot · 테마 토글 · 우측 액션 간격</span></a>
+            <a class="wpm-rel-card" href="STAM-Button-CSS-Implementation-Preview-v1.html"><span class="wpm-rl-title">Button CSS Implementation Preview v1</span><span class="wpm-rl-sub">Button CSS foundation 기준</span></a>
+            <a class="wpm-rel-card" href="STAM-Button-CSS-QA-Result-Preview-v1.html"><span class="wpm-rl-title">Button CSS QA Result Preview v1</span><span class="wpm-rl-sub">Button CSS QA 결과 기록</span></a>
+            <a class="wpm-rel-card" href="STAM-UI-Baseline-Guide.html"><span class="wpm-rl-title">STAM UI Baseline Guide</span><span class="wpm-rl-sub">전역 폰트 · 토큰 · Layout · Forbidden Rules</span></a>
+            <a class="wpm-rel-card" href="STAM-Component-Guide.html"><span class="wpm-rl-title">STAM Component Guide</span><span class="wpm-rl-sub">Button · Form · Dialog · Drawer · Table · Topbar</span></a>
+            <a class="wpm-rel-card" href="STAM-Mobile-Shell-Top-Navigation-Guide-v1.html"><span class="wpm-rl-title">Mobile Shell / Top / Navigation Guide v1</span><span class="wpm-rl-sub">모바일 Topbar · Navigation · Drawer 기준</span></a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  if (!main) return;
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>

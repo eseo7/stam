@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Security / Privacy / ISMS-P Architecture &amp; DB Policy Guide v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ============================================================
+ * STAM Security / Privacy / ISMS-P Architecture & DB Policy Guide v1
+ * - 문서 전용 격리 스타일 (prefix: spg-)
+ * - 실제 product CSS / class 절대 덮어쓰지 않음
+ * ============================================================ */
+.spg-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:var(--font);white-space:nowrap}
+.spg-pill::before{content:"";width:6px;height:6px;border-radius:999px;background:currentColor;display:inline-block;flex-shrink:0}
+.spg-pill.pass{background:var(--pass-bg);color:var(--pass)}
+.spg-pill.warn{background:var(--warn-bg);color:var(--warn)}
+.spg-pill.fail{background:var(--fail-bg);color:var(--fail)}
+.spg-pill.info{background:var(--info-bg);color:var(--info)}
+.spg-pill.brand{background:var(--stam-soft);color:var(--stam)}
+.spg-pill.notyet{background:var(--skip-bg);color:var(--skip)}
+
+.spg-hero{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:18px 20px 16px;display:flex;flex-direction:column;gap:12px;margin-bottom:24px;position:relative;overflow:hidden}
+.spg-hero::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--fail)}
+.spg-hero-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.spg-hero-title{font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.spg-hero p{margin:0;font-size:12px;color:var(--t2);line-height:1.7}
+.spg-hero code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px}
+
+.spg-kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+@media (max-width:1280px){.spg-kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:720px){.spg-kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.spg-kpi{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:11px 12px 12px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.spg-kpi .spg-kpi-key{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3)}
+.spg-kpi .spg-kpi-val{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.005em;line-height:1.35}
+.spg-kpi.brand{border-color:rgba(84,81,232,.22);background:var(--stam-soft)}
+.spg-kpi.brand .spg-kpi-key{color:var(--stam);opacity:.9}.spg-kpi.brand .spg-kpi-val{color:var(--stam)}
+.spg-kpi.info{border-color:rgba(111,168,255,.22);background:var(--info-bg)}
+.spg-kpi.info .spg-kpi-key{color:var(--info);opacity:.9}.spg-kpi.info .spg-kpi-val{color:var(--info)}
+.spg-kpi.warn{border-color:rgba(245,158,11,.22);background:var(--warn-bg)}
+.spg-kpi.warn .spg-kpi-key{color:var(--warn);opacity:.9}.spg-kpi.warn .spg-kpi-val{color:var(--warn)}
+.spg-kpi.fail{border-color:rgba(255,90,71,.22);background:var(--fail-bg)}
+.spg-kpi.fail .spg-kpi-key{color:var(--fail);opacity:.9}.spg-kpi.fail .spg-kpi-val{color:var(--fail)}
+.spg-kpi.pass{border-color:rgba(40,180,99,.22);background:var(--pass-bg)}
+.spg-kpi.pass .spg-kpi-key{color:var(--pass);opacity:.9}.spg-kpi.pass .spg-kpi-val{color:var(--pass)}
+
+.spg-cap{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.spg-cap .spg-cap-n{width:22px;height:22px;border-radius:6px;background:var(--fail-bg);color:var(--fail);font-size:10.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+.spg-cap-sub{font-size:10.5px;color:var(--t3);font-weight:500;letter-spacing:0;margin-left:4px}
+
+.spg-tbl-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--bd)}
+.spg-tbl{width:100%;border-collapse:collapse;font-family:var(--font);font-size:11.5px;background:var(--bg-sur);min-width:720px}
+.spg-tbl th{padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2);white-space:nowrap}
+.spg-tbl td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;line-height:1.6}
+.spg-tbl tbody tr:last-child td{border-bottom:none}
+.spg-tbl td.tn{color:var(--t1);font-weight:700;white-space:nowrap;font-size:11px}
+.spg-tbl td code,.spg-tbl th code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;letter-spacing:.005em;white-space:nowrap}
+.spg-tbl td.note{color:var(--t3);font-size:10.5px}
+.spg-tbl td.good{color:var(--pass);font-weight:700}
+.spg-tbl td.bad{color:var(--fail);font-weight:700}
+.spg-tbl td.warn{color:var(--warn);font-weight:700}
+.spg-tbl td.info{color:var(--info);font-weight:700}
+
+.spg-rule-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (max-width:760px){.spg-rule-grid{grid-template-columns:1fr}}
+.spg-rule-card{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:12px 14px}
+.spg-rule-card .spg-rc-hdr{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t1);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.spg-rule-card .spg-rc-hdr::before{content:"";width:8px;height:8px;border-radius:999px;background:var(--stam);display:inline-block}
+.spg-rule-card .spg-rc-hdr.is-pass::before{background:var(--pass)}
+.spg-rule-card .spg-rc-hdr.is-warn::before{background:var(--warn)}
+.spg-rule-card .spg-rc-hdr.is-info::before{background:var(--info)}
+.spg-rule-card .spg-rc-hdr.is-fail::before{background:var(--fail)}
+.spg-rule-card ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.spg-rule-card li{font-size:11.5px;line-height:1.6;color:var(--t2);padding-left:12px;position:relative}
+.spg-rule-card li::before{content:"·";position:absolute;left:2px;top:-2px;color:var(--t3);font-weight:800}
+.spg-rule-card li code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+
+.spg-chk-list{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 10px}
+@media (max-width:760px){.spg-chk-list{grid-template-columns:1fr}}
+.spg-chk-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);font-size:11.5px;line-height:1.55;color:var(--t2)}
+.spg-chk-item code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+.spg-chk-box{width:16px;height:16px;border-radius:4px;background:var(--pass-bg);color:var(--pass);font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.spg-chk-box.is-warn{background:var(--warn-bg);color:var(--warn)}
+.spg-chk-box.is-info{background:var(--info-bg);color:var(--info)}
+.spg-chk-box.is-fail{background:var(--fail-bg);color:var(--fail)}
+
+.spg-handoff-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:760px){.spg-handoff-list{grid-template-columns:1fr}}
+.spg-handoff-item{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.spg-handoff-item .spg-hf-path{font-family:var(--font);font-size:11px;font-weight:700;color:var(--t1);letter-spacing:.005em}
+.spg-handoff-item .spg-hf-role{font-size:10px;color:var(--t3);line-height:1.55}
+
+.spg-rel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:1100px){.spg-rel-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:720px){.spg-rel-grid{grid-template-columns:1fr}}
+.spg-rel-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px;text-decoration:none;transition:border-color 120ms,background 120ms}
+.spg-rel-card:hover{border-color:rgba(84,81,232,.35);background:rgba(84,81,232,.04)}
+.spg-rel-card .spg-rl-title{font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.spg-rel-card .spg-rl-sub{font-size:10.5px;color:var(--t3)}
+
+/* Principle cards */
+.spg-prin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:1100px){.spg-prin-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.spg-prin-grid{grid-template-columns:1fr}}
+.spg-prin-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:11px 12px;display:flex;flex-direction:column;gap:4px}
+.spg-prin-card .spg-prin-n{font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--fail)}
+.spg-prin-card .spg-prin-t{font-size:12px;font-weight:800;color:var(--t1);letter-spacing:-.005em;line-height:1.35}
+.spg-prin-card .spg-prin-s{font-size:10.5px;color:var(--t3);line-height:1.55}
+
+/* Data classification grid */
+.spg-class-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:1100px){.spg-class-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.spg-class-grid{grid-template-columns:1fr}}
+.spg-class-card{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:11px 12px;display:flex;flex-direction:column;gap:5px}
+.spg-class-card .spg-class-lvl{font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;display:inline-flex;align-items:center;gap:5px}
+.spg-class-card .spg-class-lvl::before{content:"";width:8px;height:8px;border-radius:999px}
+.spg-class-card.l0 .spg-class-lvl{color:var(--t3)}.spg-class-card.l0 .spg-class-lvl::before{background:var(--t3)}
+.spg-class-card.l1 .spg-class-lvl{color:var(--info)}.spg-class-card.l1 .spg-class-lvl::before{background:var(--info)}.spg-class-card.l1{border-color:rgba(111,168,255,.22);background:var(--info-bg)}
+.spg-class-card.l2 .spg-class-lvl{color:var(--warn)}.spg-class-card.l2 .spg-class-lvl::before{background:var(--warn)}.spg-class-card.l2{border-color:rgba(245,158,11,.22);background:var(--warn-bg)}
+.spg-class-card.l3 .spg-class-lvl{color:var(--fail)}.spg-class-card.l3 .spg-class-lvl::before{background:var(--fail)}.spg-class-card.l3{border-color:rgba(255,90,71,.22);background:var(--fail-bg)}
+.spg-class-card .spg-class-t{font-size:12px;font-weight:800;color:var(--t1);letter-spacing:-.005em}
+.spg-class-card .spg-class-s{font-size:10.5px;color:var(--t2);line-height:1.55}
+.spg-class-card .spg-class-list{font-size:10px;color:var(--t1);font-weight:600;display:flex;flex-wrap:wrap;gap:3px 8px}
+
+/* ─────────────── Mock primitives ─────────────── */
+.spg-mock-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.spg-mock-col{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1}
+.spg-mock-col-label{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);font-family:var(--font)}
+.spg-mock-col-label .spg-mock-col-w{font-size:9.5px;padding:1px 6px;border-radius:4px;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t2);letter-spacing:.02em}
+.spg-mock-col-label .spg-mock-col-tag{font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--stam-soft);color:var(--stam);letter-spacing:.04em}
+.spg-mock-col-label .spg-mock-col-tag.alt{background:var(--info-bg);color:var(--info)}
+.spg-mock-col-label .spg-mock-col-tag.warn{background:var(--warn-bg);color:var(--warn)}
+.spg-mock-col-label .spg-mock-col-tag.fail{background:var(--fail-bg);color:var(--fail)}
+
+.spg-side-note{font-size:10.5px;color:var(--t3);line-height:1.65;max-width:280px;flex-shrink:0}
+.spg-side-note strong{color:var(--t1);display:block;margin-bottom:4px}
+
+/* PC frame */
+.spg-pc{background:#0F1320;border-radius:14px;border:1px solid rgba(255,255,255,.06);box-shadow:0 12px 30px rgba(0,0,0,.32);font-family:var(--font);overflow:hidden;display:flex;flex-direction:column;min-width:0;width:100%}
+[data-theme="light"] .spg-pc{background:#F5F7FB;border-color:rgba(20,22,30,.10);box-shadow:0 10px 24px rgba(20,22,30,.10)}
+.spg-pc-bar{height:26px;background:#0B0E1A;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:6px;padding:0 12px}
+[data-theme="light"] .spg-pc-bar{background:#E9ECF2;border-bottom-color:rgba(20,22,30,.06)}
+.spg-pc-bar .spg-pc-dot{width:8px;height:8px;border-radius:99px;background:rgba(255,255,255,.20)}
+[data-theme="light"] .spg-pc-bar .spg-pc-dot{background:rgba(20,22,30,.22)}
+.spg-pc-bar .spg-pc-url{margin-left:8px;font-size:9.5px;color:rgba(255,255,255,.46);letter-spacing:.02em}
+[data-theme="light"] .spg-pc-bar .spg-pc-url{color:rgba(20,22,30,.50)}
+.spg-pc-bar .spg-pc-tag{margin-left:auto;font-size:9px;font-weight:800;padding:1px 7px;border-radius:4px;background:rgba(255,90,71,.20);color:#FF7D6E;letter-spacing:.05em}
+.spg-pc-bar .spg-pc-tag.info{background:rgba(111,168,255,.20);color:#6FA8FF}
+.spg-pc-bar .spg-pc-tag.warn{background:rgba(245,158,11,.20);color:#F5B14C}
+.spg-pc-body{display:flex;min-height:0;flex:1}
+.spg-pc-content{flex:1;min-width:0;display:flex;flex-direction:column;background:#0F1320}
+[data-theme="light"] .spg-pc-content{background:#FAFBFC}
+.spg-pc-topbar{height:34px;background:#131826;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:8px;padding:0 14px;flex-shrink:0;font-size:10.5px;color:rgba(255,255,255,.62);font-weight:600}
+[data-theme="light"] .spg-pc-topbar{background:#FFFFFF;border-bottom-color:rgba(20,22,30,.06);color:rgba(20,22,30,.66)}
+.spg-pc-topbar .spg-pc-crumb-cur{color:rgba(255,255,255,.92);font-weight:700}
+[data-theme="light"] .spg-pc-topbar .spg-pc-crumb-cur{color:rgba(20,22,30,.92)}
+.spg-pc-topbar .spg-pc-tb-sp{flex:1}
+.spg-pc-topbar .spg-pc-tb-pill{padding:2px 7px;border-radius:5px;background:rgba(255,255,255,.06);font-size:9.5px;color:rgba(255,255,255,.62)}
+[data-theme="light"] .spg-pc-topbar .spg-pc-tb-pill{background:rgba(20,22,30,.05);color:rgba(20,22,30,.66)}
+.spg-pc-area{flex:1;min-width:0;padding:14px 16px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+
+/* Login mock */
+.spg-login{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 28px;gap:12px;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(255,255,255,.06);min-height:300px}
+[data-theme="light"] .spg-login{background:#fff;border-color:rgba(20,22,30,.08)}
+.spg-login-logo{width:36px;height:36px;border-radius:9px;background:#5451E8;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;letter-spacing:.05em}
+.spg-login-title{font-size:14px;font-weight:800;color:rgba(255,255,255,.96);letter-spacing:-.005em}
+[data-theme="light"] .spg-login-title{color:rgba(20,22,30,.94)}
+.spg-input{width:240px;height:36px;padding:0 12px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);font-size:11.5px;color:rgba(255,255,255,.96);font-family:var(--font);display:flex;align-items:center;gap:6px}
+[data-theme="light"] .spg-input{background:#FFFFFF;border-color:rgba(20,22,30,.12);color:rgba(20,22,30,.94)}
+.spg-input.is-fail{border-color:rgba(255,90,71,.45);background:rgba(255,90,71,.06)}
+.spg-input .spg-ipre{color:rgba(255,255,255,.45);font-size:10.5px}
+[data-theme="light"] .spg-input .spg-ipre{color:rgba(20,22,30,.50)}
+.spg-input-row{display:flex;flex-direction:column;gap:4px}
+.spg-input-label{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.50);padding-left:2px}
+[data-theme="light"] .spg-input-label{color:rgba(20,22,30,.55)}
+.spg-input-help{font-size:9.5px;color:rgba(255,255,255,.50);padding:1px 2px;line-height:1.4}
+[data-theme="light"] .spg-input-help{color:rgba(20,22,30,.55)}
+.spg-input-help.is-fail{color:#FF7D6E}
+.spg-input-help.is-pass{color:#46C97D}
+
+/* Button */
+.spg-btn{height:34px;padding:0 14px;border-radius:7px;font-size:11.5px;font-weight:800;font-family:var(--font);display:inline-flex;align-items:center;justify-content:center;gap:5px;letter-spacing:-.005em;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);color:rgba(255,255,255,.92);cursor:default}
+[data-theme="light"] .spg-btn{background:rgba(20,22,30,.02);border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.92)}
+.spg-btn.is-primary{background:#5451E8;border-color:#5451E8;color:#fff}
+.spg-btn.is-fail{background:rgba(255,90,71,.18);border-color:rgba(255,90,71,.40);color:#FF7D6E}
+.spg-btn.is-ghost{background:transparent}
+.spg-btn.sm{height:26px;padding:0 10px;font-size:10.5px}
+
+/* Masked row presentation */
+.spg-mask{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:5px;background:rgba(255,255,255,.04);font-family:var(--font);font-size:11px;font-weight:600;letter-spacing:.01em;color:rgba(255,255,255,.78)}
+[data-theme="light"] .spg-mask{background:rgba(20,22,30,.04);color:rgba(20,22,30,.78)}
+.spg-mask.is-locked::before{content:"●";color:rgba(255,255,255,.42);font-size:11px;margin-right:1px}
+[data-theme="light"] .spg-mask.is-locked::before{color:rgba(20,22,30,.42)}
+.spg-mask.is-open{background:rgba(245,158,11,.10);color:#F5B14C}
+.spg-mask.is-open::before{content:"◉";color:#F5B14C;font-size:11px;margin-right:1px}
+
+/* Audit log table */
+.spg-tt{font-family:var(--font);width:100%;border-collapse:separate;border-spacing:0;min-width:100%}
+.spg-tt th,.spg-tt td{font-size:10.5px;padding:8px 10px;text-align:left;color:rgba(255,255,255,.82);border-bottom:1px solid rgba(255,255,255,.04);white-space:nowrap}
+[data-theme="light"] .spg-tt th,[data-theme="light"] .spg-tt td{color:rgba(20,22,30,.82);border-bottom-color:rgba(20,22,30,.05)}
+.spg-tt thead th{background:rgba(255,255,255,.04);color:rgba(255,255,255,.56);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;border-bottom:1px solid rgba(255,255,255,.06)}
+[data-theme="light"] .spg-tt thead th{background:#F4F6FA;color:rgba(20,22,30,.56);border-bottom-color:rgba(20,22,30,.06)}
+.spg-tt td.tn{font-weight:700;color:rgba(255,255,255,.96)}
+[data-theme="light"] .spg-tt td.tn{color:rgba(20,22,30,.94)}
+.spg-tt td.mono{font-family:var(--font);font-variant-numeric:tabular-nums;font-size:10px;letter-spacing:.005em;color:rgba(255,255,255,.62)}
+[data-theme="light"] .spg-tt td.mono{color:rgba(20,22,30,.62)}
+.spg-table-host{background:#131826;border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow:hidden}
+[data-theme="light"] .spg-table-host{background:#FFFFFF;border-color:rgba(20,22,30,.08)}
+.spg-act{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:4px;font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.spg-act.view{background:rgba(111,168,255,.16);color:#6FA8FF}
+.spg-act.unmask{background:rgba(245,158,11,.20);color:#F5B14C}
+.spg-act.dl{background:rgba(139,127,248,.18);color:#a49bf9}
+.spg-act.exp{background:rgba(139,127,248,.18);color:#a49bf9}
+.spg-act.up{background:rgba(52,199,89,.16);color:#34C759}
+.spg-act.del{background:rgba(255,66,66,.22);color:#FF5A47}
+.spg-act.deny{background:rgba(255,66,66,.18);color:#FF7D6E}
+
+/* Modal */
+.spg-modal{width:420px;border-radius:14px;background:#131826;border:1px solid rgba(255,255,255,.08);padding:18px 20px 16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 18px 40px rgba(0,0,0,.40);font-family:var(--font)}
+[data-theme="light"] .spg-modal{background:#FFFFFF;border-color:rgba(20,22,30,.10);box-shadow:0 14px 28px rgba(20,22,30,.18)}
+.spg-modal-head{display:flex;align-items:center;gap:8px}
+.spg-modal-tag{font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:4px;background:var(--fail-bg);color:var(--fail)}
+.spg-modal-tag.warn{background:var(--warn-bg);color:var(--warn)}
+.spg-modal-tag.info{background:var(--info-bg);color:var(--info)}
+.spg-modal-close{margin-left:auto;font-size:14px;color:rgba(255,255,255,.50);cursor:default}
+[data-theme="light"] .spg-modal-close{color:rgba(20,22,30,.50)}
+.spg-modal-title{font-size:15px;font-weight:800;color:rgba(255,255,255,.96);letter-spacing:-.01em;line-height:1.4}
+[data-theme="light"] .spg-modal-title{color:rgba(20,22,30,.94)}
+.spg-modal-body{font-size:11.5px;color:rgba(255,255,255,.78);line-height:1.65}
+[data-theme="light"] .spg-modal-body{color:rgba(20,22,30,.78)}
+.spg-modal-target{padding:10px 12px;background:rgba(255,255,255,.04);border-radius:8px;font-size:11px;color:rgba(255,255,255,.92);font-weight:600;display:flex;flex-direction:column;gap:3px}
+[data-theme="light"] .spg-modal-target{background:rgba(20,22,30,.04);color:rgba(20,22,30,.92)}
+.spg-modal-target .k{font-size:9.5px;color:rgba(255,255,255,.50);font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+[data-theme="light"] .spg-modal-target .k{color:rgba(20,22,30,.50)}
+.spg-textarea{height:80px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);padding:9px 11px;font-size:11px;color:rgba(255,255,255,.78);font-family:var(--font);line-height:1.5}
+[data-theme="light"] .spg-textarea{background:#FFFFFF;border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.78)}
+.spg-modal-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.spg-modal-warning{padding:8px 10px;border-radius:8px;background:rgba(255,90,71,.10);border:1px solid rgba(255,90,71,.22);font-size:10.5px;color:#FF7D6E;line-height:1.55}
+
+/* DB ER style box */
+.spg-er-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:1100px){.spg-er-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.spg-er-grid{grid-template-columns:1fr}}
+.spg-er-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:0;overflow:hidden;display:flex;flex-direction:column}
+.spg-er-head{padding:8px 12px;background:var(--bg-sur2);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px}
+.spg-er-head .spg-er-name{font-size:12px;font-weight:800;color:var(--t1);letter-spacing:-.005em;font-family:var(--font)}
+.spg-er-head .spg-er-pk{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:1px 5px;border-radius:3px;background:var(--stam-soft);color:var(--stam);margin-left:auto}
+.spg-er-head .spg-er-pk.fail{background:var(--fail-bg);color:var(--fail)}
+.spg-er-head .spg-er-pk.info{background:var(--info-bg);color:var(--info)}
+.spg-er-head .spg-er-pk.warn{background:var(--warn-bg);color:var(--warn)}
+.spg-er-body{padding:8px 12px;display:flex;flex-direction:column;gap:4px}
+.spg-er-field{display:flex;align-items:center;gap:6px;font-size:10.5px;font-family:var(--font);color:var(--t2);line-height:1.5;border-bottom:1px dashed var(--bd);padding-bottom:3px}
+.spg-er-field:last-child{border-bottom:none;padding-bottom:0}
+.spg-er-field .spg-er-fn{font-weight:700;color:var(--t1);min-width:130px;font-size:10.5px}
+.spg-er-field .spg-er-ft{color:var(--t3);font-size:9.5px;letter-spacing:.02em}
+.spg-er-field .spg-er-flag{font-size:8.5px;font-weight:800;padding:0 5px;border-radius:3px;letter-spacing:.06em;text-transform:uppercase;margin-left:auto}
+.spg-er-flag.pk{background:var(--stam-soft);color:var(--stam)}
+.spg-er-flag.idx{background:var(--info-bg);color:var(--info)}
+.spg-er-flag.enc{background:var(--fail-bg);color:var(--fail)}
+.spg-er-flag.fk{background:var(--warn-bg);color:var(--warn)}
+.spg-er-flag.uniq{background:var(--pass-bg);color:var(--pass)}
+.spg-er-foot{padding:6px 12px;border-top:1px solid var(--bd);background:var(--bg-sur2);font-size:9.5px;color:var(--t3);line-height:1.45;display:flex;flex-direction:column;gap:2px}
+.spg-er-foot b{color:var(--t1);font-weight:700}
+
+/* Mock for masked customer list */
+.spg-clist{border:1px solid rgba(255,255,255,.06);border-radius:10px;background:#131826;font-family:var(--font);overflow:hidden}
+[data-theme="light"] .spg-clist{background:#FFFFFF;border-color:rgba(20,22,30,.08)}
+.spg-clist-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);font-size:11.5px}
+[data-theme="light"] .spg-clist-row{border-bottom-color:rgba(20,22,30,.05)}
+.spg-clist-row:last-child{border-bottom:none}
+.spg-clist-row .nm{flex:1;font-weight:700;color:rgba(255,255,255,.94);min-width:80px}
+[data-theme="light"] .spg-clist-row .nm{color:rgba(20,22,30,.94)}
+.spg-clist-row .lbl{font-size:9.5px;color:rgba(255,255,255,.50);min-width:60px}
+[data-theme="light"] .spg-clist-row .lbl{color:rgba(20,22,30,.50)}
+.spg-clist-row.head{background:rgba(255,255,255,.04);font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.56)}
+[data-theme="light"] .spg-clist-row.head{background:#F4F6FA;color:rgba(20,22,30,.56)}
+.spg-clist-row .ts{font-size:9.5px;color:rgba(255,255,255,.50)}
+[data-theme="light"] .spg-clist-row .ts{color:rgba(20,22,30,.50)}
+
+/* generic boxed panel for mock framing */
+.spg-panel{background:#131826;border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;font-family:var(--font)}
+[data-theme="light"] .spg-panel{background:#FFFFFF;border-color:rgba(20,22,30,.08)}
+.spg-panel-title{font-size:12px;font-weight:800;color:rgba(255,255,255,.96);letter-spacing:-.005em}
+[data-theme="light"] .spg-panel-title{color:rgba(20,22,30,.94)}
+.spg-panel-body{display:flex;flex-direction:column;gap:8px}
+.spg-row-flex{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px}
+[data-theme="light"] .spg-row-flex{border-bottom-color:rgba(20,22,30,.05)}
+.spg-row-flex:last-child{border-bottom:none}
+.spg-row-flex .k{width:120px;font-size:10px;color:rgba(255,255,255,.50);font-weight:700;letter-spacing:.04em;text-transform:uppercase;flex-shrink:0}
+[data-theme="light"] .spg-row-flex .k{color:rgba(20,22,30,.50)}
+.spg-row-flex .v{color:rgba(255,255,255,.92);font-weight:600}
+[data-theme="light"] .spg-row-flex .v{color:rgba(20,22,30,.92)}
+
+/* ISMS-P category badge */
+.spg-isms-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media (max-width:760px){.spg-isms-grid{grid-template-columns:1fr}}
+.spg-isms-card{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:10px 12px;display:flex;flex-direction:column;gap:5px}
+.spg-isms-card .spg-isms-cat{font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--fail)}
+.spg-isms-card .spg-isms-name{font-size:12px;font-weight:800;color:var(--t1);letter-spacing:-.005em}
+.spg-isms-card .spg-isms-map{font-size:10.5px;color:var(--t2);line-height:1.6}
+.spg-isms-card .spg-isms-map code{font-family:var(--font);font-size:10px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+
+/* security event card */
+.spg-ev-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media (max-width:760px){.spg-ev-grid{grid-template-columns:1fr}}
+.spg-ev-card{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:10px 12px;display:flex;flex-direction:column;gap:5px}
+.spg-ev-card.is-warn{border-color:rgba(245,158,11,.30);background:var(--warn-bg)}
+.spg-ev-card.is-fail{border-color:rgba(255,90,71,.30);background:var(--fail-bg)}
+.spg-ev-card .spg-ev-name{font-size:11px;font-weight:800;color:var(--t1);letter-spacing:-.005em;display:flex;align-items:center;gap:6px}
+.spg-ev-card .spg-ev-name .ico{width:18px;height:18px;border-radius:5px;background:rgba(255,255,255,.06);color:var(--t1);font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+[data-theme="light"] .spg-ev-card .spg-ev-name .ico{background:rgba(20,22,30,.06)}
+.spg-ev-card.is-warn .spg-ev-name .ico{background:rgba(245,158,11,.20);color:var(--warn)}
+.spg-ev-card.is-fail .spg-ev-name .ico{background:rgba(255,90,71,.20);color:var(--fail)}
+.spg-ev-card .spg-ev-spec{font-size:10.5px;color:var(--t2);line-height:1.55}
+.spg-ev-card .spg-ev-spec code{font-family:var(--font);font-size:10px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+
+</style>
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Security / Privacy / ISMS-P Architecture &amp; DB Policy Guide v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Guide</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Frontend · Backend · DB · Audit</span>
+  <span class="doc-nav-pill"><span class="dot"></span>ISMS-P</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr"><span class="toc-brand">Security</span><span class="toc-ver-pill">v1</span></div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Principles</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Authentication</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Password</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Session</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Authorization</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Data Class</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Masking</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Access Audit</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Download</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Admin Audit</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Retention</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>DB Design</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>FE Screens</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>FE Logic</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>BE / API</a></li>
+      <li class="toc-item"><a href="#s17"><span class="toc-n">17</span>Events</a></li>
+      <li class="toc-item"><a href="#s18"><span class="toc-n">18</span>UI Mock</a></li>
+      <li class="toc-item"><a href="#s19"><span class="toc-n">19</span>ISMS-P</a></li>
+      <li class="toc-item"><a href="#s20"><span class="toc-n">20</span>Handoff</a></li>
+      <li class="toc-item"><a href="#s21"><span class="toc-n">21</span>Guardrails</a></li>
+      <li class="toc-item"><a href="#s22"><span class="toc-n">22</span>QA</a></li>
+      <li class="toc-item"><a href="#s23"><span class="toc-n">23</span>Related</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Hero ── -->
+      <div class="spg-hero">
+        <div class="spg-hero-row">
+          <strong class="spg-hero-title">STAM Security / Privacy / ISMS-P Architecture &amp; DB Policy Guide v1</strong>
+          <span class="spg-pill fail">Security</span>
+          <span class="spg-pill warn">Privacy · ISMS-P</span>
+          <span class="spg-pill brand">Frontend + Backend + DB</span>
+          <span class="spg-pill notyet">Product Not Yet</span>
+        </div>
+        <p>
+          본 문서는 STAM 의 <strong>개인정보 · 고객정보 · 계정 · 권한 · 로그인 · 비밀번호 · 세션 · 감사로그 · 다운로드 · 보관/파기</strong>
+          정책을 <strong>화면 / 로직 / DB 설계 / 감사로그 저장 구조</strong>에 모두 반영하기 위한 기준 문서이다.
+          단순 UI 가이드가 아니라 <strong>Frontend · Backend · DB · 운영정책</strong>까지 일관되게 연결한다.
+        </p>
+        <p style="opacity:.78;">
+          <strong>적용 범위</strong> — 본 작업은 <code>stam/docs/**</code> 하위 1개 HTML 생성과
+          <code>STAM-Docs-Index.html</code> 카드 1개 추가만 수행한다.
+          <code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code>, <code>stam/index.html</code>,
+          <code>stam/assets/**</code>, <code>.firebaserc</code>, <code>firebase.json</code>,
+          <code>.github/workflows/**</code>, <code>package.json</code>, <code>_ds/**</code>, <code>uploads/**</code>,
+          <code>*.zip</code>, <code>.env*</code>, <code>node_modules/**</code>, <code>dist/**</code>, <code>build/**</code>,
+          <code>.firebase/**</code> 는 한 줄도 수정하지 않는다.
+          DB 스키마 실제 생성 / Firebase rules 수정도 본 문서 범위 밖이다.
+        </p>
+        <div class="spg-kpi-grid">
+          <div class="spg-kpi fail"><span class="spg-kpi-key">Default</span><span class="spg-kpi-val">개인정보 = 마스킹</span></div>
+          <div class="spg-kpi warn"><span class="spg-kpi-key">전체 보기</span><span class="spg-kpi-val">사유 + 감사로그</span></div>
+          <div class="spg-kpi brand"><span class="spg-kpi-key">권한</span><span class="spg-kpi-val">서버 재검증</span></div>
+          <div class="spg-kpi info"><span class="spg-kpi-key">로그</span><span class="spg-kpi-val">user 삭제 불가</span></div>
+          <div class="spg-kpi pass"><span class="spg-kpi-key">DB Tables</span><span class="spg-kpi-val">14 (감사·정책)</span></div>
+          <div class="spg-kpi"><span class="spg-kpi-key">ISMS-P</span><span class="spg-kpi-val">10 범주 매핑</span></div>
+        </div>
+      </div>
+
+      <!-- ── S01 Overview ── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM 은 PM 협업 · 일정 · 결함 · 산출물 등 <strong>고객 / 직원 / 외부 협력사</strong>의 개인정보가 일상적으로 흘러다닌다.
+            보안 가이드가 UI 문서로만 끝나면 — 화면에서는 마스킹 되어 있어도 <strong>API 가 원문을 그대로 내려주고</strong>,
+            <strong>DB 에 평문이 저장되며</strong>, <strong>감사로그가 없어 사후 조사도 불가</strong>한 상황이 일어난다.
+            본 문서는 그 분리를 막기 위해 화면 · 로직 · DB · 로그 · 운영정책을 한 줄로 묶는다.
+          </p>
+          <div class="spg-rule-grid">
+            <div class="spg-rule-card">
+              <div class="spg-rc-hdr is-pass">이 문서가 다루는 것</div>
+              <ul>
+                <li>Frontend / Backend / DB / 감사로그를 한 번에 연결한 정책 기준</li>
+                <li>인증 · 비밀번호 · 세션 · 권한 · 마스킹 / 전체 보기 / 다운로드 정책</li>
+                <li>개인정보 분류 4단계 (L0 ~ L3) 와 항목별 표시 / 권한 / 감사 정책</li>
+                <li>14개 보안·감사·정책 DB 테이블 후보 — 목적 / 필드 / 인덱스 / 보존 / 권한</li>
+                <li>Frontend 필수 화면 12종 · 프론트 로직 / 백엔드 API 요구사항</li>
+                <li>이상 행위 탐지 / 알림 정책 · ISMS-P 10 범주 매핑</li>
+                <li>UI Mock 8종 (Login · 비밀번호 · 마스킹 · 사유 입력 · 감사로그 · 권한 이력 · 파기 정책)</li>
+              </ul>
+            </div>
+            <div class="spg-rule-card">
+              <div class="spg-rc-hdr is-fail">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code> 직접 수정</li>
+                <li>실제 DB 스키마 생성 / Firebase rules 수정 / 인덱스 생성</li>
+                <li>실제 인증 / OAuth / SSO / MFA 코드 구현</li>
+                <li>암호화 알고리즘 / 키 관리 / KMS 구체 구현</li>
+                <li>ISMS-P 인증 신청 / 컨설팅 / 실사 대응 (정책 매핑만)</li>
+                <li>전역 <code>.tbtn</code> 일괄 치환 · Firebase / package.json 변경</li>
+              </ul>
+            </div>
+          </div>
+          <div class="spg-rule-grid" style="margin-top:14px;">
+            <div class="spg-rule-card">
+              <div class="spg-rc-hdr is-info">왜 UI 가이드로 끝나면 안 되는가</div>
+              <ul>
+                <li>화면 마스킹만 있고 API 가 평문 → 개발자 도구로 평문 노출</li>
+                <li>버튼 숨김만 있고 권한 미검증 → URL 직타 / 권한 우회 가능</li>
+                <li>감사로그 누락 → 사후 조사 불가 · 책임 추적 불가</li>
+                <li>DB 평문 저장 → 유출 시 피해 즉시 · 법적 책임</li>
+                <li>운영 정책 부재 → 보관 기간 무한 · 파기 미실행 · 휴면 미처리</li>
+              </ul>
+            </div>
+            <div class="spg-rule-card">
+              <div class="spg-rc-hdr is-warn">실제 구현 전 기준 문서</div>
+              <ul>
+                <li>본 문서는 <strong>실제 구현 전 정책 / 설계 기준</strong>이며 product 적용은 별도 Gate</li>
+                <li>적용 순서: 본 가이드 승인 → DB 설계 확정 → API Boundary 정의 → 프론트 UI 적용 → 감사로그 writer → 알림 / 운영</li>
+                <li>한 커밋에 정책 + 코드 + DB 마이그레이션 섞지 않는다</li>
+                <li>충돌 시 ISMS-P · 개인정보보호법 · 회사 보안 정책이 우선</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Principles ── -->
+      <section id="s02" class="sec" data-screen-label="02 Principles">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Security Architecture Principles</span>
+          <span class="sbadge plan">Principle</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM 보안 설계의 7대 원칙. 모든 화면 · 로직 · DB · 정책 결정의 기준이 된다.
+          </p>
+          <div class="spg-prin-grid">
+            <div class="spg-prin-card">
+              <span class="spg-prin-n">01</span>
+              <span class="spg-prin-t">프론트 버튼 숨김은 보안이 아니다</span>
+              <span class="spg-prin-s">권한 검증은 서버 · API · DB 에서 한다. 프론트는 UX 일 뿐.</span>
+            </div>
+            <div class="spg-prin-card">
+              <span class="spg-prin-n">02</span>
+              <span class="spg-prin-t">개인정보는 기본 마스킹</span>
+              <span class="spg-prin-s">목록 · 상세 · 수정 모든 화면의 default 가 마스킹. 전체 보기는 선택적 행위.</span>
+            </div>
+            <div class="spg-prin-card">
+              <span class="spg-prin-n">03</span>
+              <span class="spg-prin-t">전체 보기 / 다운로드 / 출력은 사유 + 감사로그</span>
+              <span class="spg-prin-s">조회 사유 입력 모달 → 감사로그 저장 성공 → 비로소 원문 노출.</span>
+            </div>
+            <div class="spg-prin-card">
+              <span class="spg-prin-n">04</span>
+              <span class="spg-prin-t">관리자 행위도 모두 감사로그</span>
+              <span class="spg-prin-s">권한 부여 · 비밀번호 초기화 · 정책 변경 · 감사로그 조회까지 전부 기록.</span>
+            </div>
+            <div class="spg-prin-card">
+              <span class="spg-prin-n">05</span>
+              <span class="spg-prin-t">로그는 일반 사용자가 수정 / 삭제 불가</span>
+              <span class="spg-prin-s">audit_logs 는 append-only. 삭제 권한은 별도 보존 정책 만료 자동 파기만.</span>
+            </div>
+            <div class="spg-prin-card">
+              <span class="spg-prin-n">06</span>
+              <span class="spg-prin-t">보안 정책은 화면 · 로직 · DB 에 동시에 반영</span>
+              <span class="spg-prin-s">정책 변경 시 3 계층 모두 갱신 — 한 곳만 바뀌면 정책 일관성 깨짐.</span>
+            </div>
+            <div class="spg-prin-card">
+              <span class="spg-prin-n">07</span>
+              <span class="spg-prin-t">감사로그 저장 실패 = 작업 거부</span>
+              <span class="spg-prin-s">로그 저장 실패 시 개인정보 전체 보기 / 다운로드 결과 반환 차단.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 Authentication ── -->
+      <section id="s03" class="sec" data-screen-label="03 Authentication">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Authentication Policy</span>
+          <span class="sbadge plan">Auth</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            로그인 정책 — ID/비밀번호 기본, MFA · SSO 는 v2 후보. 실패 / 휴면 / 잠금 / 임시 비밀번호 정책을 함께 정의한다.
+          </p>
+          <div class="spg-tbl-wrap">
+            <table class="spg-tbl">
+              <thead><tr><th style="width:200px;">항목</th><th style="width:140px;">v1</th><th>정책</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">로그인 ID</td><td class="good">v1</td><td>이메일 형식 권장 · 사내 계정 sub 도메인 별도 허용 · 대소문자 구분 없음</td></tr>
+                <tr><td class="tn">비밀번호 로그인</td><td class="good">v1</td><td>bcrypt / argon2 해시 저장 · 평문 저장 절대 금지</td></tr>
+                <tr><td class="tn">SSO (OIDC / SAML)</td><td class="warn">v2</td><td>회사 IdP 연동 후보 · 별도 Gate</td></tr>
+                <tr><td class="tn">MFA / 2FA</td><td class="warn">v2</td><td>TOTP (Authenticator) 우선 · SMS 후보 · 관리자 강제 권장</td></tr>
+                <tr><td class="tn">로그인 실패 제한</td><td class="good">v1</td><td>5회 연속 실패 → 30분 잠금 · 동일 IP 기준 추가 rate limit</td></tr>
+                <tr><td class="tn">계정 잠금 해제</td><td class="good">v1</td><td>관리자 수동 · 또는 자동 해제 (30분) · 모든 해제 감사로그</td></tr>
+                <tr><td class="tn">장기 미접속 휴면</td><td class="good">v1</td><td>90일 미접속 → 휴면 처리 안내 · 1년 미접속 → 휴면 전환</td></tr>
+                <tr><td class="tn">최초 로그인 비밀번호 변경</td><td class="good">v1</td><td>임시 비밀번호 발급 후 첫 로그인 시 강제 변경 · 우회 불가</td></tr>
+                <tr><td class="tn">임시 비밀번호</td><td class="good">v1</td><td>유효 24시간 · 1회 사용 · 발급 시 관리자 감사로그</td></tr>
+                <tr><td class="tn">로그인 / 로그아웃 로그</td><td class="good">v1</td><td><code>login_logs</code> — 성공 / 실패 / 거부 사유 / IP / UA / 세션 모두 저장</td></tr>
+                <tr><td class="tn">소셜 로그인</td><td class="bad">금지</td><td>업무용 시스템 — 외부 IdP 통한 우회 차단</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Password ── -->
+      <section id="s04" class="sec" data-screen-label="04 Password">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Password Policy</span>
+          <span class="sbadge plan">Password</span>
+        </div>
+        <div class="sec-body">
+          <div class="spg-tbl-wrap">
+            <table class="spg-tbl">
+              <thead><tr><th style="width:200px;">항목</th><th style="width:140px;">기준</th><th>설명</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">최소 길이</td><td class="good">10자</td><td>일반 사용자 10 · 관리자 12 권장</td></tr>
+                <tr><td class="tn">복잡도</td><td class="good">3종 이상</td><td>영문대 · 영문소 · 숫자 · 특수문자 중 3종 이상</td></tr>
+                <tr><td class="tn">금지 패턴</td><td class="good">차단</td><td>아이디 포함 · 연속 문자 · 흔한 사전 단어 · 회사명</td></tr>
+                <tr><td class="tn">주기적 변경</td><td class="warn">선택</td><td>90일 권장 — 강제 시 사용자 피로 / 약한 비번 양산 위험. 정책 결정 필요</td></tr>
+                <tr><td class="tn">이전 비밀번호 재사용 금지</td><td class="good">최근 5개</td><td><code>password_history</code> 테이블에 해시만 저장 · 비교</td></tr>
+                <tr><td class="tn">임시 비밀번호 만료</td><td class="good">24시간</td><td>발급 후 24시간 내 미사용 시 자동 만료 · 재발급 필요</td></tr>
+                <tr><td class="tn">비밀번호 초기화 이력</td><td class="good">전체 저장</td><td><code>admin_action_logs</code> + <code>password_history</code> 양쪽 기록</td></tr>
+                <tr><td class="tn">관리자 초기화 시 감사</td><td class="good">강제</td><td>관리자 ID · 대상 사용자 ID · 사유 · 시각 모두 저장</td></tr>
+                <tr><td class="tn">화면 표시</td><td class="good">마스킹</td><td>입력 시 dot · "표시" 토글은 있어도 됨 (사용자 본인 입력에 한함)</td></tr>
+                <tr><td class="tn">저장 방식</td><td class="good">해시</td><td>bcrypt cost 10 ~ 12 또는 argon2id · salt per password</td></tr>
+                <tr><td class="tn">전송 방식</td><td class="good">HTTPS only</td><td>평문 전송 금지 · localStorage / cookie 평문 저장 금지</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>PM 결정 필요 — 주기적 변경 강제 여부</strong>
+            NIST 가이드는 강제 주기 변경을 권하지 않지만, ISMS-P 는 일정 주기 변경을 요구하는 경우가 있다.
+            STAM 의 보안 등급 / 적용 법규에 따라 정책 결정 필요.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 Session ── -->
+      <section id="s05" class="sec" data-screen-label="05 Session">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Session Policy</span>
+          <span class="sbadge plan">Session</span>
+        </div>
+        <div class="sec-body">
+          <div class="spg-tbl-wrap">
+            <table class="spg-tbl">
+              <thead><tr><th style="width:200px;">항목</th><th style="width:140px;">기준</th><th>설명</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">자동 로그아웃</td><td class="good">30분 유휴</td><td>마우스 / 키 입력 없음 30분 → 강제 로그아웃</td></tr>
+                <tr><td class="tn">세션 토큰 만료</td><td class="good">8시간</td><td>access token 단기 + refresh token 별도 — refresh 도 만료</td></tr>
+                <tr><td class="tn">유휴 만료 안내</td><td class="good">표시</td><td>만료 60초 전 안내 모달 · 연장 / 즉시 로그아웃 선택</td></tr>
+                <tr><td class="tn">중복 로그인</td><td class="warn">정책 선택</td><td>A: 새 세션 시 이전 세션 종료 / B: 차단 / C: 허용. <strong>A 추천</strong></td></tr>
+                <tr><td class="tn">강제 로그아웃</td><td class="good">관리자 가능</td><td>관리자 → 사용자 세션 강제 종료 · 감사로그</td></tr>
+                <tr><td class="tn">비정상 세션 종료</td><td class="good">자동</td><td>IP / UA 급변 · refresh token reuse 감지 시 강제 종료</td></tr>
+                <tr><td class="tn">세션 연장</td><td class="good">유휴 안내 시</td><td>안내 모달에서만 연장 — 자동 연장 금지</td></tr>
+                <tr><td class="tn">로그아웃</td><td class="good">전체 토큰 폐기</td><td>access + refresh 모두 무효화 · localStorage / cookie 클리어</td></tr>
+                <tr><td class="tn">세션 로그 저장</td><td class="good">필수</td><td><code>session_logs</code> — 시작 / 연장 / 종료 / 강제 종료 모두 기록</td></tr>
+                <tr><td class="tn">토큰 저장 위치</td><td class="good">httpOnly cookie</td><td>access 는 메모리 또는 httpOnly · refresh 는 httpOnly secure · localStorage 비추</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 Authorization ── -->
+      <section id="s06" class="sec" data-screen-label="06 Authorization">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Authorization / Role Policy</span>
+          <span class="sbadge plan">Auth</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            RBAC (Role-Based Access Control) 기반. <strong>menu permission · action permission · data scope permission</strong> 3축 분리.
+            특히 <strong>read / unmask / export</strong> 는 별도 권한.
+          </p>
+          <div class="spg-tbl-wrap">
+            <table class="spg-tbl">
+              <thead><tr><th style="width:140px;">권한 축</th><th>설명</th><th>예시</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">Menu Permission</td><td>메뉴 노출 / 접근 가능 여부</td><td>관리자 메뉴 / 감사로그 메뉴 / 보관파기 메뉴</td></tr>
+                <tr><td class="tn">Action Permission</td><td>화면 내 액션 권한 — CRUDX</td><td><code>create · read · update · delete · export · unmask · approve</code></td></tr>
+                <tr><td class="tn">Data Scope Permission</td><td>볼 수 있는 데이터 범위</td><td>본인 / 팀 / 프로젝트 / 부서 / 전사</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="spg-cap" style="margin-top:14px;"><span class="spg-cap-n">A</span>표준 Role 후보</div>
+          <div class="spg-tbl-wrap">
+            <table class="spg-tbl">
+              <thead><tr><th style="width:140px;">role</th><th>설명</th><th>주요 권한</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">SUPER_ADMIN</td><td>전체 관리자 · 보안 정책 변경</td><td>모든 read / unmask / export / 정책 변경 · 감사로그 조회</td></tr>
+                <tr><td class="tn">SECURITY_ADMIN</td><td>보안 / 감사 관리자</td><td>감사로그 조회 / 보안 이벤트 / 사용자 잠금 · <strong>업무 데이터 read X</strong></td></tr>
+                <tr><td class="tn">ADMIN</td><td>운영 관리자</td><td>사용자 생성 / 권한 부여 / 비밀번호 초기화</td></tr>
+                <tr><td class="tn">PM</td><td>프로젝트 매니저</td><td>본인 프로젝트 read / unmask / export — 사유 필요</td></tr>
+                <tr><td class="tn">MEMBER</td><td>일반 작업자</td><td>본인 / 팀 데이터 read · 본인 작업 update · unmask 제한</td></tr>
+                <tr><td class="tn">VIEWER</td><td>읽기 전용</td><td>본인 프로젝트 read 만 · unmask 금지 · export 금지</td></tr>
+                <tr><td class="tn">EXTERNAL</td><td>외부 협력사</td><td>지정 데이터 read 만 · 모든 개인정보 마스킹 유지</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>권한 변경 = 감사로그 대상</strong>
+            role 부여 / 회수 / 변경 모두 <code>admin_action_logs</code> 에 기록.
+            <strong>SUPER_ADMIN 의 권한 변경 행위까지</strong> 기록 — 본인 행위 로그 예외 없음.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 Personal Data Classification ── -->
+      <section id="s07" class="sec" data-screen-label="07 Data Class">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Personal Data Classification</span>
+          <span class="sbadge plan">Class</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM 의 모든 데이터를 4단계로 분류한다. <strong>L0 일반 · L1 개인정보 · L2 민감 개인정보 · L3 고객 식별 / 정산</strong>.
+            화면 / 로직 / DB 모두 이 분류에 따라 처리.
+          </p>
+
+          <div class="spg-class-grid">
+            <div class="spg-class-card l0">
+              <span class="spg-class-lvl">L0 · 일반</span>
+              <span class="spg-class-t">공개 가능 / 비식별</span>
+              <span class="spg-class-s">개인을 식별하지 않는 일반 업무 데이터</span>
+              <div class="spg-class-list"><span>업무명</span><span>상태</span><span>일정</span><span>진척률</span><span>프로젝트명</span></div>
+            </div>
+            <div class="spg-class-card l1">
+              <span class="spg-class-lvl">L1 · 개인정보</span>
+              <span class="spg-class-t">기본 마스킹 + 권한 read</span>
+              <span class="spg-class-s">개인 식별 가능 — 화면 기본 마스킹, 사유로 unmask</span>
+              <div class="spg-class-list"><span>이름</span><span>이메일</span><span>전화번호</span><span>부서</span><span>직위</span></div>
+            </div>
+            <div class="spg-class-card l2">
+              <span class="spg-class-lvl">L2 · 민감 개인정보</span>
+              <span class="spg-class-t">강한 마스킹 + 사유 + 감사로그</span>
+              <span class="spg-class-s">건강 / 종교 / 노조 등 민감정보 (현재 STAM 에는 거의 없음)</span>
+              <div class="spg-class-list"><span>주민번호</span><span>생년월일</span><span>여권번호</span><span>외국인등록번호</span></div>
+            </div>
+            <div class="spg-class-card l3">
+              <span class="spg-class-lvl">L3 · 고객·정산</span>
+              <span class="spg-class-t">DB 암호화 + 다운로드 통제</span>
+              <span class="spg-class-s">고객 식별 / 계약 / 정산 — DB 저장 시 암호화, 다운로드 별도 권한</span>
+              <div class="spg-class-list"><span>고객번호</span><span>계약번호</span><span>계좌번호</span><span>주소</span><span>정산금액</span></div>
+            </div>
+          </div>
+
+          <div class="spg-tbl-wrap" style="margin-top:14px;">
+            <table class="spg-tbl">
+              <thead><tr><th style="width:120px;">분류</th><th style="width:140px;">기본 표시</th><th style="width:140px;">전체 보기</th><th style="width:140px;">다운로드</th><th>DB 저장</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">L0</td><td>원문</td><td>—</td><td>로그</td><td>평문</td></tr>
+                <tr><td class="tn">L1</td><td>마스킹</td><td>사유 + 로그</td><td>사유 + 로그 + 권한</td><td>평문 (필요 시 컬럼 암호화)</td></tr>
+                <tr><td class="tn">L2</td><td>강한 마스킹</td><td>사유 + 로그 + 추가 인증</td><td><strong>금지 또는 별도 승인</strong></td><td>암호화 강제</td></tr>
+                <tr><td class="tn">L3</td><td>마스킹</td><td>사유 + 로그</td><td>사유 + 로그 + 권한 + 워터마크</td><td>암호화 강제 + KMS 키</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Masking ── -->
+      <section id="s08" class="sec" data-screen-label="08 Masking">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Masking / Unmasking Policy</span>
+          <span class="sbadge plan">Masking</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            마스킹은 화면 / API 양쪽에서 동일하게 적용된다. <strong>마스킹 처리는 백엔드 책임</strong>이고, 프론트는 unmask 결과만 받는다.
+            (프론트에서 마스킹하면 평문이 네트워크 / 메모리에 노출되기 때문)
+          </p>
+          <div class="spg-tbl-wrap">
+            <table class="spg-tbl">
+              <thead><tr><th style="width:140px;">항목</th><th style="width:160px;">원문 예</th><th style="width:160px;">마스킹 예</th><th>규칙</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">이름</td><td>박지원</td><td>박*원</td><td>2자 이상 — 가운데 1자 마스킹 / 2자는 마지막 1자</td></tr>
+                <tr><td class="tn">전화번호</td><td>010-1234-5678</td><td>010-****-5678</td><td>중간 4자리</td></tr>
+                <tr><td class="tn">이메일</td><td>jiwon.park@stam.co</td><td>jiw***@stam.co</td><td>local part 앞 3자 외 마스킹 · domain 유지</td></tr>
+                <tr><td class="tn">주소</td><td>서울시 강남구 테헤란로 432</td><td>서울시 강남구 ***</td><td>시 / 구 까지만 노출 · 이하 마스킹</td></tr>
+                <tr><td class="tn">고객번호</td><td>CUST-2026-001234</td><td>CUST-2026-***234</td><td>마지막 3자만 노출</td></tr>
+                <tr><td class="tn">계약번호</td><td>CT-A1B2C3D4</td><td>CT-****C3D4</td><td>뒤 4자만 노출</td></tr>
+                <tr><td class="tn">주민번호 / 생년월일</td><td>900101-1******</td><td>9*****-*******</td><td>v1 STAM 에서는 저장하지 않음 권장. 필요 시 강한 마스킹</td></tr>
+                <tr><td class="tn">계좌번호</td><td>110-123-456789</td><td>110-***-***789</td><td>마지막 3자만</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="spg-cap" style="margin-top:14px;"><span class="spg-cap-n">A</span>마스킹 컴포넌트 시각 — 잠김 / 열림 / 만료</div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;background:var(--bg-sur2);border:1px solid var(--bd);border-radius:8px;">
+            <span class="spg-mask is-locked">박*원</span>
+            <span style="font-size:10px;color:var(--t3);">→ 사유 입력 + 권한 통과</span>
+            <span class="spg-mask is-open">박지원</span>
+            <span style="font-size:10px;color:var(--t3);">→ 5분 후 자동 마스킹</span>
+            <span class="spg-mask is-locked">박*원</span>
+          </div>
+
+          <div class="spg-rule-grid" style="margin-top:14px;">
+            <div class="spg-rule-card">
+              <div class="spg-rc-hdr is-pass">Unmask 흐름</div>
+              <ul>
+                <li>사용자 행위 — 마스킹 row 의 "전체 보기" 클릭</li>
+                <li>1: 권한 확인 (서버) — 통과 시 다음, 실패 시 거부 + 로그</li>
+                <li>2: 사유 입력 모달 — 5자 이상 의무</li>
+                <li>3: 감사로그 저장 — <strong>성공</strong> 시에만 다음, 실패 시 거부</li>
+                <li>4: unmask 결과 반환 — 메모리에만 보관, 비휘발성 저장 금지</li>
+                <li>5: 5분 후 자동 재마스킹 / 페이지 이탈 시 즉시 재마스킹</li>
+              </ul>
+            </div>
+            <div class="spg-rule-card">
+              <div class="spg-rc-hdr is-fail">금지</div>
+              <ul>
+                <li>프론트에서 마스킹 — 원문이 이미 클라이언트에 와 있음 → 보안 무력</li>
+                <li>사유 미입력 unmask — 무조건 차단</li>
+                <li>unmask 결과 localStorage / sessionStorage 저장</li>
+                <li>전체 row 한 번에 unmask (대량 unmask) — 행 단위만 허용 · 대량은 별도 승인</li>
+                <li>화면 캡처 방지 — 별도 검토 (브라우저 한계로 강제 차단 불가)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Access Audit ── -->
+      <section id="s09" class="sec" data-screen-label="09 Access Audit">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Personal Data Access Audit Log</span>
+          <span class="sbadge plan">Audit</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            개인정보 조회 / 변경 / 다운로드 모든 행위를 <code>personal_data_access_logs</code> 에 저장한다.
+            <strong>성공 / 실패 / 거부</strong> 모두 기록.
+          </p>
+
+          <div class="spg-tbl-wrap">
+            <table class="spg-tbl">
+              <thead><tr><th style="width:160px;">필드</th><th style="width:120px;">타입</th><th>설명</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">logId</td><td>UUID</td><td>PK · 시계열 정렬 가능한 ULID 후보</td></tr>
+                <tr><td class="tn">userId</td><td>FK</td><td>행위자 — 미인증인 경우에도 추정 ID 저장</td></tr>
+                <tr><td class="tn">userName</td><td>VARCHAR</td><td>로그 시점 이름 (스냅샷) — 사후 변경 무관</td></tr>
+                <tr><td class="tn">role</td><td>VARCHAR</td><td>로그 시점 role (스냅샷)</td></tr>
+                <tr><td class="tn">actionType</td><td>ENUM</td><td>VIEW · UNMASK · DOWNLOAD · EXPORT · PRINT · UPDATE · DELETE</td></tr>
+                <tr><td class="tn">targetType</td><td>ENUM</td><td>CUSTOMER · PARTNER · MEMBER · CONTRACT · WBS 등</td></tr>
+                <tr><td class="tn">targetId</td><td>VARCHAR</td><td>대상 식별자 (FK 가 아닌 ID 문자열)</td></tr>
+                <tr><td class="tn">targetMaskedLabel</td><td>VARCHAR</td><td>대상의 사람이 읽을 수 있는 마스킹 라벨 — 예 "박*원"</td></tr>
+                <tr><td class="tn">reason</td><td>TEXT</td><td>사유 (5자 이상 · 빈 값 거부)</td></tr>
+                <tr><td class="tn">screenId</td><td>VARCHAR</td><td>화면 식별자 — 어떤 화면에서 발생했는지</td></tr>
+                <tr><td class="tn">ipAddress</td><td>VARCHAR</td><td>v4 / v6 모두 지원</td></tr>
+                <tr><td class="tn">userAgent</td><td>VARCHAR</td><td>브라우저 / OS</td></tr>
+                <tr><td class="tn">sessionId</td><td>VARCHAR</td><td>세션 추적</td></tr>
+                <tr><td class="tn">result</td><td>ENUM</td><td>SUCCESS · FAIL · DENIED</td></tr>
+                <tr><td class="tn">deniedReason</td><td>VARCHAR</td><td>거부 사유 (권한 부족 / 사유 미입력 / 잠금)</td></tr>
+                <tr><td class="tn">createdAt</td><td>TIMESTAMP</td><td>UTC 저장 · 표시 시 KST 변환</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>핵심 규칙</strong><br>
+            · 성공한 unmask 의 <strong>원문은 절대 로그에 저장하지 않는다</strong> — 마스킹 라벨만 저장.<br>
+            · 로그 자체가 새로운 개인정보 누출원이 되면 안 됨.<br>
+            · 감사로그 조회도 별도 행위로 기록 (S11 참조).
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S10 Download / Export / Print ── -->
+      <section id="s10" class="sec" data-screen-label="10 Download">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Download / Export / Print Policy</span>
+          <span class="sbadge plan">Download</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            다운로드 / 내보내기 / 출력은 <strong>화면 조회보다 강한 통제</strong>를 적용한다. 별도 권한 · 사유 · 워터마크 · 파일명 규칙 · 대량 제한.
+          </p>
+
+          <div class="spg-tbl-wrap">
+            <table class="spg-tbl">
+              <thead><tr><th style="width:120px;">유형</th><th style="width:120px;">v1</th><th>정책</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">CSV</td><td class="good">v1</td><td>마스킹 default · "원문 다운로드" 별도 권한 + 사유</td></tr>
+                <tr><td class="tn">Excel (.xlsx)</td><td class="good">v1</td><td>CSV 동일 정책 + 시트 워터마크</td></tr>
+                <tr><td class="tn">PDF</td><td class="good">v1</td><td>전체 보기 PDF — 워터마크 (사용자명 + 날짜) 필수</td></tr>
+                <tr><td class="tn">Print</td><td class="warn">제한</td><td>가능하지만 print용 워터마크 노출 · 인쇄 로그 저장</td></tr>
+                <tr><td class="tn">Screenshot 방지</td><td class="bad">제한 어려움</td><td>브라우저 한계로 강제 차단 불가 · 워터마크로 사후 추적</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="spg-cap" style="margin-top:14px;"><span class="spg-cap-n">A</span>다운로드 통제 흐름</div>
+          <div class="spg-rule-grid">
+            <div class="spg-rule-card">
+              <div class="spg-rc-hdr is-pass">필수 순서</div>
+              <ul>
+                <li>1: action permission 확인 (export 권한)</li>
+                <li>2: data scope 확인 (대상 데이터 접근 가능)</li>
+                <li>3: 사유 입력 모달 — 5자 이상</li>
+                <li>4: 대량 (100 row 초과) 시 추가 확인 모달</li>
+                <li>5: 감사로그 저장 성공 시 파일 스트리밍 시작</li>
+                <li>6: 파일명 규칙 — <code>{대상}_{사용자}_{YYYYMMDD-HHmm}_{logId}.csv</code></li>
+                <li>7: 모든 페이지 / 시트에 워터마크 — 사용자명 + 출력 시각</li>
+                <li>8: <code>download_logs</code> 저장 — actionType=DOWNLOAD, fileSize, rowCount 포함</li>
+              </ul>
+            </div>
+            <div class="spg-rule-card">
+              <div class="spg-rc-hdr is-fail">금지</div>
+              <ul>
+                <li>로그 저장 실패 시 파일 반환 — 무조건 거부</li>
+                <li>사유 없는 다운로드</li>
+                <li>역할만 보고 통과 — data scope 미확인</li>
+                <li>대량 다운로드 (1000+ row) 무제한 허용</li>
+                <li>파일 내 마스킹 누락 (원문 노출) 시 권한 검증 부족</li>
+                <li>다운로드 후 클라이언트에 임시 캐시 잔존</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S11 Admin Audit ── -->
+      <section id="s11" class="sec" data-screen-label="11 Admin Audit">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Admin Action Audit Policy</span>
+          <span class="sbadge plan">Admin</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            관리자 행위는 <code>admin_action_logs</code> 에 별도 저장한다. <strong>SUPER_ADMIN 본인의 행위도 예외 없이 기록</strong>한다.
+          </p>
+
+          <div class="spg-tbl-wrap">
+            <table class="spg-tbl">
+              <thead><tr><th style="width:200px;">관리자 행위</th><th style="width:140px;">대상</th><th>저장 필드 추가</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">사용자 생성</td><td>users</td><td>대상 ID · 초기 role · 발급 임시 비밀번호 여부</td></tr>
+                <tr><td class="tn">사용자 삭제</td><td>users</td><td>대상 ID · 파기 정책 적용 여부 · 잔존 데이터 처리</td></tr>
+                <tr><td class="tn">권한 부여 / 회수</td><td>user_roles</td><td>before / after role 스냅샷 · 사유</td></tr>
+                <tr><td class="tn">비밀번호 초기화</td><td>users / password_history</td><td>대상 ID · 임시 비밀번호 발급 여부 · 24시간 만료</td></tr>
+                <tr><td class="tn">계정 잠금 해제</td><td>users</td><td>대상 ID · 잠금 사유 · 해제 사유</td></tr>
+                <tr><td class="tn">보안 정책 변경</td><td>security_policy_versions</td><td>변경 항목 · before / after 값 · 적용 시각</td></tr>
+                <tr><td class="tn">보관 / 파기 정책 변경</td><td>retention_policies</td><td>대상 데이터 분류 · 보유 기간 변경</td></tr>
+                <tr><td class="tn">감사로그 조회</td><td>—</td><td>조회 범위 · 필터 · 다운로드 여부</td></tr>
+                <tr><td class="tn">세션 강제 종료</td><td>session_logs</td><td>대상 사용자 · 종료 사유</td></tr>
+                <tr><td class="tn">SUPER_ADMIN 자기 권한 변경</td><td>user_roles</td><td>2명 이상 SUPER_ADMIN 승인 후보 (보안 강화)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S12 Retention ── -->
+      <section id="s12" class="sec" data-screen-label="12 Retention">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Data Retention / Deletion Policy</span>
+          <span class="sbadge plan">Retention</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            개인정보 / 감사로그 모두 <strong>수집 목적 + 보유 기간</strong>이 정의되어야 한다.
+            보유 기간 만료 시 자동 파기 · 법적 보존 예외는 명시적 flag.
+          </p>
+
+          <div class="spg-tbl-wrap">
+            <table class="spg-tbl">
+              <thead><tr><th style="width:200px;">데이터 분류</th><th style="width:140px;">수집 목적</th><th style="width:140px;">기본 보유 기간</th><th>파기 / 예외</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">사용자 계정 (활동)</td><td>서비스 제공</td><td>계약 종료까지</td><td>계약 종료 + 30일 → 휴면 / 삭제</td></tr>
+                <tr><td class="tn">사용자 계정 (휴면)</td><td>법적 의무</td><td>1년</td><td>1년 후 완전 파기 / 본인 확인 시 복원</td></tr>
+                <tr><td class="tn">고객 정보 (L1)</td><td>업무 수행</td><td>프로젝트 종료 + 1년</td><td>법령상 5년 보존 의무 시 예외 flag</td></tr>
+                <tr><td class="tn">고객 정보 (L3 계약/정산)</td><td>법령 (전자상거래법)</td><td>5년</td><td>법령 보존 종료 후 즉시 파기</td></tr>
+                <tr><td class="tn">개인정보 조회 감사로그</td><td>ISMS-P</td><td>3년</td><td>3년 후 자동 파기 / 사고 조사 중이면 예외 flag</td></tr>
+                <tr><td class="tn">로그인 로그</td><td>보안 사고 조사</td><td>1년</td><td>1년 후 파기</td></tr>
+                <tr><td class="tn">관리자 행위 로그</td><td>ISMS-P</td><td>3년</td><td>3년 후 자동 파기</td></tr>
+                <tr><td class="tn">다운로드 로그</td><td>유출 사고 추적</td><td>3년</td><td>3년 후 파기</td></tr>
+                <tr><td class="tn">세션 로그</td><td>보안 / 운영</td><td>6개월</td><td>6개월 후 파기 · 이상 세션은 1년</td></tr>
+                <tr><td class="tn">비밀번호 이력</td><td>재사용 방지</td><td>1년 (최근 5개)</td><td>최근 5개 해시만 유지</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="spg-rule-grid" style="margin-top:14px;">
+            <div class="spg-rule-card">
+              <div class="spg-rc-hdr is-info">파기 절차</div>
+              <ul>
+                <li>1: 파기 예정일 30일 전 — 안내 (사용자 / 관리자)</li>
+                <li>2: 파기 예정 row 를 <code>data_deletion_requests</code> 에 등록</li>
+                <li>3: 보존 예외 flag 있으면 보류 + 사유 저장</li>
+                <li>4: 파기 실행 → 본 row delete 또는 hard-mask</li>
+                <li>5: 파기 완료 시각 + 실행 주체 (system / admin) 저장</li>
+                <li>6: 감사로그에는 metadata 만 유지 (어떤 row 가 언제 파기되었는지)</li>
+              </ul>
+            </div>
+            <div class="spg-rule-card">
+              <div class="spg-rc-hdr is-warn">파기 시 주의</div>
+              <ul>
+                <li>참조 무결성 — FK 끊김 처리 (NULL 또는 anonymous 사용자로 재할당)</li>
+                <li>audit log 의 userName 스냅샷은 유지 (조사 추적용)</li>
+                <li>백업 데이터의 파기 정책 별도 정의 — 백업 retention</li>
+                <li>외부 시스템 / 분석 DB 의 잔존 파기 점검</li>
+                <li>휴면 1년 직전 — 본인 확인 안내 후 미확인 시 파기</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S13 DB Design ── -->
+      <section id="s13" class="sec" data-screen-label="13 DB Design">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">DB Design Proposal — 14 Tables</span>
+          <span class="sbadge plan">DB</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            보안 / 권한 / 감사 / 정책을 담는 14개 테이블 후보. <strong>실제 schema 생성 / Firebase rules 수정은 본 문서 범위 밖</strong>이며,
+            구조 / 필드 / 인덱스 / 보존 정책의 기준선만 제안한다.
+          </p>
+
+          <div class="spg-er-grid">
+            <div class="spg-er-card">
+              <div class="spg-er-head"><span class="spg-er-name">users</span><span class="spg-er-pk">PK userId</span></div>
+              <div class="spg-er-body">
+                <div class="spg-er-field"><span class="spg-er-fn">userId</span><span class="spg-er-ft">UUID</span><span class="spg-er-flag pk">PK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">loginId</span><span class="spg-er-ft">VARCHAR(64)</span><span class="spg-er-flag uniq">UNIQ</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">email</span><span class="spg-er-ft">VARCHAR(128)</span><span class="spg-er-flag enc">ENC</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">name</span><span class="spg-er-ft">VARCHAR(64)</span><span class="spg-er-flag enc">ENC</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">passwordHash</span><span class="spg-er-ft">VARCHAR(256)</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">status</span><span class="spg-er-ft">ENUM</span><span class="spg-er-flag idx">IDX</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">lastLoginAt</span><span class="spg-er-ft">TIMESTAMP</span><span class="spg-er-flag idx">IDX</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">dormantAt</span><span class="spg-er-ft">TIMESTAMP</span></div>
+              </div>
+              <div class="spg-er-foot"><span>목적 — 사용자 계정</span><span>보존 — 계약 종료+30일 / 휴면 1년</span><span>삭제 — 관리자 + 파기 정책</span></div>
+            </div>
+
+            <div class="spg-er-card">
+              <div class="spg-er-head"><span class="spg-er-name">roles</span><span class="spg-er-pk">PK roleId</span></div>
+              <div class="spg-er-body">
+                <div class="spg-er-field"><span class="spg-er-fn">roleId</span><span class="spg-er-ft">VARCHAR(32)</span><span class="spg-er-flag pk">PK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">name</span><span class="spg-er-ft">VARCHAR(64)</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">description</span><span class="spg-er-ft">TEXT</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">isSystem</span><span class="spg-er-ft">BOOLEAN</span></div>
+              </div>
+              <div class="spg-er-foot"><span>목적 — 표준 role 정의</span><span>보존 — 영구</span><span>삭제 — SUPER_ADMIN 만</span></div>
+            </div>
+
+            <div class="spg-er-card">
+              <div class="spg-er-head"><span class="spg-er-name">permissions</span><span class="spg-er-pk">PK permId</span></div>
+              <div class="spg-er-body">
+                <div class="spg-er-field"><span class="spg-er-fn">permId</span><span class="spg-er-ft">VARCHAR(64)</span><span class="spg-er-flag pk">PK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">resource</span><span class="spg-er-ft">VARCHAR(64)</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">action</span><span class="spg-er-ft">ENUM</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">scope</span><span class="spg-er-ft">ENUM</span></div>
+              </div>
+              <div class="spg-er-foot"><span>목적 — 권한 단위 정의</span><span>보존 — 영구</span><span>삭제 — SUPER_ADMIN 만</span></div>
+            </div>
+
+            <div class="spg-er-card">
+              <div class="spg-er-head"><span class="spg-er-name">user_roles</span><span class="spg-er-pk warn">FK userId+roleId</span></div>
+              <div class="spg-er-body">
+                <div class="spg-er-field"><span class="spg-er-fn">userId</span><span class="spg-er-ft">FK</span><span class="spg-er-flag fk">FK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">roleId</span><span class="spg-er-ft">FK</span><span class="spg-er-flag fk">FK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">grantedBy</span><span class="spg-er-ft">FK userId</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">grantedAt</span><span class="spg-er-ft">TIMESTAMP</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">revokedAt</span><span class="spg-er-ft">TIMESTAMP</span></div>
+              </div>
+              <div class="spg-er-foot"><span>목적 — 사용자별 role 매핑 + 이력</span><span>보존 — 영구 (이력)</span><span>삭제 — 금지 (revoke 만)</span></div>
+            </div>
+
+            <div class="spg-er-card">
+              <div class="spg-er-head"><span class="spg-er-name">role_permissions</span><span class="spg-er-pk warn">FK</span></div>
+              <div class="spg-er-body">
+                <div class="spg-er-field"><span class="spg-er-fn">roleId</span><span class="spg-er-ft">FK</span><span class="spg-er-flag fk">FK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">permId</span><span class="spg-er-ft">FK</span><span class="spg-er-flag fk">FK</span></div>
+              </div>
+              <div class="spg-er-foot"><span>목적 — role 의 권한 집합</span><span>보존 — 영구</span><span>삭제 — SUPER_ADMIN 만 · 감사로그</span></div>
+            </div>
+
+            <div class="spg-er-card">
+              <div class="spg-er-head"><span class="spg-er-name">login_logs</span><span class="spg-er-pk info">IDX</span></div>
+              <div class="spg-er-body">
+                <div class="spg-er-field"><span class="spg-er-fn">logId</span><span class="spg-er-ft">ULID</span><span class="spg-er-flag pk">PK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">userId</span><span class="spg-er-ft">FK</span><span class="spg-er-flag idx">IDX</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">result</span><span class="spg-er-ft">ENUM</span><span class="spg-er-flag idx">IDX</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">failReason</span><span class="spg-er-ft">VARCHAR(64)</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">ipAddress</span><span class="spg-er-ft">VARCHAR(45)</span><span class="spg-er-flag idx">IDX</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">userAgent</span><span class="spg-er-ft">VARCHAR(256)</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">createdAt</span><span class="spg-er-ft">TIMESTAMP</span><span class="spg-er-flag idx">IDX</span></div>
+              </div>
+              <div class="spg-er-foot"><span>목적 — 로그인 시도 추적</span><span>보존 — 1년</span><span>삭제 — append only / 보존 만료 자동</span></div>
+            </div>
+
+            <div class="spg-er-card">
+              <div class="spg-er-head"><span class="spg-er-name">password_history</span><span class="spg-er-pk info">IDX</span></div>
+              <div class="spg-er-body">
+                <div class="spg-er-field"><span class="spg-er-fn">historyId</span><span class="spg-er-ft">UUID</span><span class="spg-er-flag pk">PK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">userId</span><span class="spg-er-ft">FK</span><span class="spg-er-flag idx">IDX</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">passwordHash</span><span class="spg-er-ft">VARCHAR(256)</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">changedBy</span><span class="spg-er-ft">FK userId</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">changeType</span><span class="spg-er-ft">ENUM</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">createdAt</span><span class="spg-er-ft">TIMESTAMP</span></div>
+              </div>
+              <div class="spg-er-foot"><span>목적 — 재사용 방지 + 이력</span><span>보존 — 최근 5개 + 1년</span><span>삭제 — 자동 (오래된 것)</span></div>
+            </div>
+
+            <div class="spg-er-card">
+              <div class="spg-er-head"><span class="spg-er-name">session_logs</span><span class="spg-er-pk info">IDX</span></div>
+              <div class="spg-er-body">
+                <div class="spg-er-field"><span class="spg-er-fn">sessionId</span><span class="spg-er-ft">ULID</span><span class="spg-er-flag pk">PK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">userId</span><span class="spg-er-ft">FK</span><span class="spg-er-flag idx">IDX</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">startedAt</span><span class="spg-er-ft">TIMESTAMP</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">endedAt</span><span class="spg-er-ft">TIMESTAMP</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">endReason</span><span class="spg-er-ft">ENUM</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">ipAddress</span><span class="spg-er-ft">VARCHAR(45)</span></div>
+              </div>
+              <div class="spg-er-foot"><span>목적 — 세션 추적 / 강제 종료</span><span>보존 — 6개월 (이상 1년)</span><span>삭제 — append only</span></div>
+            </div>
+
+            <div class="spg-er-card">
+              <div class="spg-er-head"><span class="spg-er-name">personal_data_access_logs</span><span class="spg-er-pk">PK ULID</span></div>
+              <div class="spg-er-body">
+                <div class="spg-er-field"><span class="spg-er-fn">logId</span><span class="spg-er-ft">ULID</span><span class="spg-er-flag pk">PK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">userId</span><span class="spg-er-ft">FK</span><span class="spg-er-flag idx">IDX</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">actionType</span><span class="spg-er-ft">ENUM</span><span class="spg-er-flag idx">IDX</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">targetType</span><span class="spg-er-ft">ENUM</span><span class="spg-er-flag idx">IDX</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">targetId</span><span class="spg-er-ft">VARCHAR(64)</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">reason</span><span class="spg-er-ft">TEXT</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">result</span><span class="spg-er-ft">ENUM</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">createdAt</span><span class="spg-er-ft">TIMESTAMP</span><span class="spg-er-flag idx">IDX</span></div>
+              </div>
+              <div class="spg-er-foot"><span>목적 — 개인정보 조회 / 변경 감사 (S09 전체 필드)</span><span>보존 — 3년</span><span>삭제 — append only</span></div>
+            </div>
+
+            <div class="spg-er-card">
+              <div class="spg-er-head"><span class="spg-er-name">download_logs</span><span class="spg-er-pk">PK ULID</span></div>
+              <div class="spg-er-body">
+                <div class="spg-er-field"><span class="spg-er-fn">logId</span><span class="spg-er-ft">ULID</span><span class="spg-er-flag pk">PK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">userId</span><span class="spg-er-ft">FK</span><span class="spg-er-flag idx">IDX</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">fileName</span><span class="spg-er-ft">VARCHAR(256)</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">fileType</span><span class="spg-er-ft">ENUM</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">rowCount</span><span class="spg-er-ft">INT</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">fileSize</span><span class="spg-er-ft">BIGINT</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">reason</span><span class="spg-er-ft">TEXT</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">createdAt</span><span class="spg-er-ft">TIMESTAMP</span></div>
+              </div>
+              <div class="spg-er-foot"><span>목적 — 다운로드 / 출력 추적</span><span>보존 — 3년</span><span>삭제 — append only</span></div>
+            </div>
+
+            <div class="spg-er-card">
+              <div class="spg-er-head"><span class="spg-er-name">admin_action_logs</span><span class="spg-er-pk">PK ULID</span></div>
+              <div class="spg-er-body">
+                <div class="spg-er-field"><span class="spg-er-fn">logId</span><span class="spg-er-ft">ULID</span><span class="spg-er-flag pk">PK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">adminId</span><span class="spg-er-ft">FK</span><span class="spg-er-flag idx">IDX</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">actionType</span><span class="spg-er-ft">ENUM</span><span class="spg-er-flag idx">IDX</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">targetType</span><span class="spg-er-ft">ENUM</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">targetId</span><span class="spg-er-ft">VARCHAR(64)</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">beforeState</span><span class="spg-er-ft">JSONB</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">afterState</span><span class="spg-er-ft">JSONB</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">reason</span><span class="spg-er-ft">TEXT</span></div>
+              </div>
+              <div class="spg-er-foot"><span>목적 — 관리자 행위 (S11 전체)</span><span>보존 — 3년</span><span>삭제 — append only · SUPER 본인 행위 포함</span></div>
+            </div>
+
+            <div class="spg-er-card">
+              <div class="spg-er-head"><span class="spg-er-name">retention_policies</span><span class="spg-er-pk">PK</span></div>
+              <div class="spg-er-body">
+                <div class="spg-er-field"><span class="spg-er-fn">policyId</span><span class="spg-er-ft">UUID</span><span class="spg-er-flag pk">PK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">dataClass</span><span class="spg-er-ft">ENUM</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">purpose</span><span class="spg-er-ft">VARCHAR(128)</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">retentionDays</span><span class="spg-er-ft">INT</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">legalBasis</span><span class="spg-er-ft">VARCHAR(128)</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">version</span><span class="spg-er-ft">INT</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">activatedAt</span><span class="spg-er-ft">TIMESTAMP</span></div>
+              </div>
+              <div class="spg-er-foot"><span>목적 — 보관 / 파기 정책 정의</span><span>보존 — 영구</span><span>삭제 — 금지 (버전만 비활성)</span></div>
+            </div>
+
+            <div class="spg-er-card">
+              <div class="spg-er-head"><span class="spg-er-name">data_deletion_requests</span><span class="spg-er-pk warn">FK</span></div>
+              <div class="spg-er-body">
+                <div class="spg-er-field"><span class="spg-er-fn">requestId</span><span class="spg-er-ft">UUID</span><span class="spg-er-flag pk">PK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">targetType</span><span class="spg-er-ft">ENUM</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">targetId</span><span class="spg-er-ft">VARCHAR(64)</span><span class="spg-er-flag idx">IDX</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">policyId</span><span class="spg-er-ft">FK</span><span class="spg-er-flag fk">FK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">scheduledAt</span><span class="spg-er-ft">TIMESTAMP</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">executedAt</span><span class="spg-er-ft">TIMESTAMP</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">heldReason</span><span class="spg-er-ft">VARCHAR(256)</span></div>
+              </div>
+              <div class="spg-er-foot"><span>목적 — 파기 예정 / 실행 추적</span><span>보존 — 3년 (실행 기록)</span><span>삭제 — append only</span></div>
+            </div>
+
+            <div class="spg-er-card">
+              <div class="spg-er-head"><span class="spg-er-name">security_policy_versions</span><span class="spg-er-pk">PK</span></div>
+              <div class="spg-er-body">
+                <div class="spg-er-field"><span class="spg-er-fn">versionId</span><span class="spg-er-ft">UUID</span><span class="spg-er-flag pk">PK</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">policyKey</span><span class="spg-er-ft">VARCHAR(64)</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">beforeValue</span><span class="spg-er-ft">JSONB</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">afterValue</span><span class="spg-er-ft">JSONB</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">changedBy</span><span class="spg-er-ft">FK userId</span></div>
+                <div class="spg-er-field"><span class="spg-er-fn">activatedAt</span><span class="spg-er-ft">TIMESTAMP</span></div>
+              </div>
+              <div class="spg-er-foot"><span>목적 — 보안 정책 버전 관리</span><span>보존 — 영구</span><span>삭제 — 금지</span></div>
+            </div>
+          </div>
+
+          <div class="spg-rule-grid" style="margin-top:14px;">
+            <div class="spg-rule-card">
+              <div class="spg-rc-hdr is-pass">DB 설계 원칙</div>
+              <ul>
+                <li>모든 *_logs 테이블은 <strong>append-only</strong> — UPDATE / DELETE 권한 어플리케이션에 부여하지 않음</li>
+                <li>L1 ~ L3 데이터는 컬럼 단위 암호화 — KMS 키 분리</li>
+                <li>모든 row 에 <code>createdAt</code> / <code>createdBy</code> 표준 컬럼</li>
+                <li>인덱스 — userId · targetId · createdAt · actionType 조합</li>
+                <li>파티셔닝 — *_logs 는 월 단위 또는 연 단위 partition 검토</li>
+                <li>백업의 retention 정책도 본 DB 와 동일하게 적용</li>
+              </ul>
+            </div>
+            <div class="spg-rule-card">
+              <div class="spg-rc-hdr is-fail">DB 금지 사항</div>
+              <ul>
+                <li>비밀번호 평문 저장</li>
+                <li>L3 데이터 평문 저장 (계좌 / 계약 / 주민번호)</li>
+                <li>*_logs DELETE / UPDATE 허용</li>
+                <li>FK CASCADE DELETE (감사 추적 끊김)</li>
+                <li>userId 미정인 익명 인서트 (system 명시 계정으로 처리)</li>
+                <li>backup 의 평문 노출 (백업도 암호화)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S14 FE Screens ── -->
+      <section id="s14" class="sec" data-screen-label="14 FE Screens">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Frontend UX Required Screens</span>
+          <span class="sbadge plan">FE</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            보안 정책 적용을 위해 필수로 추가되는 화면 / 컴포넌트 12종.
+          </p>
+          <div class="spg-tbl-wrap">
+            <table class="spg-tbl">
+              <thead><tr><th style="width:200px;">화면 / 컴포넌트</th><th style="width:120px;">분류</th><th>주요 요소</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">로그인</td><td class="info">화면</td><td>ID · 비밀번호 · 실패 횟수 안내 · 잠금 안내</td></tr>
+                <tr><td class="tn">비밀번호 변경</td><td class="info">화면</td><td>현재 비번 · 새 비번 · 확인 · 정책 안내 · 이력 재사용 차단</td></tr>
+                <tr><td class="tn">비밀번호 초기화</td><td class="info">화면</td><td>이메일 입력 · 안내 이메일 발송 · 24h 임시 비번</td></tr>
+                <tr><td class="tn">최초 로그인 비밀번호 변경</td><td class="info">화면</td><td>강제 변경 · 우회 불가 · 정책 안내</td></tr>
+                <tr><td class="tn">세션 만료 안내</td><td class="warn">모달</td><td>유휴 만료 60초 전 · 연장 / 즉시 로그아웃</td></tr>
+                <tr><td class="tn">권한 없음</td><td class="warn">화면</td><td>403 / "권한이 없습니다" · 요청 사유 가이드 · 관리자 안내</td></tr>
+                <tr><td class="tn">개인정보 마스킹 컴포넌트</td><td>컴포넌트</td><td>마스킹 row + "전체 보기" 트리거 · 5분 후 자동 재마스킹</td></tr>
+                <tr><td class="tn">전체 보기 사유 입력 모달</td><td>모달</td><td>대상 정보 · 사유 입력 (5자+) · 확인 · 감사로그 안내</td></tr>
+                <tr><td class="tn">다운로드 사유 입력 모달</td><td>모달</td><td>파일 유형 · 대상 row 수 · 사유 · 워터마크 안내</td></tr>
+                <tr><td class="tn">감사로그 조회 화면</td><td class="info">화면</td><td>filter (사용자 / 액션 / 기간) · 표 · 사유 컬럼 · 다운로드는 별도</td></tr>
+                <tr><td class="tn">관리자 권한 관리 화면</td><td class="info">화면</td><td>사용자 · role 부여 / 회수 · 이력 · 사유 필수</td></tr>
+                <tr><td class="tn">보관 / 파기 정책 안내 화면</td><td class="info">화면</td><td>분류별 보존 기간 · 파기 예정 · 본인 데이터 다운로드 요청</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S15 FE Logic ── -->
+      <section id="s15" class="sec" data-screen-label="15 FE Logic">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">Frontend Logic Requirements</span>
+          <span class="sbadge plan">FE Logic</span>
+        </div>
+        <div class="sec-body">
+          <div class="spg-chk-list">
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>권한별 메뉴 숨김</strong> — 서버에서 받은 permission set 기준 · 화면 단순화 목적 (보안 X)</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>권한별 버튼 비활성화</strong> — 권한 없는 버튼은 disabled 또는 hidden</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>개인정보 기본 마스킹</strong> — API 가 마스킹 데이터 반환 · 프론트는 그대로 표시</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>전체 보기 클릭 시 사유 입력</strong> — 모달 → reason 5자+ → unmask API 호출</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>다운로드 클릭 시 사유 입력</strong> — 동일 흐름 + 대량 추가 확인</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-warn">!</span><span><strong>권한 없음 fallback</strong> — 403 응답 시 권한 없음 페이지 · 로그인 만료가 아니라 권한 부족 구분</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>세션 만료 처리</strong> — refresh token 자동 갱신 / 실패 시 로그인 화면 강제 이동</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>토큰 만료 처리</strong> — 401 / 403 인터셉터 · 재시도 1회</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-warn">!</span><span><strong>API 실패 시 보안 메시지</strong> — 실패 사유 상세 노출 금지 ("일시적 오류" 정도)</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-fail">!</span><span><strong>감사로그 저장 실패 시 unmask 차단</strong> — 응답 코드 분기 · 사용자 안내</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-fail">!</span><span><strong>unmask 결과 절대 영구 저장 금지</strong> — localStorage · IndexedDB · cookie 금지</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>페이지 이탈 / 5분 경과 시 자동 재마스킹</strong> — React state / store 초기화</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>console.log 에 개인정보 출력 금지</strong> — 디버깅 로그 사전 제거</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>비밀번호 입력 시 자동완성 / 캐싱 제한</strong> — autocomplete="off" 후보</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S16 BE / API ── -->
+      <section id="s16" class="sec" data-screen-label="16 BE / API">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
+          <span class="sec-title">Backend / API Logic Requirements</span>
+          <span class="sbadge plan">BE</span>
+        </div>
+        <div class="sec-body">
+          <div class="spg-chk-list">
+            <div class="spg-chk-item"><span class="spg-chk-box is-fail">!</span><span><strong>모든 개인정보 API 에서 권한 재검증</strong> — 프론트에서 온 role 신뢰 금지 · 세션의 role 사용</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-fail">!</span><span><strong>unmask API 는 일반 read API 와 분리</strong> — 별도 endpoint · 별도 권한 · 별도 rate limit</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-fail">!</span><span><strong>export API 는 일반 read API 와 분리</strong> — export 권한 별도 · 워터마크 강제</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>reason 필수 검증</strong> — 5자 이상 · 빈 문자열 / 공백만 거부</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-fail">!</span><span><strong>감사로그 저장 성공 후 데이터 반환</strong> — 트랜잭션 안에서 처리 · 로그 실패 시 응답 거부</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>denied 로그 저장</strong> — 권한 거부 / 사유 미입력 거부 모두 저장</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-warn">!</span><span><strong>대량 조회 rate limit</strong> — userId 기준 분당 N건 초과 차단</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>관리자 action 로그 강제</strong> — middleware 에서 자동 인서트 · 누락 불가</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>API response 에 마스킹 적용</strong> — DB 평문 → response 직전 마스킹 적용</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>SQL injection / parameter 검증</strong> — prepared statement · ORM 사용</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>HTTPS only · HSTS</strong> — 평문 HTTP 거부</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>CORS 화이트리스트</strong> — STAM 도메인만 허용</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-warn">!</span><span><strong>file download 응답에 Content-Disposition + 워터마크</strong></span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>응답 / 에러 메시지에 개인정보 포함 금지</strong> — stack trace · 내부 ID 노출 금지</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S17 Events ── -->
+      <section id="s17" class="sec" data-screen-label="17 Events">
+        <div class="sec-hdr">
+          <span class="sec-n">17</span>
+          <span class="sec-title">Security Event / Alert Policy</span>
+          <span class="sbadge plan">Event</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            이상 행위 자동 탐지 / 알림 후보. v1 은 탐지 + 알림, v2 에서 자동 차단까지 검토.
+          </p>
+          <div class="spg-ev-grid">
+            <div class="spg-ev-card is-fail">
+              <span class="spg-ev-name"><span class="ico">!</span>로그인 실패 반복</span>
+              <span class="spg-ev-spec">동일 ID 5회 / 동일 IP 20회 — <code>login_logs</code> 5분 window 집계 · 관리자 알림</span>
+            </div>
+            <div class="spg-ev-card is-fail">
+              <span class="spg-ev-name"><span class="ico">!</span>야간 대량 조회</span>
+              <span class="spg-ev-spec">22 ~ 06시 unmask 10건+ — 보안 담당자 알림 · 이상 행위 dashboard 표시</span>
+            </div>
+            <div class="spg-ev-card is-warn">
+              <span class="spg-ev-name"><span class="ico">!</span>짧은 시간 다수 고객 조회</span>
+              <span class="spg-ev-spec">5분 내 30+ 고객 unmask — 정상 업무 가능성 있어 경고 수준</span>
+            </div>
+            <div class="spg-ev-card is-warn">
+              <span class="spg-ev-name"><span class="ico">!</span>대량 다운로드</span>
+              <span class="spg-ev-spec">1000+ row export — 관리자 + 본인 알림 · download_logs 확인</span>
+            </div>
+            <div class="spg-ev-card is-fail">
+              <span class="spg-ev-name"><span class="ico">!</span>권한 변경 집중</span>
+              <span class="spg-ev-spec">10분 내 권한 변경 5+ — SUPER_ADMIN 알림 · 비정상 가능성</span>
+            </div>
+            <div class="spg-ev-card is-fail">
+              <span class="spg-ev-name"><span class="ico">!</span>퇴사자 계정 접근 시도</span>
+              <span class="spg-ev-spec">status=INACTIVE 계정의 로그인 시도 · 즉시 SUPER_ADMIN 알림</span>
+            </div>
+            <div class="spg-ev-card is-warn">
+              <span class="spg-ev-name"><span class="ico">!</span>외부 IP 접근</span>
+              <span class="spg-ev-spec">사내 IP 화이트리스트 외 — 우선 경고 · VPN 우회 정책 필요</span>
+            </div>
+            <div class="spg-ev-card is-warn">
+              <span class="spg-ev-name"><span class="ico">!</span>감사로그 조회 남용</span>
+              <span class="spg-ev-spec">SECURITY_ADMIN 의 감사로그 조회 자체도 모니터링 · 본인 행위 검토</span>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>알림 채널 후보</strong>
+            관리자 대시보드 (in-app) → email → Slack / Teams (선택). 보안 등급에 따라 SMS 추가.
+            v1 은 in-app + email 만으로 시작, v2 에서 외부 채널 확장.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S18 UI Mock ── -->
+      <section id="s18" class="sec" data-screen-label="18 UI Mock">
+        <div class="sec-hdr">
+          <span class="sec-n">18</span>
+          <span class="sec-title">Privacy / Security UI Mock — A ~ H</span>
+          <span class="sbadge plan">Visual</span>
+        </div>
+        <div class="sec-body">
+
+          <!-- A. Login -->
+          <div class="spg-cap"><span class="spg-cap-n">A</span>Login — 실패 5회 잠금 안내</div>
+          <div class="spg-mock-row">
+            <div class="spg-mock-col" style="min-width:480px;">
+              <div class="spg-mock-col-label"><span>PC · 1440</span><span class="spg-mock-col-w">login</span><span class="spg-mock-col-tag">screen</span></div>
+              <div class="spg-pc" style="min-height:380px;">
+                <div class="spg-pc-bar"><span class="spg-pc-dot"></span><span class="spg-pc-dot"></span><span class="spg-pc-dot"></span><span class="spg-pc-url">stam.app / login</span></div>
+                <div class="spg-pc-body">
+                  <div class="spg-pc-content">
+                    <div class="spg-pc-area" style="align-items:center;justify-content:center;">
+                      <div class="spg-login">
+                        <div class="spg-login-logo">S</div>
+                        <div class="spg-login-title">STAM 로그인</div>
+                        <div class="spg-input-row">
+                          <span class="spg-input-label">아이디 / 이메일</span>
+                          <div class="spg-input"><span>jiwon.park@stam.co</span></div>
+                        </div>
+                        <div class="spg-input-row">
+                          <span class="spg-input-label">비밀번호</span>
+                          <div class="spg-input is-fail"><span class="spg-ipre">●●●●●●●●●●</span></div>
+                          <span class="spg-input-help is-fail">아이디 또는 비밀번호가 올바르지 않습니다. (3 / 5 회)</span>
+                        </div>
+                        <div class="spg-btn is-primary" style="width:240px;">로그인</div>
+                        <span class="spg-input-help" style="text-align:center;">비밀번호 찾기 · 임시 비밀번호 발급</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="spg-side-note">
+              <strong>Login 정책 시각</strong>
+              · 실패 횟수 X / N 안내<br>
+              · 5회 누적 시 30분 잠금<br>
+              · "어떤 필드가 틀렸는지" 노출 X<br>
+              · 임시 비밀번호 발급 안내<br>
+              · 모든 시도 <code>login_logs</code> 저장
+            </div>
+          </div>
+
+          <!-- B. Password Change -->
+          <div class="spg-cap" style="margin-top:24px;"><span class="spg-cap-n">B</span>Password Change — 정책 안내 + 이력 재사용 차단</div>
+          <div class="spg-mock-row">
+            <div class="spg-panel" style="max-width:560px;">
+              <div class="spg-panel-title">비밀번호 변경</div>
+              <div class="spg-panel-body">
+                <div class="spg-input-row">
+                  <span class="spg-input-label">현재 비밀번호</span>
+                  <div class="spg-input"><span class="spg-ipre">●●●●●●●●</span></div>
+                </div>
+                <div class="spg-input-row">
+                  <span class="spg-input-label">새 비밀번호</span>
+                  <div class="spg-input"><span class="spg-ipre">●●●●●●●●●●●●</span></div>
+                  <span class="spg-input-help is-pass">✓ 10자 이상 · 영문/숫자/특수 3종 포함 · 최근 5개와 다름</span>
+                </div>
+                <div class="spg-input-row">
+                  <span class="spg-input-label">새 비밀번호 확인</span>
+                  <div class="spg-input"><span class="spg-ipre">●●●●●●●●●●●●</span></div>
+                </div>
+                <div style="padding:9px 11px;background:rgba(111,168,255,.08);border:1px solid rgba(111,168,255,.22);border-radius:7px;font-size:10.5px;color:var(--info);line-height:1.6;">
+                  <strong>비밀번호 정책</strong><br>
+                  · 10자 이상 · 영문대/소/숫자/특수문자 중 3종 이상<br>
+                  · 아이디 / 연속문자 / 흔한 사전 단어 금지<br>
+                  · 최근 5개 비밀번호와 동일 금지
+                </div>
+                <div style="display:flex;gap:8px;justify-content:flex-end;">
+                  <span class="spg-btn">취소</span>
+                  <span class="spg-btn is-primary">변경</span>
+                </div>
+              </div>
+            </div>
+            <div class="spg-side-note">
+              <strong>Password Change</strong>
+              · 정책 안내 항상 노출<br>
+              · 실시간 통과 / 실패 표시<br>
+              · 이력 재사용은 서버 검증<br>
+              · 변경 성공 → <code>password_history</code> + <code>admin_action_logs</code>(관리자 초기화의 경우)
+            </div>
+          </div>
+
+          <!-- C. Masked Row -->
+          <div class="spg-cap" style="margin-top:24px;"><span class="spg-cap-n">C</span>개인정보 마스킹 row + 전체 보기 트리거</div>
+          <div class="spg-clist">
+            <div class="spg-clist-row head"><span class="nm">이름</span><span class="lbl">전화</span><span class="lbl">이메일</span><span class="lbl">고객번호</span><span class="lbl" style="margin-left:auto;">액션</span></div>
+            <div class="spg-clist-row">
+              <span class="nm">박*원</span>
+              <span class="lbl"><span class="spg-mask is-locked">010-****-5678</span></span>
+              <span class="lbl"><span class="spg-mask is-locked">jiw***@stam.co</span></span>
+              <span class="lbl"><span class="spg-mask is-locked">CUST-****-234</span></span>
+              <span class="lbl" style="margin-left:auto;"><span class="spg-btn sm">전체 보기</span></span>
+            </div>
+            <div class="spg-clist-row">
+              <span class="nm">박지원</span>
+              <span class="lbl"><span class="spg-mask is-open">010-1234-5678</span></span>
+              <span class="lbl"><span class="spg-mask is-open">jiwon@stam.co</span></span>
+              <span class="lbl"><span class="spg-mask is-open">CUST-2026-001234</span></span>
+              <span class="lbl" style="margin-left:auto;"><span class="ts">4:32 후 자동 마스킹</span></span>
+            </div>
+            <div class="spg-clist-row">
+              <span class="nm">최*연</span>
+              <span class="lbl"><span class="spg-mask is-locked">010-****-9012</span></span>
+              <span class="lbl"><span class="spg-mask is-locked">seo***@stam.co</span></span>
+              <span class="lbl"><span class="spg-mask is-locked">CUST-****-789</span></span>
+              <span class="lbl" style="margin-left:auto;"><span class="spg-btn sm">전체 보기</span></span>
+            </div>
+          </div>
+          <div style="margin-top:6px;font-size:10.5px;color:var(--t3);line-height:1.6;">
+            잠김 row 는 마스킹 라벨, 열린 row 는 원문 (4:32 후 자동 재마스킹). 페이지 이탈 시 즉시 마스킹.
+          </div>
+
+          <!-- D. Unmask Reason Modal -->
+          <div class="spg-cap" style="margin-top:24px;"><span class="spg-cap-n">D</span>전체 보기 사유 입력 Modal</div>
+          <div class="spg-mock-row">
+            <div class="spg-modal">
+              <div class="spg-modal-head">
+                <span class="spg-modal-tag warn">개인정보 전체 보기</span>
+                <span class="spg-modal-close">✕</span>
+              </div>
+              <div class="spg-modal-title">조회 사유를 입력해 주세요</div>
+              <div class="spg-modal-body">전체 보기 행위는 감사로그에 기록되며, 보안팀이 정기적으로 점검합니다.</div>
+              <div class="spg-modal-target">
+                <span class="k">대상</span>
+                <span>고객 · CUST-****-234 · 박*원</span>
+              </div>
+              <div class="spg-input-row">
+                <span class="spg-input-label">사유 (5자 이상)</span>
+                <div class="spg-textarea">계약 변경 요청 처리를 위해 연락처 확인 필요</div>
+              </div>
+              <div class="spg-modal-warning">감사로그 저장 실패 시 전체 보기는 차단됩니다.</div>
+              <div class="spg-modal-foot">
+                <span class="spg-btn">취소</span>
+                <span class="spg-btn is-primary">전체 보기</span>
+              </div>
+            </div>
+            <div class="spg-side-note">
+              <strong>Unmask Modal</strong>
+              · 대상 마스킹 라벨 명시<br>
+              · 사유 5자 이상 의무<br>
+              · 감사로그 안내 명시<br>
+              · 저장 실패 시 차단 경고<br>
+              · 행위 → <code>personal_data_access_logs</code> 저장 후 unmask
+            </div>
+          </div>
+
+          <!-- E. Download Reason Modal -->
+          <div class="spg-cap" style="margin-top:24px;"><span class="spg-cap-n">E</span>다운로드 사유 입력 Modal</div>
+          <div class="spg-mock-row">
+            <div class="spg-modal">
+              <div class="spg-modal-head">
+                <span class="spg-modal-tag">다운로드 통제</span>
+                <span class="spg-modal-close">✕</span>
+              </div>
+              <div class="spg-modal-title">파일 다운로드 사유</div>
+              <div class="spg-modal-body">개인정보가 포함된 파일이 워터마크와 함께 생성됩니다.</div>
+              <div class="spg-modal-target">
+                <span class="k">파일 정보</span>
+                <span>고객 목록 · CSV · 248 row · 약 24KB</span>
+              </div>
+              <div class="spg-input-row">
+                <span class="spg-input-label">사유 (5자 이상)</span>
+                <div class="spg-textarea">2026-06 정산 자료 작성용 - 회계팀 요청</div>
+              </div>
+              <div style="padding:8px 10px;border-radius:7px;background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.22);font-size:10.5px;color:var(--warn);">
+                ⓘ 워터마크 — 박지원 · 2026-06-10 16:32 · IP 10.20.30.40
+              </div>
+              <div class="spg-modal-foot">
+                <span class="spg-btn">취소</span>
+                <span class="spg-btn is-primary">다운로드</span>
+              </div>
+            </div>
+            <div class="spg-side-note">
+              <strong>Download Modal</strong>
+              · 파일 정보 명시 (형식 · row · 크기)<br>
+              · 워터마크 미리보기<br>
+              · 사유 5자 이상<br>
+              · 100+ row 이상은 추가 확인<br>
+              · <code>download_logs</code> 저장 후 스트리밍
+            </div>
+          </div>
+
+          <!-- F. Audit Log -->
+          <div class="spg-cap" style="margin-top:24px;"><span class="spg-cap-n">F</span>감사로그 조회 화면</div>
+          <div class="spg-pc" style="min-height:360px;">
+            <div class="spg-pc-bar"><span class="spg-pc-dot"></span><span class="spg-pc-dot"></span><span class="spg-pc-dot"></span><span class="spg-pc-url">stam.app / admin / audit</span><span class="spg-pc-tag info">SECURITY</span></div>
+            <div class="spg-pc-body">
+              <div class="spg-pc-content">
+                <div class="spg-pc-topbar"><span>관리</span> · <span class="spg-pc-crumb-cur">감사로그</span><span class="spg-pc-tb-sp"></span><span class="spg-pc-tb-pill">SECURITY_ADMIN</span></div>
+                <div class="spg-pc-area">
+                  <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+                    <div class="spg-btn sm">기간: 2026-06-01 ~ 06-10</div>
+                    <div class="spg-btn sm">action: VIEW · UNMASK · DOWNLOAD</div>
+                    <div class="spg-btn sm">target: CUSTOMER</div>
+                    <div class="spg-btn sm">result: ALL</div>
+                    <div class="spg-btn sm is-ghost" style="margin-left:auto;">CSV 다운로드 (사유 필요)</div>
+                  </div>
+                  <div class="spg-table-host">
+                    <table class="spg-tt">
+                      <thead><tr><th style="width:140px;">시각</th><th>사용자</th><th>액션</th><th>대상</th><th>사유</th><th>IP</th><th>결과</th></tr></thead>
+                      <tbody>
+                        <tr><td class="mono">06-10 16:32:18</td><td class="tn">박지원 · PM</td><td><span class="spg-act unmask">UNMASK</span></td><td>CUST-****-234 · 박*원</td><td>계약 변경 연락 확인</td><td class="mono">10.20.30.40</td><td><span class="spg-act view">SUCCESS</span></td></tr>
+                        <tr><td class="mono">06-10 16:28:04</td><td class="tn">박지원 · PM</td><td><span class="spg-act view">VIEW</span></td><td>CUST-****-234</td><td>—</td><td class="mono">10.20.30.40</td><td><span class="spg-act view">SUCCESS</span></td></tr>
+                        <tr><td class="mono">06-10 16:15:42</td><td class="tn">정유진 · ADMIN</td><td><span class="spg-act dl">DOWNLOAD</span></td><td>고객 목록 · 248 row</td><td>2026-06 정산 자료</td><td class="mono">10.20.30.55</td><td><span class="spg-act view">SUCCESS</span></td></tr>
+                        <tr><td class="mono">06-10 15:48:21</td><td class="tn">최서연 · MEMBER</td><td><span class="spg-act unmask">UNMASK</span></td><td>CUST-****-501</td><td>—</td><td class="mono">10.20.30.62</td><td><span class="spg-act deny">DENIED</span></td></tr>
+                        <tr><td class="mono">06-10 15:48:18</td><td class="tn">최서연 · MEMBER</td><td><span class="spg-act unmask">UNMASK</span></td><td>CUST-****-498</td><td>—</td><td class="mono">10.20.30.62</td><td><span class="spg-act deny">DENIED</span></td></tr>
+                        <tr><td class="mono">06-10 14:12:09</td><td class="tn">정유진 · ADMIN</td><td><span class="spg-act up">UPDATE</span></td><td>user_roles · 박지원</td><td>승급</td><td class="mono">10.20.30.55</td><td><span class="spg-act view">SUCCESS</span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- G. Admin Role Change History -->
+          <div class="spg-cap" style="margin-top:24px;"><span class="spg-cap-n">G</span>관리자 권한 변경 이력</div>
+          <div class="spg-table-host">
+            <table class="spg-tt">
+              <thead><tr><th style="width:140px;">시각</th><th>관리자</th><th>대상 사용자</th><th>before</th><th>after</th><th>사유</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">06-10 14:12</td><td class="tn">정유진 · ADMIN</td><td>박지원</td><td>MEMBER</td><td>PM</td><td>WBS 프로젝트 권한 승급</td></tr>
+                <tr><td class="mono">06-08 09:42</td><td class="tn">정유진 · ADMIN</td><td>김민서</td><td>—</td><td>MEMBER</td><td>신규 입사 계정 생성</td></tr>
+                <tr><td class="mono">06-07 17:21</td><td class="tn">정유진 · ADMIN</td><td>이도윤</td><td>VIEWER</td><td>—</td><td>퇴사 — role 회수</td></tr>
+                <tr><td class="mono">06-05 11:18</td><td class="tn">SUPER_ADMIN</td><td>정유진</td><td>ADMIN</td><td>ADMIN + SECURITY_ADMIN</td><td>보안 담당 추가</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- H. Retention Notice -->
+          <div class="spg-cap" style="margin-top:24px;"><span class="spg-cap-n">H</span>보관 / 파기 정책 안내</div>
+          <div class="spg-panel" style="max-width:760px;">
+            <div class="spg-panel-title">개인정보 보관 · 파기 정책</div>
+            <div class="spg-panel-body">
+              <div class="spg-row-flex"><span class="k">계정 (활동)</span><span class="v">서비스 제공 목적 · 계약 종료 + 30일까지 보관 → 휴면 전환</span></div>
+              <div class="spg-row-flex"><span class="k">계정 (휴면)</span><span class="v">법적 의무 · 1년 보관 후 완전 파기 / 본인 확인 시 복원</span></div>
+              <div class="spg-row-flex"><span class="k">고객 정보 L1</span><span class="v">업무 수행 · 프로젝트 종료 + 1년 / 법령상 5년 보존 예외</span></div>
+              <div class="spg-row-flex"><span class="k">고객 정보 L3</span><span class="v">전자상거래법 · 5년 보존 후 파기 (계약 / 정산 / 계좌)</span></div>
+              <div class="spg-row-flex"><span class="k">개인정보 조회 로그</span><span class="v">ISMS-P · 3년 보관 후 파기</span></div>
+              <div class="spg-row-flex"><span class="k">파기 예정 안내</span><span class="v">파기 30일 전 · 본인 / 관리자 안내 (email + 대시보드)</span></div>
+              <div class="spg-row-flex"><span class="k">본인 데이터 다운로드</span><span class="v">본인 인증 후 90일 내 1회 요청 가능 (감사로그 저장)</span></div>
+              <div style="display:flex;gap:8px;margin-top:6px;">
+                <span class="spg-btn">본인 데이터 다운로드 요청</span>
+                <span class="spg-btn is-fail">계정 삭제 요청</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S19 ISMS-P ── -->
+      <section id="s19" class="sec" data-screen-label="19 ISMS-P">
+        <div class="sec-hdr">
+          <span class="sec-n">19</span>
+          <span class="sec-title">ISMS-P Mapping Table — 10 범주</span>
+          <span class="sbadge plan">ISMS-P</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            ISMS-P 세부 항목 번호는 단정하지 않고 <strong>10 범주</strong>로 매핑한다.
+            세부 통제 번호는 별도 컨설팅 / 인증 단계에서 확정.
+          </p>
+          <div class="spg-isms-grid">
+            <div class="spg-isms-card">
+              <span class="spg-isms-cat">01 · 인증</span>
+              <span class="spg-isms-name">사용자 인증 / 로그인</span>
+              <span class="spg-isms-map">→ <code>S03 Authentication</code> · <code>S04 Password</code> · <code>login_logs</code> · MFA v2 후보</span>
+            </div>
+            <div class="spg-isms-card">
+              <span class="spg-isms-cat">02 · 접근통제</span>
+              <span class="spg-isms-name">메뉴 · 화면 · API 접근</span>
+              <span class="spg-isms-map">→ <code>S06 Authorization</code> · menu / action / scope 3축 · API 권한 재검증</span>
+            </div>
+            <div class="spg-isms-card">
+              <span class="spg-isms-cat">03 · 권한관리</span>
+              <span class="spg-isms-name">권한 부여 / 회수 / 검토</span>
+              <span class="spg-isms-map">→ <code>user_roles</code> · <code>admin_action_logs</code> · 정기 권한 검토 (분기)</span>
+            </div>
+            <div class="spg-isms-card">
+              <span class="spg-isms-cat">04 · 로그관리</span>
+              <span class="spg-isms-name">감사로그 / 보존 / 위변조 방지</span>
+              <span class="spg-isms-map">→ <code>S09</code> · <code>S11</code> · append-only · 보존 3년</span>
+            </div>
+            <div class="spg-isms-card">
+              <span class="spg-isms-cat">05 · 암호화</span>
+              <span class="spg-isms-name">전송 / 저장 / 키관리</span>
+              <span class="spg-isms-map">→ HTTPS · L1~L3 컬럼 암호화 · KMS · 비밀번호 해시 (bcrypt/argon2)</span>
+            </div>
+            <div class="spg-isms-card">
+              <span class="spg-isms-cat">06 · 개인정보 수집/이용</span>
+              <span class="spg-isms-name">수집 목적 / 동의 / 최소화</span>
+              <span class="spg-isms-map">→ <code>S07</code> · <code>S12 retention_policies.purpose</code> · 동의 모달 후보 (v2)</span>
+            </div>
+            <div class="spg-isms-card">
+              <span class="spg-isms-cat">07 · 보유 / 파기</span>
+              <span class="spg-isms-name">보유 기간 / 자동 파기 / 예외</span>
+              <span class="spg-isms-map">→ <code>S12</code> · <code>retention_policies</code> · <code>data_deletion_requests</code></span>
+            </div>
+            <div class="spg-isms-card">
+              <span class="spg-isms-cat">08 · 위탁 / 제3자</span>
+              <span class="spg-isms-name">외부 제공 / 위탁사 관리</span>
+              <span class="spg-isms-map">→ v2 후보 · 외부 시스템 통합 시 동의 흐름 · 별도 Gate</span>
+            </div>
+            <div class="spg-isms-card">
+              <span class="spg-isms-cat">09 · 사고대응</span>
+              <span class="spg-isms-name">이상 탐지 / 알림 / 신고</span>
+              <span class="spg-isms-map">→ <code>S17 Events</code> · 관리자 알림 · 외부 신고 절차는 별도</span>
+            </div>
+            <div class="spg-isms-card">
+              <span class="spg-isms-cat">10 · 운영관리</span>
+              <span class="spg-isms-name">정책 / 교육 / 점검 / 백업</span>
+              <span class="spg-isms-map">→ <code>security_policy_versions</code> · 정기 점검 / 교육은 운영 정책 영역</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S20 Handoff ── -->
+      <section id="s20" class="sec" data-screen-label="20 Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">20</span>
+          <span class="sec-title">Cursor / Backend Handoff Notes</span>
+          <span class="sbadge plan">Handoff</span>
+        </div>
+        <div class="sec-body">
+          <div class="spg-handoff-list">
+            <div class="spg-handoff-item">
+              <span class="spg-hf-path">stam/pages/auth/login.html</span>
+              <span class="spg-hf-role">로그인 · 실패 횟수 · 잠금 안내 · 임시 비번 안내 · S14-A</span>
+            </div>
+            <div class="spg-handoff-item">
+              <span class="spg-hf-path">stam/pages/auth/password-change.html</span>
+              <span class="spg-hf-role">비밀번호 변경 · 정책 안내 · 이력 차단 검증 · S14-B</span>
+            </div>
+            <div class="spg-handoff-item">
+              <span class="spg-hf-path">stam/pages/admin/audit-logs.html</span>
+              <span class="spg-hf-role">감사로그 조회 · filter · 다운로드 사유 별도 · S14, S18-F</span>
+            </div>
+            <div class="spg-handoff-item">
+              <span class="spg-hf-path">stam/pages/admin/permissions.html</span>
+              <span class="spg-hf-role">권한 관리 · role 부여 / 회수 / 이력 · S18-G</span>
+            </div>
+            <div class="spg-handoff-item">
+              <span class="spg-hf-path">stam/pages/privacy/retention.html</span>
+              <span class="spg-hf-role">보관 / 파기 정책 안내 · 본인 다운로드 · 삭제 요청 · S18-H</span>
+            </div>
+            <div class="spg-handoff-item">
+              <span class="spg-hf-path">stam/js/stam.mask.js <em>(신규)</em></span>
+              <span class="spg-hf-role">마스킹 컴포넌트 · 5분 후 자동 마스킹 · 페이지 이탈 시 즉시</span>
+            </div>
+            <div class="spg-handoff-item">
+              <span class="spg-hf-path">stam/js/stam.session.js <em>(신규)</em></span>
+              <span class="spg-hf-role">세션 유휴 감지 · 만료 안내 모달 · refresh · 강제 로그아웃</span>
+            </div>
+            <div class="spg-handoff-item">
+              <span class="spg-hf-path">server/middleware/authorize.ts <em>(BE)</em></span>
+              <span class="spg-hf-role">권한 재검증 · denied 로그 저장 · scope 검증</span>
+            </div>
+            <div class="spg-handoff-item">
+              <span class="spg-hf-path">server/middleware/audit-writer.ts <em>(BE)</em></span>
+              <span class="spg-hf-role">개인정보 access / admin action 로그 자동 인서트 · 트랜잭션</span>
+            </div>
+            <div class="spg-handoff-item">
+              <span class="spg-hf-path">server/api/unmask-controller.ts <em>(BE)</em></span>
+              <span class="spg-hf-role">unmask 전용 · reason 검증 · rate limit · 로그 성공 후 반환</span>
+            </div>
+            <div class="spg-handoff-item">
+              <span class="spg-hf-path">server/api/export-controller.ts <em>(BE)</em></span>
+              <span class="spg-hf-role">CSV/Excel/PDF 워터마크 · download_logs · 대량 확인</span>
+            </div>
+            <div class="spg-handoff-item">
+              <span class="spg-hf-path">db/migrations/ <em>(DB)</em></span>
+              <span class="spg-hf-role">14 테이블 (S13) · 인덱스 · 보존 정책 trigger / job</span>
+            </div>
+          </div>
+
+          <div class="spg-rule-grid" style="margin-top:14px;">
+            <div class="spg-rule-card">
+              <div class="spg-rc-hdr is-warn">실제 구현 전 주의 — 순서</div>
+              <ul>
+                <li>1차: DB 14 테이블 schema 확정 (S13) → migration 작성</li>
+                <li>2차: 권한 middleware + 감사로그 writer (BE)</li>
+                <li>3차: 로그인 · 비밀번호 · 세션 화면 (FE)</li>
+                <li>4차: 마스킹 컴포넌트 + unmask API + reason 모달</li>
+                <li>5차: 다운로드 통제 + 워터마크</li>
+                <li>6차: 관리자 화면 (감사로그 / 권한 / 정책)</li>
+                <li>7차: 이상 행위 탐지 / 알림 (S17)</li>
+              </ul>
+            </div>
+            <div class="spg-rule-card">
+              <div class="spg-rc-hdr is-fail">한 커밋에 섞지 말 것</div>
+              <ul>
+                <li>DB 마이그레이션 + 비즈니스 로직</li>
+                <li>마스킹 + 권한 middleware</li>
+                <li>감사로그 + 사용자 정책 변경</li>
+                <li>관리자 화면 + 일반 사용자 화면</li>
+                <li>알림 / 이상 행위 탐지 + 기본 로그 schema</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>핵심 주의</strong><br>
+            · UI 만 구현하고 서버 검증을 빼면 보안 효과 0<br>
+            · 개인정보 조회 로그는 실패 / 거부도 반드시 저장<br>
+            · 감사로그는 일반 사용자가 삭제 불가 (append-only)<br>
+            · 권한 변경 / 보안정책 변경은 별도 로그<br>
+            · DB 설계 확정 전 실제 구현 금지
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S21 Guardrails ── -->
+      <section id="s21" class="sec" data-screen-label="21 Guardrails">
+        <div class="sec-hdr">
+          <span class="sec-n">21</span>
+          <span class="sec-title">Implementation Guardrails</span>
+          <span class="sbadge lock">Rule</span>
+        </div>
+        <div class="sec-body">
+          <div class="spg-chk-list">
+            <div class="spg-chk-item"><span class="spg-chk-box is-fail">!</span><span><strong>보안 정책 없이 개인정보 화면 구현 금지</strong> — S07 분류 / S08 마스킹 정책 미확정 시 진행 불가.</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-fail">!</span><span><strong>마스킹 없이 개인정보 원문 표시 금지</strong> — API 가 마스킹 반환 default.</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-fail">!</span><span><strong>사유 없는 전체 보기 금지</strong> — 모든 unmask 는 reason 5자+.</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-fail">!</span><span><strong>감사로그 저장 실패 시 전체 보기 금지</strong> — 트랜잭션 안에서 처리.</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-fail">!</span><span><strong>프론트 권한만 믿고 API 허용 금지</strong> — 서버에서 세션 role 사용 · 재검증.</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-warn">!</span><span><strong>다운로드 / 내보내기는 조회보다 강한 통제</strong> — 권한 / 사유 / 워터마크.</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-fail">!</span><span><strong>감사로그 삭제 기능 금지</strong> — append-only · 보존 만료 시 자동 파기만.</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span><strong>운영자도 본인 행위 로그 남김</strong> — SUPER_ADMIN 예외 없음.</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-warn">!</span><span><strong>보안 / 개인정보 기능은 별도 PR / Gate</strong> — 다른 기능과 한 커밋 금지.</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-fail">!</span><span><strong>비밀번호 평문 저장 금지</strong> — bcrypt / argon2 해시 의무.</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-fail">!</span><span><strong>L3 데이터 평문 저장 금지</strong> — 컬럼 암호화 의무.</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-warn">!</span><span><strong>console.log / error 응답에 개인정보 노출 금지</strong>.</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-info">i</span><span><strong>전역 <code>.tbtn</code> 일괄 치환 금지</strong> — 도큐 nav 전용.</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box is-info">i</span><span><strong>DB 스키마 실제 생성 / Firebase rules 수정은 본 문서 범위 밖</strong>.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S22 QA ── -->
+      <section id="s22" class="sec" data-screen-label="22 QA Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">22</span>
+          <span class="sec-title">QA Checklist</span>
+          <span class="sbadge plan">QA</span>
+        </div>
+        <div class="sec-body">
+          <div class="spg-chk-list">
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>로그인 실패 — 5회 누적 시 30분 잠금 · login_logs 저장</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>비밀번호 변경 — 정책 통과 / 이력 재사용 차단 · password_history</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>세션 만료 — 30분 유휴 안내 → 로그아웃 · session_logs</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>권한 없음 — 403 응답 시 권한 없음 페이지 · denied 로그</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>개인정보 마스킹 — 모든 화면 default · API 반환 마스킹</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>전체 보기 사유 입력 — 5자+ · 감사로그 성공 후 unmask</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>감사로그 저장 — personal_data_access_logs · 성공/실패/거부 모두</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>다운로드 사유 입력 — 5자+ · 대량 추가 확인</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>다운로드 로그 저장 — download_logs · 워터마크 적용</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>관리자 권한 변경 로그 — admin_action_logs · before/after JSON</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>보관 / 파기 정책 화면 표시 — 분류별 보존 / 파기 예정 / 본인 다운로드</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>light / dark 모두 시각 정합</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>S-Core Dream 자체서빙 폰트만 사용 (CDN / Pretendard / Gulim / Dotum / Google Fonts 금지)</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>iframe 미사용 · mock 전용 prefix <code>.spg-</code> 사용</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>page-level horizontal scroll 없음</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>console error 없음</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>실제 제품 CSS / class / DB schema / Firebase rules 미수정</span></div>
+            <div class="spg-chk-item"><span class="spg-chk-box">✓</span><span>Docs Index 카드 1개 추가 · 위치는 아키텍처 / 컴포넌트 가이드 영역</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S23 Related ── -->
+      <section id="s23" class="sec" data-screen-label="23 Related">
+        <div class="sec-hdr">
+          <span class="sec-n">23</span>
+          <span class="sec-title">Related Documents</span>
+          <span class="sbadge guide">참고</span>
+        </div>
+        <div class="sec-body">
+          <div class="spg-rel-grid">
+            <a class="spg-rel-card" href="STAM-Backend-Architecture-API-Boundary-Guide.html"><span class="spg-rl-title">Backend Architecture &amp; API Boundary Guide</span><span class="spg-rl-sub">레이어 책임 · API 경계 · 인증 / 권한 구조</span></a>
+            <a class="spg-rel-card" href="STAM-UI-Baseline-Guide.html"><span class="spg-rl-title">STAM UI Baseline Guide</span><span class="spg-rl-sub">전역 폰트 · 토큰 · Layout · Forbidden Rules</span></a>
+            <a class="spg-rel-card" href="STAM-Component-Guide.html"><span class="spg-rl-title">STAM Component Guide</span><span class="spg-rl-sub">Form · Dialog · Drawer · Table · Topbar</span></a>
+            <a class="spg-rel-card" href="STAM-Form-Token-Mapping-v1.html"><span class="spg-rl-title">Form Token Mapping v1</span><span class="spg-rl-sub">Input · Select · Validation 토큰</span></a>
+            <a class="spg-rel-card" href="STAM-Dialog-Token-Mapping-v1.html"><span class="spg-rl-title">Dialog Token Mapping v1</span><span class="spg-rl-sub">Confirm · Danger Modal — 사유 입력 modal 베이스</span></a>
+            <a class="spg-rel-card" href="STAM-Table-Token-Mapping-v1.html"><span class="spg-rl-title">Table Token Mapping v1</span><span class="spg-rl-sub">감사로그 / 권한 이력 테이블 베이스</span></a>
+            <a class="spg-rel-card" href="STAM-Data-Table-Full-Table-Responsive-Guide-v1.html"><span class="spg-rl-title">Data Table / Full Table Responsive Guide v1</span><span class="spg-rl-sub">감사로그 조회 화면 베이스</span></a>
+            <a class="spg-rel-card" href="STAM-WBS-Presentation-Mode-Applied-Preview-v1.html"><span class="spg-rl-title">WBS Presentation Mode Applied Preview v1</span><span class="spg-rl-sub">발표 모드 — 마스킹 유지 정책</span></a>
+            <a class="spg-rel-card" href="STAM-Docs-Index.html"><span class="spg-rl-title">STAM Docs Index</span><span class="spg-rl-sub">전체 문서 인덱스</span></a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  if (!main) return;
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>

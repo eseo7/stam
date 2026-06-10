@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Admin Permission Manager Applied Preview v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ============================================================
+ * STAM Admin Permission Manager Applied Preview v1
+ * - 문서 전용 격리 스타일 (prefix: apm-)
+ * - 실제 product CSS / class 절대 덮어쓰지 않음
+ * ============================================================ */
+.apm-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:var(--font);white-space:nowrap}
+.apm-pill::before{content:"";width:6px;height:6px;border-radius:999px;background:currentColor;display:inline-block;flex-shrink:0}
+.apm-pill.pass{background:var(--pass-bg);color:var(--pass)}
+.apm-pill.warn{background:var(--warn-bg);color:var(--warn)}
+.apm-pill.fail{background:var(--fail-bg);color:var(--fail)}
+.apm-pill.info{background:var(--info-bg);color:var(--info)}
+.apm-pill.brand{background:var(--stam-soft);color:var(--stam)}
+.apm-pill.notyet{background:var(--skip-bg);color:var(--skip)}
+
+.apm-hero{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:18px 20px 16px;display:flex;flex-direction:column;gap:12px;margin-bottom:24px;position:relative;overflow:hidden}
+.apm-hero::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--fail)}
+.apm-hero-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.apm-hero-title{font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.apm-hero p{margin:0;font-size:12px;color:var(--t2);line-height:1.7}
+.apm-hero code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px}
+
+.apm-kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+@media (max-width:1280px){.apm-kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:720px){.apm-kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.apm-kpi{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:11px 12px 12px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.apm-kpi .apm-kpi-key{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3)}
+.apm-kpi .apm-kpi-val{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.005em;line-height:1.35}
+.apm-kpi.brand{border-color:rgba(84,81,232,.22);background:var(--stam-soft)}
+.apm-kpi.brand .apm-kpi-key{color:var(--stam);opacity:.9}.apm-kpi.brand .apm-kpi-val{color:var(--stam)}
+.apm-kpi.info{border-color:rgba(111,168,255,.22);background:var(--info-bg)}
+.apm-kpi.info .apm-kpi-key{color:var(--info);opacity:.9}.apm-kpi.info .apm-kpi-val{color:var(--info)}
+.apm-kpi.warn{border-color:rgba(245,158,11,.22);background:var(--warn-bg)}
+.apm-kpi.warn .apm-kpi-key{color:var(--warn);opacity:.9}.apm-kpi.warn .apm-kpi-val{color:var(--warn)}
+.apm-kpi.fail{border-color:rgba(255,90,71,.22);background:var(--fail-bg)}
+.apm-kpi.fail .apm-kpi-key{color:var(--fail);opacity:.9}.apm-kpi.fail .apm-kpi-val{color:var(--fail)}
+.apm-kpi.pass{border-color:rgba(40,180,99,.22);background:var(--pass-bg)}
+.apm-kpi.pass .apm-kpi-key{color:var(--pass);opacity:.9}.apm-kpi.pass .apm-kpi-val{color:var(--pass)}
+
+.apm-cap{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.apm-cap .apm-cap-n{width:22px;height:22px;border-radius:6px;background:var(--fail-bg);color:var(--fail);font-size:10.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+.apm-cap-sub{font-size:10.5px;color:var(--t3);font-weight:500;letter-spacing:0;margin-left:4px}
+
+.apm-tbl-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--bd)}
+.apm-tbl{width:100%;border-collapse:collapse;font-family:var(--font);font-size:11.5px;background:var(--bg-sur);min-width:720px}
+.apm-tbl th{padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2);white-space:nowrap}
+.apm-tbl td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;line-height:1.6}
+.apm-tbl tbody tr:last-child td{border-bottom:none}
+.apm-tbl td.tn{color:var(--t1);font-weight:700;white-space:nowrap;font-size:11px}
+.apm-tbl td code,.apm-tbl th code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;letter-spacing:.005em;white-space:nowrap}
+.apm-tbl td.good{color:var(--pass);font-weight:700}
+.apm-tbl td.bad{color:var(--fail);font-weight:700}
+.apm-tbl td.warn{color:var(--warn);font-weight:700}
+.apm-tbl td.info{color:var(--info);font-weight:700}
+.apm-tbl td.note{color:var(--t3);font-size:10.5px}
+
+.apm-rule-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (max-width:760px){.apm-rule-grid{grid-template-columns:1fr}}
+.apm-rule-card{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:12px 14px}
+.apm-rule-card .apm-rc-hdr{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t1);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.apm-rule-card .apm-rc-hdr::before{content:"";width:8px;height:8px;border-radius:999px;background:var(--stam);display:inline-block}
+.apm-rule-card .apm-rc-hdr.is-pass::before{background:var(--pass)}
+.apm-rule-card .apm-rc-hdr.is-warn::before{background:var(--warn)}
+.apm-rule-card .apm-rc-hdr.is-info::before{background:var(--info)}
+.apm-rule-card .apm-rc-hdr.is-fail::before{background:var(--fail)}
+.apm-rule-card ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.apm-rule-card li{font-size:11.5px;line-height:1.6;color:var(--t2);padding-left:12px;position:relative}
+.apm-rule-card li::before{content:"·";position:absolute;left:2px;top:-2px;color:var(--t3);font-weight:800}
+.apm-rule-card li code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+
+.apm-chk-list{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 10px}
+@media (max-width:760px){.apm-chk-list{grid-template-columns:1fr}}
+.apm-chk-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);font-size:11.5px;line-height:1.55;color:var(--t2)}
+.apm-chk-item code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+.apm-chk-box{width:16px;height:16px;border-radius:4px;background:var(--pass-bg);color:var(--pass);font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.apm-chk-box.is-warn{background:var(--warn-bg);color:var(--warn)}
+.apm-chk-box.is-info{background:var(--info-bg);color:var(--info)}
+.apm-chk-box.is-fail{background:var(--fail-bg);color:var(--fail)}
+
+.apm-handoff-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:760px){.apm-handoff-list{grid-template-columns:1fr}}
+.apm-handoff-item{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.apm-handoff-item .apm-hf-path{font-family:var(--font);font-size:11px;font-weight:700;color:var(--t1);letter-spacing:.005em}
+.apm-handoff-item .apm-hf-role{font-size:10px;color:var(--t3);line-height:1.55}
+
+.apm-rel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:1100px){.apm-rel-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:720px){.apm-rel-grid{grid-template-columns:1fr}}
+.apm-rel-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px;text-decoration:none;transition:border-color 120ms,background 120ms}
+.apm-rel-card:hover{border-color:rgba(84,81,232,.35);background:rgba(84,81,232,.04)}
+.apm-rel-card .apm-rl-title{font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.apm-rel-card .apm-rl-sub{font-size:10.5px;color:var(--t3)}
+
+/* Role card */
+.apm-role-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:1100px){.apm-role-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.apm-role-grid{grid-template-columns:1fr}}
+.apm-role-card{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:11px 12px;display:flex;flex-direction:column;gap:5px}
+.apm-role-card .apm-role-tag{font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;display:inline-flex;align-items:center;gap:5px}
+.apm-role-card .apm-role-tag::before{content:"";width:8px;height:8px;border-radius:999px}
+.apm-role-card.r-super .apm-role-tag{color:var(--fail)}.apm-role-card.r-super .apm-role-tag::before{background:var(--fail)}.apm-role-card.r-super{border-color:rgba(255,90,71,.22);background:var(--fail-bg)}
+.apm-role-card.r-sec .apm-role-tag{color:var(--warn)}.apm-role-card.r-sec .apm-role-tag::before{background:var(--warn)}.apm-role-card.r-sec{border-color:rgba(245,158,11,.22);background:var(--warn-bg)}
+.apm-role-card.r-admin .apm-role-tag{color:var(--stam)}.apm-role-card.r-admin .apm-role-tag::before{background:var(--stam)}.apm-role-card.r-admin{border-color:rgba(84,81,232,.22);background:var(--stam-soft)}
+.apm-role-card.r-pm .apm-role-tag{color:var(--info)}.apm-role-card.r-pm .apm-role-tag::before{background:var(--info)}.apm-role-card.r-pm{border-color:rgba(111,168,255,.22);background:var(--info-bg)}
+.apm-role-card.r-member .apm-role-tag{color:var(--pass)}.apm-role-card.r-member .apm-role-tag::before{background:var(--pass)}.apm-role-card.r-member{border-color:rgba(40,180,99,.22);background:var(--pass-bg)}
+.apm-role-card.r-viewer .apm-role-tag{color:var(--t3)}.apm-role-card.r-viewer .apm-role-tag::before{background:var(--t3)}
+.apm-role-card.r-ext .apm-role-tag{color:var(--t3)}.apm-role-card.r-ext .apm-role-tag::before{background:var(--t3)}.apm-role-card.r-ext{border-style:dashed}
+.apm-role-card .apm-role-t{font-size:12px;font-weight:800;color:var(--t1);letter-spacing:-.005em}
+.apm-role-card .apm-role-s{font-size:10.5px;color:var(--t2);line-height:1.55}
+.apm-role-card .apm-role-list{font-size:10px;color:var(--t1);font-weight:600;display:flex;flex-wrap:wrap;gap:3px 6px}
+
+/* ─────────────── Mock primitives ─────────────── */
+.apm-mock-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.apm-mock-col{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1}
+.apm-mock-col-label{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);font-family:var(--font)}
+.apm-mock-col-label .apm-mock-col-w{font-size:9.5px;padding:1px 6px;border-radius:4px;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t2);letter-spacing:.02em}
+.apm-mock-col-label .apm-mock-col-tag{font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--stam-soft);color:var(--stam);letter-spacing:.04em}
+.apm-mock-col-label .apm-mock-col-tag.alt{background:var(--info-bg);color:var(--info)}
+.apm-mock-col-label .apm-mock-col-tag.warn{background:var(--warn-bg);color:var(--warn)}
+.apm-mock-col-label .apm-mock-col-tag.fail{background:var(--fail-bg);color:var(--fail)}
+
+.apm-side-note{font-size:10.5px;color:var(--t3);line-height:1.65;max-width:280px;flex-shrink:0}
+.apm-side-note strong{color:var(--t1);display:block;margin-bottom:4px}
+
+/* PC frame */
+.apm-pc{background:#0F1320;border-radius:14px;border:1px solid rgba(255,255,255,.06);box-shadow:0 12px 30px rgba(0,0,0,.32);font-family:var(--font);overflow:hidden;display:flex;flex-direction:column;min-width:0;width:100%}
+[data-theme="light"] .apm-pc{background:#F5F7FB;border-color:rgba(20,22,30,.10);box-shadow:0 10px 24px rgba(20,22,30,.10)}
+.apm-pc-bar{height:26px;background:#0B0E1A;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:6px;padding:0 12px}
+[data-theme="light"] .apm-pc-bar{background:#E9ECF2;border-bottom-color:rgba(20,22,30,.06)}
+.apm-pc-bar .apm-pc-dot{width:8px;height:8px;border-radius:99px;background:rgba(255,255,255,.20)}
+[data-theme="light"] .apm-pc-bar .apm-pc-dot{background:rgba(20,22,30,.22)}
+.apm-pc-bar .apm-pc-url{margin-left:8px;font-size:9.5px;color:rgba(255,255,255,.46);letter-spacing:.02em}
+[data-theme="light"] .apm-pc-bar .apm-pc-url{color:rgba(20,22,30,.50)}
+.apm-pc-bar .apm-pc-tag{margin-left:auto;font-size:9px;font-weight:800;padding:1px 7px;border-radius:4px;background:rgba(255,90,71,.20);color:#FF7D6E;letter-spacing:.05em}
+.apm-pc-body{display:flex;min-height:0;flex:1}
+.apm-pc-nav{width:148px;background:#131826;border-right:1px solid rgba(255,255,255,.04);padding:14px 10px;display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+[data-theme="light"] .apm-pc-nav{background:#FFFFFF;border-right-color:rgba(20,22,30,.06)}
+.apm-pc-nav-brand{font-size:10.5px;font-weight:800;color:rgba(255,255,255,.92);letter-spacing:.05em;padding:2px 4px 10px;border-bottom:1px solid rgba(255,255,255,.04);margin-bottom:4px}
+[data-theme="light"] .apm-pc-nav-brand{color:rgba(20,22,30,.92);border-bottom-color:rgba(20,22,30,.06)}
+.apm-pc-nav-it{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:6px;font-size:10.5px;color:rgba(255,255,255,.62);font-weight:600}
+[data-theme="light"] .apm-pc-nav-it{color:rgba(20,22,30,.66)}
+.apm-pc-nav-it.active{background:rgba(255,90,71,.18);color:#FF7D6E}
+[data-theme="light"] .apm-pc-nav-it.active{color:#c93c2a}
+.apm-pc-nav-it::before{content:"";width:5px;height:5px;border-radius:99px;background:currentColor;opacity:.75;flex-shrink:0}
+.apm-pc-content{flex:1;min-width:0;display:flex;flex-direction:column;background:#0F1320}
+[data-theme="light"] .apm-pc-content{background:#FAFBFC}
+.apm-pc-topbar{height:34px;background:#131826;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:8px;padding:0 14px;flex-shrink:0;font-size:10.5px;color:rgba(255,255,255,.62);font-weight:600}
+[data-theme="light"] .apm-pc-topbar{background:#FFFFFF;border-bottom-color:rgba(20,22,30,.06);color:rgba(20,22,30,.66)}
+.apm-pc-topbar .apm-pc-crumb-cur{color:rgba(255,255,255,.92);font-weight:700}
+[data-theme="light"] .apm-pc-topbar .apm-pc-crumb-cur{color:rgba(20,22,30,.92)}
+.apm-pc-topbar .apm-pc-tb-sp{flex:1}
+.apm-pc-topbar .apm-pc-tb-pill{padding:2px 7px;border-radius:5px;background:rgba(255,255,255,.06);font-size:9.5px;color:rgba(255,255,255,.62)}
+[data-theme="light"] .apm-pc-topbar .apm-pc-tb-pill{background:rgba(20,22,30,.05);color:rgba(20,22,30,.66)}
+.apm-pc-topbar .apm-pc-tb-pill.role{background:rgba(255,90,71,.18);color:#FF7D6E;font-weight:800}
+.apm-pc-area{flex:1;min-width:0;padding:14px 16px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+
+.apm-pc-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.apm-pc-search{height:30px;flex:1;min-width:170px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:6px;padding:0 10px;color:rgba(255,255,255,.62);font-size:10.5px}
+[data-theme="light"] .apm-pc-search{background:rgba(20,22,30,.02);border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.62)}
+.apm-pc-search svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+.apm-pc-btn{height:30px;padding:0 10px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:700;color:rgba(255,255,255,.86);display:inline-flex;align-items:center;gap:5px}
+[data-theme="light"] .apm-pc-btn{background:rgba(20,22,30,.02);border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.86)}
+.apm-pc-btn.is-primary{background:#5451E8;border-color:#5451E8;color:#fff}
+.apm-pc-btn.is-fail{background:rgba(255,90,71,.18);border-color:rgba(255,90,71,.40);color:#FF7D6E}
+.apm-pc-btn.is-warn{background:rgba(245,158,11,.18);border-color:rgba(245,158,11,.30);color:#F5B14C}
+.apm-pc-btn.is-ghost{background:transparent}
+.apm-pc-btn .car{font-size:8px;opacity:.7;margin-left:3px}
+
+/* Table */
+.apm-table-host{flex:1;min-height:0;background:#131826;border:1px solid rgba(255,255,255,.06);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+[data-theme="light"] .apm-table-host{background:#FFFFFF;border-color:rgba(20,22,30,.08)}
+.apm-tt{font-family:var(--font);width:100%;border-collapse:separate;border-spacing:0;min-width:100%}
+.apm-tt th,.apm-tt td{font-size:10.5px;padding:8px 10px;text-align:left;color:rgba(255,255,255,.82);border-bottom:1px solid rgba(255,255,255,.04);white-space:nowrap}
+[data-theme="light"] .apm-tt th,[data-theme="light"] .apm-tt td{color:rgba(20,22,30,.82);border-bottom-color:rgba(20,22,30,.05)}
+.apm-tt thead th{background:rgba(255,255,255,.04);color:rgba(255,255,255,.56);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;border-bottom:1px solid rgba(255,255,255,.06)}
+[data-theme="light"] .apm-tt thead th{background:#F4F6FA;color:rgba(20,22,30,.56);border-bottom-color:rgba(20,22,30,.06)}
+.apm-tt td.tn{font-weight:700;color:rgba(255,255,255,.96)}
+[data-theme="light"] .apm-tt td.tn{color:rgba(20,22,30,.94)}
+.apm-tt td.mono{font-family:var(--font);font-variant-numeric:tabular-nums;font-size:10px;letter-spacing:.005em;color:rgba(255,255,255,.62)}
+[data-theme="light"] .apm-tt td.mono{color:rgba(20,22,30,.62)}
+.apm-tt tr.is-risk td{background:rgba(255,90,71,.07)}
+.apm-tt tr.is-warn td{background:rgba(245,158,11,.06)}
+.apm-tt td .ava{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:99px;background:#5451E8;color:#fff;font-size:8.5px;font-weight:800;margin-right:5px;vertical-align:middle}
+
+/* Role chip */
+.apm-rchip{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:4px;font-size:9.5px;font-weight:800;letter-spacing:.04em;white-space:nowrap;text-transform:uppercase}
+.apm-rchip::before{content:"";width:5px;height:5px;border-radius:99px;background:currentColor}
+.apm-rchip.super{background:rgba(255,90,71,.20);color:#FF5A47}
+.apm-rchip.sec{background:rgba(245,158,11,.20);color:#F5B14C}
+.apm-rchip.admin{background:rgba(84,81,232,.20);color:#a49bf9}
+.apm-rchip.pm{background:rgba(111,168,255,.18);color:#6FA8FF}
+.apm-rchip.member{background:rgba(52,199,89,.16);color:#34C759}
+.apm-rchip.viewer{background:rgba(255,255,255,.08);color:rgba(255,255,255,.7)}
+[data-theme="light"] .apm-rchip.viewer{background:rgba(20,22,30,.06);color:rgba(20,22,30,.7)}
+.apm-rchip.ext{background:rgba(180,184,200,.18);color:rgba(220,224,240,.85);outline:1px dashed rgba(180,184,200,.40);outline-offset:-1px}
+[data-theme="light"] .apm-rchip.ext{background:rgba(20,22,30,.04);color:rgba(20,22,30,.78);outline-color:rgba(20,22,30,.30)}
+
+.apm-status-chip{display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:4px;font-size:9.5px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+.apm-status-chip::before{content:"";width:5px;height:5px;border-radius:99px;background:currentColor}
+.apm-status-chip.active{background:rgba(52,199,89,.16);color:#34C759}
+.apm-status-chip.lock{background:rgba(255,90,71,.18);color:#FF7D6E}
+.apm-status-chip.dorm{background:rgba(245,158,11,.18);color:#F5B14C}
+.apm-status-chip.inactive{background:rgba(255,255,255,.08);color:rgba(255,255,255,.62)}
+[data-theme="light"] .apm-status-chip.inactive{background:rgba(20,22,30,.06);color:rgba(20,22,30,.58)}
+
+.apm-mfa{display:inline-flex;align-items:center;gap:3px;font-size:9.5px;font-weight:700}
+.apm-mfa.on{color:#34C759}
+.apm-mfa.off{color:#FF7D6E}
+
+/* Risk indicator pill */
+.apm-risk-pill{display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:4px;font-size:9.5px;font-weight:800;background:rgba(255,90,71,.18);color:#FF7D6E;letter-spacing:.04em}
+.apm-risk-pill.warn{background:rgba(245,158,11,.20);color:#F5B14C}
+.apm-risk-pill::before{content:"!";font-size:9px;font-weight:800;width:11px;height:11px;border-radius:3px;background:currentColor;color:#0F1320;display:inline-flex;align-items:center;justify-content:center;line-height:11px}
+[data-theme="light"] .apm-risk-pill::before{color:#fff}
+
+/* Detail page */
+.apm-detail{display:grid;grid-template-columns:280px 1fr;gap:14px;align-items:start}
+@media (max-width:1100px){.apm-detail{grid-template-columns:1fr}}
+.apm-detail-side{background:#131826;border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
+[data-theme="light"] .apm-detail-side{background:#FFFFFF;border-color:rgba(20,22,30,.08)}
+.apm-detail-main{display:flex;flex-direction:column;gap:10px}
+.apm-id-block{display:flex;flex-direction:column;gap:5px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.06)}
+[data-theme="light"] .apm-id-block{border-bottom-color:rgba(20,22,30,.06)}
+.apm-id-block .apm-id-avatar{width:48px;height:48px;border-radius:11px;background:#5451E8;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;letter-spacing:-.02em}
+.apm-id-block .apm-id-name{font-size:14px;font-weight:800;color:rgba(255,255,255,.96)}
+[data-theme="light"] .apm-id-block .apm-id-name{color:rgba(20,22,30,.94)}
+.apm-id-block .apm-id-meta{font-size:10.5px;color:rgba(255,255,255,.58)}
+[data-theme="light"] .apm-id-block .apm-id-meta{color:rgba(20,22,30,.58)}
+
+.apm-fact-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px}
+[data-theme="light"] .apm-fact-row{border-bottom-color:rgba(20,22,30,.05)}
+.apm-fact-row:last-child{border-bottom:none}
+.apm-fact-row .k{width:90px;font-size:9.5px;color:rgba(255,255,255,.50);font-weight:700;letter-spacing:.04em;text-transform:uppercase;flex-shrink:0}
+[data-theme="light"] .apm-fact-row .k{color:rgba(20,22,30,.50)}
+.apm-fact-row .v{color:rgba(255,255,255,.92);font-weight:600}
+[data-theme="light"] .apm-fact-row .v{color:rgba(20,22,30,.92)}
+
+.apm-section{background:#131826;border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
+[data-theme="light"] .apm-section{background:#FFFFFF;border-color:rgba(20,22,30,.08)}
+.apm-section-head{display:flex;align-items:center;gap:8px}
+.apm-section-title{font-size:12px;font-weight:800;color:rgba(255,255,255,.96);letter-spacing:-.005em}
+[data-theme="light"] .apm-section-title{color:rgba(20,22,30,.94)}
+
+/* Permission grid */
+.apm-perm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px}
+.apm-perm-chip{padding:5px 8px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);font-size:10px;font-weight:700;color:rgba(255,255,255,.78);display:flex;align-items:center;gap:5px;font-family:var(--font)}
+[data-theme="light"] .apm-perm-chip{background:rgba(20,22,30,.02);border-color:rgba(20,22,30,.08);color:rgba(20,22,30,.78)}
+.apm-perm-chip.allow{background:rgba(52,199,89,.10);border-color:rgba(52,199,89,.22);color:#34C759}
+.apm-perm-chip.deny{background:rgba(255,90,71,.10);border-color:rgba(255,90,71,.22);color:#FF7D6E;text-decoration:line-through;opacity:.85}
+.apm-perm-chip.warn{background:rgba(245,158,11,.10);border-color:rgba(245,158,11,.22);color:#F5B14C}
+.apm-perm-chip.scope{background:rgba(111,168,255,.10);border-color:rgba(111,168,255,.22);color:#6FA8FF}
+
+/* Modal */
+.apm-modal{width:460px;border-radius:14px;background:#131826;border:1px solid rgba(255,255,255,.08);padding:18px 20px 16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 18px 40px rgba(0,0,0,.40);font-family:var(--font)}
+[data-theme="light"] .apm-modal{background:#FFFFFF;border-color:rgba(20,22,30,.10);box-shadow:0 14px 28px rgba(20,22,30,.18)}
+.apm-modal-head{display:flex;align-items:center;gap:8px}
+.apm-modal-tag{font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:4px;background:var(--fail-bg);color:var(--fail)}
+.apm-modal-tag.warn{background:var(--warn-bg);color:var(--warn)}
+.apm-modal-tag.info{background:var(--info-bg);color:var(--info)}
+.apm-modal-close{margin-left:auto;font-size:14px;color:rgba(255,255,255,.50)}
+[data-theme="light"] .apm-modal-close{color:rgba(20,22,30,.50)}
+.apm-modal-title{font-size:15px;font-weight:800;color:rgba(255,255,255,.96);letter-spacing:-.01em;line-height:1.4}
+[data-theme="light"] .apm-modal-title{color:rgba(20,22,30,.94)}
+.apm-modal-body{font-size:11.5px;color:rgba(255,255,255,.78);line-height:1.65}
+[data-theme="light"] .apm-modal-body{color:rgba(20,22,30,.78)}
+.apm-modal-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.apm-modal-warning{padding:9px 11px;border-radius:8px;background:rgba(255,90,71,.10);border:1px solid rgba(255,90,71,.22);font-size:10.5px;color:#FF7D6E;line-height:1.55}
+.apm-modal-warning.warn{background:rgba(245,158,11,.10);border-color:rgba(245,158,11,.22);color:#F5B14C}
+.apm-modal-info{padding:9px 11px;border-radius:8px;background:rgba(111,168,255,.08);border:1px solid rgba(111,168,255,.22);font-size:10.5px;color:#6FA8FF;line-height:1.55}
+
+.apm-diff-row{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:8px;background:rgba(255,255,255,.04);font-size:11px}
+[data-theme="light"] .apm-diff-row{background:rgba(20,22,30,.04)}
+.apm-diff-row .from{color:rgba(255,255,255,.62);text-decoration:line-through;font-weight:700}
+[data-theme="light"] .apm-diff-row .from{color:rgba(20,22,30,.62)}
+.apm-diff-row .arrow{color:rgba(255,255,255,.50);font-size:13px;font-weight:800}
+[data-theme="light"] .apm-diff-row .arrow{color:rgba(20,22,30,.50)}
+.apm-diff-row .to{font-weight:800;color:#34C759}
+.apm-diff-row.up .to{color:#F5B14C}
+.apm-diff-row.down .to{color:#6FA8FF}
+
+.apm-input{width:100%;height:36px;padding:0 12px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);font-size:11.5px;color:rgba(255,255,255,.96);font-family:var(--font);display:flex;align-items:center}
+[data-theme="light"] .apm-input{background:#FFFFFF;border-color:rgba(20,22,30,.12);color:rgba(20,22,30,.94)}
+.apm-textarea{height:80px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);padding:9px 11px;font-size:11px;color:rgba(255,255,255,.78);font-family:var(--font);line-height:1.5}
+[data-theme="light"] .apm-textarea{background:#FFFFFF;border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.78)}
+.apm-label{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.50);padding-left:2px}
+[data-theme="light"] .apm-label{color:rgba(20,22,30,.55)}
+.apm-input-row{display:flex;flex-direction:column;gap:4px}
+
+.apm-check-row{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:7px;background:rgba(255,255,255,.04);font-size:11px;color:rgba(255,255,255,.78);font-weight:600}
+[data-theme="light"] .apm-check-row{background:rgba(20,22,30,.03);color:rgba(20,22,30,.78)}
+.apm-check-row .box{width:16px;height:16px;border-radius:4px;border:1.5px solid rgba(255,255,255,.30);display:inline-flex;align-items:center;justify-content:center}
+[data-theme="light"] .apm-check-row .box{border-color:rgba(20,22,30,.30)}
+.apm-check-row .box.on{background:#FF5A47;border-color:#FF5A47;color:#fff;font-weight:800;font-size:11px}
+.apm-check-row .box.on::after{content:"✓"}
+
+/* Drawer */
+.apm-drawer{width:480px;background:#131826;border:1px solid rgba(255,255,255,.08);border-radius:14px;display:flex;flex-direction:column;padding:18px 20px 16px;gap:12px;font-family:var(--font);box-shadow:0 18px 40px rgba(0,0,0,.40)}
+[data-theme="light"] .apm-drawer{background:#FFFFFF;border-color:rgba(20,22,30,.10);box-shadow:0 14px 28px rgba(20,22,30,.18)}
+.apm-drawer-head{display:flex;align-items:center;gap:8px}
+.apm-drawer-title{font-size:14px;font-weight:800;color:rgba(255,255,255,.96);letter-spacing:-.005em}
+[data-theme="light"] .apm-drawer-title{color:rgba(20,22,30,.94)}
+.apm-drawer-sub{font-size:10.5px;color:rgba(255,255,255,.58)}
+[data-theme="light"] .apm-drawer-sub{color:rgba(20,22,30,.58)}
+
+/* Matrix */
+.apm-matrix{font-family:var(--font);width:100%;border-collapse:separate;border-spacing:0;font-size:10px}
+.apm-matrix th,.apm-matrix td{padding:8px 8px;text-align:center;border-bottom:1px solid rgba(255,255,255,.04);border-right:1px solid rgba(255,255,255,.04);color:rgba(255,255,255,.82)}
+[data-theme="light"] .apm-matrix th,[data-theme="light"] .apm-matrix td{color:rgba(20,22,30,.82);border-bottom-color:rgba(20,22,30,.05);border-right-color:rgba(20,22,30,.05)}
+.apm-matrix th{background:rgba(255,255,255,.04);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.56)}
+[data-theme="light"] .apm-matrix th{background:#F4F6FA;color:rgba(20,22,30,.56)}
+.apm-matrix th.row-h,.apm-matrix td.row-h{text-align:left;font-weight:800;color:rgba(255,255,255,.96);background:rgba(255,255,255,.02)}
+[data-theme="light"] .apm-matrix th.row-h,[data-theme="light"] .apm-matrix td.row-h{color:rgba(20,22,30,.92);background:rgba(20,22,30,.02)}
+.apm-matrix .cell{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;font-weight:800;font-size:10px}
+.apm-matrix .cell.a{background:rgba(52,199,89,.16);color:#34C759}
+.apm-matrix .cell.d{background:rgba(255,90,71,.14);color:#FF7D6E}
+.apm-matrix .cell.r{background:rgba(245,158,11,.18);color:#F5B14C}
+.apm-matrix .cell.ap{background:rgba(111,168,255,.18);color:#6FA8FF}
+.apm-matrix .cell.s{background:rgba(139,127,248,.18);color:#a49bf9}
+.apm-matrix .cell.x{background:rgba(255,255,255,.04);color:rgba(255,255,255,.40)}
+[data-theme="light"] .apm-matrix .cell.x{background:rgba(20,22,30,.04);color:rgba(20,22,30,.40)}
+
+/* Audit log timeline */
+.apm-tl{display:flex;flex-direction:column;gap:0;padding-left:14px;position:relative}
+.apm-tl::before{content:"";position:absolute;left:3px;top:6px;bottom:6px;width:1px;background:rgba(255,255,255,.10)}
+[data-theme="light"] .apm-tl::before{background:rgba(20,22,30,.10)}
+.apm-tl-item{position:relative;padding:8px 0 10px;font-size:11px;color:rgba(255,255,255,.82);border-bottom:1px dashed rgba(255,255,255,.04)}
+[data-theme="light"] .apm-tl-item{color:rgba(20,22,30,.82);border-bottom-color:rgba(20,22,30,.06)}
+.apm-tl-item:last-child{border-bottom:none}
+.apm-tl-item::before{content:"";position:absolute;left:-14px;top:13px;width:7px;height:7px;border-radius:99px;background:#5451E8;box-shadow:0 0 0 2px #131826}
+[data-theme="light"] .apm-tl-item::before{box-shadow:0 0 0 2px #FFFFFF}
+.apm-tl-item.is-warn::before{background:#F5B14C}
+.apm-tl-item.is-fail::before{background:#FF5A47}
+.apm-tl-item.is-pass::before{background:#34C759}
+.apm-tl-item .apm-tl-when{font-size:9.5px;color:rgba(255,255,255,.50);font-weight:600}
+[data-theme="light"] .apm-tl-item .apm-tl-when{color:rgba(20,22,30,.50)}
+.apm-tl-item .apm-tl-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.96)}
+[data-theme="light"] .apm-tl-item .apm-tl-title{color:rgba(20,22,30,.94)}
+.apm-tl-item .apm-tl-meta{font-size:10px;color:rgba(255,255,255,.62);line-height:1.5}
+[data-theme="light"] .apm-tl-item .apm-tl-meta{color:rgba(20,22,30,.62)}
+
+/* Phone frame (mobile mocks) */
+.apm-phone{width:300px;background:#0A0E1A;border-radius:22px;padding:6px;border:1px solid rgba(255,255,255,.06);box-shadow:0 12px 30px rgba(0,0,0,.32);font-family:var(--font);flex-shrink:0}
+[data-theme="light"] .apm-phone{background:#1B1F2A;border-color:rgba(0,0,0,.10);box-shadow:0 10px 24px rgba(20,22,30,.18)}
+.apm-phone-screen{background:#0F1320;border-radius:16px;overflow:hidden;position:relative;height:580px;display:flex;flex-direction:column}
+[data-theme="light"] .apm-phone-screen{background:#FAFBFC}
+.apm-statusbar{height:18px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.78);background:#0F1320;letter-spacing:.03em;flex-shrink:0}
+[data-theme="light"] .apm-statusbar{background:#FAFBFC;color:rgba(20,22,30,.72)}
+.apm-topbar{height:46px;background:#131826;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:4px;padding:0 6px 0 8px;flex-shrink:0}
+[data-theme="light"] .apm-topbar{background:#FFFFFF;border-bottom-color:rgba(20,22,30,.08)}
+.apm-tb-iconbtn{width:38px;height:38px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,.86);background:transparent;flex-shrink:0}
+[data-theme="light"] .apm-tb-iconbtn{color:rgba(20,22,30,.78)}
+.apm-tb-iconbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.apm-tb-title{flex:1;min-width:0;font-size:13.5px;font-weight:700;color:rgba(255,255,255,.94);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.005em;padding:0 4px}
+[data-theme="light"] .apm-tb-title{color:rgba(20,22,30,.94)}
+.apm-tb-title .apm-tb-sub{display:block;font-size:9.5px;font-weight:600;color:rgba(255,255,255,.42);letter-spacing:.04em;margin-top:1px}
+[data-theme="light"] .apm-tb-title .apm-tb-sub{color:rgba(20,22,30,.44)}
+.apm-mcontent{flex:1;min-height:0;overflow:hidden;padding:10px;display:flex;flex-direction:column;gap:10px;font-family:var(--font)}
+
+.apm-m-section{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+[data-theme="light"] .apm-m-section{background:#fff;border-color:rgba(20,22,30,.08)}
+.apm-m-section-title{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.58)}
+[data-theme="light"] .apm-m-section-title{color:rgba(20,22,30,.58)}
+.apm-m-row{display:flex;align-items:center;gap:6px;font-size:11.5px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+[data-theme="light"] .apm-m-row{border-bottom-color:rgba(20,22,30,.05)}
+.apm-m-row:last-child{border-bottom:none}
+.apm-m-row .k{font-size:9.5px;color:rgba(255,255,255,.50);font-weight:700;letter-spacing:.04em;text-transform:uppercase;flex-shrink:0;width:80px}
+[data-theme="light"] .apm-m-row .k{color:rgba(20,22,30,.50)}
+.apm-m-row .v{color:rgba(255,255,255,.92);font-weight:600;flex:1}
+[data-theme="light"] .apm-m-row .v{color:rgba(20,22,30,.92)}
+.apm-m-fab{position:absolute;left:14px;right:14px;bottom:14px;display:flex;gap:8px;justify-content:space-between}
+.apm-m-fab .apm-pc-btn{flex:1;height:42px;justify-content:center;font-size:11px;border-radius:9px}
+
+/* State / empty */
+.apm-emp{padding:32px 18px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.apm-emp .apm-emp-ico{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.05);display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,.6);font-size:18px;font-weight:800;border:1px solid rgba(255,255,255,.06)}
+[data-theme="light"] .apm-emp .apm-emp-ico{background:rgba(20,22,30,.04);color:rgba(20,22,30,.6);border-color:rgba(20,22,30,.06)}
+.apm-emp.is-fail .apm-emp-ico{background:rgba(255,90,71,.10);border-color:rgba(255,90,71,.22);color:#FF7D6E}
+.apm-emp.is-warn .apm-emp-ico{background:rgba(245,158,11,.10);border-color:rgba(245,158,11,.22);color:#F5B14C}
+.apm-emp .apm-emp-t{font-size:13px;font-weight:800;color:rgba(255,255,255,.92);letter-spacing:-.005em}
+[data-theme="light"] .apm-emp .apm-emp-t{color:rgba(20,22,30,.92)}
+.apm-emp .apm-emp-s{font-size:11px;color:rgba(255,255,255,.58);line-height:1.55;max-width:320px}
+[data-theme="light"] .apm-emp .apm-emp-s{color:rgba(20,22,30,.58)}
+
+.apm-skel{height:11px;border-radius:5px;background:linear-gradient(90deg,rgba(255,255,255,.05),rgba(255,255,255,.12),rgba(255,255,255,.05));background-size:200% 100%;animation:apmshim 1.4s ease-in-out infinite}
+[data-theme="light"] .apm-skel{background:linear-gradient(90deg,rgba(20,22,30,.04),rgba(20,22,30,.10),rgba(20,22,30,.04));background-size:200% 100%}
+@keyframes apmshim{0%{background-position:0% 0}100%{background-position:-200% 0}}
+
+</style>
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Admin Permission Manager Applied Preview v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Preview</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Role · Action · Scope</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Security Linkage</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr"><span class="toc-brand">Permission</span><span class="toc-ver-pill">v1</span></div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Principles</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Role Model</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Permission Axes</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>IA</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>User List</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>User Detail</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Role Change</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Exception</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Revoke</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Approval</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Matrix</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Audit Linkage</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Risk Indicators</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>Mobile</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>States</a></li>
+      <li class="toc-item"><a href="#s17"><span class="toc-n">17</span>Mock Screens</a></li>
+      <li class="toc-item"><a href="#s18"><span class="toc-n">18</span>Good / Bad</a></li>
+      <li class="toc-item"><a href="#s19"><span class="toc-n">19</span>DB Mapping</a></li>
+      <li class="toc-item"><a href="#s20"><span class="toc-n">20</span>Handoff</a></li>
+      <li class="toc-item"><a href="#s21"><span class="toc-n">21</span>Guardrails</a></li>
+      <li class="toc-item"><a href="#s22"><span class="toc-n">22</span>QA</a></li>
+      <li class="toc-item"><a href="#s23"><span class="toc-n">23</span>Related</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Hero ── -->
+      <div class="apm-hero">
+        <div class="apm-hero-row">
+          <strong class="apm-hero-title">STAM Admin Permission Manager Applied Preview v1</strong>
+          <span class="apm-pill fail">Security Linked</span>
+          <span class="apm-pill brand">Preview</span>
+          <span class="apm-pill notyet">Product Not Yet</span>
+        </div>
+        <p>
+          본 문서는 <a href="STAM-Security-Privacy-ISMSP-Architecture-DB-Policy-Guide-v1.html" style="color:var(--stam);font-weight:700;">Security / Privacy / ISMS-P Architecture &amp; DB Policy Guide v1</a> 의
+          <strong>RBAC 7 role · 3축 권한 모델 · 감사로그</strong> 정책을 관리자 화면 단위로 풀어낸 기준 시안이다.
+          사용자 목록 / 권한 상세 / 역할 변경 / 예외 부여 / 회수 / 승인 후보 / 권한 매트릭스 / 변경 이력 / 위험 표시 / 모바일 / 상태 화면을 다룬다.
+        </p>
+        <p style="opacity:.78;">
+          <strong>적용 범위</strong> — 본 작업은 <code>stam/docs/**</code> 하위 1개 HTML 생성과 <code>STAM-Docs-Index.html</code> 카드 1개 추가만 수행한다.
+          <code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code>, <code>stam/index.html</code>, <code>stam/assets/**</code>, <code>.firebaserc</code>, <code>firebase.json</code>,
+          <code>.github/workflows/**</code>, <code>package.json</code>, <code>_ds/**</code>, <code>uploads/**</code>, <code>*.zip</code>, <code>.env*</code>, <code>node_modules/**</code>, <code>dist/**</code>, <code>build/**</code>, <code>.firebase/**</code> 는
+          한 줄도 수정하지 않는다. DB schema · Firebase rules · API 도 본 문서 범위 밖이다.
+        </p>
+        <div class="apm-kpi-grid">
+          <div class="apm-kpi fail"><span class="apm-kpi-key">Default</span><span class="apm-kpi-val">최소 권한</span></div>
+          <div class="apm-kpi brand"><span class="apm-kpi-key">Role</span><span class="apm-kpi-val">7종 (Security 상속)</span></div>
+          <div class="apm-kpi info"><span class="apm-kpi-key">권한 축</span><span class="apm-kpi-val">Menu · Action · Scope</span></div>
+          <div class="apm-kpi warn"><span class="apm-kpi-key">변경 사유</span><span class="apm-kpi-val">필수 (5자+)</span></div>
+          <div class="apm-kpi"><span class="apm-kpi-key">Audit</span><span class="apm-kpi-val">append-only</span></div>
+          <div class="apm-kpi pass"><span class="apm-kpi-key">Mock</span><span class="apm-kpi-val">A ~ I (9종)</span></div>
+        </div>
+      </div>
+
+      <!-- ── S01 Overview ── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM 의 관리자 권한 관리 화면은 단순한 "사용자 설정 화면"이 아니라 <strong>보안 통제 화면</strong>이다.
+            누가 어떤 메뉴를 보고, 누가 개인정보를 unmask 할 수 있고, 누가 다운로드할 수 있는지 결정하는 곳이며,
+            여기서의 모든 행위는 <code>admin_action_logs</code> 에 append-only 로 기록된다.
+            UI 와 DB / 감사로그가 함께 움직여야 정책이 살아 있다.
+          </p>
+          <div class="apm-rule-grid">
+            <div class="apm-rule-card">
+              <div class="apm-rc-hdr is-pass">이 문서가 다루는 것</div>
+              <ul>
+                <li>Security Guide v1 의 7 role · 3축 권한을 관리자 화면 단위로 풀이</li>
+                <li>사용자 목록 / 상세 / 역할 변경 / 예외 부여 / 회수 / 승인 후보</li>
+                <li>권한 매트릭스 (Role × Action × Scope) · 변경 이력 / audit log 연결</li>
+                <li>위험 표시 (장기 미접속 + 높은 권한 / MFA 미설정 + ADMIN 이상 등 7종)</li>
+                <li>모바일 — 조회 / 긴급 잠금 / 승인 후보 한정</li>
+                <li>상태 — loading / empty / denied / change failed / audit write failed</li>
+                <li>Mock Screens A ~ I (PC 5종 + 모바일 + 상태 + Bad Example)</li>
+              </ul>
+            </div>
+            <div class="apm-rule-card">
+              <div class="apm-rc-hdr is-fail">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code> 직접 수정</li>
+                <li>실제 DB 스키마 생성 / Firebase rules 수정 / API 구현</li>
+                <li>실제 권한 middleware · approval workflow 코드</li>
+                <li>SSO / MFA / OAuth 구체 구현 (v2)</li>
+                <li>위탁사 / 외부 제공 흐름 — Security Guide v2 영역</li>
+                <li>전역 <code>.tbtn</code> 일괄 치환 · Firebase / package.json 변경</li>
+              </ul>
+            </div>
+          </div>
+          <div class="apm-rule-grid" style="margin-top:14px;">
+            <div class="apm-rule-card">
+              <div class="apm-rc-hdr is-info">Security Guide v1 과의 관계</div>
+              <ul>
+                <li>Role / Permission / Audit Log 모델은 모두 Security Guide 에서 상속</li>
+                <li>본 문서는 그 모델을 <strong>운영자가 매일 만지는 UI</strong>로 풀어낸 것</li>
+                <li>UI 의 모든 필드는 Security Guide 의 DB 14 테이블 중 7개와 매핑됨 (S19 참조)</li>
+                <li>SUPER_ADMIN / SECURITY_ADMIN 의 운영 분리 원칙은 본 문서에서 화면 단계에서 강제</li>
+                <li>EXTERNAL role 의 개인정보 / unmask / download 차단도 화면 정책으로 명시</li>
+              </ul>
+            </div>
+            <div class="apm-rule-card">
+              <div class="apm-rc-hdr is-warn">실제 구현 전 기준 문서</div>
+              <ul>
+                <li>본 문서는 <strong>실제 구현 전 시각 / 정책 기준</strong>이며 product 적용은 별도 Gate</li>
+                <li>적용 순서: 본 가이드 승인 → DB schema 확정 → permission middleware → 사용자 목록 / 상세 → 변경 / 회수 → 매트릭스 / 이력 / 승인</li>
+                <li>한 커밋에 화면 + 로직 + DB 마이그레이션 섞지 않는다</li>
+                <li>충돌 시 Security Guide v1 정책이 우선</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Principles ── -->
+      <section id="s02" class="sec" data-screen-label="02 Principles">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Permission Management Principles</span>
+          <span class="sbadge plan">Principle</span>
+        </div>
+        <div class="sec-body">
+          <div class="apm-chk-list">
+            <div class="apm-chk-item"><span class="apm-chk-box is-fail">!</span><span><strong>최소 권한 원칙 (Least Privilege)</strong> — 기본은 "권한 없음". 필요한 만큼만 부여.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span><strong>역할 기반 (RBAC)</strong> — 사용자에게 직접 권한 부여 X · role 통해 부여.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span><strong>3축 분리</strong> — Menu · Action · Scope. 어느 하나만 풀려도 사고.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-fail">!</span><span><strong>변경 = 사유 입력 필수</strong> — 5자+ 의무. 빈값 / 공백 거부.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-fail">!</span><span><strong>변경 = admin_action_logs 기록</strong> — append-only · 트랜잭션 안에서 처리.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-warn">!</span><span><strong>SUPER_ADMIN 본인 행위 예외 없음</strong> — 본인 권한 변경도 기록 · 2인 승인 후보.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-info">i</span><span><strong>SECURITY_ADMIN = 감사 전용</strong> — 업무 데이터 read 권한 분리.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-warn">!</span><span><strong>EXTERNAL = 개인정보/unmask/download 기본 차단</strong> — 화면에서 명시적 차단.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-info">i</span><span><strong>권한 상승은 더 강한 확인</strong> — UPGRADE diff 가 노출되고 추가 체크박스 의무.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span><strong>임시 권한은 만료일 의무</strong> — 만료 없는 임시 권한 금지.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-info">i</span><span><strong>프론트 권한 숨김은 보안 아님</strong> — API 권한 재검증 의무.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-fail">!</span><span><strong>audit log 저장 실패 시 변경 차단</strong> — 트랜잭션 롤백 · 사용자 안내.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 Role Model ── -->
+      <section id="s03" class="sec" data-screen-label="03 Role Model">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Role Model Summary — 7 Role</span>
+          <span class="sbadge plan">Role</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            Security Guide v1 의 7 role 을 관리자 화면 관점에서 정리. 각 role 의 권한 / 금지 / 개인정보 접근 / 다운로드 / 권한 변경 가능 여부를 명시한다.
+          </p>
+          <div class="apm-role-grid">
+            <div class="apm-role-card r-super">
+              <span class="apm-role-tag">Super Admin</span>
+              <span class="apm-role-t">SUPER_ADMIN</span>
+              <span class="apm-role-s">전체 관리자 · 보안 정책 변경 · 모든 권한.</span>
+              <div class="apm-role-list"><span>ALL</span><span>UNMASK</span><span>EXPORT</span><span>POLICY</span><span>AUDIT_VIEW</span></div>
+            </div>
+            <div class="apm-role-card r-sec">
+              <span class="apm-role-tag">Security Admin</span>
+              <span class="apm-role-t">SECURITY_ADMIN</span>
+              <span class="apm-role-s">감사 / 보안 전용 · <strong>업무 데이터 read 차단</strong>.</span>
+              <div class="apm-role-list"><span>AUDIT_VIEW</span><span>LOCK</span><span>EVENT_VIEW</span></div>
+            </div>
+            <div class="apm-role-card r-admin">
+              <span class="apm-role-tag">Admin</span>
+              <span class="apm-role-t">ADMIN</span>
+              <span class="apm-role-s">운영 관리자 · 사용자 / 권한 부여 · 일반 권한 변경.</span>
+              <div class="apm-role-list"><span>USER_MANAGE</span><span>ROLE_GRANT</span><span>PWD_RESET</span></div>
+            </div>
+            <div class="apm-role-card r-pm">
+              <span class="apm-role-tag">PM</span>
+              <span class="apm-role-t">PM</span>
+              <span class="apm-role-s">본인 프로젝트 read / unmask / export (사유 필요).</span>
+              <div class="apm-role-list"><span>READ</span><span>UNMASK</span><span>EXPORT</span><span>scope=project</span></div>
+            </div>
+            <div class="apm-role-card r-member">
+              <span class="apm-role-tag">Member</span>
+              <span class="apm-role-t">MEMBER</span>
+              <span class="apm-role-s">본인 / 팀 데이터 read · 본인 작업 update · unmask 제한.</span>
+              <div class="apm-role-list"><span>READ</span><span>UPDATE</span><span>scope=team</span></div>
+            </div>
+            <div class="apm-role-card r-viewer">
+              <span class="apm-role-tag">Viewer</span>
+              <span class="apm-role-t">VIEWER</span>
+              <span class="apm-role-s">읽기 전용 · unmask / export 차단.</span>
+              <div class="apm-role-list"><span>READ</span><span style="text-decoration:line-through;opacity:.7;">UNMASK</span><span style="text-decoration:line-through;opacity:.7;">EXPORT</span></div>
+            </div>
+            <div class="apm-role-card r-ext">
+              <span class="apm-role-tag">External</span>
+              <span class="apm-role-t">EXTERNAL</span>
+              <span class="apm-role-s">외부 협력사 · 지정 데이터 read · 모든 개인정보 마스킹.</span>
+              <div class="apm-role-list"><span>READ (limited)</span><span style="text-decoration:line-through;opacity:.7;">UNMASK</span><span style="text-decoration:line-through;opacity:.7;">DOWNLOAD</span></div>
+            </div>
+          </div>
+
+          <div class="apm-tbl-wrap" style="margin-top:14px;">
+            <table class="apm-tbl">
+              <thead><tr><th style="width:130px;">role</th><th style="width:140px;">개인정보 접근</th><th style="width:130px;">다운로드</th><th>권한 변경 가능</th></tr></thead>
+              <tbody>
+                <tr><td class="tn"><span class="apm-rchip super">SUPER</span></td><td class="good">UNMASK 전체</td><td class="good">전체 + 정책 변경</td><td>다른 모든 role · 본인은 2인 승인 후보</td></tr>
+                <tr><td class="tn"><span class="apm-rchip sec">SECURITY</span></td><td class="warn">업무 데이터 X · 로그만</td><td class="warn">감사 export 만</td><td>잠금 / 잠금 해제 · role 변경 권한 없음</td></tr>
+                <tr><td class="tn"><span class="apm-rchip admin">ADMIN</span></td><td class="good">사유 + UNMASK</td><td class="good">사유 + 워터마크</td><td>MEMBER / VIEWER / EXTERNAL · ADMIN 이상 X</td></tr>
+                <tr><td class="tn"><span class="apm-rchip pm">PM</span></td><td class="info">본인 프로젝트만</td><td class="info">본인 프로젝트만 (사유)</td><td>없음 (요청만 가능)</td></tr>
+                <tr><td class="tn"><span class="apm-rchip member">MEMBER</span></td><td class="warn">unmask 제한</td><td class="warn">제한 (사유 필요)</td><td>없음</td></tr>
+                <tr><td class="tn"><span class="apm-rchip viewer">VIEWER</span></td><td class="bad">읽기만 · unmask X</td><td class="bad">차단</td><td>없음</td></tr>
+                <tr><td class="tn"><span class="apm-rchip ext">EXTERNAL</span></td><td class="bad">마스킹 유지</td><td class="bad">기본 차단</td><td>없음</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Permission Axes ── -->
+      <section id="s04" class="sec" data-screen-label="04 Permission Axes">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Permission Axes — Menu · Action · Scope</span>
+          <span class="sbadge plan">Axis</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            권한은 단일 flag 가 아니라 <strong>3축의 곱</strong>이다. 같은 READ 권한이라도 어떤 리소스에 대해 어떤 scope 인지가 다르다.
+          </p>
+          <div class="apm-tbl-wrap">
+            <table class="apm-tbl">
+              <thead><tr><th style="width:160px;">축</th><th style="width:160px;">기준</th><th>설명</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">Menu Permission</td><td>화면 / 메뉴 단위</td><td>관리자 메뉴 · 감사로그 메뉴 · 보관파기 메뉴 등 sub menu 노출 / 접근</td></tr>
+                <tr><td class="tn">Action Permission</td><td>CRUDX</td><td>READ · CREATE · UPDATE · DELETE · EXPORT · DOWNLOAD · UNMASK · ADMIN_MANAGE · AUDIT_VIEW</td></tr>
+                <tr><td class="tn">Data Scope</td><td>볼 수 있는 범위</td><td><code>all</code> · <code>project</code> · <code>team</code> · <code>own</code> · <code>external_limited</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="apm-cap" style="margin-top:14px;"><span class="apm-cap-n">A</span>Action Permission 9종</div>
+          <div class="apm-tbl-wrap">
+            <table class="apm-tbl">
+              <thead><tr><th style="width:140px;">action</th><th style="width:120px;">위험도</th><th>설명</th></tr></thead>
+              <tbody>
+                <tr><td class="tn"><code>READ</code></td><td class="info">기본</td><td>마스킹 데이터 조회</td></tr>
+                <tr><td class="tn"><code>CREATE</code></td><td class="info">기본</td><td>신규 row 생성</td></tr>
+                <tr><td class="tn"><code>UPDATE</code></td><td class="info">기본</td><td>row 수정</td></tr>
+                <tr><td class="tn"><code>DELETE</code></td><td class="warn">중간</td><td>row 삭제 — 감사로그 별도</td></tr>
+                <tr><td class="tn"><code>EXPORT</code></td><td class="bad">높음</td><td>CSV / Excel — 사유 + 워터마크</td></tr>
+                <tr><td class="tn"><code>DOWNLOAD</code></td><td class="bad">높음</td><td>첨부 파일 다운로드</td></tr>
+                <tr><td class="tn"><code>UNMASK</code></td><td class="bad">높음</td><td>개인정보 원문 조회 — 사유 + 감사로그</td></tr>
+                <tr><td class="tn"><code>ADMIN_MANAGE</code></td><td class="bad">최고</td><td>사용자 / 권한 관리</td></tr>
+                <tr><td class="tn"><code>AUDIT_VIEW</code></td><td class="bad">최고</td><td>감사로그 조회</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="apm-cap" style="margin-top:14px;"><span class="apm-cap-n">B</span>Data Scope 5종</div>
+          <div class="apm-tbl-wrap">
+            <table class="apm-tbl">
+              <thead><tr><th style="width:140px;">scope</th><th>설명</th><th>대표 role</th></tr></thead>
+              <tbody>
+                <tr><td class="tn"><code>all</code></td><td>전사 모든 데이터</td><td>SUPER · ADMIN</td></tr>
+                <tr><td class="tn"><code>project</code></td><td>지정된 프로젝트</td><td>PM</td></tr>
+                <tr><td class="tn"><code>team</code></td><td>본인 소속 팀</td><td>MEMBER</td></tr>
+                <tr><td class="tn"><code>own</code></td><td>본인 작성 / 본인 담당</td><td>MEMBER · VIEWER</td></tr>
+                <tr><td class="tn"><code>external_limited</code></td><td>지정 데이터만 · 마스킹 강제</td><td>EXTERNAL</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 IA ── -->
+      <section id="s05" class="sec" data-screen-label="05 IA">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Admin Permission IA</span>
+          <span class="sbadge plan">IA</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            관리자 권한 관리 영역의 IA. 사용자 목록 → 상세 → 액션 (변경 / 예외 / 회수) 의 흐름.
+          </p>
+          <div class="apm-tbl-wrap">
+            <table class="apm-tbl">
+              <thead><tr><th style="width:200px;">메뉴 / 화면</th><th style="width:140px;">분류</th><th>설명</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">사용자 목록</td><td class="info">List</td><td>전체 사용자 + filter (role · 상태 · 팀 · 위험)</td></tr>
+                <tr><td class="tn">사용자 권한 상세</td><td class="info">Detail</td><td>사용자 1명 — role · scope · 메뉴 · action · 감사 · 이력 통합</td></tr>
+                <tr><td class="tn">역할 변경 (Modal)</td><td class="warn">Action</td><td>before / after diff · 사유 · 확인 체크</td></tr>
+                <tr><td class="tn">권한 예외 (Drawer)</td><td class="warn">Action</td><td>특정 메뉴 / action / 만료일 / 사유</td></tr>
+                <tr><td class="tn">권한 회수 / 잠금</td><td class="bad">Action</td><td>downgrade · 잠금 · 휴면 · 퇴사 처리</td></tr>
+                <tr><td class="tn">권한 변경 이력</td><td class="info">History</td><td>이 사용자에 대한 모든 권한 변경 timeline</td></tr>
+                <tr><td class="tn">권한 요청 / 승인</td><td class="warn">Workflow</td><td>v2 후보 — PM → ADMIN 승인 요청</td></tr>
+                <tr><td class="tn">권한 매트릭스</td><td class="info">Reference</td><td>Role × Action × Scope 매트릭스 조회용</td></tr>
+                <tr><td class="tn">감사로그 연결</td><td class="bad">Linkage</td><td>변경 이력 → 해당 audit log row 로 이동</td></tr>
+                <tr><td class="tn">위험 사용자 보드</td><td class="bad">Alert</td><td>장기 미접속 + 높은 권한 / MFA 미설정 + ADMIN 등</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 User List ── -->
+      <section id="s06" class="sec" data-screen-label="06 User List">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">User Permission List</span>
+          <span class="sbadge plan">Mock A</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            사용자 목록은 권한 관리의 진입점. 검색 / role / 상태 / 팀 / 위험 사용자 필터, MFA · 마지막 로그인 · 위험 표시 컬럼 포함.
+          </p>
+          <div class="apm-pc" style="min-height:480px;">
+            <div class="apm-pc-bar"><span class="apm-pc-dot"></span><span class="apm-pc-dot"></span><span class="apm-pc-dot"></span><span class="apm-pc-url">stam.app / admin / permissions</span><span class="apm-pc-tag">ADMIN</span></div>
+            <div class="apm-pc-body">
+              <div class="apm-pc-nav">
+                <div class="apm-pc-nav-brand">STAM · ADMIN</div>
+                <div class="apm-pc-nav-it active">권한 관리</div>
+                <div class="apm-pc-nav-it">감사로그</div>
+                <div class="apm-pc-nav-it">보관 / 파기</div>
+                <div class="apm-pc-nav-it">보안 정책</div>
+                <div class="apm-pc-nav-it">이벤트</div>
+              </div>
+              <div class="apm-pc-content">
+                <div class="apm-pc-topbar"><span>관리</span> · <span class="apm-pc-crumb-cur">권한 관리</span><span class="apm-pc-tb-sp"></span><span class="apm-pc-tb-pill role">SUPER_ADMIN</span><span class="apm-pc-tb-pill">정유진</span></div>
+                <div class="apm-pc-area">
+                  <div class="apm-pc-toolbar">
+                    <div class="apm-pc-search"><svg viewBox="0 0 18 18"><circle cx="8" cy="8" r="5"></circle><path d="M12 12l3.5 3.5"></path></svg><span>이름 / 이메일</span></div>
+                    <div class="apm-pc-btn">role: ALL<span class="car">▾</span></div>
+                    <div class="apm-pc-btn">상태: ACTIVE<span class="car">▾</span></div>
+                    <div class="apm-pc-btn">팀: ALL<span class="car">▾</span></div>
+                    <div class="apm-pc-btn is-warn">위험 사용자 7</div>
+                    <div class="apm-pc-btn is-primary" style="margin-left:auto;">+ 신규 사용자</div>
+                  </div>
+                  <div class="apm-table-host">
+                    <table class="apm-tt">
+                      <thead><tr><th>사용자</th><th>이메일</th><th>팀</th><th>role</th><th>상태</th><th>MFA</th><th>마지막 로그인</th><th>개인정보 접근</th><th>다운로드</th><th>권한 변경</th><th>위험</th></tr></thead>
+                      <tbody>
+                        <tr class="is-risk"><td class="tn"><span class="ava">정</span>정유진</td><td>jiyoon@stam.co</td><td>플랫폼</td><td><span class="apm-rchip super">SUPER</span></td><td><span class="apm-status-chip active">ACTIVE</span></td><td><span class="apm-mfa on">● MFA</span></td><td class="mono">06-10 16:32</td><td>UNMASK 가능</td><td>전체</td><td class="mono">06-05</td><td><span class="apm-risk-pill">단일 운영</span></td></tr>
+                        <tr><td class="tn"><span class="ava">이</span>이도윤</td><td>doyun@stam.co</td><td>플랫폼</td><td><span class="apm-rchip sec">SECURITY</span></td><td><span class="apm-status-chip active">ACTIVE</span></td><td><span class="apm-mfa on">● MFA</span></td><td class="mono">06-10 14:18</td><td>업무 read X</td><td>감사만</td><td class="mono">06-05</td><td>—</td></tr>
+                        <tr class="is-warn"><td class="tn"><span class="ava">박</span>박지원</td><td>jiwon@stam.co</td><td>WBS PM</td><td><span class="apm-rchip admin">ADMIN</span></td><td><span class="apm-status-chip active">ACTIVE</span></td><td><span class="apm-mfa off">○ MFA OFF</span></td><td class="mono">06-10 11:02</td><td>UNMASK 가능</td><td>전체</td><td class="mono">06-08</td><td><span class="apm-risk-pill warn">MFA 미설정</span></td></tr>
+                        <tr><td class="tn"><span class="ava">김</span>김민서</td><td>minseo@stam.co</td><td>플랫폼</td><td><span class="apm-rchip pm">PM</span></td><td><span class="apm-status-chip active">ACTIVE</span></td><td><span class="apm-mfa on">● MFA</span></td><td class="mono">06-10 10:14</td><td>본인 프로젝트</td><td>본인 프로젝트</td><td class="mono">05-22</td><td>—</td></tr>
+                        <tr><td class="tn"><span class="ava">최</span>최서연</td><td>seoyeon@stam.co</td><td>WBS PM</td><td><span class="apm-rchip member">MEMBER</span></td><td><span class="apm-status-chip active">ACTIVE</span></td><td><span class="apm-mfa on">● MFA</span></td><td class="mono">06-10 09:51</td><td>제한 unmask</td><td>제한</td><td class="mono">05-18</td><td>—</td></tr>
+                        <tr class="is-warn"><td class="tn"><span class="ava">한</span>한승현</td><td>hyun@stam.co</td><td>WBS PM</td><td><span class="apm-rchip admin">ADMIN</span></td><td><span class="apm-status-chip dorm">DORMANT</span></td><td><span class="apm-mfa off">○ MFA OFF</span></td><td class="mono">03-12</td><td>UNMASK 가능</td><td>전체</td><td class="mono">02-28</td><td><span class="apm-risk-pill">장기 미접속 + 높은 권한</span></td></tr>
+                        <tr class="is-risk"><td class="tn"><span class="ava">A</span>Acme Corp · 협력</td><td>partner@acme.co</td><td>외부</td><td><span class="apm-rchip ext">EXTERNAL</span></td><td><span class="apm-status-chip active">ACTIVE</span></td><td><span class="apm-mfa off">○ MFA OFF</span></td><td class="mono">06-09 18:02</td><td>마스킹 유지</td><td><strong style="color:#FF5A47;">다운로드 가능</strong></td><td class="mono">06-04</td><td><span class="apm-risk-pill">EXTERNAL + 다운로드</span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="apm-rule-grid" style="margin-top:14px;">
+            <div class="apm-rule-card">
+              <div class="apm-rc-hdr is-pass">List 의 시각 위계</div>
+              <ul>
+                <li>역할 chip — 색상 별로 SUPER (fail) / SECURITY (warn) / ADMIN (brand) / PM (info) / MEMBER (pass) / VIEWER (mute) / EXTERNAL (dashed)</li>
+                <li>row 강조 — 위험 사용자는 fail / warn bg tint</li>
+                <li>MFA off + 높은 권한 — 직접 보이게</li>
+                <li>마지막 로그인 — 90일 이상은 warn / 1년 이상은 fail</li>
+                <li>EXTERNAL + 다운로드 — 운영팀 매일 확인용 정책</li>
+              </ul>
+            </div>
+            <div class="apm-rule-card">
+              <div class="apm-rc-hdr is-info">필터 7종</div>
+              <ul>
+                <li>role · 상태 · 팀 · 위험 사용자 · 개인정보 접근 가능자 · 다운로드 가능자 · 장기 미접속 · 외부 사용자</li>
+                <li>"위험 사용자 7" 처럼 카운트 chip 으로 빠른 진입</li>
+                <li>필터 적용 후에도 group / sort 분리 — Data Table Guide 정책 상속</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 User Detail ── -->
+      <section id="s07" class="sec" data-screen-label="07 User Detail">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">User Permission Detail</span>
+          <span class="sbadge plan">Mock B</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            사용자 1명의 권한 / 활동 / 위험을 한 화면에 통합. 좌측 ID + facts, 우측 권한 section · 최근 활동 · 변경 이력 timeline.
+          </p>
+          <div class="apm-pc" style="min-height:600px;">
+            <div class="apm-pc-bar"><span class="apm-pc-dot"></span><span class="apm-pc-dot"></span><span class="apm-pc-dot"></span><span class="apm-pc-url">stam.app / admin / permissions / users / U-001</span><span class="apm-pc-tag">DETAIL</span></div>
+            <div class="apm-pc-body">
+              <div class="apm-pc-content">
+                <div class="apm-pc-topbar"><a style="color:inherit;">← 권한 관리</a> · <span class="apm-pc-crumb-cur">박지원</span><span class="apm-pc-tb-sp"></span><span class="apm-pc-tb-pill role">SUPER_ADMIN</span></div>
+                <div class="apm-pc-area" style="padding:14px;">
+                  <div class="apm-detail">
+                    <div class="apm-detail-side">
+                      <div class="apm-id-block">
+                        <div class="apm-id-avatar">박</div>
+                        <div class="apm-id-name">박지원</div>
+                        <div class="apm-id-meta">jiwon.park@stam.co · WBS PM · 입사 2024-08</div>
+                      </div>
+                      <div>
+                        <div class="apm-fact-row"><span class="k">role</span><span class="v"><span class="apm-rchip admin">ADMIN</span></span></div>
+                        <div class="apm-fact-row"><span class="k">scope</span><span class="v">all (project 한정 권장)</span></div>
+                        <div class="apm-fact-row"><span class="k">상태</span><span class="v"><span class="apm-status-chip active">ACTIVE</span></span></div>
+                        <div class="apm-fact-row"><span class="k">MFA</span><span class="v"><span class="apm-mfa off">○ OFF</span></span></div>
+                        <div class="apm-fact-row"><span class="k">최근 로그인</span><span class="v">06-10 11:02 · 10.20.30.40</span></div>
+                        <div class="apm-fact-row"><span class="k">최근 UNMASK</span><span class="v">06-10 10:48 · 5건</span></div>
+                        <div class="apm-fact-row"><span class="k">최근 DOWNLOAD</span><span class="v">06-09 17:22 · 248 row CSV</span></div>
+                        <div class="apm-fact-row"><span class="k">최근 권한 변경</span><span class="v">06-08 (PM → ADMIN)</span></div>
+                      </div>
+                      <div style="display:flex;gap:6px;margin-top:4px;">
+                        <span class="apm-pc-btn is-warn" style="flex:1;justify-content:center;">잠금</span>
+                        <span class="apm-pc-btn is-fail" style="flex:1;justify-content:center;">권한 회수</span>
+                      </div>
+                    </div>
+
+                    <div class="apm-detail-main">
+                      <div class="apm-section">
+                        <div class="apm-section-head">
+                          <span class="apm-section-title">Risk Indicators</span>
+                          <span class="apm-risk-pill warn" style="margin-left:auto;">MFA 미설정</span>
+                          <span class="apm-risk-pill">최근 다운로드 다수</span>
+                        </div>
+                        <div style="font-size:10.5px;color:rgba(255,255,255,.62);line-height:1.6;">
+                          [data-theme="light"] 에서 보호 — ADMIN 이상이지만 MFA 미설정. 06-09 일 1000+ row 다운로드 1건. <strong>운영팀 점검 권장</strong>.
+                        </div>
+                      </div>
+
+                      <div class="apm-section">
+                        <div class="apm-section-head">
+                          <span class="apm-section-title">Menu Permission</span>
+                          <span class="apm-pc-btn sm" style="margin-left:auto;height:24px;font-size:9.5px;">예외 추가</span>
+                        </div>
+                        <div class="apm-perm-grid">
+                          <div class="apm-perm-chip allow">대시보드</div>
+                          <div class="apm-perm-chip allow">WBS</div>
+                          <div class="apm-perm-chip allow">결함</div>
+                          <div class="apm-perm-chip allow">테스트</div>
+                          <div class="apm-perm-chip allow">산출물</div>
+                          <div class="apm-perm-chip allow">사용자 관리</div>
+                          <div class="apm-perm-chip warn">감사로그 (예외)</div>
+                          <div class="apm-perm-chip deny">보안 정책</div>
+                          <div class="apm-perm-chip deny">이벤트</div>
+                        </div>
+                      </div>
+
+                      <div class="apm-section">
+                        <div class="apm-section-head">
+                          <span class="apm-section-title">Action Permission</span>
+                        </div>
+                        <div class="apm-perm-grid">
+                          <div class="apm-perm-chip allow">READ</div>
+                          <div class="apm-perm-chip allow">CREATE</div>
+                          <div class="apm-perm-chip allow">UPDATE</div>
+                          <div class="apm-perm-chip allow">DELETE</div>
+                          <div class="apm-perm-chip allow">EXPORT</div>
+                          <div class="apm-perm-chip allow">DOWNLOAD</div>
+                          <div class="apm-perm-chip allow">UNMASK</div>
+                          <div class="apm-perm-chip allow">ADMIN_MANAGE</div>
+                          <div class="apm-perm-chip deny">AUDIT_VIEW</div>
+                        </div>
+                      </div>
+
+                      <div class="apm-section">
+                        <div class="apm-section-head">
+                          <span class="apm-section-title">Data Scope</span>
+                        </div>
+                        <div class="apm-perm-grid">
+                          <div class="apm-perm-chip scope">all</div>
+                          <div class="apm-perm-chip scope">project: P-2026-001 · P-2026-004</div>
+                          <div class="apm-perm-chip">team: WBS PM</div>
+                        </div>
+                      </div>
+
+                      <div class="apm-section">
+                        <div class="apm-section-head">
+                          <span class="apm-section-title">권한 변경 이력 · 최근 5건</span>
+                          <a style="margin-left:auto;font-size:10.5px;color:var(--stam);font-weight:700;">전체 보기 →</a>
+                        </div>
+                        <div class="apm-tl">
+                          <div class="apm-tl-item is-warn">
+                            <span class="apm-tl-when">06-10 14:12 · 정유진 (SUPER_ADMIN)</span>
+                            <div class="apm-tl-title">role 변경 — MEMBER → ADMIN</div>
+                            <div class="apm-tl-meta">사유: WBS 프로젝트 권한 승급 · log <code>L-90213</code></div>
+                          </div>
+                          <div class="apm-tl-item">
+                            <span class="apm-tl-when">06-08 09:42 · 정유진 (SUPER_ADMIN)</span>
+                            <div class="apm-tl-title">scope 추가 — project P-2026-004</div>
+                            <div class="apm-tl-meta">사유: 신규 프로젝트 합류 · log <code>L-90014</code></div>
+                          </div>
+                          <div class="apm-tl-item is-pass">
+                            <span class="apm-tl-when">05-22 11:18 · 정유진 (SUPER_ADMIN)</span>
+                            <div class="apm-tl-title">예외 권한 부여 — 감사로그 (만료 06-30)</div>
+                            <div class="apm-tl-meta">사유: 인증 대비 임시 검토 · log <code>L-88421</code></div>
+                          </div>
+                          <div class="apm-tl-item is-fail">
+                            <span class="apm-tl-when">04-18 09:08 · 시스템</span>
+                            <div class="apm-tl-title">잠금 자동 해제 (30분)</div>
+                            <div class="apm-tl-meta">로그인 실패 5회 · IP 10.20.30.40 · log <code>L-72106</code></div>
+                          </div>
+                          <div class="apm-tl-item">
+                            <span class="apm-tl-when">2024-08-01 · 시스템</span>
+                            <div class="apm-tl-title">계정 생성 · 초기 role MEMBER</div>
+                            <div class="apm-tl-meta">신규 입사 · log <code>L-12042</code></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Role Change Flow ── -->
+      <section id="s08" class="sec" data-screen-label="08 Role Change">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Role Change Flow</span>
+          <span class="sbadge plan">Mock C</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            role 변경은 <strong>before / after diff</strong> 가 보이고, <strong>권한 상승은 추가 체크박스</strong> 가 의무화된다.
+            SUPER_ADMIN 부여 / 본인 role 변경은 2인 승인 후보 (v2).
+          </p>
+          <div class="apm-mock-row">
+            <div class="apm-modal">
+              <div class="apm-modal-head">
+                <span class="apm-modal-tag warn">권한 변경</span>
+                <span class="apm-modal-close">✕</span>
+              </div>
+              <div class="apm-modal-title">박지원의 role 변경</div>
+              <div class="apm-modal-body">변경은 admin_action_logs 에 기록되며, 사유는 5자 이상 입력해야 합니다.</div>
+              <div class="apm-diff-row up">
+                <span class="from"><span class="apm-rchip member">MEMBER</span></span>
+                <span class="arrow">→</span>
+                <span class="to"><span class="apm-rchip admin">ADMIN</span></span>
+                <span style="margin-left:auto;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#F5B14C;">UPGRADE</span>
+              </div>
+              <div class="apm-input-row">
+                <span class="apm-label">사유 (5자 이상)</span>
+                <div class="apm-textarea">WBS 프로젝트 권한 승급 — 신규 프로젝트 PM 역할</div>
+              </div>
+              <div class="apm-modal-info">
+                <strong>변경 영향 요약</strong><br>
+                · 메뉴 +3 (사용자 관리 / 감사로그 / 보안 정책)<br>
+                · ACTION +3 (DELETE / EXPORT / ADMIN_MANAGE)<br>
+                · scope: team → <strong>all</strong>
+              </div>
+              <div class="apm-check-row">
+                <span class="box on">✓</span>
+                <span>권한 상승 (UPGRADE) 임을 확인했습니다. ADMIN 은 모든 사용자 / 권한 / 정책을 변경할 수 있습니다.</span>
+              </div>
+              <div class="apm-modal-warning">
+                감사로그 저장 실패 시 변경은 적용되지 않습니다.
+              </div>
+              <div class="apm-modal-foot">
+                <span class="apm-pc-btn">취소</span>
+                <span class="apm-pc-btn is-primary">변경 적용</span>
+              </div>
+            </div>
+            <div class="apm-side-note">
+              <strong>Role Change 정책</strong>
+              · before / after diff (chip + 라인 취소)<br>
+              · UPGRADE / DOWNGRADE 라벨 자동<br>
+              · 변경 영향 요약 (메뉴 / action / scope)<br>
+              · UPGRADE 는 체크박스 의무<br>
+              · 사유 5자+ 의무<br>
+              · 감사로그 트랜잭션 안에서 처리<br>
+              · SUPER 부여 / 본인 변경 — 2인 승인 (v2)
+            </div>
+          </div>
+
+          <div class="apm-rule-grid" style="margin-top:14px;">
+            <div class="apm-rule-card">
+              <div class="apm-rc-hdr is-warn">권한 상승 (UPGRADE) — 추가 통제</div>
+              <ul>
+                <li>"권한 상승임을 확인" 체크박스 의무</li>
+                <li>변경 영향 요약 (메뉴 / action / scope diff) 자동 표시</li>
+                <li>SUPER_ADMIN 부여 시 2인 승인 (v2 후보)</li>
+                <li>본인 role 변경 시 시스템 거부 또는 2인 승인 (v2)</li>
+                <li>변경 후 즉시 적용 — 사용자 다음 요청부터 새 권한</li>
+              </ul>
+            </div>
+            <div class="apm-rule-card">
+              <div class="apm-rc-hdr is-info">권한 하강 (DOWNGRADE) — 일반 통제</div>
+              <ul>
+                <li>before / after diff 만 표시 (체크박스 X)</li>
+                <li>대상 사용자의 현재 세션 강제 종료 (옵션)</li>
+                <li>scope 축소는 별도 모달 — 어떤 프로젝트 / 팀 제외인지 명시</li>
+                <li>완전 회수는 S10 Revoke flow 사용</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Exception ── -->
+      <section id="s09" class="sec" data-screen-label="09 Exception">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Permission Exception Flow</span>
+          <span class="sbadge plan">Mock D</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            role 기본 권한 외 <strong>예외 부여</strong>. 특정 프로젝트만 / 특정 메뉴만 추가 · 다운로드만 차단 · 임시 권한 + 만료일 등.
+            예외 권한은 운영 복잡도를 늘리므로 <strong>사유 + 만료일 의무</strong>.
+          </p>
+          <div class="apm-mock-row">
+            <div class="apm-drawer">
+              <div class="apm-drawer-head">
+                <span class="apm-modal-tag">권한 예외</span>
+                <span style="margin-left:auto;font-size:14px;color:rgba(255,255,255,.50);" class="apm-modal-close">✕</span>
+              </div>
+              <div>
+                <div class="apm-drawer-title">최서연 · 임시 unmask 권한 부여</div>
+                <div class="apm-drawer-sub">role: MEMBER · 기본 권한 외 추가</div>
+              </div>
+
+              <div class="apm-input-row">
+                <span class="apm-label">예외 유형</span>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <span class="apm-perm-chip allow" style="font-size:10.5px;">+ UNMASK 추가</span>
+                  <span class="apm-perm-chip" style="opacity:.7;">+ 메뉴 추가</span>
+                  <span class="apm-perm-chip" style="opacity:.7;">− 다운로드 차단</span>
+                  <span class="apm-perm-chip" style="opacity:.7;">− unmask 차단</span>
+                </div>
+              </div>
+
+              <div class="apm-input-row">
+                <span class="apm-label">대상 scope</span>
+                <div class="apm-input">project: P-2026-001 (WBS 신규 인증 대비)</div>
+              </div>
+
+              <div class="apm-input-row">
+                <span class="apm-label">만료일 (필수)</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <div class="apm-input" style="width:200px;">2026-06-30</div>
+                  <span style="font-size:10.5px;color:var(--t3);">기본 7일 · 최대 30일</span>
+                </div>
+              </div>
+
+              <div class="apm-input-row">
+                <span class="apm-label">사유 (5자 이상)</span>
+                <div class="apm-textarea">ISMS-P 인증 자료 작성용 임시 unmask · 6월 말 종료</div>
+              </div>
+
+              <div class="apm-modal-warning warn">
+                예외 권한은 <strong>운영 복잡도 증가</strong>의 원인. 만료일 이후 자동 해제되며, 연장은 새 예외로 재신청.
+              </div>
+
+              <div class="apm-modal-foot">
+                <span class="apm-pc-btn">취소</span>
+                <span class="apm-pc-btn is-primary">예외 부여</span>
+              </div>
+            </div>
+            <div class="apm-side-note">
+              <strong>Exception 정책</strong>
+              · 유형 — 메뉴 / action 추가 또는 차단<br>
+              · scope 명시 — 어디까지<br>
+              · 만료일 의무 (최대 30일 기본)<br>
+              · 사유 5자+ 의무<br>
+              · 자동 해제 — 만료 시 시스템 처리<br>
+              · 연장은 신규 예외로 재신청 (이력 추적)<br>
+              · 다수 예외 누적 시 운영팀 알림 후보
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S10 Revoke ── -->
+      <section id="s10" class="sec" data-screen-label="10 Revoke">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Permission Revoke / Disable Flow</span>
+          <span class="sbadge plan">Revoke</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            권한 회수 / 잠금 / 휴면 / 퇴사 처리. 사유 · 적용 시점 · 영향 범위가 모두 보여야 한다.
+          </p>
+          <div class="apm-tbl-wrap">
+            <table class="apm-tbl">
+              <thead><tr><th style="width:160px;">유형</th><th style="width:130px;">적용 시점</th><th>영향 범위</th><th>특이사항</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">role downgrade</td><td>즉시</td><td>해당 role 의 모든 권한 회수 · 새 role 권한 적용</td><td>S08 flow 사용</td></tr>
+                <tr><td class="tn">특정 권한 회수</td><td>즉시</td><td>예외 권한 해제 · 기본 role 권한만 유지</td><td>S09 의 역방향</td></tr>
+                <tr><td class="tn">계정 잠금 (Lock)</td><td>즉시</td><td>로그인 차단 · 진행 세션 강제 종료</td><td>SECURITY_ADMIN 가능</td></tr>
+                <tr><td class="tn">휴면 처리 (Dormant)</td><td>예약 가능</td><td>90일 미접속 → 안내 · 1년 미접속 → 전환</td><td>자동 / 수동 모두</td></tr>
+                <tr><td class="tn">퇴사자 권한 회수</td><td>퇴사일</td><td>모든 role / 예외 회수 · 휴면 → 파기</td><td>HR 시스템 연동 v2</td></tr>
+                <tr><td class="tn">외부 사용자 만료</td><td>만료일</td><td>EXTERNAL role 만료 · 계정 비활성</td><td>만료 30일 전 알림</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="apm-mock-row" style="margin-top:14px;">
+            <div class="apm-modal">
+              <div class="apm-modal-head">
+                <span class="apm-modal-tag">권한 회수</span>
+                <span class="apm-modal-close">✕</span>
+              </div>
+              <div class="apm-modal-title">한승현 · 계정 잠금 + 권한 회수</div>
+              <div class="apm-modal-body">90일 이상 미접속 + ADMIN role + MFA 미설정 — 보안 정책에 의해 자동 권장.</div>
+              <div class="apm-modal-warning">
+                <strong>영향 범위</strong><br>
+                · 메뉴 9개 / action 7개 / scope all 해제<br>
+                · 진행 중 세션 즉시 종료<br>
+                · 휴면 처리 (1년 후 자동 파기 예정)<br>
+                · 본인 작업 (WBS 12건) 의 담당자 재할당 필요
+              </div>
+              <div class="apm-input-row">
+                <span class="apm-label">사유</span>
+                <div class="apm-textarea">3개월 미접속 + MFA 미설정 — 보안 정책에 따라 잠금</div>
+              </div>
+              <div class="apm-check-row">
+                <span class="box on">✓</span>
+                <span>본인 담당 작업 12건 재할당이 필요함을 확인했습니다.</span>
+              </div>
+              <div class="apm-modal-foot">
+                <span class="apm-pc-btn">취소</span>
+                <span class="apm-pc-btn is-fail">잠금 + 권한 회수</span>
+              </div>
+            </div>
+            <div class="apm-side-note">
+              <strong>회수 정책</strong>
+              · 영향 범위 먼저 표시 (잃을 권한 / 진행 세션 / 본인 작업)<br>
+              · 사유 의무<br>
+              · 본인 작업 재할당 확인 체크<br>
+              · admin_action_logs 기록<br>
+              · 적용 시점 명시 (즉시 / 예약)<br>
+              · UNDO 는 별도 액션 (잠금 해제 / role 복원)
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S11 Approval ── -->
+      <section id="s11" class="sec" data-screen-label="11 Approval">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Approval Candidate Flow</span>
+          <span class="sbadge plan">v2 후보</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            v1 에서는 ADMIN 단독 처리 가능하지만, v2 에서는 일부 권한 변경을 <strong>승인 워크플로우</strong>로 전환한다.
+          </p>
+          <div class="apm-tbl-wrap">
+            <table class="apm-tbl">
+              <thead><tr><th style="width:200px;">변경 유형</th><th style="width:160px;">v1</th><th>v2 후보</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">일반 권한 변경</td><td class="good">ADMIN 단독</td><td>동일</td></tr>
+                <tr><td class="tn">UNMASK 권한 부여</td><td class="warn">ADMIN 단독</td><td>SECURITY_ADMIN 승인 (1인)</td></tr>
+                <tr><td class="tn">EXPORT 권한 부여</td><td class="warn">ADMIN 단독</td><td>SECURITY_ADMIN 승인 (1인) · 사유 강화</td></tr>
+                <tr><td class="tn">SUPER_ADMIN 부여 / 회수</td><td class="bad">제한 (1인 ADMIN 으로는 불가)</td><td>2인 SUPER_ADMIN 승인</td></tr>
+                <tr><td class="tn">EXTERNAL 권한 부여</td><td class="warn">ADMIN 단독 · 만료일 의무</td><td>SECURITY_ADMIN 승인 + 만료일</td></tr>
+                <tr><td class="tn">본인 role 변경</td><td class="bad">시스템 거부</td><td>2인 SUPER_ADMIN 승인</td></tr>
+                <tr><td class="tn">보안 정책 변경</td><td class="bad">SUPER_ADMIN 만</td><td>2인 SUPER_ADMIN 승인</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>v1 에서의 처리</strong><br>
+            본 문서는 v1 기준. 승인 워크플로우는 화면 후보만 시각화하고 실제 흐름은 v2 에서 다룬다.
+            v1 에서는 위 표의 "v1" 컬럼 정책을 그대로 적용하되, <strong>SUPER_ADMIN 부여 / 본인 role 변경 / 보안 정책 변경</strong> 만 시스템 차원에서 거부 / 2인 승인 의무화한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S12 Matrix ── -->
+      <section id="s12" class="sec" data-screen-label="12 Matrix">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Permission Matrix View</span>
+          <span class="sbadge plan">Mock E</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            Role × Action × Scope 매트릭스. 조회용 기본 — 편집은 상세 화면에서 수행 권장.
+            A = Allow / D = Deny / R = Restricted / Ap = Approval / S = Scope 제한.
+          </p>
+          <div class="apm-table-host">
+            <table class="apm-matrix">
+              <thead>
+                <tr>
+                  <th class="row-h">Role \ Action</th>
+                  <th>READ</th>
+                  <th>CREATE</th>
+                  <th>UPDATE</th>
+                  <th>DELETE</th>
+                  <th>EXPORT</th>
+                  <th>DOWNLOAD</th>
+                  <th>UNMASK</th>
+                  <th>ADMIN_MANAGE</th>
+                  <th>AUDIT_VIEW</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="row-h"><span class="apm-rchip super">SUPER</span></td>
+                  <td><span class="cell a">A</span></td><td><span class="cell a">A</span></td><td><span class="cell a">A</span></td><td><span class="cell a">A</span></td><td><span class="cell a">A</span></td><td><span class="cell a">A</span></td><td><span class="cell a">A</span></td><td><span class="cell a">A</span></td><td><span class="cell a">A</span></td>
+                </tr>
+                <tr>
+                  <td class="row-h"><span class="apm-rchip sec">SECURITY</span></td>
+                  <td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell r">R</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell r">R</span></td><td><span class="cell a">A</span></td>
+                </tr>
+                <tr>
+                  <td class="row-h"><span class="apm-rchip admin">ADMIN</span></td>
+                  <td><span class="cell a">A</span></td><td><span class="cell a">A</span></td><td><span class="cell a">A</span></td><td><span class="cell a">A</span></td><td><span class="cell a">A</span></td><td><span class="cell a">A</span></td><td><span class="cell a">A</span></td><td><span class="cell a">A</span></td><td><span class="cell d">D</span></td>
+                </tr>
+                <tr>
+                  <td class="row-h"><span class="apm-rchip pm">PM</span></td>
+                  <td><span class="cell s">S</span></td><td><span class="cell s">S</span></td><td><span class="cell s">S</span></td><td><span class="cell s">S</span></td><td><span class="cell s">S</span></td><td><span class="cell s">S</span></td><td><span class="cell s">S</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td>
+                </tr>
+                <tr>
+                  <td class="row-h"><span class="apm-rchip member">MEMBER</span></td>
+                  <td><span class="cell s">S</span></td><td><span class="cell s">S</span></td><td><span class="cell s">S</span></td><td><span class="cell d">D</span></td><td><span class="cell r">R</span></td><td><span class="cell r">R</span></td><td><span class="cell r">R</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td>
+                </tr>
+                <tr>
+                  <td class="row-h"><span class="apm-rchip viewer">VIEWER</span></td>
+                  <td><span class="cell s">S</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td>
+                </tr>
+                <tr>
+                  <td class="row-h"><span class="apm-rchip ext">EXTERNAL</span></td>
+                  <td><span class="cell s">S</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td><td><span class="cell d">D</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:10.5px;color:var(--t2);">
+            <span><span class="cell a" style="display:inline-flex;width:20px;height:20px;border-radius:5px;background:rgba(52,199,89,.16);color:#34C759;font-weight:800;font-size:10px;align-items:center;justify-content:center;margin-right:5px;">A</span> Allow</span>
+            <span><span class="cell d" style="display:inline-flex;width:20px;height:20px;border-radius:5px;background:rgba(255,90,71,.14);color:#FF7D6E;font-weight:800;font-size:10px;align-items:center;justify-content:center;margin-right:5px;">D</span> Deny</span>
+            <span><span class="cell r" style="display:inline-flex;width:20px;height:20px;border-radius:5px;background:rgba(245,158,11,.18);color:#F5B14C;font-weight:800;font-size:10px;align-items:center;justify-content:center;margin-right:5px;">R</span> Restricted (사유 / 추가 통제)</span>
+            <span><span class="cell s" style="display:inline-flex;width:20px;height:20px;border-radius:5px;background:rgba(139,127,248,.18);color:#a49bf9;font-weight:800;font-size:10px;align-items:center;justify-content:center;margin-right:5px;">S</span> Scope 제한</span>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>매트릭스 = 조회 전용</strong>
+            매트릭스 view 는 reference 용. 실제 변경은 사용자 상세 화면 (S07) 에서 role / 예외 단위로 수행.
+            매트릭스에서 직접 cell 클릭 → 변경은 v2 후보 (한 곳에서 한 행위 = 사고 위험).
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S13 Audit Linkage ── -->
+      <section id="s13" class="sec" data-screen-label="13 Audit Linkage">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Admin Action Log Linkage</span>
+          <span class="sbadge plan">Mock F</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            권한 변경 이력은 <code>admin_action_logs</code> 와 1:1 매핑된다. 상세 화면에서 timeline 으로 노출하고, 각 항목 클릭 → 감사로그 화면으로 이동.
+          </p>
+          <div class="apm-tbl-wrap">
+            <table class="apm-tbl">
+              <thead><tr><th style="width:160px;">필드</th><th>설명</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">변경자</td><td>userId · userName (스냅샷) · role (스냅샷)</td></tr>
+                <tr><td class="tn">대상 사용자</td><td>targetType=USER · targetId · maskedLabel</td></tr>
+                <tr><td class="tn">변경 전</td><td>beforeState JSON — role / scope / 메뉴 / action</td></tr>
+                <tr><td class="tn">변경 후</td><td>afterState JSON — role / scope / 메뉴 / action</td></tr>
+                <tr><td class="tn">사유</td><td>5자 이상 · 빈 값 거부</td></tr>
+                <tr><td class="tn">일시</td><td>UTC TIMESTAMP · 표시 KST</td></tr>
+                <tr><td class="tn">IP / userAgent</td><td>변경자 위치 / 환경</td></tr>
+                <tr><td class="tn">result</td><td>SUCCESS / DENIED / FAILED</td></tr>
+                <tr><td class="tn">관련 audit log ID</td><td>L-##### — 감사로그 화면 직접 링크</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="apm-cap" style="margin-top:14px;"><span class="apm-cap-n">F</span>권한 변경 이력 timeline + audit log link</div>
+          <div class="apm-section">
+            <div class="apm-section-head">
+              <span class="apm-section-title">박지원 · 권한 변경 전체 이력</span>
+              <span class="apm-pc-btn sm" style="margin-left:auto;height:24px;font-size:9.5px;">CSV 내보내기 (사유 필요)</span>
+            </div>
+            <div class="apm-tl">
+              <div class="apm-tl-item is-warn">
+                <span class="apm-tl-when">06-10 14:12 · 정유진 (SUPER_ADMIN) · 10.20.30.55</span>
+                <div class="apm-tl-title">role 변경 — MEMBER → ADMIN <span style="color:var(--stam);font-weight:700;">→ log L-90213 보기</span></div>
+                <div class="apm-tl-meta">사유: WBS 프로젝트 권한 승급 · result: SUCCESS</div>
+              </div>
+              <div class="apm-tl-item">
+                <span class="apm-tl-when">06-08 09:42 · 정유진 (SUPER_ADMIN) · 10.20.30.55</span>
+                <div class="apm-tl-title">scope 추가 — project P-2026-004 <span style="color:var(--stam);font-weight:700;">→ log L-90014 보기</span></div>
+                <div class="apm-tl-meta">사유: 신규 프로젝트 합류 · result: SUCCESS</div>
+              </div>
+              <div class="apm-tl-item is-pass">
+                <span class="apm-tl-when">05-22 11:18 · 정유진 (SUPER_ADMIN) · 10.20.30.55</span>
+                <div class="apm-tl-title">예외 권한 부여 — 감사로그 (만료 06-30) <span style="color:var(--stam);font-weight:700;">→ log L-88421 보기</span></div>
+                <div class="apm-tl-meta">사유: 인증 대비 임시 검토 · result: SUCCESS</div>
+              </div>
+              <div class="apm-tl-item is-fail">
+                <span class="apm-tl-when">05-19 14:08 · 박지원 (MEMBER) · 10.20.30.40</span>
+                <div class="apm-tl-title">감사로그 메뉴 접근 시도 <span style="color:var(--stam);font-weight:700;">→ log L-87502 보기</span></div>
+                <div class="apm-tl-meta">사유 — · result: <strong style="color:#FF5A47;">DENIED</strong> (권한 없음)</div>
+              </div>
+              <div class="apm-tl-item">
+                <span class="apm-tl-when">2024-08-01 · 시스템</span>
+                <div class="apm-tl-title">계정 생성 · 초기 role MEMBER <span style="color:var(--stam);font-weight:700;">→ log L-12042 보기</span></div>
+                <div class="apm-tl-meta">신규 입사 · result: SUCCESS</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S14 Risk Indicators ── -->
+      <section id="s14" class="sec" data-screen-label="14 Risk Indicators">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Security Risk Indicators</span>
+          <span class="sbadge plan">Mock G</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            권한 관리 화면 안에서 시각적으로 강조하는 위험 7종. 사용자 목록 / 상세 / 위험 보드 3곳에 동일하게 사용.
+          </p>
+          <div class="apm-tbl-wrap">
+            <table class="apm-tbl">
+              <thead><tr><th style="width:280px;">위험</th><th style="width:120px;">레벨</th><th>탐지 조건</th><th>권장 조치</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">장기 미접속 + 높은 권한</td><td class="bad">High</td><td>마지막 로그인 90일+ AND ADMIN 이상</td><td>잠금 후보 / 휴면 처리</td></tr>
+                <tr><td class="tn">EXTERNAL + 다운로드 권한</td><td class="bad">High</td><td>role=EXTERNAL AND DOWNLOAD 예외 부여</td><td>예외 회수 또는 만료일 단축</td></tr>
+                <tr><td class="tn">MFA 미설정 + ADMIN 이상</td><td class="warn">Medium</td><td>MFA=OFF AND role ≥ ADMIN</td><td>MFA 강제 · 미설정 시 잠금</td></tr>
+                <tr><td class="tn">최근 권한 변경 잦음</td><td class="warn">Medium</td><td>30일 내 변경 3회+</td><td>변경 사유 검토 / 패턴 확인</td></tr>
+                <tr><td class="tn">개인정보 조회 빈도 높음</td><td class="warn">Medium</td><td>7일 내 UNMASK 100+건</td><td>업무 사유 확인 / 패턴 분석</td></tr>
+                <tr><td class="tn">SUPER_ADMIN 단일 운영</td><td class="bad">High</td><td>SUPER_ADMIN 1명</td><td>2명 이상 운영 권장 (사고 시 복구)</td></tr>
+                <tr><td class="tn">만료일 없는 임시 권한</td><td class="bad">High</td><td>예외 권한 중 expireAt IS NULL</td><td>즉시 만료일 설정 또는 회수</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="apm-cap" style="margin-top:14px;"><span class="apm-cap-n">G</span>위험 사용자 보드 (Security Dashboard 일부)</div>
+          <div class="apm-pc" style="min-height:380px;">
+            <div class="apm-pc-bar"><span class="apm-pc-dot"></span><span class="apm-pc-dot"></span><span class="apm-pc-dot"></span><span class="apm-pc-url">stam.app / admin / permissions?filter=risk</span><span class="apm-pc-tag">RISK BOARD</span></div>
+            <div class="apm-pc-body">
+              <div class="apm-pc-content">
+                <div class="apm-pc-topbar"><a style="color:inherit;">← 권한 관리</a> · <span class="apm-pc-crumb-cur">위험 사용자 보드</span><span class="apm-pc-tb-sp"></span><span class="apm-pc-tb-pill">7건</span></div>
+                <div class="apm-pc-area">
+                  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+                    <div class="apm-kpi fail"><span class="apm-kpi-key">High</span><span class="apm-kpi-val">3</span></div>
+                    <div class="apm-kpi warn"><span class="apm-kpi-key">Medium</span><span class="apm-kpi-val">4</span></div>
+                    <div class="apm-kpi info"><span class="apm-kpi-key">조치 대기</span><span class="apm-kpi-val">5</span></div>
+                    <div class="apm-kpi pass"><span class="apm-kpi-key">완료 (7일)</span><span class="apm-kpi-val">12</span></div>
+                  </div>
+                  <div class="apm-table-host">
+                    <table class="apm-tt">
+                      <thead><tr><th>사용자</th><th>위험</th><th>레벨</th><th>탐지</th><th>경과</th><th>조치</th></tr></thead>
+                      <tbody>
+                        <tr class="is-risk"><td class="tn"><span class="ava">한</span>한승현</td><td>장기 미접속 + ADMIN</td><td><span class="apm-risk-pill">High</span></td><td>06-08</td><td>2일</td><td><span class="apm-pc-btn sm is-fail">잠금</span></td></tr>
+                        <tr class="is-risk"><td class="tn"><span class="ava">A</span>Acme Corp</td><td>EXTERNAL + 다운로드</td><td><span class="apm-risk-pill">High</span></td><td>06-04</td><td>6일</td><td><span class="apm-pc-btn sm is-warn">예외 회수</span></td></tr>
+                        <tr class="is-risk"><td class="tn">SUPER_ADMIN 단일</td><td>정유진 1명만</td><td><span class="apm-risk-pill">High</span></td><td>06-01</td><td>9일</td><td><span class="apm-pc-btn sm">SUPER 추가 검토</span></td></tr>
+                        <tr class="is-warn"><td class="tn"><span class="ava">박</span>박지원</td><td>MFA 미설정 + ADMIN</td><td><span class="apm-risk-pill warn">Medium</span></td><td>06-08</td><td>2일</td><td><span class="apm-pc-btn sm">MFA 요청</span></td></tr>
+                        <tr class="is-warn"><td class="tn"><span class="ava">최</span>최서연</td><td>최근 권한 변경 잦음</td><td><span class="apm-risk-pill warn">Medium</span></td><td>06-09</td><td>1일</td><td><span class="apm-pc-btn sm">사유 검토</span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S15 Mobile ── -->
+      <section id="s15" class="sec" data-screen-label="15 Mobile">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">Mobile Permission Management</span>
+          <span class="sbadge plan">Mock H</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            모바일은 <strong>조회 / 긴급 잠금 / 승인 반려</strong>만 허용. 복잡한 권한 변경 · 매트릭스 · 예외 부여는 PC 전용.
+          </p>
+          <div class="apm-mock-row">
+            <div class="apm-phone">
+              <div class="apm-phone-screen" style="position:relative;">
+                <div class="apm-statusbar"><span>9:41</span><span>● ● ●</span></div>
+                <div class="apm-topbar">
+                  <div class="apm-tb-iconbtn"><svg viewBox="0 0 18 18"><path d="M3 9h12M3 4h12M3 14h12"/></svg></div>
+                  <div class="apm-tb-title">권한 상세<span class="apm-tb-sub">박지원 · ADMIN</span></div>
+                  <div class="apm-tb-iconbtn"><svg viewBox="0 0 18 18"><circle cx="9" cy="9" r="6"/><path d="M9 6v3l2 1"/></svg></div>
+                </div>
+                <div class="apm-mcontent" style="padding-bottom:70px;">
+                  <div class="apm-m-section" style="background:rgba(255,90,71,.06);border-color:rgba(255,90,71,.22);">
+                    <span class="apm-m-section-title" style="color:#FF7D6E;">위험 표시</span>
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                      <span class="apm-risk-pill warn">MFA 미설정</span>
+                      <span class="apm-risk-pill">최근 다운로드 다수</span>
+                    </div>
+                  </div>
+                  <div class="apm-m-section">
+                    <span class="apm-m-section-title">Identity</span>
+                    <div class="apm-m-row"><span class="k">role</span><span class="v"><span class="apm-rchip admin">ADMIN</span></span></div>
+                    <div class="apm-m-row"><span class="k">scope</span><span class="v">all</span></div>
+                    <div class="apm-m-row"><span class="k">상태</span><span class="v"><span class="apm-status-chip active">ACTIVE</span></span></div>
+                    <div class="apm-m-row"><span class="k">MFA</span><span class="v"><span class="apm-mfa off">○ OFF</span></span></div>
+                    <div class="apm-m-row"><span class="k">최근 로그인</span><span class="v">06-10 11:02</span></div>
+                  </div>
+                  <div class="apm-m-section">
+                    <span class="apm-m-section-title">Action Permission</span>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                      <span class="apm-perm-chip allow">READ</span>
+                      <span class="apm-perm-chip allow">UPDATE</span>
+                      <span class="apm-perm-chip allow">DELETE</span>
+                      <span class="apm-perm-chip allow">EXPORT</span>
+                      <span class="apm-perm-chip allow">UNMASK</span>
+                      <span class="apm-perm-chip deny">AUDIT_VIEW</span>
+                    </div>
+                  </div>
+                  <div class="apm-m-section">
+                    <span class="apm-m-section-title">최근 변경 (3건)</span>
+                    <div style="font-size:11px;color:rgba(255,255,255,.82);" >
+                      <div style="padding:4px 0;">06-10 14:12 · MEMBER → ADMIN</div>
+                      <div style="padding:4px 0;border-top:1px solid rgba(255,255,255,.04);">06-08 09:42 · scope +P-2026-004</div>
+                      <div style="padding:4px 0;border-top:1px solid rgba(255,255,255,.04);">05-22 11:18 · 예외 부여 (감사로그)</div>
+                    </div>
+                  </div>
+                  <div class="ibox warn" style="font-size:10.5px;background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.22);color:#F5B14C;padding:8px 10px;border-radius:7px;line-height:1.55;">
+                    <strong>모바일 제한</strong> — role 변경 / 예외 부여 / 매트릭스 편집은 PC 에서만 가능합니다.
+                  </div>
+                </div>
+                <div class="apm-m-fab">
+                  <span class="apm-pc-btn is-warn">긴급 잠금</span>
+                  <span class="apm-pc-btn is-primary">감사로그 보기</span>
+                </div>
+              </div>
+            </div>
+            <div class="apm-side-note">
+              <strong>Mobile 정책</strong>
+              · 사용자 목록 / 상세 조회만<br>
+              · 권한 chip / 위험 표시 / 최근 변경 timeline<br>
+              · 액션은 "긴급 잠금" 만 (보안 즉응)<br>
+              · 변경 / 예외 / 매트릭스 = PC 권장 안내 ibox<br>
+              · 승인 / 반려는 v2 후보<br>
+              · 터치 타겟 ≥ 40px (FAB / chip)
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S16 States ── -->
+      <section id="s16" class="sec" data-screen-label="16 States">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
+          <span class="sec-title">Empty / Loading / Denied / Failed State</span>
+          <span class="sbadge plan">Mock I</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            8 상태 — loading / empty users / no permission / denied / change failed / audit write failed / network / stale.
+          </p>
+
+          <div class="apm-mock-row">
+            <div class="apm-mock-col" style="min-width:300px;">
+              <div class="apm-mock-col-label"><span>Loading</span></div>
+              <div class="apm-table-host" style="height:160px;padding:14px;display:flex;flex-direction:column;gap:8px;">
+                <div class="apm-skel" style="width:60%;"></div>
+                <div class="apm-skel" style="width:80%;"></div>
+                <div class="apm-skel" style="width:70%;"></div>
+                <div class="apm-skel" style="width:90%;"></div>
+                <div class="apm-skel" style="width:50%;"></div>
+              </div>
+            </div>
+            <div class="apm-mock-col" style="min-width:300px;">
+              <div class="apm-mock-col-label"><span>Empty users</span></div>
+              <div class="apm-table-host" style="height:160px;justify-content:center;align-items:center;">
+                <div class="apm-emp">
+                  <span class="apm-emp-ico">∅</span>
+                  <span class="apm-emp-t">조건에 맞는 사용자가 없습니다</span>
+                  <span class="apm-emp-s">필터를 변경하거나 신규 사용자를 추가하세요.</span>
+                </div>
+              </div>
+            </div>
+            <div class="apm-mock-col" style="min-width:300px;">
+              <div class="apm-mock-col-label"><span>Denied — 권한 없음</span><span class="apm-mock-col-tag fail">403</span></div>
+              <div class="apm-table-host" style="height:160px;justify-content:center;align-items:center;">
+                <div class="apm-emp is-fail">
+                  <span class="apm-emp-ico">!</span>
+                  <span class="apm-emp-t">권한이 없습니다</span>
+                  <span class="apm-emp-s">권한 관리 메뉴는 ADMIN 이상에게만 허용됩니다. 거부 행위는 audit 에 기록됩니다.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="apm-mock-row" style="margin-top:14px;">
+            <div class="apm-mock-col" style="min-width:300px;">
+              <div class="apm-mock-col-label"><span>Change Failed</span><span class="apm-mock-col-tag warn">롤백</span></div>
+              <div class="apm-table-host" style="height:180px;justify-content:center;align-items:center;">
+                <div class="apm-emp is-warn">
+                  <span class="apm-emp-ico">⟲</span>
+                  <span class="apm-emp-t">권한 변경이 적용되지 않았습니다</span>
+                  <span class="apm-emp-s">서버 검증 실패 — 권한 상태는 변경 전 상태 그대로 유지됩니다. 잠시 후 다시 시도하세요.</span>
+                </div>
+              </div>
+            </div>
+            <div class="apm-mock-col" style="min-width:300px;">
+              <div class="apm-mock-col-label"><span>Audit Write Failed</span><span class="apm-mock-col-tag fail">차단</span></div>
+              <div class="apm-table-host" style="height:180px;justify-content:center;align-items:center;">
+                <div class="apm-emp is-fail">
+                  <span class="apm-emp-ico">!</span>
+                  <span class="apm-emp-t">감사로그 저장 실패 — 권한 변경 차단</span>
+                  <span class="apm-emp-s">admin_action_logs 저장에 실패하여 권한 변경이 적용되지 않았습니다. 운영팀에 즉시 문의하세요. (ERR-A-LOG-503)</span>
+                </div>
+              </div>
+            </div>
+            <div class="apm-mock-col" style="min-width:300px;">
+              <div class="apm-mock-col-label"><span>Stale Permission</span><span class="apm-mock-col-tag warn">재로딩</span></div>
+              <div class="apm-table-host" style="height:180px;justify-content:center;align-items:center;">
+                <div class="apm-emp is-warn">
+                  <span class="apm-emp-ico">⟳</span>
+                  <span class="apm-emp-t">권한 상태가 변경되었습니다</span>
+                  <span class="apm-emp-s">다른 관리자가 동일 사용자의 권한을 방금 변경했습니다. 최신 상태를 다시 불러옵니다.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>핵심 — 권한 변경은 트랜잭션</strong>
+            "변경 적용" → "admin_action_logs 저장" 이 하나의 트랜잭션. 어느 하나라도 실패하면 둘 다 롤백.
+            화면에서는 위 "Audit Write Failed" 상태로 명시적 노출. 사용자에게 "중간 상태" 가 절대 보이면 안 된다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S17 Mock Screens ── -->
+      <section id="s17" class="sec" data-screen-label="17 Mock Screens">
+        <div class="sec-hdr">
+          <span class="sec-n">17</span>
+          <span class="sec-title">Mock Screens — A ~ I</span>
+          <span class="sbadge plan">Visual</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            본 문서의 9 mock 은 각 섹션 안에 통합 배치되어 있다. 이 섹션은 인덱스 역할.
+          </div>
+          <div class="apm-tbl-wrap" style="margin-top:10px;">
+            <table class="apm-tbl">
+              <thead><tr><th style="width:40px;">#</th><th style="width:240px;">제목</th><th>설명</th><th style="width:80px;">위치</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">A</td><td class="tn">Admin Permission User List</td><td>전체 사용자 목록 — role chip, 상태, MFA, 마지막 로그인, 위험 표시 7 row</td><td>S06</td></tr>
+                <tr><td class="tn">B</td><td class="tn">User Permission Detail</td><td>좌측 ID + facts · 우측 Risk / Menu / Action / Scope / 이력 timeline 통합</td><td>S07</td></tr>
+                <tr><td class="tn">C</td><td class="tn">Role Change Modal</td><td>before / after diff · UPGRADE 체크박스 · 변경 영향 요약 · 사유</td><td>S08</td></tr>
+                <tr><td class="tn">D</td><td class="tn">Permission Exception Drawer</td><td>예외 유형 / scope / 만료일 / 사유 — 추가 / 차단 4 옵션</td><td>S09</td></tr>
+                <tr><td class="tn">E</td><td class="tn">Permission Matrix View</td><td>Role × Action 7×9 — A / D / R / S 4 셀 색</td><td>S12</td></tr>
+                <tr><td class="tn">F</td><td class="tn">Permission Change History Timeline</td><td>변경 이력 timeline + audit log L-##### 직접 링크</td><td>S13</td></tr>
+                <tr><td class="tn">G</td><td class="tn">Security Risk Indicator View</td><td>High / Medium KPI + 위험 사용자 5 row + 조치 버튼</td><td>S14</td></tr>
+                <tr><td class="tn">H</td><td class="tn">Mobile Permission Detail</td><td>조회 전용 · "긴급 잠금" FAB · PC 권장 안내</td><td>S15</td></tr>
+                <tr><td class="tn">I</td><td class="tn">Denied / Audit Write Failed States</td><td>6 상태 — loading / empty / denied / change failed / audit failed / stale</td><td>S16</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S18 Good / Bad ── -->
+      <section id="s18" class="sec" data-screen-label="18 Good / Bad">
+        <div class="sec-hdr">
+          <span class="sec-n">18</span>
+          <span class="sec-title">Good / Bad Comparison</span>
+          <span class="sbadge plan">비교</span>
+        </div>
+        <div class="sec-body">
+          <div class="apm-rule-grid">
+            <div class="apm-rule-card">
+              <div class="apm-rc-hdr is-pass">Good</div>
+              <ul>
+                <li>role · action · scope 가 분리되어 표시됨</li>
+                <li>변경 사유 5자+ 필수</li>
+                <li>변경 전 / 후 diff (취소선 + chip)</li>
+                <li>UPGRADE / DOWNGRADE 라벨 자동 + 추가 통제</li>
+                <li>개인정보 / 다운로드 / unmask 권한이 강조됨</li>
+                <li>감사로그와 1:1 연결 (timeline → log)</li>
+                <li>외부 사용자 (EXTERNAL) 권한 제한이 명확</li>
+                <li>위험 사용자 보드 / 위험 표시 7종</li>
+              </ul>
+            </div>
+            <div class="apm-rule-card">
+              <div class="apm-rc-hdr is-fail">Bad</div>
+              <ul>
+                <li>role 만 바꾸고 영향 범위 표시 없음</li>
+                <li>사유 없이 권한 변경</li>
+                <li>변경 이력 / audit log 미연결</li>
+                <li>SUPER_ADMIN 변경에 추가 확인 없음</li>
+                <li>EXTERNAL 에게 다운로드 / unmask 가능 (제한 누락)</li>
+                <li>프론트에서만 권한 숨김 — API 미검증</li>
+                <li>매트릭스에서 직접 cell 클릭 → 변경 (사고 위험)</li>
+                <li>모바일에서 복잡한 권한 매트릭스 편집 허용</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S19 DB Mapping ── -->
+      <section id="s19" class="sec" data-screen-label="19 DB Mapping">
+        <div class="sec-hdr">
+          <span class="sec-n">19</span>
+          <span class="sec-title">DB / Backend Mapping Notes</span>
+          <span class="sbadge plan">DB</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            본 문서는 DB 를 생성하지 않는다. 단, 화면의 모든 필드는 Security Guide 의 DB 14 테이블 중 다음 9 테이블과 매핑 가능해야 한다.
+          </p>
+          <div class="apm-tbl-wrap">
+            <table class="apm-tbl">
+              <thead><tr><th style="width:200px;">테이블</th><th style="width:120px;">관련 화면</th><th>주요 필드</th></tr></thead>
+              <tbody>
+                <tr><td class="tn"><code>users</code></td><td>S06 / S07</td><td>userId · loginId · email · name · status · lastLoginAt · mfaEnabled · dormantAt</td></tr>
+                <tr><td class="tn"><code>roles</code></td><td>S03 / S12</td><td>roleId · name · description · isSystem</td></tr>
+                <tr><td class="tn"><code>permissions</code></td><td>S04 / S12</td><td>permId · resource · action · scope</td></tr>
+                <tr><td class="tn"><code>user_roles</code></td><td>S07 / S08</td><td>userId · roleId · grantedBy · grantedAt · revokedAt · expireAt (예외)</td></tr>
+                <tr><td class="tn"><code>role_permissions</code></td><td>S12</td><td>roleId · permId — 매트릭스의 backbone</td></tr>
+                <tr><td class="tn"><code>admin_action_logs</code></td><td>S13 (전체)</td><td>logId · adminId · actionType · targetType · targetId · beforeState · afterState · reason · result</td></tr>
+                <tr><td class="tn"><code>login_logs</code></td><td>S07 facts</td><td>로그인 / 실패 / 잠금 — 위험 표시의 입력</td></tr>
+                <tr><td class="tn"><code>personal_data_access_logs</code></td><td>S07 facts</td><td>최근 UNMASK · 빈도 — 위험 표시의 입력</td></tr>
+                <tr><td class="tn"><code>download_logs</code></td><td>S07 facts · S14</td><td>최근 DOWNLOAD · 대량 다운로드 탐지</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>본 문서는 DB 생성 / 수정 / 마이그레이션을 수행하지 않는다.</strong>
+            화면 ↔ DB 필드 매핑이 가능한 구조라는 것을 명시할 뿐이며, 실제 schema 확정 / migration / Firebase rules 는 Security Guide v1 기준에 따라 별도 Gate.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S20 Handoff ── -->
+      <section id="s20" class="sec" data-screen-label="20 Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">20</span>
+          <span class="sec-title">Cursor / Backend Handoff Notes</span>
+          <span class="sbadge plan">Handoff</span>
+        </div>
+        <div class="sec-body">
+          <div class="apm-handoff-list">
+            <div class="apm-handoff-item">
+              <span class="apm-hf-path">stam/pages/admin/permissions.html</span>
+              <span class="apm-hf-role">사용자 목록 + 상세 host (S06 + S07)</span>
+            </div>
+            <div class="apm-handoff-item">
+              <span class="apm-hf-path">stam/pages/admin/audit-logs.html</span>
+              <span class="apm-hf-role">감사로그 화면 — S13 의 타임라인 링크 대상</span>
+            </div>
+            <div class="apm-handoff-item">
+              <span class="apm-hf-path">stam/js/stam.permission.js <em>(신규)</em></span>
+              <span class="apm-hf-role">role/scope 표시 · diff 계산 · 매트릭스 reference render</span>
+            </div>
+            <div class="apm-handoff-item">
+              <span class="apm-hf-path">stam/js/stam.audit.js <em>(신규)</em></span>
+              <span class="apm-hf-role">audit log 조회 · timeline · 사용자 상세에서 사용</span>
+            </div>
+            <div class="apm-handoff-item">
+              <span class="apm-hf-path">stam/css/stam.admin.css <em>(신규)</em></span>
+              <span class="apm-hf-role">role chip · diff · 매트릭스 · 위험 표시</span>
+            </div>
+            <div class="apm-handoff-item">
+              <span class="apm-hf-path">server/middleware/authorize.ts <em>(BE)</em></span>
+              <span class="apm-hf-role">menu × action × scope 검증 · denied 로그</span>
+            </div>
+            <div class="apm-handoff-item">
+              <span class="apm-hf-path">server/api/role-controller.ts <em>(BE)</em></span>
+              <span class="apm-hf-role">role / scope / 예외 변경 API · audit writer 트랜잭션</span>
+            </div>
+            <div class="apm-handoff-item">
+              <span class="apm-hf-path">server/middleware/audit-writer.ts <em>(BE)</em></span>
+              <span class="apm-hf-role">admin_action_logs 인서트 · 트랜잭션 내 실행</span>
+            </div>
+            <div class="apm-handoff-item">
+              <span class="apm-hf-path">server/api/approval-workflow.ts <em>(v2)</em></span>
+              <span class="apm-hf-role">2인 승인 · SUPER 부여 / 본인 role 변경 / 보안 정책 변경</span>
+            </div>
+            <div class="apm-handoff-item">
+              <span class="apm-hf-path">db/migrations/ <em>(DB Gate)</em></span>
+              <span class="apm-hf-role">Security Guide 14 테이블 중 9 (S19) — 권한 관리 영역</span>
+            </div>
+          </div>
+
+          <div class="apm-rule-grid" style="margin-top:14px;">
+            <div class="apm-rule-card">
+              <div class="apm-rc-hdr is-warn">실제 구현 전 주의 — 순서</div>
+              <ul>
+                <li>1차: role / action / scope 모델 확정 (Security Guide S03 / S04 기준)</li>
+                <li>2차: DB 9 테이블 schema + migration (별도 Gate)</li>
+                <li>3차: permission middleware (BE) + audit writer (트랜잭션)</li>
+                <li>4차: 사용자 목록 + 상세 (FE)</li>
+                <li>5차: role 변경 + 예외 부여 + 회수 (FE + BE)</li>
+                <li>6차: 매트릭스 + 변경 이력 timeline + audit log linkage</li>
+                <li>7차: 위험 사용자 보드 (v1) → 승인 워크플로우 (v2)</li>
+              </ul>
+            </div>
+            <div class="apm-rule-card">
+              <div class="apm-rc-hdr is-fail">한 커밋에 섞지 말 것</div>
+              <ul>
+                <li>DB 마이그레이션 + 비즈니스 로직</li>
+                <li>role 모델 변경 + 화면 변경</li>
+                <li>매트릭스 + 변경 모달 (조회 vs 행위 분리)</li>
+                <li>일반 권한 변경 + SUPER 부여 (위험도 차등)</li>
+                <li>v1 일반 변경 + v2 승인 워크플로우</li>
+                <li>PC + Mobile 동시 도입</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>핵심 주의</strong><br>
+            · UI 만 구현하고 API 권한 재검증을 빼면 보안 무력<br>
+            · 권한 변경 + 감사로그 = 트랜잭션 · 부분 반영 금지<br>
+            · SUPER_ADMIN / SECURITY_ADMIN 의 운영 분리는 PM 결정 후 진행<br>
+            · DB schema 확정 전 화면 선구현 금지 (필드 충돌 위험)<br>
+            · 매트릭스에서 직접 cell 클릭 → 변경은 사고 위험 — v2 도 신중
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S21 Guardrails ── -->
+      <section id="s21" class="sec" data-screen-label="21 Guardrails">
+        <div class="sec-hdr">
+          <span class="sec-n">21</span>
+          <span class="sec-title">Implementation Guardrails</span>
+          <span class="sbadge lock">Rule</span>
+        </div>
+        <div class="sec-body">
+          <div class="apm-chk-list">
+            <div class="apm-chk-item"><span class="apm-chk-box is-fail">!</span><span><strong>권한 화면을 만들기 전 role / action / scope 모델 확정</strong> — Security Guide S03 / S04 가 기준.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-fail">!</span><span><strong>권한 변경 사유 없이 저장 금지</strong> — 모든 변경 5자+ 사유 의무.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-fail">!</span><span><strong>admin_action_logs 저장 실패 시 권한 변경 차단</strong> — 트랜잭션 롤백.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-fail">!</span><span><strong>프론트 role 값 신뢰 금지</strong> — 서버 세션 role 사용 + 재검증.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-warn">!</span><span><strong>SUPER_ADMIN 단독 운영 금지 (권장)</strong> — 2명 이상 / 본인 변경 차단.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-fail">!</span><span><strong>EXTERNAL 에 UNMASK / DOWNLOAD 기본 차단</strong> — 화면 / API 양쪽.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-warn">!</span><span><strong>권한 변경 기능은 별도 PR / Gate</strong> — 다른 기능과 한 커밋 금지.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-warn">!</span><span><strong>모바일에서 복잡한 matrix 편집 금지</strong> — 조회 + 긴급 잠금만.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-info">i</span><span><strong>전역 <code>.tbtn</code> 일괄 치환 금지</strong> — 도큐 nav 전용.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-info">i</span><span><strong>실제 보안 로직은 Backend / DB Gate 후 진행</strong> — UI 선반영 금지.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box is-info">i</span><span><strong>매트릭스에서 직접 cell 변경 금지</strong> — 변경은 상세 화면에서 한 행위.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span><strong>모든 변경 이력 = 사용자 상세에서 즉시 확인 가능</strong>.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span><strong>예외 권한은 만료일 의무</strong> — 만료 없는 임시 권한 금지.</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span><strong>본인 role 변경 = 시스템 거부 또는 2인 승인 (v2)</strong>.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S22 QA ── -->
+      <section id="s22" class="sec" data-screen-label="22 QA">
+        <div class="sec-hdr">
+          <span class="sec-n">22</span>
+          <span class="sec-title">QA Checklist</span>
+          <span class="sbadge plan">QA</span>
+        </div>
+        <div class="sec-body">
+          <div class="apm-chk-list">
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>role 목록 표시 — 7 role chip 색상 정합</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>사용자 목록 필터 — role · 상태 · 팀 · 위험 · 외부 사용자 모두 동작</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>권한 상세 — facts / 메뉴 / action / scope / 이력 통합 표시</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>role 변경 전 / 후 diff (취소선 from + chip to)</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>사유 입력 5자+ 검증 · 빈 값 / 공백 거부</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>권한 상승 (UPGRADE) — 체크박스 의무 + 영향 요약</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>권한 회수 — 영향 범위 + 본인 작업 재할당 확인</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>임시 권한 만료일 의무 — 기본 7일 / 최대 30일</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>권한 변경 이력 timeline + audit log L-##### 링크</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>감사로그 연결 — 사용자 상세에서 즉시 진입</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>denied state — 403 화면 + 거부 감사로그</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>audit write failed state — 권한 변경 차단 + 에러 코드 노출</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>mobile detail — 조회 전용 + "긴급 잠금" FAB</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>light / dark 모두 시각 정합</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>S-Core Dream 자체서빙 폰트만 사용</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>iframe 미사용 · mock 전용 prefix <code>.apm-</code></span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>page-level horizontal scroll 없음</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>console error 없음</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>실제 product CSS / class / DB schema / Firebase rules 미수정</span></div>
+            <div class="apm-chk-item"><span class="apm-chk-box">✓</span><span>Docs Index 카드 1개 추가 · Security Guide 카드 근처</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S23 Related ── -->
+      <section id="s23" class="sec" data-screen-label="23 Related">
+        <div class="sec-hdr">
+          <span class="sec-n">23</span>
+          <span class="sec-title">Related Documents</span>
+          <span class="sbadge guide">참고</span>
+        </div>
+        <div class="sec-body">
+          <div class="apm-rel-grid">
+            <a class="apm-rel-card" href="STAM-Security-Privacy-ISMSP-Architecture-DB-Policy-Guide-v1.html"><span class="apm-rl-title">Security / Privacy / ISMS-P Architecture &amp; DB Policy Guide v1</span><span class="apm-rl-sub">권한 / 감사로그 / DB 14 테이블 — 본 문서의 baseline</span></a>
+            <a class="apm-rel-card" href="STAM-Backend-Architecture-API-Boundary-Guide.html"><span class="apm-rl-title">Backend Architecture &amp; API Boundary Guide</span><span class="apm-rl-sub">레이어 책임 · API 경계 · 권한 middleware</span></a>
+            <a class="apm-rel-card" href="STAM-Data-Table-Full-Table-Responsive-Guide-v1.html"><span class="apm-rl-title">Data Table / Full Table Responsive Guide v1</span><span class="apm-rl-sub">사용자 목록 / 위험 사용자 보드 베이스</span></a>
+            <a class="apm-rel-card" href="STAM-Form-Search-Filter-Mobile-Applied-Preview-v1.html"><span class="apm-rl-title">Form / Search / Filter Mobile Applied Preview v1</span><span class="apm-rl-sub">필터 chip · drawer · 입력 form 베이스</span></a>
+            <a class="apm-rel-card" href="STAM-Mobile-Shell-Top-Navigation-Guide-v1.html"><span class="apm-rl-title">Mobile Shell / Top / Navigation Guide v1</span><span class="apm-rl-sub">모바일 Topbar / FAB</span></a>
+            <a class="apm-rel-card" href="STAM-Topbar-Detail-Guide-v1.html"><span class="apm-rl-title">Topbar Detail Guide v1</span><span class="apm-rl-sub">알림 dot · 테마 토글 · breadcrumb</span></a>
+            <a class="apm-rel-card" href="STAM-Button-CSS-Implementation-Preview-v1.html"><span class="apm-rl-title">Button CSS Implementation Preview v1</span><span class="apm-rl-sub">Button CSS foundation</span></a>
+            <a class="apm-rel-card" href="STAM-UI-Baseline-Guide.html"><span class="apm-rl-title">STAM UI Baseline Guide</span><span class="apm-rl-sub">전역 폰트 · 토큰 · Layout · Forbidden Rules</span></a>
+            <a class="apm-rel-card" href="STAM-Component-Guide.html"><span class="apm-rl-title">STAM Component Guide</span><span class="apm-rl-sub">Form · Dialog · Drawer · Table · Topbar</span></a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  if (!main) return;
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>

@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Data Table / Full Table Responsive Guide v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ============================================================
+ * STAM Data Table / Full Table Responsive Guide v1
+ * - 문서 전용 격리 스타일 (prefix: dtg-)
+ * - 실제 product CSS / class 절대 덮어쓰지 않음
+ * ============================================================ */
+.dtg-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:var(--font);white-space:nowrap}
+.dtg-pill::before{content:"";width:6px;height:6px;border-radius:999px;background:currentColor;display:inline-block;flex-shrink:0}
+.dtg-pill.pass{background:var(--pass-bg);color:var(--pass)}
+.dtg-pill.warn{background:var(--warn-bg);color:var(--warn)}
+.dtg-pill.fail{background:var(--fail-bg);color:var(--fail)}
+.dtg-pill.info{background:var(--info-bg);color:var(--info)}
+.dtg-pill.brand{background:var(--stam-soft);color:var(--stam)}
+.dtg-pill.notyet{background:var(--skip-bg);color:var(--skip)}
+
+.dtg-hero{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:18px 20px 16px;display:flex;flex-direction:column;gap:12px;margin-bottom:24px;position:relative;overflow:hidden}
+.dtg-hero::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--stam)}
+.dtg-hero-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dtg-hero-title{font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.dtg-hero p{margin:0;font-size:12px;color:var(--t2);line-height:1.7}
+.dtg-hero code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px}
+
+.dtg-kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+@media (max-width:1280px){.dtg-kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:720px){.dtg-kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.dtg-kpi{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:11px 12px 12px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.dtg-kpi .dtg-kpi-key{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3)}
+.dtg-kpi .dtg-kpi-val{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.005em;line-height:1.35}
+.dtg-kpi.brand{border-color:rgba(84,81,232,.22);background:var(--stam-soft)}
+.dtg-kpi.brand .dtg-kpi-key{color:var(--stam);opacity:.9}
+.dtg-kpi.brand .dtg-kpi-val{color:var(--stam)}
+.dtg-kpi.info{border-color:rgba(111,168,255,.22);background:var(--info-bg)}
+.dtg-kpi.info .dtg-kpi-key{color:var(--info);opacity:.9}
+.dtg-kpi.info .dtg-kpi-val{color:var(--info)}
+.dtg-kpi.warn{border-color:rgba(245,158,11,.22);background:var(--warn-bg)}
+.dtg-kpi.warn .dtg-kpi-key{color:var(--warn);opacity:.9}
+.dtg-kpi.warn .dtg-kpi-val{color:var(--warn)}
+.dtg-kpi.fail{border-color:rgba(255,90,71,.22);background:var(--fail-bg)}
+.dtg-kpi.fail .dtg-kpi-key{color:var(--fail);opacity:.9}
+.dtg-kpi.fail .dtg-kpi-val{color:var(--fail)}
+
+.dtg-cap{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.dtg-cap .dtg-cap-n{width:22px;height:22px;border-radius:6px;background:var(--stam-soft);color:var(--stam);font-size:10.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+.dtg-cap-sub{font-size:10.5px;color:var(--t3);font-weight:500;letter-spacing:0;margin-left:4px}
+
+.dtg-tbl-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--bd)}
+.dtg-tbl{width:100%;border-collapse:collapse;font-family:var(--font);font-size:11.5px;background:var(--bg-sur);min-width:720px}
+.dtg-tbl th{padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2);white-space:nowrap}
+.dtg-tbl td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;line-height:1.6}
+.dtg-tbl tbody tr:last-child td{border-bottom:none}
+.dtg-tbl td.tn{color:var(--t1);font-weight:700;white-space:nowrap;font-size:11px}
+.dtg-tbl td code,.dtg-tbl th code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;letter-spacing:.005em;white-space:nowrap}
+.dtg-tbl td.note{color:var(--t3);font-size:10.5px}
+.dtg-tbl td.mb{color:var(--stam);font-weight:600}
+.dtg-tbl td.p0{color:var(--pass);font-weight:700}
+.dtg-tbl td.p1{color:var(--info);font-weight:700}
+.dtg-tbl td.p2{color:var(--warn);font-weight:700}
+.dtg-tbl td.p3{color:var(--t3);font-weight:600}
+
+.dtg-rule-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (max-width:760px){.dtg-rule-grid{grid-template-columns:1fr}}
+.dtg-rule-card{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:12px 14px}
+.dtg-rule-card .dtg-rc-hdr{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t1);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.dtg-rule-card .dtg-rc-hdr::before{content:"";width:8px;height:8px;border-radius:999px;background:var(--stam);display:inline-block}
+.dtg-rule-card .dtg-rc-hdr.is-pass::before{background:var(--pass)}
+.dtg-rule-card .dtg-rc-hdr.is-warn::before{background:var(--warn)}
+.dtg-rule-card .dtg-rc-hdr.is-info::before{background:var(--info)}
+.dtg-rule-card .dtg-rc-hdr.is-fail::before{background:var(--fail)}
+.dtg-rule-card ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.dtg-rule-card li{font-size:11.5px;line-height:1.6;color:var(--t2);padding-left:12px;position:relative}
+.dtg-rule-card li::before{content:"·";position:absolute;left:2px;top:-2px;color:var(--t3);font-weight:800}
+.dtg-rule-card li code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+
+.dtg-opt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:1100px){.dtg-opt-grid{grid-template-columns:1fr}}
+.dtg-opt-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:14px;display:flex;flex-direction:column;gap:10px}
+.dtg-opt-card.recommend{border-color:rgba(84,81,232,.42);background:var(--stam-soft)}
+.dtg-opt-hdr{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dtg-opt-letter{width:26px;height:26px;border-radius:8px;background:var(--bg-sur2);color:var(--t1);font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+.dtg-opt-card.recommend .dtg-opt-letter{background:var(--stam);color:#fff}
+.dtg-opt-title{font-size:12.5px;font-weight:700;color:var(--t1);letter-spacing:-.005em;flex:1}
+.dtg-opt-card.recommend .dtg-opt-title{color:var(--stam)}
+.dtg-opt-body{font-size:11px;line-height:1.65;color:var(--t2)}
+.dtg-opt-pros,.dtg-opt-cons{font-size:10.5px;line-height:1.65;display:flex;flex-direction:column;gap:3px;margin:0;padding:0;list-style:none}
+.dtg-opt-pros li,.dtg-opt-cons li{position:relative;padding-left:14px}
+.dtg-opt-pros li::before,.dtg-opt-cons li::before{position:absolute;left:0;top:0;font-weight:800;font-size:11px}
+.dtg-opt-pros li::before{content:"+";color:var(--pass)}
+.dtg-opt-cons li::before{content:"−";color:var(--fail)}
+
+.dtg-chk-list{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 10px}
+@media (max-width:760px){.dtg-chk-list{grid-template-columns:1fr}}
+.dtg-chk-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);font-size:11.5px;line-height:1.55;color:var(--t2)}
+.dtg-chk-item code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+.dtg-chk-box{width:16px;height:16px;border-radius:4px;background:var(--pass-bg);color:var(--pass);font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.dtg-chk-box.is-warn{background:var(--warn-bg);color:var(--warn)}
+.dtg-chk-box.is-info{background:var(--info-bg);color:var(--info)}
+.dtg-chk-box.is-fail{background:var(--fail-bg);color:var(--fail)}
+
+.dtg-handoff-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:760px){.dtg-handoff-list{grid-template-columns:1fr}}
+.dtg-handoff-item{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.dtg-handoff-item .dtg-hf-path{font-family:var(--font);font-size:11px;font-weight:700;color:var(--t1);letter-spacing:.005em}
+.dtg-handoff-item .dtg-hf-role{font-size:10px;color:var(--t3);line-height:1.55}
+
+.dtg-rel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:1100px){.dtg-rel-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:720px){.dtg-rel-grid{grid-template-columns:1fr}}
+.dtg-rel-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px;text-decoration:none;transition:border-color 120ms,background 120ms}
+.dtg-rel-card:hover{border-color:rgba(84,81,232,.35);background:rgba(84,81,232,.04)}
+.dtg-rel-card .dtg-rl-title{font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.dtg-rel-card .dtg-rl-sub{font-size:10.5px;color:var(--t3)}
+
+/* ─────────────── Mock primitives ─────────────── */
+.dtg-mock-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.dtg-mock-col{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1}
+.dtg-mock-col-label{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);font-family:var(--font)}
+.dtg-mock-col-label .dtg-mock-col-w{font-size:9.5px;padding:1px 6px;border-radius:4px;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t2);letter-spacing:.02em}
+.dtg-mock-col-label .dtg-mock-col-tag{font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--stam-soft);color:var(--stam);letter-spacing:.04em}
+.dtg-mock-col-label .dtg-mock-col-tag.alt{background:var(--info-bg);color:var(--info)}
+.dtg-mock-col-label .dtg-mock-col-tag.warn{background:var(--warn-bg);color:var(--warn)}
+.dtg-mock-col-label .dtg-mock-col-tag.fail{background:var(--fail-bg);color:var(--fail)}
+.dtg-mock-col-label .dtg-mock-col-tag.pass{background:var(--pass-bg);color:var(--pass)}
+
+/* PC frame */
+.dtg-pc{background:#0F1320;border-radius:14px;border:1px solid rgba(255,255,255,.06);box-shadow:0 12px 30px rgba(0,0,0,.32);font-family:var(--font);overflow:hidden;display:flex;flex-direction:column;min-width:0;width:100%}
+[data-theme="light"] .dtg-pc{background:#F5F7FB;border-color:rgba(20,22,30,.10);box-shadow:0 10px 24px rgba(20,22,30,.10)}
+.dtg-pc-bar{height:26px;background:#0B0E1A;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:6px;padding:0 12px}
+[data-theme="light"] .dtg-pc-bar{background:#E9ECF2;border-bottom-color:rgba(20,22,30,.06)}
+.dtg-pc-bar .dtg-pc-dot{width:8px;height:8px;border-radius:99px;background:rgba(255,255,255,.20)}
+[data-theme="light"] .dtg-pc-bar .dtg-pc-dot{background:rgba(20,22,30,.22)}
+.dtg-pc-bar .dtg-pc-url{margin-left:8px;font-size:9.5px;color:rgba(255,255,255,.46);letter-spacing:.02em}
+[data-theme="light"] .dtg-pc-bar .dtg-pc-url{color:rgba(20,22,30,.50)}
+.dtg-pc-body{display:flex;min-height:0;flex:1}
+.dtg-pc-nav{width:148px;background:#131826;border-right:1px solid rgba(255,255,255,.04);padding:14px 10px;display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+[data-theme="light"] .dtg-pc-nav{background:#FFFFFF;border-right-color:rgba(20,22,30,.06)}
+.dtg-pc-nav-brand{font-size:10.5px;font-weight:800;color:rgba(255,255,255,.92);letter-spacing:.05em;padding:2px 4px 10px;border-bottom:1px solid rgba(255,255,255,.04);margin-bottom:4px}
+[data-theme="light"] .dtg-pc-nav-brand{color:rgba(20,22,30,.92);border-bottom-color:rgba(20,22,30,.06)}
+.dtg-pc-nav-it{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:6px;font-size:10.5px;color:rgba(255,255,255,.62);font-weight:600}
+[data-theme="light"] .dtg-pc-nav-it{color:rgba(20,22,30,.66)}
+.dtg-pc-nav-it.active{background:rgba(84,81,232,.18);color:#C0BAFF}
+[data-theme="light"] .dtg-pc-nav-it.active{color:#4340c8}
+.dtg-pc-nav-it::before{content:"";width:5px;height:5px;border-radius:99px;background:currentColor;opacity:.75}
+.dtg-pc-content{flex:1;min-width:0;display:flex;flex-direction:column;background:#0F1320}
+[data-theme="light"] .dtg-pc-content{background:#FAFBFC}
+.dtg-pc-topbar{height:38px;background:#131826;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:8px;padding:0 14px;flex-shrink:0;font-size:10.5px;color:rgba(255,255,255,.62);font-weight:600}
+[data-theme="light"] .dtg-pc-topbar{background:#FFFFFF;border-bottom-color:rgba(20,22,30,.06);color:rgba(20,22,30,.66)}
+.dtg-pc-topbar .dtg-pc-crumb-cur{color:rgba(255,255,255,.92);font-weight:700}
+[data-theme="light"] .dtg-pc-topbar .dtg-pc-crumb-cur{color:rgba(20,22,30,.92)}
+.dtg-pc-topbar .dtg-pc-tb-sp{flex:1}
+.dtg-pc-topbar .dtg-pc-tb-pill{padding:2px 7px;border-radius:5px;background:rgba(255,255,255,.06);font-size:9.5px;color:rgba(255,255,255,.62)}
+[data-theme="light"] .dtg-pc-topbar .dtg-pc-tb-pill{background:rgba(20,22,30,.05);color:rgba(20,22,30,.66)}
+.dtg-pc-area{flex:1;min-width:0;padding:14px 16px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.dtg-pc-area .dtg-pc-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dtg-pc-search{height:30px;flex:1;min-width:170px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:6px;padding:0 10px;color:rgba(255,255,255,.62);font-size:10.5px}
+[data-theme="light"] .dtg-pc-search{background:rgba(20,22,30,.02);border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.62)}
+.dtg-pc-search svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+.dtg-pc-btn{height:30px;padding:0 10px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:700;color:rgba(255,255,255,.86);display:inline-flex;align-items:center;gap:5px}
+[data-theme="light"] .dtg-pc-btn{background:rgba(20,22,30,.02);border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.86)}
+.dtg-pc-btn.is-primary{background:#5451E8;border-color:#5451E8;color:#fff}
+.dtg-pc-btn.is-ghost{background:transparent}
+
+/* PC Table container */
+.dtg-table-host{flex:1;min-height:0;background:#131826;border:1px solid rgba(255,255,255,.06);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+[data-theme="light"] .dtg-table-host{background:#FFFFFF;border-color:rgba(20,22,30,.08)}
+.dtg-table-host.scroll-x{overflow-x:auto;overflow-y:hidden}
+.dtg-table-host.scroll-x::after{content:"";position:absolute;top:0;right:0;bottom:8px;width:22px;background:linear-gradient(270deg,rgba(0,0,0,.34),rgba(0,0,0,0));pointer-events:none}
+[data-theme="light"] .dtg-table-host.scroll-x::after{background:linear-gradient(270deg,rgba(20,22,30,.10),rgba(20,22,30,0))}
+.dtg-tt{font-family:var(--font);width:100%;border-collapse:separate;border-spacing:0;min-width:100%}
+.dtg-tt.wide{min-width:920px}
+.dtg-tt.veryWide{min-width:1180px}
+.dtg-tt th,.dtg-tt td{font-size:10.5px;padding:8px 10px;text-align:left;color:rgba(255,255,255,.82);border-bottom:1px solid rgba(255,255,255,.04);white-space:nowrap}
+[data-theme="light"] .dtg-tt th,[data-theme="light"] .dtg-tt td{color:rgba(20,22,30,.82);border-bottom-color:rgba(20,22,30,.05)}
+.dtg-tt thead th{background:rgba(255,255,255,.04);color:rgba(255,255,255,.56);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;position:sticky;top:0;z-index:2;border-bottom:1px solid rgba(255,255,255,.06)}
+[data-theme="light"] .dtg-tt thead th{background:#F4F6FA;color:rgba(20,22,30,.56);border-bottom-color:rgba(20,22,30,.06)}
+.dtg-tt thead th .dtg-tt-sort{margin-left:4px;color:var(--stam);font-size:9px;font-weight:800}
+.dtg-tt td.tn{font-weight:700;color:rgba(255,255,255,.96)}
+[data-theme="light"] .dtg-tt td.tn{color:rgba(20,22,30,.94)}
+.dtg-tt tr:hover td{background:rgba(255,255,255,.02)}
+[data-theme="light"] .dtg-tt tr:hover td{background:rgba(20,22,30,.02)}
+.dtg-tt tr.sel td{background:rgba(84,81,232,.10)}
+.dtg-tt tr.dim td{opacity:.36}
+.dtg-tt td .ava{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:99px;background:#5451E8;color:#fff;font-size:8.5px;font-weight:800;margin-right:5px;vertical-align:middle}
+.dtg-tt td.r{text-align:right;font-variant-numeric:tabular-nums}
+.dtg-tt td .bar{width:60px;height:5px;border-radius:99px;background:rgba(255,255,255,.06);display:inline-block;position:relative;vertical-align:middle;margin-right:5px}
+[data-theme="light"] .dtg-tt td .bar{background:rgba(20,22,30,.08)}
+.dtg-tt td .bar::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--p,40%);border-radius:99px;background:linear-gradient(90deg,#5451E8,#7c79f3)}
+.dtg-tt td .bar.warn::after{background:#F5B14C}
+.dtg-tt td .bar.fail::after{background:#FF7D6E}
+
+/* status chip in table */
+.dtg-stchip{display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:4px;font-size:9.5px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+.dtg-stchip::before{content:"";width:5px;height:5px;border-radius:99px;background:currentColor}
+.dtg-stchip.todo{background:rgba(255,255,255,.06);color:rgba(255,255,255,.62)}
+.dtg-stchip.prog{background:rgba(111,168,255,.16);color:#6FA8FF}
+.dtg-stchip.done{background:rgba(52,199,89,.16);color:#34C759}
+.dtg-stchip.hold{background:rgba(245,158,11,.18);color:#F5B14C}
+.dtg-stchip.delay{background:rgba(255,90,71,.18);color:#FF7D6E}
+.dtg-stchip.risk{background:rgba(255,66,66,.22);color:#FF5A47}
+[data-theme="light"] .dtg-stchip.todo{background:rgba(20,22,30,.05);color:rgba(20,22,30,.58)}
+
+/* sticky first column hint */
+.dtg-tt.sticky-first td.sticky,.dtg-tt.sticky-first th.sticky{position:sticky;left:0;z-index:3;background:#131826;box-shadow:1px 0 0 rgba(255,255,255,.06)}
+[data-theme="light"] .dtg-tt.sticky-first td.sticky,[data-theme="light"] .dtg-tt.sticky-first th.sticky{background:#FFFFFF;box-shadow:1px 0 0 rgba(20,22,30,.06)}
+.dtg-tt.sticky-first thead th.sticky{z-index:4}
+
+/* PC bad example — entire page hscroll */
+.dtg-pc.bad .dtg-pc-body{overflow-x:auto}
+.dtg-pc.bad .dtg-pc-content{min-width:1280px}
+.dtg-pc.bad .dtg-pc-bar::before{content:"BAD — page-level horizontal scroll";color:#FF5A47;font-size:9.5px;font-weight:800;letter-spacing:.04em;padding-left:8px}
+
+/* footer pagination */
+.dtg-pager{padding:8px 12px;border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.62);background:rgba(255,255,255,.02)}
+[data-theme="light"] .dtg-pager{border-top-color:rgba(20,22,30,.06);color:rgba(20,22,30,.66);background:rgba(20,22,30,.02)}
+.dtg-pager .dtg-pager-r{display:flex;gap:4px}
+.dtg-pager .dtg-pager-r span{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;border:1px solid rgba(255,255,255,.08);font-weight:700;background:rgba(255,255,255,.02)}
+[data-theme="light"] .dtg-pager .dtg-pager-r span{border-color:rgba(20,22,30,.10);background:#FFFFFF}
+.dtg-pager .dtg-pager-r span.cur{background:#5451E8;border-color:#5451E8;color:#fff}
+
+/* Empty / loading / error */
+.dtg-emp{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;padding:36px 18px;text-align:center}
+.dtg-emp .dtg-emp-ico{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.05);display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,.6);font-size:16px;font-weight:800;border:1px solid rgba(255,255,255,.06)}
+[data-theme="light"] .dtg-emp .dtg-emp-ico{background:rgba(20,22,30,.04);color:rgba(20,22,30,.6);border-color:rgba(20,22,30,.06)}
+.dtg-emp.is-fail .dtg-emp-ico{color:#FF7D6E;background:rgba(255,90,71,.10);border-color:rgba(255,90,71,.22)}
+.dtg-emp.is-warn .dtg-emp-ico{color:#F5B14C;background:rgba(245,158,11,.10);border-color:rgba(245,158,11,.22)}
+.dtg-emp .dtg-emp-t{font-size:12px;font-weight:700;color:rgba(255,255,255,.92)}
+[data-theme="light"] .dtg-emp .dtg-emp-t{color:rgba(20,22,30,.92)}
+.dtg-emp .dtg-emp-s{font-size:10.5px;color:rgba(255,255,255,.58);line-height:1.6}
+[data-theme="light"] .dtg-emp .dtg-emp-s{color:rgba(20,22,30,.58)}
+.dtg-skel{height:14px;border-radius:5px;background:linear-gradient(90deg,rgba(255,255,255,.05),rgba(255,255,255,.12),rgba(255,255,255,.05));background-size:200% 100%;animation:dtgshim 1.4s ease-in-out infinite}
+[data-theme="light"] .dtg-skel{background:linear-gradient(90deg,rgba(20,22,30,.04),rgba(20,22,30,.10),rgba(20,22,30,.04));background-size:200% 100%}
+@keyframes dtgshim{0%{background-position:0% 0}100%{background-position:-200% 0}}
+.dtg-skel-row{display:flex;gap:8px;align-items:center;padding:10px}
+.dtg-skel-row .dtg-skel{flex:1}
+
+/* Phone frame (mobile mocks) */
+.dtg-phone{width:284px;background:#0A0E1A;border-radius:22px;padding:6px;border:1px solid rgba(255,255,255,.06);box-shadow:0 12px 30px rgba(0,0,0,.32);font-family:var(--font);flex-shrink:0}
+[data-theme="light"] .dtg-phone{background:#1B1F2A;border-color:rgba(0,0,0,.10);box-shadow:0 10px 24px rgba(20,22,30,.18)}
+.dtg-phone-screen{background:#0F1320;border-radius:16px;overflow:hidden;position:relative;height:540px;display:flex;flex-direction:column}
+[data-theme="light"] .dtg-phone-screen{background:#FAFBFC}
+.dtg-statusbar{height:18px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.78);background:#0F1320;letter-spacing:.03em;flex-shrink:0}
+[data-theme="light"] .dtg-statusbar{background:#FAFBFC;color:rgba(20,22,30,.72)}
+.dtg-topbar{height:46px;background:#131826;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:4px;padding:0 6px 0 8px;flex-shrink:0}
+[data-theme="light"] .dtg-topbar{background:#FFFFFF;border-bottom-color:rgba(20,22,30,.08)}
+.dtg-tb-iconbtn{width:38px;height:38px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,.86);background:transparent;cursor:pointer;flex-shrink:0}
+[data-theme="light"] .dtg-tb-iconbtn{color:rgba(20,22,30,.78)}
+.dtg-tb-iconbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.dtg-tb-title{flex:1;min-width:0;font-size:13.5px;font-weight:700;color:rgba(255,255,255,.94);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.005em;padding:0 4px}
+[data-theme="light"] .dtg-tb-title{color:rgba(20,22,30,.94)}
+.dtg-tb-title .dtg-tb-sub{display:block;font-size:9.5px;font-weight:600;color:rgba(255,255,255,.42);letter-spacing:.04em;margin-top:1px}
+[data-theme="light"] .dtg-tb-title .dtg-tb-sub{color:rgba(20,22,30,.44)}
+.dtg-tb-mode{display:inline-flex;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:2px;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.62)}
+[data-theme="light"] .dtg-tb-mode{background:rgba(20,22,30,.03);border-color:rgba(20,22,30,.10);color:rgba(20,22,30,.62)}
+.dtg-tb-mode span{padding:3px 7px;border-radius:5px}
+.dtg-tb-mode span.on{background:#5451E8;color:#fff}
+.dtg-content{flex:1;min-height:0;overflow:hidden;padding:10px;display:flex;flex-direction:column;gap:8px;font-family:var(--font)}
+.dtg-content.no-pad{padding:0;gap:0}
+
+/* Mobile card list (reused style from fsf) */
+.dtg-mcard{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+[data-theme="light"] .dtg-mcard{background:#fff;border-color:rgba(20,22,30,.08);box-shadow:0 1px 0 rgba(20,22,30,.02)}
+.dtg-mcard.is-delay{border-left:2px solid #FF7D6E}
+.dtg-mcard.is-risk{border-left:2px solid #FF5A47;background:rgba(255,90,71,.05)}
+.dtg-mcard-top{display:flex;align-items:flex-start;gap:8px;justify-content:space-between}
+.dtg-mcard-title{font-size:12.5px;font-weight:700;color:rgba(255,255,255,.92);line-height:1.4;letter-spacing:-.005em;min-width:0;flex:1}
+[data-theme="light"] .dtg-mcard-title{color:rgba(20,22,30,.92)}
+.dtg-mcard-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10.5px;color:rgba(255,255,255,.62)}
+[data-theme="light"] .dtg-mcard-row{color:rgba(20,22,30,.66)}
+.dtg-mcard-row .who{display:inline-flex;align-items:center;gap:5px;color:rgba(255,255,255,.78)}
+[data-theme="light"] .dtg-mcard-row .who{color:rgba(20,22,30,.82)}
+.dtg-mcard-row .ava{width:16px;height:16px;border-radius:99px;background:#5451E8;font-size:8.5px;font-weight:800;color:#fff;display:inline-flex;align-items:center;justify-content:center}
+
+/* Mobile Full Table */
+.dtg-mft{flex:1;min-height:0;display:flex;flex-direction:column;background:#131826;border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow:hidden;position:relative}
+[data-theme="light"] .dtg-mft{background:#FFFFFF;border-color:rgba(20,22,30,.08)}
+.dtg-mft-hint{padding:6px 10px;background:rgba(84,81,232,.08);font-size:9.5px;color:#C0BAFF;display:flex;align-items:center;gap:6px;font-weight:600;border-bottom:1px solid rgba(255,255,255,.04)}
+[data-theme="light"] .dtg-mft-hint{color:#4340c8;border-bottom-color:rgba(20,22,30,.06)}
+.dtg-mft-hint .arrow{margin-left:auto;opacity:.7;font-size:11px}
+.dtg-mft-scroll{flex:1;overflow-x:auto;overflow-y:auto;position:relative}
+.dtg-mft-scroll::after{content:"";position:absolute;top:0;right:0;bottom:0;width:18px;background:linear-gradient(270deg,rgba(0,0,0,.36),rgba(0,0,0,0));pointer-events:none}
+[data-theme="light"] .dtg-mft-scroll::after{background:linear-gradient(270deg,rgba(20,22,30,.10),rgba(20,22,30,0))}
+.dtg-mft-tbl{width:auto;min-width:540px;border-collapse:separate;border-spacing:0;font-family:var(--font)}
+.dtg-mft-tbl th,.dtg-mft-tbl td{font-size:10px;padding:7px 8px;color:rgba(255,255,255,.82);border-bottom:1px solid rgba(255,255,255,.04);white-space:nowrap;text-align:left}
+[data-theme="light"] .dtg-mft-tbl th,[data-theme="light"] .dtg-mft-tbl td{color:rgba(20,22,30,.82);border-bottom-color:rgba(20,22,30,.06)}
+.dtg-mft-tbl thead th{background:rgba(255,255,255,.04);color:rgba(255,255,255,.56);font-size:9px;letter-spacing:.06em;text-transform:uppercase;font-weight:800;position:sticky;top:0;z-index:2}
+[data-theme="light"] .dtg-mft-tbl thead th{background:#F4F6FA;color:rgba(20,22,30,.56)}
+.dtg-mft-tbl tr.sel td{background:rgba(84,81,232,.10)}
+.dtg-mft-tbl td.tn{font-weight:700;color:rgba(255,255,255,.94)}
+[data-theme="light"] .dtg-mft-tbl td.tn{color:rgba(20,22,30,.92)}
+.dtg-mft-tbl td.sticky,.dtg-mft-tbl th.sticky{position:sticky;left:0;background:#131826;z-index:3;box-shadow:1px 0 0 rgba(255,255,255,.06)}
+[data-theme="light"] .dtg-mft-tbl td.sticky,[data-theme="light"] .dtg-mft-tbl th.sticky{background:#FFFFFF;box-shadow:1px 0 0 rgba(20,22,30,.06)}
+.dtg-mft-tbl thead th.sticky{z-index:4}
+.dtg-mft-bottom{padding:6px 10px;border-top:1px solid rgba(255,255,255,.04);font-size:9.5px;display:flex;justify-content:space-between;align-items:center;color:rgba(255,255,255,.62);background:rgba(255,255,255,.02)}
+[data-theme="light"] .dtg-mft-bottom{border-top-color:rgba(20,22,30,.06);color:rgba(20,22,30,.66);background:rgba(20,22,30,.02)}
+.dtg-mft-bottom a{color:#C0BAFF;font-weight:700}
+[data-theme="light"] .dtg-mft-bottom a{color:#4340c8}
+
+/* Tablet frame */
+.dtg-tab{width:560px;background:#0A0E1A;border-radius:18px;padding:6px;border:1px solid rgba(255,255,255,.06);box-shadow:0 12px 30px rgba(0,0,0,.32);font-family:var(--font);flex-shrink:0}
+[data-theme="light"] .dtg-tab{background:#1B1F2A;border-color:rgba(0,0,0,.10);box-shadow:0 10px 24px rgba(20,22,30,.18)}
+.dtg-tab-screen{background:#0F1320;border-radius:13px;overflow:hidden;height:380px;display:flex;flex-direction:column;position:relative}
+[data-theme="light"] .dtg-tab-screen{background:#FAFBFC}
+
+/* presentation mode */
+.dtg-pres .dtg-tt th,.dtg-pres .dtg-tt td{font-size:15px;padding:14px 16px}
+.dtg-pres .dtg-stchip{font-size:13px;padding:3px 9px}
+.dtg-pres .dtg-stchip::before{width:7px;height:7px}
+.dtg-pres .dtg-pc-area{padding:18px 22px}
+.dtg-pres .dtg-pc-topbar{height:46px;font-size:13px}
+.dtg-pres .ava{width:24px;height:24px;font-size:11px}
+
+/* Section divider in mocks */
+.dtg-sec-mini{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;padding:4px 2px 4px}
+
+/* density preview cards */
+.dtg-dens-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:1100px){.dtg-dens-grid{grid-template-columns:1fr}}
+.dtg-dens-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:12px;display:flex;flex-direction:column;gap:8px}
+.dtg-dens-card .dtg-dens-name{font-size:12px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:6px}
+.dtg-dens-card .dtg-dens-name::before{content:"";width:8px;height:8px;border-radius:99px;background:var(--stam)}
+.dtg-dens-card.is-info .dtg-dens-name::before{background:var(--info)}
+.dtg-dens-card.is-warn .dtg-dens-name::before{background:var(--warn)}
+.dtg-dens-card .dtg-dens-spec{font-size:10.5px;color:var(--t3);line-height:1.6}
+.dtg-dens-card .dtg-dens-spec b{color:var(--t1);font-weight:700}
+.dtg-dens-card .dtg-dens-mini{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);border-radius:8px;overflow:hidden}
+[data-theme="light"] .dtg-dens-card .dtg-dens-mini{background:#fff;border-color:rgba(20,22,30,.08)}
+.dtg-dens-card .dtg-dens-mini table{width:100%;border-collapse:collapse;font-family:var(--font)}
+.dtg-dens-card .dtg-dens-mini th,.dtg-dens-card .dtg-dens-mini td{padding:var(--dp,8px) 10px;font-size:var(--df,10.5px);color:rgba(255,255,255,.82);border-bottom:1px solid rgba(255,255,255,.04);text-align:left;white-space:nowrap}
+[data-theme="light"] .dtg-dens-card .dtg-dens-mini th,[data-theme="light"] .dtg-dens-card .dtg-dens-mini td{color:rgba(20,22,30,.82);border-bottom-color:rgba(20,22,30,.06)}
+.dtg-dens-card .dtg-dens-mini th{background:rgba(255,255,255,.04);color:rgba(255,255,255,.56);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:800}
+[data-theme="light"] .dtg-dens-card .dtg-dens-mini th{background:#F4F6FA;color:rgba(20,22,30,.56)}
+.dtg-dens-card.is-comf .dtg-dens-mini table{--dp:11px;--df:12px}
+.dtg-dens-card.is-comp .dtg-dens-mini table{--dp:5px;--df:10px}
+.dtg-dens-card.is-pres .dtg-dens-mini table{--dp:14px;--df:14px}
+
+/* Column priority chips */
+.dtg-col-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:900px){.dtg-col-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:480px){.dtg-col-grid{grid-template-columns:1fr}}
+.dtg-col-card{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:10px 12px;display:flex;flex-direction:column;gap:5px}
+.dtg-col-card .dtg-col-name{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;display:inline-flex;align-items:center;gap:5px}
+.dtg-col-card .dtg-col-name::before{content:"";width:7px;height:7px;border-radius:99px}
+.dtg-col-card.p0 .dtg-col-name{color:var(--pass)}.dtg-col-card.p0 .dtg-col-name::before{background:var(--pass)}.dtg-col-card.p0{border-color:rgba(40,180,99,.22);background:var(--pass-bg)}
+.dtg-col-card.p1 .dtg-col-name{color:var(--info)}.dtg-col-card.p1 .dtg-col-name::before{background:var(--info)}.dtg-col-card.p1{border-color:rgba(111,168,255,.22);background:var(--info-bg)}
+.dtg-col-card.p2 .dtg-col-name{color:var(--warn)}.dtg-col-card.p2 .dtg-col-name::before{background:var(--warn)}.dtg-col-card.p2{border-color:rgba(245,158,11,.22);background:var(--warn-bg)}
+.dtg-col-card.p3 .dtg-col-name{color:var(--t3)}.dtg-col-card.p3 .dtg-col-name::before{background:var(--t3)}
+.dtg-col-card .dtg-col-list{font-size:10.5px;line-height:1.6;color:var(--t1);font-weight:600;display:flex;flex-wrap:wrap;gap:4px 8px}
+
+</style>
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Data Table / Full Table Responsive Guide v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Guide</span>
+  <span class="doc-nav-pill"><span class="dot"></span>PC · Tablet · Mobile</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Table · Scroll · Density</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr"><span class="toc-brand">Data Table</span><span class="toc-ver-pill">v1</span></div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Scope</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>PC Layout</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Hscroll Policy</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Column Priority</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Density</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Header / Cell</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Row Interaction</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Toolbar</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Empty / Loading</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Pagination</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Card vs Full</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Mobile Full Table</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Tablet Table</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>Presentation</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>Mock Screens</a></li>
+      <li class="toc-item"><a href="#s17"><span class="toc-n">17</span>PC vs T vs M</a></li>
+      <li class="toc-item"><a href="#s18"><span class="toc-n">18</span>Cursor Handoff</a></li>
+      <li class="toc-item"><a href="#s19"><span class="toc-n">19</span>Guardrails</a></li>
+      <li class="toc-item"><a href="#s20"><span class="toc-n">20</span>QA Checklist</a></li>
+      <li class="toc-item"><a href="#s21"><span class="toc-n">21</span>Related</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <div class="dtg-hero">
+        <div class="dtg-hero-row">
+          <strong class="dtg-hero-title">STAM Data Table / Full Table Responsive Guide v1</strong>
+          <span class="dtg-pill brand">Guide</span>
+          <span class="dtg-pill info">PC · Tablet · Mobile</span>
+          <span class="dtg-pill notyet">Product Not Yet</span>
+        </div>
+        <p>
+          본 문서는 STAM의 <strong>WBS · 작업요청 · 테스트 · 결함 · 산출물</strong> 등 테이블형 화면에서 공통 적용할
+          <strong>Data Table / Full Table View</strong> 기준을 확정한다.
+          PC는 브라우저 세로 스크롤을 기본으로 하되 페이지 가로 스크롤은 금지한다.
+          모바일은 카드 리스트를 기본으로 하되 사용자가 선택했을 때만 "전체 테이블 보기" 모드를 제공한다.
+        </p>
+        <p style="opacity:.78;">
+          <strong>적용 범위</strong> — 본 작업은 <code>stam/docs/**</code> 하위 1개 HTML 생성과
+          <code>STAM-Docs-Index.html</code> 카드 1개 추가만 수행한다.
+          <code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code>, <code>stam/index.html</code>,
+          <code>stam/assets/**</code>, <code>.firebaserc</code>, <code>firebase.json</code>,
+          <code>.github/workflows/**</code>, <code>package.json</code>, <code>_ds/**</code>, <code>uploads/**</code>,
+          <code>*.zip</code>, <code>.env*</code>, <code>node_modules/**</code>, <code>dist/**</code>, <code>build/**</code>,
+          <code>.firebase/**</code> 는 한 줄도 수정하지 않는다.
+        </p>
+        <div class="dtg-kpi-grid">
+          <div class="dtg-kpi brand"><span class="dtg-kpi-key">PC 기본</span><span class="dtg-kpi-val">Browser V-scroll</span></div>
+          <div class="dtg-kpi fail"><span class="dtg-kpi-key">Page H-scroll</span><span class="dtg-kpi-val">금지</span></div>
+          <div class="dtg-kpi info"><span class="dtg-kpi-key">Table H-scroll</span><span class="dtg-kpi-val">Container 내부만</span></div>
+          <div class="dtg-kpi"><span class="dtg-kpi-key">Row H (Comf)</span><span class="dtg-kpi-val">40px</span></div>
+          <div class="dtg-kpi"><span class="dtg-kpi-key">Mobile 기본</span><span class="dtg-kpi-val">Card List</span></div>
+          <div class="dtg-kpi warn"><span class="dtg-kpi-key">Full Table M</span><span class="dtg-kpi-val">사용자 진입</span></div>
+        </div>
+      </div>
+
+      <!-- ── S01 Overview ── -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 문서 목적</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM은 WBS, 결함, 테스트, 작업요청, 산출물 목록 등 <strong>테이블형 화면</strong>이 사용자 활동의 중심이다.
+            테이블 화면은 <strong>스크롤 정책 · 컬럼 우선순위 · 밀도(density) · 모바일 전환</strong>의 4가지 축에서
+            화면별로 편차가 생기기 쉽고, 그 결과 같은 제품 안에서 조작감이 일관되지 않는다.
+            본 문서는 <strong>PC / Tablet / Mobile</strong> 3종 분기에서 데이터 테이블이 공통으로 따라야 할 기준을 시각화한다.
+          </p>
+          <div class="dtg-rule-grid">
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-pass">이 문서가 다루는 것</div>
+              <ul>
+                <li>PC Table Layout Policy — Left Nav / Topbar 고정, browser V-scroll 사용</li>
+                <li>Horizontal Scroll Policy — 페이지 전체 H-scroll 금지, container 내부만 허용</li>
+                <li>Column Priority — P0 / P1 / P2 / P3 4단 우선순위와 viewport 별 노출</li>
+                <li>Table Density — Comfortable / Compact / Presentation 3종</li>
+                <li>Header / Cell / Row Interaction · Toolbar · Empty · Pagination</li>
+                <li>Mobile Card List vs Full Table View · Tablet 절충안</li>
+                <li>WBS 빔 프로젝터 대응 — Presentation Mode</li>
+                <li>Mock Screens 8종 — PC Good / PC Hscroll / PC Bad / Mobile Card / Mobile Full / Tablet / Presentation / State</li>
+              </ul>
+            </div>
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-fail">이 문서가 다루지 않는 것</div>
+              <ul>
+                <li><code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code> 직접 수정</li>
+                <li><code>stam/index.html</code>, <code>stam/assets/**</code>, <code>_ds/**</code>, <code>uploads/**</code> 변경</li>
+                <li>WBS / 결함 / 테스트 / 산출물 보드 IA · 컬럼 라인업 자체 변경</li>
+                <li>row virtualization · 대용량 stream · server-side pagination 구현</li>
+                <li>전역 <code>.tbtn</code> 일괄 치환 · 기능 로직 변경</li>
+                <li>Firebase · GitHub Actions · package.json 변경</li>
+              </ul>
+            </div>
+          </div>
+          <div class="dtg-rule-grid" style="margin-top:14px;">
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-info">테이블 기준이 필요한 이유</div>
+              <ul>
+                <li>WBS / 결함 / 테스트 / 작업요청은 모두 다열 데이터이며 viewport 폭에 민감</li>
+                <li>화면 마다 컬럼 정책이 다르면 사용자는 항상 다시 학습해야 함</li>
+                <li>PC에서 가로 스크롤이 페이지 전체에 발생하면 Left Nav가 같이 밀려 IA 파괴</li>
+                <li>모바일에서 PC 테이블을 그대로 축소하면 텍스트가 8 ~ 9px 까지 줄어 가독 불가</li>
+                <li>WBS는 빔 프로젝터로 회의 중 보는 경우가 있어 별도 Presentation Mode 가 필요</li>
+              </ul>
+            </div>
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-warn">실제 구현 전 디자인 기준 문서</div>
+              <ul>
+                <li>본 문서는 <strong>구현 전 시각 기준</strong>이며 product 적용은 별도 Gate</li>
+                <li>적용 순서: 본 가이드 승인 → Table Token Mapping 정합 → PC scroll 보정 → Mobile card / full 분기</li>
+                <li>PC table scroll 보정과 mobile card mode 구현은 <strong>한 커밋에 섞지 않는다</strong></li>
+                <li>충돌 시 UI Baseline Guide / Mobile Shell Guide / Table Token Mapping 이 우선</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Scope ── -->
+      <section id="s02" class="sec" data-screen-label="02 Scope">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Data Table Scope</span>
+          <span class="sbadge guide">Scope</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 10px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            본 가이드가 정의하는 범위는 다음 12 단위이다.
+            각 단위는 WBS · 결함 · 테스트 · 작업요청 · 산출물 등 STAM의 모든 테이블형 화면에 공통 적용된다.
+          </p>
+          <div class="dtg-tbl-wrap">
+            <table class="dtg-tbl">
+              <thead><tr><th style="width:200px;">단위</th><th style="width:160px;">형태</th><th>역할</th><th>대표 사용처</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">PC Data Table</td><td>1170 ~ 1920 폭</td><td>Left Nav + Content table 기본 화면</td><td>WBS · 결함 · 테스트 · 산출물</td></tr>
+                <tr><td class="tn">Tablet Data Table</td><td>768 ~ 1024</td><td>주요 컬럼 4 ~ 6 + Drawer 절충</td><td>모든 보드 — 회의실 PC</td></tr>
+                <tr><td class="tn">Mobile Card List</td><td>360 ~ 430</td><td>1열 카드 — 기본 모드</td><td>WBS / 산출물 / 결함</td></tr>
+                <tr><td class="tn">Mobile Full Table View</td><td>360 ~ 430</td><td>사용자 진입 — container H-scroll</td><td>전체 보기 / 비교</td></tr>
+                <tr><td class="tn">Column Priority</td><td>P0 / P1 / P2 / P3</td><td>viewport 별 컬럼 노출 우선순위</td><td>모든 테이블</td></tr>
+                <tr><td class="tn">Sticky Column</td><td>1st col sticky</td><td>가로 스크롤 시 식별 컬럼 고정</td><td>WBS 작업명 / 산출물명</td></tr>
+                <tr><td class="tn">Horizontal Scroll</td><td>Container 내부</td><td>페이지 전체 X · 컨테이너 안에서만</td><td>모든 테이블</td></tr>
+                <tr><td class="tn">Row Density</td><td>Comf / Comp / Pres</td><td>밀도 전환 — 가독성 우선 / 정보 밀도 우선</td><td>WBS / 회의용</td></tr>
+                <tr><td class="tn">Empty / Loading / Error</td><td>State block</td><td>표 상태 — 비어있음 / 로딩 / 실패 / 권한</td><td>모든 테이블</td></tr>
+                <tr><td class="tn">Bulk Action</td><td>Header bar</td><td>다중 선택 시 일괄 상태 변경 / 이동</td><td>관리형 보드</td></tr>
+                <tr><td class="tn">Table Toolbar</td><td>Search · Filter · Sort · View</td><td>표 위 컨트롤 — PC / Mobile 위치 다름</td><td>모든 테이블</td></tr>
+                <tr><td class="tn">Pagination / More</td><td>Pager · More · Infinite</td><td>대량 데이터 페이지 분할</td><td>관리형 / 일반 목록 / WBS</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 PC Table Layout Policy ── -->
+      <section id="s03" class="sec" data-screen-label="03 PC Layout">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">PC Table Layout Policy</span>
+          <span class="sbadge plan">Policy</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            PC에서 데이터 테이블은 <strong>Left Nav 고정 + Topbar 고정 + Content 영역 V-scroll</strong> 구조를 기본으로 한다.
+            브라우저 세로 스크롤은 사용하지만, <strong>페이지 전체 가로 스크롤은 어떤 경우에도 금지</strong>한다.
+            테이블이 viewport 보다 넓을 경우 가로 스크롤은 <strong>table container 내부에서만</strong> 발생한다.
+          </p>
+
+          <div class="dtg-rule-grid">
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-pass">PC 기본 정책 — Good</div>
+              <ul>
+                <li>Left Nav · Topbar 항상 고정 (sticky / fixed)</li>
+                <li>Content 영역은 <code>min-width:0; overflow:hidden</code> 로 폭 제약 받음</li>
+                <li>Browser V-scroll = 페이지 세로 흐름의 기본</li>
+                <li>Table container 가 Content 폭을 초과하면 <strong>container 안에서만</strong> H-scroll</li>
+                <li>Shell 은 절대 <code>overflow-x</code> 를 켜지 않는다</li>
+              </ul>
+            </div>
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-fail">PC 금지 — Bad</div>
+              <ul>
+                <li>Body / Shell / Content 에 <code>overflow-x:auto</code> 또는 <code>min-width:1280px</code></li>
+                <li>Left Nav 가 가로 스크롤에 같이 밀리는 구조</li>
+                <li>Table 이 Content 보다 넓은데 wrapper 없이 그대로 흐르도록 둠</li>
+                <li>모든 row 를 한 화면에 보여주기 위해 zoom-out 강요</li>
+                <li>스크롤바 위치가 Topbar 위 또는 페이지 최상단</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="dtg-cap"><span class="dtg-cap-n">A</span>PC Good — Container H-scroll <span class="dtg-cap-sub">page 는 흐르지 않음</span></div>
+          <div class="dtg-mock-row">
+            <div class="dtg-mock-col" style="flex:1;min-width:480px;">
+              <div class="dtg-mock-col-label"><span>PC · 1440 · Good</span><span class="dtg-mock-col-w">page H-scroll 없음</span><span class="dtg-mock-col-tag pass">recommend</span></div>
+              <div class="dtg-pc">
+                <div class="dtg-pc-bar"><span class="dtg-pc-dot"></span><span class="dtg-pc-dot"></span><span class="dtg-pc-dot"></span><span class="dtg-pc-url">stam.app / wbs</span></div>
+                <div class="dtg-pc-body">
+                  <div class="dtg-pc-nav">
+                    <div class="dtg-pc-nav-brand">STAM</div>
+                    <div class="dtg-pc-nav-it active">WBS</div>
+                    <div class="dtg-pc-nav-it">작업요청</div>
+                    <div class="dtg-pc-nav-it">결함</div>
+                    <div class="dtg-pc-nav-it">테스트</div>
+                    <div class="dtg-pc-nav-it">산출물</div>
+                  </div>
+                  <div class="dtg-pc-content">
+                    <div class="dtg-pc-topbar"><span>프로젝트</span> · <span class="dtg-pc-crumb-cur">WBS</span><span class="dtg-pc-tb-sp"></span><span class="dtg-pc-tb-pill">P-2026-001</span></div>
+                    <div class="dtg-pc-area">
+                      <div class="dtg-pc-toolbar">
+                        <div class="dtg-pc-search"><svg viewBox="0 0 18 18"><circle cx="8" cy="8" r="5"></circle><path d="M12 12l3.5 3.5"></path></svg><span>작업명 / 담당자 검색</span></div>
+                        <div class="dtg-pc-btn"><span>필터 2</span></div>
+                        <div class="dtg-pc-btn">정렬</div>
+                        <div class="dtg-pc-btn">컬럼</div>
+                        <div class="dtg-pc-btn is-primary">+ 새 작업</div>
+                      </div>
+                      <div class="dtg-table-host scroll-x">
+                        <table class="dtg-tt sticky-first">
+                          <thead><tr>
+                            <th class="sticky" style="width:200px;">작업명 <span class="dtg-tt-sort">↑</span></th>
+                            <th>단계</th><th>상태</th><th>담당자</th><th>시작</th><th>종료</th><th class="r">진척</th><th>위험</th>
+                          </tr></thead>
+                          <tbody>
+                            <tr><td class="sticky tn">요건정의서 작성</td><td>분석</td><td><span class="dtg-stchip prog">진행</span></td><td><span class="ava">박</span>박지원</td><td>06-02</td><td>06-12</td><td class="r"><span class="bar" style="--p:62%"></span>62%</td><td><span class="dtg-stchip todo">없음</span></td></tr>
+                            <tr><td class="sticky tn">기능 명세 v1</td><td>분석</td><td><span class="dtg-stchip done">완료</span></td><td><span class="ava">이</span>이도윤</td><td>05-28</td><td>06-05</td><td class="r"><span class="bar" style="--p:100%"></span>100%</td><td><span class="dtg-stchip todo">없음</span></td></tr>
+                            <tr><td class="sticky tn">DB 스키마 설계</td><td>설계</td><td><span class="dtg-stchip prog">진행</span></td><td><span class="ava">김</span>김민서</td><td>06-04</td><td>06-15</td><td class="r"><span class="bar" style="--p:48%"></span>48%</td><td><span class="dtg-stchip hold">중</span></td></tr>
+                            <tr><td class="sticky tn">로그인 컴포넌트 구현</td><td>구현</td><td><span class="dtg-stchip prog">진행</span></td><td><span class="ava">최</span>최서연</td><td>06-05</td><td>06-18</td><td class="r"><span class="bar warn" style="--p:34%"></span>34%</td><td><span class="dtg-stchip delay">지연</span></td></tr>
+                            <tr><td class="sticky tn">API Boundary 정의</td><td>설계</td><td><span class="dtg-stchip hold">보류</span></td><td><span class="ava">정</span>정유진</td><td>06-08</td><td>06-20</td><td class="r"><span class="bar" style="--p:18%"></span>18%</td><td><span class="dtg-stchip risk">고</span></td></tr>
+                            <tr><td class="sticky tn">UI Baseline 적용</td><td>구현</td><td><span class="dtg-stchip prog">진행</span></td><td><span class="ava">박</span>박지원</td><td>06-06</td><td>06-22</td><td class="r"><span class="bar" style="--p:55%"></span>55%</td><td><span class="dtg-stchip todo">없음</span></td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div class="dtg-pager">
+                        <span>총 24 항목 · 1 ~ 6 표시</span>
+                        <div class="dtg-pager-r"><span>‹</span><span class="cur">1</span><span>2</span><span>3</span><span>4</span><span>›</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:10.5px;color:var(--t3);line-height:1.6;">
+                Left Nav 고정 · Topbar 고정 · Content 영역만 H-scroll · scroll shadow gradient hint · 1st col(작업명) sticky.
+              </div>
+            </div>
+          </div>
+
+          <div class="dtg-cap" style="margin-top:22px;"><span class="dtg-cap-n">B</span>PC Bad — Page H-scroll <span class="dtg-cap-sub">금지 패턴</span></div>
+          <div class="dtg-mock-row">
+            <div class="dtg-mock-col" style="flex:1;min-width:480px;">
+              <div class="dtg-mock-col-label"><span>PC · 1280 · Bad</span><span class="dtg-mock-col-w">page 전체가 가로로 흐름</span><span class="dtg-mock-col-tag fail">forbidden</span></div>
+              <div class="dtg-pc bad">
+                <div class="dtg-pc-bar"><span class="dtg-pc-dot"></span><span class="dtg-pc-dot"></span><span class="dtg-pc-dot"></span><span class="dtg-pc-url">stam.app / wbs</span></div>
+                <div class="dtg-pc-body">
+                  <div class="dtg-pc-nav">
+                    <div class="dtg-pc-nav-brand">STAM</div>
+                    <div class="dtg-pc-nav-it active">WBS</div>
+                    <div class="dtg-pc-nav-it">작업요청</div>
+                    <div class="dtg-pc-nav-it">결함</div>
+                    <div class="dtg-pc-nav-it">테스트</div>
+                  </div>
+                  <div class="dtg-pc-content">
+                    <div class="dtg-pc-topbar"><span>프로젝트</span> · <span class="dtg-pc-crumb-cur">WBS</span><span class="dtg-pc-tb-sp"></span><span class="dtg-pc-tb-pill" style="color:#FF7D6E;">page-level H-scroll on</span></div>
+                    <div class="dtg-pc-area" style="overflow:visible;">
+                      <div class="dtg-pc-toolbar">
+                        <div class="dtg-pc-search"><svg viewBox="0 0 18 18"><circle cx="8" cy="8" r="5"></circle><path d="M12 12l3.5 3.5"></path></svg><span>작업명 검색</span></div>
+                        <div class="dtg-pc-btn">필터</div><div class="dtg-pc-btn">정렬</div>
+                      </div>
+                      <div style="background:#131826;border:1px solid rgba(255,90,71,.22);border-radius:10px;overflow:visible;">
+                        <table class="dtg-tt veryWide">
+                          <thead><tr><th>작업명</th><th>단계</th><th>상태</th><th>담당자</th><th>시작</th><th>종료</th><th>진척</th><th>위험</th><th>요구ID</th><th>산출물</th><th>메모</th></tr></thead>
+                          <tbody>
+                            <tr><td class="tn">요건정의서 작성</td><td>분석</td><td><span class="dtg-stchip prog">진행</span></td><td>박지원</td><td>06-02</td><td>06-12</td><td>62%</td><td>없음</td><td>REQ-001</td><td>요건정의서 v1</td><td>고객 검토 필요</td></tr>
+                            <tr><td class="tn">DB 스키마 설계</td><td>설계</td><td><span class="dtg-stchip prog">진행</span></td><td>김민서</td><td>06-04</td><td>06-15</td><td>48%</td><td>중</td><td>REQ-008</td><td>DB ERD</td><td>리뷰 1차 완료</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:10.5px;color:var(--fail);line-height:1.6;">
+                Bad. Content 폭 제약 없이 table 이 페이지를 늘려 Left Nav 까지 가로로 밀린다. 절대 금지.
+              </div>
+            </div>
+          </div>
+
+          <div class="dtg-cap" style="margin-top:22px;"><span class="dtg-cap-n">C</span>Browser V-scroll vs Table H-scroll <span class="dtg-cap-sub">분리 원칙</span></div>
+          <div class="dtg-tbl-wrap">
+            <table class="dtg-tbl">
+              <thead><tr><th style="width:180px;">스크롤 종류</th><th style="width:140px;">발생 위치</th><th>허용 여부</th><th>비고</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">Browser V-scroll</td><td>Browser body</td><td><span class="dtg-pill pass">허용</span></td><td>페이지 세로 흐름의 기본. Left Nav / Topbar 는 fixed.</td></tr>
+                <tr><td class="tn">Content V-scroll</td><td>Content 영역</td><td><span class="dtg-pill info">선택</span></td><td>Topbar fixed + body scroll lock 시 사용. 기본은 browser V-scroll.</td></tr>
+                <tr><td class="tn">Table H-scroll</td><td>Table container</td><td><span class="dtg-pill pass">허용</span></td><td>table 폭 &gt; content 폭 일 때 container 안에서만.</td></tr>
+                <tr><td class="tn">Page H-scroll</td><td>Body / Shell</td><td><span class="dtg-pill fail">금지</span></td><td>Left Nav 가 밀려 IA 파괴.</td></tr>
+                <tr><td class="tn">Drawer V-scroll</td><td>Drawer body</td><td><span class="dtg-pill pass">허용</span></td><td>Drawer 내부는 자체 스크롤.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Horizontal Scroll Policy ── -->
+      <section id="s04" class="sec" data-screen-label="04 Hscroll Policy">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Horizontal Scroll Policy</span>
+          <span class="sbadge plan">Rule</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            가로 스크롤은 <strong>오직 한 곳</strong>에서만 발생한다 — <strong>table container</strong>.
+            그 외에는 어떤 컨테이너도 <code>overflow-x:auto</code> 를 켜지 않는다.
+          </p>
+          <div class="dtg-rule-grid">
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-pass">허용 — Content 내부</div>
+              <ul>
+                <li>Table container — <code>overflow-x:auto</code></li>
+                <li>Chip Row (필터 chip) — <code>overflow-x:auto; scrollbar-width:none</code></li>
+                <li>Drawer Tab 가로 스크롤 (수가 많을 때만)</li>
+                <li>Carousel / 가로 카드 리스트 (별도 인디케이터 필수)</li>
+              </ul>
+            </div>
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-fail">금지 — Page-level</div>
+              <ul>
+                <li><code>body</code>, <code>html</code>, <code>.app-shell</code> 에 <code>overflow-x:auto</code></li>
+                <li><code>min-width:1280px</code> 같은 고정 폭으로 페이지 자체를 늘림</li>
+                <li>Left Nav 가 같이 밀리는 구조</li>
+                <li>Topbar 가 viewport 밖으로 빠지는 구조</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="dtg-cap" style="margin-top:18px;"><span class="dtg-cap-n">A</span>Table Width Policy</div>
+          <div class="dtg-tbl-wrap">
+            <table class="dtg-tbl">
+              <thead><tr><th style="width:200px;">속성</th><th style="width:160px;">값</th><th>역할</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">table container</td><td><code>overflow-x:auto</code></td><td>가로 스크롤은 여기서만 발생</td></tr>
+                <tr><td class="tn">table</td><td><code>min-width</code> 우선</td><td>너무 좁을 때 cell 짜부 방지. 예: 720 / 920 / 1180</td></tr>
+                <tr><td class="tn">table</td><td><code>width: max-content</code> 후보</td><td>cell 콘텐츠 폭 합산. 큰 테이블에 적합</td></tr>
+                <tr><td class="tn">th / td</td><td><code>white-space:nowrap</code></td><td>cell 안에서 줄바꿈 금지 (특정 컬럼만 multi-line 허용)</td></tr>
+                <tr><td class="tn">1st column</td><td><code>position:sticky; left:0</code></td><td>가로 스크롤 시 식별 컬럼 고정</td></tr>
+                <tr><td class="tn">scroll shadow</td><td><code>linear-gradient overlay</code></td><td>오른쪽 끝 gradient 로 "더 있다" hint</td></tr>
+                <tr><td class="tn">scrollbar 위치</td><td>container 하단</td><td>Topbar / 페이지 최상단에 두지 않는다</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="dtg-cap" style="margin-top:18px;"><span class="dtg-cap-n">B</span>Sticky Left Column 후보</div>
+          <div class="dtg-col-grid">
+            <div class="dtg-col-card p0"><div class="dtg-col-name">WBS</div><div class="dtg-col-list">작업명</div></div>
+            <div class="dtg-col-card p0"><div class="dtg-col-name">결함</div><div class="dtg-col-list">결함 제목</div></div>
+            <div class="dtg-col-card p0"><div class="dtg-col-name">테스트</div><div class="dtg-col-list">테스트 케이스명</div></div>
+            <div class="dtg-col-card p0"><div class="dtg-col-name">산출물</div><div class="dtg-col-list">산출물명</div></div>
+            <div class="dtg-col-card p0"><div class="dtg-col-name">작업요청</div><div class="dtg-col-list">요청 제목</div></div>
+            <div class="dtg-col-card p1"><div class="dtg-col-name">선택 column</div><div class="dtg-col-list">Bulk action용 checkbox 1st</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 Column Priority Policy ── -->
+      <section id="s05" class="sec" data-screen-label="05 Column Priority">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Column Priority Policy</span>
+          <span class="sbadge plan">P0 ~ P3</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            모든 컬럼을 동등하게 다루지 않는다. 컬럼은 <strong>P0 ~ P3</strong> 4단 우선순위를 가지며,
+            viewport 폭과 보기 모드에 따라 노출 / 숨김 / detail 이동을 결정한다.
+          </p>
+
+          <div class="dtg-col-grid" style="grid-template-columns:repeat(4,1fr);">
+            <div class="dtg-col-card p0">
+              <div class="dtg-col-name">P0 · Always</div>
+              <div class="dtg-col-list">항상 표시</div>
+              <div style="font-size:10px;color:var(--t3);">모바일 카드에서도 노출되는 핵심 식별 / 상태 / 사람 / 일정</div>
+            </div>
+            <div class="dtg-col-card p1">
+              <div class="dtg-col-name">P1 · Wide</div>
+              <div class="dtg-col-list">PC 표시</div>
+              <div style="font-size:10px;color:var(--t3);">테블릿부터 표시. 모바일은 카드 sub 영역</div>
+            </div>
+            <div class="dtg-col-card p2">
+              <div class="dtg-col-name">P2 · Detail</div>
+              <div class="dtg-col-list">숨김 / Drawer</div>
+              <div style="font-size:10px;color:var(--t3);">기본 테이블 비노출, drawer / detail 에서 노출</div>
+            </div>
+            <div class="dtg-col-card p3">
+              <div class="dtg-col-name">P3 · Full Only</div>
+              <div class="dtg-col-list">전체 보기</div>
+              <div style="font-size:10px;color:var(--t3);">사용자가 "전체 테이블" 또는 "모든 컬럼" 선택 시만 노출</div>
+            </div>
+          </div>
+
+          <div class="dtg-cap" style="margin-top:18px;"><span class="dtg-cap-n">A</span>WBS Column Priority — 예시</div>
+          <div class="dtg-tbl-wrap">
+            <table class="dtg-tbl">
+              <thead><tr><th style="width:120px;">우선순위</th><th>컬럼</th><th style="width:140px;">모바일 카드</th><th style="width:140px;">모바일 전체보기</th><th style="width:120px;">Tablet</th><th style="width:120px;">PC 기본</th></tr></thead>
+              <tbody>
+                <tr><td class="p0">P0</td><td><strong>작업명 · 상태 · 담당자 · 일정</strong></td><td>표시</td><td>표시</td><td>표시</td><td>표시</td></tr>
+                <tr><td class="p1">P1</td><td>단계 · 진척 · 위험</td><td>카드 sub</td><td>표시</td><td>표시</td><td>표시</td></tr>
+                <tr><td class="p2">P2</td><td>요구사항 ID · 산출물 · 메모</td><td>Drawer</td><td>표시 (스크롤)</td><td>Drawer</td><td>표시</td></tr>
+                <tr><td class="p3">P3</td><td>내부 식별자 · 상세 로그 · 생성/수정 사용자</td><td>비노출</td><td>표시 (스크롤)</td><td>비노출</td><td>"모든 컬럼" 시 표시</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="dtg-cap" style="margin-top:18px;"><span class="dtg-cap-n">B</span>Column Priority 가이드 — 일반화</div>
+          <div class="dtg-rule-grid">
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-pass">P0 후보 — 항상 표시</div>
+              <ul>
+                <li>식별 컬럼 1개 — 제목 / 명칭</li>
+                <li>상태 — chip 으로 표시</li>
+                <li>담당자 또는 핵심 actor 1명</li>
+                <li>일정 1개 (마감 / 시작)</li>
+              </ul>
+            </div>
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-info">P1 ~ P3 분류 기준</div>
+              <ul>
+                <li>P1 — viewport ≥ 1024 에서 노출, 모바일 카드는 sub line</li>
+                <li>P2 — 기본 테이블 비노출. detail / drawer 에서 노출</li>
+                <li>P3 — 관리자 / 감사 / 전수 점검용 — 별도 진입에서만</li>
+                <li>P0 컬럼 합산 폭이 720px 이하가 되도록 설계</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 Density ── -->
+      <section id="s06" class="sec" data-screen-label="06 Density">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Table Density</span>
+          <span class="sbadge plan">3 modes</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            STAM 테이블은 3종 밀도를 가진다 — <strong>Comfortable</strong>, <strong>Compact</strong>, <strong>Presentation</strong>.
+            기본은 Comfortable. WBS 빔 프로젝터 회의 시에는 Presentation Mode 로 전환할 수 있다.
+          </p>
+          <div class="dtg-dens-grid">
+            <div class="dtg-dens-card is-info">
+              <div class="dtg-dens-name">Comfortable · 기본</div>
+              <div class="dtg-dens-spec">
+                row-h <b>40px</b> · font <b>13px</b> · cell padding <b>10 12</b> · chip <b>20px</b> · icon <b>16</b>
+              </div>
+              <div class="dtg-dens-mini is-comf">
+                <table style="--dp:11px;--df:12px;">
+                  <thead><tr><th>작업명</th><th>상태</th><th>담당</th></tr></thead>
+                  <tbody>
+                    <tr><td>요건정의서</td><td><span class="dtg-stchip prog">진행</span></td><td>박지원</td></tr>
+                    <tr><td>DB 스키마</td><td><span class="dtg-stchip prog">진행</span></td><td>김민서</td></tr>
+                    <tr><td>API Boundary</td><td><span class="dtg-stchip hold">보류</span></td><td>정유진</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="dtg-dens-card">
+              <div class="dtg-dens-name">Compact</div>
+              <div class="dtg-dens-spec">
+                row-h <b>32px</b> · font <b>12px</b> · cell padding <b>6 10</b> · chip <b>18px</b> · icon <b>14</b>
+              </div>
+              <div class="dtg-dens-mini is-comp">
+                <table style="--dp:5px;--df:10px;">
+                  <thead><tr><th>작업명</th><th>상태</th><th>담당</th></tr></thead>
+                  <tbody>
+                    <tr><td>요건정의서</td><td><span class="dtg-stchip prog">진행</span></td><td>박지원</td></tr>
+                    <tr><td>DB 스키마</td><td><span class="dtg-stchip prog">진행</span></td><td>김민서</td></tr>
+                    <tr><td>API Boundary</td><td><span class="dtg-stchip hold">보류</span></td><td>정유진</td></tr>
+                    <tr><td>UI Baseline 적용</td><td><span class="dtg-stchip prog">진행</span></td><td>박지원</td></tr>
+                    <tr><td>로그인 구현</td><td><span class="dtg-stchip delay">지연</span></td><td>최서연</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="dtg-dens-card is-warn">
+              <div class="dtg-dens-name">Presentation · 빔 프로젝터</div>
+              <div class="dtg-dens-spec">
+                row-h <b>56px</b> · font <b>18 ~ 20px</b> · cell padding <b>14 16</b> · chip <b>26px</b> · icon <b>22</b>
+              </div>
+              <div class="dtg-dens-mini is-pres">
+                <table style="--dp:14px;--df:14px;">
+                  <thead><tr><th>작업명</th><th>상태</th><th>담당</th></tr></thead>
+                  <tbody>
+                    <tr><td>요건정의서</td><td><span class="dtg-stchip prog">진행</span></td><td>박지원</td></tr>
+                    <tr><td>DB 스키마</td><td><span class="dtg-stchip hold">보류</span></td><td>김민서</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="dtg-rule-grid" style="margin-top:14px;">
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-info">밀도 선택 가이드</div>
+              <ul>
+                <li>일반 운영 화면 — Comfortable (기본)</li>
+                <li>대량 row 비교 / 일괄 처리 화면 — Compact</li>
+                <li>회의실 빔 프로젝터 발표 화면 — Presentation</li>
+                <li>밀도 전환은 사용자 명시적 선택 — 자동 전환 금지</li>
+              </ul>
+            </div>
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-warn">밀도 변경 시 주의</div>
+              <ul>
+                <li>모바일에서는 밀도 모드를 노출하지 않는다 (카드 vs 전체 토글만)</li>
+                <li>Compact 에서도 touch target ≥ 32px 유지 — 24px 금지</li>
+                <li>Presentation 은 컬럼 자동 축소 — P0 만 노출</li>
+                <li>밀도 선택은 localStorage 유지 후보 (별도 Gate)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 Header / Cell ── -->
+      <section id="s07" class="sec" data-screen-label="07 Header / Cell">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Table Header / Cell Guideline</span>
+          <span class="sbadge plan">Spec</span>
+        </div>
+        <div class="sec-body">
+          <div class="dtg-tbl-wrap">
+            <table class="dtg-tbl">
+              <thead><tr><th style="width:160px;">요소</th><th style="width:160px;">기본</th><th>규칙</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">Sticky header</td><td>후보</td><td>Content V-scroll 시 header 가 따라 내려가지 않도록 <code>position:sticky; top:0</code>. PC / Tablet 표준, Mobile Full Table 도 적용.</td></tr>
+                <tr><td class="tn">Sort icon</td><td>th 우측 inline</td><td>현재 정렬 컬럼은 brand 색, 다른 컬럼은 hover 시만 표시. 화살표 ↑ / ↓ 두 방향.</td></tr>
+                <tr><td class="tn">Filter icon</td><td>th 우측 보조</td><td>컬럼 inline filter 가 필요할 때만. WBS / 결함 우선. 기본 검색바 / 필터 sheet 와 중복 노출 금지.</td></tr>
+                <tr><td class="tn">Resize handle</td><td>후보</td><td>PC 전용. P0 컬럼만 허용. 기본 진입에서 노출하지 않고 "컬럼" 메뉴에서 켜는 후보.</td></tr>
+                <tr><td class="tn">Alignment</td><td>좌측 기본</td><td>숫자 / 진척률은 <code>tabular-nums</code> 와 right align. 상태 chip 은 left align. 날짜는 left align.</td></tr>
+                <tr><td class="tn">Text overflow</td><td>ellipsis</td><td>기본 <code>white-space:nowrap; text-overflow:ellipsis</code>. 작업명만 multi-line 후보.</td></tr>
+                <tr><td class="tn">Multi-line</td><td>제한</td><td>식별 컬럼 (작업명 / 결함 제목) 한 컬럼만 최대 2줄 허용. 그 외 모든 셀은 1줄.</td></tr>
+                <tr><td class="tn">Status chip</td><td>11 ~ 13px / 4px 라운드</td><td>색은 token 기반 — <code>status-todo / prog / done / hold / delay / risk</code>. 셀 안에서 좌측 정렬.</td></tr>
+                <tr><td class="tn">Date display</td><td>YYYY-MM-DD</td><td>본 가이드 기본. 상대 시간 ("3일 전") 은 Drawer 에서만. 셀 안에서는 절대 시간.</td></tr>
+                <tr><td class="tn">Assignee display</td><td>아바타 + 이름</td><td>아바타 18px circle + 이름. 미할당은 dim "미정". 다중 담당자는 +N.</td></tr>
+                <tr><td class="tn">Action cell</td><td>마지막 컬럼 · 32px</td><td>… 메뉴만 표시. inline 버튼 노출은 hover 시. 모바일 카드에서는 마지막 row 우측 아이콘.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Row Interaction ── -->
+      <section id="s08" class="sec" data-screen-label="08 Row Interaction">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Row Interaction</span>
+          <span class="sbadge plan">Behavior</span>
+        </div>
+        <div class="sec-body">
+          <div class="dtg-tbl-wrap">
+            <table class="dtg-tbl">
+              <thead><tr><th style="width:160px;">상태</th><th style="width:200px;">기본 색</th><th>규칙</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">Row click</td><td>—</td><td>전체 row 가 클릭 영역. 클릭 시 Drawer 또는 Detail 진입. action cell 영역은 stopPropagation.</td></tr>
+                <tr><td class="tn">Checkbox select</td><td>1st col</td><td>관리형 보드에서 1st column 에 checkbox. 선택 시 Bulk Action bar 노출.</td></tr>
+                <tr><td class="tn">Action menu</td><td>… 우측 끝</td><td>편집 / 복제 / 삭제 / 이동. 권한 별 노출 변경.</td></tr>
+                <tr><td class="tn">Hover</td><td>row bg +2%</td><td>마우스 hover 시 row 배경 미세 강조. action cell 만 별도 hover 색.</td></tr>
+                <tr><td class="tn">Selected</td><td>brand soft</td><td><code>rgba(brand,0.10)</code>. checkbox 활성 + bulk action 대상.</td></tr>
+                <tr><td class="tn">Focused</td><td>brand outline</td><td>키보드 이동 시 outline 2px brand. row 색은 변경하지 않는다.</td></tr>
+                <tr><td class="tn">Disabled / dim</td><td>opacity .36</td><td>권한 없음 / 보호 항목 dim. 클릭은 가능, 작업 시 권한 안내.</td></tr>
+                <tr><td class="tn">Filtered result</td><td>row 제거 (권장)</td><td>기본 — 조건 외 row 는 list 에서 제거. dim 처리는 비교 모드에서만.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="dtg-cap" style="margin-top:18px;"><span class="dtg-cap-n">A</span>필터 결과 — 제거 vs Dim</div>
+          <div class="dtg-opt-grid">
+            <div class="dtg-opt-card recommend">
+              <div class="dtg-opt-hdr">
+                <span class="dtg-opt-letter">A</span>
+                <span class="dtg-opt-title">제거 (Remove) — 기본 권장</span>
+                <span class="dtg-pill brand">recommend</span>
+              </div>
+              <div class="dtg-opt-body">조건 외 row 는 list 에서 빠진다. 일반적인 데이터 탐색 / 운영 흐름에 적합.</div>
+              <ul class="dtg-opt-pros">
+                <li>화면이 정리되어 결과 비교가 쉽다</li>
+                <li>스크롤이 줄어 조작이 빠르다</li>
+                <li>결과 수 / active filter 만 상단에 표기</li>
+              </ul>
+              <ul class="dtg-opt-cons">
+                <li>조건과 비교 자체가 필요한 케이스에는 부적합</li>
+              </ul>
+            </div>
+            <div class="dtg-opt-card">
+              <div class="dtg-opt-hdr">
+                <span class="dtg-opt-letter">B</span>
+                <span class="dtg-opt-title">Dim — 비교 / 검토 모드</span>
+              </div>
+              <div class="dtg-opt-body">조건 외 row 가 opacity .36 으로 dim. 조건과 미충족 row 의 차이를 동시에 본다.</div>
+              <ul class="dtg-opt-pros">
+                <li>비교 / 회의 검토에 유리</li>
+                <li>row 순서 / 위치 안정 — 시선 위치 유지</li>
+              </ul>
+              <ul class="dtg-opt-cons">
+                <li>화면 정보량 증가 — 일반 운영에는 과함</li>
+                <li>기본 모드로 쓰면 dim row 도 클릭 가능해 혼동</li>
+              </ul>
+            </div>
+            <div class="dtg-opt-card">
+              <div class="dtg-opt-hdr">
+                <span class="dtg-opt-letter">C</span>
+                <span class="dtg-opt-title">Section 그룹 + Count</span>
+              </div>
+              <div class="dtg-opt-body">조건별로 row 를 group 분할. 상태별 / 단계별 검토에 유리하지만 단일 필터에는 과함.</div>
+              <ul class="dtg-opt-pros">
+                <li>WBS 단계별 / 상태별 회의에 적합</li>
+              </ul>
+              <ul class="dtg-opt-cons">
+                <li>section 토글 자체가 복잡해진다</li>
+                <li>모바일에서는 비추천</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Toolbar ── -->
+      <section id="s09" class="sec" data-screen-label="09 Toolbar">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Table Toolbar</span>
+          <span class="sbadge plan">Layout</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            표 위에 노출되는 컨트롤 일관 정책. PC 와 모바일은 위치와 깊이가 다르다.
+          </p>
+          <div class="dtg-tbl-wrap">
+            <table class="dtg-tbl">
+              <thead><tr><th style="width:140px;">컨트롤</th><th style="width:240px;">PC 위치</th><th style="width:240px;">Mobile 위치</th><th>비고</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">Search</td><td>Toolbar 좌측 · flex grow</td><td>Topbar 검색 아이콘 → Inline expand</td><td>WBS 모바일 보드 가이드 상속</td></tr>
+                <tr><td class="tn">Filter</td><td>Toolbar 우측 · "필터 N" button</td><td>chip row + Filter Bottom Sheet</td><td>FSF 가이드 상속</td></tr>
+                <tr><td class="tn">Sort</td><td>Toolbar 우측 · "정렬" button</td><td>Topbar 더보기 → Sheet</td><td>모바일은 sheet 안에 정렬 옵션</td></tr>
+                <tr><td class="tn">View mode</td><td>Toolbar 우측 · Segmented (List · Board · Calendar)</td><td>Topbar 카드 / 테이블 토글</td><td>WBS 만 사용</td></tr>
+                <tr><td class="tn">Density switch</td><td>Toolbar 우측 · Overflow</td><td>비노출</td><td>모바일은 카드 vs 테이블만</td></tr>
+                <tr><td class="tn">Column setting</td><td>Toolbar 우측 · "컬럼" · Drawer</td><td>Full Table 진입 시 sheet</td><td>"모든 컬럼" 토글 후보</td></tr>
+                <tr><td class="tn">Refresh</td><td>Toolbar 우측 · 보조</td><td>Pull-to-refresh</td><td>모바일은 list pull</td></tr>
+                <tr><td class="tn">Export</td><td>Toolbar 우측 · Overflow</td><td>비노출 (별도 Gate)</td><td>관리형 보드만</td></tr>
+                <tr><td class="tn">Create button</td><td>Toolbar 우측 끝 · Primary</td><td>Topbar + 아이콘 / FAB</td><td>Primary CTA</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="dtg-rule-grid" style="margin-top:14px;">
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-info">Toolbar 정렬 원칙</div>
+              <ul>
+                <li>좌측 — 탐색 (Search · Chip / View)</li>
+                <li>우측 — 조작 (Filter · Sort · Column · Density · Refresh · Create)</li>
+                <li>Primary CTA (새 작업 / 등록) 는 항상 우측 끝</li>
+                <li>height — Toolbar 30 ~ 36px · 모바일 Topbar 48px</li>
+              </ul>
+            </div>
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-warn">Bulk Action Bar</div>
+              <ul>
+                <li>row 선택 시 Toolbar 가 Bulk Action Bar 로 전환</li>
+                <li>"N개 선택" + 일괄 상태 / 이동 / 삭제 / 취소</li>
+                <li>모바일은 sticky bottom 으로 노출</li>
+                <li>Bulk Action 중에는 Search / Filter 는 readonly</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S10 Empty / Loading / Error ── -->
+      <section id="s10" class="sec" data-screen-label="10 Empty / Loading / Error">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Empty / Loading / Error State</span>
+          <span class="sbadge plan">State</span>
+        </div>
+        <div class="sec-body">
+          <div class="dtg-tbl-wrap">
+            <table class="dtg-tbl">
+              <thead><tr><th style="width:160px;">상태</th><th style="width:160px;">진입 조건</th><th>UI</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">Loading skeleton</td><td>최초 진입 / 데이터 갱신</td><td>row 6 ~ 8 개의 skeleton bar. 1.4s shimmer. 60% / 30% / 50% 폭 무작위.</td></tr>
+                <tr><td class="tn">Empty</td><td>row = 0</td><td>중앙 정렬 · 아이콘 + 1줄 안내 + Primary "새 작업". 색은 neutral.</td></tr>
+                <tr><td class="tn">No search result</td><td>검색어 있고 결과 0</td><td>"검색어 '○○' 에 해당하는 결과가 없습니다." + 검색 초기화 link.</td></tr>
+                <tr><td class="tn">No filter result</td><td>필터 있고 결과 0</td><td>"현재 조건에 해당하는 항목이 없습니다." + 필터 초기화 link.</td></tr>
+                <tr><td class="tn">Error</td><td>API 실패</td><td>warn 아이콘 + 에러 사유 + 재시도 버튼. 자동 재시도는 1회.</td></tr>
+                <tr><td class="tn">Permission read-only</td><td>읽기 권한만</td><td>Toolbar 의 Create / Bulk action 숨김. 상단 안내 chip "읽기 전용".</td></tr>
+                <tr><td class="tn">Offline candidate</td><td>network 끊김</td><td>상단 safe-area 위 띠 "오프라인" + 마지막 로드 시각.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="dtg-cap" style="margin-top:18px;"><span class="dtg-cap-n">A</span>State 시각 — PC Mock</div>
+          <div class="dtg-mock-row">
+            <div class="dtg-mock-col" style="min-width:300px;">
+              <div class="dtg-mock-col-label"><span>Loading Skeleton</span><span class="dtg-mock-col-tag alt">state</span></div>
+              <div class="dtg-pc">
+                <div class="dtg-pc-bar"><span class="dtg-pc-dot"></span><span class="dtg-pc-dot"></span><span class="dtg-pc-dot"></span></div>
+                <div class="dtg-pc-body" style="min-height:240px;">
+                  <div class="dtg-pc-content">
+                    <div class="dtg-pc-area" style="padding:8px 10px;">
+                      <div class="dtg-table-host">
+                        <div class="dtg-skel-row"><span class="dtg-skel" style="max-width:30%"></span><span class="dtg-skel" style="max-width:18%"></span><span class="dtg-skel" style="max-width:22%"></span><span class="dtg-skel" style="max-width:14%"></span></div>
+                        <div class="dtg-skel-row"><span class="dtg-skel" style="max-width:45%"></span><span class="dtg-skel" style="max-width:18%"></span><span class="dtg-skel" style="max-width:22%"></span><span class="dtg-skel" style="max-width:14%"></span></div>
+                        <div class="dtg-skel-row"><span class="dtg-skel" style="max-width:36%"></span><span class="dtg-skel" style="max-width:18%"></span><span class="dtg-skel" style="max-width:22%"></span><span class="dtg-skel" style="max-width:14%"></span></div>
+                        <div class="dtg-skel-row"><span class="dtg-skel" style="max-width:54%"></span><span class="dtg-skel" style="max-width:18%"></span><span class="dtg-skel" style="max-width:22%"></span><span class="dtg-skel" style="max-width:14%"></span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="dtg-mock-col" style="min-width:300px;">
+              <div class="dtg-mock-col-label"><span>Empty</span><span class="dtg-mock-col-tag alt">state</span></div>
+              <div class="dtg-pc">
+                <div class="dtg-pc-bar"><span class="dtg-pc-dot"></span><span class="dtg-pc-dot"></span><span class="dtg-pc-dot"></span></div>
+                <div class="dtg-pc-body" style="min-height:240px;">
+                  <div class="dtg-pc-content">
+                    <div class="dtg-pc-area" style="padding:8px 10px;">
+                      <div class="dtg-table-host">
+                        <div class="dtg-emp">
+                          <span class="dtg-emp-ico">＋</span>
+                          <span class="dtg-emp-t">아직 등록된 작업이 없습니다</span>
+                          <span class="dtg-emp-s">새 작업을 등록해 WBS를 시작하세요.</span>
+                          <div class="dtg-pc-btn is-primary" style="margin-top:4px;">+ 새 작업</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="dtg-mock-col" style="min-width:300px;">
+              <div class="dtg-mock-col-label"><span>No Filter Result</span><span class="dtg-mock-col-tag warn">state</span></div>
+              <div class="dtg-pc">
+                <div class="dtg-pc-bar"><span class="dtg-pc-dot"></span><span class="dtg-pc-dot"></span><span class="dtg-pc-dot"></span></div>
+                <div class="dtg-pc-body" style="min-height:240px;">
+                  <div class="dtg-pc-content">
+                    <div class="dtg-pc-area" style="padding:8px 10px;">
+                      <div class="dtg-table-host">
+                        <div class="dtg-emp is-warn">
+                          <span class="dtg-emp-ico">!</span>
+                          <span class="dtg-emp-t">조건에 해당하는 작업이 없습니다</span>
+                          <span class="dtg-emp-s">필터 — 상태: 진행 · 단계: 구현 · 담당자: 박지원</span>
+                          <div class="dtg-pc-btn">필터 초기화</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="dtg-mock-col" style="min-width:300px;">
+              <div class="dtg-mock-col-label"><span>Error</span><span class="dtg-mock-col-tag fail">state</span></div>
+              <div class="dtg-pc">
+                <div class="dtg-pc-bar"><span class="dtg-pc-dot"></span><span class="dtg-pc-dot"></span><span class="dtg-pc-dot"></span></div>
+                <div class="dtg-pc-body" style="min-height:240px;">
+                  <div class="dtg-pc-content">
+                    <div class="dtg-pc-area" style="padding:8px 10px;">
+                      <div class="dtg-table-host">
+                        <div class="dtg-emp is-fail">
+                          <span class="dtg-emp-ico">×</span>
+                          <span class="dtg-emp-t">목록을 불러오지 못했습니다</span>
+                          <span class="dtg-emp-s">네트워크 또는 권한 오류 (403). 잠시 후 다시 시도해주세요.</span>
+                          <div class="dtg-pc-btn is-primary">다시 시도</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S11 Pagination / More Load ── -->
+      <section id="s11" class="sec" data-screen-label="11 Pagination">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Pagination / More Load</span>
+          <span class="sbadge plan">Policy</span>
+        </div>
+        <div class="sec-body">
+          <div class="dtg-opt-grid">
+            <div class="dtg-opt-card recommend">
+              <div class="dtg-opt-hdr"><span class="dtg-opt-letter">A</span><span class="dtg-opt-title">Pagination — 관리형 / 대량 목록</span><span class="dtg-pill brand">recommend</span></div>
+              <div class="dtg-opt-body">고정 페이지 크기. 페이지 번호 / 처음 / 끝 이동. 회계 / 결함 / 작업요청 관리형 보드에 권장.</div>
+              <ul class="dtg-opt-pros"><li>예측 가능한 페이지 위치</li><li>북마크 / 공유 URL 안정</li></ul>
+              <ul class="dtg-opt-cons"><li>대용량 데이터에서 다음 페이지 이동이 느릴 수 있음</li></ul>
+            </div>
+            <div class="dtg-opt-card">
+              <div class="dtg-opt-hdr"><span class="dtg-opt-letter">B</span><span class="dtg-opt-title">More Load — 일반 목록</span></div>
+              <div class="dtg-opt-body">하단 "더 보기" 버튼. 사용자가 명시적으로 다음 chunk 로드. STAM 일반 목록 기본 권장.</div>
+              <ul class="dtg-opt-pros"><li>스크롤 위치 안정</li><li>예측 가능한 로딩</li></ul>
+              <ul class="dtg-opt-cons"><li>총 페이지 수가 직관적이지 않음</li></ul>
+            </div>
+            <div class="dtg-opt-card">
+              <div class="dtg-opt-hdr"><span class="dtg-opt-letter">C</span><span class="dtg-opt-title">Infinite scroll — 별도 Gate</span></div>
+              <div class="dtg-opt-body">스크롤 끝에서 자동 로드. WBS 처럼 전체 흐름을 한 화면에 봐야 하는 보드에는 부적합.</div>
+              <ul class="dtg-opt-pros"><li>피드형 컨텐츠에 자연스러움</li></ul>
+              <ul class="dtg-opt-cons"><li>스크롤 위치 손실</li><li>footer 도달 불가</li><li>접근성 약함</li></ul>
+            </div>
+          </div>
+
+          <div class="dtg-cap" style="margin-top:18px;"><span class="dtg-cap-n">A</span>보드별 권장</div>
+          <div class="dtg-tbl-wrap">
+            <table class="dtg-tbl">
+              <thead><tr><th style="width:160px;">보드</th><th style="width:160px;">권장 방식</th><th>비고</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">WBS</td><td>전체 로드 + 필터 / 검색</td><td>전체 흐름 가시성 우선. 대용량은 별도 Gate.</td></tr>
+                <tr><td class="tn">결함 (Defect)</td><td>Pagination 25/50/100</td><td>관리형. 페이지 번호 안정성 우선.</td></tr>
+                <tr><td class="tn">테스트 (Test Case)</td><td>Pagination 25/50/100</td><td>관리형. 공유 URL 활용.</td></tr>
+                <tr><td class="tn">작업요청</td><td>More Load (기본 20)</td><td>일반 목록. 신규순 / 마감순 정렬 후보.</td></tr>
+                <tr><td class="tn">산출물</td><td>More Load (기본 20)</td><td>일반 목록.</td></tr>
+                <tr><td class="tn">감사 / Audit Log</td><td>Pagination 100</td><td>관리형 + 대량. server-side pagination 별도 Gate.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S12 Card vs Full Table ── -->
+      <section id="s12" class="sec" data-screen-label="12 Card vs Full">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Mobile Card List vs Full Table</span>
+          <span class="sbadge plan">Mode</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            모바일에서 기본은 카드 리스트다. 필요할 때 사용자가 명시적으로 "전체 테이블 보기" 로 전환한다.
+            전환은 Topbar 또는 Toolbar 의 segmented control 로 노출한다.
+          </p>
+          <div class="dtg-rule-grid">
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-pass">Card List — 기본</div>
+              <ul>
+                <li>1열 카드. P0 + P1 (sub) 노출</li>
+                <li>제목 / 상태 / 담당자 / 일정 + 진척 / 위험</li>
+                <li>tap → Drawer 또는 Detail 진입</li>
+                <li>swipe action 후보 (별도 Gate)</li>
+                <li>가독성 우선 — 카드 padding 10 ~ 12, gap 8</li>
+              </ul>
+            </div>
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-info">Full Table — 사용자 진입</div>
+              <ul>
+                <li>Topbar 의 "카드 / 테이블" 토글로 진입</li>
+                <li>내부 H-scroll · 1st column sticky</li>
+                <li>P0 + P1 + P2 (+ P3 옵션) 노출</li>
+                <li>상단에 "← 카드형으로" 안내 띠</li>
+                <li>row tap → Drawer 진입은 동일</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="dtg-cap" style="margin-top:18px;"><span class="dtg-cap-n">A</span>토글 위치 옵션</div>
+          <div class="dtg-opt-grid">
+            <div class="dtg-opt-card recommend">
+              <div class="dtg-opt-hdr"><span class="dtg-opt-letter">A</span><span class="dtg-opt-title">Topbar 우측 segmented</span><span class="dtg-pill brand">recommend</span></div>
+              <div class="dtg-opt-body">[카드 · 테이블] 2-segment. 48px Topbar 우측에 항상 노출. WBS / 산출물 등 카드 vs 테이블 전환이 잦은 화면.</div>
+            </div>
+            <div class="dtg-opt-card">
+              <div class="dtg-opt-hdr"><span class="dtg-opt-letter">B</span><span class="dtg-opt-title">Toolbar segmented</span></div>
+              <div class="dtg-opt-body">Topbar 가 다른 액션으로 혼잡할 때. 검색 / 필터 chip row 위. 한 화면에서 토글이 자주 발생하지 않는 보드.</div>
+            </div>
+            <div class="dtg-opt-card">
+              <div class="dtg-opt-hdr"><span class="dtg-opt-letter">C</span><span class="dtg-opt-title">More menu</span></div>
+              <div class="dtg-opt-body">Topbar … overflow 안에 "전체 테이블 보기". 전환이 드물고 화면을 깔끔히 유지하고 싶을 때.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S13 Mobile Full Table Spec ── -->
+      <section id="s13" class="sec" data-screen-label="13 Mobile Full Table">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Mobile Full Table View Spec</span>
+          <span class="sbadge plan">Mobile</span>
+        </div>
+        <div class="sec-body">
+          <div class="dtg-tbl-wrap">
+            <table class="dtg-tbl">
+              <thead><tr><th style="width:200px;">속성</th><th style="width:180px;">값</th><th>설명</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">viewport</td><td>360 / 390 / 430</td><td>360 기준으로 설계. 430 에서도 동일 비율 유지.</td></tr>
+                <tr><td class="tn">container scroll</td><td><code>overflow-x:auto; overflow-y:auto</code></td><td>가로 / 세로 모두 container 내부 스크롤.</td></tr>
+                <tr><td class="tn">1st column sticky</td><td>필수</td><td>가로 스크롤 중에도 작업명 / 결함 제목 등 식별 컬럼 고정.</td></tr>
+                <tr><td class="tn">Sticky header</td><td>후보</td><td>세로 스크롤 시 header 고정.</td></tr>
+                <tr><td class="tn">Row height</td><td>Compact 32px</td><td>모바일은 Compact 기준. 더 작게는 가지 않는다.</td></tr>
+                <tr><td class="tn">Font size</td><td>10 ~ 11px (셀)</td><td>모바일 셀 한정. 가독성 floor.</td></tr>
+                <tr><td class="tn">Cell text</td><td><code>ellipsis</code></td><td>모든 셀 1줄 · ellipsis. 작업명만 2줄 후보.</td></tr>
+                <tr><td class="tn">Action column</td><td>… 1개만</td><td>row 끝 … 메뉴 1개. inline 액션 금지.</td></tr>
+                <tr><td class="tn">Scroll hint</td><td>오른쪽 fade gradient</td><td>가로 스크롤 안내. 상단에 "→ 좌우 스와이프 가능" 안내띠.</td></tr>
+                <tr><td class="tn">Back to card</td><td>하단 link</td><td>"카드형으로 돌아가기" 항상 노출.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S14 Tablet ── -->
+      <section id="s14" class="sec" data-screen-label="14 Tablet">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Tablet Table Policy</span>
+          <span class="sbadge plan">Tablet</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            768 ~ 1024 의 태블릿은 카드형과 PC 테이블의 중간 형태다. 주요 컬럼 4 ~ 6 개만 노출하고
+            나머지는 Drawer 의 Detail panel 에서 다룬다.
+          </p>
+          <div class="dtg-tbl-wrap">
+            <table class="dtg-tbl">
+              <thead><tr><th style="width:180px;">기준</th><th>portrait 768</th><th>landscape 1024+</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">컬럼 노출</td><td>P0 + 핵심 P1 (4 ~ 5)</td><td>P0 + P1 (5 ~ 6)</td></tr>
+                <tr><td class="tn">Detail</td><td>Fullscreen Drawer</td><td>Wide Sheet (Right Drawer)</td></tr>
+                <tr><td class="tn">Toolbar</td><td>1 row · PC와 동일</td><td>1 row · PC와 동일</td></tr>
+                <tr><td class="tn">Search</td><td>Toolbar inline</td><td>Toolbar inline</td></tr>
+                <tr><td class="tn">Filter</td><td>Right Drawer</td><td>Right Drawer</td></tr>
+                <tr><td class="tn">Sticky first col</td><td>표시</td><td>표시</td></tr>
+                <tr><td class="tn">Row height</td><td>40 (comf)</td><td>40 (comf)</td></tr>
+                <tr><td class="tn">Density 전환</td><td>비노출</td><td>노출</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S15 Presentation Mode ── -->
+      <section id="s15" class="sec" data-screen-label="15 Presentation">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">Presentation Mode — 빔 프로젝터</span>
+          <span class="sbadge plan">Mode</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            WBS / 진척 / 결함 회의를 빔 프로젝터에서 볼 때를 위한 모드. 글자 / 행 / chip 모두 확대하며
+            P0 컬럼만 노출한다. 자동 진입은 없고 사용자 명시적 전환만 허용한다.
+          </p>
+          <div class="dtg-tbl-wrap">
+            <table class="dtg-tbl">
+              <thead><tr><th style="width:200px;">속성</th><th style="width:160px;">기본</th><th style="width:160px;">Presentation</th><th>비고</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">font-size 셀</td><td>13px</td><td>18 ~ 20px</td><td>회의실 3 ~ 6m 가독</td></tr>
+                <tr><td class="tn">row height</td><td>40</td><td>56</td><td>일정 / 상태 시인성</td></tr>
+                <tr><td class="tn">cell padding</td><td>10 12</td><td>14 16</td><td>—</td></tr>
+                <tr><td class="tn">chip</td><td>20</td><td>26</td><td>색은 동일 token</td></tr>
+                <tr><td class="tn">컬럼 노출</td><td>P0 + P1</td><td>P0 만</td><td>자동 축약</td></tr>
+                <tr><td class="tn">가로 스크롤</td><td>허용</td><td>최소화</td><td>P0 만 노출되므로 거의 발생 X</td></tr>
+                <tr><td class="tn">Toolbar</td><td>표시</td><td>축약 (검색 / 필터만)</td><td>—</td></tr>
+                <tr><td class="tn">feature flag</td><td>—</td><td>presentation 후보</td><td>localStorage / URL flag</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S16 Mock Screens ── -->
+      <section id="s16" class="sec" data-screen-label="16 Mock Screens">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
+          <span class="sec-title">Mock Screens — A ~ H</span>
+          <span class="sbadge plan">Visual</span>
+        </div>
+        <div class="sec-body">
+
+          <!-- A & B: covered in S03 — link summary -->
+          <div class="ibox info" style="margin-bottom:14px;">
+            <strong>A · B · C</strong> 의 PC Good / PC H-scroll / PC Bad 시안은 <a href="#s03">S03 PC Layout</a> 에 통합 배치되어 있다.
+            여기서는 모바일 / 태블릿 / 프레젠테이션 / state 시안을 다룬다.
+          </div>
+
+          <div class="dtg-cap"><span class="dtg-cap-n">D</span>Mobile Card List <span class="dtg-cap-sub">기본 모드</span></div>
+          <div class="dtg-mock-row">
+            <div class="dtg-phone">
+              <div class="dtg-phone-screen">
+                <div class="dtg-statusbar"><span>9:41</span><span>● ● ●</span></div>
+                <div class="dtg-topbar">
+                  <div class="dtg-tb-iconbtn"><svg viewBox="0 0 18 18"><path d="M3 5h12M3 9h12M3 13h12"/></svg></div>
+                  <div class="dtg-tb-title">WBS<span class="dtg-tb-sub">P-2026-001 · 24</span></div>
+                  <div class="dtg-tb-mode"><span class="on">카드</span><span>테이블</span></div>
+                  <div class="dtg-tb-iconbtn"><svg viewBox="0 0 18 18"><circle cx="8" cy="8" r="5"></circle><path d="M12 12l3.5 3.5"></path></svg></div>
+                </div>
+                <div class="dtg-content">
+                  <div class="dtg-sec-mini">진행중 · 6</div>
+                  <div class="dtg-mcard">
+                    <div class="dtg-mcard-top"><div class="dtg-mcard-title">요건정의서 작성</div><span class="dtg-stchip prog">진행</span></div>
+                    <div class="dtg-mcard-row"><span class="who"><span class="ava">박</span>박지원</span><span>06-02 ~ 06-12</span></div>
+                    <div class="dtg-mcard-row"><span>분석 · 62%</span><span style="color:var(--t3);">위험 없음</span></div>
+                  </div>
+                  <div class="dtg-mcard is-delay">
+                    <div class="dtg-mcard-top"><div class="dtg-mcard-title">로그인 컴포넌트 구현</div><span class="dtg-stchip delay">지연</span></div>
+                    <div class="dtg-mcard-row"><span class="who"><span class="ava">최</span>최서연</span><span>06-05 ~ 06-18</span></div>
+                    <div class="dtg-mcard-row"><span>구현 · 34%</span><span style="color:#FF7D6E;">지연 3일</span></div>
+                  </div>
+                  <div class="dtg-mcard is-risk">
+                    <div class="dtg-mcard-top"><div class="dtg-mcard-title">API Boundary 정의</div><span class="dtg-stchip risk">위험 고</span></div>
+                    <div class="dtg-mcard-row"><span class="who"><span class="ava">정</span>정유진</span><span>06-08 ~ 06-20</span></div>
+                    <div class="dtg-mcard-row"><span>설계 · 18%</span><span style="color:#FF5A47;">즉시 조치</span></div>
+                  </div>
+                  <div class="dtg-mcard">
+                    <div class="dtg-mcard-top"><div class="dtg-mcard-title">UI Baseline 적용</div><span class="dtg-stchip prog">진행</span></div>
+                    <div class="dtg-mcard-row"><span class="who"><span class="ava">박</span>박지원</span><span>06-06 ~ 06-22</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="dtg-phone">
+              <div class="dtg-phone-screen">
+                <div class="dtg-statusbar"><span>9:41</span><span>● ● ●</span></div>
+                <div class="dtg-topbar">
+                  <div class="dtg-tb-iconbtn"><svg viewBox="0 0 18 18"><path d="M3 5h12M3 9h12M3 13h12"/></svg></div>
+                  <div class="dtg-tb-title">결함<span class="dtg-tb-sub">P-2026-001 · 12</span></div>
+                  <div class="dtg-tb-mode"><span class="on">카드</span><span>테이블</span></div>
+                  <div class="dtg-tb-iconbtn"><svg viewBox="0 0 18 18"><circle cx="8" cy="8" r="5"></circle><path d="M12 12l3.5 3.5"></path></svg></div>
+                </div>
+                <div class="dtg-content">
+                  <div class="dtg-sec-mini">Open · 4</div>
+                  <div class="dtg-mcard is-risk">
+                    <div class="dtg-mcard-top"><div class="dtg-mcard-title">로그인 후 토큰 만료 처리 누락</div><span class="dtg-stchip risk">P1</span></div>
+                    <div class="dtg-mcard-row"><span class="who"><span class="ava">최</span>최서연</span><span>06-09</span></div>
+                    <div class="dtg-mcard-row"><span>auth · 모듈</span><span style="color:#FF5A47;">재현 가능</span></div>
+                  </div>
+                  <div class="dtg-mcard">
+                    <div class="dtg-mcard-top"><div class="dtg-mcard-title">목록 정렬 시 페이지 초기화 안 됨</div><span class="dtg-stchip prog">P2</span></div>
+                    <div class="dtg-mcard-row"><span class="who"><span class="ava">박</span>박지원</span><span>06-08</span></div>
+                  </div>
+                  <div class="dtg-mcard">
+                    <div class="dtg-mcard-top"><div class="dtg-mcard-title">Drawer 닫힘 시 상태 dirty 유지</div><span class="dtg-stchip hold">P3</span></div>
+                    <div class="dtg-mcard-row"><span class="who"><span class="ava">정</span>정유진</span><span>06-07</span></div>
+                  </div>
+                  <div class="dtg-mcard">
+                    <div class="dtg-mcard-top"><div class="dtg-mcard-title">검색 입력 후 자동 포커스 손실</div><span class="dtg-stchip prog">P2</span></div>
+                    <div class="dtg-mcard-row"><span class="who"><span class="ava">이</span>이도윤</span><span>06-06</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dtg-cap" style="margin-top:22px;"><span class="dtg-cap-n">E</span>Mobile Full Table View <span class="dtg-cap-sub">사용자가 토글로 진입</span></div>
+          <div class="dtg-mock-row">
+            <div class="dtg-phone">
+              <div class="dtg-phone-screen">
+                <div class="dtg-statusbar"><span>9:41</span><span>● ● ●</span></div>
+                <div class="dtg-topbar">
+                  <div class="dtg-tb-iconbtn"><svg viewBox="0 0 18 18"><path d="M3 5h12M3 9h12M3 13h12"/></svg></div>
+                  <div class="dtg-tb-title">WBS<span class="dtg-tb-sub">전체 테이블</span></div>
+                  <div class="dtg-tb-mode"><span>카드</span><span class="on">테이블</span></div>
+                  <div class="dtg-tb-iconbtn"><svg viewBox="0 0 18 18"><path d="M3 9h12M9 3v12"/></svg></div>
+                </div>
+                <div class="dtg-content no-pad">
+                  <div class="dtg-mft">
+                    <div class="dtg-mft-hint">좌우로 스와이프해 더 많은 컬럼을 볼 수 있습니다 <span class="arrow">→</span></div>
+                    <div class="dtg-mft-scroll">
+                      <table class="dtg-mft-tbl">
+                        <thead><tr><th class="sticky">작업명</th><th>상태</th><th>담당</th><th>시작</th><th>종료</th><th>진척</th><th>위험</th><th>요구ID</th></tr></thead>
+                        <tbody>
+                          <tr><td class="sticky tn">요건정의서 작성</td><td><span class="dtg-stchip prog">진행</span></td><td>박지원</td><td>06-02</td><td>06-12</td><td>62%</td><td>—</td><td>REQ-001</td></tr>
+                          <tr><td class="sticky tn">기능 명세 v1</td><td><span class="dtg-stchip done">완료</span></td><td>이도윤</td><td>05-28</td><td>06-05</td><td>100%</td><td>—</td><td>REQ-003</td></tr>
+                          <tr><td class="sticky tn">DB 스키마 설계</td><td><span class="dtg-stchip prog">진행</span></td><td>김민서</td><td>06-04</td><td>06-15</td><td>48%</td><td>중</td><td>REQ-008</td></tr>
+                          <tr><td class="sticky tn">로그인 구현</td><td><span class="dtg-stchip delay">지연</span></td><td>최서연</td><td>06-05</td><td>06-18</td><td>34%</td><td>지연</td><td>REQ-012</td></tr>
+                          <tr><td class="sticky tn">API Boundary</td><td><span class="dtg-stchip hold">보류</span></td><td>정유진</td><td>06-08</td><td>06-20</td><td>18%</td><td>고</td><td>REQ-005</td></tr>
+                          <tr><td class="sticky tn">UI Baseline 적용</td><td><span class="dtg-stchip prog">진행</span></td><td>박지원</td><td>06-06</td><td>06-22</td><td>55%</td><td>—</td><td>REQ-015</td></tr>
+                          <tr><td class="sticky tn">설치 환경 구성</td><td><span class="dtg-stchip todo">예정</span></td><td>이도윤</td><td>06-15</td><td>06-25</td><td>0%</td><td>—</td><td>REQ-021</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="dtg-mft-bottom"><span>총 24 · 7 표시</span><a href="#">← 카드형으로 돌아가기</a></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="font-size:10.5px;color:var(--t3);line-height:1.65;max-width:300px;">
+              <strong style="color:var(--t1);">시각 기준</strong><br>
+              · 1st col (작업명) sticky<br>
+              · 상단 안내띠 "좌우 스와이프"<br>
+              · 오른쪽 fade gradient<br>
+              · 하단 "← 카드형으로" 항상 노출<br>
+              · Compact 32px row · 10px font<br>
+              · ellipsis 1줄, 작업명만 2줄 후보
+            </div>
+          </div>
+
+          <div class="dtg-cap" style="margin-top:22px;"><span class="dtg-cap-n">F</span>Tablet Table <span class="dtg-cap-sub">768 portrait</span></div>
+          <div class="dtg-mock-row">
+            <div class="dtg-tab">
+              <div class="dtg-tab-screen">
+                <div class="dtg-statusbar"><span>9:41</span><span>● ● ●</span></div>
+                <div class="dtg-pc-body" style="flex:1;">
+                  <div class="dtg-pc-nav" style="width:120px;">
+                    <div class="dtg-pc-nav-brand">STAM</div>
+                    <div class="dtg-pc-nav-it active">WBS</div>
+                    <div class="dtg-pc-nav-it">결함</div>
+                    <div class="dtg-pc-nav-it">테스트</div>
+                  </div>
+                  <div class="dtg-pc-content">
+                    <div class="dtg-pc-topbar"><span>프로젝트</span> · <span class="dtg-pc-crumb-cur">WBS</span><span class="dtg-pc-tb-sp"></span><span class="dtg-pc-tb-pill">P-2026-001</span></div>
+                    <div class="dtg-pc-area" style="padding:10px 12px;">
+                      <div class="dtg-pc-toolbar">
+                        <div class="dtg-pc-search"><svg viewBox="0 0 18 18"><circle cx="8" cy="8" r="5"></circle><path d="M12 12l3.5 3.5"></path></svg><span>검색</span></div>
+                        <div class="dtg-pc-btn">필터 2</div>
+                        <div class="dtg-pc-btn is-primary">+ 새 작업</div>
+                      </div>
+                      <div class="dtg-table-host">
+                        <table class="dtg-tt sticky-first">
+                          <thead><tr><th class="sticky" style="width:160px;">작업명</th><th>상태</th><th>담당</th><th>일정</th><th class="r">진척</th></tr></thead>
+                          <tbody>
+                            <tr><td class="sticky tn">요건정의서 작성</td><td><span class="dtg-stchip prog">진행</span></td><td><span class="ava">박</span>박지원</td><td>06-02 ~ 12</td><td class="r">62%</td></tr>
+                            <tr><td class="sticky tn">DB 스키마 설계</td><td><span class="dtg-stchip prog">진행</span></td><td><span class="ava">김</span>김민서</td><td>06-04 ~ 15</td><td class="r">48%</td></tr>
+                            <tr><td class="sticky tn">로그인 컴포넌트 구현</td><td><span class="dtg-stchip delay">지연</span></td><td><span class="ava">최</span>최서연</td><td>06-05 ~ 18</td><td class="r">34%</td></tr>
+                            <tr><td class="sticky tn">API Boundary 정의</td><td><span class="dtg-stchip hold">보류</span></td><td><span class="ava">정</span>정유진</td><td>06-08 ~ 20</td><td class="r">18%</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="font-size:10.5px;color:var(--t3);line-height:1.65;max-width:300px;">
+              <strong style="color:var(--t1);">Tablet 기준</strong><br>
+              · 컬럼 5 (P0 + P1 핵심)<br>
+              · 1st col (작업명) sticky<br>
+              · Drawer 는 Wide Sheet<br>
+              · Toolbar 는 PC와 동일 구성<br>
+              · 768 portrait 기준
+            </div>
+          </div>
+
+          <div class="dtg-cap" style="margin-top:22px;"><span class="dtg-cap-n">G</span>Presentation Mode <span class="dtg-cap-sub">빔 프로젝터</span></div>
+          <div class="dtg-mock-row">
+            <div class="dtg-mock-col" style="flex:1;min-width:480px;">
+              <div class="dtg-mock-col-label"><span>PC · Presentation</span><span class="dtg-mock-col-w">font 18 ~ 20</span><span class="dtg-mock-col-tag warn">mode</span></div>
+              <div class="dtg-pc dtg-pres">
+                <div class="dtg-pc-bar"><span class="dtg-pc-dot"></span><span class="dtg-pc-dot"></span><span class="dtg-pc-dot"></span><span class="dtg-pc-url">stam.app / wbs?present=1</span></div>
+                <div class="dtg-pc-body">
+                  <div class="dtg-pc-content">
+                    <div class="dtg-pc-topbar"><span>프로젝트</span> · <span class="dtg-pc-crumb-cur">WBS — Presentation</span><span class="dtg-pc-tb-sp"></span><span class="dtg-pc-tb-pill" style="background:rgba(245,158,11,.18);color:#F5B14C;">presentation</span></div>
+                    <div class="dtg-pc-area">
+                      <div class="dtg-table-host">
+                        <table class="dtg-tt">
+                          <thead><tr><th>작업명</th><th>상태</th><th>담당</th><th>일정</th></tr></thead>
+                          <tbody>
+                            <tr><td class="tn">요건정의서 작성</td><td><span class="dtg-stchip prog">진행</span></td><td><span class="ava">박</span>박지원</td><td>06-02 ~ 06-12</td></tr>
+                            <tr><td class="tn">DB 스키마 설계</td><td><span class="dtg-stchip prog">진행</span></td><td><span class="ava">김</span>김민서</td><td>06-04 ~ 06-15</td></tr>
+                            <tr><td class="tn">로그인 컴포넌트 구현</td><td><span class="dtg-stchip delay">지연</span></td><td><span class="ava">최</span>최서연</td><td>06-05 ~ 06-18</td></tr>
+                            <tr><td class="tn">API Boundary 정의</td><td><span class="dtg-stchip risk">위험 고</span></td><td><span class="ava">정</span>정유진</td><td>06-08 ~ 06-20</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:10.5px;color:var(--t3);line-height:1.6;">
+                P0 컬럼만 노출 · row 56 · font 18 ~ 20 · chip 26 · padding 14 16. 빔 프로젝터에서 3 ~ 6m 거리 가독.
+              </div>
+            </div>
+          </div>
+
+          <div class="dtg-cap" style="margin-top:22px;"><span class="dtg-cap-n">H</span>State 시안 모음 <span class="dtg-cap-sub">S10 참조</span></div>
+          <div class="ibox info" style="margin-bottom:8px;">
+            Loading / Empty / No filter result / Error 시안은 <a href="#s10">S10 Empty / Loading / Error</a> 에서 한 줄에 4종으로 통합 배치되어 있다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S17 PC vs Tablet vs Mobile ── -->
+      <section id="s17" class="sec" data-screen-label="17 PC vs Tablet vs Mobile">
+        <div class="sec-hdr">
+          <span class="sec-n">17</span>
+          <span class="sec-title">PC vs Tablet vs Mobile Difference</span>
+          <span class="sbadge plan">비교</span>
+        </div>
+        <div class="sec-body">
+          <div class="dtg-tbl-wrap">
+            <table class="dtg-tbl">
+              <thead><tr><th style="width:160px;">항목</th><th>PC (1440 ~ 1920)</th><th>Tablet (768 ~ 1024)</th><th>Mobile (360 ~ 430)</th></tr></thead>
+              <tbody>
+                <tr><td class="tn">layout</td><td>Left Nav + Content</td><td>Left Nav + Content (Nav 좁게)</td><td>Topbar + Bottom safe / Drawer</td></tr>
+                <tr><td class="tn">scroll</td><td>Browser V · Table H (container)</td><td>Browser V · Table H (container)</td><td>Browser V · Card V · Full Table H (container)</td></tr>
+                <tr><td class="tn">column count</td><td>P0 + P1 (+ P2 옵션)</td><td>P0 + P1 (4 ~ 6)</td><td>Card: P0(+P1 sub) / Full: P0~P3</td></tr>
+                <tr><td class="tn">search / filter</td><td>Toolbar inline + Right Drawer</td><td>Toolbar inline + Right Drawer</td><td>Topbar Inline + Filter Sheet + Chip row</td></tr>
+                <tr><td class="tn">row interaction</td><td>row click · hover · select · focus</td><td>row tap · select</td><td>card tap · swipe action (후보)</td></tr>
+                <tr><td class="tn">detail view</td><td>Right Drawer</td><td>Wide Sheet · Fullscreen Drawer</td><td>Fullscreen Drawer</td></tr>
+                <tr><td class="tn">action placement</td><td>row 끝 … 메뉴</td><td>row 끝 … 메뉴</td><td>card 우측 … · Drawer footer</td></tr>
+                <tr><td class="tn">density</td><td>Comfortable · Compact · Presentation</td><td>Comfortable · Compact</td><td>Compact only (전체 보기)</td></tr>
+                <tr><td class="tn">table / card mode</td><td>Table 만</td><td>Table 만</td><td>Card 기본 · Full Table 사용자 진입</td></tr>
+                <tr><td class="tn">sticky policy</td><td>Topbar · Left Nav · Sticky 1st col · Sticky thead</td><td>동일</td><td>Topbar · 1st col (Full) · Sticky thead (Full)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S18 Cursor Handoff ── -->
+      <section id="s18" class="sec" data-screen-label="18 Cursor Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">18</span>
+          <span class="sec-title">Cursor Handoff Notes</span>
+          <span class="sbadge plan">Handoff</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.92em;line-height:1.75;color:var(--t2);">
+            본 가이드를 실제 product 에 반영할 때 Cursor / 후속 작업자가 참고할 파일 후보와 적용 순서.
+          </p>
+          <div class="dtg-handoff-list">
+            <div class="dtg-handoff-item">
+              <span class="dtg-hf-path">stam/pages/boards/wbs.html</span>
+              <span class="dtg-hf-role">PC table host. Toolbar / table container / pager 구조 정합화.</span>
+            </div>
+            <div class="dtg-handoff-item">
+              <span class="dtg-hf-path">stam/js/stam.wbs.js</span>
+              <span class="dtg-hf-role">Sort / filter / 카드 / 테이블 mode toggle · column priority 적용.</span>
+            </div>
+            <div class="dtg-handoff-item">
+              <span class="dtg-hf-path">stam/css/stam.wbs.css</span>
+              <span class="dtg-hf-role">WBS 전용 column 폭 / sticky / row 색 / 위험 라인.</span>
+            </div>
+            <div class="dtg-handoff-item">
+              <span class="dtg-hf-path">stam/css/stam.shell.css</span>
+              <span class="dtg-hf-role">Shell scroll 정책 — Left Nav fixed · Topbar fixed · Content overflow 정합.</span>
+            </div>
+            <div class="dtg-handoff-item">
+              <span class="dtg-hf-path">stam/css/stam.table.css <em>(신규 후보)</em></span>
+              <span class="dtg-hf-role">공통 table — header / cell / row / density / sticky / scroll shadow. 별도 Gate.</span>
+            </div>
+            <div class="dtg-handoff-item">
+              <span class="dtg-hf-path">stam/pages/boards/*.html</span>
+              <span class="dtg-hf-role">결함 · 테스트 · 작업요청 · 산출물 — 본 가이드 적용 후속.</span>
+            </div>
+          </div>
+
+          <div class="dtg-rule-grid" style="margin-top:14px;">
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-warn">실제 구현 전 주의 — 순서</div>
+              <ul>
+                <li>1차: PC WBS table scroll / shell 정합성 확정 (Left Nav / Topbar fixed)</li>
+                <li>2차: PC column priority + sticky 1st col</li>
+                <li>3차: Mobile Card mode 적용</li>
+                <li>4차: Mobile Full Table 모드 (사용자 토글)</li>
+                <li>5차: Presentation Mode (별도 feature flag)</li>
+              </ul>
+            </div>
+            <div class="dtg-rule-card">
+              <div class="dtg-rc-hdr is-fail">한 커밋에 섞지 말 것</div>
+              <ul>
+                <li>PC table scroll 보정 + Mobile card mode</li>
+                <li>Table 토큰 정의 + WBS pages 변경</li>
+                <li>Row 필터 dim → 제거 전환 + 검색 로직 변경</li>
+                <li>Density 전환 + Column setting 변경</li>
+                <li>Presentation Mode + 기본 테이블 변경</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S19 Guardrails ── -->
+      <section id="s19" class="sec" data-screen-label="19 Guardrails">
+        <div class="sec-hdr">
+          <span class="sec-n">19</span>
+          <span class="sec-title">Implementation Guardrails</span>
+          <span class="sbadge lock">Rule</span>
+        </div>
+        <div class="sec-body">
+          <div class="dtg-chk-list">
+            <div class="dtg-chk-item"><span class="dtg-chk-box is-fail">!</span><span><strong>페이지 전체 가로 스크롤 금지</strong> — <code>body</code>, <code>html</code>, <code>.app-shell</code> 에 <code>overflow-x:auto</code> 사용 금지.</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box is-fail">!</span><span><strong>Left Nav 가 가로 스크롤에 밀리는 구조 금지</strong> — 어떤 viewport 에서도 IA가 깨지면 안 됨.</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box is-warn">!</span><span><strong>PC table 과 Mobile card mode 한 커밋에 섞지 말 것</strong> — 각각 별도 PR.</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box is-warn">!</span><span><strong>Mobile 에서 PC table 을 기본 화면으로 사용 금지</strong> — 기본은 카드.</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span><strong>Full table view 는 사용자가 선택한 경우에만 진입</strong> — 자동 전환 X.</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span><strong>Touch target 40px 미만 금지</strong> — Compact row 안에서도 hit area 보정.</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box is-fail">!</span><span><strong>전역 <code>.tbtn</code> 일괄 치환 금지</strong> — 도큐 nav 전용 클래스. 제품 버튼은 분리.</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box is-warn">!</span><span><strong>기능 로직 변경은 별도 Gate</strong> — Sort / Filter / Search 동작 정의 변경은 본 가이드 범위 밖.</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box is-warn">!</span><span><strong>대용량 데이터 / row virtualization 은 별도 Gate</strong> — 본 가이드는 정적 시각 기준.</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box is-info">i</span><span><strong>Row 필터링 — dim 이 아니라 제거 방식이 기본</strong> — dim 은 비교 / 검토 모드에서만.</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box is-info">i</span><span><strong>Presentation Mode 는 별도 feature flag 후보</strong> — 기본 진입에 노출하지 않음.</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box is-info">i</span><span><strong>P3 컬럼은 사용자가 "모든 컬럼" 토글했을 때만 노출</strong> — 기본 진입 비노출.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S20 QA ── -->
+      <section id="s20" class="sec" data-screen-label="20 QA Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">20</span>
+          <span class="sec-title">QA Checklist</span>
+          <span class="sbadge plan">QA</span>
+        </div>
+        <div class="sec-body">
+          <div class="dtg-chk-list">
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>PC 1440 / 1600 / 1920 — page-level horizontal scroll 없음</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>Tablet 768 — Left Nav 고정 · Drawer 정상</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>Mobile 360 / 390 / 430 — Card 모드 정상 · Full Table 토글 진입 정상</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>Content table 내부 H-scroll 정상 (1st col sticky 동작)</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>Left Nav 고정 (가로 스크롤 시 같이 밀리지 않음)</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>Topbar 고정 (세로 스크롤 시 따라 내려가지 않음)</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>Sticky thead — Content V-scroll 시 컬럼명 따라옴</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>Sticky 1st col — Table H-scroll 시 작업명 고정</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>Filter 결과 — 기본 "제거" 방식 동작 (Dim 은 검토 모드만)</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>Mobile Card 가독성 — 제목 / 상태 / 담당자 / 일정 모두 1초 안에 인식</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>Mobile Full Table — 내부 H-scroll 정상 · 안내띠 · "← 카드형으로" 노출</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>Presentation Mode — font / row / chip 확대 · P0 컬럼만 노출</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>Empty / Loading / Error / No filter result 모두 적합한 visual</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>Pagination — WBS 전체 로드, 결함 / 테스트 페이지네이션 동작</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>Light / Dark 테마 모두 시각 정합</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>S-Core Dream 자체 서빙 폰트만 사용 (CDN / Pretendard / Gulim / Dotum / Google Fonts 금지)</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>iframe 미사용 · 본 문서에서 page hscroll 없음</span></div>
+            <div class="dtg-chk-item"><span class="dtg-chk-box">✓</span><span>Console error 없음</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S21 Related ── -->
+      <section id="s21" class="sec" data-screen-label="21 Related">
+        <div class="sec-hdr">
+          <span class="sec-n">21</span>
+          <span class="sec-title">Related Documents</span>
+          <span class="sbadge guide">참고</span>
+        </div>
+        <div class="sec-body">
+          <div class="dtg-rel-grid">
+            <a class="dtg-rel-card" href="STAM-UI-Baseline-Guide.html"><span class="dtg-rl-title">STAM UI Baseline Guide</span><span class="dtg-rl-sub">전역 폰트 / 토큰 / Layout / Forbidden Rules</span></a>
+            <a class="dtg-rel-card" href="STAM-Component-Guide.html"><span class="dtg-rl-title">STAM Component Guide</span><span class="dtg-rl-sub">Button · Form · Dialog · Drawer · Table · Topbar</span></a>
+            <a class="dtg-rel-card" href="STAM-Table-Token-Mapping-v1.html"><span class="dtg-rl-title">Table Token Mapping v1</span><span class="dtg-rl-sub">게시판 목록 / Table UI 토큰 및 컬럼 기준 매핑</span></a>
+            <a class="dtg-rel-card" href="STAM-Mobile-Shell-Top-Navigation-Guide-v1.html"><span class="dtg-rl-title">Mobile Shell / Top / Navigation Guide v1</span><span class="dtg-rl-sub">모바일 Topbar · Navigation · Drawer 기준</span></a>
+            <a class="dtg-rel-card" href="STAM-WBS-Top-Left-Shell-Applied-Preview-v1.html"><span class="dtg-rl-title">WBS Top / Left / Shell Applied Preview v1</span><span class="dtg-rl-sub">WBS PC Shell 적용 시안</span></a>
+            <a class="dtg-rel-card" href="STAM-WBS-Mobile-Board-Applied-Preview-v1.html"><span class="dtg-rl-title">WBS Mobile Board Applied Preview v1</span><span class="dtg-rl-sub">WBS 모바일 카드 / 검색 / 필터 / 전체 테이블</span></a>
+            <a class="dtg-rel-card" href="STAM-Form-Search-Filter-Mobile-Applied-Preview-v1.html"><span class="dtg-rl-title">Form / Search / Filter Mobile Applied Preview v1</span><span class="dtg-rl-sub">모바일 입력 / 검색 / 필터 시안</span></a>
+            <a class="dtg-rel-card" href="STAM-Topbar-Detail-Guide-v1.html"><span class="dtg-rl-title">Topbar Detail Guide v1</span><span class="dtg-rl-sub">Topbar 알림 / 테마 / 검색 / 우측 액션</span></a>
+            <a class="dtg-rel-card" href="STAM-Button-CSS-Implementation-Preview-v1.html"><span class="dtg-rl-title">Button CSS Implementation Preview v1</span><span class="dtg-rl-sub">Button CSS foundation 기준</span></a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  if (!main) return;
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
