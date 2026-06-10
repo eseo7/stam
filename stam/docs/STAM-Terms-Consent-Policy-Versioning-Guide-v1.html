@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Terms · Consent · Policy Versioning Guide v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ============================================================
+ * STAM Terms / Consent / Policy Versioning Guide v1
+ * - 문서 전용 격리 스타일 (prefix: tcpg-)
+ * - Guide 기준 / 검토 필요 문서 (법률 최종안 아님)
+ * ============================================================ */
+.tcpg-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:var(--font);white-space:nowrap}
+.tcpg-pill::before{content:"";width:6px;height:6px;border-radius:999px;background:currentColor;display:inline-block;flex-shrink:0}
+.tcpg-pill.brand{background:var(--stam-soft);color:var(--stam)}
+.tcpg-pill.warn{background:var(--warn-bg);color:var(--warn)}
+.tcpg-pill.info{background:var(--info-bg);color:var(--info)}
+.tcpg-pill.fail{background:var(--fail-bg);color:var(--fail)}
+.tcpg-pill.pass{background:var(--pass-bg);color:var(--pass)}
+
+.tcpg-hero{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:18px 20px;display:flex;flex-direction:column;gap:12px;margin-bottom:24px;position:relative;overflow:hidden}
+.tcpg-hero::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--warn)}
+.tcpg-hero-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tcpg-hero-title{font-size:15px;font-weight:800;color:var(--t1);letter-spacing:-.005em}
+.tcpg-hero p{margin:0;font-size:12px;color:var(--t2);line-height:1.7}
+.tcpg-hero code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px}
+
+.tcpg-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:980px){.tcpg-kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:580px){.tcpg-kpi-grid{grid-template-columns:1fr}}
+.tcpg-kpi{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:11px 12px;display:flex;flex-direction:column;gap:5px}
+.tcpg-kpi .k{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3)}
+.tcpg-kpi .v{font-size:12.5px;font-weight:800;color:var(--t1);letter-spacing:-.005em;line-height:1.4}
+.tcpg-kpi.warn{border-color:rgba(245,158,11,.22);background:var(--warn-bg)}
+.tcpg-kpi.info{border-color:rgba(111,168,255,.22);background:var(--info-bg)}
+.tcpg-kpi.brand{border-color:rgba(84,81,232,.22);background:var(--stam-soft)}
+
+.tcpg-disclaimer{padding:11px 12px;border-radius:10px;border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.12);color:var(--t1);font-size:11px;line-height:1.65}
+.tcpg-disclaimer strong{font-weight:800}
+
+.tcpg-tbl-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--bd)}
+.tcpg-tbl{width:100%;border-collapse:collapse;font-family:var(--font);font-size:11.5px;background:var(--bg-sur);min-width:740px}
+.tcpg-tbl th{padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2)}
+.tcpg-tbl td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;line-height:1.6}
+.tcpg-tbl tbody tr:last-child td{border-bottom:none}
+.tcpg-tbl td.tn{font-weight:800;color:var(--t1);white-space:nowrap}
+.tcpg-tbl td.note{font-size:10.5px;color:var(--t3)}
+.tcpg-tbl td.good{color:var(--pass);font-weight:700}
+.tcpg-tbl td.bad{color:var(--fail);font-weight:700}
+.tcpg-tbl td.warn{color:var(--warn);font-weight:700}
+.tcpg-tbl td code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;white-space:nowrap}
+
+.tcpg-grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.tcpg-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:900px){.tcpg-grid-2,.tcpg-grid-3{grid-template-columns:1fr}}
+.tcpg-card{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.tcpg-card .h{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--t1)}
+.tcpg-card .b{font-size:11.5px;color:var(--t2);line-height:1.65}
+.tcpg-card .b code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+
+.tcpg-flow{display:flex;flex-wrap:wrap;gap:8px}
+.tcpg-flow-step{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1px solid var(--bd);background:var(--bg-sur2);font-size:11px;color:var(--t1);font-weight:700}
+.tcpg-flow-step .n{width:18px;height:18px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;background:var(--stam-soft);color:var(--stam)}
+
+.tcpg-vmodel{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:720px){.tcpg-vmodel{grid-template-columns:1fr}}
+.tcpg-vbox{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.tcpg-vbox .vh{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--t1)}
+.tcpg-vbox .vb{font-size:11px;color:var(--t2);line-height:1.65}
+
+/* Mock frame */
+.tcpg-mock{background:#0F1320;border-radius:14px;border:1px solid rgba(255,255,255,.06);box-shadow:0 12px 28px rgba(0,0,0,.32);font-family:var(--font);overflow:hidden;display:flex;flex-direction:column;width:100%}
+[data-theme="light"] .tcpg-mock{background:#F5F7FB;border-color:rgba(20,22,30,.10);box-shadow:0 10px 24px rgba(20,22,30,.10)}
+.tcpg-mock-bar{height:26px;background:#0B0E1A;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:6px;padding:0 12px}
+[data-theme="light"] .tcpg-mock-bar{background:#E9ECF2;border-bottom-color:rgba(20,22,30,.06)}
+.tcpg-mock-dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.20)}
+[data-theme="light"] .tcpg-mock-dot{background:rgba(20,22,30,.22)}
+.tcpg-mock-url{margin-left:8px;font-size:9.5px;color:rgba(255,255,255,.50)}
+[data-theme="light"] .tcpg-mock-url{color:rgba(20,22,30,.50)}
+.tcpg-mock-tag{margin-left:auto;font-size:9px;font-weight:800;padding:1px 7px;border-radius:4px;background:rgba(111,168,255,.20);color:#6FA8FF}
+.tcpg-mock-area{padding:14px 16px;display:flex;flex-direction:column;gap:10px;background:#111626}
+[data-theme="light"] .tcpg-mock-area{background:#FAFBFC}
+.tcpg-mock-top{height:32px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;padding:0 10px;color:rgba(255,255,255,.70);font-size:10.5px}
+[data-theme="light"] .tcpg-mock-top{background:#FFFFFF;border-color:rgba(20,22,30,.08);color:rgba(20,22,30,.68)}
+.tcpg-mock-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:800px){.tcpg-mock-row{grid-template-columns:1fr}}
+.tcpg-panel{border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);padding:10px;display:flex;flex-direction:column;gap:7px}
+[data-theme="light"] .tcpg-panel{border-color:rgba(20,22,30,.08);background:#FFFFFF}
+.tcpg-panel .ph{font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.60)}
+[data-theme="light"] .tcpg-panel .ph{color:rgba(20,22,30,.55)}
+.tcpg-line{height:9px;border-radius:4px;background:rgba(255,255,255,.10)}
+[data-theme="light"] .tcpg-line{background:rgba(20,22,30,.09)}
+.tcpg-line.w70{width:70%}
+.tcpg-line.w55{width:55%}
+.tcpg-line.w40{width:40%}
+.tcpg-line.ok{background:rgba(40,180,99,.28)}
+.tcpg-line.warn{background:rgba(245,158,11,.30)}
+.tcpg-line.fail{background:rgba(255,90,71,.30)}
+
+.tcpg-bad{border:1px solid rgba(255,90,71,.35);background:rgba(255,90,71,.08);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.tcpg-bad .bh{font-size:11px;font-weight:800;color:var(--fail);letter-spacing:.06em;text-transform:uppercase}
+.tcpg-bad ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.tcpg-bad li{position:relative;padding-left:14px;font-size:11.5px;color:var(--t2);line-height:1.6}
+.tcpg-bad li::before{content:"×";position:absolute;left:0;top:0;color:var(--fail);font-weight:800}
+
+.tcpg-rel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:1100px){.tcpg-rel-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:720px){.tcpg-rel-grid{grid-template-columns:1fr}}
+.tcpg-rel-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px;text-decoration:none;transition:border-color 120ms,background 120ms}
+.tcpg-rel-card:hover{border-color:rgba(84,81,232,.35);background:rgba(84,81,232,.04)}
+.tcpg-rel-card .t{font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.tcpg-rel-card .s{font-size:10.5px;color:var(--t3)}
+</style>
+</head>
+<body>
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <span class="logo-mark">S</span>
+    <span class="logo-type">STAM</span>
+  </div>
+  <a href="STAM-Docs-Index.html" class="chip ghost">← Docs Index</a>
+  <span class="doc-nav-title">Terms · Consent · Policy Versioning Guide v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Draft</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Candidate</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Security / Privacy / ISMS-P Architecture &amp; DB Policy Guide v1</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr"><span class="toc-brand">TCPG</span><span class="toc-ver-pill">v1</span></div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Policy Types</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>필수/선택/고지</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Version Model</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Lifecycle</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>가입 동의 UI</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Admin Console UI</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Diff Viewer UI</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Re-Consent Modal</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>My Consent Center</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>철회 모달</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Bad Example</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>DB Impact 후보</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>법률/ISMS-P</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>Related Guides</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>Handoff</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-wrap">
+      <section id="s01" class="sec" data-screen-label="01 Overview / Purpose">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview / Purpose</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-hero">
+            <div class="tcpg-hero-row">
+              <span class="tcpg-pill brand">STAM POLICY</span>
+              <span class="tcpg-pill warn">Guide 기준</span>
+              <span class="tcpg-pill info">검토 필요</span>
+            </div>
+            <div class="tcpg-hero-title">약관/동의/고지 문서를 버전 중심으로 일관 관리하기 위한 STAM 문서 가이드</div>
+            <p>본 가이드는 회원가입, 정책 변경 공지, 재동의 요청, 철회 처리, 이력 조회를 하나의 버전 모델(<code>MAJOR.MINOR</code>)로 연결하기 위한 기준안입니다. 제품 구현 상세, 최종 DB 확정, 법률 자문 결과를 대체하지 않습니다.</p>
+            <div class="tcpg-kpi-grid">
+              <div class="tcpg-kpi brand"><span class="k">Status</span><span class="v">Draft / Candidate</span></div>
+              <div class="tcpg-kpi warn"><span class="k">Scope</span><span class="v">Terms · Privacy · Consent</span></div>
+              <div class="tcpg-kpi info"><span class="k">Parent</span><span class="v">Security / Privacy / ISMS-P</span></div>
+              <div class="tcpg-kpi"><span class="k">Note</span><span class="v">Guide 기준 / 검토 필요</span></div>
+            </div>
+            <div class="tcpg-disclaimer"><strong>Legal Notice:</strong> 본 문서의 법률 관련 텍스트는 <strong>Guide 기준 / 검토 필요</strong> 상태이며, 최종 법률 자문 또는 확정 고시 문구가 아닙니다.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="s02" class="sec" data-screen-label="02 7 Policy Types">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">7 Policy Types Table</span>
+          <span class="sbadge plan">Policy</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-tbl-wrap">
+            <table class="tcpg-tbl">
+              <thead>
+                <tr>
+                  <th>Type Key</th>
+                  <th>정책 유형</th>
+                  <th>주요 목적</th>
+                  <th>변경 시 기본 액션</th>
+                  <th>비고</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">terms_of_use</td>
+                  <td class="tn">이용약관</td>
+                  <td>서비스 이용 관계 및 권리/의무 정의</td>
+                  <td class="warn">중요 조항 변경 시 재동의 후보</td>
+                  <td class="note">Guide 기준 / 검토 필요</td>
+                </tr>
+                <tr>
+                  <td class="tn">privacy_policy</td>
+                  <td class="tn">개인정보처리방침</td>
+                  <td>수집·이용·보관·파기·권리행사 고지</td>
+                  <td class="warn">변경 범위에 따라 재동의 또는 고지</td>
+                  <td class="note">Guide 기준 / 검토 필요</td>
+                </tr>
+                <tr>
+                  <td class="tn">marketing_consent</td>
+                  <td class="tn">마케팅 수신</td>
+                  <td>선택 수신 채널/범위 동의 관리</td>
+                  <td class="good">선택 동의 버전 업데이트</td>
+                  <td class="note">철회 UX 필수</td>
+                </tr>
+                <tr>
+                  <td class="tn">cookie_policy</td>
+                  <td class="tn">쿠키</td>
+                  <td>쿠키 분류/목적/보관기간 안내</td>
+                  <td class="warn">필수 외 항목은 재설정 유도</td>
+                  <td class="note">배너/설정센터 연동</td>
+                </tr>
+                <tr>
+                  <td class="tn">operator_policy</td>
+                  <td class="tn">운영자 정책</td>
+                  <td>내부 운영 기준/권한/처리 절차</td>
+                  <td class="bad">대외 동의 대상 아님 (고지 중심)</td>
+                  <td class="note">내부 감사 연계</td>
+                </tr>
+                <tr>
+                  <td class="tn">third_party_sharing</td>
+                  <td class="tn">제3자 제공</td>
+                  <td>제공 대상/목적/항목/보유기간 안내</td>
+                  <td class="warn">범위 확대 시 재동의 후보</td>
+                  <td class="note">Guide 기준 / 검토 필요</td>
+                </tr>
+                <tr>
+                  <td class="tn">notice_announcement</td>
+                  <td class="tn">고지/안내</td>
+                  <td>변경사항, 장애, 권리행사 채널 공지</td>
+                  <td class="good">고지 이력 관리 중심</td>
+                  <td class="note">동의 이벤트와 분리 저장 권장</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="s03" class="sec" data-screen-label="03 Required / Optional / Notice">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">필수 / 선택 / 고지 구분</span>
+          <span class="sbadge plan">구분</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-grid-3">
+            <div class="tcpg-card">
+              <div class="h">필수 (Required)</div>
+              <div class="b">서비스 제공의 핵심 법적 근거가 되는 항목. 회원가입 완료 전 동의 확인이 필요합니다.</div>
+              <div class="b"><span class="tcpg-pill fail">예: 이용약관, 개인정보처리방침 핵심 조항</span></div>
+            </div>
+            <div class="tcpg-card">
+              <div class="h">선택 (Optional)</div>
+              <div class="b">미동의해도 핵심 서비스는 이용 가능하나, 마케팅/부가 기능이 제한될 수 있습니다.</div>
+              <div class="b"><span class="tcpg-pill info">예: 마케팅 수신, 선택 쿠키</span></div>
+            </div>
+            <div class="tcpg-card">
+              <div class="h">고지 (Notice)</div>
+              <div class="b">동의가 아닌 공지 중심 전달 항목. 변경 사실 및 시행일을 추적 가능한 로그로 남겨야 합니다.</div>
+              <div class="b"><span class="tcpg-pill warn">예: 운영 정책 변경 공지, 일반 안내</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="s04" class="sec" data-screen-label="04 Version Model">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Version Model: MAJOR.MINOR</span>
+          <span class="sbadge plan">Version</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-vmodel">
+            <div class="tcpg-vbox">
+              <div class="vh"><span class="tcpg-pill fail">MAJOR</span>재동의 필요 변경</div>
+              <div class="vb">사용자 권리/의무, 개인정보 처리 범위, 제3자 제공 범위 등 실질 영향이 큰 변경은 <code>MAJOR</code>를 증가시키고 재동의 절차를 트리거합니다.</div>
+              <div class="vb">예: <code>2.3 → 3.0</code></div>
+            </div>
+            <div class="tcpg-vbox">
+              <div class="vh"><span class="tcpg-pill info">MINOR</span>고지 중심 변경</div>
+              <div class="vb">문구 정비, 링크 수정, 오탈자 보정, 법령명 표기 보완 등 실질 동의 범위를 바꾸지 않는 변경은 <code>MINOR</code>를 증가시키고 고지로 처리합니다.</div>
+              <div class="vb">예: <code>2.3 → 2.4</code></div>
+            </div>
+          </div>
+          <div class="tcpg-disclaimer"><strong>Rule of Thumb:</strong> MAJOR/MINOR 판정 기준은 법무·개인정보보호·보안 책임자 검토가 필요합니다. 본 기준은 <strong>Guide 기준 / 검토 필요</strong>입니다.</div>
+        </div>
+      </section>
+
+      <section id="s05" class="sec" data-screen-label="05 Lifecycle">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Lifecycle: draft → published → superseded → archived</span>
+          <span class="sbadge plan">Lifecycle</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-flow">
+            <div class="tcpg-flow-step"><span class="n">1</span>draft</div>
+            <div class="tcpg-flow-step"><span class="n">2</span>published</div>
+            <div class="tcpg-flow-step"><span class="n">3</span>superseded</div>
+            <div class="tcpg-flow-step"><span class="n">4</span>archived</div>
+          </div>
+          <div class="tcpg-grid-2" style="margin-top:10px">
+            <div class="tcpg-card"><div class="h">draft</div><div class="b">작성/검토 단계. 사용자 노출 없음.</div></div>
+            <div class="tcpg-card"><div class="h">published</div><div class="b">현행 버전. 가입/동의/고지 기준점.</div></div>
+            <div class="tcpg-card"><div class="h">superseded</div><div class="b">신버전으로 대체된 과거본. 참조 가능.</div></div>
+            <div class="tcpg-card"><div class="h">archived</div><div class="b">규정 보관기간 이후 아카이브. 운영 조회 제한.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="s06" class="sec" data-screen-label="06 Signup Consent UI Mock">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">UI Mock: 회원가입 동의 화면</span>
+          <span class="sbadge plan">Mock A</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-mock">
+            <div class="tcpg-mock-bar"><span class="tcpg-mock-dot"></span><span class="tcpg-mock-dot"></span><span class="tcpg-mock-dot"></span><span class="tcpg-mock-url">https://stam.app/signup/consent</span><span class="tcpg-mock-tag">signup</span></div>
+            <div class="tcpg-mock-area">
+              <div class="tcpg-mock-top">회원가입 · 약관 동의 (version: terms 2.1 / privacy 3.0 / marketing 1.5)</div>
+              <div class="tcpg-mock-row">
+                <div class="tcpg-panel"><div class="ph">필수 동의</div><div class="tcpg-line"></div><div class="tcpg-line w70"></div><div class="tcpg-line ok w55"></div></div>
+                <div class="tcpg-panel"><div class="ph">선택 동의</div><div class="tcpg-line"></div><div class="tcpg-line w40"></div><div class="tcpg-line w55"></div></div>
+              </div>
+              <div class="tcpg-panel"><div class="ph">고지 항목</div><div class="tcpg-line w70"></div><div class="tcpg-line w55"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="s07" class="sec" data-screen-label="07 Policy Admin Console UI Mock">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">UI Mock: Policy Admin Console</span>
+          <span class="sbadge plan">Mock B</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-mock">
+            <div class="tcpg-mock-bar"><span class="tcpg-mock-dot"></span><span class="tcpg-mock-dot"></span><span class="tcpg-mock-dot"></span><span class="tcpg-mock-url">https://admin.stam.app/policies</span><span class="tcpg-mock-tag">admin</span></div>
+            <div class="tcpg-mock-area">
+              <div class="tcpg-mock-top">정책 문서 관리 · 상태 전환 · 버전 발행</div>
+              <div class="tcpg-mock-row">
+                <div class="tcpg-panel"><div class="ph">문서 리스트</div><div class="tcpg-line"></div><div class="tcpg-line"></div><div class="tcpg-line w70"></div></div>
+                <div class="tcpg-panel"><div class="ph">버전 상세</div><div class="tcpg-line w70"></div><div class="tcpg-line w55"></div><div class="tcpg-line warn w40"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="s08" class="sec" data-screen-label="08 Version Diff Viewer UI Mock">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">UI Mock: Version Diff Viewer</span>
+          <span class="sbadge plan">Mock C</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-mock">
+            <div class="tcpg-mock-bar"><span class="tcpg-mock-dot"></span><span class="tcpg-mock-dot"></span><span class="tcpg-mock-dot"></span><span class="tcpg-mock-url">https://admin.stam.app/policies/diff</span><span class="tcpg-mock-tag">diff</span></div>
+            <div class="tcpg-mock-area">
+              <div class="tcpg-mock-top">v2.4 vs v3.0 비교 · MAJOR 판정 후보 강조</div>
+              <div class="tcpg-mock-row">
+                <div class="tcpg-panel"><div class="ph">Old Version</div><div class="tcpg-line"></div><div class="tcpg-line w55"></div><div class="tcpg-line"></div></div>
+                <div class="tcpg-panel"><div class="ph">New Version</div><div class="tcpg-line fail"></div><div class="tcpg-line warn w70"></div><div class="tcpg-line"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="s09" class="sec" data-screen-label="09 Re-Consent Modal UI Mock">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">UI Mock: Re-Consent Modal</span>
+          <span class="sbadge plan">Mock D</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-mock">
+            <div class="tcpg-mock-bar"><span class="tcpg-mock-dot"></span><span class="tcpg-mock-dot"></span><span class="tcpg-mock-dot"></span><span class="tcpg-mock-url">https://stam.app/account/reconsent</span><span class="tcpg-mock-tag">major</span></div>
+            <div class="tcpg-mock-area">
+              <div class="tcpg-panel">
+                <div class="ph">재동의 필요</div>
+                <div class="tcpg-line fail"></div>
+                <div class="tcpg-line w70"></div>
+                <div class="tcpg-line w55"></div>
+              </div>
+              <div class="tcpg-panel">
+                <div class="ph">액션</div>
+                <div class="tcpg-line ok w40"></div>
+                <div class="tcpg-line warn w40"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="s10" class="sec" data-screen-label="10 My Consent Center UI Mock">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">UI Mock: My Consent Center</span>
+          <span class="sbadge plan">Mock E</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-mock">
+            <div class="tcpg-mock-bar"><span class="tcpg-mock-dot"></span><span class="tcpg-mock-dot"></span><span class="tcpg-mock-dot"></span><span class="tcpg-mock-url">https://stam.app/me/consents</span><span class="tcpg-mock-tag">self</span></div>
+            <div class="tcpg-mock-area">
+              <div class="tcpg-mock-top">내 동의 현황 · 버전 히스토리 · 철회/재동의 진입</div>
+              <div class="tcpg-mock-row">
+                <div class="tcpg-panel"><div class="ph">활성 동의</div><div class="tcpg-line ok"></div><div class="tcpg-line ok w70"></div></div>
+                <div class="tcpg-panel"><div class="ph">최근 변경</div><div class="tcpg-line"></div><div class="tcpg-line w55"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="s11" class="sec" data-screen-label="11 Withdrawal Modal UI Mock">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">UI Mock: 철회 모달 (Withdrawal Modal)</span>
+          <span class="sbadge plan">Mock F</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-mock">
+            <div class="tcpg-mock-bar"><span class="tcpg-mock-dot"></span><span class="tcpg-mock-dot"></span><span class="tcpg-mock-dot"></span><span class="tcpg-mock-url">https://stam.app/me/consents/withdraw</span><span class="tcpg-mock-tag">withdraw</span></div>
+            <div class="tcpg-mock-area">
+              <div class="tcpg-panel">
+                <div class="ph">철회 사유 선택</div>
+                <div class="tcpg-line"></div>
+                <div class="tcpg-line w70"></div>
+                <div class="tcpg-line w55"></div>
+              </div>
+              <div class="tcpg-panel">
+                <div class="ph">영향 안내</div>
+                <div class="tcpg-line warn"></div>
+                <div class="tcpg-line fail w70"></div>
+              </div>
+            </div>
+          </div>
+          <div class="tcpg-disclaimer" style="margin-top:10px"><strong>Notice:</strong> 철회 UX 문구와 효력 시점은 서비스 유형별 법적 검토가 필요합니다. <strong>Guide 기준 / 검토 필요</strong>.</div>
+        </div>
+      </section>
+
+      <section id="s12" class="sec" data-screen-label="12 Bad Example">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Bad Example Section</span>
+          <span class="sbadge plan">Anti-Pattern</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-bad">
+            <div class="bh">지양해야 할 패턴</div>
+            <ul>
+              <li>버전 없이 본문을 덮어써서 동의 시점 추적이 불가능한 구조</li>
+              <li>MAJOR 변경인데 고지만 수행하여 재동의 근거가 사라지는 운영</li>
+              <li>필수/선택/고지 구분 없이 체크박스를 단일 그룹으로 처리하는 UI</li>
+              <li>정책 문서와 사용자 동의 이벤트를 동일 레코드로 섞어 저장하는 방식</li>
+              <li>법률 검토 전 문구를 확정 문안처럼 배포하는 프로세스</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="s13" class="sec" data-screen-label="13 DB Impact Candidates">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">DB Impact 후보 4개</span>
+          <span class="sbadge plan">DB Candidate</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-tbl-wrap">
+            <table class="tcpg-tbl">
+              <thead>
+                <tr>
+                  <th>Table (Candidate)</th>
+                  <th>역할</th>
+                  <th>핵심 필드 예시</th>
+                  <th>상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">policy_documents</td>
+                  <td>정책 문서 메타(유형/소유/표시명) 관리</td>
+                  <td><code>policy_type</code>, <code>document_key</code>, <code>owner_team</code></td>
+                  <td class="warn">후보</td>
+                </tr>
+                <tr>
+                  <td class="tn">policy_versions</td>
+                  <td>버전 본문/상태/lifecycle 관리</td>
+                  <td><code>major</code>, <code>minor</code>, <code>status</code>, <code>effective_at</code></td>
+                  <td class="warn">후보</td>
+                </tr>
+                <tr>
+                  <td class="tn">user_consents</td>
+                  <td>사용자 동의 현재 상태(최신 포인터)</td>
+                  <td><code>user_id</code>, <code>policy_version_id</code>, <code>consent_state</code></td>
+                  <td class="warn">후보</td>
+                </tr>
+                <tr>
+                  <td class="tn">consent_events</td>
+                  <td>동의/철회/재동의/고지확인 이벤트 로그</td>
+                  <td><code>event_type</code>, <code>actor</code>, <code>occurred_at</code>, <code>ip_hash</code></td>
+                  <td class="warn">후보</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tcpg-disclaimer" style="margin-top:10px"><strong>Important:</strong> 위 항목은 영향 분석용 후보이며, 최종 DB 스키마 확정안이 아닙니다. 본 문서는 <strong>DOCS ONLY</strong> 범위입니다.</div>
+        </div>
+      </section>
+
+      <section id="s14" class="sec" data-screen-label="14 Legal / ISMS-P Mapping">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">법률 / ISMS-P 매핑 (Guide 기준)</span>
+          <span class="sbadge plan">검토 필요</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-grid-2">
+            <div class="tcpg-card">
+              <div class="h">법률 관점 매핑 (초안)</div>
+              <div class="b">- 이용약관: 권리/의무/분쟁 관련 조항 변경 추적</div>
+              <div class="b">- 개인정보처리방침: 처리 목적/항목/보유기간 변경 이력 관리</div>
+              <div class="b">- 제3자 제공: 제공 대상/항목/기간 변경 시 MAJOR 후보</div>
+            </div>
+            <div class="tcpg-card">
+              <div class="h">ISMS-P 관점 매핑 (초안)</div>
+              <div class="b">- 정책 문서의 최신성, 변경관리, 고지 이력의 증적성 확보</div>
+              <div class="b">- 동의/철회 이벤트 로그의 추적 가능성과 무결성 확보</div>
+              <div class="b">- 운영자 콘솔의 권한 분리와 감사 흔적 연계 필요</div>
+            </div>
+          </div>
+          <div class="tcpg-disclaimer"><strong>Disclaimer:</strong> 본 섹션은 법률/인증 심사 대체 문서가 아니며 <strong>Guide 기준 / 검토 필요</strong> 초안입니다. 실제 적용 전 법무·보호책임자·심사 대응 담당 검토가 필요합니다.</div>
+        </div>
+      </section>
+
+      <section id="s15" class="sec" data-screen-label="15 Related Guides">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">Related Guides Links</span>
+          <span class="sbadge guide">참고</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-rel-grid">
+            <a class="tcpg-rel-card" href="STAM-Security-Privacy-ISMSP-Architecture-DB-Policy-Guide-v1.html"><span class="t">Security / Privacy / ISMS-P Architecture &amp; DB Policy Guide v1</span><span class="s">상위 보안/개인정보 아키텍처 컨텍스트</span></a>
+            <a class="tcpg-rel-card" href="STAM-Admin-Permission-Manager-Applied-Preview-v1.html"><span class="t">Admin Permission Manager Applied Preview v1</span><span class="s">운영자 콘솔 권한/감사 패턴</span></a>
+            <a class="tcpg-rel-card" href="STAM-Docs-Index.html"><span class="t">STAM Docs Index</span><span class="s">전체 문서 네비게이션</span></a>
+            <a class="tcpg-rel-card" href="STAM-Component-Guide.html"><span class="t">STAM Component Guide</span><span class="s">모달/테이블/폼 컴포넌트 참고</span></a>
+            <a class="tcpg-rel-card" href="STAM-UI-Baseline-Guide.html"><span class="t">STAM UI Baseline Guide</span><span class="s">토큰/타이포/레이아웃 기본 규칙</span></a>
+            <a class="tcpg-rel-card" href="STAM-Data-Table-Full-Table-Responsive-Guide-v1.html"><span class="t">Data Table / Full Table Responsive Guide v1</span><span class="s">버전 이력/이벤트 로그 표현 패턴</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section id="s16" class="sec" data-screen-label="16 Handoff / Next Action">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
+          <span class="sec-title">Handoff / Next Action</span>
+          <span class="sbadge plan">Action</span>
+        </div>
+        <div class="sec-body">
+          <div class="tcpg-grid-2">
+            <div class="tcpg-card">
+              <div class="h">Immediate Next</div>
+              <div class="b">1) 정책 유형별 MAJOR/MINOR 판정표 확정 워크숍 진행</div>
+              <div class="b">2) 가입/재동의/철회 UX 카피 법무 검토 요청</div>
+              <div class="b">3) 후보 테이블 4개를 데이터 거버넌스 리뷰 안건으로 등록</div>
+            </div>
+            <div class="tcpg-card">
+              <div class="h">Handoff Notes</div>
+              <div class="b">- 문서 상태: <strong>Draft / Candidate</strong></div>
+              <div class="b">- 범위 제한: <strong>DOCS ONLY</strong> (제품 구현/스키마 확정 제외)</div>
+              <div class="b">- 법률 텍스트: <strong>Guide 기준 / 검토 필요</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  if (!main) return;
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
