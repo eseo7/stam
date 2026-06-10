@@ -65,6 +65,7 @@
     var crumbs = (el.getAttribute('data-tb-crumbs') || '').split('|').filter(Boolean);
     var client = el.getAttribute('data-tb-client') || '';
     var searchPh = el.getAttribute('data-tb-search-placeholder') || '현재 화면 검색';
+    var hasNotif = el.getAttribute('data-tb-notif') !== 'false';
 
     /* breadcrumb HTML */
     var bcHtml = '';
@@ -91,7 +92,7 @@
       '</div>' +
       /* CENTER — screen search entry */
       '<div class="stam-topbar-center">' +
-        '<button class="stam-topbar-search stam-btn stam-btn--sm stam-btn--ghost" type="button"' +
+        '<button class="stam-topbar-search stam-btn stam-btn--sm" type="button"' +
           ' data-tb-search-trigger aria-label="검색 열기">' +
           SEARCH_SVG +
           '<span class="stam-topbar-search-label">' + searchPh + '</span>' +
@@ -104,14 +105,17 @@
         '</div>' +
         '<div class="stam-topbar-actions-sep" aria-hidden="true"></div>' +
         '<div class="stam-topbar-actions-util">' +
-          '<button class="stam-btn stam-btn--sm stam-btn--icon-only stam-btn--ghost stam-topbar-notif-btn"' +
-            ' type="button" aria-label="알림 3건">' +
+          '<button class="stam-btn stam-btn--sm stam-btn--icon-only stam-btn--ghost stam-topbar-notif-btn stam-topbar-notification"' +
+            ' type="button" aria-label="' + (hasNotif ? '알림 있음' : '알림') + '">' +
             BELL_SVG +
-            '<span class="po-notif-badge stam-topbar-notif-badge">3</span>' +
+            (hasNotif
+              ? '<span class="stam-notification-dot stam-topbar-notif-dot" aria-hidden="true"></span>' +
+                '<span class="stam-visually-hidden">읽지 않은 알림 있음</span>'
+              : '') +
           '</button>' +
           '<button class="stam-btn stam-btn--sm stam-btn--ghost stam-topbar-user-btn"' +
             ' type="button" aria-label="사용자 메뉴 열기">PM 김이름 <span class="stam-topbar-user-chev">∨</span></button>' +
-          '<button class="stam-theme-toggle stam-btn stam-btn--sm stam-btn--icon-only" type="button">' +
+          '<button class="stam-theme-toggle stam-topbar-theme stam-btn stam-btn--sm stam-btn--icon-only" type="button">' +
             MOON_SVG + SUN_SVG +
           '</button>' +
         '</div>' +
