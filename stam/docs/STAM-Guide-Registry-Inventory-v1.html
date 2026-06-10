@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Guide Registry / Inventory v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ── Guide Registry / Inventory v1 전용 보조 스타일 (.gri- prefix) ── */
+
+.gri-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; font-family: var(--font); white-space: nowrap;
+}
+.gri-pill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 999px;
+  background: currentColor; display: inline-block; flex-shrink: 0;
+}
+.gri-pill.planned    { background: var(--skip-bg);   color: var(--skip); }
+.gri-pill.draft      { background: var(--warn-bg);   color: var(--warn); }
+.gri-pill.candidate  { background: var(--info-bg);   color: var(--info); }
+.gri-pill.stable     { background: var(--pass-bg);   color: var(--pass); }
+.gri-pill.locked     { background: var(--purple-bg); color: var(--purple); }
+.gri-pill.deprecated { background: var(--bg-sur2);  color: var(--t3); border: 1px solid var(--bd); }
+
+.gri-cat {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  font-family: var(--font); white-space: nowrap;
+  background: var(--bg-sur2); color: var(--t2); border: 1px solid var(--bd);
+}
+.gri-cat.foundation { background: var(--stam-soft); color: var(--stam); border-color: transparent; }
+.gri-cat.component  { background: var(--info-bg);   color: var(--info); border-color: transparent; }
+.gri-cat.token      { background: var(--purple-bg); color: var(--purple); border-color: transparent; }
+.gri-cat.gate       { background: var(--fail-bg);   color: var(--fail); border-color: transparent; }
+.gri-cat.security   { background: var(--warn-bg);   color: var(--warn); border-color: transparent; }
+.gri-cat.wbs        { background: var(--pass-bg);   color: var(--pass); border-color: transparent; }
+.gri-cat.planned    { background: var(--skip-bg);   color: var(--skip); border-color: transparent; }
+
+.gri-risk {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; font-family: var(--font); white-space: nowrap;
+}
+.gri-risk.low      { background: var(--pass-bg); color: var(--pass); }
+.gri-risk.medium   { background: var(--warn-bg); color: var(--warn); }
+.gri-risk.high     { background: var(--fail-bg); color: var(--fail); }
+.gri-risk.critical { background: var(--purple-bg); color: var(--purple); }
+
+.gri-wrap { overflow-x: auto; max-width: 100%; }
+.gri-tbl {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--font); font-size: 11.5px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd); border-radius: var(--r-md);
+  overflow: hidden; min-width: 1200px;
+}
+.gri-tbl th {
+  padding: 9px 10px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em; text-align: left;
+  color: var(--t3); border-bottom: 1px solid var(--bd);
+  background: var(--bg-sur2); white-space: nowrap; vertical-align: middle;
+}
+.gri-tbl td {
+  padding: 10px; border-bottom: 1px solid var(--bd);
+  color: var(--t2); vertical-align: top; line-height: 1.6;
+}
+.gri-tbl tbody tr:last-child td { border-bottom: none; }
+.gri-tbl td.no { color: var(--t3); font-weight: 700; white-space: nowrap; font-size: 11px; }
+.gri-tbl td.title { color: var(--t1); font-weight: 700; line-height: 1.55; }
+.gri-tbl td.title a { color: var(--stam); text-decoration: none; }
+.gri-tbl td.title a:hover { text-decoration: underline; }
+.gri-tbl td.title .gri-disabled {
+  color: var(--t3); font-weight: 600; font-style: italic;
+}
+.gri-tbl td code {
+  font-family: var(--font); font-size: 10.5px; color: var(--t1);
+  background: var(--bg-sur2); border: 1px solid var(--bd);
+  border-radius: 4px; padding: 1px 6px; letter-spacing: .005em;
+  white-space: nowrap;
+}
+.gri-tbl td.file { font-size: 10.5px; color: var(--t3); }
+.gri-tbl td.file a { color: var(--stam); text-decoration: none; }
+.gri-tbl td.file a:hover { text-decoration: underline; }
+
+.gri-def-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+@media (max-width: 900px) { .gri-def-grid { grid-template-columns: 1fr; } }
+.gri-def-card {
+  border: 1px solid var(--bd); background: var(--bg-sur2);
+  border-radius: var(--r-md); padding: 12px 14px;
+}
+.gri-def-card .gri-def-hdr {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 700; color: var(--t1);
+  margin-bottom: 6px;
+}
+.gri-def-card p {
+  margin: 0; font-size: 11.5px; line-height: 1.65; color: var(--t2);
+}
+
+.gri-rule-list {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.gri-rule-list li {
+  font-size: 12px; line-height: 1.65; color: var(--t2);
+  padding-left: 16px; position: relative;
+}
+.gri-rule-list li::before {
+  content: "—"; position: absolute; left: 0; color: var(--t3);
+}
+
+.gri-rel-tbl { min-width: 720px; }
+.gri-rel-tbl td.key { color: var(--t1); font-weight: 700; white-space: nowrap; }
+
+.gri-sec-list {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 16px;
+}
+@media (max-width: 720px) { .gri-sec-list { grid-template-columns: 1fr; } }
+.gri-sec-list li {
+  font-size: 11.5px; line-height: 1.55; color: var(--t2);
+  padding-left: 14px; position: relative;
+}
+.gri-sec-list li::before {
+  content: "·"; position: absolute; left: 2px; color: var(--stam); font-weight: 800;
+}
+
+/* page-level horizontal scroll 방지 */
+html, body { overflow-x: hidden; max-width: 100%; }
+
+/* force S-Core Dream */
+.gri-pill, .gri-cat, .gri-risk, .gri-tbl, .gri-tbl *,
+.gri-def-card, .gri-def-card *, .gri-rule-list, .gri-rule-list *,
+.gri-sec-list, .gri-sec-list * {
+  font-family: var(--font) !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Guide Registry / Inventory v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Registry</span>
+  <span class="doc-nav-pill"><span class="dot"></span>2026-06-10</span>
+  <div class="doc-nav-sp"></div>
+  <a href="STAM-Docs-Index.html" class="tbtn" style="text-decoration:none;">← Docs Index</a>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Guide Registry</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Header</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Core Principle</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Status Definition</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Category Definition</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Guide Registry</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Relationship Matrix</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Change Risk</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Next Action Board</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Guide Creation Rule</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── S01 Header ── -->
+      <section id="s01" class="sec" data-screen-label="01 Header">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">STAM Guide Registry / Inventory v1</span>
+          <span class="sbadge plan">Registry</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 8px;font-size:.95em;line-height:1.7;color:var(--t2);">
+            <strong style="color:var(--t1);">Guide relationship, status, product impact, and next-action register</strong>
+          </p>
+          <div style="display:flex;flex-wrap:wrap;gap:6px 8px;margin-bottom:14px;">
+            <span class="sbadge plan">Registry</span>
+            <span class="sbadge guide">Docs Control</span>
+            <span class="sbadge plan">v1 Draft</span>
+          </div>
+          <div class="ibox info">
+            <p style="margin:0 0 8px;font-size:.88em;line-height:1.75;">
+              STAM의 모든 <strong>Guide / Applied Preview / Policy</strong> 문서를 관리하는 기준 문서이다.
+              실제 제품 구현 문서가 아니라, <strong>가이드 관계·상태·영향도·후속 작업</strong>을 추적하는 관리대장이다.
+            </p>
+            <p style="margin:0;font-size:.84em;line-height:1.7;opacity:.85;">
+              신규 기능 요청 시 어떤 가이드를 먼저 수정해야 하는지 판단하고,
+              Parent / Related / Docs Index 위치 / 함께 수정할 기존 Guide를 기록하는 원칙을 따른다.
+              본 문서로는 <code>stam/pages/**</code>, <code>stam/js/**</code>, <code>stam/css/**</code>, <code>stam/assets/**</code>를 수정하지 않는다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Core Principle ── -->
+      <section id="s02" class="sec" data-screen-label="02 Core Principle">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Core Principle</span>
+          <span class="sbadge lock">필수</span>
+        </div>
+        <div class="sec-body">
+          <ul class="gri-rule-list">
+            <li>기능 요청 1건은 단일 화면 작업이 아니다.</li>
+            <li>기능 요청 1건은 <strong>정책 + DB Impact 후보 + Guide + 화면 + 로직 + 권한 + 로그 + QA + 문서 현행화</strong>로 연결된다.</li>
+            <li>정식 DB 테이블/컬럼 확정은 주요 화면/기능 요구가 충분히 만족된 후 진행한다.</li>
+            <li>지금 단계에서는 각 Guide에 <strong>DB Impact 후보</strong>만 기록한다.</li>
+          </ul>
+          <div class="ibox info" style="margin-top:14px;">
+            <strong>신규 Guide 생성 시 반드시 기록</strong>
+            <ul class="gri-rule-list" style="margin-top:8px;">
+              <li>Parent Guide</li>
+              <li>Related Guides</li>
+              <li>Docs Index 위치</li>
+              <li>함께 수정해야 할 기존 Guide</li>
+              <li>Product Impact</li>
+              <li>DB Impact 후보</li>
+              <li>Next Action</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 Status Definition ── -->
+      <section id="s03" class="sec" data-screen-label="03 Status Definition">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Status Definition</span>
+          <span class="sbadge guide">상태값</span>
+        </div>
+        <div class="sec-body">
+          <div class="gri-def-grid">
+            <div class="gri-def-card">
+              <div class="gri-def-hdr"><span class="gri-pill planned">Planned</span></div>
+              <p>생성 예정 / 아직 문서 없음</p>
+            </div>
+            <div class="gri-def-card">
+              <div class="gri-def-hdr"><span class="gri-pill draft">Draft</span></div>
+              <p>작성 중 / 요구사항 변경 가능성 높음</p>
+            </div>
+            <div class="gri-def-card">
+              <div class="gri-def-hdr"><span class="gri-pill candidate">Candidate</span></div>
+              <p>기준 후보 / 실제 반영 전 검토 필요</p>
+            </div>
+            <div class="gri-def-card">
+              <div class="gri-def-hdr"><span class="gri-pill stable">Stable</span></div>
+              <p>현재 적용 기준 / 화면 반영 가능</p>
+            </div>
+            <div class="gri-def-card">
+              <div class="gri-def-hdr"><span class="gri-pill locked">Locked</span></div>
+              <p>변경 제한 / 변경 시 별도 승인 필요</p>
+            </div>
+            <div class="gri-def-card">
+              <div class="gri-def-hdr"><span class="gri-pill deprecated">Deprecated</span></div>
+              <p>더 이상 기준으로 사용하지 않음</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Category Definition ── -->
+      <section id="s04" class="sec" data-screen-label="04 Category Definition">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Category Definition</span>
+          <span class="sbadge guide">분류값</span>
+        </div>
+        <div class="sec-body">
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span class="gri-cat foundation">Foundation</span>
+            <span class="gri-cat component">Component</span>
+            <span class="gri-cat token">Token / CSS Mapping</span>
+            <span class="gri-cat">Shell / Navigation</span>
+            <span class="gri-cat wbs">WBS / Board</span>
+            <span class="gri-cat">Mobile</span>
+            <span class="gri-cat">Presentation</span>
+            <span class="gri-cat security">Security / Privacy</span>
+            <span class="gri-cat">Policy / Consent</span>
+            <span class="gri-cat">Admin / Permission</span>
+            <span class="gri-cat">Audit / Log</span>
+            <span class="gri-cat">DB Impact</span>
+            <span class="gri-cat">QA / Audit</span>
+            <span class="gri-cat planned">Planned</span>
+          </div>
+          <p style="margin:14px 0 0;font-size:.85em;line-height:1.65;color:var(--t3);">
+            Category는 Guide Registry 표의 분류 컬럼과 Relationship Matrix의 관계 그룹을 연결하는 기준이다.
+            하나의 문서가 여러 Category에 관련될 수 있으며, 표에는 주 Category만 기록한다.
+          </p>
+        </div>
+      </section>
+
+      <!-- ── S05 Guide Registry Table ── -->
+      <section id="s05" class="sec" data-screen-label="05 Guide Registry">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Guide Registry Table</span>
+          <span class="sbadge plan">39 entries</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:14px;">
+            현재 <code>stam/docs</code>에 존재하는 파일만 링크 처리한다. Planned 문서는 링크 없이 표시한다.
+          </div>
+          <div class="gri-wrap">
+            <table class="gri-tbl">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Guide / Document</th>
+                  <th>File</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                  <th>Parent Guide</th>
+                  <th>Related Guides</th>
+                  <th>Product Impact</th>
+                  <th>DB Impact 후보</th>
+                  <th>Next Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Foundation -->
+                <tr>
+                  <td class="no">01</td>
+                  <td class="title"><a href="STAM-Docs-Index.html">STAM Docs Index</a></td>
+                  <td class="file"><a href="STAM-Docs-Index.html">STAM-Docs-Index.html</a></td>
+                  <td><span class="gri-cat foundation">Foundation</span></td>
+                  <td><span class="gri-pill stable">Stable</span></td>
+                  <td>—</td>
+                  <td>All Guides</td>
+                  <td>Docs navigation hub</td>
+                  <td>None</td>
+                  <td>Registry 카드 반영 유지</td>
+                </tr>
+                <tr>
+                  <td class="no">02</td>
+                  <td class="title"><a href="STAM-UI-Baseline-Guide.html">STAM UI Baseline Guide</a></td>
+                  <td class="file"><a href="STAM-UI-Baseline-Guide.html">STAM-UI-Baseline-Guide.html</a></td>
+                  <td><span class="gri-cat foundation">Foundation</span></td>
+                  <td><span class="gri-pill locked">Locked</span></td>
+                  <td>—</td>
+                  <td>Component Guide, Shell</td>
+                  <td>전체 UI 기준, 폰트, 토큰, 레이아웃</td>
+                  <td>None</td>
+                  <td>변경 시 별도 승인</td>
+                </tr>
+                <tr>
+                  <td class="no">03</td>
+                  <td class="title"><a href="STAM-Component-Guide.html">STAM Component Guide</a></td>
+                  <td class="file"><a href="STAM-Component-Guide.html">STAM-Component-Guide.html</a></td>
+                  <td><span class="gri-cat foundation">Foundation</span></td>
+                  <td><span class="gri-pill stable">Stable</span></td>
+                  <td>UI Baseline Guide</td>
+                  <td>7 Component Guides, Token Mapping</td>
+                  <td>컴포넌트 전체 인덱스</td>
+                  <td>None</td>
+                  <td>CSS 토큰 정합화 연계</td>
+                </tr>
+                <!-- Component -->
+                <tr>
+                  <td class="no">04</td>
+                  <td class="title"><a href="components/STAM-Button-Guide.html">Button Guide</a></td>
+                  <td class="file"><a href="components/STAM-Button-Guide.html">components/STAM-Button-Guide.html</a></td>
+                  <td><span class="gri-cat component">Component</span></td>
+                  <td><span class="gri-pill stable">Stable</span></td>
+                  <td>Component Guide</td>
+                  <td>Button Token Mapping</td>
+                  <td>Button, Icon Button, Button Group</td>
+                  <td>None</td>
+                  <td>CSS 구현 전 토큰 확정</td>
+                </tr>
+                <tr>
+                  <td class="no">05</td>
+                  <td class="title"><a href="components/STAM-Icon-Guide.html">Icon Guide</a></td>
+                  <td class="file"><a href="components/STAM-Icon-Guide.html">components/STAM-Icon-Guide.html</a></td>
+                  <td><span class="gri-cat component">Component</span></td>
+                  <td><span class="gri-pill stable">Stable</span></td>
+                  <td>Component Guide</td>
+                  <td>Button, Topbar</td>
+                  <td>Icon Set, Size, Color</td>
+                  <td>None</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">06</td>
+                  <td class="title"><a href="components/STAM-Dialog-Guide.html">Dialog Guide</a></td>
+                  <td class="file"><a href="components/STAM-Dialog-Guide.html">components/STAM-Dialog-Guide.html</a></td>
+                  <td><span class="gri-cat component">Component</span></td>
+                  <td><span class="gri-pill stable">Stable</span></td>
+                  <td>Component Guide</td>
+                  <td>Dialog Token Mapping, Layer</td>
+                  <td>Alert, Confirm, Input Dialog</td>
+                  <td>None</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">07</td>
+                  <td class="title"><a href="components/STAM-Form-Guide.html">Form Guide</a></td>
+                  <td class="file"><a href="components/STAM-Form-Guide.html">components/STAM-Form-Guide.html</a></td>
+                  <td><span class="gri-cat component">Component</span></td>
+                  <td><span class="gri-pill stable">Stable</span></td>
+                  <td>Component Guide</td>
+                  <td>Form Token Mapping, Mobile Form Preview</td>
+                  <td>Input, Select, Validation</td>
+                  <td>None</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">08</td>
+                  <td class="title"><a href="components/STAM-Drawer-Guide.html">Drawer Guide</a></td>
+                  <td class="file"><a href="components/STAM-Drawer-Guide.html">components/STAM-Drawer-Guide.html</a></td>
+                  <td><span class="gri-cat component">Component</span></td>
+                  <td><span class="gri-pill stable">Stable</span></td>
+                  <td>Component Guide</td>
+                  <td>Drawer Token Mapping, Mobile Shell</td>
+                  <td>Drawer, Full Detail</td>
+                  <td>None</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">09</td>
+                  <td class="title"><a href="components/STAM-Table-Guide.html">Table Guide</a></td>
+                  <td class="file"><a href="components/STAM-Table-Guide.html">components/STAM-Table-Guide.html</a></td>
+                  <td><span class="gri-cat component">Component</span></td>
+                  <td><span class="gri-pill stable">Stable</span></td>
+                  <td>Component Guide</td>
+                  <td>Table Token Mapping, Data Table Guide</td>
+                  <td>Table, Sort, Focus View</td>
+                  <td>None</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">10</td>
+                  <td class="title"><a href="components/STAM-Topbar-Guide.html">Topbar Guide</a></td>
+                  <td class="file"><a href="components/STAM-Topbar-Guide.html">components/STAM-Topbar-Guide.html</a></td>
+                  <td><span class="gri-cat component">Component</span></td>
+                  <td><span class="gri-pill stable">Stable</span></td>
+                  <td>Component Guide</td>
+                  <td>Topbar Detail Guide, Mobile Shell</td>
+                  <td>Doc Nav, App Topbar, Breadcrumb</td>
+                  <td>None</td>
+                  <td>Detail Guide 보강 연계</td>
+                </tr>
+                <tr>
+                  <td class="no">11</td>
+                  <td class="title"><a href="STAM-Topbar-Detail-Guide-v1.html">Topbar Detail Guide v1</a></td>
+                  <td class="file"><a href="STAM-Topbar-Detail-Guide-v1.html">STAM-Topbar-Detail-Guide-v1.html</a></td>
+                  <td><span class="gri-cat component">Component</span></td>
+                  <td><span class="gri-pill draft">Draft</span></td>
+                  <td>Topbar Guide</td>
+                  <td>Shell, WBS, Mobile Navigation</td>
+                  <td>Topbar, WBS page header</td>
+                  <td>None</td>
+                  <td>Hard Refresh, User Menu, Page action 분리 보강</td>
+                </tr>
+                <!-- Token / CSS Mapping -->
+                <tr>
+                  <td class="no">12</td>
+                  <td class="title"><a href="STAM-CSS-Component-Token-Plan.html">CSS Component Token Plan</a></td>
+                  <td class="file"><a href="STAM-CSS-Component-Token-Plan.html">STAM-CSS-Component-Token-Plan.html</a></td>
+                  <td><span class="gri-cat token">Token / CSS Mapping</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>Component Guide</td>
+                  <td>Token Inventory, Token Mapping</td>
+                  <td>CSS 적용 계획</td>
+                  <td>None</td>
+                  <td>P0 토큰 확정 후 진행</td>
+                </tr>
+                <tr>
+                  <td class="no">13</td>
+                  <td class="title"><a href="STAM-CSS-Token-Readiness-Check.html">CSS Token Readiness Check</a></td>
+                  <td class="file"><a href="STAM-CSS-Token-Readiness-Check.html">STAM-CSS-Token-Readiness-Check.html</a></td>
+                  <td><span class="gri-cat token">Token / CSS Mapping</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>Component Guide</td>
+                  <td>Token Inventory</td>
+                  <td>토큰 준비상태 점검</td>
+                  <td>None</td>
+                  <td>Gap 항목 추적</td>
+                </tr>
+                <tr>
+                  <td class="no">14</td>
+                  <td class="title"><a href="STAM-Token-Inventory-v1.html">Token Inventory v1</a></td>
+                  <td class="file"><a href="STAM-Token-Inventory-v1.html">STAM-Token-Inventory-v1.html</a></td>
+                  <td><span class="gri-cat token">Token / CSS Mapping</span></td>
+                  <td><span class="gri-pill draft">Draft</span></td>
+                  <td>Token Readiness Check</td>
+                  <td>Token Mapping 시리즈</td>
+                  <td>P0 토큰 목록</td>
+                  <td>None</td>
+                  <td>P0 확정</td>
+                </tr>
+                <tr>
+                  <td class="no">15</td>
+                  <td class="title"><a href="STAM-Button-Token-Mapping-v1.html">Button Token Mapping v1</a></td>
+                  <td class="file"><a href="STAM-Button-Token-Mapping-v1.html">STAM-Button-Token-Mapping-v1.html</a></td>
+                  <td><span class="gri-cat token">Token / CSS Mapping</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>Button Guide</td>
+                  <td>Token Inventory</td>
+                  <td>Button CSS</td>
+                  <td>None</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">16</td>
+                  <td class="title"><a href="STAM-Form-Token-Mapping-v1.html">Form Token Mapping v1</a></td>
+                  <td class="file"><a href="STAM-Form-Token-Mapping-v1.html">STAM-Form-Token-Mapping-v1.html</a></td>
+                  <td><span class="gri-cat token">Token / CSS Mapping</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>Form Guide</td>
+                  <td>Token Inventory</td>
+                  <td>Form CSS</td>
+                  <td>None</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">17</td>
+                  <td class="title"><a href="STAM-Layer-Token-Mapping-v1.html">Layer Token Mapping v1</a></td>
+                  <td class="file"><a href="STAM-Layer-Token-Mapping-v1.html">STAM-Layer-Token-Mapping-v1.html</a></td>
+                  <td><span class="gri-cat token">Token / CSS Mapping</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>Component Guide</td>
+                  <td>Dialog, Drawer Mapping</td>
+                  <td>z-index, Layer</td>
+                  <td>None</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">18</td>
+                  <td class="title"><a href="STAM-Drawer-Token-Mapping-v1.html">Drawer Token Mapping v1</a></td>
+                  <td class="file"><a href="STAM-Drawer-Token-Mapping-v1.html">STAM-Drawer-Token-Mapping-v1.html</a></td>
+                  <td><span class="gri-cat token">Token / CSS Mapping</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>Drawer Guide</td>
+                  <td>Layer Mapping</td>
+                  <td>Drawer CSS</td>
+                  <td>None</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">19</td>
+                  <td class="title"><a href="STAM-Dialog-Token-Mapping-v1.html">Dialog Token Mapping v1</a></td>
+                  <td class="file"><a href="STAM-Dialog-Token-Mapping-v1.html">STAM-Dialog-Token-Mapping-v1.html</a></td>
+                  <td><span class="gri-cat token">Token / CSS Mapping</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>Dialog Guide</td>
+                  <td>Layer Mapping</td>
+                  <td>Dialog CSS</td>
+                  <td>None</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">20</td>
+                  <td class="title"><a href="STAM-Table-Token-Mapping-v1.html">Table Token Mapping v1</a></td>
+                  <td class="file"><a href="STAM-Table-Token-Mapping-v1.html">STAM-Table-Token-Mapping-v1.html</a></td>
+                  <td><span class="gri-cat token">Token / CSS Mapping</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>Table Guide</td>
+                  <td>Data Table Guide</td>
+                  <td>Table CSS</td>
+                  <td>None</td>
+                  <td>—</td>
+                </tr>
+                <!-- Decision / Gate -->
+                <tr>
+                  <td class="no">21</td>
+                  <td class="title"><a href="STAM-Decision-Needed-Register-v1.html">Decision Needed Register v1</a></td>
+                  <td class="file"><a href="STAM-Decision-Needed-Register-v1.html">STAM-Decision-Needed-Register-v1.html</a></td>
+                  <td><span class="gri-cat gate">Decision / Gate</span></td>
+                  <td><span class="gri-pill locked">Locked</span></td>
+                  <td>Component Guide</td>
+                  <td>P0 Approval Sheet, Readiness Dashboard</td>
+                  <td>CSS/JS 구현 전 Gate</td>
+                  <td>None</td>
+                  <td>PM 결정 추적</td>
+                </tr>
+                <tr>
+                  <td class="no">22</td>
+                  <td class="title"><a href="STAM-P0-Decision-Approval-Sheet-v1.html">P0 Decision Approval Sheet v1</a></td>
+                  <td class="file"><a href="STAM-P0-Decision-Approval-Sheet-v1.html">STAM-P0-Decision-Approval-Sheet-v1.html</a></td>
+                  <td><span class="gri-cat gate">Decision / Gate</span></td>
+                  <td><span class="gri-pill locked">Locked</span></td>
+                  <td>Decision Needed Register</td>
+                  <td>Token Inventory</td>
+                  <td>P0 결정 승인</td>
+                  <td>None</td>
+                  <td>승인 후 CSS 착수</td>
+                </tr>
+                <!-- Security / Policy / Admin -->
+                <tr>
+                  <td class="no">23</td>
+                  <td class="title"><a href="STAM-Backend-Architecture-API-Boundary-Guide.html">Backend Architecture &amp; API Boundary Guide</a></td>
+                  <td class="file"><a href="STAM-Backend-Architecture-API-Boundary-Guide.html">STAM-Backend-Architecture-API-Boundary-Guide.html</a></td>
+                  <td><span class="gri-cat security">Security / Privacy</span></td>
+                  <td><span class="gri-pill stable">Stable</span></td>
+                  <td>—</td>
+                  <td>Security Guide, Admin, Audit</td>
+                  <td>API Boundary, Service Layer</td>
+                  <td>None</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">24</td>
+                  <td class="title"><a href="STAM-Security-Privacy-ISMSP-Architecture-DB-Policy-Guide-v1.html">Security / Privacy / ISMS-P Guide v1</a></td>
+                  <td class="file"><a href="STAM-Security-Privacy-ISMSP-Architecture-DB-Policy-Guide-v1.html">STAM-Security-Privacy-ISMSP-Architecture-DB-Policy-Guide-v1.html</a></td>
+                  <td><span class="gri-cat security">Security / Privacy</span></td>
+                  <td><span class="gri-pill draft">Draft</span></td>
+                  <td>Backend Architecture Guide</td>
+                  <td>Terms Consent, Audit Log, Admin</td>
+                  <td>로그인, 권한, 마스킹, 감사로그</td>
+                  <td>audit_logs, permissions</td>
+                  <td>정책 세부 확정</td>
+                </tr>
+                <tr>
+                  <td class="no">25</td>
+                  <td class="title"><a href="STAM-Admin-Permission-Manager-Applied-Preview-v1.html">Admin Permission Manager Preview v1</a></td>
+                  <td class="file"><a href="STAM-Admin-Permission-Manager-Applied-Preview-v1.html">STAM-Admin-Permission-Manager-Applied-Preview-v1.html</a></td>
+                  <td><span class="gri-cat security">Admin / Permission</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>Security Guide</td>
+                  <td>Audit Log, Backend API</td>
+                  <td>역할, 권한, 데이터 범위</td>
+                  <td>roles, permissions, role_assignments</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">26</td>
+                  <td class="title"><a href="STAM-Audit-Log-Viewer-Applied-Preview-v1.html">Audit Log Viewer Preview v1</a></td>
+                  <td class="file"><a href="STAM-Audit-Log-Viewer-Applied-Preview-v1.html">STAM-Audit-Log-Viewer-Applied-Preview-v1.html</a></td>
+                  <td><span class="gri-cat">Audit / Log</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>Security Guide</td>
+                  <td>Admin Permission, Undo Guide</td>
+                  <td>감사로그 조회 화면</td>
+                  <td>audit_logs, audit_events</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">27</td>
+                  <td class="title"><span class="gri-disabled">Terms / Consent / Policy Versioning Guide v1</span></td>
+                  <td class="file"><code>TBD — not in docs</code></td>
+                  <td><span class="gri-cat">Policy / Consent</span></td>
+                  <td><span class="gri-pill planned">Planned</span></td>
+                  <td>Security Guide</td>
+                  <td>Audit Log, Admin, Backend API</td>
+                  <td>회원가입, 로그인, 마이페이지, 관리자</td>
+                  <td>policies, policy_versions, user_consents</td>
+                  <td>문서 생성 대기</td>
+                </tr>
+                <!-- WBS / Board / Mobile / Presentation -->
+                <tr>
+                  <td class="no">28</td>
+                  <td class="title"><a href="STAM-Data-Table-Full-Table-Responsive-Guide-v1.html">Data Table / Full Table Responsive Guide v1</a></td>
+                  <td class="file"><a href="STAM-Data-Table-Full-Table-Responsive-Guide-v1.html">STAM-Data-Table-Full-Table-Responsive-Guide-v1.html</a></td>
+                  <td><span class="gri-cat wbs">WBS / Board</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>Table Guide</td>
+                  <td>Presentation Mode, Mobile Board, Timeline Guide</td>
+                  <td>PC 테이블, 모바일 카드/전체 테이블</td>
+                  <td>None</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">29</td>
+                  <td class="title"><a href="STAM-WBS-Mobile-Board-Applied-Preview-v1.html">WBS Mobile Board Preview v1</a></td>
+                  <td class="file"><a href="STAM-WBS-Mobile-Board-Applied-Preview-v1.html">STAM-WBS-Mobile-Board-Applied-Preview-v1.html</a></td>
+                  <td><span class="gri-cat wbs">WBS / Board</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>Data Table Guide</td>
+                  <td>Mobile Shell, Form Mobile Preview</td>
+                  <td>WBS 모바일 카드 리스트</td>
+                  <td>tasks</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">30</td>
+                  <td class="title"><a href="STAM-WBS-Presentation-Mode-Applied-Preview-v1.html">WBS Presentation Mode Preview v1</a></td>
+                  <td class="file"><a href="STAM-WBS-Presentation-Mode-Applied-Preview-v1.html">STAM-WBS-Presentation-Mode-Applied-Preview-v1.html</a></td>
+                  <td><span class="gri-cat">Presentation</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>Data Table Guide</td>
+                  <td>Group By Stage, Timeline Guide</td>
+                  <td>발표 모드, 요약 bar</td>
+                  <td>tasks</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">31</td>
+                  <td class="title"><a href="STAM-WBS-Group-By-Owner-Stage-Applied-Preview-v1.html">WBS Group By Owner / Stage Preview v1</a></td>
+                  <td class="file"><a href="STAM-WBS-Group-By-Owner-Stage-Applied-Preview-v1.html">STAM-WBS-Group-By-Owner-Stage-Applied-Preview-v1.html</a></td>
+                  <td><span class="gri-cat wbs">WBS / Board</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>Data Table Guide</td>
+                  <td>Presentation Mode, Timeline Guide</td>
+                  <td>담당자별, 단계별 그룹 보기</td>
+                  <td>tasks.stage, tasks.ownerId</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">32</td>
+                  <td class="title"><a href="STAM-Form-Search-Filter-Mobile-Applied-Preview-v1.html">Form / Search / Filter Mobile Preview v1</a></td>
+                  <td class="file"><a href="STAM-Form-Search-Filter-Mobile-Applied-Preview-v1.html">STAM-Form-Search-Filter-Mobile-Applied-Preview-v1.html</a></td>
+                  <td><span class="gri-cat">Mobile</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>Form Guide</td>
+                  <td>Mobile Shell, WBS Mobile Board</td>
+                  <td>모바일 검색, 필터 bottom sheet</td>
+                  <td>None</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td class="no">33</td>
+                  <td class="title"><a href="STAM-Mobile-Shell-Top-Navigation-Guide-v1.html">Mobile Shell / Top / Navigation Guide v1</a></td>
+                  <td class="file"><a href="STAM-Mobile-Shell-Top-Navigation-Guide-v1.html">STAM-Mobile-Shell-Top-Navigation-Guide-v1.html</a></td>
+                  <td><span class="gri-cat">Shell / Navigation</span></td>
+                  <td><span class="gri-pill candidate">Candidate</span></td>
+                  <td>UI Baseline Guide</td>
+                  <td>Topbar Detail, WBS Mobile Board</td>
+                  <td>모바일 Topbar, Navigation, Drawer</td>
+                  <td>None</td>
+                  <td>—</td>
+                </tr>
+                <!-- Planned -->
+                <tr>
+                  <td class="no">34</td>
+                  <td class="title"><span class="gri-disabled">Undo / Revision History / Recovery Policy Guide v1</span></td>
+                  <td class="file"><code>TBD — not in docs</code></td>
+                  <td><span class="gri-cat planned">Planned</span></td>
+                  <td><span class="gri-pill planned">Planned</span></td>
+                  <td>Security / Audit / WBS</td>
+                  <td>Audit Log, DB Impact, Board/WBS</td>
+                  <td>Undo button, revision panel, restore flow</td>
+                  <td>change_logs, snapshots, undo_actions</td>
+                  <td>문서 생성 예정</td>
+                </tr>
+                <tr>
+                  <td class="no">35</td>
+                  <td class="title"><span class="gri-disabled">WBS Timeline / Gantt View Policy Guide v1</span></td>
+                  <td class="file"><code>TBD — not in docs</code></td>
+                  <td><span class="gri-cat planned">Planned</span></td>
+                  <td><span class="gri-pill planned">Planned</span></td>
+                  <td>Data Table Guide</td>
+                  <td>Presentation Mode, WBS Mobile Board, Group By Stage</td>
+                  <td>WBS timeline, Gantt fullscreen</td>
+                  <td>tasks.stage, tasks.startDate, tasks.endDate, tasks.ownerId</td>
+                  <td>문서 생성 예정</td>
+                </tr>
+                <tr>
+                  <td class="no">36</td>
+                  <td class="title"><span class="gri-disabled">Core DB Architecture / Domain Model Guide v1</span></td>
+                  <td class="file"><code>TBD — not in docs</code></td>
+                  <td><span class="gri-cat planned">Planned</span></td>
+                  <td><span class="gri-pill planned">Planned</span></td>
+                  <td>Backend Architecture Guide</td>
+                  <td>Security Guide, All DB Impact</td>
+                  <td>전체 도메인 모델</td>
+                  <td>전체 테이블/컬럼 확정</td>
+                  <td>화면/요구사항 안정 후 진행</td>
+                </tr>
+                <!-- This document -->
+                <tr>
+                  <td class="no">37</td>
+                  <td class="title"><a href="STAM-Guide-Registry-Inventory-v1.html">Guide Registry / Inventory v1</a></td>
+                  <td class="file"><a href="STAM-Guide-Registry-Inventory-v1.html">STAM-Guide-Registry-Inventory-v1.html</a></td>
+                  <td><span class="gri-cat foundation">Foundation</span></td>
+                  <td><span class="gri-pill draft">Draft</span></td>
+                  <td>Docs Index</td>
+                  <td>All Guides</td>
+                  <td>Guide 관계/상태 관리</td>
+                  <td>None</td>
+                  <td>등록 문서 현행화 유지</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 Relationship Matrix ── -->
+      <section id="s06" class="sec" data-screen-label="06 Relationship Matrix">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Relationship Matrix</span>
+          <span class="sbadge guide">관계</span>
+        </div>
+        <div class="sec-body">
+          <div class="gri-wrap">
+            <table class="gri-tbl gri-rel-tbl">
+              <thead>
+                <tr>
+                  <th>Guide</th>
+                  <th>Parent</th>
+                  <th>Related</th>
+                  <th>Product Impact</th>
+                  <th>DB Impact</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="key">Topbar Detail Guide</td>
+                  <td>Component Guide → Topbar Guide</td>
+                  <td>Shell / WBS / Mobile Navigation</td>
+                  <td>Topbar, WBS page header</td>
+                  <td>None</td>
+                </tr>
+                <tr>
+                  <td class="key">Terms / Consent Guide</td>
+                  <td>Security / Privacy Guide</td>
+                  <td>Audit Log, Admin Permission, Backend API</td>
+                  <td>회원가입, 로그인, 마이페이지, 관리자</td>
+                  <td>policies, policy_versions, user_consents</td>
+                </tr>
+                <tr>
+                  <td class="key">WBS Timeline / Gantt Guide</td>
+                  <td>Data Table Guide</td>
+                  <td>Presentation Mode, WBS Mobile Board, Group By Stage</td>
+                  <td>WBS timeline, Gantt fullscreen</td>
+                  <td>tasks.stage, tasks.startDate, tasks.endDate, tasks.ownerId</td>
+                </tr>
+                <tr>
+                  <td class="key">Undo / Revision Guide</td>
+                  <td>Security / Audit / WBS</td>
+                  <td>Audit Log, DB Impact, Board/WBS</td>
+                  <td>Undo button, revision panel, restore flow</td>
+                  <td>change_logs, snapshots, undo_actions</td>
+                </tr>
+                <tr>
+                  <td class="key">Security / Privacy Guide</td>
+                  <td>Backend Architecture Guide</td>
+                  <td>Admin, Audit Log, Terms Consent</td>
+                  <td>로그인, 권한, 마스킹, 감사로그</td>
+                  <td>audit_logs, permissions, masking rules</td>
+                </tr>
+                <tr>
+                  <td class="key">Token Inventory → CSS 구현</td>
+                  <td>Token Readiness Check</td>
+                  <td>Decision Register, P0 Approval, Mapping 시리즈</td>
+                  <td>전체 컴포넌트 CSS</td>
+                  <td>None</td>
+                </tr>
+                <tr>
+                  <td class="key">Data Table Guide</td>
+                  <td>Table Guide</td>
+                  <td>WBS Mobile, Presentation, Group By, Timeline</td>
+                  <td>PC/모바일 테이블, WBS 목록</td>
+                  <td>tasks (view layer)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 Change Risk ── -->
+      <section id="s07" class="sec" data-screen-label="07 Change Risk">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Change Risk</span>
+          <span class="sbadge lock">위험도</span>
+        </div>
+        <div class="sec-body">
+          <div class="gri-def-grid">
+            <div class="gri-def-card">
+              <div class="gri-def-hdr"><span class="gri-risk low">Low</span></div>
+              <p>순수 문서 설명 변경 — Registry, Inventory, QA Result 등 메타 문서</p>
+            </div>
+            <div class="gri-def-card">
+              <div class="gri-def-hdr"><span class="gri-risk medium">Medium</span></div>
+              <p>UI 기준 변경, 실제 화면 영향 가능 — Component Guide, Preview, Token Mapping</p>
+            </div>
+            <div class="gri-def-card">
+              <div class="gri-def-hdr"><span class="gri-risk high">High</span></div>
+              <p>DB Impact, 권한, 보안, 감사로그 영향 — Security Guide, Admin, Audit Log</p>
+            </div>
+            <div class="gri-def-card">
+              <div class="gri-def-hdr"><span class="gri-risk critical">Critical</span></div>
+              <p>Locked Guide 변경, 운영/보안 정책 변경 — UI Baseline, Decision Register, P0 Approval</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S08 Next Action Board ── -->
+      <section id="s08" class="sec" data-screen-label="08 Next Action Board">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Next Action Board</span>
+          <span class="sbadge plan">후속</span>
+        </div>
+        <div class="sec-body">
+          <div class="gri-wrap">
+            <table class="gri-tbl gri-rel-tbl">
+              <thead>
+                <tr>
+                  <th>Priority</th>
+                  <th>Action</th>
+                  <th>Related Guide</th>
+                  <th>Status</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="gri-pill draft">P1</span></td>
+                  <td>Terms / Consent / Policy Versioning Guide 완료 대기</td>
+                  <td>Security Guide, Audit Log</td>
+                  <td><span class="gri-pill planned">Planned</span></td>
+                  <td>문서 미생성</td>
+                </tr>
+                <tr>
+                  <td><span class="gri-pill stable">Done</span></td>
+                  <td>Guide Registry 생성</td>
+                  <td>Guide Registry v1</td>
+                  <td><span class="gri-pill draft">Draft</span></td>
+                  <td>본 문서 — 등록 문서 현행화 유지 필요</td>
+                </tr>
+                <tr>
+                  <td><span class="gri-pill draft">P1</span></td>
+                  <td>Topbar Detail Guide 보강</td>
+                  <td>Topbar Detail Guide v1</td>
+                  <td><span class="gri-pill draft">Draft</span></td>
+                  <td>Hard Refresh · User Menu Chevron · Page-specific action 분리</td>
+                </tr>
+                <tr>
+                  <td><span class="gri-pill planned">P2</span></td>
+                  <td>Undo / Revision History / Recovery Policy Guide 예정</td>
+                  <td>Audit Log, WBS</td>
+                  <td><span class="gri-pill planned">Planned</span></td>
+                  <td>문서 미생성</td>
+                </tr>
+                <tr>
+                  <td><span class="gri-pill planned">P2</span></td>
+                  <td>WBS Timeline / Gantt View Policy Guide 예정</td>
+                  <td>Data Table, Presentation Mode</td>
+                  <td><span class="gri-pill planned">Planned</span></td>
+                  <td>문서 미생성</td>
+                </tr>
+                <tr>
+                  <td><span class="gri-pill planned">P3</span></td>
+                  <td>Core DB Architecture / Domain Model Guide</td>
+                  <td>Backend Architecture, Security Guide</td>
+                  <td><span class="gri-pill planned">Planned</span></td>
+                  <td>화면/요구사항 안정 후 진행</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Guide Creation Rule ── -->
+      <section id="s09" class="sec" data-screen-label="09 Guide Creation Rule">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Guide Creation Rule</span>
+          <span class="sbadge lock">필수</span>
+        </div>
+        <div class="sec-body">
+          <p style="margin:0 0 12px;font-size:.9em;line-height:1.7;color:var(--t2);">
+            신규 Guide 생성 시 아래 섹션을 <strong>반드시 포함</strong>한다.
+            생성 후 본 Registry에 등록하고 Docs Index에 카드를 추가한다.
+          </p>
+          <ul class="gri-sec-list">
+            <li>Purpose</li>
+            <li>Scope</li>
+            <li>Parent Guide</li>
+            <li>Related Guides</li>
+            <li>Product Impact</li>
+            <li>DB Impact 후보</li>
+            <li>Guide Relationship / Impact</li>
+            <li>Implementation Guardrails</li>
+            <li>Cursor Handoff Notes</li>
+            <li>QA Checklist</li>
+            <li>Docs Index 위치</li>
+            <li>Existing Guide Update List</li>
+          </ul>
+          <div class="ibox info" style="margin-top:16px;">
+            <strong>등록 절차</strong>
+            <ol style="margin:8px 0 0;padding-left:22px;line-height:2;font-size:.88em;">
+              <li>Guide HTML 문서 생성 (<code>stam/docs/</code>)</li>
+              <li>본 Registry Table에 행 추가 (Category, Status, Parent, Related 등)</li>
+              <li>Relationship Matrix 업데이트 (주요 관계인 경우)</li>
+              <li><code>STAM-Docs-Index.html</code>에 카드 추가</li>
+              <li>함께 수정해야 할 기존 Guide 목록 반영</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
