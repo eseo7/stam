@@ -605,6 +605,98 @@ mark.nav-highlight {
   margin-left: 2px;
 }
 
+/* Icon-only + topbar action buttons — Detail Guide v1 common spec */
+.po-topbar.stam-topbar .stam-btn--icon-only,
+.po-topbar.stam-topbar .stam-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  max-width: 28px;
+  min-height: 28px;
+  max-height: 28px;
+  padding: 0;
+  flex: 0 0 28px;
+  border-radius: 8px;
+  line-height: 1;
+  vertical-align: middle;
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms, color 120ms, box-shadow 120ms;
+}
+
+.po-topbar.stam-topbar .stam-btn--icon-only {
+  position: relative;
+  overflow: visible;
+  color: rgba(255,255,255,.82);
+  border: 1px solid transparent;
+  background: transparent;
+}
+.po-topbar.stam-topbar .stam-btn--icon-only:hover {
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  border-color: rgba(255,255,255,.10);
+}
+.po-topbar.stam-topbar .stam-btn--icon-only:active {
+  background: rgba(255,255,255,.12);
+}
+.po-topbar.stam-topbar .stam-btn--icon-only:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(139,127,248,.55);
+  border-color: rgba(139,127,248,.55);
+}
+
+/* Topbar SVG icons — 16px, currentColor, no 1em shrink */
+.po-topbar.stam-topbar .stam-btn--icon-only svg,
+.po-topbar.stam-topbar .stam-theme-icon,
+.po-topbar.stam-topbar .stam-topbar-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  flex-shrink: 0;
+  pointer-events: none;
+  color: currentColor;
+  opacity: 1;
+}
+
+/* Export action — label + download icon (single button) */
+.po-topbar.stam-topbar .stam-topbar-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  line-height: 1;
+  vertical-align: middle;
+  color: rgba(255,255,255,.78);
+}
+.po-topbar.stam-topbar .stam-topbar-action svg,
+.po-topbar.stam-topbar .stam-topbar-action-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  flex-shrink: 0;
+  color: currentColor;
+  opacity: 1;
+}
+.po-topbar.stam-topbar .stam-topbar-action:hover {
+  color: rgba(255,255,255,.96);
+}
+
+/* User menu — same 28px vertical rhythm */
+.po-topbar.stam-topbar .stam-topbar-user-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 8px;
+  line-height: 1;
+  vertical-align: middle;
+}
+
 /* Notification icon + red dot (no count badge) */
 .po-topbar.stam-topbar .stam-topbar-notif-btn {
   position: relative;
@@ -639,28 +731,12 @@ mark.nav-highlight {
 
 /* Theme toggle — topbar dark context icon-only (transparent, no white square) */
 .po-topbar.stam-topbar .stam-theme-toggle {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-sizing: border-box;
-  width: 28px !important;
-  height: 28px !important;
-  min-width: 28px !important;
-  max-width: 28px !important;
-  min-height: 28px !important;
-  max-height: 28px !important;
-  padding: 0 !important;
-  flex: 0 0 28px;
-  border-radius: 6px;
   background: transparent !important;
   border: 1px solid transparent !important;
-  color: rgba(255,255,255,.78) !important;
-  cursor: pointer;
+  color: rgba(255,255,255,.82) !important;
   box-shadow: none !important;
   font-size: 0 !important;
-  line-height: 1 !important;
   overflow: hidden;
-  transition: background 120ms, border-color 120ms, color 120ms;
 }
 .po-topbar.stam-topbar .stam-theme-toggle:hover {
   background: rgba(255,255,255,.08) !important;
@@ -678,13 +754,13 @@ mark.nav-highlight {
 }
 .po-topbar.stam-topbar .stam-theme-icon {
   display: none;
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-  pointer-events: none;
 }
-[data-theme="light"] .po-topbar.stam-topbar .stam-theme-moon { display: block; }
-[data-theme="dark"]  .po-topbar.stam-topbar .stam-theme-sun  { display: block; }
+[data-theme="light"] .po-topbar.stam-topbar .stam-theme-moon {
+  display: block;
+}
+[data-theme="dark"] .po-topbar.stam-topbar .stam-theme-sun {
+  display: block;
+}
 
 /* Dark topbar — .stam-btn overrides (topbar is always dark) */
 .po-topbar.stam-topbar .stam-btn--ghost {
@@ -708,16 +784,7 @@ mark.nav-highlight {
   background: rgba(255,255,255,.12);
   color: #fff;
 }
-.po-topbar.stam-topbar .stam-btn--icon-only {
-  color: rgba(255,255,255,.72);
-  border-color: rgba(255,255,255,.10);
-  background: rgba(255,255,255,.04);
-}
-.po-topbar.stam-topbar .stam-btn--icon-only:hover {
-  background: rgba(255,255,255,.10);
-  color: #fff;
-  border-color: rgba(255,255,255,.16);
-}
+
 .po-topbar.stam-topbar .stam-btn svg {
   display: block;
 }

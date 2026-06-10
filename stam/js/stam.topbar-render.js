@@ -19,19 +19,26 @@
   'use strict';
 
   var MOON_SVG =
-    '<svg class="stam-theme-icon stam-theme-moon" viewBox="0 0 24 24" fill="none"' +
-    ' width="14" height="14" aria-hidden="true">' +
-    '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"' +
-    ' stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<svg class="stam-theme-icon stam-theme-moon" viewBox="0 0 16 16" fill="none"' +
+    ' width="16" height="16" aria-hidden="true">' +
+    '<path d="M13.2 9.4a5.4 5.4 0 1 1-3.9-9.1 5.4 5.4 0 0 1 3.9 9.1z"' +
+    ' stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
     '</svg>';
 
   var SUN_SVG =
-    '<svg class="stam-theme-icon stam-theme-sun" viewBox="0 0 24 24" fill="none"' +
-    ' width="14" height="14" aria-hidden="true">' +
-    '<circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>' +
-    '<path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42' +
-    'M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"' +
-    ' stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+    '<svg class="stam-theme-icon stam-theme-sun" viewBox="0 0 16 16" fill="none"' +
+    ' width="16" height="16" aria-hidden="true">' +
+    '<circle cx="8" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/>' +
+    '<path d="M8 2.2v1.4M8 12.4v1.4M2.2 8h1.4M12.4 8h1.4M3.8 3.8l1 1M11.2 11.2l1 1' +
+    'M3.8 12.2l1-1M11.2 4.8l1-1"' +
+    ' stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>' +
+    '</svg>';
+
+  var DOWNLOAD_SVG =
+    '<svg class="stam-topbar-action-icon" viewBox="0 0 16 16" fill="none"' +
+    ' width="16" height="16" aria-hidden="true">' +
+    '<path d="M8 2.5v6.8M8 9.3L5.6 6.9M8 9.3l2.4-2.4M3.5 11.5h9"' +
+    ' stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
     '</svg>';
 
   var SEARCH_SVG =
@@ -42,10 +49,11 @@
     '</svg>';
 
   var BELL_SVG =
-    '<svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true">' +
-    '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"' +
-    ' stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<path d="M10 21a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="2"' +
+    '<svg class="stam-topbar-icon" viewBox="0 0 16 16" fill="none" width="16" height="16"' +
+    ' aria-hidden="true">' +
+    '<path d="M4 6.2a4 4 0 0 1 8 0c0 4.6 2 6 2 6H2s2-1.4 2-6"' +
+    ' stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M6.5 12.8a1.5 1.5 0 0 0 3 0" stroke="currentColor" stroke-width="1.8"' +
     ' stroke-linecap="round" stroke-linejoin="round"/>' +
     '</svg>';
 
@@ -101,7 +109,10 @@
       /* RIGHT — work actions · utilities */
       '<div class="stam-topbar-right">' +
         '<div class="stam-topbar-actions-work">' +
-          '<button class="stam-btn stam-btn--sm stam-btn--ghost stam-topbar-action" type="button">내보내기</button>' +
+          '<button class="stam-btn stam-btn--sm stam-btn--ghost stam-topbar-action" type="button"' +
+            ' aria-label="내보내기">' +
+            DOWNLOAD_SVG + '내보내기' +
+          '</button>' +
         '</div>' +
         '<div class="stam-topbar-actions-sep" aria-hidden="true"></div>' +
         '<div class="stam-topbar-actions-util">' +
@@ -113,11 +124,11 @@
                 '<span class="stam-visually-hidden">읽지 않은 알림 있음</span>'
               : '') +
           '</button>' +
-          '<button class="stam-btn stam-btn--sm stam-btn--ghost stam-topbar-user-btn"' +
-            ' type="button" aria-label="사용자 메뉴 열기">PM 김이름 <span class="stam-topbar-user-chev">∨</span></button>' +
           '<button class="stam-theme-toggle stam-topbar-theme stam-btn stam-btn--sm stam-btn--icon-only" type="button">' +
             MOON_SVG + SUN_SVG +
           '</button>' +
+          '<button class="stam-btn stam-btn--sm stam-btn--ghost stam-topbar-user-btn"' +
+            ' type="button" aria-label="사용자 메뉴 열기">PM 김이름 <span class="stam-topbar-user-chev">∨</span></button>' +
         '</div>' +
       '</div>';
 
