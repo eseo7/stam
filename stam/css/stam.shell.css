@@ -539,7 +539,7 @@ mark.nav-highlight {
 .stam-topbar-actions-util {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .stam-topbar-actions-sep {
@@ -649,8 +649,7 @@ mark.nav-highlight {
 }
 
 /* Topbar SVG icons — 16px, currentColor, no 1em shrink */
-.po-topbar.stam-topbar .stam-btn--icon-only svg,
-.po-topbar.stam-topbar .stam-theme-icon,
+.po-topbar.stam-topbar .stam-btn--icon-only:not(.stam-theme-toggle) svg,
 .po-topbar.stam-topbar .stam-topbar-icon {
   display: block;
   width: 16px;
@@ -752,14 +751,26 @@ mark.nav-highlight {
   box-shadow: 0 0 0 2px rgba(139,127,248,.55) !important;
   border-color: rgba(139,127,248,.55) !important;
 }
+.po-topbar.stam-topbar .stam-theme-icon-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  line-height: 0;
+  pointer-events: none;
+}
+.po-topbar.stam-topbar .stam-theme-toggle svg,
 .po-topbar.stam-topbar .stam-theme-icon {
-  display: none;
-}
-[data-theme="light"] .po-topbar.stam-topbar .stam-theme-moon {
   display: block;
-}
-[data-theme="dark"] .po-topbar.stam-topbar .stam-theme-sun {
-  display: block;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  flex-shrink: 0;
+  pointer-events: none;
+  color: currentColor;
+  opacity: 1;
 }
 
 /* Dark topbar — .stam-btn overrides (topbar is always dark) */

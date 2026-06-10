@@ -57,13 +57,47 @@
     ' stroke-linecap="round" stroke-linejoin="round"/>' +
     '</svg>';
 
-  /* ─── 테마 토글 aria-label 갱신 ─── */
-  function updateThemeLabel(btn) {
+  function isDarkTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'dark';
+  }
+
+  function themeActionLabel(isDark) {
+    return isDark ? '라이트모드로 전환' : '다크모드로 전환';
+  }
+
+  function themeIconSvg(isDark) {
+    return isDark ? SUN_SVG : MOON_SVG;
+  }
+
+  /* ─── 테마 토글 — icon 1개 + 접근성 텍스트만 갱신 (title 미사용) ─── */
+  function updateThemeButton(btn) {
     if (!btn) return;
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    var label  = isDark ? '라이트모드로 전환' : '다크모드로 전환';
+    var isDark = isDarkTheme();
+    var label  = themeActionLabel(isDark);
     btn.setAttribute('aria-label', label);
-    btn.setAttribute('title', label);
+    btn.removeAttribute('title');
+
+    var slot = btn.querySelector('.stam-theme-icon-slot');
+    if (slot) {
+      slot.innerHTML = themeIconSvg(isDark);
+    }
+
+    var hidden = btn.querySelector('.stam-visually-hidden');
+    if (hidden) {
+      hidden.textContent = label;
+    }
+  }
+
+  /* wbs.js 등 후행 스크립트가 title을 재설정하는 경우 방어 */
+  function bindThemeTitleGuard(btn) {
+    if (!btn || btn.getAttribute('data-stam-title-guard') === '1') return;
+    btn.setAttribute('data-stam-title-guard', '1');
+    new MutationObserver(function () {
+      btn.removeAttribute('title');
+    }).observe(btn, { attributes: true, attributeFilter: ['title'] });
+    requestAnimationFrame(function () {
+      btn.removeAttribute('title');
+    });
   }
 
   /* ─── Topbar 전체 렌더링 ─── */
@@ -125,22 +159,33 @@
               : '') +
           '</button>' +
           '<button class="stam-theme-toggle stam-topbar-theme stam-btn stam-btn--sm stam-btn--icon-only" type="button">' +
-            MOON_SVG + SUN_SVG +
+            '<span class="stam-theme-icon-slot" aria-hidden="true">' +
+              themeIconSvg(isDarkTheme()) +
+            '</span>' +
+            '<span class="stam-visually-hidden">' + themeActionLabel(isDarkTheme()) + '</span>' +
           '</button>' +
           '<button class="stam-btn stam-btn--sm stam-btn--ghost stam-topbar-user-btn"' +
             ' type="button" aria-label="사용자 메뉴 열기">PM 김이름 <span class="stam-topbar-user-chev">∨</span></button>' +
         '</div>' +
       '</div>';
 
-    /* 테마 토글 클릭 바인딩 */
+    /* 테마 토글 클릭 · 외부 data-theme 변경 동기화 */
     var themeBtn = el.querySelector('.stam-theme-toggle');
     if (themeBtn) {
-      updateThemeLabel(themeBtn);
+      updateThemeButton(themeBtn);
+      bindThemeTitleGuard(themeBtn);
       themeBtn.addEventListener('click', function () {
         if (window.STAM && window.STAM.toggleTheme) {
           window.STAM.toggleTheme();
         }
-        updateThemeLabel(themeBtn);
+        updateThemeButton(themeBtn);
+      });
+      var themeObs = new MutationObserver(function () {
+        updateThemeButton(themeBtn);
+      });
+      themeObs.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
       });
     }
   }
