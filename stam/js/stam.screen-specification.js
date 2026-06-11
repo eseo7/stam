@@ -552,6 +552,14 @@
     if (m[S.dwMode]) m[S.dwMode](S.dwItem);
   }
 
+  function dwFootTemp() {
+    return '<button type="button" class="ss-dw-btn-temp">임시저장</button>';
+  }
+
+  function dwFootFullView() {
+    return '<button type="button" class="stam-btn stam-btn--md stam-btn--ghost" data-ss-dw-action="fullview">전체 보기</button>';
+  }
+
   function tabOverview(d) {
     return '<div class="ss-dw-sec"><div class="ss-dw-sec-hdr"><h3>상태</h3></div><div class="ss-status-row">' +
       '<span class="ss-sr-item"><span class="ss-sr-lbl">작성</span>' + wChip(d.wst, true) + '</span>' +
@@ -646,13 +654,14 @@
     }
     if (body) body.innerHTML = [tabOverview, tabLinks, tabHistory][S.dwTab](d);
     if (foot) {
-      var footHtml = '<button type="button" class="ss-btn ss-btn-ghost" data-ss-dw-action="close">닫기</button><span style="flex:1"></span>';
+      var footHtml = '<span class="ss-dw-detail-timestamp">최종 변경 ' + d.upd + '</span>';
       if (d.ast === 'approved') {
         footHtml += '<span class="ss-dw-fm">' + d.ver + ' · 승인 완료</span>';
       } else {
-        footHtml += '<button type="button" class="ss-btn ss-btn-out" data-ss-dw-action="edit">' + ic(ICONS.edit, 12) + ' 수정</button>' +
-          '<button type="button" class="ss-btn ss-btn-review" data-ss-dw-action="reviewreq">' + ic(ICONS.check, 12) + ' 검토 요청</button>';
+        footHtml += '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary" data-ss-dw-action="edit">수정</button>' +
+          '<button type="button" class="stam-btn stam-btn--md ss-btn-review" data-ss-dw-action="reviewreq">검토 요청</button>';
       }
+      footHtml += dwFootFullView();
       foot.innerHTML = footHtml;
     }
   }
@@ -686,8 +695,9 @@
         '<button type="button" class="ss-link-add">' + ic(ICONS.plus, 11) + ' 인터페이스 연결</button></div></div>';
     }
     if (foot) {
-      foot.innerHTML = '<button type="button" class="ss-btn ss-btn-ghost" data-ss-dw-action="close">닫기</button><span style="flex:1"></span>' +
-        '<button type="button" class="ss-btn ss-btn-pri">' + ic(ICONS.check, 12) + ' 저장</button>';
+      foot.innerHTML = '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary" data-ss-dw-action="close">취소</button>' +
+        dwFootTemp() + dwFootFullView() +
+        '<button type="button" class="stam-btn stam-btn--md stam-btn--primary ss-dw-btn-primary">등록</button>';
     }
   }
 
@@ -730,9 +740,9 @@
         '<span class="ss-helper">버전 이력에 기록됩니다.</span></div></div>';
     }
     if (foot) {
-      foot.innerHTML = '<button type="button" class="ss-btn ss-btn-ghost" data-ss-dw-action="close">닫기</button><span style="flex:1"></span>' +
-        '<button type="button" class="ss-btn ss-btn-out" data-ss-dw-action="detail-back">변경 취소</button>' +
-        '<button type="button" class="ss-btn ss-btn-pri">' + ic(ICONS.check, 12) + ' 저장</button>';
+      foot.innerHTML = '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary" data-ss-dw-action="detail-back">취소</button>' +
+        dwFootTemp() + dwFootFullView() +
+        '<button type="button" class="stam-btn stam-btn--md stam-btn--primary ss-dw-btn-primary">저장</button>';
     }
   }
 
@@ -767,8 +777,9 @@
         '<div class="ss-ffield"><label class="ss-flbl">작성 상태</label><input class="inp ro" value="' + (WST[d.wst] ? WST[d.wst].lbl : '-') + '" readonly></div></div></div>';
     }
     if (foot) {
-      foot.innerHTML = '<button type="button" class="ss-btn ss-btn-ghost" data-ss-dw-action="close">닫기</button><span style="flex:1"></span>' +
-        '<button type="button" class="ss-btn ss-btn-review">' + ic(ICONS.check, 12) + ' 검토 요청</button>';
+      foot.innerHTML = '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary" data-ss-dw-action="close">취소</button>' +
+        '<span style="flex:1"></span>' +
+        '<button type="button" class="stam-btn stam-btn--md stam-btn--primary ss-dw-btn-primary" data-ss-dw-action="reviewreq">검토 요청</button>';
     }
   }
 
