@@ -908,6 +908,22 @@
     if (regBtn) regBtn.addEventListener('click', openRegister);
   }
 
+  function initEscapeKey() {
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      var overlay = document.getElementById('ss-dlg-overlay');
+      if (overlay && overlay.classList.contains('open')) {
+        e.preventDefault();
+        cancelDelete();
+        return;
+      }
+      if (S.dwMode !== null) {
+        e.preventDefault();
+        closeDw();
+      }
+    });
+  }
+
   function initAll() {
     renderStrip();
     renderTable();
@@ -926,6 +942,7 @@
     initDelete();
     initDrawer();
     initRegisterBtn();
+    initEscapeKey();
     initAll();
   });
 
