@@ -658,7 +658,7 @@
       if (d.ast === 'approved') {
         footHtml += '<span class="ss-dw-fm">' + d.ver + ' · 승인 완료</span>';
       } else {
-        footHtml += '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary" data-ss-dw-action="edit">수정</button>' +
+        footHtml += '<button type="button" class="ss-dw-btn-temp" data-ss-dw-action="edit">수정</button>' +
           '<button type="button" class="stam-btn stam-btn--md ss-btn-review" data-ss-dw-action="reviewreq">검토 요청</button>';
       }
       footHtml += dwFootFullView();
