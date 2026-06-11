@@ -33,37 +33,18 @@
       <!-- -------- Main Content -------- -->
       <main class="po-main" id="po-main">
 
-        <!-- ============================================
-             Project Context Header
-             ============================================ -->
-        <div class="po-ctx">
-          <div class="po-ctx-left">
-            <div class="po-ctx-title">파르나스 리뉴얼 구축</div>
-            <div class="po-ctx-meta">
-              <span class="po-ctx-chip">파르나스호텔</span>
-              <span class="po-ctx-chip po-chip-stage">설계 단계</span>
-              <span class="po-ctx-chip po-chip-active">진행중</span>
-              <span class="po-ctx-chip">Project Admin / PM</span>
-              <span class="po-ctx-date">기준일 2026-06-07</span>
-            </div>
-          </div>
-          <div class="po-ctx-right">
-            <div class="po-ctx-prog-wrap">
-              <div class="po-ctx-prog-top">
-                <span class="po-ctx-prog-label">전체 진행률</span>
-                <span class="po-ctx-prog-val">42%</span>
-              </div>
-              <div class="po-ctx-prog-bar">
-                <div class="po-ctx-prog-fill" style="width:42%"></div>
-              </div>
-            </div>
-            <div class="po-ctx-risk">
-              <span class="po-ctx-risk-dot warn-dot"></span>
-              위험도 <strong>주의</strong>
-            </div>
-            <div class="po-ctx-updated">업데이트 오늘 10:42</div>
-          </div>
-        </div><!-- /.po-ctx -->
+        <!-- project-context-render.js가 data-stam-project-context 컨테이너 전체를 렌더링합니다 -->
+        <div class="po-ctx" data-stam-project-context
+          data-pc-title="파르나스 리뉴얼 구축"
+          data-pc-client="파르나스호텔"
+          data-pc-stage="설계 단계"
+          data-pc-status="진행중"
+          data-pc-role="Project Admin / PM"
+          data-pc-date="기준일 2026-06-07"
+          data-pc-progress="42"
+          data-pc-risk="주의"
+          data-pc-risk-level="warn"
+          data-pc-updated="업데이트 오늘 10:42"></div>
 
         <!-- Content Wrapper — 중앙 정렬 max-width 1560px -->
         <div class="po-content-wrap">
@@ -232,6 +213,7 @@
   <script src="../../js/stam.shell.js"></script>
   <script src="../../js/stam.nav-render.js"></script>
   <script src="../../js/stam.topbar-render.js"></script>
+  <script src="../../js/stam.project-context-render.js"></script>
   <script src="../../js/stam.preview-ui.js"></script>
   <script src="../../js/stam.project-overview.js"></script>
 
