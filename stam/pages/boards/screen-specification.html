@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>화면설계서 — 파르나스 리뉴얼 구축 — STAM</title>
+  <link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+  <link rel="stylesheet" href="../../css/stam.tokens.css">
+  <link rel="stylesheet" href="../../css/stam.shell.css">
+  <link rel="stylesheet" href="../../css/stam.project-overview.css">
+  <link rel="stylesheet" href="../../css/stam.screen-specification.css">
+</head>
+<body>
+
+<div class="po-shell">
+
+  <header class="po-topbar stam-topbar" data-stam-topbar
+    data-tb-crumbs="내 프로젝트|파르나스 리뉴얼 구축|화면설계서"
+    data-tb-client="파르나스호텔"
+    data-tb-search-placeholder="화면 ID · 화면명 검색"
+    data-tb-notif="true"></header>
+
+  <div class="po-body">
+
+    <nav class="po-sidebar" data-stam-left-nav aria-label="프로젝트 내비게이션"></nav>
+
+    <main class="po-main" id="po-main" data-screen-label="화면설계서">
+
+      <section class="po-ctx" data-stam-project-context
+        data-pc-title="파르나스 리뉴얼 구축"
+        data-pc-client="파르나스호텔"
+        data-pc-stage="설계 단계"
+        data-pc-status="진행중"
+        data-pc-role="Project Admin / PM"
+        data-pc-date="기준일 2026-06-07"
+        data-pc-progress="42"
+        data-pc-risk="주의"
+        data-pc-risk-level="warn"
+        data-pc-updated="업데이트 오늘 10:42"></section>
+
+      <section class="screen-spec-page">
+
+        <div class="ss-page-hdr">
+          <div class="ss-page-hdr-l">
+            <div class="ss-page-hdr-title">화면설계서</div>
+            <div class="ss-page-hdr-desc">화면 구성 문서, 이미지/주석, 연결정보, 검토 상태를 관리합니다.</div>
+          </div>
+          <div class="ss-page-hdr-r">
+            <button class="ss-btn ss-btn-out" type="button">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              내보내기
+            </button>
+            <button class="ss-btn ss-btn-pri" id="ss-reg-btn" type="button">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              화면 등록
+            </button>
+          </div>
+        </div>
+
+        <div class="ss-sstrip" id="ss-sstrip"></div>
+        <div class="ss-sstrip-meta" id="ss-sstrip-meta"></div>
+
+        <div class="ss-toolbar">
+          <div class="ss-search">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--t3);flex-shrink:0" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="ss-srch" placeholder="화면 ID · 화면명 · 메뉴명 검색" autocomplete="off">
+          </div>
+          <div class="ss-toolbar-sep"></div>
+          <div class="ss-filter-wrap">
+            <button class="ss-filter-btn" id="ss-filter-btn" type="button">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              필터
+              <span class="ss-filter-cnt" id="ss-filter-cnt" style="display:none"></span>
+            </button>
+            <div class="ss-filter-pop" id="ss-fpop">
+              <div class="ss-filter-pop-hdr">
+                <div class="ss-filter-pop-hdr-l">
+                  <svg class="ss-filter-pop-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                  <span class="ss-filter-pop-ttl">필터</span>
+                </div>
+                <button class="ss-fpop-reset" type="button" data-ss-filter-action="reset">초기화</button>
+              </div>
+              <div class="ss-filter-pop-body">
+                <div>
+                  <div class="ss-filter-pop-sec-lbl">작성 상태</div>
+                  <div class="ss-filter-pop-opts" id="ss-f-wst">
+                    <button class="ss-fopt on" type="button" data-val="">전체</button>
+                    <button class="ss-fopt" type="button" data-val="writing"><span class="ss-fopt-dot" style="background:#64748B"></span>작성중</button>
+                    <button class="ss-fopt" type="button" data-val="complete"><span class="ss-fopt-dot" style="background:var(--brand)"></span>작성완료</button>
+                  </div>
+                </div>
+                <div>
+                  <div class="ss-filter-pop-sec-lbl">검토 상태</div>
+                  <div class="ss-filter-pop-opts" id="ss-f-rst">
+                    <button class="ss-fopt on" type="button" data-val="">전체</button>
+                    <button class="ss-fopt" type="button" data-val="none"><span class="ss-fopt-dot" style="background:#94A3B8"></span>미요청</button>
+                    <button class="ss-fopt" type="button" data-val="pending"><span class="ss-fopt-dot" style="background:#F59E0B"></span>검토 대기</button>
+                    <button class="ss-fopt" type="button" data-val="done"><span class="ss-fopt-dot" style="background:#00BF40"></span>검토 완료</button>
+                  </div>
+                </div>
+                <div>
+                  <div class="ss-filter-pop-sec-lbl">승인 상태</div>
+                  <div class="ss-filter-pop-opts" id="ss-f-ast">
+                    <button class="ss-fopt on" type="button" data-val="">전체</button>
+                    <button class="ss-fopt" type="button" data-val="none"><span class="ss-fopt-dot" style="background:#94A3B8"></span>미승인</button>
+                    <button class="ss-fopt" type="button" data-val="approved"><span class="ss-fopt-dot" style="background:#00BF40"></span>승인 완료</button>
+                    <button class="ss-fopt" type="button" data-val="rejected"><span class="ss-fopt-dot" style="background:#991B1B"></span>반려됨</button>
+                  </div>
+                </div>
+                <div>
+                  <div class="ss-filter-pop-sec-lbl">화면 유형</div>
+                  <div class="ss-filter-pop-opts" id="ss-f-type">
+                    <button class="ss-fopt on" type="button" data-val="">전체</button>
+                    <button class="ss-fopt" type="button" data-val="list">목록 화면</button>
+                    <button class="ss-fopt" type="button" data-val="detail">상세 화면</button>
+                    <button class="ss-fopt" type="button" data-val="form">폼 화면</button>
+                    <button class="ss-fopt" type="button" data-val="popup">팝업</button>
+                    <button class="ss-fopt" type="button" data-val="admin">관리 화면</button>
+                  </div>
+                </div>
+                <div>
+                  <div class="ss-filter-pop-sec-lbl">메뉴 그룹</div>
+                  <div class="ss-filter-pop-opts" id="ss-f-grp">
+                    <button class="ss-fopt on" type="button" data-val="">전체</button>
+                    <button class="ss-fopt" type="button" data-val="G-01">대시보드</button>
+                    <button class="ss-fopt" type="button" data-val="G-02">회원</button>
+                    <button class="ss-fopt" type="button" data-val="G-03">산출물 관리</button>
+                    <button class="ss-fopt" type="button" data-val="G-04">검토 관리</button>
+                    <button class="ss-fopt" type="button" data-val="G-05">내보내기 / 설정</button>
+                  </div>
+                </div>
+                <div>
+                  <div class="ss-filter-pop-sec-lbl">이미지 / 주석</div>
+                  <div class="ss-filter-pop-opts" id="ss-f-img">
+                    <button class="ss-fopt on" type="button" data-val="">전체</button>
+                    <button class="ss-fopt" type="button" data-val="has">이미지 있음</button>
+                    <button class="ss-fopt" type="button" data-val="no">이미지 없음</button>
+                    <button class="ss-fopt" type="button" data-val="ann">주석 있음</button>
+                  </div>
+                </div>
+              </div>
+              <div class="ss-filter-pop-foot">
+                <span class="ss-filter-pop-info" id="ss-fpop-info">조건 0개 · 결과 15건</span>
+                <button class="ss-btn ss-btn-ghost" type="button" style="font-size:11.5px" data-ss-filter-action="reset">전체 해제</button>
+                <button class="ss-fpop-apply" type="button" data-ss-filter-action="apply">적용</button>
+              </div>
+            </div>
+          </div>
+          <button class="ss-btn ss-btn-del" id="ss-del-btn" type="button" disabled>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            <span id="ss-del-btn-lbl">삭제</span>
+          </button>
+        </div>
+
+        <div class="ss-table-outer">
+          <div class="ss-table-scroll">
+            <table class="ss-table">
+              <colgroup>
+                <col style="width:40px">
+                <col style="min-width:260px">
+                <col style="width:72px">
+                <col style="width:92px">
+                <col style="width:96px">
+                <col style="width:92px">
+                <col style="width:110px">
+                <col style="width:88px">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th class="ss-ch"><input type="checkbox" class="ss-cb" id="ss-cb-all"></th>
+                  <th>화면 ID / 화면명</th>
+                  <th>버전</th>
+                  <th>작성 상태</th>
+                  <th>검토 상태</th>
+                  <th>승인 상태</th>
+                  <th>이미지 / 주석</th>
+                  <th>최종 수정일</th>
+                </tr>
+              </thead>
+              <tbody id="ss-tbody"></tbody>
+            </table>
+          </div>
+          <div class="ss-table-foot">
+            <span id="ss-tfoot-info"></span>
+            <div class="ss-pg">
+              <button class="ss-pgb" type="button" aria-label="이전 페이지"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></button>
+              <button class="ss-pgb on" type="button">1</button>
+              <button class="ss-pgb" type="button" aria-label="다음 페이지"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ss-dialog-overlay" id="ss-dlg-overlay" role="dialog" aria-modal="true" aria-labelledby="ss-dlg-title">
+          <div class="ss-dialog">
+            <div class="ss-dialog-head">
+              <div class="ss-dialog-ic danger">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              </div>
+              <div class="ss-dialog-texts">
+                <div class="ss-dialog-title" id="ss-dlg-title">삭제 확인</div>
+                <div class="ss-dialog-msg" id="ss-dlg-msg"></div>
+              </div>
+            </div>
+            <div class="ss-dialog-target" id="ss-dlg-target"></div>
+            <div class="ss-dialog-foot">
+              <button class="ss-dialog-btn cancel" type="button" data-ss-del-action="cancel">취소</button>
+              <button class="ss-dialog-btn danger" type="button" data-ss-del-action="confirm">삭제</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ss-dw-scrim" id="ss-dw-scrim"></div>
+        <aside class="ss-drawer" id="ss-drawer" aria-label="화면설계서 상세">
+          <div class="ss-dw-head" id="ss-dw-head"></div>
+          <div class="ss-dw-tabs" id="ss-dw-tabs" style="display:none"></div>
+          <div class="ss-dw-body" id="ss-dw-body"></div>
+          <div class="ss-dw-foot" id="ss-dw-foot"></div>
+        </aside>
+
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script src="../../js/stam.theme.js"></script>
+<script src="../../js/stam.nav-data.js"></script>
+<script src="../../js/stam.shell.js"></script>
+<script src="../../js/stam.nav-render.js"></script>
+<script src="../../js/stam.topbar-render.js"></script>
+<script src="../../js/stam.project-context-render.js"></script>
+<script src="../../js/stam.screen-specification.js"></script>
+
+</body>
+</html>
