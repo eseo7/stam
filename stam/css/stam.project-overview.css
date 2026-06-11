@@ -837,14 +837,16 @@ html, body {
 [data-theme="light"] .po-prog-pct { color: #475569; }
 
 /* ============================================================
- * Content Wrapper — Server Info 레퍼런스 준거 | 2026-06-07
- * 좌우 32px 이상 거터, max-width 1560px 중앙 정렬
+ * Content Wrapper — WBS .wbs-wrap / 화면설계서 .screen-spec-page 동일 기준
+ * width 100% + 좌우 var(--content-pad-x) + max-width var(--content-max)
  * ============================================================ */
 .po-content-wrap {
-  width: min(calc(100% - var(--content-pad-x) * 2), var(--content-max));
+  padding: 16px var(--content-pad-x) 40px;
+  box-sizing: border-box;
+  width: 100%;
   max-width: var(--content-max);
   margin: 0 auto;
-  padding: 16px 0 40px;
+  min-width: 0;
 }
 
 /* Context header — 가로 여백 소폭 보정 (16→20px) */
