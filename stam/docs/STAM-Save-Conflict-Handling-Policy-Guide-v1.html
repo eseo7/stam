@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Save &amp; Conflict Handling Policy Guide v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ============================================================
+ * STAM Save & Conflict Handling Policy Guide v1
+ * - 문서 전용 격리 스타일 (prefix: sch-)
+ * - Guide 기준 / Candidate (구현 약속 아님)
+ * ============================================================ */
+html, body { overflow-x: hidden; max-width: 100%; }
+
+.sch-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:var(--font);white-space:nowrap}
+.sch-pill::before{content:"";width:6px;height:6px;border-radius:999px;background:currentColor;display:inline-block;flex-shrink:0}
+.sch-pill.brand{background:var(--stam-soft);color:var(--stam)}
+.sch-pill.warn{background:var(--warn-bg);color:var(--warn)}
+.sch-pill.info{background:var(--info-bg);color:var(--info)}
+.sch-pill.fail{background:var(--fail-bg);color:var(--fail)}
+.sch-pill.pass{background:var(--pass-bg);color:var(--pass)}
+
+.sch-hero{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:18px 20px;display:flex;flex-direction:column;gap:12px;margin-bottom:24px;position:relative;overflow:hidden}
+.sch-hero::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--warn)}
+.sch-hero-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sch-hero-title{font-size:15px;font-weight:800;color:var(--t1);letter-spacing:-.005em}
+.sch-hero p{margin:0;font-size:12px;color:var(--t2);line-height:1.7}
+.sch-hero code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px}
+
+.sch-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:980px){.sch-kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:580px){.sch-kpi-grid{grid-template-columns:1fr}}
+.sch-kpi{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:11px 12px;display:flex;flex-direction:column;gap:5px}
+.sch-kpi .k{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3)}
+.sch-kpi .v{font-size:12.5px;font-weight:800;color:var(--t1);letter-spacing:-.005em;line-height:1.4}
+.sch-kpi.warn{border-color:rgba(245,158,11,.22);background:var(--warn-bg)}
+.sch-kpi.info{border-color:rgba(111,168,255,.22);background:var(--info-bg)}
+.sch-kpi.brand{border-color:rgba(84,81,232,.22);background:var(--stam-soft)}
+
+.sch-disclaimer{padding:11px 12px;border-radius:10px;border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.12);color:var(--t1);font-size:11px;line-height:1.65}
+.sch-disclaimer strong{font-weight:800}
+
+.sch-tbl-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--bd)}
+.sch-tbl{width:100%;border-collapse:collapse;font-family:var(--font);font-size:11.5px;background:var(--bg-sur);min-width:740px}
+.sch-tbl th{padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2)}
+.sch-tbl td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;line-height:1.6}
+.sch-tbl tbody tr:last-child td{border-bottom:none}
+.sch-tbl td.tn{font-weight:800;color:var(--t1);white-space:nowrap}
+.sch-tbl td.note{font-size:10.5px;color:var(--t3)}
+.sch-tbl td.good{color:var(--pass);font-weight:700}
+.sch-tbl td.bad{color:var(--fail);font-weight:700}
+.sch-tbl td.warn{color:var(--warn);font-weight:700}
+.sch-tbl td code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;white-space:nowrap}
+
+.sch-grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.sch-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:900px){.sch-grid-2,.sch-grid-3{grid-template-columns:1fr}}
+.sch-card{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.sch-card .h{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--t1)}
+.sch-card .b{font-size:11.5px;color:var(--t2);line-height:1.65}
+.sch-card .b code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+
+.sch-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.sch-list li{font-size:12px;line-height:1.65;color:var(--t2);padding-left:16px;position:relative}
+.sch-list li::before{content:"—";position:absolute;left:0;color:var(--t3)}
+
+.sch-bad{border:1px solid rgba(255,90,71,.35);background:rgba(255,90,71,.08);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.sch-bad .bh{font-size:11px;font-weight:800;color:var(--fail);letter-spacing:.06em;text-transform:uppercase}
+.sch-bad ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.sch-bad li{position:relative;padding-left:14px;font-size:11.5px;color:var(--t2);line-height:1.6}
+.sch-bad li::before{content:"×";position:absolute;left:0;top:0;color:var(--fail);font-weight:800}
+
+.sch-good{border:1px solid rgba(40,180,99,.30);background:rgba(40,180,99,.06);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.sch-good .bh{font-size:11px;font-weight:800;color:var(--pass);letter-spacing:.06em;text-transform:uppercase}
+.sch-good ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.sch-good li{position:relative;padding-left:14px;font-size:11.5px;color:var(--t2);line-height:1.6}
+.sch-good li::before{content:"✓";position:absolute;left:0;top:0;color:var(--pass);font-weight:800}
+
+.sch-rel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:1100px){.sch-rel-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:720px){.sch-rel-grid{grid-template-columns:1fr}}
+.sch-rel-card{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px;text-decoration:none;transition:border-color 120ms,background 120ms}
+.sch-rel-card:hover{border-color:rgba(84,81,232,.35);background:rgba(84,81,232,.04)}
+.sch-rel-card.disabled{cursor:default;opacity:.7}
+.sch-rel-card.disabled:hover{border-color:var(--bd);background:var(--bg-sur)}
+.sch-rel-card .t{font-size:12px;font-weight:700;color:var(--t1);letter-spacing:-.005em}
+.sch-rel-card .s{font-size:10.5px;color:var(--t3)}
+.sch-rel-card .badge{font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--t3)}
+</style>
+</head>
+<body>
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <span class="logo-mark">S</span>
+    <span class="logo-type">STAM</span>
+  </div>
+  <a href="STAM-Docs-Index.html" class="chip ghost">← Docs Index</a>
+  <span class="doc-nav-title">Save &amp; Conflict Handling Policy Guide v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Candidate</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Policy Guide</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Not Realtime Co-Edit</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr"><span class="toc-brand">SCH</span><span class="toc-ver-pill">v1</span></div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Hero</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Policy Summary</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Scope</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Terminology</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Not Promised</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Save Request</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Multi-tab Editing</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Conflict Candidate</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Last Save Wins</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Duplicate Request</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Strict Areas</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Failure / Retry</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Change History Link</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Product Impact</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>DB Impact</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>QA Checklist</a></li>
+      <li class="toc-item"><a href="#s17"><span class="toc-n">17</span>Docs Index Placement</a></li>
+      <li class="toc-item"><a href="#s18"><span class="toc-n">18</span>Guides To Update</a></li>
+      <li class="toc-item"><a href="#s19"><span class="toc-n">19</span>Open Questions</a></li>
+      <li class="toc-item"><a href="#s20"><span class="toc-n">20</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-wrap">
+
+      <!-- ── S01 Hero ── -->
+      <section id="s01" class="sec" data-screen-label="01 Hero / Purpose">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Hero / Purpose</span>
+          <span class="sbadge guide">목적</span>
+        </div>
+        <div class="sec-body">
+          <div class="sch-hero">
+            <div class="sch-hero-row">
+              <span class="sch-pill brand">STAM POLICY</span>
+              <span class="sch-pill info">Candidate</span>
+              <span class="sch-pill warn">Guide 기준 / 검토 필요</span>
+              <span class="sch-pill fail">Not Realtime Co-Edit</span>
+            </div>
+            <div class="sch-hero-title">STAM 저장 요청 · 동시 편집 · 다중 탭 저장 · 중복 요청 · 최종값 · 변경이력 연계 정책 경계</div>
+            <p>
+              본 가이드는 STAM에서 발생하는 <strong>저장 요청, 동시 편집, 동일 화면 다중 탭 저장, 버튼 더블클릭, 저장 실패, 저장 후 최종값 기준, 변경이력 연결 기준</strong>을 정의한다.
+              실시간 협업(Realtime Co-Editing) 또는 자동 병합(Auto-Merge) 기능을 약속하는 문서가 아니며,
+              구현 상세는 후속 기능 요청에서 확정한다.
+            </p>
+            <div class="sch-kpi-grid">
+              <div class="sch-kpi brand"><span class="k">Status</span><span class="v">Candidate</span></div>
+              <div class="sch-kpi warn"><span class="k">Scope</span><span class="v">Save · Conflict · Duplicate</span></div>
+              <div class="sch-kpi info"><span class="k">Parent</span><span class="v">Guide Registry · Docs Index</span></div>
+              <div class="sch-kpi"><span class="k">Note</span><span class="v">정책 기준 / 구현 약속 아님</span></div>
+            </div>
+            <div class="sch-disclaimer">
+              <strong>Important:</strong> 본 문서는 <strong>DOCS ONLY</strong> 범위이며,
+              제품 화면 / WBS / Project Overview / nav-data / API / DB 스키마 / Firestore rules를
+              확정하거나 구현하지 않는다. 모든 DB 항목은 <strong>후보(Candidate)</strong>이다.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S02 Policy Summary ── -->
+      <section id="s02" class="sec" data-screen-label="02 Policy Summary">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Policy Summary</span>
+          <span class="sbadge plan">Summary</span>
+        </div>
+        <div class="sec-body">
+          <div class="sch-tbl-wrap">
+            <table class="sch-tbl">
+              <thead>
+                <tr>
+                  <th>Policy Key</th>
+                  <th>정의</th>
+                  <th>주요 책임</th>
+                  <th>상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">Save Request</td>
+                  <td>화면에서 발생하는 1건의 저장 요청 단위 — 식별·접수·처리·결과 기록 대상</td>
+                  <td>요청 단위 추적성 확보</td>
+                  <td class="warn">Candidate</td>
+                </tr>
+                <tr>
+                  <td class="tn">Multi-tab Editing</td>
+                  <td>동일 사용자가 동일 화면을 2개 이상 탭/창에서 동시에 여는 상황</td>
+                  <td>무조건 차단하지 않고 마지막 저장 기준의 영향 안내</td>
+                  <td class="warn">Candidate</td>
+                </tr>
+                <tr>
+                  <td class="tn">Last Save Wins</td>
+                  <td>일반 업무 저장에서 최종값을 늦은 저장 기준으로 정하는 정책</td>
+                  <td>일반 업무 저장 한정 · Strict 영역 미적용</td>
+                  <td class="warn">Candidate</td>
+                </tr>
+                <tr>
+                  <td class="tn">Duplicate Request Block</td>
+                  <td>버튼 더블클릭 등 동일 행위의 짧은 시간 중복 요청 차단</td>
+                  <td>Idempotency Key / 클라이언트 비활성화 기준</td>
+                  <td class="bad">Hard Limit</td>
+                </tr>
+                <tr>
+                  <td class="tn">Strict Handling Areas</td>
+                  <td>권한·보안·약관·삭제·복구·결제·감사 대상의 별도 엄격 처리 영역</td>
+                  <td>Last Save Wins 미적용 · 충돌 시 별도 절차</td>
+                  <td class="warn">Candidate</td>
+                </tr>
+                <tr>
+                  <td class="tn">Change History Link</td>
+                  <td>모든 저장 결과는 Change History / Recovery Policy Guide의 변경이력 후보로 연결</td>
+                  <td>빠른 저장·늦은 저장 모두 이력 후보</td>
+                  <td class="warn">Candidate</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S03 Scope ── -->
+      <section id="s03" class="sec" data-screen-label="03 Scope">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Scope — 포함 / 미포함</span>
+          <span class="sbadge plan">범위</span>
+        </div>
+        <div class="sec-body">
+          <div class="sch-grid-2">
+            <div class="sch-good">
+              <div class="bh">포함 (In Scope)</div>
+              <ul>
+                <li>저장 요청(Save Request) 단위 정책 기준</li>
+                <li>동시 편집(Concurrent Editing) 정책 기준</li>
+                <li>동일 화면 다중 탭(Multi-tab) 저장 정책 기준</li>
+                <li>버튼 더블클릭 등 중복 요청 차단 정책 기준</li>
+                <li>일반 업무 저장에서의 Last Save Wins 정책</li>
+                <li>저장 실패 안내 / 재시도(Retry) 정책 기준</li>
+                <li>저장 결과의 Change History 연결 기준</li>
+                <li>Strict Handling Areas(권한·약관·삭제·복구·결제·감사) 분리 원칙</li>
+              </ul>
+            </div>
+            <div class="sch-bad">
+              <div class="bh">미포함 (Out of Scope)</div>
+              <ul>
+                <li>실시간 협업(Realtime Co-Editing) 기능 약속</li>
+                <li>자동 병합(Auto-Merge) / OT / CRDT 알고리즘 약속</li>
+                <li>자동 복구(Auto-Recovery) 약속</li>
+                <li>Undo / Revision 기능 약속</li>
+                <li>DB 테이블 / 컬럼 / ERD / 인덱스 확정</li>
+                <li>특정 Firestore collection / lock 메커니즘 확정</li>
+                <li>제품 화면 / WBS / Project Overview / nav-data 수정</li>
+                <li>API 코드 / Firebase Functions / Firestore rules 변경</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S04 Terminology ── -->
+      <section id="s04" class="sec" data-screen-label="04 Terminology">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Terminology</span>
+          <span class="sbadge plan">용어</span>
+        </div>
+        <div class="sec-body">
+          <div class="sch-tbl-wrap">
+            <table class="sch-tbl">
+              <thead>
+                <tr><th>용어</th><th>정의</th><th>주의</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">Save Request</td>
+                  <td>1건의 저장 행위에 대응하는 요청 단위</td>
+                  <td class="note">엔티티 + 화면 + 주체 + 시점 + 페이로드</td>
+                </tr>
+                <tr>
+                  <td class="tn">Idempotency Key</td>
+                  <td>동일 행위의 중복 요청을 식별하기 위한 단일 키 후보</td>
+                  <td class="note">짧은 시간창에서 동일 키 = 동일 요청</td>
+                </tr>
+                <tr>
+                  <td class="tn">Multi-tab Editing</td>
+                  <td>동일 사용자가 동일 화면을 2개 이상 탭/창에서 동시에 여는 상황</td>
+                  <td class="warn">무조건 차단하지 않음</td>
+                </tr>
+                <tr>
+                  <td class="tn">Concurrent Editing</td>
+                  <td>동일 대상에 대해 2명 이상이 동시에 편집하는 상황</td>
+                  <td class="note">실시간 협업 약속 아님</td>
+                </tr>
+                <tr>
+                  <td class="tn">Last Save Wins</td>
+                  <td>늦은 저장의 값이 최종값이 되는 정책</td>
+                  <td class="warn">일반 업무 저장에 한정</td>
+                </tr>
+                <tr>
+                  <td class="tn">Conflict Candidate</td>
+                  <td>저장 시점에 같은 대상의 베이스 버전이 변경된 가능성이 감지된 상태</td>
+                  <td class="note">충돌 후보 표현 · 자동 병합 약속 아님</td>
+                </tr>
+                <tr>
+                  <td class="tn">Strict Handling Areas</td>
+                  <td>권한·보안·약관·삭제·복구·결제·감사 대상 영역</td>
+                  <td class="bad">Last Save Wins 미적용</td>
+                </tr>
+                <tr>
+                  <td class="tn">Duplicate Request</td>
+                  <td>짧은 시간 내 동일 키 / 동일 행위의 중복 요청</td>
+                  <td class="bad">차단 대상</td>
+                </tr>
+                <tr>
+                  <td class="tn">Retry</td>
+                  <td>저장 실패 후 같은 요청을 다시 시도하는 행위</td>
+                  <td class="note">Idempotency Key 동일 유지 후보</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S05 Not Promised ── -->
+      <section id="s05" class="sec" data-screen-label="05 What This Guide Does Not Promise">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">What This Guide Does Not Promise</span>
+          <span class="sbadge plan">Anti-Promise</span>
+        </div>
+        <div class="sec-body">
+          <div class="sch-bad">
+            <div class="bh">본 가이드가 약속하지 않는 것</div>
+            <ul>
+              <li>실시간 협업(Realtime Co-Editing) 기능 제공</li>
+              <li>자동 병합(Auto-Merge / OT / CRDT) 동작</li>
+              <li>자동 복구(Auto-Recovery) 동작</li>
+              <li>Undo / 단일 클릭 되돌리기 기능</li>
+              <li>모든 시점에 대한 완전한 충돌 감지 보장</li>
+              <li>특정 Firestore collection / lock 메커니즘 확정</li>
+              <li>DB 테이블 / 컬럼 / ERD / 인덱스 확정</li>
+              <li>법무·보존기간·ISMS-P 통제 항목의 최종 확정 문구</li>
+            </ul>
+          </div>
+          <div class="sch-disclaimer" style="margin-top:10px">
+            <strong>Note:</strong> 본 가이드는 정책 경계만 정의한다.
+            실제 기능 범위·시한·우선순위는 별도 Product / Engineering 결정으로 정의한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S06 Save Request ── -->
+      <section id="s06" class="sec" data-screen-label="06 Save Request Policy">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Save Request Policy</span>
+          <span class="sbadge plan">Policy</span>
+        </div>
+        <div class="sec-body">
+          <div class="sch-grid-2">
+            <div class="sch-card">
+              <div class="h">요청 단위</div>
+              <div class="b">엔티티 + 화면 + 주체 + 시점 + 페이로드를 1건의 Save Request 단위 후보로 정의한다.</div>
+            </div>
+            <div class="sch-card">
+              <div class="h">Idempotency Key</div>
+              <div class="b">클라이언트는 1건의 행위에 대해 단일 Idempotency Key를 생성한다. 짧은 시간 내 동일 키 재요청은 중복으로 본다.</div>
+            </div>
+            <div class="sch-card">
+              <div class="h">접수 → 처리 → 결과</div>
+              <div class="b">접수(accepted), 처리 중(processing), 성공(succeeded), 실패(failed)의 후보 상태를 기록한다.</div>
+            </div>
+            <div class="sch-card">
+              <div class="h">버튼 상태</div>
+              <div class="b">처리 중 동안 저장 버튼은 비활성화 후보이며, 동일 요청 재발사를 막는 1차 가드로 둔다.</div>
+            </div>
+            <div class="sch-card">
+              <div class="h">결과 안내</div>
+              <div class="b">성공 / 실패 / 부분 성공의 결과 메시지를 후보로 분리한다. 실패 시 사유와 재시도 안내를 분리한다.</div>
+            </div>
+            <div class="sch-card">
+              <div class="h">변경이력 연계</div>
+              <div class="b">성공 결과는 Change History의 Change Record 후보로 연결한다.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S07 Multi-tab Editing ── -->
+      <section id="s07" class="sec" data-screen-label="07 Multi-tab Editing Policy">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Multi-tab Editing Policy</span>
+          <span class="sbadge plan">Policy</span>
+        </div>
+        <div class="sec-body">
+          <ul class="sch-list">
+            <li>동일 화면 2개 탭 저장은 <strong>무조건 차단하지 않는다</strong>. 사용자는 동일 화면을 2개 이상 탭에서 열 수 있다.</li>
+            <li>각 탭의 저장은 독립된 Save Request로 접수된다.</li>
+            <li>일반 업무 저장 영역에서는 <strong>늦은 저장 기준</strong>의 최종값이 적용될 수 있음을 안내한다.</li>
+            <li>두 저장 모두 변경이력 후보로 기록된다 (빠른 저장·늦은 저장 모두).</li>
+            <li>탭 간 동일 키 충돌이 감지되면 Conflict Candidate로 표시하고 사용자에게 영향 안내를 후보로 한다.</li>
+            <li>Strict Handling Areas는 본 정책을 적용하지 않으며 별도 절차를 둔다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── S08 Conflict Candidate ── -->
+      <section id="s08" class="sec" data-screen-label="08 Conflict Candidate Policy">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Conflict Candidate Policy</span>
+          <span class="sbadge plan">Policy</span>
+        </div>
+        <div class="sec-body">
+          <div class="sch-grid-2">
+            <div class="sch-card">
+              <div class="h">감지 기준 후보</div>
+              <div class="b">베이스 버전 / 마지막 수정 시각 / 마지막 수정자 변화 등을 후보 감지 시그널로 평가한다.</div>
+            </div>
+            <div class="sch-card">
+              <div class="h">표현 원칙</div>
+              <div class="b">충돌은 <strong>후보(Candidate)</strong> 표현으로 시작한다. 자동 병합을 약속하지 않는다.</div>
+            </div>
+            <div class="sch-card">
+              <div class="h">사용자 안내</div>
+              <div class="b">충돌 후보 발생 시 다른 사용자/탭의 변경이 있었음을 안내하고, 진행/취소/검토 선택지를 후보로 제공한다.</div>
+            </div>
+            <div class="sch-card">
+              <div class="h">Strict 영역 예외</div>
+              <div class="b">권한·보안·약관·삭제·복구·결제·감사 대상은 충돌 후보 발생 시 일반 정책을 적용하지 않고 별도 절차를 따른다.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S09 Last Save Wins ── -->
+      <section id="s09" class="sec" data-screen-label="09 Last Save Wins Policy">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Last Save Wins Policy</span>
+          <span class="sbadge plan">Policy</span>
+        </div>
+        <div class="sec-body">
+          <div class="sch-disclaimer" style="margin-bottom:10px">
+            <strong>적용 범위 제한:</strong> Last Save Wins는 <strong>일반 업무 저장 기준에 한정</strong>한다.
+            권한·보안·약관·삭제·복구·결제·감사 영역(Strict Handling Areas)에는 적용하지 않는다.
+          </div>
+          <ul class="sch-list">
+            <li>일반 업무 저장에서 늦은 저장의 값이 최종값이 될 수 있다.</li>
+            <li>빠른 저장과 늦은 저장은 모두 변경이력 후보로 기록된다.</li>
+            <li>늦은 저장은 직전 저장을 사일런트로 덮어쓰지 않는다 — 사용자 안내 메시지를 후보로 한다.</li>
+            <li>충돌 후보가 감지된 경우, 사용자가 진행 여부를 선택하도록 한다.</li>
+            <li>Strict 영역에서는 본 정책을 적용하지 않는다 (S11 참조).</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── S10 Duplicate Request ── -->
+      <section id="s10" class="sec" data-screen-label="10 Duplicate Request Policy">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Duplicate Request Policy</span>
+          <span class="sbadge plan">Policy</span>
+        </div>
+        <div class="sec-body">
+          <ul class="sch-list">
+            <li>버튼 더블클릭 등 짧은 시간 내 동일 행위는 <strong>Duplicate Request</strong>로 보고 <strong>차단 대상</strong>이다.</li>
+            <li>클라이언트는 처리 중 동안 저장 버튼을 비활성화한다 (1차 가드).</li>
+            <li>서버는 Idempotency Key 기준으로 동일 키 중복 수신을 무시 처리한다 (2차 가드).</li>
+            <li>차단된 중복 시도는 변경이력에 별도 후보 행으로 남기지 않거나 단일 이력으로 통합 후보로 다룬다.</li>
+            <li>네트워크 재시도와 사용자 더블클릭은 구분 가능한 한 분리 후보로 본다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── S11 Strict Handling Areas ── -->
+      <section id="s11" class="sec" data-screen-label="11 Strict Handling Areas">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Strict Handling Areas</span>
+          <span class="sbadge plan">Strict</span>
+        </div>
+        <div class="sec-body">
+          <div class="sch-tbl-wrap">
+            <table class="sch-tbl">
+              <thead>
+                <tr><th>영역</th><th>기본 원칙</th><th>일반 정책 적용</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="tn">권한 (Permission)</td><td>변경 시 별도 승인/감사</td><td class="bad">미적용</td></tr>
+                <tr><td class="tn">보안 (Security)</td><td>키·토큰·세션 처리 별도 규칙</td><td class="bad">미적용</td></tr>
+                <tr><td class="tn">약관 / 동의 (Terms / Consent)</td><td>Terms / Consent Versioning Guide 우선</td><td class="bad">미적용</td></tr>
+                <tr><td class="tn">삭제 (Deletion)</td><td>보존·복구 정책 동시 평가</td><td class="bad">미적용</td></tr>
+                <tr><td class="tn">복구 (Recovery)</td><td>Change History / Recovery Guide 우선</td><td class="bad">미적용</td></tr>
+                <tr><td class="tn">결제 (Payment)</td><td>금융 무결성·감사 별도 규칙</td><td class="bad">미적용</td></tr>
+                <tr><td class="tn">감사 (Audit)</td><td>로그 무결성 보장 별도 규칙</td><td class="bad">미적용</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="sch-disclaimer" style="margin-top:10px">
+            <strong>Important:</strong> 위 영역에서는 Last Save Wins / Multi-tab Editing의 일반 흐름을 그대로 적용하지 않는다.
+            각 도메인의 정책 가이드(Permission · Audit · Terms · Recovery 등)를 우선한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S12 Failure / Retry ── -->
+      <section id="s12" class="sec" data-screen-label="12 Save Failure / Retry Policy">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Save Failure / Retry Policy</span>
+          <span class="sbadge plan">Policy</span>
+        </div>
+        <div class="sec-body">
+          <div class="sch-grid-2">
+            <div class="sch-card">
+              <div class="h">실패 유형 후보</div>
+              <div class="b">네트워크 / 권한 / 검증 / 충돌 후보 / 서버 오류로 분리 후보.</div>
+            </div>
+            <div class="sch-card">
+              <div class="h">사용자 안내</div>
+              <div class="b">사유와 다음 행동(재시도 · 검토 · 취소)을 명확히 안내하는 후보 카피.</div>
+            </div>
+            <div class="sch-card">
+              <div class="h">재시도 (Retry)</div>
+              <div class="b">Idempotency Key는 동일하게 유지하는 것을 후보 원칙으로 한다.</div>
+            </div>
+            <div class="sch-card">
+              <div class="h">실패 이력</div>
+              <div class="b">실패 시도와 사유는 errorLogs / retryLogs 후보로 기록한다.</div>
+            </div>
+            <div class="sch-card">
+              <div class="h">자동 재시도</div>
+              <div class="b">사용자 의도 없는 자동 재시도는 권장하지 않는다. 네트워크 일시 오류에 한정 후보.</div>
+            </div>
+            <div class="sch-card">
+              <div class="h">Strict 영역</div>
+              <div class="b">권한·결제·감사 등 Strict 영역의 실패는 별도 검토 절차를 둔다.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S13 Change History Integration ── -->
+      <section id="s13" class="sec" data-screen-label="13 Change History Integration">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Change History Integration</span>
+          <span class="sbadge plan">Link</span>
+        </div>
+        <div class="sec-body">
+          <ul class="sch-list">
+            <li>모든 성공한 저장은 <a href="STAM-Change-History-Recovery-Policy-Guide-v1.html">Change History / Recovery Policy Guide v1</a>의 Change Record 후보로 연결된다.</li>
+            <li>빠른 저장과 늦은 저장은 모두 변경이력 후보로 기록된다.</li>
+            <li>최종값은 일반 업무 저장 기준으로 늦은 저장 값이 될 수 있다.</li>
+            <li>충돌 후보가 발생한 저장도 별도 마커와 함께 변경이력 후보로 남긴다.</li>
+            <li>Duplicate Request 차단 결과는 변경이력에 별도 행을 만들지 않는 것을 후보 원칙으로 한다.</li>
+            <li>Strict 영역의 변경이력은 일반 변경이력과 별도 엄격 처리를 따른다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── S14 Product Impact ── -->
+      <section id="s14" class="sec" data-screen-label="14 Product Impact">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Product Impact</span>
+          <span class="sbadge plan">Impact</span>
+        </div>
+        <div class="sec-body">
+          <div class="sch-grid-3">
+            <div class="sch-card"><div class="h">화면 저장 UX</div><div class="b">저장 버튼 위치·상태·결과 메시지 카피 후보.</div></div>
+            <div class="sch-card"><div class="h">저장 중 버튼 상태</div><div class="b">비활성화 / 로딩 / 결과 전환 후보 패턴.</div></div>
+            <div class="sch-card"><div class="h">저장 실패 안내</div><div class="b">사유·재시도·검토·취소 분리 안내 후보.</div></div>
+            <div class="sch-card"><div class="h">다중 탭 안내</div><div class="b">늦은 저장 기준 영향 안내 카피 후보.</div></div>
+            <div class="sch-card"><div class="h">변경이력 보기</div><div class="b">Change History 진입점과의 연결 후보.</div></div>
+            <div class="sch-card"><div class="h">관리자 승인 화면 후보</div><div class="b">Strict 영역 충돌 시 별도 처리 화면 후보.</div></div>
+            <div class="sch-card"><div class="h">QA 시나리오</div><div class="b">동시 저장 · 더블클릭 · 충돌 후보 · 실패 재시도 시나리오.</div></div>
+            <div class="sch-card"><div class="h">권한 UI 영향</div><div class="b">Strict 영역의 별도 안내·플로우 후보.</div></div>
+            <div class="sch-card"><div class="h">알림 정책 후보</div><div class="b">저장 실패 / 충돌 후보 / Strict 영역 이벤트 알림 후보.</div></div>
+          </div>
+          <div class="sch-disclaimer" style="margin-top:10px">
+            <strong>Note:</strong> 위 항목은 모두 후보이며, 실제 화면 도입은 별도 Product 결정으로 정의한다.
+            본 문서로는 제품 화면 / WBS / Project Overview / nav-data를 수정하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S15 DB Impact ── -->
+      <section id="s15" class="sec" data-screen-label="15 DB Impact Candidates">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">DB Impact Candidates</span>
+          <span class="sbadge plan">DB Candidate</span>
+        </div>
+        <div class="sec-body">
+          <div class="sch-tbl-wrap">
+            <table class="sch-tbl">
+              <thead>
+                <tr><th>Table (Candidate)</th><th>역할 후보</th><th>핵심 필드 후보</th><th>상태</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="tn">saveRequests</td><td>저장 요청 단위 접수/처리/결과</td><td><code>actor</code>, <code>entity_ref</code>, <code>idempotency_key</code>, <code>status</code>, <code>requested_at</code></td><td class="warn">후보</td></tr>
+                <tr><td class="tn">saveLocks</td><td>동일 대상 처리 직렬화 후보</td><td><code>entity_ref</code>, <code>acquired_at</code>, <code>expires_at</code></td><td class="warn">후보</td></tr>
+                <tr><td class="tn">idempotencyKeys</td><td>중복 요청 식별 키 보관</td><td><code>key</code>, <code>actor</code>, <code>created_at</code>, <code>scope</code></td><td class="warn">후보</td></tr>
+                <tr><td class="tn">conflictCandidates</td><td>충돌 후보 감지 기록</td><td><code>entity_ref</code>, <code>base_version</code>, <code>detected_at</code></td><td class="warn">후보</td></tr>
+                <tr><td class="tn">changeHistory</td><td>저장 결과의 변경이력 연결 인덱스</td><td><code>entity_ref</code>, <code>occurred_at</code></td><td class="warn">후보</td></tr>
+                <tr><td class="tn">auditLog</td><td>Strict 영역 처리 감사 자료</td><td><code>actor</code>, <code>action</code>, <code>target</code>, <code>occurred_at</code></td><td class="warn">후보</td></tr>
+                <tr><td class="tn">errorLogs</td><td>저장 실패 사유 기록</td><td><code>request_id</code>, <code>code</code>, <code>message</code>, <code>occurred_at</code></td><td class="warn">후보</td></tr>
+                <tr><td class="tn">retryLogs</td><td>재시도 이력</td><td><code>request_id</code>, <code>attempt</code>, <code>occurred_at</code></td><td class="warn">후보</td></tr>
+                <tr><td class="tn">strictHandlingEvents</td><td>Strict 영역 이벤트 기록</td><td><code>area</code>, <code>actor</code>, <code>occurred_at</code>, <code>detail_ref</code></td><td class="warn">후보</td></tr>
+                <tr><td class="tn">(index)</td><td>대상 식별 + 시각 인덱스 후보</td><td><code>entityId + requestedAt</code>, <code>actorId + requestedAt</code>, <code>status + requestedAt</code></td><td class="warn">후보</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="sch-disclaimer" style="margin-top:10px">
+            <strong>Important:</strong> 위 항목은 영향 분석용 후보이며, 최종 DB 스키마 / Firestore collection / 인덱스 확정안이 아니다.
+            본 문서는 <strong>DOCS ONLY</strong> 범위이다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S16 QA Checklist ── -->
+      <section id="s16" class="sec" data-screen-label="16 Document QA Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
+          <span class="sec-title">Document QA Checklist</span>
+          <span class="sbadge plan">QA</span>
+        </div>
+        <div class="sec-body">
+          <div class="sch-grid-2">
+            <div class="sch-good">
+              <div class="bh">통과 기준</div>
+              <ul>
+                <li>"실시간 협업 / 자동 병합 / 자동 복구 / Undo" 약속 문구가 없다</li>
+                <li>"동일 화면 2개 탭 저장은 무조건 차단"으로 단정한 표현이 없다</li>
+                <li>Last Save Wins는 "일반 업무 저장 기준"으로 제한 표현됨</li>
+                <li>빠른 저장과 늦은 저장이 모두 변경이력 후보로 표현됨</li>
+                <li>버튼 더블클릭이 Duplicate Request 차단 대상으로 표현됨</li>
+                <li>권한·약관·삭제·복구·결제·감사가 Strict Handling Areas로 별도 분리됨</li>
+                <li>DB 테이블 / 컬럼 / ERD가 후보로만 표현됨</li>
+                <li>Status: Candidate · DOCS ONLY 명시</li>
+              </ul>
+            </div>
+            <div class="sch-bad">
+              <div class="bh">실패 패턴</div>
+              <ul>
+                <li>"실시간 협업 지원" / "OT/CRDT 적용" 약속</li>
+                <li>"동일 화면 2개 탭 저장은 불가" 단정</li>
+                <li>"자동 복구" / "원클릭 Undo" 약속</li>
+                <li>특정 Firestore lock 메커니즘을 확정 어휘로 사용</li>
+                <li>법무·ISMS-P 통제 항목을 확정 문구로 사용</li>
+                <li>제품 화면 / nav-data 변경을 본 문서로 지시</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S17 Docs Index Placement ── -->
+      <section id="s17" class="sec" data-screen-label="17 Docs Index Placement">
+        <div class="sec-hdr">
+          <span class="sec-n">17</span>
+          <span class="sec-title">Docs Index Placement</span>
+          <span class="sbadge plan">Placement</span>
+        </div>
+        <div class="sec-body">
+          <div class="sch-tbl-wrap">
+            <table class="sch-tbl">
+              <thead>
+                <tr><th>위치</th><th>섹션</th><th>근접 카드</th><th>비고</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">STAM-Docs-Index.html</td>
+                  <td><code>s04 아키텍처 가이드</code></td>
+                  <td>Change History / Recovery Policy Guide v1 카드 직후</td>
+                  <td class="note">이번 작업 범위: 별도 Policy 섹션 신설 없음</td>
+                </tr>
+                <tr>
+                  <td class="tn">Status Badge</td>
+                  <td>—</td>
+                  <td><code>sbadge plan</code> "Policy"</td>
+                  <td class="note">기존 Policy 카드와 동일 톤</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── S18 Guides To Update Together ── -->
+      <section id="s18" class="sec" data-screen-label="18 Guides To Update Together">
+        <div class="sec-hdr">
+          <span class="sec-n">18</span>
+          <span class="sec-title">Guides To Update Together</span>
+          <span class="sbadge plan">Co-Update</span>
+        </div>
+        <div class="sec-body">
+          <ul class="sch-list">
+            <li><strong>Guide Registry / Inventory v1</strong> — 본 문서 신규 행 추가 (Candidate · Policy Guide)</li>
+            <li><strong>STAM Docs Index</strong> — <code>s04 아키텍처 가이드</code>에 신규 카드 추가 (Change History 카드 직후)</li>
+            <li><strong>Change History / Recovery Policy Guide v1</strong>(Existing) — 변경이력 연결·Duplicate 정책 정합</li>
+            <li><strong>Terms / Consent / Policy Versioning Guide v1</strong>(Existing) — Strict 영역 약관/동의 충돌 처리 정합</li>
+            <li><strong>Permission Policy Guide</strong>(Candidate/Planned) — Strict 영역 권한 충돌 처리 정합</li>
+            <li><strong>Audit Log Policy Guide</strong>(Candidate/Planned) — Strict 영역 감사 항목 정합</li>
+            <li><strong>Screen Specification Authoring Tool Policy Guide v1</strong>(Planned) — 화면 사양 저장 시 정책 적용 후보</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── S19 Open Questions ── -->
+      <section id="s19" class="sec" data-screen-label="19 Open Questions">
+        <div class="sec-hdr">
+          <span class="sec-n">19</span>
+          <span class="sec-title">Open Questions</span>
+          <span class="sbadge plan">미해결</span>
+        </div>
+        <div class="sec-body">
+          <ul class="sch-list">
+            <li>Idempotency Key 유효 시간창 기준</li>
+            <li>충돌 후보 감지 시 사용자 안내 카피 표준</li>
+            <li>Strict 영역별 충돌 처리 절차 상세 (Permission / Payment / Audit 가이드 연계)</li>
+            <li>Save Lock 도입 여부 / 단위 / 만료</li>
+            <li>다중 탭 안내 노출 시점 (열림 시점 / 저장 시점)</li>
+            <li>네트워크 자동 재시도 허용 범위</li>
+            <li>장기 미저장 상태에 대한 클라이언트 안내 정책</li>
+            <li>법무·ISMS-P 통제 매핑 — Security / Privacy Guide 협업</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── S20 Related Links ── -->
+      <section id="s20" class="sec" data-screen-label="20 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">20</span>
+          <span class="sec-title">Related Links</span>
+          <span class="sbadge guide">참고</span>
+        </div>
+        <div class="sec-body">
+          <div class="sch-rel-grid">
+            <a class="sch-rel-card" href="STAM-Guide-Registry-Inventory-v1.html">
+              <span class="badge">Parent</span>
+              <span class="t">Guide Registry / Inventory v1</span>
+              <span class="s">Guide 관계 / 상태 / 영향도 관리대장</span>
+            </a>
+            <a class="sch-rel-card" href="STAM-Docs-Index.html">
+              <span class="badge">Parent</span>
+              <span class="t">STAM Docs Index</span>
+              <span class="s">전체 문서 네비게이션</span>
+            </a>
+            <a class="sch-rel-card" href="STAM-Change-History-Recovery-Policy-Guide-v1.html">
+              <span class="badge">Existing</span>
+              <span class="t">Change History / Recovery Policy Guide v1</span>
+              <span class="s">변경이력 · 복구 · Snapshot 후보 정책</span>
+            </a>
+            <a class="sch-rel-card" href="STAM-Terms-Consent-Policy-Versioning-Guide-v1.html">
+              <span class="badge">Existing</span>
+              <span class="t">Terms / Consent / Policy Versioning Guide v1</span>
+              <span class="s">약관·동의·고지 버전관리 정책</span>
+            </a>
+            <a class="sch-rel-card" href="STAM-Security-Privacy-ISMSP-Architecture-DB-Policy-Guide-v1.html">
+              <span class="badge">Existing</span>
+              <span class="t">Security / Privacy / ISMS-P Architecture &amp; DB Policy Guide v1</span>
+              <span class="s">Strict 영역 상위 보안·개인정보 컨텍스트</span>
+            </a>
+            <a class="sch-rel-card" href="STAM-Audit-Log-Viewer-Applied-Preview-v1.html">
+              <span class="badge">Existing</span>
+              <span class="t">Audit Log Viewer Applied Preview v1</span>
+              <span class="s">감사로그 조회 화면 기준</span>
+            </a>
+            <span class="sch-rel-card disabled">
+              <span class="badge">Candidate / Planned</span>
+              <span class="t">Permission Policy Guide</span>
+              <span class="s">권한 정책 (별도 정의 예정)</span>
+            </span>
+            <span class="sch-rel-card disabled">
+              <span class="badge">Candidate / Planned</span>
+              <span class="t">Audit Log Policy Guide</span>
+              <span class="s">감사로그 정책 (별도 정의 예정)</span>
+            </span>
+            <span class="sch-rel-card disabled">
+              <span class="badge">Planned</span>
+              <span class="t">Screen Specification Authoring Tool Policy Guide v1</span>
+              <span class="s">화면 사양 저장 시 정책 적용 후보</span>
+            </span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  if (!main) return;
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
