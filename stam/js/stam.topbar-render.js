@@ -1,6 +1,6 @@
 /* ============================================================
  * STAM Topbar Render — 공통 Topbar 렌더러
- * 의존: stam.theme.js (window.STAM.toggleTheme)
+ * 의존: stam.theme.js (window.STAM.toggleTheme, localStorage stam.theme)
  *
  * 사용법 (각 페이지):
  *   <header class="po-topbar stam-topbar" data-stam-topbar
@@ -58,6 +58,9 @@
     '</svg>';
 
   function isDarkTheme() {
+    if (window.STAM && typeof window.STAM.getTheme === 'function') {
+      return window.STAM.getTheme() === 'dark';
+    }
     return document.documentElement.getAttribute('data-theme') === 'dark';
   }
 

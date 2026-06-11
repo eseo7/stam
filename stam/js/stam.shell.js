@@ -1,6 +1,6 @@
 /* ============================================================
  * STAM Shell — Left Navigation 렌더링 + Root Cards + Menu Table
- * 의존: stam.nav-data.js (window.STAM.data)
+ * 의존: stam.nav-data.js (window.STAM.data), stam.theme.js (window.STAM.theme)
  * v2 — accordion + group/menu badges | 2026-06-07
  * ============================================================ */
 (function () {
@@ -398,6 +398,11 @@
         e.preventDefault(); inputEl.focus(); inputEl.select();
       }
     });
+  }
+
+  /* 전역 theme 복원 — Shell 진입 시 저장값 재적용 (stam.theme.js 선행 로드 전제) */
+  if (window.STAM && typeof window.STAM.initTheme === 'function') {
+    window.STAM.initTheme();
   }
 
   window.STAM = window.STAM || {};
