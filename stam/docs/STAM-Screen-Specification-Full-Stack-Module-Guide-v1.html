@@ -297,7 +297,7 @@
                 <li>정식 DB 테이블 / 컬럼 / ERD 확정</li>
                 <li>기술 엔진 확정</li>
                 <li>실시간 동시 편집 구현 보장</li>
-                <li>Undo / 원클릭 되돌리기 / 전체 복구 보장</li>
+                <li>단일 액션 되돌림 보장 / 전면 복원 보장</li>
                 <li>PowerPoint / Figma급 범용 그리기 도구 직접 구현</li>
                 <li>저장/충돌 처리 상세 정책 확정 (→ Save &amp; Conflict Guide에 위임)</li>
                 <li>변경이력/복구 상세 정책 확정 (→ Change History Guide에 위임)</li>
@@ -315,14 +315,14 @@
         <div class="sec-hdr"><span class="sec-n">04</span><span class="sec-title">Full Stack Scope v1 Principles</span><span class="sbadge lock">Rule</span></div>
         <div class="sec-body">
           <ol class="ssf-prin-list">
-            <li class="ssf-prin-item"><span class="ssf-prin-n">1</span><span><strong>"MVP"라는 표현을 사용하지 않는다.</strong> 화면설계서 기능은 Full Stack Scope v1 기준으로 정의한다.</span></li>
+            <li class="ssf-prin-item"><span class="ssf-prin-n">1</span><span><strong>축소형 범위 명칭을 사용하지 않는다.</strong> 화면설계서 기능은 Full Stack Scope v1 기준으로 정의한다.</span></li>
             <li class="ssf-prin-item"><span class="ssf-prin-n">2</span><span><strong>기능 범위를 축소하지 않는다.</strong> Full Stack Scope v1에 포함하되 구현 순서를 분리한다.</span></li>
             <li class="ssf-prin-item"><span class="ssf-prin-n">3</span><span>구현 순서 분리는 허용하지만, <strong>범위 제외처럼 표현하지 않는다.</strong> "Full Stack Scope v1에 포함하되 구현 순서를 분리한다"는 표현을 사용한다.</span></li>
             <li class="ssf-prin-item"><span class="ssf-prin-n">4</span><span><em>"나중에 붙인다"</em>는 표현을 사용하지 않는다.</span></li>
             <li class="ssf-prin-item"><span class="ssf-prin-n">5</span><span><strong>DB 테이블 / 컬럼 / ERD는 확정하지 않는다.</strong> 후보로만 표기한다.</span></li>
             <li class="ssf-prin-item"><span class="ssf-prin-n">6</span><span><strong>기술 엔진은 후보로만 표기한다.</strong> 확정 언어를 사용하지 않는다.</span></li>
             <li class="ssf-prin-item"><span class="ssf-prin-n">7</span><span>PowerPoint / Figma급 범용 그리기 도구를 직접 구현한다고 약속하지 않는다. <strong>STAM 도메인 위에 검증된 편집 엔진 후보를 결합하는 방향</strong>으로 표현한다.</span></li>
-            <li class="ssf-prin-item"><span class="ssf-prin-n">8</span><span>제품 차원의 Undo / 원클릭 되돌리기 / 전체 복구 보장을 약속하지 않는다.</span></li>
+            <li class="ssf-prin-item"><span class="ssf-prin-n">8</span><span>제품 차원의 단일 액션 되돌림 보장 / 전면 복원 보장을 약속하지 않는다.</span></li>
             <li class="ssf-prin-item"><span class="ssf-prin-n">9</span><span>에디터 내부 임시 편집 이력은 후보로 표현할 수 있다. 단, <strong>Product-level recovery promise is not included</strong> 취지를 반드시 함께 표시한다.</span></li>
             <li class="ssf-prin-item"><span class="ssf-prin-n">10</span><span>저장/충돌 정책은 <strong>Save &amp; Conflict Handling Policy Guide v1에 위임</strong>한다.</span></li>
             <li class="ssf-prin-item"><span class="ssf-prin-n">11</span><span>변경이력/복구 정책은 <strong>Change History / Recovery Policy Guide v1에 위임</strong>한다.</span></li>
@@ -339,7 +339,7 @@
           <div class="ssf-np-grid">
             <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span><strong>PowerPoint / Figma급 범용 그리기 도구 직접 구현을 약속하지 않는다.</strong></span></div>
             <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span><strong>실시간 동시 편집 기능 구현을 약속하지 않는다.</strong></span></div>
-            <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span><strong>제품 차원의 Undo / 원클릭 되돌리기 / 전체 복구 보장을 약속하지 않는다.</strong></span></div>
+            <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span><strong>제품 차원의 단일 액션 되돌림 보장 / 전면 복원 보장을 약속하지 않는다.</strong></span></div>
             <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span><strong>모든 충돌을 자동 병합한다고 약속하지 않는다.</strong> (→ Save &amp; Conflict Guide에 위임)</span></div>
             <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span><strong>DB 테이블 / 컬럼 / ERD 확정을 약속하지 않는다.</strong> 모두 Candidate.</span></div>
             <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span><strong>기술 엔진 확정을 약속하지 않는다.</strong> 모두 Candidate.</span></div>
@@ -437,7 +437,7 @@
               <div class="ssf-rc-hdr warn">에디터 범위 한계</div>
               <ul>
                 <li>에디터 엔진은 <strong>검증된 오픈소스 후보를 결합</strong>하는 방향 (→ S22 Technical Engine Candidates)</li>
-                <li><strong>Editor-local editing history candidate</strong> — 에디터 내 임시 편집 이력 후보. <strong>제품 차원의 전체 복구 / 원클릭 되돌리기 보장은 포함하지 않는다.</strong></li>
+                <li><strong>Editor-local editing history candidate</strong> — 에디터 내부 임시 편집 이력 후보. <strong>제품 차원의 전면 복원 보장 / 단일 액션 되돌림 보장은 포함하지 않는다.</strong></li>
                 <li>저장 / 충돌 처리는 Save &amp; Conflict Guide에 위임</li>
                 <li>Full Stack Scope v1에 포함. 구현 순서 분리 가능.</li>
               </ul>
@@ -471,7 +471,7 @@
               </ul>
             </div>
           </div>
-          <div class="ibox warn"><strong>Product-level recovery promise is not included</strong> — 와이어프레임 에디터 내 임시 편집 이력은 후보이며, 제품 차원의 전체 복구 / 원클릭 되돌리기 보장은 포함하지 않는다.</div>
+          <div class="ibox warn"><strong>Product-level recovery promise is not included</strong> — 와이어프레임 에디터 내부 임시 편집 이력은 후보이며, 제품 차원의 전면 복원 보장 / 단일 액션 되돌림 보장은 포함하지 않는다.</div>
         </div>
       </section>
 
@@ -577,7 +577,7 @@
               <li>수동 버전 고정 (Snapshot) 후보</li>
               <li>버전 목록 조회 / 버전 비교 후보</li>
               <li>버전 복구 정책 기준은 <strong>Change History / Recovery Policy Guide v1에 위임</strong></li>
-              <li><strong>제품 차원의 Undo / 전체 복구는 약속하지 않는다.</strong></li>
+              <li><strong>제품 차원의 단일 액션 되돌림 보장 / 전면 복원 보장은 약속하지 않는다.</strong></li>
               <li>Field Diff / 복구 요청 / 관리자 복구 / Snapshot 상세 기준은 Change History Guide를 따른다</li>
             </ul>
           </div>
@@ -819,9 +819,9 @@
         <div class="sec-hdr"><span class="sec-n">25</span><span class="sec-title">QA Checklist</span><span class="sbadge done">QA</span></div>
         <div class="sec-body">
           <div class="ssf-np-grid">
-            <div class="ssf-np-item"><span class="ssf-np-box pass">✓</span><span>"MVP" 표현을 사용하지 않고 "Full Stack Scope v1" 기준으로 표현하였는가</span></div>
+            <div class="ssf-np-item"><span class="ssf-np-box pass">✓</span><span>축소형 범위 명칭을 사용하지 않고 "Full Stack Scope v1" 기준으로 표현하였는가</span></div>
             <div class="ssf-np-item"><span class="ssf-np-box pass">✓</span><span>기능 범위를 축소하지 않고 "구현 순서 분리" 표현만 사용하였는가</span></div>
-            <div class="ssf-np-item"><span class="ssf-np-box pass">✓</span><span>Undo / 원클릭 되돌리기 / 전체 복구 보장 표현이 없는가</span></div>
+            <div class="ssf-np-item"><span class="ssf-np-box pass">✓</span><span>단일 액션 되돌림 보장 / 전면 복원 보장 표현이 없는가</span></div>
             <div class="ssf-np-item"><span class="ssf-np-box pass">✓</span><span>Wireframe / Flowchart 에디터의 Editor-local history candidate 표현과 Non-promise 주기가 함께 표시되었는가</span></div>
             <div class="ssf-np-item"><span class="ssf-np-box pass">✓</span><span>PowerPoint / Figma급 범용 그리기 도구 직접 구현 약속 표현이 없는가</span></div>
             <div class="ssf-np-item"><span class="ssf-np-box pass">✓</span><span>DB 테이블 / 컬럼 / ERD가 확정처럼 표현되어 있지 않은가 (모두 Candidate)</span></div>
@@ -829,7 +829,7 @@
             <div class="ssf-np-item"><span class="ssf-np-box pass">✓</span><span>저장/충돌 정책이 Save &amp; Conflict Guide에 위임 표현되어 있는가</span></div>
             <div class="ssf-np-item"><span class="ssf-np-box pass">✓</span><span>변경이력/복구 정책이 Change History Guide에 위임 표현되어 있는가</span></div>
             <div class="ssf-np-item"><span class="ssf-np-box pass">✓</span><span>Registry 예상 count (39→40, Existing 36→37, Planned 2 유지)가 표기되어 있는가</span></div>
-            <div class="ssf-np-item"><span class="ssf-np-box pass">✓</span><span>.guide-content wrapper 사용, .guide-wrap 미사용</span></div>
+            <div class="ssf-np-item"><span class="ssf-np-box pass">✓</span><span>.guide-content wrapper 사용, 비표준 wrapper 미사용</span></div>
             <div class="ssf-np-item"><span class="ssf-np-box pass">✓</span><span>Related Links / Guides To Update Together 포함</span></div>
           </div>
         </div>
@@ -976,7 +976,7 @@
             <table class="ssf-tbl">
               <thead><tr><th style="min-width:180px">용어</th><th>정의</th></tr></thead>
               <tbody>
-                <tr><td class="tn">Full Stack Scope v1</td><td>화면설계서 기능의 전체 모듈 범위 기준. "MVP" 표현 대신 사용한다.</td></tr>
+                <tr><td class="tn">Full Stack Scope v1</td><td>화면설계서 기능의 전체 모듈 범위 기준. 축소형 범위 명칭 대신 사용한다.</td></tr>
                 <tr><td class="tn">Screen Specification</td><td>STAM 내 화면설계서. 페이지, 에디터, 콜아웃, 검토 등을 포함하는 문서 단위.</td></tr>
                 <tr><td class="tn">Authoring Editor</td><td>텍스트 / 블록 기반 화면설계서 편집 에디터. 검증된 오픈소스 에디터 엔진 후보를 결합.</td></tr>
                 <tr><td class="tn">Wireframe Editor</td><td>UI 요소 배치 / 편집 기반 화면 설계 도구. 검증된 Canvas 엔진 후보 결합.</td></tr>
@@ -997,10 +997,10 @@
         <div class="sec-hdr"><span class="sec-n">C</span><span class="sec-title">Appendix C — Non-Promises</span><span class="sbadge lock">Rule</span></div>
         <div class="sec-body">
           <div class="ssf-np-grid">
-            <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span>"MVP"라는 표현을 사용하지 않는다.</span></div>
+            <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span>축소형 범위 명칭을 사용하지 않는다.</span></div>
             <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span>PowerPoint / Figma급 범용 그리기 도구 직접 구현을 약속하지 않는다.</span></div>
             <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span>실시간 동시 편집 구현을 약속하지 않는다.</span></div>
-            <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span>제품 차원의 Undo / 원클릭 되돌리기 / 전체 복구 보장을 약속하지 않는다. (Product-level recovery promise is not included.)</span></div>
+            <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span>제품 차원의 단일 액션 되돌림 보장 / 전면 복원 보장을 약속하지 않는다. (Product-level recovery promise is not included.)</span></div>
             <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span>모든 충돌을 자동 병합한다고 약속하지 않는다.</span></div>
             <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span>DB 테이블 / 컬럼 / ERD 확정을 약속하지 않는다.</span></div>
             <div class="ssf-np-item"><span class="ssf-np-box fail">✕</span><span>기술 엔진 선택을 이 문서에서 확정하지 않는다.</span></div>
