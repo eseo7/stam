@@ -29,6 +29,8 @@
 .gri-pill.stable     { background: var(--pass-bg);   color: var(--pass); }
 .gri-pill.locked     { background: var(--purple-bg); color: var(--purple); }
 .gri-pill.deprecated { background: var(--bg-sur2);  color: var(--t3); border: 1px solid var(--bd); }
+.gri-pill.superseded { background: var(--bg-sur2);  color: var(--t3); border: 1px solid var(--bd); }
+.gri-cat.superseded  { background: var(--bg-sur2);  color: var(--t3); border: 1px solid var(--bd); }
 
 .gri-cat {
   display: inline-flex; align-items: center;
@@ -322,7 +324,7 @@ html, body { overflow-x: hidden; max-width: 100%; }
         <div class="sec-hdr">
           <span class="sec-n">05</span>
           <span class="sec-title">Guide Registry Table</span>
-          <span class="sbadge plan">39 entries</span>
+          <span class="sbadge plan">39 entries · 36 Existing · 2 Planned · 1 Superseded</span>
         </div>
         <div class="sec-body">
           <div class="ibox info" style="margin-bottom:14px;">
@@ -330,17 +332,20 @@ html, body { overflow-x: hidden; max-width: 100%; }
             <div style="display:flex;flex-wrap:wrap;gap:8px 20px;margin:10px 0 8px;font-size:.88em;line-height:1.75;">
               <span><strong>Total Entries:</strong> 39</span>
               <span><strong>Existing Docs:</strong> 36</span>
-              <span><strong>Planned Guides:</strong> 3</span>
+              <span><strong>Planned Guides:</strong> 2</span>
+              <span><strong>Superseded:</strong> 1</span>
               <span><strong>Registry Self Entry:</strong> Included</span>
             </div>
             <p style="margin:0 0 8px;font-size:.84em;line-height:1.7;opacity:.9;">
               <strong>Existing Docs (36)</strong> = <code>stam/docs</code>에 HTML 파일이 존재하는 등록 행.
-              <strong>Planned Guides (3)</strong> = 파일 없음 · Status <code>Planned</code> · File <code>TBD — not in docs</code>.
+              <strong>Planned Guides (2)</strong> = 파일 없음 · Status <code>Planned</code> · File <code>TBD — not in docs</code>.
+              <strong>Superseded (1)</strong> = 별도 신규 문서로 대체된 등록 행 · Status <code>Superseded</code>.
               <strong>Registry Self Entry</strong>는 row 39로 Total·Existing Docs 모두에 포함된다 (별도 가산 없음).
             </p>
             <p style="margin:0;font-size:.84em;line-height:1.7;opacity:.85;">
-              <strong>Planned 3건:</strong> Undo / Revision History / Recovery Policy Guide v1 · WBS Timeline / Gantt View Policy Guide v1 · Core DB Architecture / Domain Model Guide v1<br>
-              <strong>합산:</strong> 36 Existing + 3 Planned = 39 Total (table row 수와 일치)
+              <strong>Planned 2건:</strong> WBS Timeline / Gantt View Policy Guide v1 · Core DB Architecture / Domain Model Guide v1<br>
+              <strong>Superseded 1건:</strong> Undo / Revision History / Recovery Policy Guide v1 → Change History / Recovery Policy Guide v1<br>
+              <strong>합산:</strong> 36 Existing + 2 Planned + 1 Superseded = 39 Total (table row 수와 일치)
             </p>
           </div>
           <div class="ibox info" style="margin-bottom:14px;">
@@ -769,14 +774,14 @@ html, body { overflow-x: hidden; max-width: 100%; }
                 <tr>
                   <td class="no">34</td>
                   <td class="title"><span class="gri-disabled">Undo / Revision History / Recovery Policy Guide v1</span></td>
-                  <td class="file"><code>TBD — not in docs</code></td>
-                  <td><span class="gri-cat planned">Planned</span></td>
-                  <td><span class="gri-pill planned">Planned</span></td>
+                  <td class="file"><code>Superseded — see replacement</code></td>
+                  <td><span class="gri-cat superseded">Superseded</span></td>
+                  <td><span class="gri-pill superseded">Superseded</span></td>
                   <td>Security / Audit / WBS</td>
-                  <td>Audit Log, DB Impact, Board/WBS</td>
-                  <td>Undo button, revision panel, restore flow</td>
-                  <td>change_logs, snapshots, undo_actions</td>
-                  <td>문서 생성 예정</td>
+                  <td>Replaced by <a href="STAM-Change-History-Recovery-Policy-Guide-v1.html">Change History / Recovery Policy Guide v1</a></td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>Superseded by <a href="STAM-Change-History-Recovery-Policy-Guide-v1.html">Change History / Recovery Policy Guide v1</a>. Undo-style feature promise is no longer used. Change history, recovery request, admin recovery, and snapshot candidates are now covered by the replacement guide.</td>
                 </tr>
                 <tr>
                   <td class="no">35</td>
@@ -1014,11 +1019,11 @@ html, body { overflow-x: hidden; max-width: 100%; }
                   <td>Hard Refresh · User Menu Chevron · Page-specific action 분리</td>
                 </tr>
                 <tr>
-                  <td><span class="gri-pill planned">P2</span></td>
-                  <td>Undo / Revision History / Recovery Policy Guide 예정</td>
+                  <td><span class="gri-pill superseded">—</span></td>
+                  <td>Undo / Revision History / Recovery Policy Guide</td>
                   <td>Audit Log, WBS</td>
-                  <td><span class="gri-pill planned">Planned</span></td>
-                  <td>문서 미생성</td>
+                  <td><span class="gri-pill superseded">Superseded</span></td>
+                  <td>Replaced by <a href="STAM-Change-History-Recovery-Policy-Guide-v1.html">Change History / Recovery Policy Guide v1</a></td>
                 </tr>
                 <tr>
                   <td><span class="gri-pill planned">P2</span></td>
