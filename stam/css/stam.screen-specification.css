@@ -2141,6 +2141,12 @@
   display: block;
 }
 
+/* 하단 클리핑 보정: 위로 펼침 */
+.screen-spec-page .ss-cs.cs-up .ss-cs-panel {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+
 .screen-spec-page .ss-cs-opt {
   padding: 7px 9px;
   border-radius: var(--r-sm, 6px);
@@ -2153,7 +2159,9 @@
   transition: background 120ms, color 120ms;
 }
 
-.screen-spec-page .ss-cs-opt:hover {
+/* hover + 키보드 active 동일 톤 */
+.screen-spec-page .ss-cs-opt:hover,
+.screen-spec-page .ss-cs-opt.is-active {
   background: var(--bg-sur2);
   color: var(--t1);
 }
@@ -2162,6 +2170,7 @@
   color: var(--t3);
 }
 
+/* selected는 hover/active보다 우선(뒤에 선언) */
 .screen-spec-page .ss-cs-opt.is-sel {
   background: var(--stam-soft);
   color: var(--brand);
@@ -2194,8 +2203,16 @@
   box-shadow: 0 10px 28px rgba(0, 0, 0, .45);
 }
 
-[data-theme="dark"] .screen-spec-page .ss-cs-opt:hover {
+[data-theme="dark"] .screen-spec-page .ss-cs-opt:hover,
+[data-theme="dark"] .screen-spec-page .ss-cs-opt.is-active {
   background: var(--bg-sur3);
+  color: var(--t1);
+}
+
+/* dark selected: hover/active보다 우선, brand 톤 유지 */
+[data-theme="dark"] .screen-spec-page .ss-cs-opt.is-sel {
+  background: var(--stam-soft);
+  color: var(--brand);
 }
 
 [data-theme="dark"] .screen-spec-page .ss-cs-panel::-webkit-scrollbar-thumb {

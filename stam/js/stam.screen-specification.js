@@ -558,9 +558,13 @@
      네이티브 <select>는 값의 source of truth로 유지(숨김)하고,
      그 위에 STAM/WBS 톤의 trigger + option panel을 덧씌운다.
      데이터/필드/저장 로직은 변경하지 않는다. */
+  var csUid = 0;
+
   function buildCustomSelect(native) {
     if (native.getAttribute('data-cs') === '1') return;
     native.setAttribute('data-cs', '1');
+    var uid = 'sscs-' + (++csUid);
+    var activeIdx = -1;
 
     var wrap = document.createElement('div');
     wrap.className = 'ss-cs';
@@ -570,6 +574,7 @@
     trigger.className = 'ss-cs-trigger';
     trigger.setAttribute('aria-haspopup', 'listbox');
     trigger.setAttribute('aria-expanded', 'false');
+    trigger.setAttribute('aria-controls', uid + '-list');
 
     var valSpan = document.createElement('span');
     valSpan.className = 'ss-cs-val';
@@ -583,13 +588,16 @@
 
     var panel = document.createElement('div');
     panel.className = 'ss-cs-panel';
+    panel.id = uid + '-list';
     panel.setAttribute('role', 'listbox');
 
     Array.prototype.forEach.call(native.options, function (o, i) {
       var od = document.createElement('div');
       od.className = 'ss-cs-opt';
+      od.id = uid + '-opt-' + i;
       od.setAttribute('role', 'option');
       od.setAttribute('data-idx', i);
+      od.setAttribute('aria-selected', 'false');
       od.textContent = o.textContent;
       if (o.value === '') od.classList.add('is-placeholder');
       panel.appendChild(od);
@@ -606,41 +614,116 @@
       valSpan.textContent = sel ? sel.textContent : '';
       valSpan.classList.toggle('is-placeholder', !!sel && sel.value === '');
       Array.prototype.forEach.call(panel.children, function (c) {
-        c.classList.toggle('is-sel', parseInt(c.getAttribute('data-idx'), 10) === native.selectedIndex);
+        var on = parseInt(c.getAttribute('data-idx'), 10) === native.selectedIndex;
+        c.classList.toggle('is-sel', on);
+        c.setAttribute('aria-selected', on ? 'true' : 'false');
       });
     }
     syncLabel();
 
-    trigger.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var willOpen = !wrap.classList.contains('open');
-      closeAllCustomSelects();
-      if (willOpen) {
-        wrap.classList.add('open');
-        trigger.setAttribute('aria-expanded', 'true');
-        var selOpt = panel.querySelector('.is-sel');
-        if (selOpt) selOpt.scrollIntoView({ block: 'nearest' });
+    function setActive(idx) {
+      var opts = panel.children;
+      if (idx < 0) idx = 0;
+      if (idx > opts.length - 1) idx = opts.length - 1;
+      activeIdx = idx;
+      Array.prototype.forEach.call(opts, function (c, i) {
+        c.classList.toggle('is-active', i === idx);
+      });
+      var act = opts[idx];
+      if (act) {
+        trigger.setAttribute('aria-activedescendant', act.id);
+        act.scrollIntoView({ block: 'nearest' });
       }
-    });
+    }
 
-    panel.addEventListener('click', function (e) {
-      var od = e.target.closest('.ss-cs-opt');
-      if (!od) return;
-      e.stopPropagation();
-      var idx = parseInt(od.getAttribute('data-idx'), 10);
+    /* opened dropdown 하단 클리핑 보정: Drawer body 영역 기준으로
+       아래 공간이 부족하고 위가 더 넓으면 위로 펼친다(.cs-up). */
+    function applyFlip() {
+      wrap.classList.remove('cs-up');
+      var container = document.getElementById('ss-dw-body');
+      if (!container) return;
+      var ph = panel.offsetHeight;
+      var tRect = trigger.getBoundingClientRect();
+      var cRect = container.getBoundingClientRect();
+      var below = cRect.bottom - tRect.bottom;
+      var above = tRect.top - cRect.top;
+      if (below < ph + 8 && above > below) wrap.classList.add('cs-up');
+    }
+
+    function openPanel() {
+      closeAllCustomSelects();
+      wrap.classList.add('open');
+      trigger.setAttribute('aria-expanded', 'true');
+      applyFlip();
+      setActive(native.selectedIndex >= 0 ? native.selectedIndex : 0);
+    }
+
+    function selectIdx(idx) {
       if (native.selectedIndex !== idx) {
         native.selectedIndex = idx;
         native.dispatchEvent(new Event('change', { bubbles: true }));
       }
       syncLabel();
       closeCustomSelect(wrap);
+      trigger.focus();
+    }
+
+    trigger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (wrap.classList.contains('open')) closeCustomSelect(wrap);
+      else openPanel();
+    });
+
+    trigger.addEventListener('keydown', function (e) {
+      var isOpen = wrap.classList.contains('open');
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          if (!isOpen) openPanel(); else setActive(activeIdx + 1);
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          if (!isOpen) openPanel(); else setActive(activeIdx - 1);
+          break;
+        case 'Home':
+          if (isOpen) { e.preventDefault(); setActive(0); }
+          break;
+        case 'End':
+          if (isOpen) { e.preventDefault(); setActive(panel.children.length - 1); }
+          break;
+        case 'Enter':
+        case ' ':
+        case 'Spacebar':
+          e.preventDefault();
+          if (!isOpen) openPanel(); else selectIdx(activeIdx);
+          break;
+        case 'Tab':
+          if (isOpen) closeCustomSelect(wrap);
+          break;
+      }
+    });
+
+    panel.addEventListener('mousemove', function (e) {
+      var od = e.target.closest('.ss-cs-opt');
+      if (od) setActive(parseInt(od.getAttribute('data-idx'), 10));
+    });
+
+    panel.addEventListener('click', function (e) {
+      var od = e.target.closest('.ss-cs-opt');
+      if (!od) return;
+      e.stopPropagation();
+      selectIdx(parseInt(od.getAttribute('data-idx'), 10));
     });
   }
 
   function closeCustomSelect(wrap) {
     wrap.classList.remove('open');
+    wrap.classList.remove('cs-up');
     var t = wrap.querySelector('.ss-cs-trigger');
-    if (t) t.setAttribute('aria-expanded', 'false');
+    if (t) {
+      t.setAttribute('aria-expanded', 'false');
+      t.removeAttribute('aria-activedescendant');
+    }
   }
 
   function closeAllCustomSelects() {
