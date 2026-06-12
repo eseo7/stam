@@ -1884,8 +1884,34 @@
   resize: vertical;
 }
 
+/* select: 네이티브 느낌 제거 + WBS/STAM form tone custom arrow */
 .screen-spec-page select.ss-inp {
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
+[data-theme="dark"] .screen-spec-page select.ss-inp {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+
+/* date / datetime: 닫힌 상태 STAM form tone, 다크모드 calendar 아이콘 대비 보정 */
+.screen-spec-page input[type="date"].ss-inp,
+.screen-spec-page input[type="datetime-local"].ss-inp,
+.screen-spec-page input[type="date"],
+.screen-spec-page input[type="datetime-local"] {
+  cursor: pointer;
+}
+
+[data-theme="dark"] .screen-spec-page input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="dark"] .screen-spec-page input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
 }
 
 .screen-spec-page .ss-seg {
@@ -1926,11 +1952,11 @@
   gap: 6px;
   height: 34px;
   padding: 0 12px;
-  border: 1.5px dashed var(--bd);
+  border: 1.5px dashed var(--bd-s);
   border-radius: var(--r-md);
   font-size: 12px;
-  color: var(--t3);
-  background: transparent;
+  color: var(--t2);
+  background: var(--bg-sur2);
   cursor: pointer;
   transition: all 120ms;
 }
@@ -1943,7 +1969,7 @@
 }
 
 .screen-spec-page .ss-upload-area {
-  border: 1.5px dashed var(--bd);
+  border: 1.5px dashed var(--bd-s);
   border-radius: var(--r-md);
   padding: 22px;
   display: flex;
@@ -1951,7 +1977,7 @@
   align-items: center;
   gap: 8px;
   background: var(--bg-sur2);
-  color: var(--t3);
+  color: var(--t2);
   cursor: pointer;
   transition: all 120ms;
   text-align: center;
