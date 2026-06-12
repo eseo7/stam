@@ -1,0 +1,232 @@
+/* ─────────────────────────────────────────────
+   STAM Buttons 공통 기준  v1
+   로드 순서: stam.components.css → … → stam.buttons.css → 페이지 CSS
+   ─────────────────────────────────────────────
+   stam.components.css 에 정의된 .stam-btn 기반
+   (base + --primary/--secondary/--ghost/--danger 토큰)을 그대로 사용하고
+   single-dash 별칭 + 추가 variant + 크기 별칭 + 액션 컨테이너를 보완합니다.
+   ───────────────────────────────────────────── */
+
+/* ── Variant 별칭 (single-dash → double-dash 토큰과 동일 스타일) ── */
+
+.stam-btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--btn-primary-bg);
+}
+.stam-btn-primary:hover {
+  background: var(--btn-primary-bg-hover);
+  border-color: var(--btn-primary-bg-hover);
+}
+.stam-btn-primary:active {
+  background: var(--btn-primary-bg-active);
+  border-color: var(--btn-primary-bg-active);
+}
+.stam-btn-primary:focus-visible {
+  box-shadow: var(--btn-focus-ring);
+}
+.stam-btn-primary[disabled],
+.stam-btn-primary.is-disabled {
+  background: var(--btn-primary-bg-disabled);
+  border-color: var(--btn-primary-bg-disabled);
+  color: var(--btn-primary-text);
+}
+
+.stam-btn-secondary {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border-color: var(--btn-secondary-border);
+}
+.stam-btn-secondary:hover {
+  background: var(--btn-secondary-bg-hover);
+}
+.stam-btn-secondary:active {
+  background: var(--btn-secondary-bg-active);
+}
+.stam-btn-secondary:focus-visible {
+  box-shadow: var(--btn-focus-ring);
+}
+.stam-btn-secondary[disabled],
+.stam-btn-secondary.is-disabled {
+  color: var(--btn-secondary-text-disabled);
+  background: var(--btn-secondary-bg);
+  border-color: var(--btn-secondary-border);
+}
+
+.stam-btn-ghost {
+  background: transparent;
+  color: var(--btn-ghost-text);
+  border-color: transparent;
+}
+.stam-btn-ghost:hover {
+  background: var(--btn-ghost-bg-hover);
+}
+.stam-btn-ghost:active {
+  background: var(--btn-ghost-bg-active);
+}
+.stam-btn-ghost:focus-visible {
+  box-shadow: var(--btn-focus-ring);
+}
+.stam-btn-ghost[disabled],
+.stam-btn-ghost.is-disabled {
+  opacity: .45;
+}
+
+/* outline — secondary와 동일하나 배경이 투명 */
+.stam-btn-outline {
+  background: transparent;
+  color: var(--btn-secondary-text);
+  border-color: var(--btn-secondary-border);
+}
+.stam-btn-outline:hover {
+  background: var(--btn-secondary-bg-hover);
+}
+.stam-btn-outline:active {
+  background: var(--btn-secondary-bg-active);
+}
+.stam-btn-outline:focus-visible {
+  box-shadow: var(--btn-focus-ring);
+}
+.stam-btn-outline[disabled],
+.stam-btn-outline.is-disabled {
+  color: var(--btn-secondary-text-disabled);
+  border-color: var(--btn-secondary-border);
+}
+
+.stam-btn-danger {
+  background: var(--btn-danger-bg);
+  color: var(--btn-danger-text);
+  border-color: var(--btn-danger-bg);
+}
+.stam-btn-danger:hover {
+  background: var(--btn-danger-bg-hover);
+  border-color: var(--btn-danger-bg-hover);
+}
+.stam-btn-danger:active {
+  background: var(--btn-danger-bg-active);
+  border-color: var(--btn-danger-bg-active);
+}
+.stam-btn-danger:focus-visible {
+  box-shadow: var(--btn-danger-ring);
+}
+.stam-btn-danger[disabled],
+.stam-btn-danger.is-disabled {
+  background: var(--btn-danger-bg-disabled);
+  border-color: var(--btn-danger-bg-disabled);
+  color: var(--btn-danger-text);
+}
+
+/* warning — amber/orange 계열 */
+.stam-btn-warning {
+  background: #D97706;
+  color: #FFFFFF;
+  border-color: #D97706;
+}
+.stam-btn-warning:hover {
+  background: #B45309;
+  border-color: #B45309;
+}
+.stam-btn-warning:active {
+  background: #92400E;
+  border-color: #92400E;
+}
+.stam-btn-warning:focus-visible {
+  box-shadow: 0 0 0 3px rgba(217,119,6,.30);
+}
+.stam-btn-warning[disabled],
+.stam-btn-warning.is-disabled {
+  background: rgba(217,119,6,.35);
+  border-color: rgba(217,119,6,.35);
+  color: #FFFFFF;
+}
+
+/* success — green 계열 */
+.stam-btn-success {
+  background: #16A34A;
+  color: #FFFFFF;
+  border-color: #16A34A;
+}
+.stam-btn-success:hover {
+  background: #15803D;
+  border-color: #15803D;
+}
+.stam-btn-success:active {
+  background: #166534;
+  border-color: #166534;
+}
+.stam-btn-success:focus-visible {
+  box-shadow: 0 0 0 3px rgba(22,163,74,.30);
+}
+.stam-btn-success[disabled],
+.stam-btn-success.is-disabled {
+  background: rgba(22,163,74,.35);
+  border-color: rgba(22,163,74,.35);
+  color: #FFFFFF;
+}
+
+/* ── 다크 모드 추가 토큰 보완 ── */
+[data-theme="dark"] .stam-btn-outline {
+  color: var(--t1);
+  border-color: var(--bd);
+}
+[data-theme="dark"] .stam-btn-outline:hover {
+  background: var(--btn-ghost-bg-hover);
+}
+
+/* ── 크기 별칭 (single-dash) ── */
+
+.stam-btn-sm {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  gap: 6px;
+}
+.stam-btn-lg {
+  height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+  gap: 8px;
+}
+
+/* ── disabled 공통 ── */
+.stam-btn[disabled],
+.stam-btn.is-disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── 액션 컨테이너 ── */
+
+/* 페이지 상단 툴바 액션 영역 */
+.stam-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 목록 상단 액션 바 */
+.stam-actionbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  flex-wrap: wrap;
+}
+
+/* Drawer footer 액션 영역 */
+.stam-drawer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Drawer footer 우측 정렬 영역 */
+.stam-drawer-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-wrap: wrap;
+}

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Buttons Guide v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<link rel="stylesheet" href="../css/stam.buttons.css">
+<style>
+.bt-demo-section { margin-bottom: 36px }
+.bt-demo-section:last-child { margin-bottom: 0 }
+.bt-demo-title { font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 4px }
+.bt-demo-desc { font-size: 11.5px; color: var(--t3); margin-bottom: 12px; line-height: 1.6 }
+.bt-demo-box { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; padding: 24px }
+.bt-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px }
+.bt-row:last-child { margin-bottom: 0 }
+.bt-code { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 7px; padding: 14px 16px; font-family: monospace; font-size: 12px; color: var(--t1); line-height: 1.7; white-space: pre; overflow-x: auto }
+.bt-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 99px; font-size: 10.5px; font-weight: 700; background: var(--stam-soft); color: var(--stam); margin-right: 4px }
+.bt-badge.green { background: rgba(16,185,129,.12); color: #10B981 }
+.bt-badge.amber { background: rgba(217,119,6,.12); color: #D97706 }
+.bt-badge.red { background: rgba(239,68,68,.12); color: #EF4444 }
+.bt-cls-table { width: 100%; border-collapse: collapse }
+.bt-cls-table th { text-align: left; font-size: 11px; font-weight: 700; color: var(--t3); border-bottom: 1px solid var(--bd); padding: 7px 10px }
+.bt-cls-table td { font-size: 12px; color: var(--t1); border-bottom: 1px solid var(--bd-s); padding: 8px 10px; vertical-align: top }
+.bt-cls-table td:first-child { font-family: monospace; color: var(--stam); font-weight: 700 }
+.bt-cls-table tr:last-child td { border-bottom: 0 }
+.bt-sep { height: 1px; background: var(--bd-s); margin: 16px 0 }
+.bt-container-box { background: var(--bg-sur2); border: 1px dashed var(--bd); border-radius: 8px; padding: 12px 16px }
+.bt-container-label { font-size: 10.5px; font-weight: 700; color: var(--t3); margin-bottom: 8px; font-family: monospace }
+</style>
+</head>
+<body>
+<div class="po-shell">
+  <header class="po-topbar stam-topbar" data-stam-topbar
+    data-tb-crumbs="STAM Docs|Buttons Guide v1"
+    data-tb-client="STAM Design System"
+    data-tb-search-placeholder=""
+    data-tb-notif="false"></header>
+  <div class="po-body">
+    <nav class="po-sidebar" data-stam-left-nav aria-label="STAM Docs 내비게이션"></nav>
+    <main class="po-main" style="max-width:900px">
+
+      <!-- ── 00 원칙 · 정책 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">00</span>
+          <h2 class="doc-section-title">원칙 · 정책</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="bt-demo-section">
+            <div class="bt-demo-desc">
+              <strong>stam.buttons.css</strong>는 <code>stam.components.css</code>의 <code>.stam-btn</code> 기반 위에
+              single-dash variant 별칭(<code>.stam-btn-primary</code> 등)과 신규 variant(warning, success),
+              크기 별칭(<code>.stam-btn-sm</code>, <code>.stam-btn-lg</code>), 액션 컨테이너를 추가 정의합니다.<br><br>
+              <strong>적용 원칙</strong>
+              <ul style="margin:8px 0 0 16px;line-height:1.9;font-size:12px">
+                <li>기존 page-level class (<code>rq-btn</code>, <code>msl-btn</code> 등)는 유지하고 <code>stam-btn</code> 계열을 병행 추가</li>
+                <li>JS selector가 기존 class에 의존하므로 기존 class를 절대 삭제하지 않음</li>
+                <li>CSS 로드 순서: <code>stam.components.css</code> → <code>stam.drawer.css</code> → <code>stam.table-selection.css</code> → <strong>stam.buttons.css</strong> → 페이지 CSS</li>
+                <li>Drawer footer 버튼이 이미 <code>stam-btn stam-btn--md stam-btn--primary</code> 구문을 사용하는 경우 중복 추가 금지</li>
+                <li>버튼 클릭 JS 로직 변경 금지</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 01 Variant 목록 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">01</span>
+          <h2 class="doc-section-title">Variant 목록</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="bt-demo-section">
+            <table class="bt-cls-table">
+              <thead>
+                <tr><th>Class</th><th>용도</th><th>토큰 / 색상</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>.stam-btn-primary</td><td>주 액션 (등록, 저장, 제출)</td><td><code>--btn-primary-bg</code> #5451E8</td></tr>
+                <tr><td>.stam-btn-secondary</td><td>보조 액션 (취소, 임시저장)</td><td><code>--btn-secondary-bg</code> 흰/회색</td></tr>
+                <tr><td>.stam-btn-ghost</td><td>텍스트 형태 보조 (전체 보기, 취소)</td><td>투명 배경, <code>--btn-ghost-text</code></td></tr>
+                <tr><td>.stam-btn-outline</td><td>외곽선 보조 (내보내기)</td><td>투명 배경, <code>--btn-secondary-border</code></td></tr>
+                <tr><td>.stam-btn-danger</td><td>위험 액션 (삭제)</td><td><code>--btn-danger-bg</code> #DC2626</td></tr>
+                <tr><td>.stam-btn-warning</td><td>경고 액션</td><td>#D97706 amber</td></tr>
+                <tr><td>.stam-btn-success</td><td>성공 확인 액션</td><td>#16A34A green</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 02 시각적 데모 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">02</span>
+          <h2 class="doc-section-title">시각적 데모</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="bt-demo-section">
+            <div class="bt-demo-title">기본 Variant</div>
+            <div class="bt-demo-box">
+              <div class="bt-row">
+                <button class="stam-btn stam-btn-primary" type="button">Primary</button>
+                <button class="stam-btn stam-btn-secondary" type="button">Secondary</button>
+                <button class="stam-btn stam-btn-ghost" type="button">Ghost</button>
+                <button class="stam-btn stam-btn-outline" type="button">Outline</button>
+                <button class="stam-btn stam-btn-danger" type="button">Danger</button>
+                <button class="stam-btn stam-btn-warning" type="button">Warning</button>
+                <button class="stam-btn stam-btn-success" type="button">Success</button>
+              </div>
+            </div>
+          </div>
+          <div class="bt-demo-section">
+            <div class="bt-demo-title">크기 변형</div>
+            <div class="bt-demo-box">
+              <div class="bt-row" style="align-items:center">
+                <button class="stam-btn stam-btn-primary stam-btn-sm" type="button">Small (28px)</button>
+                <button class="stam-btn stam-btn-primary" type="button">기본 (32px)</button>
+                <button class="stam-btn stam-btn-primary stam-btn-lg" type="button">Large (40px)</button>
+              </div>
+            </div>
+          </div>
+          <div class="bt-demo-section">
+            <div class="bt-demo-title">비활성화 (disabled)</div>
+            <div class="bt-demo-box">
+              <div class="bt-row">
+                <button class="stam-btn stam-btn-primary" type="button" disabled>Primary</button>
+                <button class="stam-btn stam-btn-secondary" type="button" disabled>Secondary</button>
+                <button class="stam-btn stam-btn-danger" type="button" disabled>Danger</button>
+                <button class="stam-btn stam-btn-ghost" type="button" disabled>Ghost</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 03 크기 별칭 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">03</span>
+          <h2 class="doc-section-title">크기 별칭</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="bt-demo-section">
+            <table class="bt-cls-table">
+              <thead>
+                <tr><th>Class</th><th>height</th><th>padding</th><th>font-size</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>.stam-btn-sm</td><td>28px</td><td>0 10px</td><td>12px</td></tr>
+                <tr><td>(기본)</td><td>32px</td><td>0 12px</td><td>13px</td></tr>
+                <tr><td>.stam-btn-lg</td><td>40px</td><td>0 16px</td><td>14px</td></tr>
+              </tbody>
+            </table>
+            <div class="bt-demo-desc" style="margin-top:10px">
+              <span class="bt-badge">참고</span>
+              <code>stam.components.css</code>에는 double-dash 크기 클래스(<code>.stam-btn--sm</code>, <code>.stam-btn--md</code>, <code>.stam-btn--lg</code>)가 이미 정의되어 있으며
+              Drawer footer 버튼이 이를 사용합니다. single-dash 별칭은 page header / toolbar 버튼용입니다.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 04 액션 컨테이너 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">04</span>
+          <h2 class="doc-section-title">액션 컨테이너</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="bt-demo-section">
+            <table class="bt-cls-table">
+              <thead>
+                <tr><th>Class</th><th>용도</th><th>특징</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>.stam-toolbar-actions</td><td>페이지 상단 툴바 영역</td><td>flex, gap 8px, wrap</td></tr>
+                <tr><td>.stam-actionbar</td><td>목록 상단 액션 바</td><td>flex, gap 8px, padding 8px 0</td></tr>
+                <tr><td>.stam-drawer-actions</td><td>Drawer footer 전체 영역</td><td>flex, gap 8px, wrap</td></tr>
+                <tr><td>.stam-drawer-actions-right</td><td>Drawer footer 우측 정렬</td><td>flex, gap 8px, margin-left auto</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="bt-demo-section">
+            <div class="bt-demo-title">컨테이너 데모</div>
+            <div class="bt-demo-box">
+              <div class="bt-container-box" style="margin-bottom:12px">
+                <div class="bt-container-label">.stam-toolbar-actions</div>
+                <div class="stam-toolbar-actions">
+                  <button class="stam-btn stam-btn-outline" type="button">내보내기</button>
+                  <button class="stam-btn stam-btn-primary" type="button">+ 등록</button>
+                </div>
+              </div>
+              <div class="bt-container-box" style="margin-bottom:12px">
+                <div class="bt-container-label">.stam-drawer-actions</div>
+                <div class="stam-drawer-actions">
+                  <button class="stam-btn stam-btn-ghost" type="button">취소</button>
+                  <div class="stam-drawer-actions-right">
+                    <button class="stam-btn stam-btn-secondary" type="button">임시저장</button>
+                    <button class="stam-btn stam-btn-primary" type="button">등록</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 05 HTML 사용법 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">05</span>
+          <h2 class="doc-section-title">HTML 사용법</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="bt-demo-section">
+            <div class="bt-demo-title">병행 적용 패턴 (기존 class 유지)</div>
+            <div class="bt-code">&lt;!-- 기존 class 유지 + stam-btn 병행 --&gt;
+&lt;button class="rq-btn rq-btn-pri stam-btn stam-btn-primary" id="rq-reg-btn"&gt;등록&lt;/button&gt;
+&lt;button class="rq-btn rq-btn-out stam-btn stam-btn-outline"&gt;내보내기&lt;/button&gt;
+&lt;button class="rq-btn rq-btn-ghost stam-btn stam-btn-ghost"&gt;취소&lt;/button&gt;
+&lt;button class="rq-btn rq-btn-del stam-btn stam-btn-danger" id="rq-del-btn"&gt;삭제&lt;/button&gt;</div>
+          </div>
+          <div class="bt-demo-section">
+            <div class="bt-demo-title">Drawer footer — 이미 stam-btn--* 구문 사용 시 (추가 불필요)</div>
+            <div class="bt-code">&lt;!-- Drawer footer 버튼: 이미 stam-btn--md --primary 사용 → 추가 금지 --&gt;
+&lt;button class="stam-btn stam-btn--md stam-btn--ghost wbs-fv-trigger-btn"&gt;전체 보기&lt;/button&gt;
+&lt;button class="stam-btn stam-btn--md stam-btn--secondary wbs-drawer-cancel-btn"&gt;취소&lt;/button&gt;
+&lt;button class="stam-btn stam-btn--md stam-btn--primary wbs-btn-primary"&gt;저장&lt;/button&gt;</div>
+          </div>
+          <div class="bt-demo-section">
+            <div class="bt-demo-title">신규 화면 — stam-btn 단독 사용</div>
+            <div class="bt-code">&lt;button class="stam-btn stam-btn-primary" type="button"&gt;등록&lt;/button&gt;
+&lt;button class="stam-btn stam-btn-outline" type="button"&gt;내보내기&lt;/button&gt;
+&lt;button class="stam-btn stam-btn-danger stam-btn-sm" type="button"&gt;삭제&lt;/button&gt;</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 06 CSS 로드 순서 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">06</span>
+          <h2 class="doc-section-title">CSS 로드 순서</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="bt-demo-section">
+            <div class="bt-code">&lt;link rel="stylesheet" href="../../css/stam.tokens.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.shell.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.components.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.form-controls.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.drawer.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.table-selection.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.buttons.css"&gt;  &lt;!-- ← 여기 --&gt;
+&lt;link rel="stylesheet" href="../../css/stam.{page}.css"&gt;</div>
+            <div class="bt-demo-desc" style="margin-top:10px">
+              공통 CSS가 페이지 CSS보다 먼저 로드되므로 페이지 CSS가 동일 specificity에서 덮어씁니다.
+              페이지별 커스텀이 필요하면 페이지 CSS에서 overrride하면 됩니다.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 07 적용 현황 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">07</span>
+          <h2 class="doc-section-title">적용 현황 (1차)</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="bt-demo-section">
+            <table class="bt-cls-table">
+              <thead>
+                <tr><th>화면</th><th>적용 범위</th><th>매핑</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>requirements.html</td>
+                  <td>목록 상단 + Drawer footer 전체</td>
+                  <td><code>rq-btn-pri → stam-btn-primary</code><br><code>rq-btn-out → stam-btn-outline</code><br><code>rq-btn-ghost → stam-btn-ghost</code><br><code>rq-btn-del → stam-btn-danger</code></td>
+                </tr>
+                <tr>
+                  <td>menu-screen-list.html</td>
+                  <td>목록 상단 + Drawer footer 전체</td>
+                  <td><code>msl-btn-pri → stam-btn-primary</code><br><code>msl-btn-out → stam-btn-outline</code><br><code>msl-btn-ghost → stam-btn-ghost</code><br><code>msl-btn-del → stam-btn-danger</code><br><code>msl-btn (단독) → stam-btn-secondary</code></td>
+                </tr>
+                <tr>
+                  <td>screen-specification.html</td>
+                  <td>페이지 헤더 버튼만</td>
+                  <td><code>ss-btn-pri → stam-btn-primary</code><br><code>ss-btn-out → stam-btn-outline</code></td>
+                </tr>
+                <tr>
+                  <td>wbs.html</td>
+                  <td>페이지 헤더 등록 버튼 + 툴바 삭제 버튼</td>
+                  <td><code>wbs-btn-primary (wbs-reg-btn) → stam-btn-primary</code><br><code>wbs-btn-delete (wbs-delete-btn) → stam-btn-danger</code><br>Drawer footer 버튼은 이미 <code>stam-btn--*</code> 사용 → 제외</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 08 다크 모드 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">08</span>
+          <h2 class="doc-section-title">다크 모드</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="bt-demo-section">
+            <div class="bt-demo-desc">
+              버튼 토큰(<code>--btn-primary-bg</code> 등)은 <code>stam.tokens.css</code>의
+              <code>[data-theme="dark"]</code> 블록에서 자동으로 다크 모드 값으로 교체됩니다.<br>
+              추가 다크 모드 재정의는 <code>stam.buttons.css</code> 내 <code>[data-theme="dark"]</code> 블록에서 처리됩니다.
+            </div>
+            <div class="bt-demo-box">
+              <div class="bt-row">
+                <button class="stam-btn stam-btn-primary" type="button">Primary</button>
+                <button class="stam-btn stam-btn-secondary" type="button">Secondary</button>
+                <button class="stam-btn stam-btn-outline" type="button">Outline</button>
+                <button class="stam-btn stam-btn-ghost" type="button">Ghost</button>
+                <button class="stam-btn stam-btn-danger" type="button">Danger</button>
+                <button class="stam-btn stam-btn-warning" type="button">Warning</button>
+                <button class="stam-btn stam-btn-success" type="button">Success</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script src="../js/stam.nav-data.js"></script>
+<script src="../js/stam.topbar-render.js"></script>
+<script src="../js/stam.nav-render.js"></script>
+<script src="../js/stam.ui-baseline.js"></script>
+</body>
+</html>
