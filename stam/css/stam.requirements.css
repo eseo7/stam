@@ -1,6 +1,9 @@
 /* ── Requirements board page styles ── */
 
-.req-page { padding: 20px 24px 64px; min-width: 0; }
+.req-page { padding: 20px 24px 64px; min-width: 0; max-width: var(--content-max); width: 100%; box-sizing: border-box; margin-left: auto; margin-right: auto; }
+
+/* Prevent horizontal browser scroll on requirements page */
+body:has(.req-page) .po-main { overflow-x: hidden; }
 
 /* ── Page header ── */
 .rq-page-hdr { display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:16px 0 14px;border-bottom:1px solid var(--bd);margin-bottom:16px;flex-wrap:wrap }
