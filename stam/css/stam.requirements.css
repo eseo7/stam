@@ -205,6 +205,7 @@ body:has(.req-page) .po-main { overflow-x: hidden; }
 .rq-chg-date { font-size:11px;color:var(--t3) }
 
 /* ── Form sections ── */
+/* stam.form-controls.css 로드 후 페이지 전용 override만 정의 */
 .rq-fs { margin-bottom:22px }
 .rq-fs-hdr { display:flex;align-items:center;gap:8px;padding-bottom:9px;border-bottom:1px solid var(--bd);margin-bottom:14px }
 .rq-fs-num { width:20px;height:20px;border-radius:50%;background:var(--stam);color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;flex-shrink:0 }
@@ -212,13 +213,14 @@ body:has(.req-page) .po-main { overflow-x: hidden; }
 .rq-fgrid { display:grid;grid-template-columns:1fr 1fr;gap:12px 20px }
 .rq-fgrid .full { grid-column:span 2 }
 .rq-ffield { display:flex;flex-direction:column;gap:5px }
-.rq-flbl { font-size:11.5px;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:5px }
+.rq-flbl { font-size:11.5px;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:5px;margin-bottom:0 }
 .rq-req-mark { color:#991B1B;font-size:11px }
-.rq-inp { height:38px;width:100%;border:1px solid var(--bd);border-radius:var(--r-md);padding:0 11px;font-size:12.5px;color:var(--t1);background:var(--bg-sur);outline:none;transition:border-color 120ms,box-shadow 120ms;font-family:inherit;box-sizing:border-box }
+/* rq-inp: page override — height 38px, font-size 12.5px, border var(--bd) */
+.rq-inp { height:38px;width:100%;border:1px solid var(--bd);border-radius:var(--r-md);padding:0 11px;font-size:12.5px;color:var(--t1);background:var(--bg-sur);transition:border-color 120ms,box-shadow 120ms }
 .rq-inp:focus { border-color:var(--stam);box-shadow:0 0 0 3px var(--stam-soft) }
 .rq-inp.ro { background:var(--bg-sur2);color:var(--t3) }
 textarea.rq-inp { height:auto;min-height:80px;padding:9px 11px;line-height:1.6;resize:vertical }
-select.rq-inp { cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:32px }
+select.rq-inp { cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:32px }
 [data-theme="dark"] .rq-inp { background:var(--bg-sur2);border-color:var(--bd) }
 [data-theme="dark"] select.rq-inp { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a8be' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") }
 .rq-helper { font-size:11px;color:var(--t3);margin-top:2px }
