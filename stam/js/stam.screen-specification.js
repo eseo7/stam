@@ -752,7 +752,7 @@
   }
 
   function dwFootTemp() {
-    return '<button type="button" class="ss-dw-btn-temp">임시저장</button>';
+    return '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary ss-dw-btn-temp">임시저장</button>';
   }
 
   /* 실제 제품 페이지가 있는 화면만 전체 보기 → 제품 페이지로 이동.
@@ -867,7 +867,7 @@
       if (d.ast === 'approved') {
         footHtml += '<span class="ss-dw-fm">' + d.ver + ' · 승인 완료</span>';
       } else {
-        footHtml += '<button type="button" class="ss-dw-btn-temp" data-ss-dw-action="edit">수정</button>' +
+        footHtml += '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary ss-dw-btn-temp" data-ss-dw-action="edit">수정</button>' +
           '<button type="button" class="stam-btn stam-btn--md ss-btn-review" data-ss-dw-action="reviewreq">검토 요청</button>';
       }
       footHtml += dwFootFullView(d);
@@ -898,7 +898,7 @@
         '<div class="ss-ffield full"><label class="ss-flbl">화면 목적</label><textarea class="ss-inp" placeholder="이 화면의 목적을 간략히 기술합니다." rows="3"></textarea></div></div></div>' +
         '<div class="ss-fs"><div class="ss-fs-hdr"><span class="ss-fs-num">3</span><span class="ss-fs-title">화면 이미지</span></div><div class="ss-upload-area">' + ic(ICONS.upload, 24, 1.5) +
         '<span style="font-size:12.5px;font-weight:600">이미지 첨부</span><span style="font-size:11px;color:var(--t3)">PNG, JPG, GIF · 최대 10MB</span></div></div>' +
-        '<div class="ss-fs"><div class="ss-fs-hdr"><span class="ss-fs-num">4</span><span class="ss-fs-title">연결정보</span></div><div style="display:flex;flex-direction:column;gap:8px">' +
+        '<div class="ss-fs"><div class="ss-fs-hdr"><span class="ss-fs-num">4</span><span class="ss-fs-title">연결정보</span></div><div class="ss-link-group">' +
         '<button type="button" class="ss-link-add">' + ic(ICONS.plus, 11) + ' 요구사항 연결</button>' +
         '<button type="button" class="ss-link-add">' + ic(ICONS.plus, 11) + ' 작업 연결</button>' +
         '<button type="button" class="ss-link-add">' + ic(ICONS.plus, 11) + ' 인터페이스 연결</button></div></div>';

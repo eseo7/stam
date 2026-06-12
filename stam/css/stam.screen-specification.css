@@ -1400,28 +1400,7 @@
   margin-left: auto;
 }
 
-.screen-spec-page .ss-dw-foot .ss-dw-btn-temp {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  height: 32px;
-  padding: 0 12px;
-  border-radius: var(--r-md);
-  font-size: 13px;
-  font-weight: 600;
-  border: 1px solid var(--bd-s);
-  background: var(--bg-sur);
-  color: var(--t2);
-  cursor: pointer;
-  transition: background 120ms, color 120ms, border-color 120ms;
-  white-space: nowrap;
-  line-height: 1;
-}
-
-.screen-spec-page .ss-dw-foot .ss-dw-btn-temp:hover {
-  background: var(--bg-sur2);
-  color: var(--t1);
-}
+/* .ss-dw-btn-temp: 시각 스타일은 stam-btn--secondary에 위임 (JS에서 class 부여) */
 
 .screen-spec-page .ss-dw-foot .ss-btn-review {
   height: 32px;
@@ -1498,7 +1477,7 @@
   padding: 10px 11px;
 }
 
-.screen-spec-page .ss-dw-sec > div[style*="flex-direction:column"] {
+.screen-spec-page .ss-dw-sec > .ss-link-group {
   padding: 10px 11px;
 }
 
@@ -1821,8 +1800,14 @@
   background: var(--bg-sur);
 }
 
+.screen-spec-page .ss-link-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .screen-spec-page .ss-fs > .ss-upload-area,
-.screen-spec-page .ss-fs > div[style*="flex-direction:column"] {
+.screen-spec-page .ss-fs > .ss-link-group {
   padding: 10px 12px;
   background: var(--bg-sur);
   border-radius: 0 0 calc(var(--r-md) - 1px) calc(var(--r-md) - 1px);
@@ -1916,7 +1901,7 @@
 
 [data-theme="dark"] .screen-spec-page input[type="date"]::-webkit-calendar-picker-indicator,
 [data-theme="dark"] .screen-spec-page input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.7);
+  filter: invert(.72) brightness(1.1);
 }
 
 .screen-spec-page .ss-seg {
