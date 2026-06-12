@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Common UI Control Center v1.0</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<link rel="stylesheet" href="../css/stam.buttons.css">
+<style>
+/* ── Control Center 전용 스타일 ── */
+
+/* 상태 요약 카드 */
+.cc-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px }
+@media (max-width: 680px) { .cc-stat-grid { grid-template-columns: repeat(2, 1fr) } }
+.cc-stat-card { background: var(--bg-sur); border: 1px solid var(--bd-s); border-radius: var(--r-lg); padding: 14px 16px; text-align: center }
+.cc-stat-n { font-size: 28px; font-weight: 700; color: var(--stam); line-height: 1.1; display: block }
+.cc-stat-label { font-size: 11px; color: var(--t3); margin-top: 4px; display: block; line-height: 1.4 }
+
+/* 상태 badge */
+.badge-pass    { display:inline-flex;align-items:center;justify-content:center;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;background:rgba(16,185,129,.15);color:#10B981;white-space:nowrap }
+.badge-partial { display:inline-flex;align-items:center;justify-content:center;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;background:rgba(245,158,11,.15);color:#F59E0B;white-space:nowrap }
+.badge-legacy  { display:inline-flex;align-items:center;justify-content:center;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;background:var(--bg-sur2);color:var(--t3);white-space:nowrap }
+.badge-caution { display:inline-flex;align-items:center;justify-content:center;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;background:rgba(239,68,68,.12);color:#EF4444;white-space:nowrap }
+.badge-todo    { display:inline-flex;align-items:center;justify-content:center;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;background:var(--bg-sur);border:1px solid var(--bd-s);color:var(--t3);white-space:nowrap }
+.badge-req     { display:inline-flex;align-items:center;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;background:rgba(99,102,241,.15);color:#6366F1 }
+.badge-opt     { display:inline-flex;align-items:center;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;background:var(--bg-sur2);color:var(--t3) }
+.badge-risk-low  { display:inline-flex;align-items:center;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;background:rgba(16,185,129,.12);color:#10B981 }
+.badge-risk-mid  { display:inline-flex;align-items:center;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;background:rgba(245,158,11,.12);color:#F59E0B }
+.badge-risk-high { display:inline-flex;align-items:center;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;background:rgba(239,68,68,.12);color:#EF4444 }
+
+/* Inventory 표 */
+.cc-inv-table { width:100%;border-collapse:collapse;font-size:12px }
+.cc-inv-table th { text-align:left;font-size:10.5px;font-weight:700;color:var(--t3);border-bottom:1px solid var(--bd);padding:7px 10px;white-space:nowrap }
+.cc-inv-table td { border-bottom:1px solid var(--bd-s);padding:9px 10px;color:var(--t1);vertical-align:middle }
+.cc-inv-table td:first-child { font-family:monospace;font-size:11.5px;color:var(--stam);font-weight:700;white-space:nowrap }
+.cc-inv-table tr:last-child td { border-bottom:0 }
+.cc-inv-table a { color:var(--t2);font-size:11px }
+.cc-inv-table a:hover { color:var(--stam) }
+
+/* Adoption Matrix */
+.cc-matrix-wrap { overflow-x:auto }
+.cc-matrix { width:100%;border-collapse:collapse;font-size:11.5px;min-width:580px }
+.cc-matrix th { text-align:center;font-size:10px;font-weight:700;color:var(--t3);border-bottom:1px solid var(--bd);padding:7px 8px;white-space:nowrap;line-height:1.4 }
+.cc-matrix th:first-child { text-align:left;padding-left:10px;min-width:160px }
+.cc-matrix td { border-bottom:1px solid var(--bd-s);padding:7px 8px;text-align:center;color:var(--t1);vertical-align:middle }
+.cc-matrix td:first-child { text-align:left;padding-left:10px;font-size:11.5px;font-weight:600;color:var(--t2) }
+.cc-matrix tr:last-child td { border-bottom:0 }
+.cc-matrix tr:hover td { background:var(--bg-sur) }
+
+/* Code block */
+.cc-code { background:var(--bg-sur2);border:1px solid var(--bd);border-radius:7px;padding:14px 16px;font-family:monospace;font-size:12px;color:var(--t1);line-height:1.7;white-space:pre;overflow-x:auto;margin:0 }
+.cc-code-label { font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px }
+
+/* Required Pattern 목록 */
+.cc-pattern-list { display:flex;flex-direction:column;gap:6px }
+.cc-pattern-item { display:flex;align-items:flex-start;gap:10px;background:var(--bg-sur);border:1px solid var(--bd-s);border-radius:7px;padding:10px 13px }
+.cc-pattern-ico { width:26px;height:26px;border-radius:5px;background:var(--stam-soft);color:var(--stam);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px }
+.cc-pattern-name { font-size:12px;font-weight:700;color:var(--t1) }
+.cc-pattern-cls { font-family:monospace;font-size:11px;color:var(--t3);margin-top:3px;line-height:1.5 }
+
+/* Queue 표 */
+.cc-queue-table { width:100%;border-collapse:collapse;font-size:12px }
+.cc-queue-table th { text-align:left;font-size:10.5px;font-weight:700;color:var(--t3);border-bottom:1px solid var(--bd);padding:7px 10px }
+.cc-queue-table td { border-bottom:1px solid var(--bd-s);padding:9px 10px;color:var(--t1);vertical-align:top }
+.cc-queue-table td:first-child { font-size:13px;font-weight:700;color:var(--stam);text-align:center;width:32px }
+.cc-queue-table tr:last-child td { border-bottom:0 }
+
+/* QA 체크리스트 */
+.cc-qa-list { display:grid;grid-template-columns:repeat(2,1fr);gap:6px }
+@media (max-width:600px) { .cc-qa-list { grid-template-columns:1fr } }
+.cc-qa-item { display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd-s);border-radius:6px;padding:8px 12px }
+.cc-qa-item::before { content:'☐';font-size:14px;color:var(--t3);flex-shrink:0 }
+
+/* Related Links 카드 */
+.cc-link-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:8px }
+@media (max-width:540px) { .cc-link-grid { grid-template-columns:1fr } }
+.cc-link-card { display:flex;align-items:center;gap:10px;background:var(--bg-sur);border:1px solid var(--bd-s);border-radius:8px;padding:11px 13px;text-decoration:none;transition:background 100ms,border-color 100ms }
+.cc-link-card:hover { background:var(--bg-sur2);border-color:var(--bd) }
+.cc-link-ico { width:28px;height:28px;border-radius:6px;background:var(--stam-soft);color:var(--stam);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0 }
+.cc-link-title { font-size:12px;font-weight:600;color:var(--t1) }
+.cc-link-sub { font-size:10.5px;color:var(--t3);margin-top:2px;line-height:1.4 }
+</style>
+</head>
+<body>
+
+<div class="sdoc-wrap">
+
+<header class="sdoc-header">
+  <div class="sdoc-header-inner">
+    <a href="STAM-Docs-Index.html" class="sdoc-back">← 문서 목록</a>
+    <div class="sdoc-header-meta">
+      <span class="sdoc-badge">CC</span>
+      <div>
+        <h1 class="sdoc-title">STAM Common UI Control Center</h1>
+        <p class="sdoc-subtitle">공통 UI 기준 · 적용 현황 · 신규 보드 생성 체크리스트</p>
+      </div>
+    </div>
+    <div class="sdoc-version-row">
+      <span class="sbadge done">v1.0 Baseline</span>
+      <span class="sbadge guide">P0 없음</span>
+      <span class="sbadge plan">Common UI 6종 적용 중</span>
+      <span class="sdoc-vdate">2026-06-12</span>
+    </div>
+  </div>
+</header>
+
+<main class="sdoc-main">
+
+  <!-- ── 1. 현황 요약 ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">1. 현황 요약</h2>
+
+    <div class="cc-stat-grid">
+      <div class="cc-stat-card">
+        <span class="cc-stat-n">7</span>
+        <span class="cc-stat-label">Common CSS/JS 파일</span>
+      </div>
+      <div class="cc-stat-card">
+        <span class="cc-stat-n">4</span>
+        <span class="cc-stat-label">Primary Boards</span>
+      </div>
+      <div class="cc-stat-card">
+        <span class="cc-stat-n">2</span>
+        <span class="cc-stat-label">Fully Aligned Boards</span>
+      </div>
+      <div class="cc-stat-card">
+        <span class="cc-stat-n">2</span>
+        <span class="cc-stat-label">Legacy / Special Boards</span>
+      </div>
+    </div>
+
+    <div class="sdoc-info-box" style="margin-top:16px;">
+      <b>전체 상태: CAUTION</b> — P0 이슈 없음. 요구사항정의서·메뉴구조화면목록은 공통 UI 기준 정렬 완료 (PR #34까지 반영). WBS·화면설계서는 Legacy/Special Board로 분류되어 별도 정책 적용 중.
+    </div>
+  </section>
+
+  <!-- ── 2. Common UI Inventory ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">2. Common UI Inventory</h2>
+    <p class="sdoc-sec-desc">신규 보드 생성 시 반드시 로드해야 하는 공통 CSS/JS 파일 목록입니다.</p>
+    <div style="overflow-x:auto">
+      <table class="cc-inv-table">
+        <thead>
+          <tr>
+            <th>파일명</th>
+            <th>역할</th>
+            <th>필수</th>
+            <th>현재 상태</th>
+            <th>Guide</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>stam.form-controls.css</td>
+            <td>공통 Form Control (stam-input / stam-select / stam-date / stam-textarea)</td>
+            <td><span class="badge-req">필수</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><a href="STAM-Form-Controls-Guide.html">Form Controls Guide</a></td>
+          </tr>
+          <tr>
+            <td>stam.drawer.css</td>
+            <td>공통 Drawer (slide-in panel, scrim, --stam-drawer-width 토큰)</td>
+            <td><span class="badge-req">필수</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><a href="STAM-Drawer-Guide.html">Drawer Guide</a></td>
+          </tr>
+          <tr>
+            <td>stam.table-selection.css</td>
+            <td>Table Row 행 클릭/체크박스 선택 역할 분리, selected bar</td>
+            <td><span class="badge-req">필수</span></td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+            <td><a href="STAM-Table-Row-Selection-Guide.html">Table Row Selection Guide</a></td>
+          </tr>
+          <tr>
+            <td>stam.buttons.css</td>
+            <td>공통 버튼 variant (primary / secondary / ghost / outline / danger 등)</td>
+            <td><span class="badge-req">필수</span></td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+            <td><a href="STAM-Buttons-Guide.html">Buttons Guide</a></td>
+          </tr>
+          <tr>
+            <td>stam.board-toolbar.css</td>
+            <td>보드 목록 Toolbar (base: 검색+필터+삭제 / right: 우측 액션)</td>
+            <td><span class="badge-req">필수</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><a href="STAM-Board-Toolbar-Guide.html">Board Toolbar Guide</a></td>
+          </tr>
+          <tr>
+            <td>stam.board-filter.css</td>
+            <td>공통 Filter Panel CSS (WBS 기준 · 헤더+스크롤바디+푸터 · trigger 버튼)</td>
+            <td><span class="badge-req">필수</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><a href="STAM-Board-Filter-Guide.html">Board Filter Guide v1.1</a></td>
+          </tr>
+          <tr>
+            <td>stam.board-filter.js</td>
+            <td>공통 Filter Panel JS (열기/닫기/chip toggle/초기화/적용 · aria-pressed)</td>
+            <td><span class="badge-req">필수</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><a href="STAM-Board-Filter-Guide.html">Board Filter Guide v1.1</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── 3. Board Adoption Matrix ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">3. Board Adoption Matrix</h2>
+    <p class="sdoc-sec-desc">4개 주요 보드의 공통 UI 항목별 적용 현황입니다. WBS·화면설계서는 Legacy/Special Board 정책 적용 중입니다.</p>
+
+    <div class="cc-matrix-wrap">
+      <table class="cc-matrix">
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>Requirements<br><span style="font-weight:400">요구사항정의서</span></th>
+            <th>Menu Screen List<br><span style="font-weight:400">메뉴구조·화면목록</span></th>
+            <th>WBS<br><span style="font-weight:400;color:rgba(245,158,11,.8)">Special</span></th>
+            <th>Screen Spec<br><span style="font-weight:400;color:rgba(99,102,241,.8)">Legacy</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>CSS Order</td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+          </tr>
+          <tr>
+            <td>JS Order</td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+          </tr>
+          <tr>
+            <td>Form Controls</td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+            <td><span class="badge-legacy">LEGACY</span></td>
+            <td><span class="badge-legacy">LEGACY</span></td>
+          </tr>
+          <tr>
+            <td>Drawer</td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-legacy">LEGACY</span></td>
+            <td><span class="badge-legacy">LEGACY</span></td>
+          </tr>
+          <tr>
+            <td>Table Row Selection</td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+          </tr>
+          <tr>
+            <td>Buttons</td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+            <td><span class="badge-partial">PARTIAL</span></td>
+          </tr>
+          <tr>
+            <td>Board Toolbar</td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-legacy">LEGACY</span></td>
+            <td><span class="badge-legacy">LEGACY</span></td>
+          </tr>
+          <tr>
+            <td>Board Filter</td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-legacy">LEGACY</span></td>
+            <td><span class="badge-legacy">LEGACY</span></td>
+          </tr>
+          <tr>
+            <td>Nav Active</td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+          </tr>
+          <tr>
+            <td>Topbar / Project Context</td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+            <td><span class="badge-pass">PASS</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:11px;color:var(--t3)">
+      <span>상태 범례:</span>
+      <span class="badge-pass">PASS</span><span style="margin-left:-2px">공통 기준 적용 완료</span>
+      <span class="badge-partial" style="margin-left:8px">PARTIAL</span><span style="margin-left:-2px">부분 적용 · 보완 필요</span>
+      <span class="badge-legacy" style="margin-left:8px">LEGACY</span><span style="margin-left:-2px">별도 정책 · 즉시 공통화 대상 아님</span>
+    </div>
+  </section>
+
+  <!-- ── 4. New Board Standard Template ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">4. 신규 보드 표준 템플릿</h2>
+    <p class="sdoc-sec-desc">신규 일반 목록형 보드 생성 시 반드시 따라야 할 CSS/JS 로드 순서입니다. Requirements / Menu Screen List 기준을 따릅니다.</p>
+
+    <div style="margin-bottom:14px">
+      <div class="cc-code-label">CSS 로드 순서</div>
+      <pre class="cc-code">&lt;!-- 1. 폰트 --&gt;
+&lt;link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css"&gt;
+
+&lt;!-- 2. STAM 기반 --&gt;
+&lt;link rel="stylesheet" href="../../css/stam.tokens.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.shell.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.components.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.project-overview.css"&gt;
+
+&lt;!-- 3. 공통 UI (순서 고정) --&gt;
+&lt;link rel="stylesheet" href="../../css/stam.form-controls.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.drawer.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.table-selection.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.buttons.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.board-toolbar.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.board-filter.css"&gt;
+
+&lt;!-- 4. 화면 전용 (반드시 마지막) --&gt;
+&lt;link rel="stylesheet" href="../../css/stam.{board-name}.css"&gt;</pre>
+    </div>
+
+    <div>
+      <div class="cc-code-label">JS 로드 순서</div>
+      <pre class="cc-code">&lt;!-- 1. STAM 기반 --&gt;
+&lt;script src="../../js/stam.theme.js"&gt;&lt;/script&gt;
+&lt;script src="../../js/stam.nav-data.js"&gt;&lt;/script&gt;
+&lt;script src="../../js/stam.shell.js"&gt;&lt;/script&gt;
+&lt;script src="../../js/stam.nav-render.js"&gt;&lt;/script&gt;
+&lt;script src="../../js/stam.topbar-render.js"&gt;&lt;/script&gt;
+&lt;script src="../../js/stam.project-context-render.js"&gt;&lt;/script&gt;
+
+&lt;!-- 2. 공통 UI --&gt;
+&lt;script src="../../js/stam.board-filter.js"&gt;&lt;/script&gt;
+
+&lt;!-- 3. 화면 전용 (반드시 마지막) --&gt;
+&lt;script src="../../js/stam.{board-name}.js"&gt;&lt;/script&gt;</pre>
+    </div>
+  </section>
+
+  <!-- ── 5. Required Patterns ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">5. 필수 패턴</h2>
+    <p class="sdoc-sec-desc">신규 보드에서 반드시 따라야 할 구조/클래스 패턴 목록입니다.</p>
+    <div class="cc-pattern-list">
+      <div class="cc-pattern-item">
+        <div class="cc-pattern-ico">AS</div>
+        <div>
+          <div class="cc-pattern-name">App Shell</div>
+          <div class="cc-pattern-cls">.stam-shell → .stam-left-nav + .stam-content-area</div>
+        </div>
+      </div>
+      <div class="cc-pattern-item">
+        <div class="cc-pattern-ico">LN</div>
+        <div>
+          <div class="cc-pattern-name">Left Navigation</div>
+          <div class="cc-pattern-cls">.stam-nav-item.is-active — stam.nav-render.js가 자동 설정. HTML에 직접 is-active 추가 금지</div>
+        </div>
+      </div>
+      <div class="cc-pattern-item">
+        <div class="cc-pattern-ico">TB</div>
+        <div>
+          <div class="cc-pattern-name">Topbar</div>
+          <div class="cc-pattern-cls">.stam-topbar — stam.topbar-render.js가 자동 생성. HTML에 직접 작성 금지</div>
+        </div>
+      </div>
+      <div class="cc-pattern-item">
+        <div class="cc-pattern-ico">PC</div>
+        <div>
+          <div class="cc-pattern-name">Project Context</div>
+          <div class="cc-pattern-cls">.stam-project-overview — stam.project-context-render.js가 자동 생성</div>
+        </div>
+      </div>
+      <div class="cc-pattern-item">
+        <div class="cc-pattern-ico">BT</div>
+        <div>
+          <div class="cc-pattern-name">Board Toolbar</div>
+          <div class="cc-pattern-cls">.stam-board-toolbar → .stam-board-toolbar-left(.stam-board-toolbar-base + filter panel) + .stam-board-toolbar-right</div>
+        </div>
+      </div>
+      <div class="cc-pattern-item">
+        <div class="cc-pattern-ico">BF</div>
+        <div>
+          <div class="cc-pattern-name">Board Filter</div>
+          <div class="cc-pattern-cls">.stam-board-filter-trigger (stam-btn 사용 금지) + .stam-board-filter-panel[hidden] → window.STAM.boardFilter.init(opts)</div>
+        </div>
+      </div>
+      <div class="cc-pattern-item">
+        <div class="cc-pattern-ico">TR</div>
+        <div>
+          <div class="cc-pattern-name">Table Row Selection</div>
+          <div class="cc-pattern-cls">.stam-table-row (클릭 → Drawer 열기) + .stam-row-checkbox (클릭 → 다중 선택) — 역할 혼용 금지</div>
+        </div>
+      </div>
+      <div class="cc-pattern-item">
+        <div class="cc-pattern-ico">DR</div>
+        <div>
+          <div class="cc-pattern-name">Drawer</div>
+          <div class="cc-pattern-cls">.stam-drawer + .stam-drawer-scrim — --stam-drawer-width CSS 변수로 너비 조정</div>
+        </div>
+      </div>
+      <div class="cc-pattern-item">
+        <div class="cc-pattern-ico">FC</div>
+        <div>
+          <div class="cc-pattern-name">Form Controls</div>
+          <div class="cc-pattern-cls">.stam-input / .stam-select / .stam-date / .stam-textarea — 화면별 커스텀 input 스타일 작성 금지</div>
+        </div>
+      </div>
+      <div class="cc-pattern-item">
+        <div class="cc-pattern-ico">BN</div>
+        <div>
+          <div class="cc-pattern-name">Buttons</div>
+          <div class="cc-pattern-cls">.stam-btn + .stam-btn-{variant} — primary / secondary / ghost / outline / danger / warning / success</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 6. Legacy / Special Board 정책 ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">6. Legacy / Special Board 정책</h2>
+
+    <div class="sdoc-info-box" style="border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.05)">
+      <b style="color:#F59E0B">WBS — Special Board (기준 참고 화면)</b><br>
+      WBS는 공통 Board Filter의 <b>설계 기준 화면</b>입니다. 동시에 Gantt 뷰 / Focus View / 자체 Filter / 자체 Drawer 등 복잡한 특수 기능이 있어 <b>즉시 공통화 대상이 아닙니다.</b><br>
+      <ul style="margin:8px 0 0;padding-left:18px;font-size:11.5px;color:var(--t3);line-height:2">
+        <li>WBS 파일 (wbs.html, stam.wbs.css) 수정 금지</li>
+        <li>신규 Board Filter/UI 설계 시 참고 읽기 허용</li>
+        <li>WBS 자체 공통화는 별도 작업으로 별도 검토 후 진행</li>
+      </ul>
+    </div>
+
+    <div class="sdoc-info-box" style="margin-top:10px;border-color:rgba(99,102,241,.3);background:rgba(99,102,241,.05)">
+      <b style="color:#6366F1">화면설계서 (Screen Specification) — Legacy Board</b><br>
+      화면설계서는 현재 Legacy Board로 분류됩니다. <b>다음 단계에서 Board Toolbar / Board Filter부터 점진 공통화</b>를 진행할 후보입니다.<br>
+      <ul style="margin:8px 0 0;padding-left:18px;font-size:11.5px;color:var(--t3);line-height:2">
+        <li>현재는 화면 코드 수정 금지</li>
+        <li>공통화 작업 시 Requirements 기준을 참고</li>
+        <li>Toolbar → Filter → Drawer 순으로 점진 적용 추천</li>
+      </ul>
+    </div>
+
+    <div class="sdoc-info-box" style="margin-top:10px">
+      <b>신규 일반 목록형 보드 기준</b><br>
+      WBS / 화면설계서가 아닌 신규 일반 목록형 보드는 <b>Requirements / Menu Screen List 기준</b>을 따릅니다. Section 4 표준 템플릿을 사용하세요.
+    </div>
+  </section>
+
+  <!-- ── 7. Next Commonization Queue ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">7. 다음 공통화 후보 큐</h2>
+    <p class="sdoc-sec-desc">우선순위 순서로 정리된 공통화 후보 목록입니다. 시점은 확정이 아닌 추천 기준입니다.</p>
+    <div style="overflow-x:auto">
+      <table class="cc-queue-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>항목</th>
+            <th>이유</th>
+            <th>위험도</th>
+            <th>추천 시점</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><b>Table Row Selection 상태 class 정렬</b></td>
+            <td>4개 보드 모두 PARTIAL — 선택 상태 class 불일치 해소</td>
+            <td><span class="badge-risk-low">LOW</span></td>
+            <td>즉시</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><b>화면설계서 Board Toolbar / Board Filter 공통화</b></td>
+            <td>Legacy 해소 1순위 — Requirements 기준 점진 적용</td>
+            <td><span class="badge-risk-mid">MID</span></td>
+            <td>Table Row 정렬 후</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><b>Board Page Template 문서화</b></td>
+            <td>신규 보드 온보딩 속도 향상 — Section 4 기반 HTML 템플릿 파일 생성</td>
+            <td><span class="badge-risk-low">LOW</span></td>
+            <td>2번과 병행 가능</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><b>Drawer Policy 확장</b></td>
+            <td>width 토큰 / tab 구조 / 전체보기 전환 정책 보완</td>
+            <td><span class="badge-risk-low">LOW</span></td>
+            <td>신규 보드 추가 전</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><b>Form Controls alias 확대</b></td>
+            <td>화면별 커스텀 input 스타일 제거 — stam-input 통합</td>
+            <td><span class="badge-risk-mid">MID</span></td>
+            <td>화면설계서 공통화와 병행</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><b>Chips / Badges / Status</b></td>
+            <td>상태 chip/badge가 각 화면마다 파편화</td>
+            <td><span class="badge-risk-low">LOW</span></td>
+            <td>Form Controls 이후</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td><b>Toast / Confirm</b></td>
+            <td>저장 완료/오류 피드백 UI 없음 — CRUD 구현 전 필요</td>
+            <td><span class="badge-risk-mid">MID</span></td>
+            <td>CRUD 구현 전</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td><b>Empty State</b></td>
+            <td>목록 데이터 없을 때 빈 화면 처리 미정의</td>
+            <td><span class="badge-risk-low">LOW</span></td>
+            <td>CRUD 구현 전</td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td><b>Summary Cards / Stat Strip</b></td>
+            <td>보드 상단 요약 수치 카드 공통화</td>
+            <td><span class="badge-risk-low">LOW</span></td>
+            <td>대시보드 화면 추가 시</td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td><b>Tabs</b></td>
+            <td>Drawer 내 탭 / 화면 내 탭 구조 공통화</td>
+            <td><span class="badge-risk-mid">MID</span></td>
+            <td>화면설계서 Drawer 개선 시</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── 8. QA Checklist ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">8. Staging 수동 QA 체크리스트</h2>
+    <p class="sdoc-sec-desc">신규 보드 배포 또는 공통화 작업 후 staging에서 수동으로 확인합니다.</p>
+    <div class="cc-qa-list">
+      <div class="cc-qa-item">좌측 메뉴 active 항목 정확히 표시</div>
+      <div class="cc-qa-item">Topbar 정상 표시 (타이틀, 테마 토글)</div>
+      <div class="cc-qa-item">Project Context 정상 표시</div>
+      <div class="cc-qa-item">Toolbar 구조 정상 (검색 + 필터 + 우측 버튼)</div>
+      <div class="cc-qa-item">Filter 버튼 클릭 → 패널 열림</div>
+      <div class="cc-qa-item">Filter 패널 외부 클릭 / ESC → 닫힘</div>
+      <div class="cc-qa-item">Chip 토글 on/off + aria-pressed 동기화</div>
+      <div class="cc-qa-item">초기화 (헤더/푸터 버튼) → 모든 chip 해제</div>
+      <div class="cc-qa-item">적용 → 선택 상태 유지 + 패널 닫힘</div>
+      <div class="cc-qa-item">Table Row 클릭 → Drawer 열림</div>
+      <div class="cc-qa-item">Checkbox 클릭 → 다중 선택 + Selected Bar</div>
+      <div class="cc-qa-item">Drawer 열기/닫기 + scrim 클릭 닫기</div>
+      <div class="cc-qa-item">Light / Dark 모드 전환</div>
+      <div class="cc-qa-item">Console Error 없음</div>
+    </div>
+  </section>
+
+  <!-- ── 9. 관련 문서 ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">9. 관련 문서</h2>
+    <div class="cc-link-grid">
+      <a href="STAM-Docs-Index.html" class="cc-link-card">
+        <div class="cc-link-ico">DI</div>
+        <div>
+          <div class="cc-link-title">STAM Docs Index</div>
+          <div class="cc-link-sub">전체 문서 목록 · 기준 문서 · 컴포넌트 가이드 인덱스</div>
+        </div>
+      </a>
+      <a href="STAM-Component-Guide.html" class="cc-link-card">
+        <div class="cc-link-ico">CG</div>
+        <div>
+          <div class="cc-link-title">STAM Component Guide</div>
+          <div class="cc-link-sub">컴포넌트 전체 인덱스 · 공통 규칙 · 토큰 참조</div>
+        </div>
+      </a>
+      <a href="STAM-Form-Controls-Guide.html" class="cc-link-card">
+        <div class="cc-link-ico">FC</div>
+        <div>
+          <div class="cc-link-title">Form Controls Guide v1</div>
+          <div class="cc-link-sub">stam-input / stam-select / stam-date / stam-textarea</div>
+        </div>
+      </a>
+      <a href="STAM-Drawer-Guide.html" class="cc-link-card">
+        <div class="cc-link-ico">DR</div>
+        <div>
+          <div class="cc-link-title">Drawer Guide v1</div>
+          <div class="cc-link-sub">stam-drawer · scrim · width token · 전체보기 전환</div>
+        </div>
+      </a>
+      <a href="STAM-Table-Row-Selection-Guide.html" class="cc-link-card">
+        <div class="cc-link-ico">TR</div>
+        <div>
+          <div class="cc-link-title">Table Row Selection Guide v1</div>
+          <div class="cc-link-sub">행 클릭 / 체크박스 역할 분리 · selected bar</div>
+        </div>
+      </a>
+      <a href="STAM-Buttons-Guide.html" class="cc-link-card">
+        <div class="cc-link-ico">BN</div>
+        <div>
+          <div class="cc-link-title">Buttons Guide v1</div>
+          <div class="cc-link-sub">stam-btn variant / size / state · 액션 컨테이너</div>
+        </div>
+      </a>
+      <a href="STAM-Board-Toolbar-Guide.html" class="cc-link-card">
+        <div class="cc-link-ico">BT</div>
+        <div>
+          <div class="cc-link-title">Board Toolbar Guide v1</div>
+          <div class="cc-link-sub">stam-board-toolbar · base / right 구조 · 신규 보드 적용</div>
+        </div>
+      </a>
+      <a href="STAM-Board-Filter-Guide.html" class="cc-link-card">
+        <div class="cc-link-ico">BF</div>
+        <div>
+          <div class="cc-link-title">Board Filter Guide v1.1</div>
+          <div class="cc-link-sub">WBS 기준 · stam-board-filter-trigger · chip toggle · aria-pressed</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+</body>
+</html>
