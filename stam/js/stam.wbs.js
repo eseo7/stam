@@ -200,22 +200,14 @@
       document.body.style.overflow = '';
     }
 
-    /* 행 클릭 → 상세 모드 */
+    /* 행 클릭 → 상세 모드 (체크박스 상태 변경 없음) */
     document.querySelectorAll('.wbs-data-row').forEach(function (row) {
       row.addEventListener('click', function (e) {
         if (e.target.closest && e.target.closest('.wbs-td-chk')) return;
-        if (e.target.classList.contains('wbs-chk')) return;
         document.querySelectorAll('.wbs-data-row').forEach(function (r) {
-          if (r !== row) {
-            r.classList.remove('selected');
-            var c = r.querySelector('.wbs-row-chk');
-            if (c) c.checked = false;
-          }
+          if (r !== row) r.classList.remove('selected');
         });
         row.classList.add('selected');
-        var rowChk = row.querySelector('.wbs-row-chk');
-        if (rowChk) rowChk.checked = true;
-        updateMasterChk();
         openDrawer('detail');
       });
     });

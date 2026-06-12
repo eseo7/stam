@@ -1,0 +1,40 @@
+/* ─────────────────────────────────────────────
+   STAM Table Row Selection 공통 기준  v1
+   로드 순서: stam.components.css → stam.table-selection.css → 페이지 CSS
+   ───────────────────────────────────────────── */
+
+/* ── 행 기본 ── */
+.stam-table-row {
+  cursor: pointer;
+}
+
+/* ── 선택된 행 ── */
+.stam-table-row.is-selected td {
+  background: rgba(139, 127, 248, .08);
+}
+
+/* 선택된 행: 첫 번째 td 좌측 bar */
+.stam-table-row.is-selected td:first-child {
+  position: relative;
+}
+
+.stam-table-row.is-selected td:first-child::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--stam);
+  border-radius: 0 3px 3px 0;
+}
+
+/* ── 다크 모드 ── */
+[data-theme="dark"] .stam-table-row.is-selected td {
+  background: rgba(139, 127, 248, .13);
+}
+
+/* ── hover 상태 (선택 안 된 행) ── */
+.stam-table-row:not(.is-selected):hover td {
+  cursor: pointer;
+}

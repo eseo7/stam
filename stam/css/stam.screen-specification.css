@@ -953,6 +953,26 @@
   border-radius: 0 2px 2px 0;
 }
 
+/* ── 행 클릭 상세 오픈 표시 (체크박스 선택과 별도) ── */
+.screen-spec-page .ss-sc-row.is-row-open td {
+  background: rgba(84, 81, 232, .06);
+}
+
+.screen-spec-page .ss-sc-row.is-row-open td.ss-ch::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--brand);
+  border-radius: 0 2px 2px 0;
+}
+
+[data-theme="dark"] .screen-spec-page .ss-sc-row.is-row-open td {
+  background: rgba(139, 127, 248, .08);
+}
+
 [data-theme="dark"] .screen-spec-page .ss-sc-row td {
   border-bottom-color: rgba(180, 184, 200, .08);
 }

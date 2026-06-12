@@ -129,6 +129,7 @@
     dwMode: null,
     dwItem: null,
     dwTab: 0,
+    openId: null,
     grp: { 'G-01': false, 'G-02': false, 'G-03': true, 'G-04': false, 'G-05': false },
     sel: new Set(),
     F: { wst: '', rst: '', ast: '', type: '', grpId: '', img: '' }
@@ -450,7 +451,8 @@
       screens.forEach(function (s, i) {
         var last = i === screens.length - 1;
         var isSel = S.sel.has(s.id);
-        html += '<tr class="ss-sc-row' + (isSel ? ' sel' : '') + (last ? ' lg' : '') + '" data-id="' + s.id + '">' +
+        var isOpen = S.openId === s.id;
+        html += '<tr class="ss-sc-row stam-table-row' + (isSel ? ' sel' : '') + (isOpen ? ' is-row-open' : '') + (last ? ' lg' : '') + '" data-id="' + s.id + '">' +
           '<td class="ss-ch"><input type="checkbox" class="ss-cb"' + (isSel ? ' checked' : '') +
           ' data-ss-sel="' + s.id + '"></td>' +
           '<td class="ss-name-col"><div class="ss-sc-cell"><span class="ss-sc-ind">└</span>' +
@@ -508,6 +510,7 @@
     S.dwMode = mode;
     S.dwItem = item;
     S.dwTab = 0;
+    S.openId = (mode === 'detail' && item) ? item.id : null;
     renderDw();
     var drawer = document.getElementById('ss-drawer');
     var scrim = document.getElementById('ss-dw-scrim');
@@ -519,6 +522,7 @@
   function closeDw() {
     S.dwMode = null;
     S.dwItem = null;
+    S.openId = null;
     closeAllCustomSelects();
     var drawer = document.getElementById('ss-drawer');
     var scrim = document.getElementById('ss-dw-scrim');
