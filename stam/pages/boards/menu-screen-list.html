@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="../../css/stam.table-selection.css">
   <link rel="stylesheet" href="../../css/stam.buttons.css">
   <link rel="stylesheet" href="../../css/stam.board-toolbar.css">
+  <link rel="stylesheet" href="../../css/stam.board-filter.css">
   <link rel="stylesheet" href="../../css/stam.menu-screen-list.css">
 </head>
 <body>
@@ -130,47 +131,14 @@
           </div>
           <div class="stam-board-toolbar-right"></div>
 
-          <!-- ── 필터 패널 ── -->
-          <div class="msl-filter-panel stam-filter-panel" id="msl-filter-panel" hidden>
-            <div class="stam-filter-panel-row">
-              <div class="stam-filter-group">
-                <div class="stam-filter-group-title">상태</div>
-                <div class="stam-filter-chips">
-                  <button class="stam-filter-chip" type="button">작성중</button>
-                  <button class="stam-filter-chip" type="button">검토중</button>
-                  <button class="stam-filter-chip" type="button">확정</button>
-                  <button class="stam-filter-chip" type="button">보류</button>
-                </div>
-              </div>
-              <div class="stam-filter-group">
-                <div class="stam-filter-group-title">화면유형</div>
-                <div class="stam-filter-chips">
-                  <button class="stam-filter-chip" type="button">목록형</button>
-                  <button class="stam-filter-chip" type="button">상세형</button>
-                  <button class="stam-filter-chip" type="button">등록/수정형</button>
-                  <button class="stam-filter-chip" type="button">팝업</button>
-                </div>
-              </div>
-              <div class="stam-filter-group">
-                <div class="stam-filter-group-title">LV1</div>
-                <div class="stam-filter-chips">
-                  <button class="stam-filter-chip" type="button">회원</button>
-                  <button class="stam-filter-chip" type="button">예약</button>
-                  <button class="stam-filter-chip" type="button">결제</button>
-                  <button class="stam-filter-chip" type="button">관리자</button>
-                </div>
-              </div>
-              <div class="stam-filter-group">
-                <div class="stam-filter-group-title">FO/BO</div>
-                <div class="stam-filter-chips">
-                  <button class="stam-filter-chip" type="button">FO</button>
-                  <button class="stam-filter-chip" type="button">BO</button>
-                </div>
-              </div>
+          <!-- ── 필터 패널 (공통 stam.board-filter.js 로 렌더링) ── -->
+          <div class="stam-board-filter-panel" id="msl-filter-panel" hidden>
+            <div class="stam-board-filter-grid">
+              <!-- JS가 groups 데이터 기준으로 섹션/chip을 렌더링 -->
             </div>
-            <div class="stam-filter-panel-footer">
-              <button class="stam-btn stam-btn-ghost stam-filter-reset" id="msl-filter-reset" type="button">초기화</button>
-              <button class="stam-btn stam-btn-primary stam-filter-apply" type="button">적용</button>
+            <div class="stam-board-filter-actions">
+              <button class="stam-btn stam-btn-ghost" id="msl-filter-reset" type="button">초기화</button>
+              <button class="stam-btn stam-btn-primary" id="msl-filter-apply" type="button">적용</button>
             </div>
           </div>
         </div>
@@ -780,6 +748,7 @@
 <script src="../../js/stam.nav-render.js"></script>
 <script src="../../js/stam.topbar-render.js"></script>
 <script src="../../js/stam.project-context-render.js"></script>
+<script src="../../js/stam.board-filter.js"></script>
 <script src="../../js/stam.menu-screen-list.js"></script>
 </body>
 </html>

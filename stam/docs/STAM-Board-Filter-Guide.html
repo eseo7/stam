@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Board Filter Guide v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<link rel="stylesheet" href="../css/stam.buttons.css">
+<link rel="stylesheet" href="../css/stam.board-toolbar.css">
+<link rel="stylesheet" href="../css/stam.board-filter.css">
+<style>
+.bf-demo-section { margin-bottom: 36px }
+.bf-demo-section:last-child { margin-bottom: 0 }
+.bf-demo-title { font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 4px }
+.bf-demo-desc { font-size: 11.5px; color: var(--t3); margin-bottom: 12px; line-height: 1.6 }
+.bf-demo-box { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; padding: 20px; position: relative }
+.bf-code { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 7px; padding: 14px 16px; font-family: monospace; font-size: 12px; color: var(--t1); line-height: 1.7; white-space: pre; overflow-x: auto }
+.bf-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 99px; font-size: 10.5px; font-weight: 700; background: var(--stam-soft); color: var(--stam); margin-right: 4px }
+.bf-badge.red { background: rgba(239,68,68,.12); color: #EF4444 }
+.bf-badge.green { background: rgba(16,185,129,.12); color: #10B981 }
+.bf-cls-table { width: 100%; border-collapse: collapse }
+.bf-cls-table th { text-align: left; font-size: 11px; font-weight: 700; color: var(--t3); border-bottom: 1px solid var(--bd); padding: 7px 10px }
+.bf-cls-table td { font-size: 12px; color: var(--t1); border-bottom: 1px solid var(--bd-s); padding: 8px 10px; vertical-align: top }
+.bf-cls-table td:first-child { font-family: monospace; color: var(--stam); font-weight: 700 }
+.bf-cls-table tr:last-child td { border-bottom: 0 }
+.bf-forbidden { background: rgba(239,68,68,.06); border: 1px solid rgba(239,68,68,.2); border-radius: 8px; padding: 12px 16px; margin-bottom: 10px }
+.bf-forbidden-title { font-size: 12px; font-weight: 700; color: #EF4444; margin-bottom: 6px }
+.bf-forbidden-desc { font-size: 11.5px; color: var(--t3); line-height: 1.6 }
+</style>
+</head>
+<body>
+
+<div class="sdoc-wrap">
+
+<header class="sdoc-header">
+  <div class="sdoc-header-inner">
+    <a href="STAM-Docs-Index.html" class="sdoc-back">← 문서 목록</a>
+    <div class="sdoc-header-meta">
+      <span class="sdoc-badge">BF</span>
+      <div>
+        <h1 class="sdoc-title">STAM Board Filter Guide</h1>
+        <p class="sdoc-subtitle">공통 필터 패널 컴포넌트 — stam.board-filter.css / stam.board-filter.js</p>
+      </div>
+    </div>
+    <div class="sdoc-version-row">
+      <span class="sbadge done">v1</span>
+      <span class="sdoc-vdate">2026-06-12</span>
+    </div>
+  </div>
+</header>
+
+<main class="sdoc-main">
+
+  <!-- ── 1. 목적 ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">1. Board Filter 목적</h2>
+    <p class="sdoc-sec-desc">보드 목록 화면의 필터 기능을 공통 컴포넌트로 분리합니다. 각 화면은 필터 그룹 데이터(groups)만 전달하면 되며, 열기/닫기·chip active·초기화·적용·ESC/외부 클릭 닫기는 공통 JS가 처리합니다.</p>
+    <p class="sdoc-sec-desc">WBS 필터 패널(섹션형, 헤더+스크롤 바디+푸터 구조) 를 기준으로 설계되었습니다.</p>
+    <div class="sdoc-info-box">
+      <b>핵심 원칙</b><br>
+      Toolbar에 개별 필터 chip을 직접 노출하지 않습니다. 단일 <code>필터</code> 버튼 클릭으로 패널을 열고 그 안에서 조건을 선택합니다.
+    </div>
+  </section>
+
+  <!-- ── 2. 공통 구조 ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">2. 공통 구조</h2>
+
+    <div class="bf-demo-section">
+      <div class="bf-demo-title">HTML (페이지당 최소 마크업)</div>
+      <div class="bf-demo-desc">groups 내용은 JS가 렌더링합니다. 페이지에는 패널 껍데기와 초기화/적용 버튼만 작성합니다.</div>
+      <pre class="bf-code">&lt;!-- 필터 버튼 (Toolbar 내부) --&gt;
+&lt;button class="stam-btn stam-btn-secondary stam-board-filter"
+        id="rq-filter-open-btn" type="button"
+        aria-expanded="false" aria-controls="rq-filter-panel"&gt;
+  &lt;svg ...&gt;&lt;/svg&gt;
+  필터
+  &lt;span class="stam-board-filter-count" id="rq-filter-count" style="display:none"&gt;0&lt;/span&gt;
+&lt;/button&gt;
+
+&lt;!-- 필터 패널 (Toolbar 내부, position:absolute 로 표시) --&gt;
+&lt;div class="stam-board-filter-panel" id="rq-filter-panel" hidden&gt;
+  &lt;div class="stam-board-filter-grid"&gt;
+    &lt;!-- JS가 groups 데이터 기준으로 섹션/chip을 렌더링 --&gt;
+  &lt;/div&gt;
+  &lt;div class="stam-board-filter-actions"&gt;
+    &lt;button class="stam-btn stam-btn-ghost" id="rq-filter-reset" type="button"&gt;초기화&lt;/button&gt;
+    &lt;button class="stam-btn stam-btn-primary" id="rq-filter-apply" type="button"&gt;적용&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+    </div>
+
+    <div class="bf-demo-section">
+      <div class="bf-demo-title">JS 초기화</div>
+      <pre class="bf-code">if (window.STAM &amp;&amp; window.STAM.boardFilter) {
+  window.STAM.boardFilter.init({
+    root:    document,
+    trigger: '#rq-filter-open-btn',
+    panel:   '#rq-filter-panel',
+    reset:   '#rq-filter-reset',
+    apply:   '#rq-filter-apply',
+    groups: [
+      { key: 'status', label: '상태', options: ['작성중', '검토요청', '완료'] }
+    ],
+    onApply: function (values) {
+      // values: { status: ['작성중'] } 형태
+      // 실제 필터링 로직은 여기에 구현
+    }
+  });
+}</pre>
+    </div>
+
+    <div class="bf-demo-section">
+      <div class="bf-demo-title">CSS 로드 순서</div>
+      <pre class="bf-code">&lt;link href="stam.board-toolbar.css"&gt;
+&lt;link href="stam.board-filter.css"&gt;  &lt;!-- toolbar 다음에 로드 --&gt;
+&lt;link href="stam.페이지.css"&gt;</pre>
+    </div>
+
+    <div class="bf-demo-section">
+      <div class="bf-demo-title">JS 로드 순서</div>
+      <pre class="bf-code">&lt;script src="stam.board-filter.js"&gt;&lt;/script&gt;  &lt;!-- 페이지 JS 앞에 --&gt;
+&lt;script src="stam.페이지.js"&gt;&lt;/script&gt;</pre>
+    </div>
+  </section>
+
+  <!-- ── 3. CSS 클래스 기준 ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">3. CSS 클래스 기준</h2>
+    <table class="bf-cls-table">
+      <thead>
+        <tr>
+          <th>클래스</th>
+          <th>역할</th>
+          <th>출처</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>.stam-board-filter-panel</td>
+          <td>필터 패널 컨테이너 (position:absolute, 토글 대상)</td>
+          <td>HTML에 작성</td>
+        </tr>
+        <tr>
+          <td>.stam-board-filter-grid</td>
+          <td>그룹 섹션을 담는 스크롤 바디</td>
+          <td>HTML에 작성</td>
+        </tr>
+        <tr>
+          <td>.stam-board-filter-actions</td>
+          <td>초기화/적용 버튼 푸터</td>
+          <td>HTML에 작성</td>
+        </tr>
+        <tr>
+          <td>.sbf-head</td>
+          <td>패널 헤더 (아이콘 + "필터" 타이틀)</td>
+          <td>JS 생성</td>
+        </tr>
+        <tr>
+          <td>.sbf-sec</td>
+          <td>필터 그룹 섹션</td>
+          <td>JS 생성</td>
+        </tr>
+        <tr>
+          <td>.sbf-sec-title</td>
+          <td>그룹 라벨 (UPPERCASE, 10px)</td>
+          <td>JS 생성</td>
+        </tr>
+        <tr>
+          <td>.sbf-chips</td>
+          <td>chip 버튼 래퍼</td>
+          <td>JS 생성</td>
+        </tr>
+        <tr>
+          <td>.sbf-chip</td>
+          <td>필터 조건 chip 버튼 (pill 형태)</td>
+          <td>JS 생성</td>
+        </tr>
+        <tr>
+          <td>.sbf-chip.active</td>
+          <td>선택된 chip 상태 (brand tone)</td>
+          <td>JS 동적 추가</td>
+        </tr>
+        <tr>
+          <td>.stam-board-filter.active</td>
+          <td>trigger 버튼 — 선택 조건이 있을 때</td>
+          <td>JS 동적 추가</td>
+        </tr>
+        <tr>
+          <td>.stam-board-filter-panel.is-open</td>
+          <td>패널 열림 상태 (opacity/transform 전환)</td>
+          <td>JS 동적 추가</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── 4. JS API 기준 ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">4. JS API — window.STAM.boardFilter.init(opts)</h2>
+    <table class="bf-cls-table">
+      <thead>
+        <tr>
+          <th>옵션</th>
+          <th>타입</th>
+          <th>설명</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>root</td>
+          <td>Element | document</td>
+          <td>선택자 쿼리 기준 요소 (기본 document)</td>
+        </tr>
+        <tr>
+          <td>trigger</td>
+          <td>string (선택자)</td>
+          <td>필터 버튼 요소</td>
+        </tr>
+        <tr>
+          <td>panel</td>
+          <td>string (선택자)</td>
+          <td>필터 패널 요소 (hidden 속성 초기값)</td>
+        </tr>
+        <tr>
+          <td>reset</td>
+          <td>string (선택자)</td>
+          <td>초기화 버튼 요소</td>
+        </tr>
+        <tr>
+          <td>apply</td>
+          <td>string (선택자)</td>
+          <td>적용 버튼 요소</td>
+        </tr>
+        <tr>
+          <td>groups</td>
+          <td>Array</td>
+          <td>필터 그룹 배열 — 아래 groups 형식 참조</td>
+        </tr>
+        <tr>
+          <td>onApply</td>
+          <td>function(values)</td>
+          <td>적용 클릭 콜백. values: { [key]: string[] }</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="height:16px"></div>
+
+    <div class="bf-demo-title">반환값 (공개 API)</div>
+    <pre class="bf-code">var filter = window.STAM.boardFilter.init({...});
+filter.open();       // 패널 열기
+filter.close();      // 패널 닫기
+filter.reset();      // 모든 chip active 해제
+filter.getValues();  // 현재 선택값 반환 { [key]: string[] }</pre>
+
+    <div style="height:16px"></div>
+
+    <div class="bf-demo-title">중복 init 방지</div>
+    <p class="bf-demo-desc">동일 trigger 요소에 <code>data-sbf-init="1"</code>이 설정된 경우 null을 반환하고 중복 등록하지 않습니다.</p>
+  </section>
+
+  <!-- ── 5. groups 데이터 형식 ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">5. groups 데이터 형식</h2>
+    <pre class="bf-code">groups: [
+  {
+    key: 'status',         // 식별 키 (onApply values 객체의 키)
+    label: '상태',          // 그룹 라벨 (UPPERCASE로 표시)
+    options: [             // string 배열 또는 { label, value } 배열
+      '작성중',
+      '검토요청',
+      { label: '승인완료', value: 'approved' }
+    ]
+  }
+]</pre>
+  </section>
+
+  <!-- ── 6. 요구사항정의서 적용 예시 ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">6. 요구사항정의서 적용 예시</h2>
+    <pre class="bf-code">window.STAM.boardFilter.init({
+  root:    document,
+  trigger: '#rq-filter-open-btn',
+  panel:   '#rq-filter-panel',
+  reset:   '#rq-filter-reset',
+  apply:   '#rq-filter-apply',
+  groups: [
+    { key: 'status',   label: '상태',    options: ['작성중', '검토요청', '검토완료', '승인완료', '보류'] },
+    { key: 'type',     label: '유형',    options: ['기능', '화면', '데이터', '정책'] },
+    { key: 'priority', label: '우선순위', options: ['높음', '중간', '낮음'] },
+    { key: 'assignee', label: '담당자',  options: ['김철수', '이영희', '박지수'] }
+  ],
+  onApply: function (values) { /* 실제 필터링 구현 */ }
+});</pre>
+  </section>
+
+  <!-- ── 7. 메뉴구조/화면목록 적용 예시 ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">7. 메뉴구조/화면목록 적용 예시</h2>
+    <pre class="bf-code">window.STAM.boardFilter.init({
+  root:    document,
+  trigger: '#msl-filter-open-btn',
+  panel:   '#msl-filter-panel',
+  reset:   '#msl-filter-reset',
+  apply:   '#msl-filter-apply',
+  groups: [
+    { key: 'status',      label: '상태',    options: ['작성중', '검토중', '확정', '보류'] },
+    { key: 'screen-type', label: '화면유형', options: ['목록', '등록', '상세', '수정', '팝업', 'Drawer', '설정', '대시보드'] },
+    { key: 'lv1',         label: 'LV1',     options: ['산출물 관리', '인증', '서비스 루트', '관리/설정'] },
+    { key: 'fo-bo',       label: 'FO/BO',   options: ['FO', 'BO'] }
+  ],
+  onApply: function (values) { /* 실제 필터링 구현 */ }
+});</pre>
+  </section>
+
+  <!-- ── 8. WBS 기준 UI 비교 ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">8. WBS 기준 UI</h2>
+    <p class="sdoc-sec-desc">stam.board-filter.css 는 WBS 필터 패널(stam.wbs.css 내 .wbs-filter-panel)을 기준으로 설계되었습니다.</p>
+    <table class="bf-cls-table">
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>WBS 클래스</th>
+          <th>공통 Board Filter 클래스</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>패널 컨테이너</td>
+          <td>.wbs-filter-panel</td>
+          <td>.stam-board-filter-panel</td>
+        </tr>
+        <tr>
+          <td>헤더</td>
+          <td>.wbs-fp-head</td>
+          <td>.sbf-head (JS 생성)</td>
+        </tr>
+        <tr>
+          <td>바디</td>
+          <td>.wbs-fp-body</td>
+          <td>.stam-board-filter-grid</td>
+        </tr>
+        <tr>
+          <td>섹션</td>
+          <td>.wbs-fp-sec</td>
+          <td>.sbf-sec</td>
+        </tr>
+        <tr>
+          <td>섹션 라벨</td>
+          <td>.wbs-fp-sec-title</td>
+          <td>.sbf-sec-title</td>
+        </tr>
+        <tr>
+          <td>chip 래퍼</td>
+          <td>.wbs-fp-chips</td>
+          <td>.sbf-chips</td>
+        </tr>
+        <tr>
+          <td>chip 버튼</td>
+          <td>.wbs-fp-chip</td>
+          <td>.sbf-chip</td>
+        </tr>
+        <tr>
+          <td>chip 선택</td>
+          <td>.wbs-fp-chip.active</td>
+          <td>.sbf-chip.active</td>
+        </tr>
+        <tr>
+          <td>푸터</td>
+          <td>.wbs-fp-foot</td>
+          <td>.stam-board-filter-actions</td>
+        </tr>
+        <tr>
+          <td>토글 방식</td>
+          <td>data-open="true/false"</td>
+          <td>hidden 속성 + .is-open 클래스</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── 9. 신규 보드 적용 방법 ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">9. 신규 보드 적용 방법</h2>
+    <div class="bf-demo-section">
+      <div class="bf-demo-title">Step 1 — CSS 로드</div>
+      <pre class="bf-code">&lt;link rel="stylesheet" href="../../css/stam.board-toolbar.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.board-filter.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.새화면.css"&gt;</pre>
+    </div>
+    <div class="bf-demo-section">
+      <div class="bf-demo-title">Step 2 — HTML (Toolbar 내부)</div>
+      <pre class="bf-code">&lt;div class="stam-board-toolbar"&gt;
+  &lt;div class="stam-board-toolbar-left"&gt;
+    &lt;div class="stam-board-toolbar-base"&gt;
+      &lt;!-- 검색바 --&gt;
+      &lt;button id="xx-filter-open-btn" class="stam-btn stam-btn-secondary stam-board-filter"
+              type="button" aria-expanded="false"&gt;필터&lt;/button&gt;
+      &lt;!-- 삭제 버튼 등 --&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;!-- 필터 패널 --&gt;
+  &lt;div class="stam-board-filter-panel" id="xx-filter-panel" hidden&gt;
+    &lt;div class="stam-board-filter-grid"&gt;&lt;/div&gt;
+    &lt;div class="stam-board-filter-actions"&gt;
+      &lt;button class="stam-btn stam-btn-ghost" id="xx-filter-reset" type="button"&gt;초기화&lt;/button&gt;
+      &lt;button class="stam-btn stam-btn-primary" id="xx-filter-apply" type="button"&gt;적용&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+    </div>
+    <div class="bf-demo-section">
+      <div class="bf-demo-title">Step 3 — JS 로드 및 초기화</div>
+      <pre class="bf-code">&lt;script src="../../js/stam.board-filter.js"&gt;&lt;/script&gt;
+&lt;script src="../../js/stam.새화면.js"&gt;&lt;/script&gt;
+
+// stam.새화면.js 내부
+if (window.STAM &amp;&amp; window.STAM.boardFilter) {
+  window.STAM.boardFilter.init({
+    trigger: '#xx-filter-open-btn',
+    panel:   '#xx-filter-panel',
+    reset:   '#xx-filter-reset',
+    apply:   '#xx-filter-apply',
+    groups: [
+      { key: 'status', label: '상태', options: ['옵션A', '옵션B'] }
+    ],
+    onApply: function (values) { /* 필터링 구현 */ }
+  });
+}</pre>
+    </div>
+  </section>
+
+  <!-- ── 10. 금지 패턴 ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">10. 금지 패턴</h2>
+
+    <div class="bf-forbidden">
+      <div class="bf-forbidden-title">Toolbar에 세부 필터 chip 직접 노출 금지</div>
+      <div class="bf-forbidden-desc">상태·유형·우선순위 등 개별 chip을 Toolbar에 직접 배치하지 않습니다. 단일 필터 버튼으로 통합합니다.</div>
+    </div>
+
+    <div class="bf-forbidden">
+      <div class="bf-forbidden-title">화면별 필터 패널 HTML 복붙 금지</div>
+      <div class="bf-forbidden-desc">각 화면이 그룹 chip을 HTML에 직접 쓰면 유지보수가 어렵습니다. groups 데이터만 JS에 전달하세요.</div>
+    </div>
+
+    <div class="bf-forbidden">
+      <div class="bf-forbidden-title">화면별 필터 토글 JS 중복 구현 금지</div>
+      <div class="bf-forbidden-desc">열기/닫기·ESC·외부 클릭 등의 동작은 stam.board-filter.js 에서 공통 처리합니다. 화면 JS에 중복 구현하지 않습니다.</div>
+    </div>
+
+    <div class="bf-forbidden">
+      <div class="bf-forbidden-title">실제 필터링 로직과 UI 렌더링 결합 금지</div>
+      <div class="bf-forbidden-desc">stam.board-filter.js는 UI 상태만 관리합니다. 실제 데이터 필터링 로직은 onApply 콜백에서 화면별로 구현합니다.</div>
+    </div>
+  </section>
+
+  <!-- ── 11. 적용 현황 ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">11. 적용 현황</h2>
+    <table class="bf-cls-table">
+      <thead>
+        <tr>
+          <th>화면</th>
+          <th>trigger ID</th>
+          <th>panel ID</th>
+          <th>groups</th>
+          <th>버전</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>요구사항정의서</td>
+          <td>#rq-filter-open-btn</td>
+          <td>#rq-filter-panel</td>
+          <td>상태 / 유형 / 우선순위 / 담당자</td>
+          <td><span class="bf-badge">v1</span></td>
+        </tr>
+        <tr>
+          <td>메뉴구조/화면목록</td>
+          <td>#msl-filter-open-btn</td>
+          <td>#msl-filter-panel</td>
+          <td>상태 / 화면유형 / LV1 / FO/BO</td>
+          <td><span class="bf-badge">v1</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+</div>
+
+</body>
+</html>

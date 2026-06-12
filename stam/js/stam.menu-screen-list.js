@@ -318,53 +318,24 @@
   bindRows();
   bindCheckboxes();
 
-  /* ── 필터 패널 토글 ── */
-  (function () {
-    var filterBtn   = document.getElementById('msl-filter-open-btn');
-    var filterPanel = document.getElementById('msl-filter-panel');
-    if (!filterBtn || !filterPanel) return;
-
-    function openPanel() {
-      filterPanel.hidden = false;
-      filterBtn.setAttribute('aria-expanded', 'true');
-      filterBtn.classList.add('is-open');
-    }
-    function closePanel() {
-      filterPanel.hidden = true;
-      filterBtn.setAttribute('aria-expanded', 'false');
-      filterBtn.classList.remove('is-open');
-    }
-
-    filterBtn.addEventListener('click', function () {
-      filterPanel.hidden ? openPanel() : closePanel();
-    });
-
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !filterPanel.hidden) closePanel();
-    });
-
-    document.addEventListener('click', function (e) {
-      if (!filterPanel.hidden
-          && !filterPanel.contains(e.target)
-          && !filterBtn.contains(e.target)) {
-        closePanel();
+  /* ── Board Filter 공통 컴포넌트 초기화 ── */
+  if (window.STAM && window.STAM.boardFilter) {
+    window.STAM.boardFilter.init({
+      root:    document,
+      trigger: '#msl-filter-open-btn',
+      panel:   '#msl-filter-panel',
+      reset:   '#msl-filter-reset',
+      apply:   '#msl-filter-apply',
+      groups: [
+        { key: 'status',      label: '상태',   options: ['작성중', '검토중', '확정', '보류'] },
+        { key: 'screen-type', label: '화면유형', options: ['목록', '등록', '상세', '수정', '팝업', 'Drawer', '설정', '대시보드'] },
+        { key: 'lv1',         label: 'LV1',    options: ['산출물 관리', '인증', '서비스 루트', '관리/설정'] },
+        { key: 'fo-bo',       label: 'FO/BO',  options: ['FO', 'BO'] }
+      ],
+      onApply: function (/* values */) {
+        /* 실제 필터링 미구현 — UI Mock */
       }
     });
-
-    filterPanel.querySelectorAll('.stam-filter-chip').forEach(function (chip) {
-      chip.addEventListener('click', function () {
-        chip.classList.toggle('active');
-      });
-    });
-
-    var resetBtn = document.getElementById('msl-filter-reset');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', function () {
-        filterPanel.querySelectorAll('.stam-filter-chip.active').forEach(function (c) {
-          c.classList.remove('active');
-        });
-      });
-    }
-  }());
+  }
 
 }());
