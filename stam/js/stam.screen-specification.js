@@ -556,8 +556,19 @@
     return '<button type="button" class="ss-dw-btn-temp">임시저장</button>';
   }
 
-  function dwFootFullView() {
-    return '<button type="button" class="stam-btn stam-btn--md stam-btn--ghost" data-ss-dw-action="fullview">전체 보기</button>';
+  /* 실제 제품 페이지가 있는 화면만 전체 보기 → 제품 페이지로 이동.
+     나머지는 제품 페이지 미존재 → 전체 보기 비활성(준비중), 상세 Drawer 기준 유지. */
+  var PRODUCT_PAGE = {
+    'SCR-007': '/pages/boards/wbs.html',
+    'SCR-008': '/pages/boards/screen-specification.html'
+  };
+
+  function dwFootFullView(item) {
+    var page = item && PRODUCT_PAGE[item.id];
+    if (page) {
+      return '<button type="button" class="stam-btn stam-btn--md stam-btn--ghost" data-ss-dw-action="fullview" data-ss-fullview-page="' + page + '">전체 보기</button>';
+    }
+    return '<button type="button" class="stam-btn stam-btn--md stam-btn--ghost" data-ss-dw-action="fullview" disabled title="제품 페이지 준비중">전체 보기</button>';
   }
 
   function tabOverview(d) {
@@ -660,7 +671,7 @@
         footHtml += '<button type="button" class="ss-dw-btn-temp" data-ss-dw-action="edit">수정</button>' +
           '<button type="button" class="stam-btn stam-btn--md ss-btn-review" data-ss-dw-action="reviewreq">검토 요청</button>';
       }
-      footHtml += dwFootFullView();
+      footHtml += dwFootFullView(d);
       foot.innerHTML = footHtml;
     }
   }
@@ -740,7 +751,7 @@
     }
     if (foot) {
       foot.innerHTML = '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary" data-ss-dw-action="detail-back">취소</button>' +
-        dwFootTemp() + dwFootFullView() +
+        dwFootTemp() + dwFootFullView(d) +
         '<button type="button" class="stam-btn stam-btn--md stam-btn--primary ss-dw-btn-primary">저장</button>';
     }
   }
@@ -910,6 +921,10 @@
       else if (act === 'edit') openEdit();
       else if (act === 'reviewreq') openReviewReq();
       else if (act === 'detail-back' && S.dwItem) openDetail(S.dwItem.id);
+      else if (act === 'fullview') {
+        var page = actionBtn.getAttribute('data-ss-fullview-page');
+        if (page) window.location.href = page;
+      }
     });
   }
 
