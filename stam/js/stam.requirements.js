@@ -318,4 +318,53 @@
   bindRows();
   bindCheckboxes();
 
+  /* ── 필터 패널 토글 ── */
+  (function () {
+    var filterBtn   = document.getElementById('rq-filter-open-btn');
+    var filterPanel = document.getElementById('rq-filter-panel');
+    if (!filterBtn || !filterPanel) return;
+
+    function openPanel() {
+      filterPanel.hidden = false;
+      filterBtn.setAttribute('aria-expanded', 'true');
+      filterBtn.classList.add('is-open');
+    }
+    function closePanel() {
+      filterPanel.hidden = true;
+      filterBtn.setAttribute('aria-expanded', 'false');
+      filterBtn.classList.remove('is-open');
+    }
+
+    filterBtn.addEventListener('click', function () {
+      filterPanel.hidden ? openPanel() : closePanel();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !filterPanel.hidden) closePanel();
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!filterPanel.hidden
+          && !filterPanel.contains(e.target)
+          && !filterBtn.contains(e.target)) {
+        closePanel();
+      }
+    });
+
+    filterPanel.querySelectorAll('.stam-filter-chip').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        chip.classList.toggle('active');
+      });
+    });
+
+    var resetBtn = document.getElementById('rq-filter-reset');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        filterPanel.querySelectorAll('.stam-filter-chip.active').forEach(function (c) {
+          c.classList.remove('active');
+        });
+      });
+    }
+  }());
+
 }());

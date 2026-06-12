@@ -117,31 +117,62 @@
                 <input type="text" placeholder="화면 ID · 화면명 · 담당자 검색" autocomplete="off">
               </div>
               <div class="msl-toolbar-sep"></div>
+              <button class="msl-filter-btn stam-btn stam-btn-secondary stam-board-filter" id="msl-filter-open-btn" type="button" aria-expanded="false" aria-controls="msl-filter-panel">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M4 8h8M6 12h4"/></svg>
+                필터
+                <span class="stam-board-filter-count" id="msl-filter-count" style="display:none">0</span>
+              </button>
               <button class="msl-btn msl-btn-del stam-btn stam-btn-danger stam-board-delete" id="msl-del-btn" type="button" disabled>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                 <span class="msl-del-lbl">삭제</span>
               </button>
             </div>
-            <div class="stam-board-toolbar-extra">
-              <button class="msl-filter-btn stam-board-action" type="button">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-                상태
-              </button>
-              <button class="msl-filter-btn stam-board-action" type="button">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-                화면유형
-              </button>
-              <button class="msl-filter-btn stam-board-action" type="button">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-                LV1
-              </button>
-              <button class="msl-filter-btn stam-board-action" type="button">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="4" cy="4" r="2"/><circle cx="4" cy="12" r="2"/><circle cx="4" cy="20" r="2"/><line x1="10" y1="4" x2="20" y2="4"/><line x1="10" y1="12" x2="20" y2="12"/><line x1="10" y1="20" x2="20" y2="20"/></svg>
-                FO/BO
-              </button>
-            </div>
           </div>
           <div class="stam-board-toolbar-right"></div>
+
+          <!-- ── 필터 패널 ── -->
+          <div class="msl-filter-panel stam-filter-panel" id="msl-filter-panel" hidden>
+            <div class="stam-filter-panel-row">
+              <div class="stam-filter-group">
+                <div class="stam-filter-group-title">상태</div>
+                <div class="stam-filter-chips">
+                  <button class="stam-filter-chip" type="button">작성중</button>
+                  <button class="stam-filter-chip" type="button">검토중</button>
+                  <button class="stam-filter-chip" type="button">확정</button>
+                  <button class="stam-filter-chip" type="button">보류</button>
+                </div>
+              </div>
+              <div class="stam-filter-group">
+                <div class="stam-filter-group-title">화면유형</div>
+                <div class="stam-filter-chips">
+                  <button class="stam-filter-chip" type="button">목록형</button>
+                  <button class="stam-filter-chip" type="button">상세형</button>
+                  <button class="stam-filter-chip" type="button">등록/수정형</button>
+                  <button class="stam-filter-chip" type="button">팝업</button>
+                </div>
+              </div>
+              <div class="stam-filter-group">
+                <div class="stam-filter-group-title">LV1</div>
+                <div class="stam-filter-chips">
+                  <button class="stam-filter-chip" type="button">회원</button>
+                  <button class="stam-filter-chip" type="button">예약</button>
+                  <button class="stam-filter-chip" type="button">결제</button>
+                  <button class="stam-filter-chip" type="button">관리자</button>
+                </div>
+              </div>
+              <div class="stam-filter-group">
+                <div class="stam-filter-group-title">FO/BO</div>
+                <div class="stam-filter-chips">
+                  <button class="stam-filter-chip" type="button">FO</button>
+                  <button class="stam-filter-chip" type="button">BO</button>
+                </div>
+              </div>
+            </div>
+            <div class="stam-filter-panel-footer">
+              <button class="stam-btn stam-btn-ghost stam-filter-reset" id="msl-filter-reset" type="button">초기화</button>
+              <button class="stam-btn stam-btn-primary stam-filter-apply" type="button">적용</button>
+            </div>
+          </div>
         </div>
 
         <!-- ── Table ── -->

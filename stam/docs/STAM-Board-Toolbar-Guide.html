@@ -68,6 +68,9 @@
                 <li>CSS 로드 순서: <code>stam.components.css</code> → <code>stam.buttons.css</code> → <strong>stam.board-toolbar.css</strong> → 페이지 CSS</li>
                 <li>페이지 CSS의 toolbar flex 레이아웃은 <code>stam-board-toolbar</code>가 담당하므로 제거</li>
                 <li>버튼 클릭 JS 로직 변경 금지 — 기존 id/class 유지</li>
+                <li><strong>Toolbar 기본 노출은 검색 + 필터 + 삭제만</strong> — 화면별 세부 필터(상태/유형/담당자 등)는 Toolbar에 직접 나열하지 않고 필터 패널 내부로 이동</li>
+                <li><code>stam-board-toolbar-extra</code>는 Gantt 접기 / 컬럼 설정 / Focus View처럼 <strong>화면 조작용 버튼에만 사용</strong></li>
+                <li>상태/유형/담당자 등 조건 필터는 extra에 직접 노출하지 않고 <code>stam-filter-panel</code>에 배치</li>
               </ul>
             </div>
           </div>
@@ -350,36 +353,39 @@
       <section class="doc-section">
         <div class="doc-section-hdr">
           <span class="doc-section-num">08</span>
-          <h2 class="doc-section-title">적용 현황 (1차)</h2>
+          <h2 class="doc-section-title">적용 현황 (2차 — 필터 간소화 반영)</h2>
         </div>
         <div class="doc-section-body">
           <div class="bt-demo-section">
             <table class="bt-cls-table">
               <thead>
-                <tr><th>화면</th><th>base</th><th>extra</th><th>right</th></tr>
+                <tr><th>화면</th><th>base</th><th>extra</th><th>right</th><th>필터 패널</th></tr>
               </thead>
               <tbody>
                 <tr>
                   <td>requirements.html</td>
-                  <td>검색바 + sep + 삭제(rq-del-btn)</td>
-                  <td>상태 / 유형 / 우선순위 / 담당자</td>
+                  <td>검색바 + sep + 필터(rq-filter-open-btn) + 삭제(rq-del-btn)</td>
+                  <td>없음</td>
                   <td>비어있음</td>
+                  <td>상태 / 유형 / 우선순위 / 담당자</td>
                 </tr>
                 <tr>
                   <td>menu-screen-list.html</td>
-                  <td>검색바 + sep + 삭제(msl-del-btn)</td>
-                  <td>상태 / 화면유형 / LV1 / FO/BO</td>
+                  <td>검색바 + sep + 필터(msl-filter-open-btn) + 삭제(msl-del-btn)</td>
+                  <td>없음</td>
                   <td>비어있음</td>
+                  <td>상태 / 화면유형 / LV1 / FO/BO</td>
                 </tr>
                 <tr>
                   <td>wbs.html</td>
                   <td>검색바 + 필터패널버튼 + divider + 삭제(wbs-delete-btn)</td>
                   <td>Gantt 접기 / 그룹 접기 / 컬럼 설정 / Focus View</td>
                   <td>초기화 / 내 담당 / 리스크</td>
+                  <td>WBS 기존 패널</td>
                 </tr>
                 <tr>
                   <td>screen-specification.html</td>
-                  <td colspan="3" style="color:var(--t3)">이번 작업 범위 외 — 후속 진행</td>
+                  <td colspan="4" style="color:var(--t3)">이번 작업 범위 외 — 후속 진행</td>
                 </tr>
               </tbody>
             </table>
