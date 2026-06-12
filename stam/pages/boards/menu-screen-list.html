@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="../../css/stam.drawer.css">
   <link rel="stylesheet" href="../../css/stam.table-selection.css">
   <link rel="stylesheet" href="../../css/stam.buttons.css">
+  <link rel="stylesheet" href="../../css/stam.board-toolbar.css">
   <link rel="stylesheet" href="../../css/stam.menu-screen-list.css">
 </head>
 <body>
@@ -108,33 +109,39 @@
         </div>
 
         <!-- ── Toolbar ── -->
-        <div class="msl-toolbar">
-          <div class="msl-search">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--t3);flex-shrink:0" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="화면 ID · 화면명 · 담당자 검색" autocomplete="off">
+        <div class="msl-toolbar stam-board-toolbar">
+          <div class="stam-board-toolbar-left">
+            <div class="stam-board-toolbar-base">
+              <div class="msl-search stam-board-search">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--t3);flex-shrink:0" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="화면 ID · 화면명 · 담당자 검색" autocomplete="off">
+              </div>
+              <div class="msl-toolbar-sep"></div>
+              <button class="msl-btn msl-btn-del stam-btn stam-btn-danger stam-board-delete" id="msl-del-btn" type="button" disabled>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                <span class="msl-del-lbl">삭제</span>
+              </button>
+            </div>
+            <div class="stam-board-toolbar-extra">
+              <button class="msl-filter-btn stam-board-action" type="button">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                상태
+              </button>
+              <button class="msl-filter-btn stam-board-action" type="button">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                화면유형
+              </button>
+              <button class="msl-filter-btn stam-board-action" type="button">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                LV1
+              </button>
+              <button class="msl-filter-btn stam-board-action" type="button">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="4" cy="4" r="2"/><circle cx="4" cy="12" r="2"/><circle cx="4" cy="20" r="2"/><line x1="10" y1="4" x2="20" y2="4"/><line x1="10" y1="12" x2="20" y2="12"/><line x1="10" y1="20" x2="20" y2="20"/></svg>
+                FO/BO
+              </button>
+            </div>
           </div>
-          <div class="msl-toolbar-sep"></div>
-          <button class="msl-filter-btn" type="button">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-            상태
-          </button>
-          <button class="msl-filter-btn" type="button">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-            화면유형
-          </button>
-          <button class="msl-filter-btn" type="button">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-            LV1
-          </button>
-          <button class="msl-filter-btn" type="button">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="4" cy="4" r="2"/><circle cx="4" cy="12" r="2"/><circle cx="4" cy="20" r="2"/><line x1="10" y1="4" x2="20" y2="4"/><line x1="10" y1="12" x2="20" y2="12"/><line x1="10" y1="20" x2="20" y2="20"/></svg>
-            FO/BO
-          </button>
-          <div class="msl-toolbar-sp"></div>
-          <button class="msl-btn msl-btn-del stam-btn stam-btn-danger" id="msl-del-btn" type="button" disabled>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-            <span class="msl-del-lbl">삭제</span>
-          </button>
+          <div class="stam-board-toolbar-right"></div>
         </div>
 
         <!-- ── Table ── -->

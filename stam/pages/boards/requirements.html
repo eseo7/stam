@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="../../css/stam.drawer.css">
   <link rel="stylesheet" href="../../css/stam.table-selection.css">
   <link rel="stylesheet" href="../../css/stam.buttons.css">
+  <link rel="stylesheet" href="../../css/stam.board-toolbar.css">
   <link rel="stylesheet" href="../../css/stam.requirements.css">
 </head>
 <body>
@@ -108,33 +109,39 @@
         </div>
 
         <!-- ── Toolbar ── -->
-        <div class="rq-toolbar">
-          <div class="rq-search">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--t3);flex-shrink:0" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="요구사항 ID · 요구사항명 · 담당자 검색" autocomplete="off">
+        <div class="rq-toolbar stam-board-toolbar">
+          <div class="stam-board-toolbar-left">
+            <div class="stam-board-toolbar-base">
+              <div class="rq-search stam-board-search">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--t3);flex-shrink:0" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="요구사항 ID · 요구사항명 · 담당자 검색" autocomplete="off">
+              </div>
+              <div class="rq-toolbar-sep"></div>
+              <button class="rq-btn rq-btn-del stam-btn stam-btn-danger stam-board-delete" id="rq-del-btn" type="button" disabled>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                <span class="rq-del-lbl">삭제</span>
+              </button>
+            </div>
+            <div class="stam-board-toolbar-extra">
+              <button class="rq-filter-btn stam-board-action" type="button">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                상태
+              </button>
+              <button class="rq-filter-btn stam-board-action" type="button">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                유형
+              </button>
+              <button class="rq-filter-btn stam-board-action" type="button">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                우선순위
+              </button>
+              <button class="rq-filter-btn stam-board-action" type="button">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                담당자
+              </button>
+            </div>
           </div>
-          <div class="rq-toolbar-sep"></div>
-          <button class="rq-filter-btn" type="button">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-            상태
-          </button>
-          <button class="rq-filter-btn" type="button">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-            유형
-          </button>
-          <button class="rq-filter-btn" type="button">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-            우선순위
-          </button>
-          <button class="rq-filter-btn" type="button">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            담당자
-          </button>
-          <div class="rq-toolbar-sp"></div>
-          <button class="rq-btn rq-btn-del stam-btn stam-btn-danger" id="rq-del-btn" type="button" disabled>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-            <span class="rq-del-lbl">삭제</span>
-          </button>
+          <div class="stam-board-toolbar-right"></div>
         </div>
 
         <!-- ── Table ── -->
