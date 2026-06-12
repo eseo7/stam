@@ -114,6 +114,9 @@
   });
 
   // ── Init ──────────────────────────────────────────────────────
+  if (window.STAM && window.STAM.navRender) {
+    window.STAM.navRender.init('B1');
+  }
   bindRows();
   bindCheckboxes();
 
