@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Table Row Selection Guide v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<link rel="stylesheet" href="../css/stam.table-selection.css">
+<style>
+.tr-demo-section { margin-bottom: 36px }
+.tr-demo-section:last-child { margin-bottom: 0 }
+.tr-demo-title { font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 4px }
+.tr-demo-desc { font-size: 11.5px; color: var(--t3); margin-bottom: 12px; line-height: 1.6 }
+.tr-demo-box { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; padding: 0; overflow: hidden }
+.tr-code { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 7px; padding: 14px 16px; font-family: monospace; font-size: 12px; color: var(--t1); line-height: 1.7; white-space: pre; overflow-x: auto }
+.tr-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 99px; font-size: 10.5px; font-weight: 700; background: var(--stam-soft); color: var(--stam); margin-right: 4px }
+.tr-badge.red { background: rgba(239,68,68,.12); color: #EF4444 }
+.tr-badge.green { background: rgba(16,185,129,.12); color: #10B981 }
+
+/* 데모 테이블 */
+.demo-table { width: 100%; border-collapse: collapse }
+.demo-table th { text-align: left; font-size: 11px; font-weight: 700; color: var(--t3); padding: 8px 12px; border-bottom: 1px solid var(--bd); background: var(--bg-sur2) }
+.demo-table td { font-size: 12px; color: var(--t1); padding: 9px 12px; border-bottom: 1px solid var(--bd-s) }
+.demo-table tr:last-child td { border-bottom: 0 }
+.demo-table .demo-ch { width: 40px; padding: 0 0 0 14px; position: relative }
+.demo-table tbody tr { cursor: pointer }
+/* 공통 selected 기준 시뮬레이션 */
+.demo-table tbody tr.demo-sel td { background: rgba(84,81,232,.06) }
+.demo-table tbody tr.demo-sel td.demo-ch::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--stam); border-radius:0 2px 2px 0 }
+.demo-table tbody tr:hover td { background: rgba(84,81,232,.03) }
+
+.tr-cls-table { width: 100%; border-collapse: collapse }
+.tr-cls-table th { text-align: left; font-size: 11px; font-weight: 700; color: var(--t3); border-bottom: 1px solid var(--bd); padding: 7px 10px }
+.tr-cls-table td { font-size: 12px; color: var(--t1); border-bottom: 1px solid var(--bd-s); padding: 8px 10px; vertical-align: top }
+.tr-cls-table td:first-child { font-family: monospace; color: var(--stam); font-weight: 700 }
+.tr-cls-table tr:last-child td { border-bottom: 0 }
+
+.tr-forbidden { background: rgba(239,68,68,.06); border: 1px solid rgba(239,68,68,.2); border-radius: 8px; padding: 12px 16px; margin-bottom: 10px }
+.tr-forbidden-title { font-size: 12px; font-weight: 700; color: #EF4444; margin-bottom: 6px }
+.tr-forbidden-desc { font-size: 11.5px; color: var(--t3); line-height: 1.6 }
+</style>
+</head>
+<body>
+<div class="po-shell">
+  <header class="po-topbar stam-topbar" data-stam-topbar
+    data-tb-crumbs="STAM Docs|Table Row Selection Guide v1"
+    data-tb-client="STAM Design System"
+    data-tb-search-placeholder=""
+    data-tb-notif="false"></header>
+  <div class="po-body">
+    <nav class="po-sidebar" data-stam-left-nav aria-label="STAM Docs 내비게이션"></nav>
+    <main class="po-main" style="max-width:900px">
+
+      <!-- ── 00 원칙 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">00</span>
+          <h2 class="doc-section-title">원칙 · 정책</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="tr-demo-section">
+            <div class="tr-demo-desc">
+              STAM 보드 목록에서 <strong>행 클릭</strong>과 <strong>체크박스 클릭</strong>은 역할이 완전히 분리됩니다.<br>
+              이 기준은 요구사항정의서 동작을 표준으로 정의한 것입니다.
+              <ul style="margin:8px 0 0 16px;line-height:1.9;font-size:12px">
+                <li>행 클릭 → 행 selected 상태 + 좌측 bar + 상세 Drawer 열림</li>
+                <li>체크박스 클릭 → 체크박스 checked 상태만 변경 (이벤트 전파 차단)</li>
+                <li>두 동작은 절대 교차하지 않습니다</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 01 정상 행 클릭 동작 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">01</span>
+          <h2 class="doc-section-title">정상 행 클릭 동작</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="tr-demo-section">
+            <div class="tr-demo-desc">두 번째 행이 클릭된 상태입니다. 체크박스는 선택되지 않았지만 selected bar가 표시됩니다.</div>
+            <div class="tr-demo-box">
+              <table class="demo-table">
+                <thead><tr><th class="demo-ch"></th><th>ID</th><th>요구사항명</th><th>상태</th></tr></thead>
+                <tbody>
+                  <tr><td class="demo-ch"><input type="checkbox" style="width:13px;height:13px;cursor:pointer"></td><td>RQ-001</td><td>로그인 화면</td><td>승인완료</td></tr>
+                  <tr class="demo-sel"><td class="demo-ch"><input type="checkbox" style="width:13px;height:13px;cursor:pointer"></td><td>RQ-002</td><td>회원가입 화면</td><td>검토중</td></tr>
+                  <tr><td class="demo-ch"><input type="checkbox" style="width:13px;height:13px;cursor:pointer"></td><td>RQ-003</td><td>메인 대시보드</td><td>작성중</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tr-demo-section">
+            <div class="tr-demo-title">정확한 구현 패턴</div>
+            <div class="tr-code">/* 행 클릭 핸들러 */
+row.addEventListener('click', function (e) {
+  // 체크박스 셀 클릭이면 무시
+  if (e.target.closest('.checkbox-cell')) return;
+
+  // 기존 selected 해제
+  document.querySelectorAll('.data-row').forEach(function (r) {
+    if (r !== row) r.classList.remove('selected');
+  });
+
+  // 현재 행 selected 추가 (체크박스 checked 변경 없음)
+  row.classList.add('selected');
+
+  // 상세 Drawer 열기
+  openDrawer('detail');
+});</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 02 체크박스 클릭 동작 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">02</span>
+          <h2 class="doc-section-title">체크박스 클릭 동작</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="tr-demo-section">
+            <div class="tr-demo-desc">체크박스를 클릭하면 checked 상태만 변경됩니다. 행 selected 상태나 Drawer 열림에 영향을 주지 않습니다.</div>
+            <div class="tr-code">/* 체크박스 클릭 — 이벤트 전파 차단 필수 */
+checkbox.addEventListener('click', function (e) {
+  e.stopPropagation();  // row click으로 전파되지 않음
+});
+
+checkbox.addEventListener('change', function () {
+  // 체크박스 상태만 처리 (row selected 변경 없음)
+  updateDeleteButton();
+});
+
+/* 체크박스 td도 전파 차단 (안전 장치) */
+checkboxCell.addEventListener('click', function (e) {
+  e.stopPropagation();
+});</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 03 헤더 체크박스 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">03</span>
+          <h2 class="doc-section-title">헤더 체크박스 동작</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="tr-demo-section">
+            <div class="tr-demo-desc">헤더 체크박스는 전체 체크/해제만 담당합니다. 행 selected 상태를 변경하거나 Drawer를 열지 않습니다.</div>
+            <div class="tr-code">headerCheckbox.addEventListener('change', function () {
+  var checked = headerCheckbox.checked;
+  document.querySelectorAll('.row-checkbox').forEach(function (cb) {
+    cb.checked = checked;
+    // row.classList.toggle('selected', ...) — 금지 ❌
+    // openDrawer() — 금지 ❌
+  });
+  updateDeleteButton();
+});</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 04 selected row 시각 기준 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">04</span>
+          <h2 class="doc-section-title">selected row 시각 기준</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="tr-demo-section">
+            <div class="tr-demo-box" style="padding:0">
+              <table class="tr-cls-table">
+                <thead><tr><th>항목</th><th>기준값</th></tr></thead>
+                <tbody>
+                  <tr><td>배경색 (라이트)</td><td><code>rgba(84, 81, 232, .06)</code></td></tr>
+                  <tr><td>배경색 (다크)</td><td><code>rgba(139, 127, 248, .08)</code></td></tr>
+                  <tr><td>좌측 bar 폭</td><td>3px</td></tr>
+                  <tr><td>bar 색상</td><td><code>var(--stam)</code> 또는 <code>var(--brand)</code></td></tr>
+                  <tr><td>bar 위치</td><td>첫 번째 td (체크박스 셀) 좌측 0</td></tr>
+                  <tr><td>bar border-radius</td><td><code>0 2px 2px 0</code></td></tr>
+                  <tr><td>transition</td><td>없음 (즉각 변경)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tr-demo-section">
+            <div class="tr-demo-title">공통 CSS 구현</div>
+            <div class="tr-code">/* stam.table-selection.css */
+.stam-table-row.is-selected td {
+  background: rgba(139, 127, 248, .08);
+}
+
+.stam-table-row.is-selected td:first-child {
+  position: relative;
+}
+
+.stam-table-row.is-selected td:first-child::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--stam);
+  border-radius: 0 3px 3px 0;
+}</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 05 금지 패턴 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">05</span>
+          <h2 class="doc-section-title">금지 패턴</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="tr-forbidden">
+            <div class="tr-forbidden-title">❌ 행 클릭 시 체크박스 자동 선택</div>
+            <div class="tr-forbidden-desc">
+              row click 핸들러에서 <code>checkbox.checked = true</code> 또는 <code>checkbox.checked = false</code>를 호출하는 것은 금지입니다.<br>
+              체크박스 상태는 오직 체크박스 직접 클릭으로만 변경됩니다.
+            </div>
+          </div>
+          <div class="tr-forbidden">
+            <div class="tr-forbidden-title">❌ 체크박스 클릭 시 상세 Drawer 열림</div>
+            <div class="tr-forbidden-desc">
+              체크박스 click/change 핸들러에서 <code>openDrawer()</code>를 호출하면 안 됩니다.<br>
+              반드시 <code>e.stopPropagation()</code>으로 row click 전파를 차단해야 합니다.
+            </div>
+          </div>
+          <div class="tr-forbidden">
+            <div class="tr-forbidden-title">❌ selected row인데 bar 없음</div>
+            <div class="tr-forbidden-desc">
+              행이 selected 상태(클릭)일 때 좌측 3px bar가 반드시 표시되어야 합니다.<br>
+              CSS에서 첫 번째 td에 <code>position: relative</code>가 있어야 <code>::before</code> bar가 보입니다.
+            </div>
+          </div>
+          <div class="tr-forbidden">
+            <div class="tr-forbidden-title">❌ updateMasterChk()를 row click 핸들러에서 호출</div>
+            <div class="tr-forbidden-desc">
+              row click은 체크박스 상태를 변경하지 않으므로 header checkbox 상태를 재계산할 필요가 없습니다.<br>
+              <code>updateMasterChk()</code>는 checkbox change 핸들러에서만 호출합니다.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 06 신규 보드 적용 예시 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">06</span>
+          <h2 class="doc-section-title">신규 보드 적용 예시</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="tr-demo-section">
+            <div class="tr-demo-title">① CSS 로드 순서</div>
+            <div class="tr-code">&lt;link rel="stylesheet" href="../../css/stam.components.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.table-selection.css"&gt;  &lt;!-- 추가 --&gt;
+&lt;link rel="stylesheet" href="../../css/stam.my-board.css"&gt;</div>
+          </div>
+          <div class="tr-demo-section">
+            <div class="tr-demo-title">② HTML class 병행 추가</div>
+            <div class="tr-code">&lt;!-- 각 데이터 행에 stam-table-row 병행 --&gt;
+&lt;tr class="my-data-row stam-table-row" data-id="..."&gt;
+  &lt;td class="my-ch"&gt;&lt;input type="checkbox" class="my-cb"&gt;&lt;/td&gt;
+  &lt;td&gt;...&lt;/td&gt;
+&lt;/tr&gt;</div>
+          </div>
+          <div class="tr-demo-section">
+            <div class="tr-demo-title">③ 행 클릭 JS 패턴</div>
+            <div class="tr-code">/* 행 클릭 */
+row.addEventListener('click', function (e) {
+  if (e.target.closest('.my-ch')) return;         // 체크박스 셀 차단
+  document.querySelectorAll('.my-data-row').forEach(function (r) {
+    r.classList.remove('selected', 'is-selected'); // 기존 해제
+  });
+  row.classList.add('selected', 'is-selected');    // 공통 + 페이지 클래스 병행
+  openDrawer('detail');
+});
+
+/* 체크박스 */
+checkbox.addEventListener('click', function (e) { e.stopPropagation(); });
+checkbox.addEventListener('change', function () { updateDeleteBtn(); });</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 07 기존 화면 점검 체크리스트 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">07</span>
+          <h2 class="doc-section-title">기존 화면 점검 체크리스트</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="tr-demo-section">
+            <div class="tr-demo-box" style="padding:0">
+              <table class="tr-cls-table">
+                <thead><tr><th>화면</th><th>행 클릭 시 체크박스 변경 안 함</th><th>체크박스 클릭 Drawer 미열림</th><th>selected bar 표시</th><th>상태</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td>요구사항정의서</td>
+                    <td><span class="tr-badge green">✓</span></td>
+                    <td><span class="tr-badge green">✓</span></td>
+                    <td><span class="tr-badge green">✓</span></td>
+                    <td><span class="tr-badge green">정상 기준</span></td>
+                  </tr>
+                  <tr>
+                    <td>메뉴구조/화면목록</td>
+                    <td><span class="tr-badge green">✓</span></td>
+                    <td><span class="tr-badge green">✓</span></td>
+                    <td><span class="tr-badge green">✓</span></td>
+                    <td><span class="tr-badge green">정상</span></td>
+                  </tr>
+                  <tr>
+                    <td>WBS</td>
+                    <td><span class="tr-badge green">✓ 보정완료</span></td>
+                    <td><span class="tr-badge green">✓</span></td>
+                    <td><span class="tr-badge green">✓</span></td>
+                    <td><span class="tr-badge green">v1 보정</span></td>
+                  </tr>
+                  <tr>
+                    <td>화면설계서</td>
+                    <td><span class="tr-badge green">✓</span></td>
+                    <td><span class="tr-badge green">✓</span></td>
+                    <td><span class="tr-badge green">✓ 보정완료</span></td>
+                    <td><span class="tr-badge green">v1 보정</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script src="../js/stam.nav-data.js"></script>
+<script src="../js/stam.shell.js"></script>
+<script src="../js/stam.nav-render.js"></script>
+<script src="../js/stam.topbar-render.js"></script>
+</body>
+</html>
