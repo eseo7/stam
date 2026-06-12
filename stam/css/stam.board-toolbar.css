@@ -1,0 +1,83 @@
+/* ─────────────────────────────────────────────
+   STAM Board Toolbar 공통 기준  v1
+   로드 순서: stam.components.css → stam.buttons.css → stam.board-toolbar.css → 페이지 CSS
+   ───────────────────────────────────────────── */
+
+/* ── 루트 Toolbar ── */
+.stam-board-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+/* ── 좌측 전체 영역 ── */
+.stam-board-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+/* ── 좌측 base: 검색 + 필터 + 삭제 ── */
+.stam-board-toolbar-base {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── 검색바 ── */
+.stam-board-search {
+  width: 260px;
+  flex-shrink: 0;
+}
+
+/* ── 좌측 extra: 화면별 추가 필터/버튼 ── */
+.stam-board-toolbar-extra {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+/* ── 우측 right: 초기화 / 내 담당 / 리스크 / 등록 등 ── */
+.stam-board-toolbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── 공통 액션 버튼 ── */
+.stam-board-action {
+  /* filter chip / 토글 버튼 공통 기준 — 크기/색상은 페이지 CSS에서 정의 */
+  white-space: nowrap;
+}
+
+/* ── 삭제 버튼 ── */
+.stam-board-delete {
+  /* stam-btn stam-btn-danger 와 병행 사용 */
+  flex-shrink: 0;
+}
+
+/* ── 작은 화면 대응 ── */
+@media (max-width: 960px) {
+  .stam-board-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .stam-board-toolbar-left {
+    flex-wrap: wrap;
+  }
+  .stam-board-toolbar-right {
+    margin-left: auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
