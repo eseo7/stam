@@ -460,7 +460,7 @@
           '<td>' + wChip(s.wst) + '</td>' +
           '<td>' + rChip(s.rst) + '</td>' +
           '<td>' + aChip(s.ast) + '</td>' +
-          '<td style="display:flex;align-items:center;gap:4px;height:44px">' + imgChip(s.hasImg) + annChip(s.annots) + '</td>' +
+          '<td style="display:flex;align-items:center;gap:4px">' + imgChip(s.hasImg) + annChip(s.annots) + '</td>' +
           '<td style="color:var(--t3);font-size:12px">' + s.upd.slice(5) + '</td></tr>';
       });
     });
