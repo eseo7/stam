@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>메뉴구조/화면목록 — 파르나스 리뉴얼 구축 — STAM</title>
+  <link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+  <link rel="stylesheet" href="../../css/stam.tokens.css">
+  <link rel="stylesheet" href="../../css/stam.shell.css">
+  <link rel="stylesheet" href="../../css/stam.components.css">
+  <link rel="stylesheet" href="../../css/stam.project-overview.css">
+  <link rel="stylesheet" href="../../css/stam.menu-screen-list.css">
+</head>
+<body>
+
+<div class="po-shell">
+
+  <header class="po-topbar stam-topbar" data-stam-topbar
+    data-tb-crumbs="내 프로젝트|파르나스 리뉴얼 구축|메뉴구조/화면목록"
+    data-tb-client="파르나스호텔"
+    data-tb-search-placeholder="화면 ID · 화면명 검색"
+    data-tb-notif="true"></header>
+
+  <div class="po-body">
+
+    <nav class="po-sidebar" data-stam-left-nav aria-label="프로젝트 내비게이션"></nav>
+
+    <main class="po-main" id="po-main" data-screen-label="메뉴구조/화면목록">
+
+      <section class="po-ctx" data-stam-project-context
+        data-pc-title="파르나스 리뉴얼 구축"
+        data-pc-client="파르나스호텔"
+        data-pc-stage="설계 단계"
+        data-pc-status="진행중"
+        data-pc-role="Project Admin / PM"
+        data-pc-date="기준일 2026-06-07"
+        data-pc-progress="42"
+        data-pc-risk="주의"
+        data-pc-risk-level="warn"
+        data-pc-updated="업데이트 오늘 10:42"></section>
+
+      <section class="msl-page">
+
+        <!-- ── Page header ── -->
+        <div class="msl-page-hdr">
+          <div class="msl-page-hdr-l">
+            <div class="msl-page-hdr-title">메뉴구조 / 화면목록</div>
+            <div class="msl-page-hdr-desc">서비스 메뉴 계층과 화면 목록을 관리하고 요구사항·화면설계서와 연결합니다.</div>
+          </div>
+          <div class="msl-page-hdr-r">
+            <button class="msl-btn msl-btn-out" type="button">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              내보내기
+            </button>
+            <button class="msl-btn msl-btn-pri" id="msl-reg-btn" type="button">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              화면 등록
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Summary strip ── -->
+        <div class="msl-sstrip">
+          <div class="msl-ss-cell on">
+            <div class="msl-ss-lbl"><span class="msl-ss-dot" style="background:var(--stam)"></span>전체</div>
+            <div class="msl-ss-num" style="color:var(--stam)">38</div>
+            <div class="msl-ss-sub">전체 화면</div>
+          </div>
+          <div class="msl-ss-cell">
+            <div class="msl-ss-lbl"><span class="msl-ss-dot" style="background:#64748B"></span>작성중</div>
+            <div class="msl-ss-num">12</div>
+            <div class="msl-ss-sub">초안 작성중</div>
+          </div>
+          <div class="msl-ss-cell">
+            <div class="msl-ss-lbl"><span class="msl-ss-dot" style="background:#B45309"></span>검토중</div>
+            <div class="msl-ss-num">9</div>
+            <div class="msl-ss-sub">검토 진행중</div>
+          </div>
+          <div class="msl-ss-cell">
+            <div class="msl-ss-lbl"><span class="msl-ss-dot" style="background:#047857"></span>확정</div>
+            <div class="msl-ss-num">15</div>
+            <div class="msl-ss-sub">확정 완료</div>
+          </div>
+          <div class="msl-ss-cell">
+            <div class="msl-ss-lbl"><span class="msl-ss-dot" style="background:#991B1B"></span>보류</div>
+            <div class="msl-ss-num">2</div>
+            <div class="msl-ss-sub">보류 처리</div>
+          </div>
+          <div class="msl-ss-cell">
+            <div class="msl-ss-lbl"><span class="msl-ss-dot" style="background:#3B82F6"></span>미연결 요구사항</div>
+            <div class="msl-ss-num">8</div>
+            <div class="msl-ss-sub">요구사항 미연결</div>
+          </div>
+          <div class="msl-ss-cell" style="border-right:0">
+            <div class="msl-ss-lbl"><span class="msl-ss-dot" style="background:#8B5CF6"></span>미작성 화면설계서</div>
+            <div class="msl-ss-num">14</div>
+            <div class="msl-ss-sub">화면설계서 미작성</div>
+          </div>
+        </div>
+        <div class="msl-ss-meta">
+          <div class="msl-ss-meta-item"><span class="msl-ss-meta-lbl">FO 화면</span><span class="msl-ss-meta-val">31건</span></div>
+          <div class="msl-ss-meta-item"><span class="msl-ss-meta-lbl">BO 화면</span><span class="msl-ss-meta-val">7건</span></div>
+          <div class="msl-ss-meta-item"><span class="msl-ss-meta-lbl">이번 주 등록</span><span class="msl-ss-meta-val">5건</span></div>
+        </div>
+
+        <!-- ── Toolbar ── -->
+        <div class="msl-toolbar">
+          <div class="msl-search">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--t3);flex-shrink:0" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="화면 ID · 화면명 · 담당자 검색" autocomplete="off">
+          </div>
+          <div class="msl-toolbar-sep"></div>
+          <button class="msl-filter-btn" type="button">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            상태
+          </button>
+          <button class="msl-filter-btn" type="button">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            화면유형
+          </button>
+          <button class="msl-filter-btn" type="button">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            LV1
+          </button>
+          <button class="msl-filter-btn" type="button">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="4" cy="4" r="2"/><circle cx="4" cy="12" r="2"/><circle cx="4" cy="20" r="2"/><line x1="10" y1="4" x2="20" y2="4"/><line x1="10" y1="12" x2="20" y2="12"/><line x1="10" y1="20" x2="20" y2="20"/></svg>
+            FO/BO
+          </button>
+          <div class="msl-toolbar-sp"></div>
+          <button class="msl-btn msl-btn-del" id="msl-del-btn" type="button" disabled>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            <span class="msl-del-lbl">삭제</span>
+          </button>
+        </div>
+
+        <!-- ── Table ── -->
+        <div class="msl-tbl-outer">
+          <div class="msl-tbl-scroll">
+            <table class="msl-table">
+              <colgroup>
+                <col style="width:40px">
+                <col style="min-width:200px">
+                <col style="width:110px">
+                <col style="width:110px">
+                <col style="width:80px">
+                <col style="width:60px">
+                <col style="width:130px">
+                <col style="width:130px">
+                <col style="width:76px">
+                <col style="width:96px">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th class="msl-ch"><input type="checkbox" class="msl-cb" id="msl-cb-all"></th>
+                  <th>화면 ID / 화면명</th>
+                  <th>LV1</th>
+                  <th>LV2</th>
+                  <th>화면유형</th>
+                  <th>FO/BO</th>
+                  <th>연결 요구사항</th>
+                  <th>연결 화면설계서</th>
+                  <th>상태</th>
+                  <th>최종 수정일</th>
+                </tr>
+              </thead>
+              <tbody id="msl-tbody">
+
+                <!-- SCR-001 -->
+                <tr class="msl-data-row">
+                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td>
+                    <div class="msl-id-cell">
+                      <span class="msl-scr-id">SCR-001</span>
+                      <span class="msl-scr-name">요구사항 목록</span>
+                    </div>
+                  </td>
+                  <td><span class="msl-lv-text">산출물 관리</span></td>
+                  <td><span class="msl-lv-text">요구사항정의서</span></td>
+                  <td><span class="msl-chip msl-chip-type-list">목록</span></td>
+                  <td><span class="msl-fob msl-fob-fo">FO</span></td>
+                  <td>
+                    <div class="msl-link-chips">
+                      <span class="msl-link-chip">REQ-001</span>
+                      <span class="msl-link-chip">REQ-002</span>
+                    </div>
+                  </td>
+                  <td><span class="msl-link-chip msl-link-chip-scr">SCR-001</span></td>
+                  <td><span class="msl-chip msl-chip-done">확정</span></td>
+                  <td class="msl-date">2026-06-10</td>
+                </tr>
+
+                <!-- SCR-002 -->
+                <tr class="msl-data-row">
+                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td>
+                    <div class="msl-id-cell">
+                      <span class="msl-scr-id">SCR-002</span>
+                      <span class="msl-scr-name">요구사항 등록</span>
+                    </div>
+                  </td>
+                  <td><span class="msl-lv-text">산출물 관리</span></td>
+                  <td><span class="msl-lv-text">요구사항정의서</span></td>
+                  <td><span class="msl-chip msl-chip-type-reg">등록</span></td>
+                  <td><span class="msl-fob msl-fob-fo">FO</span></td>
+                  <td><span class="msl-link-chip">REQ-001</span></td>
+                  <td><span class="msl-link-chip msl-link-chip-scr">SCR-002</span></td>
+                  <td><span class="msl-chip msl-chip-done">확정</span></td>
+                  <td class="msl-date">2026-06-10</td>
+                </tr>
+
+                <!-- SCR-003 -->
+                <tr class="msl-data-row">
+                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td>
+                    <div class="msl-id-cell">
+                      <span class="msl-scr-id">SCR-003</span>
+                      <span class="msl-scr-name">WBS 목록</span>
+                    </div>
+                  </td>
+                  <td><span class="msl-lv-text">산출물 관리</span></td>
+                  <td><span class="msl-lv-text">WBS 작업</span></td>
+                  <td><span class="msl-chip msl-chip-type-list">목록</span></td>
+                  <td><span class="msl-fob msl-fob-fo">FO</span></td>
+                  <td><span class="msl-link-chip">REQ-003</span></td>
+                  <td><span class="msl-link-chip-none">미연결</span></td>
+                  <td><span class="msl-chip msl-chip-review">검토중</span></td>
+                  <td class="msl-date">2026-06-09</td>
+                </tr>
+
+                <!-- SCR-004 -->
+                <tr class="msl-data-row">
+                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td>
+                    <div class="msl-id-cell">
+                      <span class="msl-scr-id">SCR-004</span>
+                      <span class="msl-scr-name">화면설계서 목록</span>
+                    </div>
+                  </td>
+                  <td><span class="msl-lv-text">산출물 관리</span></td>
+                  <td><span class="msl-lv-text">화면설계서</span></td>
+                  <td><span class="msl-chip msl-chip-type-list">목록</span></td>
+                  <td><span class="msl-fob msl-fob-fo">FO</span></td>
+                  <td><span class="msl-link-chip">REQ-002</span></td>
+                  <td><span class="msl-link-chip msl-link-chip-scr">SCR-003</span></td>
+                  <td><span class="msl-chip msl-chip-done">확정</span></td>
+                  <td class="msl-date">2026-06-10</td>
+                </tr>
+
+                <!-- SCR-005 -->
+                <tr class="msl-data-row">
+                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td>
+                    <div class="msl-id-cell">
+                      <span class="msl-scr-id">SCR-005</span>
+                      <span class="msl-scr-name">로그인</span>
+                    </div>
+                  </td>
+                  <td><span class="msl-lv-text">인증</span></td>
+                  <td><span class="msl-lv-text msl-lv-empty">—</span></td>
+                  <td><span class="msl-chip msl-chip-type-list">목록</span></td>
+                  <td><span class="msl-fob msl-fob-fo">FO</span></td>
+                  <td><span class="msl-link-chip-none">미연결</span></td>
+                  <td><span class="msl-link-chip-none">미작성</span></td>
+                  <td><span class="msl-chip msl-chip-draft">작성중</span></td>
+                  <td class="msl-date">2026-06-08</td>
+                </tr>
+
+                <!-- SCR-006 -->
+                <tr class="msl-data-row">
+                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td>
+                    <div class="msl-id-cell">
+                      <span class="msl-scr-id">SCR-006</span>
+                      <span class="msl-scr-name">프로젝트 목록</span>
+                    </div>
+                  </td>
+                  <td><span class="msl-lv-text">서비스 루트</span></td>
+                  <td><span class="msl-lv-text msl-lv-empty">—</span></td>
+                  <td><span class="msl-chip msl-chip-type-list">목록</span></td>
+                  <td><span class="msl-fob msl-fob-fo">FO</span></td>
+                  <td><span class="msl-link-chip">REQ-004</span></td>
+                  <td><span class="msl-link-chip msl-link-chip-scr">SCR-004</span></td>
+                  <td><span class="msl-chip msl-chip-done">확정</span></td>
+                  <td class="msl-date">2026-06-07</td>
+                </tr>
+
+                <!-- SCR-007 -->
+                <tr class="msl-data-row">
+                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td>
+                    <div class="msl-id-cell">
+                      <span class="msl-scr-id">SCR-007</span>
+                      <span class="msl-scr-name">메뉴/화면 목록</span>
+                    </div>
+                  </td>
+                  <td><span class="msl-lv-text">산출물 관리</span></td>
+                  <td><span class="msl-lv-text">메뉴구조/화면목록</span></td>
+                  <td><span class="msl-chip msl-chip-type-list">목록</span></td>
+                  <td><span class="msl-fob msl-fob-fo">FO</span></td>
+                  <td><span class="msl-link-chip">REQ-002</span></td>
+                  <td><span class="msl-link-chip-none">미작성</span></td>
+                  <td><span class="msl-chip msl-chip-review">검토중</span></td>
+                  <td class="msl-date">2026-06-09</td>
+                </tr>
+
+                <!-- SCR-008 -->
+                <tr class="msl-data-row">
+                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td>
+                    <div class="msl-id-cell">
+                      <span class="msl-scr-id">SCR-008</span>
+                      <span class="msl-scr-name">사용자 관리</span>
+                    </div>
+                  </td>
+                  <td><span class="msl-lv-text">관리/설정</span></td>
+                  <td><span class="msl-lv-text">멤버 관리</span></td>
+                  <td><span class="msl-chip msl-chip-type-list">목록</span></td>
+                  <td><span class="msl-fob msl-fob-bo">BO</span></td>
+                  <td><span class="msl-link-chip-none">미연결</span></td>
+                  <td><span class="msl-link-chip-none">미작성</span></td>
+                  <td><span class="msl-chip msl-chip-hold">보류</span></td>
+                  <td class="msl-date">2026-06-08</td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+          <div class="msl-tbl-foot">
+            <span>8개 화면 표시 중</span>
+            <div class="msl-pg">
+              <button class="msl-pgb on" type="button">1</button>
+              <button class="msl-pgb" type="button">2</button>
+              <button class="msl-pgb" type="button">3</button>
+            </div>
+          </div>
+        </div>
+
+      </section><!-- /.msl-page -->
+
+      <!-- ── Scrim ── -->
+      <div class="msl-scrim" id="msl-scrim"></div>
+
+      <!-- ── Register Drawer ── -->
+      <div class="msl-drawer" id="msl-dw-register" role="dialog" aria-label="화면 등록">
+        <div class="msl-dw-head">
+          <div class="msl-dw-hrow1">
+            <span class="msl-scr-badge">NEW</span>
+            <button class="msl-dw-close" aria-label="닫기">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="msl-dw-htitle">새 화면 등록</div>
+          <div class="msl-dw-hmeta">
+            <span class="msl-chip msl-chip-draft">작성중</span>
+          </div>
+        </div>
+        <div class="msl-dw-body">
+
+          <!-- Section 1: 기본 정보 -->
+          <div class="msl-fs">
+            <div class="msl-fs-hdr">
+              <span class="msl-fs-num">1</span>
+              <span class="msl-fs-title">기본 정보</span>
+            </div>
+            <div class="msl-fgrid">
+              <div class="msl-ffield">
+                <label class="msl-flbl">화면 ID <span class="msl-req-mark">*</span></label>
+                <input class="msl-inp ro" type="text" value="SCR-자동" readonly>
+                <div class="msl-helper">등록 시 자동 부여됩니다.</div>
+              </div>
+              <div class="msl-ffield">
+                <label class="msl-flbl">FO/BO <span class="msl-req-mark">*</span></label>
+                <select class="msl-inp">
+                  <option value="">선택</option>
+                  <option>FO</option>
+                  <option>BO</option>
+                </select>
+              </div>
+              <div class="msl-ffield full">
+                <label class="msl-flbl">화면명 <span class="msl-req-mark">*</span></label>
+                <input class="msl-inp" type="text" placeholder="화면명을 입력하세요">
+              </div>
+              <div class="msl-ffield">
+                <label class="msl-flbl">화면유형 <span class="msl-req-mark">*</span></label>
+                <select class="msl-inp">
+                  <option value="">선택</option>
+                  <option>목록</option>
+                  <option>등록</option>
+                  <option>상세</option>
+                  <option>수정</option>
+                  <option>팝업</option>
+                  <option>Drawer</option>
+                  <option>설정</option>
+                  <option>대시보드</option>
+                </select>
+              </div>
+              <div class="msl-ffield">
+                <label class="msl-flbl">상태</label>
+                <select class="msl-inp">
+                  <option>작성중</option>
+                  <option>검토중</option>
+                  <option>확정</option>
+                  <option>보류</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: 메뉴 계층 -->
+          <div class="msl-fs">
+            <div class="msl-fs-hdr">
+              <span class="msl-fs-num">2</span>
+              <span class="msl-fs-title">메뉴 계층</span>
+            </div>
+            <div class="msl-fgrid">
+              <div class="msl-ffield">
+                <label class="msl-flbl">LV1</label>
+                <select class="msl-inp">
+                  <option value="">선택</option>
+                  <option>서비스 루트</option>
+                  <option>대시보드</option>
+                  <option>산출물 관리</option>
+                  <option>테스트/품질</option>
+                  <option>협업/검토/승인</option>
+                  <option>내보내기/납품</option>
+                  <option>관리/설정</option>
+                  <option>인증</option>
+                </select>
+              </div>
+              <div class="msl-ffield">
+                <label class="msl-flbl">LV2</label>
+                <input class="msl-inp" type="text" placeholder="LV2 메뉴명">
+              </div>
+              <div class="msl-ffield">
+                <label class="msl-flbl">LV3</label>
+                <input class="msl-inp" type="text" placeholder="LV3 메뉴명">
+              </div>
+              <div class="msl-ffield">
+                <label class="msl-flbl">담당자</label>
+                <input class="msl-inp" type="text" placeholder="담당자 이름">
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: 연결 정보 -->
+          <div class="msl-fs">
+            <div class="msl-fs-hdr">
+              <span class="msl-fs-num">3</span>
+              <span class="msl-fs-title">연결 정보</span>
+            </div>
+            <div class="msl-fgrid">
+              <div class="msl-ffield full">
+                <label class="msl-flbl">연결 요구사항</label>
+                <div class="msl-linked-chips">
+                  <span class="msl-link-chip">REQ-001</span>
+                </div>
+                <button class="msl-link-add" type="button">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  요구사항 연결 추가
+                </button>
+              </div>
+              <div class="msl-ffield full">
+                <label class="msl-flbl">연결 화면설계서</label>
+                <div class="msl-empty-link">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  아직 연결된 화면설계서가 없습니다.
+                </div>
+                <button class="msl-link-add" type="button" style="margin-top:6px">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  화면설계서 연결 추가
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4: 비고 -->
+          <div class="msl-fs">
+            <div class="msl-fs-hdr">
+              <span class="msl-fs-num">4</span>
+              <span class="msl-fs-title">비고</span>
+            </div>
+            <div class="msl-ffield">
+              <textarea class="msl-inp" placeholder="비고 또는 추가 설명" rows="3"></textarea>
+            </div>
+          </div>
+
+        </div>
+        <div class="msl-dw-foot">
+          <div class="msl-dw-foot-l">
+            <button class="msl-btn" type="button" data-msl-close>취소</button>
+            <button class="msl-btn" type="button">임시저장</button>
+            <button class="msl-btn msl-btn-ghost" type="button">전체 보기</button>
+          </div>
+          <div class="msl-dw-foot-r">
+            <button class="msl-btn msl-btn-pri" type="button">등록</button>
+          </div>
+        </div>
+      </div><!-- /#msl-dw-register -->
+
+      <!-- ── Detail Drawer ── -->
+      <div class="msl-drawer" id="msl-dw-detail" role="dialog" aria-label="화면 상세">
+        <div class="msl-dw-head">
+          <div class="msl-dw-hrow1">
+            <span class="msl-scr-badge">SCR-001</span>
+            <button class="msl-dw-close" aria-label="닫기">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="msl-dw-htitle">요구사항 목록</div>
+          <div class="msl-dw-hmeta">
+            <span class="msl-chip msl-chip-done">확정</span>
+            <span class="msl-chip msl-chip-type-list">목록</span>
+            <span class="msl-fob msl-fob-fo">FO</span>
+          </div>
+        </div>
+        <div class="msl-dw-tabs">
+          <button class="msl-dw-tab on" type="button">기본 정보</button>
+          <button class="msl-dw-tab" type="button">연결 정보</button>
+          <button class="msl-dw-tab" type="button">변경 이력</button>
+        </div>
+        <div class="msl-dw-body">
+
+          <!-- Tab 0: 기본 정보 -->
+          <div class="msl-tab-panel">
+            <div class="msl-dw-sec">
+              <div class="msl-dw-sec-hdr"><h3>기본 정보</h3></div>
+              <div class="msl-igrid">
+                <div class="msl-ic"><div class="msl-ik">화면 ID</div><div class="msl-iv"><span class="msl-scr-id">SCR-001</span></div></div>
+                <div class="msl-ic"><div class="msl-ik">화면유형</div><div class="msl-iv"><span class="msl-chip msl-chip-type-list">목록</span></div></div>
+                <div class="msl-ic"><div class="msl-ik">LV1</div><div class="msl-iv">산출물 관리</div></div>
+                <div class="msl-ic"><div class="msl-ik">LV2</div><div class="msl-iv">요구사항정의서</div></div>
+                <div class="msl-ic"><div class="msl-ik">FO/BO</div><div class="msl-iv"><span class="msl-fob msl-fob-fo">FO</span></div></div>
+                <div class="msl-ic"><div class="msl-ik">상태</div><div class="msl-iv"><span class="msl-chip msl-chip-done">확정</span></div></div>
+                <div class="msl-ic"><div class="msl-ik">담당자</div><div class="msl-iv"><span class="msl-ava" style="background:#5454e8">김</span> 김민준</div></div>
+                <div class="msl-ic"><div class="msl-ik">최종 수정일</div><div class="msl-iv">2026-06-10</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 1: 연결 정보 -->
+          <div class="msl-tab-panel" style="display:none">
+            <div class="msl-dw-sec">
+              <div class="msl-dw-sec-hdr"><h3>연결 요구사항</h3><span class="msl-dw-sec-badge">2</span></div>
+              <div class="msl-linked-chips" style="margin-bottom:8px">
+                <span class="msl-link-chip">REQ-001</span>
+                <span class="msl-link-chip">REQ-002</span>
+              </div>
+            </div>
+            <div class="msl-dw-sec">
+              <div class="msl-dw-sec-hdr"><h3>연결 화면설계서</h3><span class="msl-dw-sec-badge">1</span></div>
+              <div class="msl-linked-card">
+                <span class="msl-linked-card-id">SCR-001</span>
+                <span class="msl-linked-card-name">요구사항 목록 — 화면설계서</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: 변경 이력 -->
+          <div class="msl-tab-panel" style="display:none">
+            <div class="msl-chg-list">
+              <div class="msl-chg-item">
+                <span class="msl-chg-dot"></span>
+                <span><span class="msl-chg-who">김민준</span> 상태 변경: 검토중 → 확정</span>
+                <span class="msl-chg-sp"></span>
+                <span class="msl-chg-date">2026-06-10</span>
+              </div>
+              <div class="msl-chg-item">
+                <span class="msl-chg-dot"></span>
+                <span><span class="msl-chg-who">이수빈</span> REQ-002 연결 추가</span>
+                <span class="msl-chg-sp"></span>
+                <span class="msl-chg-date">2026-06-09</span>
+              </div>
+              <div class="msl-chg-item">
+                <span class="msl-chg-dot"></span>
+                <span><span class="msl-chg-who">김민준</span> 화면 등록</span>
+                <span class="msl-chg-sp"></span>
+                <span class="msl-chg-date">2026-06-07</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="msl-dw-foot">
+          <div class="msl-dw-foot-l">
+            <span class="msl-dw-foot-date">최종 수정: 2026-06-10</span>
+          </div>
+          <div class="msl-dw-foot-r">
+            <button class="msl-btn msl-btn-ghost" type="button">전체 보기</button>
+            <button class="msl-btn msl-btn-pri" type="button" data-msl-open="edit">수정</button>
+          </div>
+        </div>
+      </div><!-- /#msl-dw-detail -->
+
+      <!-- ── Edit Drawer ── -->
+      <div class="msl-drawer" id="msl-dw-edit" role="dialog" aria-label="화면 수정">
+        <div class="msl-dw-head">
+          <div class="msl-dw-hrow1">
+            <span class="msl-scr-badge">SCR-001</span>
+            <button class="msl-dw-close" aria-label="닫기">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="msl-dw-htitle">화면 수정</div>
+          <div class="msl-dw-hmeta">
+            <span class="msl-chip msl-chip-done">확정</span>
+          </div>
+        </div>
+        <div class="msl-dw-body">
+
+          <div class="msl-edit-sum">
+            <svg class="msl-edit-sum-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <span class="msl-edit-sum-txt">수정 중: <span class="msl-edit-sum-id">SCR-001</span> 요구사항 목록</span>
+          </div>
+
+          <!-- Section 1: 기본 정보 -->
+          <div class="msl-fs">
+            <div class="msl-fs-hdr">
+              <span class="msl-fs-num">1</span>
+              <span class="msl-fs-title">기본 정보</span>
+            </div>
+            <div class="msl-fgrid">
+              <div class="msl-ffield">
+                <label class="msl-flbl">화면 ID</label>
+                <input class="msl-inp ro" type="text" value="SCR-001" readonly>
+              </div>
+              <div class="msl-ffield">
+                <label class="msl-flbl">FO/BO <span class="msl-req-mark">*</span></label>
+                <select class="msl-inp">
+                  <option selected>FO</option>
+                  <option>BO</option>
+                </select>
+              </div>
+              <div class="msl-ffield full">
+                <label class="msl-flbl">화면명 <span class="msl-req-mark">*</span></label>
+                <input class="msl-inp" type="text" value="요구사항 목록">
+              </div>
+              <div class="msl-ffield">
+                <label class="msl-flbl">화면유형 <span class="msl-req-mark">*</span></label>
+                <select class="msl-inp">
+                  <option selected>목록</option>
+                  <option>등록</option>
+                  <option>상세</option>
+                  <option>수정</option>
+                  <option>팝업</option>
+                  <option>Drawer</option>
+                  <option>설정</option>
+                  <option>대시보드</option>
+                </select>
+              </div>
+              <div class="msl-ffield">
+                <label class="msl-flbl">상태</label>
+                <select class="msl-inp">
+                  <option>작성중</option>
+                  <option>검토중</option>
+                  <option selected>확정</option>
+                  <option>보류</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: 메뉴 계층 -->
+          <div class="msl-fs">
+            <div class="msl-fs-hdr">
+              <span class="msl-fs-num">2</span>
+              <span class="msl-fs-title">메뉴 계층</span>
+            </div>
+            <div class="msl-fgrid">
+              <div class="msl-ffield">
+                <label class="msl-flbl">LV1</label>
+                <select class="msl-inp">
+                  <option>서비스 루트</option>
+                  <option>대시보드</option>
+                  <option selected>산출물 관리</option>
+                  <option>테스트/품질</option>
+                  <option>협업/검토/승인</option>
+                  <option>내보내기/납품</option>
+                  <option>관리/설정</option>
+                  <option>인증</option>
+                </select>
+              </div>
+              <div class="msl-ffield">
+                <label class="msl-flbl">LV2</label>
+                <input class="msl-inp" type="text" value="요구사항정의서">
+              </div>
+              <div class="msl-ffield">
+                <label class="msl-flbl">LV3</label>
+                <input class="msl-inp" type="text" placeholder="LV3 메뉴명">
+              </div>
+              <div class="msl-ffield">
+                <label class="msl-flbl">담당자</label>
+                <input class="msl-inp" type="text" value="김민준">
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: 연결 정보 -->
+          <div class="msl-fs">
+            <div class="msl-fs-hdr">
+              <span class="msl-fs-num">3</span>
+              <span class="msl-fs-title">연결 정보</span>
+            </div>
+            <div class="msl-fgrid">
+              <div class="msl-ffield full">
+                <label class="msl-flbl">연결 요구사항</label>
+                <div class="msl-linked-chips">
+                  <span class="msl-link-chip">REQ-001</span>
+                  <span class="msl-link-chip">REQ-002</span>
+                </div>
+                <button class="msl-link-add" type="button" style="margin-top:6px">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  요구사항 연결 추가
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="msl-dw-foot">
+          <div class="msl-dw-foot-l">
+            <button class="msl-btn" type="button" data-msl-close>취소</button>
+            <button class="msl-btn" type="button">임시저장</button>
+            <button class="msl-btn msl-btn-ghost" type="button">전체 보기</button>
+          </div>
+          <div class="msl-dw-foot-r">
+            <button class="msl-btn msl-btn-pri" type="button">저장</button>
+          </div>
+        </div>
+      </div><!-- /#msl-dw-edit -->
+
+    </main>
+  </div>
+</div>
+
+<script src="../../js/stam.theme.js"></script>
+<script src="../../js/stam.shell.js"></script>
+<script src="../../js/stam.topbar-render.js"></script>
+<script src="../../js/stam.project-context-render.js"></script>
+<script src="../../js/stam.nav-data.js"></script>
+<script src="../../js/stam.menu-screen-list.js"></script>
+</body>
+</html>

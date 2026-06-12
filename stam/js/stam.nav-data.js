@@ -49,7 +49,7 @@
     { id:'A6', g:'A', n:'Project Timeline',    s:'프로젝트 타임라인',        colStr:'단계,시작일,종료일,진행률,주요 마일스톤,지연 여부',                             cols:6,  phase:2 },
     /* B — 산출물 관리 (12) */
     { id:'B1',  g:'B', n:'요구사항정의서',       s:'요구사항 목록',         colStr:'요구사항 ID,제목,구분,우선순위,상태,담당자,관련 화면,승인 상태',                   cols:8,  phase:1, tier:1, href:'pages/boards/requirements.html' },
-    { id:'B2',  g:'B', n:'메뉴구조/화면목록',    s:'화면 목록',             colStr:'화면 ID,화면명,LV1,LV2,화면 유형,FO/BO,상태,담당자',                            cols:8,  phase:1, tier:1 },
+    { id:'B2',  g:'B', n:'메뉴구조/화면목록',    s:'화면 목록',             colStr:'화면 ID,화면명,LV1,LV2,화면 유형,FO/BO,상태,담당자',                            cols:8,  phase:1, tier:1, href:'pages/boards/menu-screen-list.html' },
     { id:'B3',  g:'B', n:'WBS 작업',            s:'WBS 목록',               colStr:'WBS ID,작업명,메뉴/기능 그룹,산출물 유형,담당자,시작일,종료일,진행 상태,지연 여부',cols:9,  phase:1, tier:1, href:'pages/boards/wbs.html' },
     { id:'B4',  g:'B', n:'화면설계서',          s:'화면설계 목록',          colStr:'화면 ID,화면명,버전,작성 상태,검토 상태,승인 상태,최종 수정일',                   cols:7,  phase:1, tier:1, href:'pages/boards/screen-specification.html' },
     { id:'B5',  g:'B', n:'기능정의서',          s:'기능 목록',              colStr:'기능 ID,기능명,관련 화면,처리 유형,상태,API 연결,담당자',                         cols:7,  phase:1, tier:2 },
