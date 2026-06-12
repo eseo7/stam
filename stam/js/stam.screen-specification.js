@@ -837,7 +837,7 @@
           '<div class="ss-rb"><div class="ss-rw">' + h.t + (h.f ? ' <span style="font-size:11px;color:var(--t3);font-weight:400">' + h.f + ' → ' + (h.to || h.n) + '</span>' : '') +
           '</div><div class="ss-ra">' + h.who + ' · ' + h.at + '</div></div></div>';
       }).join('') + '</div></div>' +
-      '<div class="ss-dw-sec"><div class="ss-dw-sec-hdr"><h3>검토 / 승인 액션</h3></div><div style="display:flex;gap:8px;flex-wrap:wrap">' +
+      '<div class="ss-dw-sec"><div class="ss-dw-sec-hdr"><h3>검토 / 승인 액션</h3></div><div class="ss-approval-actions" style="display:flex;gap:8px;flex-wrap:wrap">' +
       '<button type="button" class="ss-btn" style="background:rgba(4,120,87,.10);color:#047857;border-color:rgba(4,120,87,.22)">' + ic(ICONS.check, 12) + ' 승인</button>' +
       '<button type="button" class="ss-btn" style="background:var(--danger-bg);color:var(--danger-col);border-color:var(--danger-bd)">' + ic(ICONS.close, 12) + ' 반려</button></div></div>';
   }
