@@ -122,7 +122,7 @@ body:has(.msl-page) .po-main { overflow-x:hidden }
 .msl-scrim.show { opacity:1;pointer-events:auto }
 
 /* ── Drawer shell ── */
-.msl-drawer { position:fixed;top:0;right:0;bottom:0;width:clamp(640px,48vw,720px);background:var(--bg-sur);box-shadow:-8px 0 32px rgba(0,0,0,.16),0 0 1px rgba(0,0,0,.07);z-index:50;display:flex;flex-direction:column;transform:translateX(102%);transition:transform 260ms cubic-bezier(.32,.72,.32,1) }
+.msl-drawer { position:fixed;top:0;right:0;bottom:0;width:min(var(--stam-drawer-width), calc(100vw - var(--stam-drawer-gutter)));background:var(--bg-sur);box-shadow:-8px 0 32px rgba(0,0,0,.16),0 0 1px rgba(0,0,0,.07);z-index:50;display:flex;flex-direction:column;transform:translateX(102%);transition:transform 260ms cubic-bezier(.32,.72,.32,1) }
 .msl-drawer.open { transform:none }
 
 /* ── Drawer header ── */
