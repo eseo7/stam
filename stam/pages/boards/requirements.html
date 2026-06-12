@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="../../css/stam.table-selection.css">
   <link rel="stylesheet" href="../../css/stam.buttons.css">
   <link rel="stylesheet" href="../../css/stam.board-toolbar.css">
+  <link rel="stylesheet" href="../../css/stam.board-filter.css">
   <link rel="stylesheet" href="../../css/stam.requirements.css">
 </head>
 <body>
@@ -130,48 +131,14 @@
           </div>
           <div class="stam-board-toolbar-right"></div>
 
-          <!-- ── 필터 패널 ── -->
-          <div class="rq-filter-panel stam-filter-panel" id="rq-filter-panel" hidden>
-            <div class="stam-filter-panel-row">
-              <div class="stam-filter-group">
-                <div class="stam-filter-group-title">상태</div>
-                <div class="stam-filter-chips">
-                  <button class="stam-filter-chip" type="button">작성중</button>
-                  <button class="stam-filter-chip" type="button">검토요청</button>
-                  <button class="stam-filter-chip" type="button">검토완료</button>
-                  <button class="stam-filter-chip" type="button">승인완료</button>
-                  <button class="stam-filter-chip" type="button">보류</button>
-                </div>
-              </div>
-              <div class="stam-filter-group">
-                <div class="stam-filter-group-title">유형</div>
-                <div class="stam-filter-chips">
-                  <button class="stam-filter-chip" type="button">기능</button>
-                  <button class="stam-filter-chip" type="button">화면</button>
-                  <button class="stam-filter-chip" type="button">데이터</button>
-                  <button class="stam-filter-chip" type="button">정책</button>
-                </div>
-              </div>
-              <div class="stam-filter-group">
-                <div class="stam-filter-group-title">우선순위</div>
-                <div class="stam-filter-chips">
-                  <button class="stam-filter-chip" type="button">높음</button>
-                  <button class="stam-filter-chip" type="button">중간</button>
-                  <button class="stam-filter-chip" type="button">낮음</button>
-                </div>
-              </div>
-              <div class="stam-filter-group">
-                <div class="stam-filter-group-title">담당자</div>
-                <div class="stam-filter-chips">
-                  <button class="stam-filter-chip" type="button">김철수</button>
-                  <button class="stam-filter-chip" type="button">이영희</button>
-                  <button class="stam-filter-chip" type="button">박지수</button>
-                </div>
-              </div>
+          <!-- ── 필터 패널 (공통 stam.board-filter.js 로 렌더링) ── -->
+          <div class="stam-board-filter-panel" id="rq-filter-panel" hidden>
+            <div class="stam-board-filter-grid">
+              <!-- JS가 groups 데이터 기준으로 섹션/chip을 렌더링 -->
             </div>
-            <div class="stam-filter-panel-footer">
-              <button class="stam-btn stam-btn-ghost stam-filter-reset" id="rq-filter-reset" type="button">초기화</button>
-              <button class="stam-btn stam-btn-primary stam-filter-apply" type="button">적용</button>
+            <div class="stam-board-filter-actions">
+              <button class="stam-btn stam-btn-ghost" id="rq-filter-reset" type="button">초기화</button>
+              <button class="stam-btn stam-btn-primary" id="rq-filter-apply" type="button">적용</button>
             </div>
           </div>
         </div>
@@ -952,6 +919,7 @@ Summary Strip에서 상태별 건수와 연결 수가 확인된다.
 <script src="../../js/stam.nav-render.js"></script>
 <script src="../../js/stam.topbar-render.js"></script>
 <script src="../../js/stam.project-context-render.js"></script>
+<script src="../../js/stam.board-filter.js"></script>
 <script src="../../js/stam.requirements.js"></script>
 
 </body>

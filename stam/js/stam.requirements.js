@@ -318,53 +318,24 @@
   bindRows();
   bindCheckboxes();
 
-  /* ── 필터 패널 토글 ── */
-  (function () {
-    var filterBtn   = document.getElementById('rq-filter-open-btn');
-    var filterPanel = document.getElementById('rq-filter-panel');
-    if (!filterBtn || !filterPanel) return;
-
-    function openPanel() {
-      filterPanel.hidden = false;
-      filterBtn.setAttribute('aria-expanded', 'true');
-      filterBtn.classList.add('is-open');
-    }
-    function closePanel() {
-      filterPanel.hidden = true;
-      filterBtn.setAttribute('aria-expanded', 'false');
-      filterBtn.classList.remove('is-open');
-    }
-
-    filterBtn.addEventListener('click', function () {
-      filterPanel.hidden ? openPanel() : closePanel();
-    });
-
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !filterPanel.hidden) closePanel();
-    });
-
-    document.addEventListener('click', function (e) {
-      if (!filterPanel.hidden
-          && !filterPanel.contains(e.target)
-          && !filterBtn.contains(e.target)) {
-        closePanel();
+  /* ── Board Filter 공통 컴포넌트 초기화 ── */
+  if (window.STAM && window.STAM.boardFilter) {
+    window.STAM.boardFilter.init({
+      root:    document,
+      trigger: '#rq-filter-open-btn',
+      panel:   '#rq-filter-panel',
+      reset:   '#rq-filter-reset',
+      apply:   '#rq-filter-apply',
+      groups: [
+        { key: 'status',   label: '상태',   options: ['작성중', '검토요청', '검토완료', '승인완료', '보류'] },
+        { key: 'type',     label: '유형',   options: ['기능', '화면', '데이터', '정책'] },
+        { key: 'priority', label: '우선순위', options: ['높음', '중간', '낮음'] },
+        { key: 'assignee', label: '담당자', options: ['김철수', '이영희', '박지수'] }
+      ],
+      onApply: function (/* values */) {
+        /* 실제 필터링 미구현 — UI Mock */
       }
     });
-
-    filterPanel.querySelectorAll('.stam-filter-chip').forEach(function (chip) {
-      chip.addEventListener('click', function () {
-        chip.classList.toggle('active');
-      });
-    });
-
-    var resetBtn = document.getElementById('rq-filter-reset');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', function () {
-        filterPanel.querySelectorAll('.stam-filter-chip.active').forEach(function (c) {
-          c.classList.remove('active');
-        });
-      });
-    }
-  }());
+  }
 
 }());
