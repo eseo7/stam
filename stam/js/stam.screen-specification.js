@@ -614,9 +614,12 @@
       valSpan.textContent = sel ? sel.textContent : '';
       valSpan.classList.toggle('is-placeholder', !!sel && sel.value === '');
       Array.prototype.forEach.call(panel.children, function (c) {
-        var on = parseInt(c.getAttribute('data-idx'), 10) === native.selectedIndex;
-        c.classList.toggle('is-sel', on);
-        c.setAttribute('aria-selected', on ? 'true' : 'false');
+        var idx = parseInt(c.getAttribute('data-idx'), 10);
+        var isSelected = idx === native.selectedIndex;
+        var isPlaceholder = c.classList.contains('is-placeholder');
+        /* placeholder는 선택돼 있어도 selected 강조를 주지 않는다. */
+        c.classList.toggle('is-sel', isSelected && !isPlaceholder);
+        c.setAttribute('aria-selected', isSelected ? 'true' : 'false');
       });
     }
     syncLabel();
