@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STAM Board Filter Guide v1</title>
+<title>STAM Board Filter Guide v1.1 — WBS 기준 보정</title>
 <link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
 <link rel="stylesheet" href="../css/stam.tokens.css">
 <link rel="stylesheet" href="../css/stam.shell.css">
@@ -47,7 +47,7 @@
       </div>
     </div>
     <div class="sdoc-version-row">
-      <span class="sbadge done">v1</span>
+      <span class="sbadge done">v1.1</span>
       <span class="sdoc-vdate">2026-06-12</span>
     </div>
   </div>
@@ -59,7 +59,7 @@
   <section class="sdoc-sec">
     <h2 class="sdoc-sec-title">1. Board Filter 목적</h2>
     <p class="sdoc-sec-desc">보드 목록 화면의 필터 기능을 공통 컴포넌트로 분리합니다. 각 화면은 필터 그룹 데이터(groups)만 전달하면 되며, 열기/닫기·chip active·초기화·적용·ESC/외부 클릭 닫기는 공통 JS가 처리합니다.</p>
-    <p class="sdoc-sec-desc">WBS 필터 패널(섹션형, 헤더+스크롤 바디+푸터 구조) 를 기준으로 설계되었습니다.</p>
+    <p class="sdoc-sec-desc"><b>설계 기준: WBS 필터 패널</b> — stam.board-filter.css/js의 전체 스타일·구조·동작은 <code>stam/pages/boards/wbs.html</code>의 WBS 필터 패널(<code>.wbs-filter-panel</code>, <code>stam.wbs.css</code>)을 기준으로 맞춥니다. 신규 Board Filter를 추가하거나 기존 스타일을 수정할 때는 WBS 필터를 먼저 확인하세요.</p>
     <div class="sdoc-info-box">
       <b>핵심 원칙</b><br>
       Toolbar에 개별 필터 chip을 직접 노출하지 않습니다. 단일 <code>필터</code> 버튼 클릭으로 패널을 열고 그 안에서 조건을 선택합니다.
@@ -73,23 +73,25 @@
     <div class="bf-demo-section">
       <div class="bf-demo-title">HTML (페이지당 최소 마크업)</div>
       <div class="bf-demo-desc">groups 내용은 JS가 렌더링합니다. 페이지에는 패널 껍데기와 초기화/적용 버튼만 작성합니다.</div>
-      <pre class="bf-code">&lt;!-- 필터 버튼 (Toolbar 내부) --&gt;
-&lt;button class="stam-btn stam-btn-secondary stam-board-filter"
-        id="rq-filter-open-btn" type="button"
-        aria-expanded="false" aria-controls="rq-filter-panel"&gt;
+      <pre class="bf-code">&lt;!-- 필터 버튼 (Toolbar 내부) — stam-board-filter-trigger 클래스 사용 --&gt;
+&lt;button class="xx-filter-btn stam-board-filter-trigger"
+        id="xx-filter-open-btn" type="button"
+        aria-expanded="false" aria-controls="xx-filter-panel"&gt;
   &lt;svg ...&gt;&lt;/svg&gt;
   필터
-  &lt;span class="stam-board-filter-count" id="rq-filter-count" style="display:none"&gt;0&lt;/span&gt;
+  &lt;span class="stam-board-filter-count" id="xx-filter-count" style="display:none"&gt;0&lt;/span&gt;
 &lt;/button&gt;
 
 &lt;!-- 필터 패널 (Toolbar 내부, position:absolute 로 표시) --&gt;
-&lt;div class="stam-board-filter-panel" id="rq-filter-panel" hidden&gt;
+&lt;!-- JS가 패널 최상단에 헤더(아이콘+타이틀+초기화) 자동 삽입 --&gt;
+&lt;div class="stam-board-filter-panel" id="xx-filter-panel" hidden&gt;
   &lt;div class="stam-board-filter-grid"&gt;
     &lt;!-- JS가 groups 데이터 기준으로 섹션/chip을 렌더링 --&gt;
   &lt;/div&gt;
   &lt;div class="stam-board-filter-actions"&gt;
-    &lt;button class="stam-btn stam-btn-ghost" id="rq-filter-reset" type="button"&gt;초기화&lt;/button&gt;
-    &lt;button class="stam-btn stam-btn-primary" id="rq-filter-apply" type="button"&gt;적용&lt;/button&gt;
+    &lt;!-- JS가 조건 수 정보(.sbf-foot-info) 자동 삽입 --&gt;
+    &lt;button class="stam-btn stam-btn-ghost" id="xx-filter-reset" type="button"&gt;초기화&lt;/button&gt;
+    &lt;button class="stam-btn stam-btn-primary" id="xx-filter-apply" type="button"&gt;적용&lt;/button&gt;
   &lt;/div&gt;
 &lt;/div&gt;</pre>
     </div>
@@ -131,6 +133,7 @@
   <!-- ── 3. CSS 클래스 기준 ── -->
   <section class="sdoc-sec">
     <h2 class="sdoc-sec-title">3. CSS 클래스 기준</h2>
+    <p class="sdoc-sec-desc">WBS 필터 버튼(<code>.wbs-filter-open-btn</code>)을 기준으로 스타일을 통일합니다. <code>stam-btn</code> 클래스는 <b>사용하지 않습니다</b> — <code>stam-btn</code>은 <code>height:32px</code>를 강제해 버튼 높이가 깨집니다.</p>
     <table class="bf-cls-table">
       <thead>
         <tr>
@@ -141,58 +144,88 @@
       </thead>
       <tbody>
         <tr>
-          <td>.stam-board-filter-panel</td>
-          <td>필터 패널 컨테이너 (position:absolute, 토글 대상)</td>
+          <td>.stam-board-filter-trigger</td>
+          <td>필터 열기 버튼 — WBS .wbs-filter-open-btn 기준 스타일 (padding:5px 12px, font-size:12px, border:1px solid var(--bd-s))</td>
           <td>HTML에 작성</td>
         </tr>
         <tr>
+          <td>.stam-board-filter-trigger.active</td>
+          <td>trigger 버튼 — 조건 1개 이상 선택 시 brand 강조 (background:var(--stam-soft), color:var(--stam), font-weight:700)</td>
+          <td>JS 동적 추가</td>
+        </tr>
+        <tr>
+          <td>.stam-board-filter-trigger.is-open</td>
+          <td>trigger 버튼 — 패널이 열려 있는 동안 active와 동일한 강조 표시</td>
+          <td>JS 동적 추가</td>
+        </tr>
+        <tr>
+          <td>.stam-board-filter-count</td>
+          <td>선택 조건 수 뱃지 (trigger 내부). visible 클래스가 없으면 display:none</td>
+          <td>HTML에 작성</td>
+        </tr>
+        <tr>
+          <td>.stam-board-filter-count.visible</td>
+          <td>뱃지 표시 상태 — 조건 1개 이상 선택 시 JS가 추가</td>
+          <td>JS 동적 추가</td>
+        </tr>
+        <tr>
+          <td>.stam-board-filter-panel</td>
+          <td>필터 패널 컨테이너 (position:absolute, width:560px, WBS .wbs-filter-panel 기준 shadow)</td>
+          <td>HTML에 작성</td>
+        </tr>
+        <tr>
+          <td>.stam-board-filter-panel.is-open</td>
+          <td>패널 열림 상태 (opacity/transform 전환) — hidden 제거 + rAF 후 클래스 추가</td>
+          <td>JS 동적 추가</td>
+        </tr>
+        <tr>
           <td>.stam-board-filter-grid</td>
-          <td>그룹 섹션을 담는 스크롤 바디</td>
+          <td>그룹 섹션을 담는 스크롤 바디 (WBS .wbs-fp-body 기준)</td>
           <td>HTML에 작성</td>
         </tr>
         <tr>
           <td>.stam-board-filter-actions</td>
-          <td>초기화/적용 버튼 푸터</td>
+          <td>조건 수 정보 + 초기화/적용 버튼 푸터 (WBS .wbs-fp-foot 기준)</td>
           <td>HTML에 작성</td>
         </tr>
         <tr>
           <td>.sbf-head</td>
-          <td>패널 헤더 (아이콘 + "필터" 타이틀)</td>
+          <td>패널 헤더 (아이콘 + "필터" 타이틀 + 초기화 버튼) — WBS .wbs-fp-head 기준</td>
+          <td>JS 생성</td>
+        </tr>
+        <tr>
+          <td>.sbf-head-reset</td>
+          <td>헤더 우측 초기화 버튼 (WBS .wbs-fp-head-reset 기준, font-size:11px, padding:3px 9px)</td>
+          <td>JS 생성</td>
+        </tr>
+        <tr>
+          <td>.sbf-foot-info</td>
+          <td>푸터 좌측 "조건 N개" 텍스트 (WBS .wbs-fp-foot-info 기준, flex:1). JS가 .stam-board-filter-actions 첫 번째 자식으로 삽입</td>
           <td>JS 생성</td>
         </tr>
         <tr>
           <td>.sbf-sec</td>
-          <td>필터 그룹 섹션</td>
+          <td>필터 그룹 섹션 (WBS .wbs-fp-sec 기준)</td>
           <td>JS 생성</td>
         </tr>
         <tr>
           <td>.sbf-sec-title</td>
-          <td>그룹 라벨 (UPPERCASE, 10px)</td>
+          <td>그룹 라벨 (UPPERCASE, 10px, WBS .wbs-fp-sec-title 기준)</td>
           <td>JS 생성</td>
         </tr>
         <tr>
           <td>.sbf-chips</td>
-          <td>chip 버튼 래퍼</td>
+          <td>chip 버튼 래퍼 (WBS .wbs-fp-chips 기준)</td>
           <td>JS 생성</td>
         </tr>
         <tr>
           <td>.sbf-chip</td>
-          <td>필터 조건 chip 버튼 (pill 형태)</td>
+          <td>필터 조건 chip 버튼 (pill, padding:5px 12px, border:1.5px solid var(--bd-s), WBS .wbs-fp-chip 기준)</td>
           <td>JS 생성</td>
         </tr>
         <tr>
           <td>.sbf-chip.active</td>
-          <td>선택된 chip 상태 (brand tone)</td>
-          <td>JS 동적 추가</td>
-        </tr>
-        <tr>
-          <td>.stam-board-filter.active</td>
-          <td>trigger 버튼 — 선택 조건이 있을 때</td>
-          <td>JS 동적 추가</td>
-        </tr>
-        <tr>
-          <td>.stam-board-filter-panel.is-open</td>
-          <td>패널 열림 상태 (opacity/transform 전환)</td>
+          <td>선택된 chip — background:var(--stam-soft), border-color:var(--stam), font-weight:700</td>
           <td>JS 동적 추가</td>
         </tr>
       </tbody>
@@ -264,6 +297,75 @@ filter.getValues();  // 현재 선택값 반환 { [key]: string[] }</pre>
     <p class="bf-demo-desc">동일 trigger 요소에 <code>data-sbf-init="1"</code>이 설정된 경우 null을 반환하고 중복 등록하지 않습니다.</p>
   </section>
 
+  <!-- ── 4-B. chip 토글·aria-pressed·apply/reset 동작 규칙 ── -->
+  <section class="sdoc-sec">
+    <h2 class="sdoc-sec-title">4-B. chip 토글 · aria-pressed · 초기화/적용 동작 규칙</h2>
+    <p class="sdoc-sec-desc">WBS 필터와 동일한 동작을 보장합니다. stam.board-filter.js에서 공통 처리하므로 화면별 JS에서 중복 구현하지 않습니다.</p>
+
+    <div class="bf-demo-section">
+      <div class="bf-demo-title">chip on/off 토글</div>
+      <div class="bf-demo-desc">chip 클릭 시 <code>classList.toggle('active')</code>와 <code>aria-pressed</code>를 동시에 동기화합니다.</div>
+      <pre class="bf-code">// JS 내부 동작 (stam.board-filter.js)
+panelEl.addEventListener('click', function (e) {
+  var chip = e.target.closest('.sbf-chip');
+  if (!chip) return;
+  var nowActive = !chip.classList.contains('active');
+  chip.classList.toggle('active');
+  chip.setAttribute('aria-pressed', nowActive ? 'true' : 'false');
+  updateCount(); // 뱃지 + trigger.active + sbf-foot-info 갱신
+});</pre>
+    </div>
+
+    <div class="bf-demo-section">
+      <div class="bf-demo-title">aria-pressed 초기값</div>
+      <div class="bf-demo-desc">JS가 chip을 렌더링할 때 <code>aria-pressed="false"</code>를 기본으로 설정합니다.</div>
+      <pre class="bf-code">chip.setAttribute('aria-pressed', 'false'); // 초기 비활성 상태</pre>
+    </div>
+
+    <div class="bf-demo-section">
+      <div class="bf-demo-title">초기화 동작 — 헤더 초기화 버튼 / 푸터 초기화 버튼</div>
+      <div class="bf-demo-desc">헤더(<code>.sbf-head-reset</code>)와 푸터(<code>opts.reset</code>) 두 버튼 모두 동일한 <code>doReset()</code>을 실행합니다. 모든 chip의 active 제거 + aria-pressed=false + updateCount.</div>
+      <pre class="bf-code">function doReset() {
+  getActiveChips().forEach(function (c) {
+    c.classList.remove('active');
+    c.setAttribute('aria-pressed', 'false');
+  });
+  updateCount();
+}
+headReset.addEventListener('click', doReset);
+if (resetEl) resetEl.addEventListener('click', doReset);</pre>
+    </div>
+
+    <div class="bf-demo-section">
+      <div class="bf-demo-title">적용 동작</div>
+      <div class="bf-demo-desc">적용 버튼 클릭 시 현재 선택 상태를 유지한 채 패널을 닫고 <code>onApply(values)</code>를 호출합니다. chip 상태는 초기화하지 않습니다.</div>
+      <pre class="bf-code">if (applyEl) {
+  applyEl.addEventListener('click', function () {
+    var values = getValues();
+    closePanel();
+    if (typeof opts.onApply === 'function') opts.onApply(values);
+  });
+}
+
+// values 예시: { status: ['작성중', '검토요청'], priority: ['높음'] }</pre>
+    </div>
+
+    <div class="bf-demo-section">
+      <div class="bf-demo-title">패널 열기 — double rAF 애니메이션</div>
+      <div class="bf-demo-desc"><code>hidden</code> 제거 후 즉시 <code>is-open</code>을 추가하면 CSS transition이 동작하지 않습니다. 두 번의 <code>requestAnimationFrame</code>으로 레이아웃 계산을 보장한 뒤 클래스를 추가합니다.</div>
+      <pre class="bf-code">function openPanel() {
+  panelEl.hidden = false;
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      panelEl.classList.add('is-open');
+    });
+  });
+  triggerEl.setAttribute('aria-expanded', 'true');
+  triggerEl.classList.add('is-open');
+}</pre>
+    </div>
+  </section>
+
   <!-- ── 5. groups 데이터 형식 ── -->
   <section class="sdoc-sec">
     <h2 class="sdoc-sec-title">5. groups 데이터 형식</h2>
@@ -320,26 +422,41 @@ filter.getValues();  // 현재 선택값 반환 { [key]: string[] }</pre>
 
   <!-- ── 8. WBS 기준 UI 비교 ── -->
   <section class="sdoc-sec">
-    <h2 class="sdoc-sec-title">8. WBS 기준 UI</h2>
-    <p class="sdoc-sec-desc">stam.board-filter.css 는 WBS 필터 패널(stam.wbs.css 내 .wbs-filter-panel)을 기준으로 설계되었습니다.</p>
+    <h2 class="sdoc-sec-title">8. WBS 기준 UI 대응표</h2>
+    <p class="sdoc-sec-desc">stam.board-filter.css/js 전체가 WBS 필터(<code>stam/pages/boards/wbs.html</code> + <code>stam/css/stam.wbs.css</code>)를 기준으로 설계되었습니다. 스타일 값 불일치 발생 시 WBS를 우선합니다.</p>
     <table class="bf-cls-table">
       <thead>
         <tr>
           <th>항목</th>
-          <th>WBS 클래스</th>
-          <th>공통 Board Filter 클래스</th>
+          <th>WBS 기준 클래스/값</th>
+          <th>공통 Board Filter 클래스/값</th>
         </tr>
       </thead>
       <tbody>
         <tr>
+          <td>필터 열기 버튼</td>
+          <td>.wbs-filter-open-btn<br>padding:5px 12px / font-size:12px<br>border:1px solid var(--bd-s)</td>
+          <td>.stam-board-filter-trigger<br>(동일 스타일 적용)</td>
+        </tr>
+        <tr>
+          <td>버튼 active 상태</td>
+          <td>.wbs-filter-open-btn.active<br>background:var(--stam-soft)<br>border-color:var(--stam) / font-weight:700</td>
+          <td>.stam-board-filter-trigger.active<br>(동일 스타일 적용)</td>
+        </tr>
+        <tr>
           <td>패널 컨테이너</td>
-          <td>.wbs-filter-panel</td>
-          <td>.stam-board-filter-panel</td>
+          <td>.wbs-filter-panel<br>width:560px / shadow:0 8px 32px rgba(0,0,0,.16)</td>
+          <td>.stam-board-filter-panel<br>(동일 스타일 적용)</td>
         </tr>
         <tr>
           <td>헤더</td>
           <td>.wbs-fp-head</td>
           <td>.sbf-head (JS 생성)</td>
+        </tr>
+        <tr>
+          <td>헤더 초기화 버튼</td>
+          <td>.wbs-fp-head-reset<br>font-size:11px / padding:3px 9px</td>
+          <td>.sbf-head-reset (JS 생성)</td>
         </tr>
         <tr>
           <td>바디</td>
@@ -363,13 +480,13 @@ filter.getValues();  // 현재 선택값 반환 { [key]: string[] }</pre>
         </tr>
         <tr>
           <td>chip 버튼</td>
-          <td>.wbs-fp-chip</td>
-          <td>.sbf-chip</td>
+          <td>.wbs-fp-chip<br>padding:5px 12px / border:1.5px solid var(--bd-s)</td>
+          <td>.sbf-chip (동일 스타일 적용)</td>
         </tr>
         <tr>
           <td>chip 선택</td>
-          <td>.wbs-fp-chip.active</td>
-          <td>.sbf-chip.active</td>
+          <td>.wbs-fp-chip.active<br>background:var(--stam-soft) / font-weight:700</td>
+          <td>.sbf-chip.active (동일 스타일 적용)</td>
         </tr>
         <tr>
           <td>푸터</td>
@@ -377,9 +494,14 @@ filter.getValues();  // 현재 선택값 반환 { [key]: string[] }</pre>
           <td>.stam-board-filter-actions</td>
         </tr>
         <tr>
+          <td>푸터 조건 수 정보</td>
+          <td>.wbs-fp-foot-info<br>"조건 N개" 텍스트, flex:1</td>
+          <td>.sbf-foot-info (JS 생성, 첫 번째 자식으로 삽입)</td>
+        </tr>
+        <tr>
           <td>토글 방식</td>
           <td>data-open="true/false"</td>
-          <td>hidden 속성 + .is-open 클래스</td>
+          <td>hidden 속성 + .is-open 클래스 (double rAF)</td>
         </tr>
       </tbody>
     </table>
@@ -400,12 +522,16 @@ filter.getValues();  // 현재 선택값 반환 { [key]: string[] }</pre>
   &lt;div class="stam-board-toolbar-left"&gt;
     &lt;div class="stam-board-toolbar-base"&gt;
       &lt;!-- 검색바 --&gt;
-      &lt;button id="xx-filter-open-btn" class="stam-btn stam-btn-secondary stam-board-filter"
-              type="button" aria-expanded="false"&gt;필터&lt;/button&gt;
-      &lt;!-- 삭제 버튼 등 --&gt;
+      &lt;!-- 필터 버튼: stam-board-filter-trigger 사용. stam-btn 사용 금지 --&gt;
+      &lt;button id="xx-filter-open-btn" class="xx-filter-btn stam-board-filter-trigger"
+              type="button" aria-expanded="false" aria-controls="xx-filter-panel"&gt;
+        &lt;svg ...&gt;&lt;/svg&gt;필터
+        &lt;span class="stam-board-filter-count" id="xx-filter-count" style="display:none"&gt;0&lt;/span&gt;
+      &lt;/button&gt;
+      &lt;!-- 기타 버튼 등 --&gt;
     &lt;/div&gt;
   &lt;/div&gt;
-  &lt;!-- 필터 패널 --&gt;
+  &lt;!-- 필터 패널 — JS가 헤더(.sbf-head)와 조건 수(.sbf-foot-info)를 자동 삽입 --&gt;
   &lt;div class="stam-board-filter-panel" id="xx-filter-panel" hidden&gt;
     &lt;div class="stam-board-filter-grid"&gt;&lt;/div&gt;
     &lt;div class="stam-board-filter-actions"&gt;
@@ -480,14 +606,14 @@ if (window.STAM &amp;&amp; window.STAM.boardFilter) {
           <td>#rq-filter-open-btn</td>
           <td>#rq-filter-panel</td>
           <td>상태 / 유형 / 우선순위 / 담당자</td>
-          <td><span class="bf-badge">v1</span></td>
+          <td><span class="bf-badge">v1.1</span></td>
         </tr>
         <tr>
           <td>메뉴구조/화면목록</td>
           <td>#msl-filter-open-btn</td>
           <td>#msl-filter-panel</td>
           <td>상태 / 화면유형 / LV1 / FO/BO</td>
-          <td><span class="bf-badge">v1</span></td>
+          <td><span class="bf-badge">v1.1</span></td>
         </tr>
       </tbody>
     </table>
