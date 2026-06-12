@@ -2024,11 +2024,24 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
  *     footer-slot은 display:contents로 부모 flex에 직접 참여
  * ============================================================ */
 
-/* footer inner slots — display:contents → 버튼들이 .wbs-drawer-footer flex 자식으로 흡수 */
-.wbs-detail-footer-slot,
+/* footer inner slots */
 .wbs-edit-footer-slot,
 .wbs-create-footer-slot {
   display: contents;
+}
+
+/* detail slot은 독립 flex 컨테이너로 전체 폭 채움 */
+.wbs-detail-footer-slot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.wbs-dw-detail-timestamp {
+  flex: 1;
+  font-size: 11px;
+  color: var(--t3);
 }
 
 /* detail: edit/create 숨김 */
