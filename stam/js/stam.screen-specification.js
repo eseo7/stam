@@ -866,11 +866,11 @@
       var footHtml = '<span class="ss-dw-detail-timestamp">최종 변경 ' + d.upd + '</span>';
       if (d.ast === 'approved') {
         footHtml += '<span class="ss-dw-fm">' + d.ver + ' · 승인 완료</span>';
-      } else {
-        footHtml += '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary ss-dw-btn-temp" data-ss-dw-action="edit">수정</button>' +
-          '<button type="button" class="stam-btn stam-btn--md ss-btn-review" data-ss-dw-action="reviewreq">검토 요청</button>';
       }
       footHtml += dwFootFullView(d);
+      if (d.ast !== 'approved') {
+        footHtml += '<button type="button" class="stam-btn stam-btn--md stam-btn--primary ss-dw-btn-primary" data-ss-dw-action="edit">수정</button>';
+      }
       foot.innerHTML = footHtml;
     }
   }
