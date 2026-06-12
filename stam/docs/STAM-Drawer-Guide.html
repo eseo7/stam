@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Drawer Guide v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<link rel="stylesheet" href="../css/stam.drawer.css">
+<style>
+.dr-demo-section { margin-bottom: 40px }
+.dr-demo-section:last-child { margin-bottom: 0 }
+.dr-demo-title { font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 4px; letter-spacing: -.01em }
+.dr-demo-desc { font-size: 11.5px; color: var(--t3); margin-bottom: 12px; line-height: 1.6 }
+.dr-demo-box { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; padding: 24px; position: relative; overflow: hidden }
+.dr-vars { display: flex; flex-direction: column; gap: 6px }
+.dr-var-row { display: flex; align-items: baseline; gap: 12px; padding: 8px 12px; background: var(--bg-sur2); border-radius: 7px }
+.dr-var-name { font-size: 12px; font-weight: 700; color: var(--stam); font-family: monospace; flex: 0 0 280px }
+.dr-var-val { font-size: 12px; color: var(--t1); font-family: monospace; flex: 0 0 80px }
+.dr-var-desc { font-size: 11.5px; color: var(--t3) }
+.dr-cls-table { width: 100%; border-collapse: collapse }
+.dr-cls-table th { text-align: left; font-size: 11px; font-weight: 700; color: var(--t3); border-bottom: 1px solid var(--bd); padding: 7px 10px }
+.dr-cls-table td { font-size: 12px; color: var(--t1); border-bottom: 1px solid var(--bd-s); padding: 8px 10px; vertical-align: top }
+.dr-cls-table td:first-child { font-family: monospace; color: var(--stam); font-weight: 700 }
+.dr-cls-table tr:last-child td { border-bottom: 0 }
+.dr-width-bar { height: 36px; background: var(--stam); opacity: .8; border-radius: 5px; display: flex; align-items: center; padding: 0 12px; font-size: 11px; font-weight: 700; color: #fff; margin-bottom: 6px; transition: width .4s }
+.dr-code { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 7px; padding: 14px 16px; font-family: monospace; font-size: 12px; color: var(--t1); line-height: 1.7; white-space: pre; overflow-x: auto }
+.dr-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 99px; font-size: 10.5px; font-weight: 700; background: var(--stam-soft); color: var(--stam); margin-right: 4px }
+.dr-badge.green { background: rgba(16,185,129,.12); color: #10B981 }
+</style>
+</head>
+<body>
+<div class="po-shell">
+  <header class="po-topbar stam-topbar" data-stam-topbar
+    data-tb-crumbs="STAM Docs|Drawer Guide v1"
+    data-tb-client="STAM Design System"
+    data-tb-search-placeholder=""
+    data-tb-notif="false"></header>
+  <div class="po-body">
+    <nav class="po-sidebar" data-stam-left-nav aria-label="STAM Docs 내비게이션"></nav>
+    <main class="po-main" style="max-width:900px">
+
+      <!-- ── 00 개요 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">00</span>
+          <h2 class="doc-section-title">원칙 · 정책</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="dr-demo-section">
+            <div class="dr-demo-desc">
+              STAM Drawer는 <strong>보드 화면의 등록/상세/수정 패널</strong>을 위한 공통 Slide-in Panel 기준입니다.<br>
+              <code>--stam-drawer-width</code> 값 하나로 모든 보드 화면의 Drawer 폭이 동시에 조정됩니다.<br><br>
+              <strong>적용 원칙</strong>
+              <ul style="margin:8px 0 0 16px;line-height:1.9;font-size:12px">
+                <li>기존 page-level class(<code>rq-drawer</code>, <code>msl-drawer</code>)는 유지하고 <code>stam-drawer</code>를 병행 추가</li>
+                <li>CSS 로드 순서: <code>stam.components.css</code> → <code>stam.form-controls.css</code> → <code>stam.drawer.css</code> → 페이지 CSS</li>
+                <li>페이지 CSS의 <code>width</code>는 <code>min(var(--stam-drawer-width), calc(100vw - var(--stam-drawer-gutter)))</code>로 교체</li>
+                <li>Drawer JS 동작(open/close/ESC/scrim click)은 수정하지 않음</li>
+                <li>footer 구조 통일은 이번 작업 범위 외</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 01 변수 목록 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">01</span>
+          <h2 class="doc-section-title">CSS 변수 목록</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="dr-demo-section">
+            <div class="dr-vars">
+              <div class="dr-var-row">
+                <span class="dr-var-name">--stam-drawer-width</span>
+                <span class="dr-var-val">860px</span>
+                <span class="dr-var-desc">기본 Drawer 폭 (핵심 기준값)</span>
+              </div>
+              <div class="dr-var-row">
+                <span class="dr-var-name">--stam-drawer-width-narrow</span>
+                <span class="dr-var-val">720px</span>
+                <span class="dr-var-desc">좁은 Drawer (<code>.is-narrow</code>)</span>
+              </div>
+              <div class="dr-var-row">
+                <span class="dr-var-name">--stam-drawer-width-wide</span>
+                <span class="dr-var-val">1040px</span>
+                <span class="dr-var-desc">넓은 Drawer (<code>.is-wide</code>)</span>
+              </div>
+              <div class="dr-var-row">
+                <span class="dr-var-name">--stam-drawer-gutter</span>
+                <span class="dr-var-val">32px</span>
+                <span class="dr-var-desc">뷰포트 좌측 여백 (overflow 방지)</span>
+              </div>
+              <div class="dr-var-row">
+                <span class="dr-var-name">--stam-drawer-z</span>
+                <span class="dr-var-val">50</span>
+                <span class="dr-var-desc">Drawer z-index</span>
+              </div>
+              <div class="dr-var-row">
+                <span class="dr-var-name">--stam-drawer-scrim-z</span>
+                <span class="dr-var-val">49</span>
+                <span class="dr-var-desc">Scrim z-index</span>
+              </div>
+              <div class="dr-var-row">
+                <span class="dr-var-name">--stam-drawer-head-px</span>
+                <span class="dr-var-val">24px</span>
+                <span class="dr-var-desc">Header 좌우 padding</span>
+              </div>
+              <div class="dr-var-row">
+                <span class="dr-var-name">--stam-drawer-body-px</span>
+                <span class="dr-var-val">24px</span>
+                <span class="dr-var-desc">Body 좌우 padding</span>
+              </div>
+              <div class="dr-var-row">
+                <span class="dr-var-name">--stam-drawer-foot-px</span>
+                <span class="dr-var-val">24px</span>
+                <span class="dr-var-desc">Footer 좌우 padding</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 02 클래스 목록 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">02</span>
+          <h2 class="doc-section-title">클래스 목록</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="dr-demo-section">
+            <div class="dr-demo-box" style="padding:0">
+              <table class="dr-cls-table">
+                <thead>
+                  <tr><th>클래스</th><th>역할</th><th>비고</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>.stam-drawer</td><td>Drawer 컨테이너 — width/position/transition 정의</td><td>기본 860px</td></tr>
+                  <tr><td>.stam-drawer.is-narrow</td><td>좁은 Drawer</td><td>720px</td></tr>
+                  <tr><td>.stam-drawer.is-wide</td><td>넓은 Drawer</td><td>1040px</td></tr>
+                  <tr><td>.stam-drawer.open</td><td>열림 상태 (JS가 toggle)</td><td>transform:none</td></tr>
+                  <tr><td>.stam-drawer-scrim</td><td>Scrim 오버레이</td><td>z-index 49</td></tr>
+                  <tr><td>.stam-drawer-scrim.show</td><td>Scrim 표시</td><td>JS가 toggle</td></tr>
+                  <tr><td>.stam-drawer-head</td><td>Header 공통 padding/border</td><td>선택 사용</td></tr>
+                  <tr><td>.stam-drawer-body</td><td>Body 스크롤 영역</td><td>선택 사용</td></tr>
+                  <tr><td>.stam-drawer-foot</td><td>Footer 공통 스타일</td><td>선택 사용</td></tr>
+                  <tr><td>.stam-drawer-title</td><td>Drawer 제목 타이포</td><td>선택 사용</td></tr>
+                  <tr><td>.stam-drawer-subtitle</td><td>Drawer 부제목 타이포</td><td>선택 사용</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 03 width 기준 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">03</span>
+          <h2 class="doc-section-title">Drawer 폭 기준</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="dr-demo-section">
+            <div class="dr-demo-title">비율 비교</div>
+            <div class="dr-demo-desc">전체 폭 1280px 기준 상대 비율입니다.</div>
+            <div class="dr-demo-box">
+              <div style="margin-bottom:6px;font-size:11px;color:var(--t3)">narrow (720px)</div>
+              <div class="dr-width-bar" style="width:56.25%">720px — .is-narrow</div>
+              <div style="margin-bottom:6px;font-size:11px;color:var(--t3)">기본 (860px)</div>
+              <div class="dr-width-bar" style="width:67.19%">860px — .stam-drawer (기본)</div>
+              <div style="margin-bottom:6px;font-size:11px;color:var(--t3)">wide (1040px)</div>
+              <div class="dr-width-bar" style="width:81.25%">1040px — .is-wide</div>
+            </div>
+          </div>
+          <div class="dr-demo-section">
+            <div class="dr-demo-title">width 공식</div>
+            <div class="dr-demo-box">
+              <div class="dr-code">/* 기본 */
+width: min(var(--stam-drawer-width), calc(100vw - var(--stam-drawer-gutter)));
+/* = min(860px, 100vw - 32px) */
+
+/* narrow */
+width: min(var(--stam-drawer-width-narrow), calc(100vw - var(--stam-drawer-gutter)));
+
+/* wide */
+width: min(var(--stam-drawer-width-wide), calc(100vw - var(--stam-drawer-gutter)));</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 04 적용 방법 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">04</span>
+          <h2 class="doc-section-title">적용 방법</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="dr-demo-section">
+            <div class="dr-demo-title">① CSS 로드 순서</div>
+            <div class="dr-demo-box">
+              <div class="dr-code">&lt;link rel="stylesheet" href="../../css/stam.components.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.form-controls.css"&gt;
+&lt;link rel="stylesheet" href="../../css/stam.drawer.css"&gt;       &lt;!-- 추가 --&gt;
+&lt;link rel="stylesheet" href="../../css/stam.requirements.css"&gt;  &lt;!-- 페이지 CSS --&gt;</div>
+            </div>
+          </div>
+          <div class="dr-demo-section">
+            <div class="dr-demo-title">② HTML class 병행 추가</div>
+            <div class="dr-demo-desc">기존 class는 유지하고 공통 class를 추가합니다.</div>
+            <div class="dr-demo-box">
+              <div class="dr-code">&lt;!-- 변경 전 --&gt;
+&lt;div class="rq-scrim" id="rq-scrim"&gt;&lt;/div&gt;
+&lt;div class="rq-drawer" id="rq-dw-register"&gt;...&lt;/div&gt;
+
+&lt;!-- 변경 후 --&gt;
+&lt;div class="rq-scrim stam-drawer-scrim" id="rq-scrim"&gt;&lt;/div&gt;
+&lt;div class="rq-drawer stam-drawer" id="rq-dw-register"&gt;...&lt;/div&gt;</div>
+            </div>
+          </div>
+          <div class="dr-demo-section">
+            <div class="dr-demo-title">③ 페이지 CSS width 교체</div>
+            <div class="dr-demo-desc">페이지 CSS에서 하드코딩 width를 공통 변수로 교체합니다.</div>
+            <div class="dr-demo-box">
+              <div class="dr-code">/* 변경 전 */
+.rq-drawer { width: clamp(640px, 48vw, 720px); ... }
+
+/* 변경 후 */
+.rq-drawer { width: min(var(--stam-drawer-width), calc(100vw - var(--stam-drawer-gutter))); ... }</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 05 DevTools 검증 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">05</span>
+          <h2 class="doc-section-title">DevTools 검증 방법</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="dr-demo-section">
+            <div class="dr-demo-desc">
+              DevTools Elements 패널 → <code>&lt;html&gt;</code> 또는 <code>:root</code> 선택 → Styles 탭에서<br>
+              <code>--stam-drawer-width</code> 값을 변경하면 요구사항정의서·메뉴구조화면목록 양쪽 Drawer 폭이 동시에 바뀌는지 확인합니다.
+            </div>
+            <div class="dr-demo-box">
+              <div class="dr-code">/* DevTools Console에서도 가능 */
+document.documentElement.style.setProperty('--stam-drawer-width', '1000px');
+
+/* 원복 */
+document.documentElement.style.removeProperty('--stam-drawer-width');</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 06 적용 화면 현황 ── -->
+      <section class="doc-section">
+        <div class="doc-section-hdr">
+          <span class="doc-section-num">06</span>
+          <h2 class="doc-section-title">적용 화면 현황</h2>
+        </div>
+        <div class="doc-section-body">
+          <div class="dr-demo-section">
+            <div class="dr-demo-box" style="padding:0">
+              <table class="dr-cls-table">
+                <thead>
+                  <tr><th>화면</th><th>Drawer 수</th><th>적용 상태</th><th>비고</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>요구사항정의서</td>
+                    <td>3 (등록/상세/수정)</td>
+                    <td><span class="dr-badge green">적용완료 v1</span></td>
+                    <td>rq-drawer + stam-drawer</td>
+                  </tr>
+                  <tr>
+                    <td>메뉴구조/화면목록</td>
+                    <td>3 (등록/상세/수정)</td>
+                    <td><span class="dr-badge green">적용완료 v1</span></td>
+                    <td>msl-drawer + stam-drawer</td>
+                  </tr>
+                  <tr>
+                    <td>WBS</td>
+                    <td>—</td>
+                    <td><span class="dr-badge">미적용</span></td>
+                    <td>v2 후속 작업 예정</td>
+                  </tr>
+                  <tr>
+                    <td>화면설계서</td>
+                    <td>—</td>
+                    <td><span class="dr-badge">미적용</span></td>
+                    <td>v2 후속 작업 예정</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script src="../js/stam.nav-data.js"></script>
+<script src="../js/stam.shell.js"></script>
+<script src="../js/stam.nav-render.js"></script>
+<script src="../js/stam.topbar-render.js"></script>
+</body>
+</html>
