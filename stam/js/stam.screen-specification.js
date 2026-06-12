@@ -640,9 +640,8 @@
     var foot = document.getElementById('ss-dw-foot');
     if (tabs) tabs.style.display = 'flex';
     if (head) {
-      head.innerHTML = '<div class="ss-dw-hrow"><span class="ss-dw-id">' + d.id + '</span><span class="ss-vp">' + d.ver + '</span><span style="flex:1"></span>' +
-        '<button type="button" class="ss-ibtn" data-ss-dw-action="edit" title="수정">' + ic(ICONS.edit) + '</button>' +
-        '<button type="button" class="ss-ibtn" data-ss-dw-action="close">' + ic(ICONS.close, 15) + '</button></div>' +
+      head.innerHTML = '<div class="ss-dw-hrow"><span class="ss-dw-id">' + d.id + '</span><span class="ss-vp">' + d.ver + '</span><span class="ss-dw-mode-badge is-detail">상세</span><span style="flex:1"></span>' +
+        '<button type="button" class="ss-dw-close" data-ss-dw-action="close" aria-label="닫기">' + ic(ICONS.close, 15) + '</button></div>' +
         '<div class="ss-dw-htitle">' + d.name + '</div>' +
         '<div class="ss-dw-hmeta">' + typChip(d.type) + wChip(d.wst) + rChip(d.rst) + aChip(d.ast) + '</div>';
     }
@@ -673,7 +672,7 @@
     var foot = document.getElementById('ss-dw-foot');
     if (tabs) tabs.style.display = 'none';
     if (head) {
-      head.innerHTML = '<div class="ss-dw-hrow"><span style="flex:1"></span><button type="button" class="ss-ibtn" data-ss-dw-action="close">' + ic(ICONS.close, 15) + '</button></div>' +
+      head.innerHTML = '<div class="ss-dw-hrow"><span class="ss-dw-mode-badge is-create">신규 등록</span><span style="flex:1"></span><button type="button" class="ss-dw-close" data-ss-dw-action="close" aria-label="닫기">' + ic(ICONS.close, 15) + '</button></div>' +
         '<div class="ss-dw-htitle">화면 등록</div><div class="ss-dw-hdesc">화면설계서 기본 정보, 이미지, 연결정보를 등록합니다.</div>';
     }
     if (body) {
@@ -709,8 +708,8 @@
     var foot = document.getElementById('ss-dw-foot');
     if (tabs) tabs.style.display = 'none';
     if (head) {
-      head.innerHTML = '<div class="ss-dw-hrow"><span class="ss-dw-id">' + d.id + '</span><span class="ss-vp">' + d.ver + '</span><span style="flex:1"></span>' +
-        '<button type="button" class="ss-ibtn" data-ss-dw-action="close">' + ic(ICONS.close, 15) + '</button></div>' +
+      head.innerHTML = '<div class="ss-dw-hrow"><span class="ss-dw-id">' + d.id + '</span><span class="ss-vp">' + d.ver + '</span><span class="ss-dw-mode-badge is-edit">수정</span><span style="flex:1"></span>' +
+        '<button type="button" class="ss-dw-close" data-ss-dw-action="close" aria-label="닫기">' + ic(ICONS.close, 15) + '</button></div>' +
         '<div class="ss-dw-htitle">화면 수정</div><div class="ss-dw-hdesc">화면설계서 기본 정보와 이미지/연결정보를 수정합니다.</div>';
     }
     if (body) {
@@ -754,7 +753,7 @@
     var foot = document.getElementById('ss-dw-foot');
     if (tabs) tabs.style.display = 'none';
     if (head) {
-      head.innerHTML = '<div class="ss-dw-hrow"><span style="flex:1"></span><button type="button" class="ss-ibtn" data-ss-dw-action="close">' + ic(ICONS.close, 15) + '</button></div>' +
+      head.innerHTML = '<div class="ss-dw-hrow"><span style="flex:1"></span><button type="button" class="ss-dw-close" data-ss-dw-action="close" aria-label="닫기">' + ic(ICONS.close, 15) + '</button></div>' +
         '<div class="ss-dw-htitle">검토 요청</div><div class="ss-dw-hdesc">선택한 화면설계서의 검토를 요청합니다.</div>';
     }
     if (body) {
