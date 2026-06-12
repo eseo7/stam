@@ -2051,3 +2051,153 @@
   color: var(--t3);
   margin-top: 2px;
 }
+
+/* ============================================================
+ * Custom Select — Drawer 내부 select 톤 보정
+ * 닫힌 trigger와 펼친 option panel 모두 STAM/WBS 다크톤에 맞춘다.
+ * 네이티브 <select>(.ss-cs-native)는 값 유지를 위해 숨겨만 둔다.
+ * ============================================================ */
+.screen-spec-page .ss-cs {
+  position: relative;
+  width: 100%;
+}
+
+.screen-spec-page .ss-cs-native {
+  display: none;
+}
+
+.screen-spec-page .ss-cs-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  background-color: var(--bg-sur);
+  color: var(--t1);
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.screen-spec-page .ss-cs-trigger:hover {
+  border-color: var(--bd-f);
+}
+
+.screen-spec-page .ss-cs.open .ss-cs-trigger,
+.screen-spec-page .ss-cs-trigger:focus-visible {
+  border-color: var(--bd-f);
+  box-shadow: 0 0 0 2px var(--stam-soft);
+  outline: none;
+}
+
+.screen-spec-page .ss-cs-val {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.screen-spec-page .ss-cs-val.is-placeholder {
+  color: var(--t3);
+}
+
+.screen-spec-page .ss-cs-caret {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--t3);
+  transition: transform 150ms, color 150ms;
+}
+
+.screen-spec-page .ss-cs.open .ss-cs-caret {
+  transform: rotate(180deg);
+  color: var(--brand);
+}
+
+.screen-spec-page .ss-cs-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 40;
+  max-height: 220px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  background: var(--bg-sur);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, .12);
+  display: none;
+}
+
+.screen-spec-page .ss-cs.open .ss-cs-panel {
+  display: block;
+}
+
+.screen-spec-page .ss-cs-opt {
+  padding: 7px 9px;
+  border-radius: var(--r-sm, 6px);
+  font-size: 12px;
+  color: var(--t2);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 120ms, color 120ms;
+}
+
+.screen-spec-page .ss-cs-opt:hover {
+  background: var(--bg-sur2);
+  color: var(--t1);
+}
+
+.screen-spec-page .ss-cs-opt.is-placeholder {
+  color: var(--t3);
+}
+
+.screen-spec-page .ss-cs-opt.is-sel {
+  background: var(--stam-soft);
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.screen-spec-page .ss-cs-panel::-webkit-scrollbar {
+  width: 5px;
+}
+
+.screen-spec-page .ss-cs-panel::-webkit-scrollbar-thumb {
+  background: rgba(84, 81, 232, .32);
+  border-radius: 99px;
+}
+
+.screen-spec-page .ss-cs-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* dark mode */
+[data-theme="dark"] .screen-spec-page .ss-cs-trigger {
+  background-color: var(--bg-sur2);
+  border-color: var(--bd);
+  color: var(--t1);
+}
+
+[data-theme="dark"] .screen-spec-page .ss-cs-panel {
+  background: var(--bg-sur2);
+  border-color: var(--bd);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .45);
+}
+
+[data-theme="dark"] .screen-spec-page .ss-cs-opt:hover {
+  background: var(--bg-sur3);
+}
+
+[data-theme="dark"] .screen-spec-page .ss-cs-panel::-webkit-scrollbar-thumb {
+  background: rgba(84, 81, 232, .42);
+}
