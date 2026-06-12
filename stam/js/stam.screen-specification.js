@@ -559,6 +559,8 @@
      그 위에 STAM/WBS 톤의 trigger + option panel을 덧씌운다.
      데이터/필드/저장 로직은 변경하지 않는다. */
   var csUid = 0;
+  /* WBS selected option과 동일 톤의 작은 check (currentColor 상속) */
+  var CS_CHECK_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>';
 
   function buildCustomSelect(native) {
     if (native.getAttribute('data-cs') === '1') return;
@@ -598,8 +600,18 @@
       od.setAttribute('role', 'option');
       od.setAttribute('data-idx', i);
       od.setAttribute('aria-selected', 'false');
-      od.textContent = o.textContent;
       if (o.value === '') od.classList.add('is-placeholder');
+      /* WBS와 동일: 모든 option에 check 슬롯(고정폭) → 텍스트 시작 정렬 일치.
+         실제 selected(is-sel)일 때만 CSS로 check 표시. */
+      var ck = document.createElement('span');
+      ck.className = 'ss-cs-check';
+      ck.setAttribute('aria-hidden', 'true');
+      ck.innerHTML = CS_CHECK_SVG;
+      var tx = document.createElement('span');
+      tx.className = 'ss-cs-otext';
+      tx.textContent = o.textContent;
+      od.appendChild(ck);
+      od.appendChild(tx);
       panel.appendChild(od);
     });
 

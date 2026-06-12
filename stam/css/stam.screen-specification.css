@@ -2151,6 +2151,9 @@
    1) base  2) placeholder base  3) hover/active(실 option)
    4) placeholder hover/active(약하게)  5) selected(실 option만) */
 .screen-spec-page .ss-cs-opt {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   padding: 7px 9px;
   border-radius: var(--r-sm, 6px);
   font-size: 12px;
@@ -2158,10 +2161,31 @@
   color: var(--t2);
   background: transparent;
   cursor: pointer;
-  white-space: nowrap;
+  transition: background 120ms, color 120ms;
+}
+
+/* check 슬롯: 모든 option에 고정폭 확보 → 텍스트 시작 위치 정렬(WBS 기준).
+   기본은 숨김, 실제 selected(is-sel)에서만 표시. */
+.screen-spec-page .ss-cs-check {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 13px;
+  height: 13px;
+  color: var(--brand);
+  visibility: hidden;
+}
+
+.screen-spec-page .ss-cs-otext {
+  flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: background 120ms, color 120ms;
+  white-space: nowrap;
+}
+
+.screen-spec-page .ss-cs-opt.is-sel:not(.is-placeholder) .ss-cs-check {
+  visibility: visible;
 }
 
 /* 2) placeholder 기본: muted, 강조색·selected bg 금지 */
