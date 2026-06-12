@@ -205,9 +205,10 @@
       row.addEventListener('click', function (e) {
         if (e.target.closest && e.target.closest('.wbs-td-chk')) return;
         document.querySelectorAll('.wbs-data-row').forEach(function (r) {
-          if (r !== row) r.classList.remove('selected');
+          if (r !== row) { r.classList.remove('selected'); r.classList.remove('is-selected'); }
         });
         row.classList.add('selected');
+        row.classList.add('is-selected');
         openDrawer('detail');
       });
     });
@@ -272,6 +273,7 @@
       chk.addEventListener('click', function (e) { e.stopPropagation(); });
       chk.addEventListener('change', function () {
         row.classList.toggle('selected', chk.checked);
+        row.classList.toggle('is-selected', chk.checked);
         updateMasterChk();
         updateDeleteBtn();
       });
@@ -287,7 +289,7 @@
         document.querySelectorAll('.wbs-row-chk').forEach(function (chk) {
           chk.checked = checked;
           var r = chk.closest('.wbs-data-row');
-          if (r) r.classList.toggle('selected', checked);
+          if (r) { r.classList.toggle('selected', checked); r.classList.toggle('is-selected', checked); }
         });
         updateDeleteBtn();
       });

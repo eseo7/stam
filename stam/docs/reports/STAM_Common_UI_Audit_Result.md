@@ -1,7 +1,7 @@
 # STAM Common UI Audit Result
 
 > 자동 생성 — `node scripts/audit-common-ui.mjs`
-> Generated: 2026-06-12T16:26:06.982Z
+> Generated: 2026-06-12T16:46:12.427Z
 
 ---
 
@@ -9,14 +9,14 @@
 
 | 항목 | 값 |
 |---|---|
-| 생성 시각 | 2026-06-12T16:26:06.982Z |
+| 생성 시각 | 2026-06-12T16:46:12.427Z |
 | 검사 보드 수 | 4 |
-| 전체 판단 | **CAUTION** |
+| 전체 판단 | **PASS** |
 | P0 | 0건 |
-| P1 | 2건 |
+| P1 | 0건 |
 | P2 | 3건 |
 
-> ⚠️ P0 없음. P1 개선 권장.
+> ✅ P0/P1 없음. 전체 PASS.
 
 ---
 
@@ -24,10 +24,10 @@
 
 | Board | CSS Order | JS Order | App Shell | Form Controls | Drawer | Table Row Sel | Buttons | Board Toolbar | Board Filter |
 |---|---|---|---|---|---|---|---|---|---|
-| **requirements** | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ⚠️ PARTIAL | ✅ PASS | ✅ PASS | ✅ PASS |
-| **menu-screen-list** | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ⚠️ PARTIAL | ✅ PASS | ✅ PASS | ✅ PASS |
-| **wbs** | ⚠️ PARTIAL | ⚠️ PARTIAL | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY | ⚠️ PARTIAL | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY |
-| **screen-specification** | ⚠️ PARTIAL | ⚠️ PARTIAL | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY | ⚠️ PARTIAL | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY |
+| **requirements** | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS |
+| **menu-screen-list** | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS |
+| **wbs** | ⚠️ PARTIAL | ⚠️ PARTIAL | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY | ✅ PASS | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY |
+| **screen-specification** | ⚠️ PARTIAL | ⚠️ PARTIAL | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY | ✅ PASS | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY |
 
 **범례**: ✅ PASS | ⚠️ PARTIAL | 🔵 LEGACY | 🔶 CAUTION | ❌ TODO
 
@@ -54,10 +54,8 @@
 **Drawer**: ✅ PASS
 - 발견: `stam-drawer`  `stam-drawer-scrim`
 
-**Table Row Sel**: ⚠️ PARTIAL
-- 발견: `stam-table-row`  `sel/selected (legacy)`  `stopPropagation`
-- 누락: `is-selected`
-- ⚠️ stam-table-row와 sel/selected 혼용 — 충돌 가능성
+**Table Row Sel**: ✅ PASS
+- 발견: `stam-table-row`  `is-selected`  `sel/selected (legacy)`  `stopPropagation`
 
 **Buttons**: ✅ PASS
 - 발견: `stam-btn`  `stam-btn-primary`  `stam-btn-ghost`  `stam-btn-outline`  `stam-btn-danger`
@@ -90,10 +88,8 @@
 **Drawer**: ✅ PASS
 - 발견: `stam-drawer`  `stam-drawer-scrim`
 
-**Table Row Sel**: ⚠️ PARTIAL
-- 발견: `stam-table-row`  `sel/selected (legacy)`  `stopPropagation`
-- 누락: `is-selected`
-- ⚠️ stam-table-row와 sel/selected 혼용 — 충돌 가능성
+**Table Row Sel**: ✅ PASS
+- 발견: `stam-table-row`  `is-selected`  `sel/selected (legacy)`  `stopPropagation`
 
 **Buttons**: ✅ PASS
 - 발견: `stam-btn`  `stam-btn-primary`  `stam-btn-secondary`  `stam-btn-ghost`  `stam-btn-outline`
@@ -128,10 +124,8 @@
 **Drawer**: 🔵 LEGACY
 - 발견: `wbs-drawer`  `wbs-drawer-overlay`
 
-**Table Row Sel**: ⚠️ PARTIAL
-- 발견: `stam-table-row`  `sel/selected (legacy)`  `stopPropagation`
-- 누락: `is-selected`
-- ⚠️ stam-table-row와 sel/selected 혼용 — 충돌 가능성
+**Table Row Sel**: ✅ PASS
+- 발견: `stam-table-row`  `is-selected`  `sel/selected (legacy)`  `stopPropagation`
 
 **Buttons**: ✅ PASS
 - 발견: `stam-btn`  `stam-btn-primary`  `stam-btn-danger`
@@ -168,10 +162,8 @@
 **Drawer**: 🔵 LEGACY
 - 발견: `wbs-drawer`  `ss-drawer`  `ss-dw-scrim`
 
-**Table Row Sel**: ⚠️ PARTIAL
-- 발견: `stam-table-row`  `sel/selected (legacy)`  `stopPropagation`
-- 누락: `is-selected`
-- ⚠️ stam-table-row와 sel/selected 혼용 — 충돌 가능성
+**Table Row Sel**: ✅ PASS
+- 발견: `stam-table-row`  `is-selected`  `sel/selected (legacy)`  `stopPropagation`
 
 **Buttons**: ✅ PASS
 - 발견: `stam-btn`  `stam-btn-primary`  `stam-btn-outline`
@@ -192,9 +184,8 @@
 ### P0 — 즉시 확인 (0건)
 _없음_
 
-### P1 — 다음 PR 권장 (2건)
-- ⚠️ requirements Table Row Selection 충돌 가능성
-- ⚠️ menu-screen-list Table Row Selection 충돌 가능성
+### P1 — 다음 PR 권장 (0건)
+_없음_
 
 ### P2 — 나중에 정리 (3건)
 - 🔵 wbs: HTML 내 <style> 존재

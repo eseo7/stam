@@ -1,6 +1,7 @@
 /* ─────────────────────────────────────────────
-   STAM Table Row Selection 공통 기준  v1
+   STAM Table Row Selection 공통 기준  v1.1
    로드 순서: stam.components.css → stam.table-selection.css → 페이지 CSS
+   표준: .is-selected  /  legacy alias: .sel, .selected
    ───────────────────────────────────────────── */
 
 /* ── 행 기본 ── */
@@ -8,17 +9,23 @@
   cursor: pointer;
 }
 
-/* ── 선택된 행 ── */
-.stam-table-row.is-selected td {
+/* ── 선택된 행 — 표준 + legacy alias ── */
+.stam-table-row.is-selected td,
+.stam-table-row.sel td,
+.stam-table-row.selected td {
   background: rgba(139, 127, 248, .08);
 }
 
 /* 선택된 행: 첫 번째 td 좌측 bar */
-.stam-table-row.is-selected td:first-child {
+.stam-table-row.is-selected td:first-child,
+.stam-table-row.sel td:first-child,
+.stam-table-row.selected td:first-child {
   position: relative;
 }
 
-.stam-table-row.is-selected td:first-child::before {
+.stam-table-row.is-selected td:first-child::before,
+.stam-table-row.sel td:first-child::before,
+.stam-table-row.selected td:first-child::before {
   content: "";
   position: absolute;
   left: 0;
@@ -30,11 +37,13 @@
 }
 
 /* ── 다크 모드 ── */
-[data-theme="dark"] .stam-table-row.is-selected td {
+[data-theme="dark"] .stam-table-row.is-selected td,
+[data-theme="dark"] .stam-table-row.sel td,
+[data-theme="dark"] .stam-table-row.selected td {
   background: rgba(139, 127, 248, .13);
 }
 
 /* ── hover 상태 (선택 안 된 행) ── */
-.stam-table-row:not(.is-selected):hover td {
+.stam-table-row:not(.is-selected):not(.sel):not(.selected):hover td {
   cursor: pointer;
 }
