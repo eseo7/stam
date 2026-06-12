@@ -175,6 +175,7 @@ body:has(.msl-page) .po-main { overflow-x:hidden }
 .msl-chg-date { font-size:11px;color:var(--t3) }
 
 /* ── Form sections ── */
+/* stam.form-controls.css 로드 후 페이지 전용 override만 정의 */
 .msl-fs { margin-bottom:22px }
 .msl-fs-hdr { display:flex;align-items:center;gap:8px;padding-bottom:9px;border-bottom:1px solid var(--bd);margin-bottom:14px }
 .msl-fs-num { width:20px;height:20px;border-radius:50%;background:var(--stam);color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;flex-shrink:0 }
@@ -182,13 +183,14 @@ body:has(.msl-page) .po-main { overflow-x:hidden }
 .msl-fgrid { display:grid;grid-template-columns:1fr 1fr;gap:12px 20px }
 .msl-fgrid .full { grid-column:span 2 }
 .msl-ffield { display:flex;flex-direction:column;gap:5px }
-.msl-flbl { font-size:11.5px;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:5px }
+.msl-flbl { font-size:11.5px;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:5px;margin-bottom:0 }
 .msl-req-mark { color:#991B1B;font-size:11px }
-.msl-inp { height:38px;width:100%;border:1px solid var(--bd);border-radius:var(--r-md);padding:0 11px;font-size:12.5px;color:var(--t1);background:var(--bg-sur);outline:none;transition:border-color 120ms,box-shadow 120ms;font-family:inherit;box-sizing:border-box }
+/* msl-inp: page override — height 38px, font-size 12.5px, border var(--bd) */
+.msl-inp { height:38px;width:100%;border:1px solid var(--bd);border-radius:var(--r-md);padding:0 11px;font-size:12.5px;color:var(--t1);background:var(--bg-sur);transition:border-color 120ms,box-shadow 120ms }
 .msl-inp:focus { border-color:var(--stam);box-shadow:0 0 0 3px var(--stam-soft) }
 .msl-inp.ro { background:var(--bg-sur2);color:var(--t3) }
 textarea.msl-inp { height:auto;min-height:80px;padding:9px 11px;line-height:1.6;resize:vertical }
-select.msl-inp { cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:32px }
+select.msl-inp { cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:32px }
 [data-theme="dark"] .msl-inp { background:var(--bg-sur2);border-color:var(--bd) }
 [data-theme="dark"] select.msl-inp { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a8be' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") }
 .msl-helper { font-size:11px;color:var(--t3);margin-top:2px }
