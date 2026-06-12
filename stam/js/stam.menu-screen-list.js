@@ -206,6 +206,7 @@
     if (resetState !== false) {
       document.querySelectorAll('#msl-tbody .msl-data-row.sel').forEach(function (r) {
         r.classList.remove('sel');
+        r.classList.remove('is-selected');
         var cb = r.querySelector('.msl-cb');
         if (cb) cb.checked = false;
       });
@@ -218,8 +219,9 @@
     rows.forEach(function (row) {
       row.addEventListener('click', function (e) {
         if (e.target.classList.contains('msl-cb')) return;
-        rows.forEach(function (r) { r.classList.remove('sel'); });
+        rows.forEach(function (r) { r.classList.remove('sel'); r.classList.remove('is-selected'); });
         row.classList.add('sel');
+        row.classList.add('is-selected');
         openDrawer('detail');
       });
     });
@@ -233,7 +235,7 @@
     document.querySelectorAll('#msl-tbody .msl-cb').forEach(function (cb) {
       cb.addEventListener('change', function () {
         var row = cb.closest('.msl-data-row');
-        if (row) row.classList.toggle('sel', cb.checked);
+        if (row) { row.classList.toggle('sel', cb.checked); row.classList.toggle('is-selected', cb.checked); }
         updateDelBtn();
       });
     });
@@ -243,7 +245,7 @@
         document.querySelectorAll('#msl-tbody .msl-cb').forEach(function (cb) {
           cb.checked = allCb.checked;
           var row = cb.closest('.msl-data-row');
-          if (row) row.classList.toggle('sel', cb.checked);
+          if (row) { row.classList.toggle('sel', cb.checked); row.classList.toggle('is-selected', cb.checked); }
         });
         updateDelBtn();
       });

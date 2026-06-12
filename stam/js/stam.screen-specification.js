@@ -316,10 +316,12 @@
         S.sel.add(id);
         if (rowCb) rowCb.checked = true;
         r.classList.add('sel');
+        r.classList.add('is-selected');
       } else {
         S.sel.delete(id);
         if (rowCb) rowCb.checked = false;
         r.classList.remove('sel');
+        r.classList.remove('is-selected');
       }
     });
     updateGroupCheckboxes();
@@ -452,7 +454,7 @@
         var last = i === screens.length - 1;
         var isSel = S.sel.has(s.id);
         var isOpen = S.openId === s.id;
-        html += '<tr class="ss-sc-row stam-table-row' + (isSel ? ' sel' : '') + (isOpen ? ' is-row-open' : '') + (last ? ' lg' : '') + '" data-id="' + s.id + '">' +
+        html += '<tr class="ss-sc-row stam-table-row' + (isSel ? ' sel is-selected' : '') + (isOpen ? ' is-row-open' : '') + (last ? ' lg' : '') + '" data-id="' + s.id + '">' +
           '<td class="ss-ch"><input type="checkbox" class="ss-cb"' + (isSel ? ' checked' : '') +
           ' data-ss-sel="' + s.id + '"></td>' +
           '<td class="ss-name-col"><div class="ss-sc-cell"><span class="ss-sc-ind">└</span>' +
@@ -1073,7 +1075,7 @@
       if (selCb) {
         e.stopPropagation();
         var row = selCb.closest('.ss-sc-row');
-        if (row) row.classList.toggle('sel', selCb.checked);
+        if (row) { row.classList.toggle('sel', selCb.checked); row.classList.toggle('is-selected', selCb.checked); }
         toggleSel(selCb.getAttribute('data-ss-sel'), selCb.checked);
       }
     });
