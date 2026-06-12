@@ -2147,11 +2147,16 @@
   bottom: calc(100% + 4px);
 }
 
+/* ── option 상태 우선순위 (낮음 → 높음, 뒤에 선언될수록 우선) ──
+   1) base  2) placeholder base  3) hover/active(실 option)
+   4) placeholder hover/active(약하게)  5) selected(실 option만) */
 .screen-spec-page .ss-cs-opt {
   padding: 7px 9px;
   border-radius: var(--r-sm, 6px);
   font-size: 12px;
+  font-weight: 500;
   color: var(--t2);
+  background: transparent;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
@@ -2159,22 +2164,32 @@
   transition: background 120ms, color 120ms;
 }
 
-/* hover + 키보드 active 동일 톤 */
+/* 2) placeholder 기본: muted, 강조색·selected bg 금지 */
+.screen-spec-page .ss-cs-opt.is-placeholder {
+  color: var(--t3);
+  background: transparent;
+  font-weight: 500;
+}
+
+/* 3) hover + 키보드 active 동일 톤 (실 option) */
 .screen-spec-page .ss-cs-opt:hover,
 .screen-spec-page .ss-cs-opt.is-active {
   background: var(--bg-sur2);
   color: var(--t1);
 }
 
-.screen-spec-page .ss-cs-opt.is-placeholder {
+/* 4) placeholder hover/active: 배경만 약하게, 텍스트는 muted 유지 */
+.screen-spec-page .ss-cs-opt.is-placeholder:hover,
+.screen-spec-page .ss-cs-opt.is-placeholder.is-active {
+  background: var(--bg-sur2);
   color: var(--t3);
 }
 
-/* selected는 hover/active보다 우선(뒤에 선언) */
+/* 5) selected: hover/active보다 우선, 실 option에만 적용(placeholder 제외) */
 .screen-spec-page .ss-cs-opt.is-sel {
   background: var(--stam-soft);
   color: var(--brand);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .screen-spec-page .ss-cs-panel::-webkit-scrollbar {
@@ -2203,16 +2218,31 @@
   box-shadow: 0 10px 28px rgba(0, 0, 0, .45);
 }
 
+/* dark placeholder 기본: muted 유지 */
+[data-theme="dark"] .screen-spec-page .ss-cs-opt.is-placeholder {
+  color: var(--t3);
+  background: transparent;
+}
+
+/* dark hover/active (실 option) */
 [data-theme="dark"] .screen-spec-page .ss-cs-opt:hover,
 [data-theme="dark"] .screen-spec-page .ss-cs-opt.is-active {
   background: var(--bg-sur3);
   color: var(--t1);
 }
 
-/* dark selected: hover/active보다 우선, brand 톤 유지 */
+/* dark placeholder hover/active: 배경만 약하게, 텍스트 muted 유지 */
+[data-theme="dark"] .screen-spec-page .ss-cs-opt.is-placeholder:hover,
+[data-theme="dark"] .screen-spec-page .ss-cs-opt.is-placeholder.is-active {
+  background: var(--bg-sur3);
+  color: var(--t3);
+}
+
+/* dark selected: hover/active보다 우선, brand 톤 유지(실 option만) */
 [data-theme="dark"] .screen-spec-page .ss-cs-opt.is-sel {
   background: var(--stam-soft);
   color: var(--brand);
+  font-weight: 700;
 }
 
 [data-theme="dark"] .screen-spec-page .ss-cs-panel::-webkit-scrollbar-thumb {
