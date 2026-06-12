@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Form Controls Guide v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<link rel="stylesheet" href="../css/stam.form-controls.css">
+<style>
+/* ── 가이드 전용 프리뷰 래퍼 ── */
+.fc-demo-section {
+  margin-bottom: 40px;
+}
+.fc-demo-section:last-child {
+  margin-bottom: 0;
+}
+.fc-demo-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t1);
+  margin-bottom: 4px;
+  letter-spacing: -.01em;
+}
+.fc-demo-desc {
+  font-size: 11.5px;
+  color: var(--t3);
+  margin-bottom: 14px;
+  line-height: 1.6;
+}
+.fc-demo-box {
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-lg);
+  padding: 20px 24px;
+}
+.fc-demo-box + .fc-demo-box {
+  margin-top: 8px;
+}
+.fc-demo-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+}
+.fc-demo-row > * {
+  flex: 1 1 160px;
+  min-width: 120px;
+}
+
+/* 코드 스니펫 */
+.fc-code {
+  background: var(--bg-sur3);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  padding: 10px 14px;
+  font-size: 11px;
+  color: var(--t2);
+  font-family: 'Consolas', 'Menlo', monospace;
+  line-height: 1.7;
+  overflow-x: auto;
+  margin-top: 10px;
+  white-space: pre;
+}
+
+/* 정책 박스 */
+.fc-policy {
+  background: var(--stam-soft);
+  border-left: 3px solid var(--stam);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: var(--t2);
+  line-height: 1.75;
+  margin-bottom: 16px;
+}
+.fc-policy strong {
+  color: var(--t1);
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12.5px;
+}
+
+/* drawer preview */
+.fc-drawer-preview {
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-lg);
+  width: 100%;
+  max-width: 460px;
+  padding: 20px 24px;
+}
+.fc-drawer-hdr {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--t1);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--bd);
+}
+.fc-drawer-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid var(--bd);
+}
+
+/* class list table */
+.fc-class-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  color: var(--t2);
+}
+.fc-class-table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--th-fg);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--bd);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.fc-class-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--bd);
+  vertical-align: top;
+  line-height: 1.55;
+}
+.fc-class-table tr:last-child td {
+  border-bottom: none;
+}
+.fc-class-table code {
+  background: var(--bg-sur3);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+  color: var(--stam);
+  font-family: 'Consolas', 'Menlo', monospace;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Form Controls Guide</span>
+  <span class="doc-nav-pill"><span class="dot"></span>v1.0</span>
+  <span class="doc-nav-pill"><span class="dot"></span>2026-06-12</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Form Controls</span>
+      <span class="toc-ver-pill">v1.0</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s00"><span class="toc-n">00</span>원칙 &amp; 정책</a></li>
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>클래스 목록</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Label</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Input</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Textarea</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Select</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Date / Datetime</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>상태 클래스</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Form Grid</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Drawer Form 예시</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>스크립트 순서</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>후속 작업</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── 00 원칙 & 정책 ── -->
+      <section id="s00" class="sec" data-screen-label="00 원칙">
+        <div class="sec-hdr">
+          <span class="sec-n">00</span>
+          <span class="sec-title">원칙 &amp; 정책 — Principles</span>
+          <span class="sbadge done">v1.0</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="fc-policy">
+            <strong>신규 보드 화면 Form 작성 규칙</strong>
+            1. 신규 보드 화면은 반드시 <code>stam.form-controls.css</code>를 로드한다.<br>
+            2. input / select / date / textarea는 화면별 클래스 대신 공통 클래스(<code>stam-input</code>, <code>stam-select</code>, <code>stam-date</code>, <code>stam-textarea</code>)를 우선 사용한다.<br>
+            3. 화면별 CSS는 배치(layout) / 해당 화면 전용 chip / table / drawer만 담당한다.<br>
+            4. 기존 화면(rq-*, msl-*, screen-spec, wbs)은 안정화 후 점진적으로 전환한다.<br>
+            5. 기본 브라우저 select/date가 다크모드에서 깨지면 공통 클래스 또는 후속 <code>stam-cselect</code>로 처리한다.
+          </div>
+
+          <div class="ibox info">
+            <strong>CSS 로드 순서 (신규 화면 기준)</strong>
+            <div class="fc-code">1. stam.tokens.css
+2. stam.shell.css
+3. stam.components.css
+4. stam.form-controls.css   ← 신규 화면에서 공통 form 스타일
+5. stam.[page].css          ← 화면별 레이아웃/전용 스타일 (form 재정의 금지)</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── 01 클래스 목록 ── -->
+      <section id="s01" class="sec" data-screen-label="01 클래스 목록">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">공통 클래스 목록 — Class Reference</span>
+        </div>
+        <div class="sec-body">
+
+          <table class="fc-class-table">
+            <thead>
+              <tr>
+                <th>클래스</th>
+                <th>요소</th>
+                <th>설명</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>.stam-label</code></td><td><code>label</code></td><td>폼 라벨. <code>.req</code> (필수 마크), <code>.opt</code> (선택 표시) 내부 클래스 제공</td></tr>
+              <tr><td><code>.stam-input</code></td><td><code>input</code></td><td>text / search / number / email / url / tel / password. height 36px, 100% width</td></tr>
+              <tr><td><code>.stam-textarea</code></td><td><code>textarea</code></td><td>멀티라인. min-height 80px, resize: vertical</td></tr>
+              <tr><td><code>.stam-select</code></td><td><code>select</code></td><td>네이티브 select. appearance: none + SVG caret, 다크모드 대응</td></tr>
+              <tr><td><code>.stam-date</code></td><td><code>input[type=date]</code> / <code>input[type=datetime-local]</code></td><td>date/datetime. 다크모드 calendar icon filter 적용</td></tr>
+              <tr><td><code>.stam-form-grid</code></td><td><code>div</code></td><td>2컬럼 그리드. 640px 이하 1컬럼. 내부 <code>.full-span</code>으로 병합</td></tr>
+              <tr><td><code>.stam-form-row</code></td><td><code>div</code></td><td>수직 스택 행. <code>.is-horizontal</code>로 수평 배치</td></tr>
+              <tr><td><code>.stam-form-field</code></td><td><code>div</code></td><td>단일 필드 컨테이너 (label + control + help/error)</td></tr>
+              <tr><td><code>.stam-field-help</code></td><td><code>p</code></td><td>도움말 텍스트, muted tone</td></tr>
+              <tr><td><code>.stam-field-error</code></td><td><code>p</code></td><td>오류 메시지, 빨간 아이콘 prefix</td></tr>
+              <tr><td><code>.stam-field-success</code></td><td><code>p</code></td><td>성공 메시지, 초록 tone</td></tr>
+            </tbody>
+          </table>
+
+          <div style="margin-top:16px;">
+            <p style="font-size:12px;font-weight:600;color:var(--t1);margin-bottom:8px;">상태 클래스</p>
+            <table class="fc-class-table">
+              <thead>
+                <tr><th>클래스</th><th>적용 대상</th><th>설명</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>.is-error</code></td><td>control 또는 <code>.stam-form-field</code></td><td>빨간 border + 배경</td></tr>
+                <tr><td><code>.is-success</code></td><td>control 또는 <code>.stam-form-field</code></td><td>초록 border + 배경</td></tr>
+                <tr><td><code>.is-disabled</code></td><td>control 또는 <code>.stam-form-field</code></td><td>opacity .45, pointer-events none</td></tr>
+                <tr><td><code>.is-readonly</code></td><td>control 또는 <code>.stam-form-field</code></td><td>bg-sur2 배경, 커서 default</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="margin-top:16px;">
+            <p style="font-size:12px;font-weight:600;color:var(--t1);margin-bottom:8px;">소형(--sm) 변형</p>
+            <table class="fc-class-table">
+              <thead>
+                <tr><th>클래스</th><th>설명</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>.stam-input--sm</code></td><td>height 28px, font-size 12px, radius 6px</td></tr>
+                <tr><td><code>.stam-select--sm</code></td><td>height 28px, font-size 12px, radius 6px</td></tr>
+                <tr><td><code>.stam-date--sm</code></td><td>height 28px, font-size 12px, radius 6px</td></tr>
+                <tr><td><code>.stam-textarea--sm</code></td><td>min-height 60px, font-size 12px, radius 6px</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── 02 Label ── -->
+      <section id="s02" class="sec" data-screen-label="02 Label">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Label</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="fc-demo-section">
+            <div class="fc-demo-desc">기본 라벨 / 필수 마크 / 선택 표시</div>
+            <div class="fc-demo-box">
+              <div class="fc-demo-row">
+                <div>
+                  <label class="stam-label">기본 라벨</label>
+                  <input class="stam-input" type="text" placeholder="기본 입력" />
+                </div>
+                <div>
+                  <label class="stam-label">필수 필드 <span class="req">*</span></label>
+                  <input class="stam-input" type="text" placeholder="필수 입력" />
+                </div>
+                <div>
+                  <label class="stam-label">선택 필드 <span class="opt">(선택)</span></label>
+                  <input class="stam-input" type="text" placeholder="선택 입력" />
+                </div>
+              </div>
+            </div>
+            <div class="fc-code">&lt;label class="stam-label"&gt;기본 라벨&lt;/label&gt;
+&lt;label class="stam-label"&gt;필수 필드 &lt;span class="req"&gt;*&lt;/span&gt;&lt;/label&gt;
+&lt;label class="stam-label"&gt;선택 필드 &lt;span class="opt"&gt;(선택)&lt;/span&gt;&lt;/label&gt;</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── 03 Input ── -->
+      <section id="s03" class="sec" data-screen-label="03 Input">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Input</span>
+        </div>
+        <div class="sec-body">
+
+          <!-- 기본 input -->
+          <div class="fc-demo-section">
+            <div class="fc-demo-title">기본 텍스트 Input</div>
+            <div class="fc-demo-desc">height: 36px, width: 100%, border-radius: 8px, focus 시 brand ring</div>
+            <div class="fc-demo-box">
+              <div class="stam-form-field">
+                <label class="stam-label">제목 <span class="req">*</span></label>
+                <input class="stam-input" type="text" placeholder="제목을 입력하세요" />
+              </div>
+            </div>
+            <div class="fc-code">&lt;div class="stam-form-field"&gt;
+  &lt;label class="stam-label"&gt;제목 &lt;span class="req"&gt;*&lt;/span&gt;&lt;/label&gt;
+  &lt;input class="stam-input" type="text" placeholder="제목을 입력하세요" /&gt;
+&lt;/div&gt;</div>
+          </div>
+
+          <!-- search input -->
+          <div class="fc-demo-section">
+            <div class="fc-demo-title">Search Input</div>
+            <div class="fc-demo-desc">type="search". 기본 X 버튼은 STAM 스타일 SVG로 대체됩니다.</div>
+            <div class="fc-demo-box">
+              <div class="stam-form-field">
+                <label class="stam-label">검색</label>
+                <input class="stam-input" type="search" placeholder="키워드를 입력하세요" />
+              </div>
+            </div>
+            <div class="fc-code">&lt;input class="stam-input" type="search" placeholder="키워드를 입력하세요" /&gt;</div>
+          </div>
+
+          <!-- 소형 -->
+          <div class="fc-demo-section">
+            <div class="fc-demo-title">소형(--sm) Input</div>
+            <div class="fc-demo-desc">height: 28px. 필터 영역, toolbar inline 입력 등에 사용.</div>
+            <div class="fc-demo-box">
+              <div class="fc-demo-row">
+                <div>
+                  <label class="stam-label">소형 텍스트</label>
+                  <input class="stam-input stam-input--sm" type="text" placeholder="소형 입력" />
+                </div>
+                <div>
+                  <label class="stam-label">소형 검색</label>
+                  <input class="stam-input stam-input--sm" type="search" placeholder="검색" />
+                </div>
+              </div>
+            </div>
+            <div class="fc-code">&lt;input class="stam-input stam-input--sm" type="text" /&gt;</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── 04 Textarea ── -->
+      <section id="s04" class="sec" data-screen-label="04 Textarea">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Textarea</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="fc-demo-section">
+            <div class="fc-demo-desc">min-height: 80px, resize: vertical. 다크/라이트 동일 tone.</div>
+            <div class="fc-demo-box">
+              <div class="stam-form-field">
+                <label class="stam-label">설명</label>
+                <textarea class="stam-textarea" placeholder="설명을 입력하세요" rows="3"></textarea>
+                <p class="stam-field-help">최대 500자까지 입력할 수 있습니다.</p>
+              </div>
+            </div>
+            <div class="fc-code">&lt;div class="stam-form-field"&gt;
+  &lt;label class="stam-label"&gt;설명&lt;/label&gt;
+  &lt;textarea class="stam-textarea" placeholder="설명을 입력하세요" rows="3"&gt;&lt;/textarea&gt;
+  &lt;p class="stam-field-help"&gt;최대 500자까지 입력할 수 있습니다.&lt;/p&gt;
+&lt;/div&gt;</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── 05 Select ── -->
+      <section id="s05" class="sec" data-screen-label="05 Select">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Select</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="fc-demo-section">
+            <div class="fc-demo-desc">
+              <code>appearance: none</code> + SVG caret (배경 이미지, <code>background-repeat: no-repeat</code>). 다크모드에서 기본 화살표/반복 패턴이 표시되지 않습니다.
+            </div>
+            <div class="fc-demo-box">
+              <div class="fc-demo-row">
+                <div>
+                  <label class="stam-label">우선순위 <span class="req">*</span></label>
+                  <select class="stam-select">
+                    <option value="">선택하세요</option>
+                    <option>높음</option>
+                    <option>보통</option>
+                    <option>낮음</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="stam-label">담당자</label>
+                  <select class="stam-select">
+                    <option value="">미지정</option>
+                    <option>홍길동</option>
+                    <option>김철수</option>
+                    <option>이영희</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="fc-code">&lt;select class="stam-select"&gt;
+  &lt;option value=""&gt;선택하세요&lt;/option&gt;
+  &lt;option&gt;높음&lt;/option&gt;
+&lt;/select&gt;</div>
+          </div>
+
+          <div class="fc-demo-section">
+            <div class="fc-demo-title">소형(--sm) Select</div>
+            <div class="fc-demo-box">
+              <div style="max-width:220px;">
+                <label class="stam-label">상태 필터</label>
+                <select class="stam-select stam-select--sm">
+                  <option>전체</option>
+                  <option>진행중</option>
+                  <option>완료</option>
+                  <option>보류</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="ibox info" style="margin-top:4px;">
+            <strong>Custom Select 후속 작업 안내</strong>
+            기존 화면별 커스텀 select(<code>rq-cs-*</code>, <code>msl-cs-*</code>)는 이번 1차 작업에서 건드리지 않습니다.<br>
+            후속 공통화 후보: <code>stam-cselect</code> / <code>stam-cselect-trigger</code> / <code>stam-cselect-panel</code> / <code>stam-cselect-option</code>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── 06 Date / Datetime ── -->
+      <section id="s06" class="sec" data-screen-label="06 Date">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Date / Datetime-local</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="fc-demo-section">
+            <div class="fc-demo-desc">
+              input과 동일 height/padding/tone. 다크모드 calendar icon에 <code>filter: invert(.72) brightness(1.1)</code> 적용.
+            </div>
+            <div class="fc-demo-box">
+              <div class="fc-demo-row">
+                <div>
+                  <label class="stam-label">날짜</label>
+                  <input class="stam-date" type="date" />
+                </div>
+                <div>
+                  <label class="stam-label">날짜 + 시간</label>
+                  <input class="stam-date" type="datetime-local" />
+                </div>
+              </div>
+            </div>
+            <div class="fc-code">&lt;input class="stam-date" type="date" /&gt;
+&lt;input class="stam-date" type="datetime-local" /&gt;</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── 07 상태 클래스 ── -->
+      <section id="s07" class="sec" data-screen-label="07 상태">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">상태 클래스 — States</span>
+        </div>
+        <div class="sec-body">
+
+          <!-- disabled -->
+          <div class="fc-demo-section">
+            <div class="fc-demo-title">Disabled</div>
+            <div class="fc-demo-desc"><code>disabled</code> 속성 + <code>.is-disabled</code> 클래스 함께 사용을 권장합니다.</div>
+            <div class="fc-demo-box">
+              <div class="stam-form-row">
+                <div class="fc-demo-row">
+                  <div class="stam-form-field">
+                    <label class="stam-label">비활성 Input</label>
+                    <input class="stam-input" type="text" value="수정 불가" disabled />
+                  </div>
+                  <div class="stam-form-field">
+                    <label class="stam-label">비활성 Select</label>
+                    <select class="stam-select" disabled>
+                      <option>선택 불가</option>
+                    </select>
+                  </div>
+                  <div class="stam-form-field">
+                    <label class="stam-label">비활성 Date</label>
+                    <input class="stam-date" type="date" disabled />
+                  </div>
+                </div>
+                <div class="stam-form-field">
+                  <label class="stam-label">비활성 Textarea</label>
+                  <textarea class="stam-textarea" disabled>수정 불가 내용입니다.</textarea>
+                </div>
+              </div>
+            </div>
+            <div class="fc-code">&lt;input class="stam-input" disabled /&gt;
+&lt;select class="stam-select" disabled&gt;...&lt;/select&gt;
+&lt;input class="stam-date" type="date" disabled /&gt;
+&lt;textarea class="stam-textarea" disabled&gt;...&lt;/textarea&gt;</div>
+          </div>
+
+          <!-- readonly -->
+          <div class="fc-demo-section">
+            <div class="fc-demo-title">Readonly</div>
+            <div class="fc-demo-desc"><code>readonly</code> 속성 또는 <code>.is-readonly</code> 클래스. 배경이 bg-sur2로 변경됩니다.</div>
+            <div class="fc-demo-box">
+              <div class="fc-demo-row">
+                <div class="stam-form-field">
+                  <label class="stam-label">읽기전용 Input</label>
+                  <input class="stam-input" type="text" value="읽기전용 값" readonly />
+                </div>
+                <div class="stam-form-field">
+                  <label class="stam-label">읽기전용 Textarea</label>
+                  <textarea class="stam-textarea" readonly>읽기전용 내용입니다.</textarea>
+                </div>
+              </div>
+            </div>
+            <div class="fc-code">&lt;input class="stam-input" readonly /&gt;
+&lt;textarea class="stam-textarea" readonly&gt;...&lt;/textarea&gt;</div>
+          </div>
+
+          <!-- error -->
+          <div class="fc-demo-section">
+            <div class="fc-demo-title">Error 상태</div>
+            <div class="fc-demo-desc"><code>.is-error</code>를 control 또는 <code>.stam-form-field</code>에 적용합니다. <code>.stam-field-error</code>로 메시지를 표시합니다.</div>
+            <div class="fc-demo-box">
+              <div class="stam-form-row">
+                <div class="fc-demo-row">
+                  <div class="stam-form-field is-error">
+                    <label class="stam-label">제목 <span class="req">*</span></label>
+                    <input class="stam-input is-error" type="text" value="" placeholder="필수 입력" />
+                    <p class="stam-field-error">제목을 입력해 주세요.</p>
+                  </div>
+                  <div class="stam-form-field is-error">
+                    <label class="stam-label">우선순위 <span class="req">*</span></label>
+                    <select class="stam-select is-error">
+                      <option value="">선택하세요</option>
+                    </select>
+                    <p class="stam-field-error">우선순위를 선택해 주세요.</p>
+                  </div>
+                </div>
+                <div class="stam-form-field is-error">
+                  <label class="stam-label">내용 <span class="req">*</span></label>
+                  <textarea class="stam-textarea is-error" placeholder="내용을 입력하세요"></textarea>
+                  <p class="stam-field-error">내용을 입력해 주세요.</p>
+                </div>
+              </div>
+            </div>
+            <div class="fc-code">&lt;div class="stam-form-field is-error"&gt;
+  &lt;label class="stam-label"&gt;제목 &lt;span class="req"&gt;*&lt;/span&gt;&lt;/label&gt;
+  &lt;input class="stam-input is-error" type="text" /&gt;
+  &lt;p class="stam-field-error"&gt;제목을 입력해 주세요.&lt;/p&gt;
+&lt;/div&gt;</div>
+          </div>
+
+          <!-- success -->
+          <div class="fc-demo-section">
+            <div class="fc-demo-title">Success 상태</div>
+            <div class="fc-demo-desc"><code>.is-success</code>를 control에 적용합니다. <code>.stam-field-success</code>로 메시지를 표시합니다.</div>
+            <div class="fc-demo-box">
+              <div class="fc-demo-row">
+                <div class="stam-form-field">
+                  <label class="stam-label">아이디 확인</label>
+                  <input class="stam-input is-success" type="text" value="user@stam.io" />
+                  <p class="stam-field-success">사용 가능한 이메일입니다.</p>
+                </div>
+                <div class="stam-form-field">
+                  <label class="stam-label">검증된 날짜</label>
+                  <input class="stam-date is-success" type="date" value="2026-06-12" />
+                  <p class="stam-field-success">유효한 날짜입니다.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── 08 Form Grid ── -->
+      <section id="s08" class="sec" data-screen-label="08 Grid">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Form Grid — 2컬럼 레이아웃</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="fc-demo-section">
+            <div class="fc-demo-desc">
+              기본 2컬럼 그리드. 640px 이하에서 1컬럼으로 전환됩니다. <code>.full-span</code>으로 전체 폭을 점유합니다.
+            </div>
+            <div class="fc-demo-box">
+              <div class="stam-form-grid">
+                <div class="stam-form-field">
+                  <label class="stam-label">프로젝트명 <span class="req">*</span></label>
+                  <input class="stam-input" type="text" placeholder="프로젝트명" />
+                </div>
+                <div class="stam-form-field">
+                  <label class="stam-label">코드</label>
+                  <input class="stam-input" type="text" placeholder="PRJ-001" />
+                </div>
+                <div class="stam-form-field">
+                  <label class="stam-label">시작일</label>
+                  <input class="stam-date" type="date" />
+                </div>
+                <div class="stam-form-field">
+                  <label class="stam-label">종료일</label>
+                  <input class="stam-date" type="date" />
+                </div>
+                <div class="stam-form-field">
+                  <label class="stam-label">담당자</label>
+                  <select class="stam-select">
+                    <option value="">선택하세요</option>
+                    <option>홍길동</option>
+                    <option>김철수</option>
+                  </select>
+                </div>
+                <div class="stam-form-field">
+                  <label class="stam-label">우선순위</label>
+                  <select class="stam-select">
+                    <option>높음</option>
+                    <option selected>보통</option>
+                    <option>낮음</option>
+                  </select>
+                </div>
+                <div class="stam-form-field full-span">
+                  <label class="stam-label">설명 <span class="opt">(선택)</span></label>
+                  <textarea class="stam-textarea" placeholder="프로젝트 설명을 입력하세요" rows="3"></textarea>
+                  <p class="stam-field-help">최대 500자까지 입력 가능합니다.</p>
+                </div>
+              </div>
+            </div>
+            <div class="fc-code">&lt;div class="stam-form-grid"&gt;
+  &lt;div class="stam-form-field"&gt;...&lt;/div&gt;
+  &lt;div class="stam-form-field"&gt;...&lt;/div&gt;
+  &lt;!-- 전체 폭 --&gt;
+  &lt;div class="stam-form-field full-span"&gt;...&lt;/div&gt;
+&lt;/div&gt;</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── 09 Drawer Form 예시 ── -->
+      <section id="s09" class="sec" data-screen-label="09 Drawer Form">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Drawer Form 예시</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="fc-demo-section">
+            <div class="fc-demo-desc">
+              Drawer 내부 Form은 <code>stam-form-grid</code> 또는 <code>stam-form-row</code>로 구성합니다.
+              공통 Form Control 클래스를 그대로 사용하며 Drawer CSS에서 레이아웃만 담당합니다.
+            </div>
+            <div class="fc-demo-box">
+              <div class="fc-drawer-preview">
+                <div class="fc-drawer-hdr">요구사항 등록</div>
+                <div class="stam-form-grid">
+                  <div class="stam-form-field">
+                    <label class="stam-label">요구사항 ID</label>
+                    <input class="stam-input stam-input--sm" type="text" value="RQ-042" readonly />
+                  </div>
+                  <div class="stam-form-field">
+                    <label class="stam-label">상태</label>
+                    <select class="stam-select stam-select--sm">
+                      <option>검토중</option>
+                      <option selected>확정</option>
+                      <option>보류</option>
+                    </select>
+                  </div>
+                  <div class="stam-form-field full-span">
+                    <label class="stam-label">요구사항명 <span class="req">*</span></label>
+                    <input class="stam-input" type="text" placeholder="요구사항명을 입력하세요" />
+                  </div>
+                  <div class="stam-form-field">
+                    <label class="stam-label">우선순위</label>
+                    <select class="stam-select">
+                      <option>높음</option>
+                      <option selected>보통</option>
+                      <option>낮음</option>
+                    </select>
+                  </div>
+                  <div class="stam-form-field">
+                    <label class="stam-label">예정일</label>
+                    <input class="stam-date" type="date" />
+                  </div>
+                  <div class="stam-form-field full-span">
+                    <label class="stam-label">설명 <span class="opt">(선택)</span></label>
+                    <textarea class="stam-textarea" placeholder="요구사항 상세 설명" rows="3"></textarea>
+                  </div>
+                </div>
+                <div class="fc-drawer-footer">
+                  <button class="stam-btn stam-btn--secondary stam-btn--sm">취소</button>
+                  <button class="stam-btn stam-btn--primary stam-btn--sm">저장</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── 10 스크립트 순서 ── -->
+      <section id="s10" class="sec" data-screen-label="10 스크립트 순서">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">스크립트 로드 순서</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>신규 보드 페이지 스크립트 로드 순서 기준</strong>
+            <div class="fc-code">theme → nav-data → shell → nav-render → topbar-render → project-context-render → page.js</div>
+            <div style="margin-top:12px;font-size:12px;line-height:1.85;color:var(--t2);">
+              <strong style="color:var(--t1);">각 스크립트 역할:</strong><br>
+              <code>stam.theme.js</code> — 다크/라이트 테마 초기화 (최우선 로드)<br>
+              <code>stam.nav-data.js</code> — 메뉴 구조 데이터<br>
+              <code>stam.shell.js</code> — 셸 레이아웃 초기화<br>
+              <code>stam.nav-render.js</code> — 좌측 네비게이션 렌더링<br>
+              <code>stam.topbar-render.js</code> — 상단바 렌더링<br>
+              <code>stam.project-context-render.js</code> — 프로젝트 컨텍스트 렌더링<br>
+              <code>stam.[page].js</code> — 페이지별 인터랙션 (최후 로드)
+            </div>
+          </div>
+          <div class="fc-code">&lt;!-- ① 테마 최우선 --&gt;
+&lt;script src="../js/stam.theme.js"&gt;&lt;/script&gt;
+&lt;script src="../js/stam.nav-data.js"&gt;&lt;/script&gt;
+&lt;script src="../js/stam.shell.js"&gt;&lt;/script&gt;
+&lt;script src="../js/stam.nav-render.js"&gt;&lt;/script&gt;
+&lt;script src="../js/stam.topbar-render.js"&gt;&lt;/script&gt;
+&lt;script src="../js/stam.project-context-render.js"&gt;&lt;/script&gt;
+&lt;!-- ② 페이지별 마지막 --&gt;
+&lt;script src="../js/stam.[page].js"&gt;&lt;/script&gt;</div>
+        </div>
+      </section>
+
+      <!-- ── 11 후속 작업 ── -->
+      <section id="s11" class="sec" data-screen-label="11 후속 작업">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">후속 작업 — Next Steps</span>
+          <span class="sbadge plan">후보</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            아래 항목은 다음 단계 후보입니다.
+          </div>
+          <ul style="margin:12px 0 0;padding-left:22px;line-height:2.4;font-size:.9em;color:var(--t2);">
+            <li><strong style="color:var(--t1);">Custom Select 공통화</strong> — <code>stam-cselect</code> / <code>stam-cselect-trigger</code> / <code>stam-cselect-panel</code> / <code>stam-cselect-option</code> 클래스 설계</li>
+            <li><strong style="color:var(--t1);">기존 화면 점진 전환</strong> — <code>rq-*</code>, <code>msl-cs-*</code> 안정화 후 공통 클래스로 교체</li>
+            <li><strong style="color:var(--t1);">Checkbox / Radio 공통화</strong> — <code>stam-checkbox</code>, <code>stam-radio</code> 클래스 추가</li>
+            <li><strong style="color:var(--t1);">File Input 공통화</strong> — <code>stam-file</code> 클래스, 업로드 영역 드래그 앤 드롭 기준</li>
+            <li><strong style="color:var(--t1);">Form Validation JS 헬퍼</strong> — <code>stam.form-controls.js</code> 추가 (필요 시)</li>
+            <li><strong style="color:var(--t1);">Inline Editing</strong> — 테이블 셀 내 inline input/select 기준 정의</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>

@@ -1,0 +1,600 @@
+/* ============================================================
+ * STAM Form Controls — 공통 Form Control CSS
+ * stam.form-controls.css
+ * v1.0 · 2026-06-12
+ *
+ * 사용 원칙:
+ *   1. 신규 보드 화면은 이 파일을 반드시 로드한다.
+ *   2. input / select / date / textarea는 화면별 클래스 대신 공통 클래스를 우선 사용한다.
+ *   3. 화면별 CSS는 배치/layout/해당 화면 전용 chip·table·drawer만 담당한다.
+ *   4. 기존 화면(rq-*, msl-*)은 안정화 후 점진적으로 전환한다.
+ *
+ * 스크립트 로드 순서:
+ *   theme → nav-data → shell → nav-render → topbar-render → project-context-render → page.js
+ *
+ * 공통 클래스 목록:
+ *   .stam-label          라벨
+ *   .stam-input          text / search / number 등 일반 입력
+ *   .stam-textarea       멀티라인 입력
+ *   .stam-select         네이티브 select
+ *   .stam-date           type="date" / type="datetime-local"
+ *   .stam-form-grid      2컬럼 그리드 레이아웃
+ *   .stam-form-row       행 단위 그룹
+ *   .stam-form-field     단일 필드 컨테이너 (label + control + help/error)
+ *   .stam-field-help     도움말 텍스트
+ *   .stam-field-error    오류 메시지
+ *
+ * 상태 클래스:
+ *   .is-error   오류 상태
+ *   .is-success 성공 상태
+ *   .is-disabled 비활성 상태 (CSS 전용, JS에서도 disabled 속성 함께 적용 권장)
+ *   .is-readonly 읽기전용 상태
+ * ============================================================ */
+
+/* ── Form Control 전용 토큰 ── */
+:root {
+  --fc-h:        36px;
+  --fc-h-sm:     28px;
+  --fc-px:       12px;
+  --fc-py:       0px;
+  --fc-radius:   8px;
+  --fc-font:     13px;
+  --fc-gap:      6px;
+  --fc-label-fs: 11px;
+  --fc-help-fs:  11px;
+
+  --fc-bg:       var(--bg-sur);
+  --fc-bg-ro:    var(--bg-sur2);
+  --fc-bd:       var(--bd-s);
+  --fc-bd-focus: var(--bd-f);
+  --fc-ring:     0 0 0 3px rgba(84,81,232,.15);
+  --fc-text:     var(--t1);
+  --fc-ph:       var(--t3);
+  --fc-disabled-opacity: .45;
+
+  --fc-err-bd:   #EF4444;
+  --fc-err-bg:   rgba(239,68,68,.04);
+  --fc-err-ring: 0 0 0 3px rgba(239,68,68,.12);
+  --fc-err-text: #DC2626;
+
+  --fc-ok-bd:    #10B981;
+  --fc-ok-bg:    rgba(16,185,129,.04);
+  --fc-ok-ring:  0 0 0 3px rgba(16,185,129,.12);
+
+  --fc-row-gap:  16px;
+  --fc-grid-gap: 16px;
+}
+
+[data-theme="dark"] {
+  --fc-bg:     var(--bg-sur);
+  --fc-bg-ro:  var(--bg-sur2);
+  --fc-ring:   0 0 0 3px rgba(139,127,248,.20);
+
+  --fc-err-bd:   #EF4444;
+  --fc-err-bg:   rgba(239,68,68,.06);
+  --fc-err-ring: 0 0 0 3px rgba(239,68,68,.16);
+  --fc-err-text: #FF8585;
+
+  --fc-ok-bd:    #10B981;
+  --fc-ok-bg:    rgba(16,185,129,.06);
+  --fc-ok-ring:  0 0 0 3px rgba(16,185,129,.14);
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 1. Label
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.stam-label {
+  display: block;
+  font-size: var(--fc-label-fs);
+  font-weight: 600;
+  color: var(--t2);
+  margin-bottom: 4px;
+  line-height: 1.4;
+  font-family: var(--font);
+}
+
+.stam-label .req {
+  color: var(--fc-err-bd);
+  margin-left: 2px;
+  font-weight: 700;
+}
+
+.stam-label .opt {
+  font-weight: 400;
+  color: var(--t3);
+  font-size: .9em;
+  margin-left: 3px;
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 2. Input (text, search, number, email, url, tel, password)
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.stam-input {
+  display: block;
+  width: 100%;
+  height: var(--fc-h);
+  padding: var(--fc-py) var(--fc-px);
+  font-size: var(--fc-font);
+  font-family: var(--font);
+  font-weight: 400;
+  color: var(--fc-text);
+  background: var(--fc-bg);
+  border: 1px solid var(--fc-bd);
+  border-radius: var(--fc-radius);
+  outline: none;
+  transition: border-color 140ms, box-shadow 140ms, background 140ms;
+  line-height: var(--fc-h);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.stam-input::placeholder {
+  color: var(--fc-ph);
+  font-weight: 400;
+}
+
+.stam-input:hover:not(:disabled):not([readonly]) {
+  border-color: var(--bd);
+}
+
+.stam-input:focus:not(:disabled) {
+  border-color: var(--fc-bd-focus);
+  box-shadow: var(--fc-ring);
+}
+
+.stam-input:disabled,
+.stam-input.is-disabled {
+  opacity: var(--fc-disabled-opacity);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.stam-input[readonly],
+.stam-input.is-readonly {
+  background: var(--fc-bg-ro);
+  color: var(--t2);
+  cursor: default;
+}
+
+.stam-input.is-error {
+  border-color: var(--fc-err-bd);
+  background: var(--fc-err-bg);
+}
+
+.stam-input.is-error:focus {
+  box-shadow: var(--fc-err-ring);
+}
+
+.stam-input.is-success {
+  border-color: var(--fc-ok-bd);
+  background: var(--fc-ok-bg);
+}
+
+.stam-input.is-success:focus {
+  box-shadow: var(--fc-ok-ring);
+}
+
+/* search 전용: 기본 X 버튼 정리 */
+.stam-input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2364748B' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M4 4l8 8M12 4l-8 8'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  opacity: .7;
+}
+
+.stam-input[type="search"]::-webkit-search-cancel-button:hover {
+  opacity: 1;
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 3. Textarea
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.stam-textarea {
+  display: block;
+  width: 100%;
+  min-height: 80px;
+  padding: 8px var(--fc-px);
+  font-size: var(--fc-font);
+  font-family: var(--font);
+  font-weight: 400;
+  color: var(--fc-text);
+  background: var(--fc-bg);
+  border: 1px solid var(--fc-bd);
+  border-radius: var(--fc-radius);
+  outline: none;
+  resize: vertical;
+  line-height: 1.55;
+  transition: border-color 140ms, box-shadow 140ms, background 140ms;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.stam-textarea::placeholder {
+  color: var(--fc-ph);
+  font-weight: 400;
+}
+
+.stam-textarea:hover:not(:disabled):not([readonly]) {
+  border-color: var(--bd);
+}
+
+.stam-textarea:focus:not(:disabled) {
+  border-color: var(--fc-bd-focus);
+  box-shadow: var(--fc-ring);
+}
+
+.stam-textarea:disabled,
+.stam-textarea.is-disabled {
+  opacity: var(--fc-disabled-opacity);
+  cursor: not-allowed;
+  resize: none;
+  pointer-events: none;
+}
+
+.stam-textarea[readonly],
+.stam-textarea.is-readonly {
+  background: var(--fc-bg-ro);
+  color: var(--t2);
+  cursor: default;
+  resize: none;
+}
+
+.stam-textarea.is-error {
+  border-color: var(--fc-err-bd);
+  background: var(--fc-err-bg);
+}
+
+.stam-textarea.is-error:focus {
+  box-shadow: var(--fc-err-ring);
+}
+
+.stam-textarea.is-success {
+  border-color: var(--fc-ok-bd);
+  background: var(--fc-ok-bg);
+}
+
+.stam-textarea.is-success:focus {
+  box-shadow: var(--fc-ok-ring);
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 4. Select
+ *    - appearance: none + SVG caret (다크모드 안전)
+ *    - background-repeat: no-repeat (반복 패턴 방지)
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Light mode caret — 다크 stroke */
+.stam-select {
+  display: block;
+  width: 100%;
+  height: var(--fc-h);
+  padding: var(--fc-py) 32px var(--fc-py) var(--fc-px);
+  font-size: var(--fc-font);
+  font-family: var(--font);
+  font-weight: 400;
+  color: var(--fc-text);
+  background-color: var(--fc-bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2364748B' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px 16px;
+  border: 1px solid var(--fc-bd);
+  border-radius: var(--fc-radius);
+  outline: none;
+  cursor: pointer;
+  line-height: var(--fc-h);
+  transition: border-color 140ms, box-shadow 140ms, background-color 140ms;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Dark mode caret — light stroke */
+[data-theme="dark"] .stam-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23A0A8B8' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+}
+
+.stam-select:hover:not(:disabled) {
+  border-color: var(--bd);
+}
+
+.stam-select:focus:not(:disabled) {
+  border-color: var(--fc-bd-focus);
+  box-shadow: var(--fc-ring);
+}
+
+.stam-select:disabled,
+.stam-select.is-disabled {
+  opacity: var(--fc-disabled-opacity);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.stam-select.is-error {
+  border-color: var(--fc-err-bd);
+  background-color: var(--fc-err-bg);
+}
+
+.stam-select.is-error:focus {
+  box-shadow: var(--fc-err-ring);
+}
+
+.stam-select.is-success {
+  border-color: var(--fc-ok-bd);
+  background-color: var(--fc-ok-bg);
+}
+
+.stam-select.is-success:focus {
+  box-shadow: var(--fc-ok-ring);
+}
+
+/* IE11 fallback — hide default arrow if still rendered */
+.stam-select::-ms-expand {
+  display: none;
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 5. Date / Datetime-local
+ *    - input과 동일 height/padding/tone
+ *    - 다크모드: calendar icon filter 적용
+ *      filter: invert(.72) brightness(1.1)
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.stam-date {
+  display: block;
+  width: 100%;
+  height: var(--fc-h);
+  padding: var(--fc-py) var(--fc-px);
+  font-size: var(--fc-font);
+  font-family: var(--font);
+  font-weight: 400;
+  color: var(--fc-text);
+  background: var(--fc-bg);
+  border: 1px solid var(--fc-bd);
+  border-radius: var(--fc-radius);
+  outline: none;
+  cursor: pointer;
+  line-height: var(--fc-h);
+  transition: border-color 140ms, box-shadow 140ms, background 140ms;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.stam-date:hover:not(:disabled) {
+  border-color: var(--bd);
+}
+
+.stam-date:focus:not(:disabled) {
+  border-color: var(--fc-bd-focus);
+  box-shadow: var(--fc-ring);
+}
+
+.stam-date:disabled,
+.stam-date.is-disabled {
+  opacity: var(--fc-disabled-opacity);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.stam-date[readonly],
+.stam-date.is-readonly {
+  background: var(--fc-bg-ro);
+  color: var(--t2);
+  cursor: default;
+}
+
+.stam-date.is-error {
+  border-color: var(--fc-err-bd);
+  background: var(--fc-err-bg);
+}
+
+.stam-date.is-error:focus {
+  box-shadow: var(--fc-err-ring);
+}
+
+/* 다크모드 calendar icon — 라이트 아이콘으로 반전 */
+[data-theme="dark"] .stam-date::-webkit-calendar-picker-indicator {
+  filter: invert(.72) brightness(1.1);
+  cursor: pointer;
+  opacity: .8;
+}
+
+[data-theme="dark"] .stam-date::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* date 내 placeholder text (empty state) — 라이트모드 */
+.stam-date:not([value]):not(:focus)::before,
+.stam-date[value=""]:not(:focus)::before {
+  color: var(--fc-ph);
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 6. Form Layout — Grid / Row / Field
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* 2컬럼 그리드 — 좁은 화면에서 1컬럼 */
+.stam-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--fc-grid-gap);
+}
+
+@media (max-width: 640px) {
+  .stam-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 전체 폭 필드 (grid 내에서 컬럼 병합) */
+.stam-form-grid .full-span {
+  grid-column: 1 / -1;
+}
+
+/* 행 단위 그룹 — 수직 스택 */
+.stam-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fc-row-gap);
+}
+
+/* 수평 배치 row */
+.stam-form-row.is-horizontal {
+  flex-direction: row;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--fc-grid-gap);
+}
+
+.stam-form-row.is-horizontal > .stam-form-field {
+  flex: 1 1 160px;
+  min-width: 120px;
+}
+
+/* 단일 필드 컨테이너 */
+.stam-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.stam-form-field + .stam-form-field {
+  margin-top: var(--fc-row-gap);
+}
+
+/* stam-form-row 내부에서는 자동 처리되므로 margin 제거 */
+.stam-form-row > .stam-form-field,
+.stam-form-grid > .stam-form-field {
+  margin-top: 0;
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 7. Help / Error / Success 메시지
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.stam-field-help {
+  margin: 4px 0 0;
+  font-size: var(--fc-help-fs);
+  color: var(--t3);
+  line-height: 1.5;
+  font-family: var(--font);
+}
+
+.stam-field-error {
+  margin: 4px 0 0;
+  font-size: var(--fc-help-fs);
+  color: var(--fc-err-text);
+  line-height: 1.5;
+  font-family: var(--font);
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.stam-field-error::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23EF4444' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='6'/%3E%3Cpath d='M8 5v3M8 11v.1'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.stam-field-success {
+  margin: 4px 0 0;
+  font-size: var(--fc-help-fs);
+  color: var(--fc-ok-bd);
+  line-height: 1.5;
+  font-family: var(--font);
+}
+
+[data-theme="dark"] .stam-field-success {
+  color: #34D399;
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 8. 전역 상태 클래스 (control 외부에서 field 전체에 적용 가능)
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* .is-disabled / .is-readonly 를 .stam-form-field에 걸면
+   내부 control에 스타일 전파 */
+.stam-form-field.is-disabled .stam-input,
+.stam-form-field.is-disabled .stam-textarea,
+.stam-form-field.is-disabled .stam-select,
+.stam-form-field.is-disabled .stam-date {
+  opacity: var(--fc-disabled-opacity);
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.stam-form-field.is-disabled .stam-label {
+  opacity: .6;
+}
+
+.stam-form-field.is-readonly .stam-input,
+.stam-form-field.is-readonly .stam-textarea,
+.stam-form-field.is-readonly .stam-date {
+  background: var(--fc-bg-ro);
+  color: var(--t2);
+  cursor: default;
+}
+
+.stam-form-field.is-error .stam-input,
+.stam-form-field.is-error .stam-textarea,
+.stam-form-field.is-error .stam-select,
+.stam-form-field.is-error .stam-date {
+  border-color: var(--fc-err-bd);
+  background: var(--fc-err-bg);
+}
+
+.stam-form-field.is-success .stam-input,
+.stam-form-field.is-success .stam-textarea,
+.stam-form-field.is-success .stam-select,
+.stam-form-field.is-success .stam-date {
+  border-color: var(--fc-ok-bd);
+  background: var(--fc-ok-bg);
+}
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 9. 소형(--sm) 변형
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.stam-input--sm,
+.stam-date--sm {
+  height: var(--fc-h-sm);
+  font-size: 12px;
+  padding-left: 9px;
+  padding-right: 9px;
+  border-radius: 6px;
+  line-height: var(--fc-h-sm);
+}
+
+.stam-select--sm {
+  height: var(--fc-h-sm);
+  font-size: 12px;
+  padding-left: 9px;
+  padding-right: 28px;
+  border-radius: 6px;
+  line-height: var(--fc-h-sm);
+}
+
+.stam-textarea--sm {
+  min-height: 60px;
+  font-size: 12px;
+  padding: 6px 9px;
+  border-radius: 6px;
+}
