@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>요구사항정의서 — 파르나스 리뉴얼 구축 — STAM</title>
+  <link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+  <link rel="stylesheet" href="../../css/stam.tokens.css">
+  <link rel="stylesheet" href="../../css/stam.shell.css">
+  <link rel="stylesheet" href="../../css/stam.components.css">
+  <link rel="stylesheet" href="../../css/stam.project-overview.css">
+  <link rel="stylesheet" href="../../css/stam.requirements.css">
+</head>
+<body>
+
+<div class="po-shell">
+
+  <header class="po-topbar stam-topbar" data-stam-topbar
+    data-tb-crumbs="내 프로젝트|파르나스 리뉴얼 구축|요구사항정의서"
+    data-tb-client="파르나스호텔"
+    data-tb-search-placeholder="요구사항 ID · 요구사항명 검색"
+    data-tb-notif="true"></header>
+
+  <div class="po-body">
+
+    <nav class="po-sidebar" data-stam-left-nav aria-label="프로젝트 내비게이션"></nav>
+
+    <main class="po-main" id="po-main" data-screen-label="요구사항정의서">
+
+      <section class="po-ctx" data-stam-project-context
+        data-pc-title="파르나스 리뉴얼 구축"
+        data-pc-client="파르나스호텔"
+        data-pc-stage="설계 단계"
+        data-pc-status="진행중"
+        data-pc-role="Project Admin / PM"
+        data-pc-date="기준일 2026-06-07"
+        data-pc-progress="42"
+        data-pc-risk="주의"
+        data-pc-risk-level="warn"
+        data-pc-updated="업데이트 오늘 10:42"></section>
+
+      <section class="req-page">
+
+        <!-- ── Page header ── -->
+        <div class="rq-page-hdr">
+          <div class="rq-page-hdr-l">
+            <div class="rq-page-hdr-title">요구사항정의서</div>
+            <div class="rq-page-hdr-desc">기능·화면·데이터·정책 요구사항을 관리하고 화면설계서·WBS와 연결합니다.</div>
+          </div>
+          <div class="rq-page-hdr-r">
+            <button class="rq-btn rq-btn-out" type="button">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              내보내기
+            </button>
+            <button class="rq-btn rq-btn-pri" id="rq-reg-btn" type="button">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              요구사항 등록
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Summary strip ── -->
+        <div class="rq-sstrip">
+          <div class="rq-ss-cell on">
+            <div class="rq-ss-lbl"><span class="rq-ss-dot" style="background:var(--stam)"></span>전체</div>
+            <div class="rq-ss-num" style="color:var(--stam)">24</div>
+            <div class="rq-ss-sub">전체 요구사항</div>
+          </div>
+          <div class="rq-ss-cell">
+            <div class="rq-ss-lbl"><span class="rq-ss-dot" style="background:#64748B"></span>작성중</div>
+            <div class="rq-ss-num">7</div>
+            <div class="rq-ss-sub">초안 · 작성중</div>
+          </div>
+          <div class="rq-ss-cell">
+            <div class="rq-ss-lbl"><span class="rq-ss-dot" style="background:#B45309"></span>검토중</div>
+            <div class="rq-ss-num">5</div>
+            <div class="rq-ss-sub">검토요청 · 검토완료</div>
+          </div>
+          <div class="rq-ss-cell">
+            <div class="rq-ss-lbl"><span class="rq-ss-dot" style="background:#047857"></span>승인완료</div>
+            <div class="rq-ss-num">10</div>
+            <div class="rq-ss-sub">최종 승인</div>
+          </div>
+          <div class="rq-ss-cell">
+            <div class="rq-ss-lbl"><span class="rq-ss-dot" style="background:#991B1B"></span>보류</div>
+            <div class="rq-ss-num">2</div>
+            <div class="rq-ss-sub">보류 처리</div>
+          </div>
+          <div class="rq-ss-cell">
+            <div class="rq-ss-lbl"><span class="rq-ss-dot" style="background:#3B82F6"></span>연결 화면</div>
+            <div class="rq-ss-num">18</div>
+            <div class="rq-ss-sub">연결된 화면설계서</div>
+          </div>
+          <div class="rq-ss-cell" style="border-right:0">
+            <div class="rq-ss-lbl"><span class="rq-ss-dot" style="background:#8B5CF6"></span>연결 WBS</div>
+            <div class="rq-ss-num">12</div>
+            <div class="rq-ss-sub">연결된 WBS 항목</div>
+          </div>
+        </div>
+        <div class="rq-ss-meta">
+          <div class="rq-ss-meta-item"><span class="rq-ss-meta-lbl">높음 우선순위</span><span class="rq-ss-meta-val">8건</span></div>
+          <div class="rq-ss-meta-item"><span class="rq-ss-meta-lbl">미연결 요구사항</span><span class="rq-ss-meta-val">6건</span></div>
+          <div class="rq-ss-meta-item"><span class="rq-ss-meta-lbl">이번 주 등록</span><span class="rq-ss-meta-val">3건</span></div>
+        </div>
+
+        <!-- ── Toolbar ── -->
+        <div class="rq-toolbar">
+          <div class="rq-search">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--t3);flex-shrink:0" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="요구사항 ID · 요구사항명 · 담당자 검색" autocomplete="off">
+          </div>
+          <div class="rq-toolbar-sep"></div>
+          <button class="rq-filter-btn" type="button">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            상태
+          </button>
+          <button class="rq-filter-btn" type="button">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            유형
+          </button>
+          <button class="rq-filter-btn" type="button">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            우선순위
+          </button>
+          <button class="rq-filter-btn" type="button">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            담당자
+          </button>
+          <div class="rq-toolbar-sp"></div>
+          <button class="rq-btn rq-btn-del" id="rq-del-btn" type="button" disabled>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            <span class="rq-del-lbl">삭제</span>
+          </button>
+        </div>
+
+        <!-- ── Table ── -->
+        <div class="rq-tbl-outer">
+          <div class="rq-tbl-scroll">
+            <table class="rq-table">
+              <colgroup>
+                <col style="width:40px">
+                <col style="min-width:240px">
+                <col style="width:80px">
+                <col style="width:76px">
+                <col style="width:88px">
+                <col style="width:80px">
+                <col style="width:130px">
+                <col style="width:130px">
+                <col style="width:100px">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th class="rq-ch"><input type="checkbox" class="rq-cb" id="rq-cb-all"></th>
+                  <th>요구사항 ID / 요구사항명</th>
+                  <th>유형</th>
+                  <th>우선순위</th>
+                  <th>상태</th>
+                  <th>담당자</th>
+                  <th>연결 화면설계서</th>
+                  <th>연결 WBS</th>
+                  <th>최종 수정일</th>
+                </tr>
+              </thead>
+              <tbody id="rq-tbody">
+                <!-- REQ-001 -->
+                <tr class="rq-data-row">
+                  <td class="rq-ch"><input type="checkbox" class="rq-cb" onclick="event.stopPropagation()"></td>
+                  <td>
+                    <div class="rq-req-id-cell">
+                      <span class="rq-req-id">REQ-001</span>
+                      <span class="rq-req-name">요구사항정의서 목록 화면 기본 구조</span>
+                    </div>
+                  </td>
+                  <td><span class="rq-chip rq-chip-type">기능</span></td>
+                  <td><span class="rq-chip rq-chip-high">높음</span></td>
+                  <td><span class="rq-chip rq-chip-approved">승인완료</span></td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:5px">
+                      <span class="rq-ava" style="background:#5451E8">김</span>
+                      <span style="font-size:12px;color:var(--t2)">김지훈</span>
+                    </div>
+                  </td>
+                  <td><span class="rq-link-chip">SCR-005</span></td>
+                  <td><span class="rq-link-chip">WBS-007</span></td>
+                  <td style="font-size:11.5px;color:var(--t3)">2026-06-10</td>
+                </tr>
+                <!-- REQ-002 -->
+                <tr class="rq-data-row">
+                  <td class="rq-ch"><input type="checkbox" class="rq-cb" onclick="event.stopPropagation()"></td>
+                  <td>
+                    <div class="rq-req-id-cell">
+                      <span class="rq-req-id">REQ-002</span>
+                      <span class="rq-req-name">요구사항 등록 · 수정 Drawer UX</span>
+                    </div>
+                  </td>
+                  <td><span class="rq-chip rq-chip-type">화면</span></td>
+                  <td><span class="rq-chip rq-chip-high">높음</span></td>
+                  <td><span class="rq-chip rq-chip-review">검토요청</span></td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:5px">
+                      <span class="rq-ava" style="background:#8B5CF6">이</span>
+                      <span style="font-size:12px;color:var(--t2)">이수연</span>
+                    </div>
+                  </td>
+                  <td><span class="rq-link-chip">SCR-006</span></td>
+                  <td><span class="rq-link-chip">WBS-007</span></td>
+                  <td style="font-size:11.5px;color:var(--t3)">2026-06-11</td>
+                </tr>
+                <!-- REQ-003 -->
+                <tr class="rq-data-row">
+                  <td class="rq-ch"><input type="checkbox" class="rq-cb" onclick="event.stopPropagation()"></td>
+                  <td>
+                    <div class="rq-req-id-cell">
+                      <span class="rq-req-id">REQ-003</span>
+                      <span class="rq-req-name">연결 정보 chip/card 표현 기준</span>
+                    </div>
+                  </td>
+                  <td><span class="rq-chip rq-chip-type">화면</span></td>
+                  <td><span class="rq-chip rq-chip-mid">보통</span></td>
+                  <td><span class="rq-chip rq-chip-done">검토완료</span></td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:5px">
+                      <span class="rq-ava" style="background:#10B981">박</span>
+                      <span style="font-size:12px;color:var(--t2)">박민준</span>
+                    </div>
+                  </td>
+                  <td><span class="rq-link-chip">SCR-005</span></td>
+                  <td><span class="rq-link-chip-none">미연결</span></td>
+                  <td style="font-size:11.5px;color:var(--t3)">2026-06-09</td>
+                </tr>
+                <!-- REQ-004 -->
+                <tr class="rq-data-row">
+                  <td class="rq-ch"><input type="checkbox" class="rq-cb" onclick="event.stopPropagation()"></td>
+                  <td>
+                    <div class="rq-req-id-cell">
+                      <span class="rq-req-id">REQ-004</span>
+                      <span class="rq-req-name">요구사항 검색 · 필터 기능 정의</span>
+                    </div>
+                  </td>
+                  <td><span class="rq-chip rq-chip-type">기능</span></td>
+                  <td><span class="rq-chip rq-chip-mid">보통</span></td>
+                  <td><span class="rq-chip rq-chip-draft">작성중</span></td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:5px">
+                      <span class="rq-ava" style="background:#F59E0B">최</span>
+                      <span style="font-size:12px;color:var(--t2)">최은서</span>
+                    </div>
+                  </td>
+                  <td><span class="rq-link-chip-none">미연결</span></td>
+                  <td><span class="rq-link-chip-none">미연결</span></td>
+                  <td style="font-size:11.5px;color:var(--t3)">2026-06-12</td>
+                </tr>
+                <!-- REQ-005 -->
+                <tr class="rq-data-row">
+                  <td class="rq-ch"><input type="checkbox" class="rq-cb" onclick="event.stopPropagation()"></td>
+                  <td>
+                    <div class="rq-req-id-cell">
+                      <span class="rq-req-id">REQ-005</span>
+                      <span class="rq-req-name">회원 권한 기반 접근 제어</span>
+                    </div>
+                  </td>
+                  <td><span class="rq-chip rq-chip-type">권한</span></td>
+                  <td><span class="rq-chip rq-chip-high">높음</span></td>
+                  <td><span class="rq-chip rq-chip-draft">작성중</span></td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:5px">
+                      <span class="rq-ava" style="background:#06B6D4">정</span>
+                      <span style="font-size:12px;color:var(--t2)">정태영</span>
+                    </div>
+                  </td>
+                  <td><span class="rq-link-chip-none">미연결</span></td>
+                  <td><span class="rq-link-chip">WBS-012</span></td>
+                  <td style="font-size:11.5px;color:var(--t3)">2026-06-08</td>
+                </tr>
+                <!-- REQ-006 -->
+                <tr class="rq-data-row">
+                  <td class="rq-ch"><input type="checkbox" class="rq-cb" onclick="event.stopPropagation()"></td>
+                  <td>
+                    <div class="rq-req-id-cell">
+                      <span class="rq-req-id">REQ-006</span>
+                      <span class="rq-req-name">Firebase 실시간 동기화 정책</span>
+                    </div>
+                  </td>
+                  <td><span class="rq-chip rq-chip-type">연동</span></td>
+                  <td><span class="rq-chip rq-chip-mid">보통</span></td>
+                  <td><span class="rq-chip rq-chip-hold">보류</span></td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:5px">
+                      <span class="rq-ava" style="background:#EC4899">한</span>
+                      <span style="font-size:12px;color:var(--t2)">한소희</span>
+                    </div>
+                  </td>
+                  <td><span class="rq-link-chip-none">미연결</span></td>
+                  <td><span class="rq-link-chip">WBS-015</span></td>
+                  <td style="font-size:11.5px;color:var(--t3)">2026-06-07</td>
+                </tr>
+                <!-- REQ-007 -->
+                <tr class="rq-data-row">
+                  <td class="rq-ch"><input type="checkbox" class="rq-cb" onclick="event.stopPropagation()"></td>
+                  <td>
+                    <div class="rq-req-id-cell">
+                      <span class="rq-req-id">REQ-007</span>
+                      <span class="rq-req-name">페이지 응답 속도 2초 이내 보장</span>
+                    </div>
+                  </td>
+                  <td><span class="rq-chip rq-chip-type">비기능</span></td>
+                  <td><span class="rq-chip rq-chip-low">낮음</span></td>
+                  <td><span class="rq-chip rq-chip-approved">승인완료</span></td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:5px">
+                      <span class="rq-ava" style="background:#64748B">오</span>
+                      <span style="font-size:12px;color:var(--t2)">오준혁</span>
+                    </div>
+                  </td>
+                  <td><span class="rq-link-chip-none">미연결</span></td>
+                  <td><span class="rq-link-chip-none">미연결</span></td>
+                  <td style="font-size:11.5px;color:var(--t3)">2026-06-06</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="rq-tbl-foot">
+            <span>총 24건 중 7건 표시</span>
+            <div class="rq-pg">
+              <button class="rq-pgb" type="button" aria-label="이전 페이지">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button class="rq-pgb on" type="button">1</button>
+              <button class="rq-pgb" type="button">2</button>
+              <button class="rq-pgb" type="button">3</button>
+              <button class="rq-pgb" type="button" aria-label="다음 페이지">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Scrim ── -->
+        <div class="rq-scrim" id="rq-scrim"></div>
+
+        <!-- ══════════════ 등록 DRAWER ══════════════ -->
+        <div class="rq-drawer" id="rq-dw-register" role="dialog" aria-label="요구사항 등록">
+          <div class="rq-dw-head">
+            <div class="rq-dw-hrow1">
+              <span class="rq-req-badge">NEW</span>
+              <span style="font-size:12px;color:var(--t3);margin-left:2px">요구사항 등록</span>
+              <button class="rq-dw-close" aria-label="닫기">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div class="rq-dw-htitle">새 요구사항 등록</div>
+            <div class="rq-dw-hmeta">
+              <span class="rq-chip rq-chip-draft">작성중</span>
+              <span style="font-size:11px;color:var(--t3)">등록 후 ID가 자동 부여됩니다</span>
+            </div>
+          </div>
+
+          <div class="rq-dw-body">
+            <!-- 섹션 1: 기본 정보 -->
+            <div class="rq-fs">
+              <div class="rq-fs-hdr">
+                <span class="rq-fs-num">1</span>
+                <span class="rq-fs-title">기본 정보</span>
+              </div>
+              <div class="rq-fgrid">
+                <div class="rq-ffield">
+                  <label class="rq-flbl">요구사항 ID <span style="font-size:10.5px;color:var(--t3)">(자동 부여)</span></label>
+                  <input class="rq-inp ro" value="REQ-025" readonly>
+                </div>
+                <div class="rq-ffield">
+                  <label class="rq-flbl">유형 <span class="rq-req-mark">*</span></label>
+                  <select class="rq-inp">
+                    <option value="">유형 선택</option>
+                    <option>기능</option>
+                    <option>화면</option>
+                    <option>데이터</option>
+                    <option>권한</option>
+                    <option>연동</option>
+                    <option>정책</option>
+                    <option>비기능</option>
+                  </select>
+                </div>
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">요구사항명 <span class="rq-req-mark">*</span></label>
+                  <input class="rq-inp" placeholder="요구사항명을 입력하세요">
+                </div>
+                <div class="rq-ffield">
+                  <label class="rq-flbl">우선순위 <span class="rq-req-mark">*</span></label>
+                  <select class="rq-inp">
+                    <option value="">우선순위 선택</option>
+                    <option>높음</option>
+                    <option>보통</option>
+                    <option>낮음</option>
+                  </select>
+                </div>
+                <div class="rq-ffield">
+                  <label class="rq-flbl">상태</label>
+                  <select class="rq-inp">
+                    <option>작성중</option>
+                    <option>검토요청</option>
+                    <option>검토완료</option>
+                    <option>승인완료</option>
+                    <option>보류</option>
+                  </select>
+                </div>
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">담당자</label>
+                  <input class="rq-inp" placeholder="담당자 검색 또는 입력">
+                </div>
+              </div>
+            </div>
+
+            <!-- 섹션 2: 요구 내용 -->
+            <div class="rq-fs">
+              <div class="rq-fs-hdr">
+                <span class="rq-fs-num">2</span>
+                <span class="rq-fs-title">요구 내용</span>
+              </div>
+              <div class="rq-fgrid">
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">배경 <span class="rq-req-mark">*</span></label>
+                  <textarea class="rq-inp" placeholder="이 요구사항이 필요한 배경을 작성하세요" style="min-height:72px"></textarea>
+                </div>
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">상세 요구사항 <span class="rq-req-mark">*</span></label>
+                  <textarea class="rq-inp" placeholder="구체적인 요구사항을 기술하세요" style="min-height:96px"></textarea>
+                </div>
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">수용 조건</label>
+                  <textarea class="rq-inp" placeholder="이 요구사항이 충족되었다고 판단하는 조건을 작성하세요" style="min-height:72px"></textarea>
+                  <span class="rq-helper">수용 조건은 줄바꿈으로 구분하면 각 항목으로 인식됩니다</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 섹션 3: 연결 정보 -->
+            <div class="rq-fs">
+              <div class="rq-fs-hdr">
+                <span class="rq-fs-num">3</span>
+                <span class="rq-fs-title">연결 정보</span>
+              </div>
+              <div class="rq-fgrid">
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">연결 화면설계서</label>
+                  <div class="rq-linked-chips">
+                    <button class="rq-link-add" type="button">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      화면설계서 연결 추가
+                    </button>
+                  </div>
+                  <div class="rq-empty-link">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    연결된 화면설계서가 없습니다
+                  </div>
+                </div>
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">연결 WBS</label>
+                  <div class="rq-linked-chips">
+                    <button class="rq-link-add" type="button">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      WBS 항목 연결 추가
+                    </button>
+                  </div>
+                  <div class="rq-empty-link">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    연결된 WBS 항목이 없습니다
+                  </div>
+                </div>
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">관련 메뉴 경로</label>
+                  <input class="rq-inp" placeholder="예: 산출물 관리 > 요구사항정의서 > 목록">
+                </div>
+              </div>
+            </div>
+
+            <!-- 섹션 4: 검토 정보 -->
+            <div class="rq-fs">
+              <div class="rq-fs-hdr">
+                <span class="rq-fs-num">4</span>
+                <span class="rq-fs-title">검토 정보</span>
+              </div>
+              <div class="rq-fgrid">
+                <div class="rq-ffield">
+                  <label class="rq-flbl">검토자</label>
+                  <input class="rq-inp" placeholder="검토자 검색 또는 입력">
+                </div>
+                <div class="rq-ffield">
+                  <label class="rq-flbl">승인 상태</label>
+                  <select class="rq-inp">
+                    <option>미승인</option>
+                    <option>승인완료</option>
+                    <option>반려</option>
+                  </select>
+                </div>
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">검토 메모</label>
+                  <textarea class="rq-inp" placeholder="검토자에게 전달할 내용 또는 검토 의견을 작성하세요" style="min-height:72px"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rq-dw-foot">
+            <button class="rq-btn rq-btn-ghost" type="button" data-rq-close>취소</button>
+            <button class="rq-btn rq-btn-out" type="button">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+              임시저장
+            </button>
+            <button class="rq-btn rq-btn-out" type="button">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              전체 보기
+            </button>
+            <div style="flex:1"></div>
+            <button class="rq-btn rq-btn-pri" type="button">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              등록
+            </button>
+          </div>
+        </div>
+
+        <!-- ══════════════ 상세 DRAWER ══════════════ -->
+        <div class="rq-drawer" id="rq-dw-detail" role="dialog" aria-label="요구사항 상세">
+          <div class="rq-dw-head">
+            <div class="rq-dw-hrow1">
+              <span class="rq-req-badge">REQ-001</span>
+              <span class="rq-chip rq-chip-approved" style="margin-left:4px">승인완료</span>
+              <button class="rq-dw-close" aria-label="닫기">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div class="rq-dw-htitle">요구사항정의서 목록 화면 기본 구조</div>
+            <div class="rq-dw-hmeta">
+              <span class="rq-chip rq-chip-type">기능</span>
+              <span class="rq-chip rq-chip-high">높음</span>
+              <div style="display:flex;align-items:center;gap:5px;margin-left:4px">
+                <span class="rq-ava" style="background:#5451E8">김</span>
+                <span style="font-size:11.5px;color:var(--t2)">김지훈</span>
+              </div>
+            </div>
+          </div>
+          <div class="rq-dw-tabs">
+            <button class="rq-dw-tab on" type="button">기본 정보</button>
+            <button class="rq-dw-tab" type="button">연결 정보</button>
+            <button class="rq-dw-tab" type="button">검토 이력</button>
+            <button class="rq-dw-tab" type="button">변경 이력</button>
+          </div>
+
+          <div class="rq-dw-body">
+            <!-- 기본 정보 -->
+            <div class="rq-tab-panel">
+              <div class="rq-dw-sec">
+                <div class="rq-dw-sec-hdr"><h3>기본 정보</h3></div>
+                <div class="rq-igrid">
+                  <div class="rq-ic">
+                    <div class="rq-ik">요구사항 ID</div>
+                    <div class="rq-iv"><span style="font-weight:700;color:var(--stam)">REQ-001</span></div>
+                  </div>
+                  <div class="rq-ic">
+                    <div class="rq-ik">유형</div>
+                    <div class="rq-iv"><span class="rq-chip rq-chip-type">기능</span></div>
+                  </div>
+                  <div class="rq-ic">
+                    <div class="rq-ik">우선순위</div>
+                    <div class="rq-iv"><span class="rq-chip rq-chip-high">높음</span></div>
+                  </div>
+                  <div class="rq-ic">
+                    <div class="rq-ik">상태</div>
+                    <div class="rq-iv"><span class="rq-chip rq-chip-approved">승인완료</span></div>
+                  </div>
+                  <div class="rq-ic">
+                    <div class="rq-ik">담당자</div>
+                    <div class="rq-iv">
+                      <span class="rq-ava" style="background:#5451E8">김</span>김지훈
+                    </div>
+                  </div>
+                  <div class="rq-ic">
+                    <div class="rq-ik">관련 메뉴 경로</div>
+                    <div class="rq-iv" style="font-size:11.5px">산출물 관리 › 요구사항정의서 › 목록</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rq-dw-sec">
+                <div class="rq-dw-sec-hdr"><h3>요구 내용</h3></div>
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <div>
+                    <div class="rq-ik" style="margin-bottom:6px">배경</div>
+                    <div class="rq-purp-box">프로젝트 관리 시스템에서 요구사항을 체계적으로 관리하고, 화면설계서·WBS와의 연결 추적성을 확보하기 위한 목록 화면이 필요합니다.</div>
+                  </div>
+                  <div>
+                    <div class="rq-ik" style="margin-bottom:6px">상세 요구사항</div>
+                    <div class="rq-purp-box">요구사항 ID, 요구사항명, 유형, 우선순위, 상태, 담당자, 연결 화면설계서, 연결 WBS, 최종 수정일을 컬럼으로 포함한 테이블 형태의 목록 화면을 구성한다. 상단에 Summary Strip을 배치하여 상태별 현황을 빠르게 파악할 수 있도록 한다.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rq-dw-sec">
+                <div class="rq-dw-sec-hdr"><h3>수용 조건</h3></div>
+                <div class="rq-acc-list">
+                  <div class="rq-acc-item"><span class="rq-acc-n">1</span><span>테이블에 요구사항 ID, 요구사항명, 유형, 우선순위, 상태, 담당자, 연결 화면, 연결 WBS, 최종 수정일이 모두 표시된다.</span></div>
+                  <div class="rq-acc-item"><span class="rq-acc-n">2</span><span>Summary Strip에서 상태별(작성중, 검토중, 승인완료, 보류) 건수와 연결 화면설계서·WBS 수가 확인된다.</span></div>
+                  <div class="rq-acc-item"><span class="rq-acc-n">3</span><span>검색, 상태/유형/우선순위/담당자 필터가 동작하며 결과가 즉시 반영된다.</span></div>
+                  <div class="rq-acc-item"><span class="rq-acc-n">4</span><span>행 클릭 시 상세 Drawer가 열린다.</span></div>
+                </div>
+              </div>
+
+              <div class="rq-dw-sec">
+                <div class="rq-dw-sec-hdr">
+                  <h3>연결 정보</h3>
+                  <span class="rq-dw-sec-badge">화면설계서 1 · WBS 1</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div class="rq-linked-card">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--stam);flex-shrink:0" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                    <div>
+                      <div class="rq-linked-card-id">SCR-005</div>
+                      <div class="rq-linked-card-name">요구사항정의서 목록</div>
+                    </div>
+                    <span style="margin-left:auto;font-size:10.5px;color:var(--t3)">화면설계서</span>
+                  </div>
+                  <div class="rq-linked-card">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:#8B5CF6;flex-shrink:0" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                    <div>
+                      <div class="rq-linked-card-id" style="color:#8B5CF6">WBS-007</div>
+                      <div class="rq-linked-card-name">WBS 목록 화면 기준 설계</div>
+                    </div>
+                    <span style="margin-left:auto;font-size:10.5px;color:var(--t3)">WBS</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rq-dw-sec">
+                <div class="rq-dw-sec-hdr">
+                  <h3>검토 이력</h3>
+                  <span class="rq-dw-sec-badge">2건</span>
+                </div>
+                <div class="rq-rev-list">
+                  <div class="rq-rev-item">
+                    <div class="rq-rev-dot" style="background:rgba(4,120,87,.10)">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="color:#047857" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div class="rq-rev-body">
+                      <div class="rq-rev-who">이수연 <span style="font-weight:400;color:var(--t3);font-size:11px">— 승인완료</span></div>
+                      <div class="rq-rev-memo">목록 컬럼 구성 및 Summary Strip 기준 확인 완료. 수용 조건 모두 충족됨.</div>
+                      <div class="rq-rev-time">2026-06-10 14:22</div>
+                    </div>
+                  </div>
+                  <div class="rq-rev-item">
+                    <div class="rq-rev-dot" style="background:rgba(245,158,11,.10)">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:#B45309" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <div class="rq-rev-body">
+                      <div class="rq-rev-who">박민준 <span style="font-weight:400;color:var(--t3);font-size:11px">— 검토 의견</span></div>
+                      <div class="rq-rev-memo">연결 WBS 컬럼 폭을 조정할 것. 미연결 상태 표현 기준 명확히 해주세요.</div>
+                      <div class="rq-rev-time">2026-06-09 09:15</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rq-dw-sec">
+                <div class="rq-dw-sec-hdr">
+                  <h3>변경 이력</h3>
+                  <span class="rq-dw-sec-badge">3건</span>
+                </div>
+                <div class="rq-chg-list">
+                  <div class="rq-chg-item">
+                    <span class="rq-chg-dot"></span>
+                    <span><span class="rq-chg-who">김지훈</span>이 상태를 <strong>검토완료</strong> → <strong style="color:var(--stam)">승인완료</strong>로 변경</span>
+                    <span class="rq-chg-sp"></span>
+                    <span class="rq-chg-date">2026-06-10</span>
+                  </div>
+                  <div class="rq-chg-item">
+                    <span class="rq-chg-dot"></span>
+                    <span><span class="rq-chg-who">김지훈</span>이 수용 조건 항목 4개 작성 완료</span>
+                    <span class="rq-chg-sp"></span>
+                    <span class="rq-chg-date">2026-06-09</span>
+                  </div>
+                  <div class="rq-chg-item">
+                    <span class="rq-chg-dot"></span>
+                    <span><span class="rq-chg-who">김지훈</span>이 요구사항 최초 등록</span>
+                    <span class="rq-chg-sp"></span>
+                    <span class="rq-chg-date">2026-06-07</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rq-dw-foot">
+            <div class="rq-dw-foot-l">최종 변경 2026-06-10</div>
+            <div class="rq-dw-foot-r">
+              <button class="rq-btn rq-btn-out" type="button">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                전체 보기
+              </button>
+              <button class="rq-btn rq-btn-pri" type="button" data-rq-open="edit">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                수정
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════ 수정 DRAWER ══════════════ -->
+        <div class="rq-drawer" id="rq-dw-edit" role="dialog" aria-label="요구사항 수정">
+          <div class="rq-dw-head">
+            <div class="rq-dw-hrow1">
+              <span class="rq-req-badge">REQ-001</span>
+              <span class="rq-chip rq-chip-approved" style="margin-left:4px">승인완료</span>
+              <button class="rq-dw-close" aria-label="닫기">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div class="rq-dw-htitle">요구사항정의서 목록 화면 기본 구조</div>
+            <div class="rq-dw-hmeta">
+              <span class="rq-chip rq-chip-type">기능</span>
+              <span class="rq-chip rq-chip-high">높음</span>
+            </div>
+          </div>
+
+          <div class="rq-dw-body">
+            <div class="rq-edit-sum">
+              <div class="rq-edit-sum-ic">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </div>
+              <div class="rq-edit-sum-txt"><span class="rq-edit-sum-id">REQ-001</span> 수정 모드 — 최종 변경 2026-06-10 · 저장 시 변경 이력이 기록됩니다</div>
+            </div>
+
+            <!-- 섹션 1: 기본 정보 -->
+            <div class="rq-fs">
+              <div class="rq-fs-hdr">
+                <span class="rq-fs-num">1</span>
+                <span class="rq-fs-title">기본 정보</span>
+              </div>
+              <div class="rq-fgrid">
+                <div class="rq-ffield">
+                  <label class="rq-flbl">요구사항 ID</label>
+                  <input class="rq-inp ro" value="REQ-001" readonly>
+                </div>
+                <div class="rq-ffield">
+                  <label class="rq-flbl">유형 <span class="rq-req-mark">*</span></label>
+                  <select class="rq-inp">
+                    <option selected>기능</option>
+                    <option>화면</option>
+                    <option>데이터</option>
+                    <option>권한</option>
+                    <option>연동</option>
+                    <option>정책</option>
+                    <option>비기능</option>
+                  </select>
+                </div>
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">요구사항명 <span class="rq-req-mark">*</span></label>
+                  <input class="rq-inp" value="요구사항정의서 목록 화면 기본 구조">
+                </div>
+                <div class="rq-ffield">
+                  <label class="rq-flbl">우선순위 <span class="rq-req-mark">*</span></label>
+                  <select class="rq-inp">
+                    <option selected>높음</option>
+                    <option>보통</option>
+                    <option>낮음</option>
+                  </select>
+                </div>
+                <div class="rq-ffield">
+                  <label class="rq-flbl">상태</label>
+                  <select class="rq-inp">
+                    <option>작성중</option>
+                    <option>검토요청</option>
+                    <option>검토완료</option>
+                    <option selected>승인완료</option>
+                    <option>보류</option>
+                  </select>
+                </div>
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">담당자</label>
+                  <input class="rq-inp" value="김지훈">
+                </div>
+              </div>
+            </div>
+
+            <!-- 섹션 2: 요구 내용 -->
+            <div class="rq-fs">
+              <div class="rq-fs-hdr">
+                <span class="rq-fs-num">2</span>
+                <span class="rq-fs-title">요구 내용</span>
+              </div>
+              <div class="rq-fgrid">
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">배경 <span class="rq-req-mark">*</span></label>
+                  <textarea class="rq-inp" style="min-height:72px">프로젝트 관리 시스템에서 요구사항을 체계적으로 관리하고, 화면설계서·WBS와의 연결 추적성을 확보하기 위한 목록 화면이 필요합니다.</textarea>
+                </div>
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">상세 요구사항 <span class="rq-req-mark">*</span></label>
+                  <textarea class="rq-inp" style="min-height:96px">요구사항 ID, 요구사항명, 유형, 우선순위, 상태, 담당자, 연결 화면설계서, 연결 WBS, 최종 수정일을 컬럼으로 포함한 테이블 형태의 목록 화면을 구성한다.</textarea>
+                </div>
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">수용 조건</label>
+                  <textarea class="rq-inp" style="min-height:72px">테이블에 지정된 컬럼이 모두 표시된다.
+Summary Strip에서 상태별 건수와 연결 수가 확인된다.
+검색·필터가 동작한다.
+행 클릭 시 상세 Drawer가 열린다.</textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- 섹션 3: 연결 정보 -->
+            <div class="rq-fs">
+              <div class="rq-fs-hdr">
+                <span class="rq-fs-num">3</span>
+                <span class="rq-fs-title">연결 정보</span>
+              </div>
+              <div class="rq-fgrid">
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">연결 화면설계서</label>
+                  <div class="rq-linked-card" style="margin-bottom:6px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--stam);flex-shrink:0" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+                    <div>
+                      <div class="rq-linked-card-id">SCR-005</div>
+                      <div class="rq-linked-card-name">요구사항정의서 목록</div>
+                    </div>
+                    <button class="rq-linked-card-rm" type="button" title="연결 해제">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                  </div>
+                  <button class="rq-link-add" type="button">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    화면설계서 연결 추가
+                  </button>
+                </div>
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">연결 WBS</label>
+                  <div class="rq-linked-card" style="margin-bottom:6px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:#8B5CF6;flex-shrink:0" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+                    <div>
+                      <div class="rq-linked-card-id" style="color:#8B5CF6">WBS-007</div>
+                      <div class="rq-linked-card-name">WBS 목록 화면 기준 설계</div>
+                    </div>
+                    <button class="rq-linked-card-rm" type="button" title="연결 해제">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                  </div>
+                  <button class="rq-link-add" type="button">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    WBS 항목 연결 추가
+                  </button>
+                </div>
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">관련 메뉴 경로</label>
+                  <input class="rq-inp" value="산출물 관리 > 요구사항정의서 > 목록">
+                </div>
+              </div>
+            </div>
+
+            <!-- 섹션 4: 검토 정보 -->
+            <div class="rq-fs">
+              <div class="rq-fs-hdr">
+                <span class="rq-fs-num">4</span>
+                <span class="rq-fs-title">검토 정보</span>
+              </div>
+              <div class="rq-fgrid">
+                <div class="rq-ffield">
+                  <label class="rq-flbl">검토자</label>
+                  <input class="rq-inp" value="이수연">
+                </div>
+                <div class="rq-ffield">
+                  <label class="rq-flbl">승인 상태</label>
+                  <select class="rq-inp">
+                    <option>미승인</option>
+                    <option selected>승인완료</option>
+                    <option>반려</option>
+                  </select>
+                </div>
+                <div class="rq-ffield full">
+                  <label class="rq-flbl">검토 메모</label>
+                  <textarea class="rq-inp" style="min-height:72px">목록 컬럼 구성 및 Summary Strip 기준 확인 완료. 수용 조건 모두 충족됨.</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rq-dw-foot">
+            <button class="rq-btn rq-btn-ghost" type="button" data-rq-close>취소</button>
+            <button class="rq-btn rq-btn-out" type="button">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+              임시저장
+            </button>
+            <button class="rq-btn rq-btn-out" type="button">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              전체 보기
+            </button>
+            <div style="flex:1"></div>
+            <button class="rq-btn rq-btn-pri" type="button">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+              저장
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script src="../../js/stam.theme.js"></script>
+<script src="../../js/stam.nav-data.js"></script>
+<script src="../../js/stam.shell.js"></script>
+<script src="../../js/stam.nav-render.js"></script>
+<script src="../../js/stam.topbar-render.js"></script>
+<script src="../../js/stam.project-context-render.js"></script>
+<script src="../../js/stam.requirements.js"></script>
+
+</body>
+</html>
