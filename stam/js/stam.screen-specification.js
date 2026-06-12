@@ -519,6 +519,7 @@
   function closeDw() {
     S.dwMode = null;
     S.dwItem = null;
+    closeAllCustomSelects();
     var drawer = document.getElementById('ss-drawer');
     var scrim = document.getElementById('ss-dw-scrim');
     if (drawer) drawer.classList.remove('open');
@@ -550,6 +551,189 @@
   function renderDw() {
     var m = { detail: renderDetail, register: renderRegister, edit: renderEdit, reviewreq: renderReviewReq };
     if (m[S.dwMode]) m[S.dwMode](S.dwItem);
+    enhanceDrawerSelects();
+  }
+
+  /* ── Custom Select (Drawer 내부 select 톤 보정 전용) ──
+     네이티브 <select>는 값의 source of truth로 유지(숨김)하고,
+     그 위에 STAM/WBS 톤의 trigger + option panel을 덧씌운다.
+     데이터/필드/저장 로직은 변경하지 않는다. */
+  var csUid = 0;
+
+  function buildCustomSelect(native) {
+    if (native.getAttribute('data-cs') === '1') return;
+    native.setAttribute('data-cs', '1');
+    var uid = 'sscs-' + (++csUid);
+    var activeIdx = -1;
+
+    var wrap = document.createElement('div');
+    wrap.className = 'ss-cs';
+
+    var trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'ss-cs-trigger';
+    trigger.setAttribute('aria-haspopup', 'listbox');
+    trigger.setAttribute('aria-expanded', 'false');
+    trigger.setAttribute('aria-controls', uid + '-list');
+
+    var valSpan = document.createElement('span');
+    valSpan.className = 'ss-cs-val';
+
+    var caret = document.createElement('span');
+    caret.className = 'ss-cs-caret';
+    caret.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+
+    trigger.appendChild(valSpan);
+    trigger.appendChild(caret);
+
+    var panel = document.createElement('div');
+    panel.className = 'ss-cs-panel';
+    panel.id = uid + '-list';
+    panel.setAttribute('role', 'listbox');
+
+    Array.prototype.forEach.call(native.options, function (o, i) {
+      var od = document.createElement('div');
+      od.className = 'ss-cs-opt';
+      od.id = uid + '-opt-' + i;
+      od.setAttribute('role', 'option');
+      od.setAttribute('data-idx', i);
+      od.setAttribute('aria-selected', 'false');
+      od.textContent = o.textContent;
+      if (o.value === '') od.classList.add('is-placeholder');
+      panel.appendChild(od);
+    });
+
+    native.parentNode.insertBefore(wrap, native);
+    wrap.appendChild(native);
+    wrap.appendChild(trigger);
+    wrap.appendChild(panel);
+    native.classList.add('ss-cs-native');
+
+    function syncLabel() {
+      var sel = native.options[native.selectedIndex];
+      valSpan.textContent = sel ? sel.textContent : '';
+      valSpan.classList.toggle('is-placeholder', !!sel && sel.value === '');
+      Array.prototype.forEach.call(panel.children, function (c) {
+        var on = parseInt(c.getAttribute('data-idx'), 10) === native.selectedIndex;
+        c.classList.toggle('is-sel', on);
+        c.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+    }
+    syncLabel();
+
+    function setActive(idx) {
+      var opts = panel.children;
+      if (idx < 0) idx = 0;
+      if (idx > opts.length - 1) idx = opts.length - 1;
+      activeIdx = idx;
+      Array.prototype.forEach.call(opts, function (c, i) {
+        c.classList.toggle('is-active', i === idx);
+      });
+      var act = opts[idx];
+      if (act) {
+        trigger.setAttribute('aria-activedescendant', act.id);
+        act.scrollIntoView({ block: 'nearest' });
+      }
+    }
+
+    /* opened dropdown 하단 클리핑 보정: Drawer body 영역 기준으로
+       아래 공간이 부족하고 위가 더 넓으면 위로 펼친다(.cs-up). */
+    function applyFlip() {
+      wrap.classList.remove('cs-up');
+      var container = document.getElementById('ss-dw-body');
+      if (!container) return;
+      var ph = panel.offsetHeight;
+      var tRect = trigger.getBoundingClientRect();
+      var cRect = container.getBoundingClientRect();
+      var below = cRect.bottom - tRect.bottom;
+      var above = tRect.top - cRect.top;
+      if (below < ph + 8 && above > below) wrap.classList.add('cs-up');
+    }
+
+    function openPanel() {
+      closeAllCustomSelects();
+      wrap.classList.add('open');
+      trigger.setAttribute('aria-expanded', 'true');
+      applyFlip();
+      setActive(native.selectedIndex >= 0 ? native.selectedIndex : 0);
+    }
+
+    function selectIdx(idx) {
+      if (native.selectedIndex !== idx) {
+        native.selectedIndex = idx;
+        native.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      syncLabel();
+      closeCustomSelect(wrap);
+      trigger.focus();
+    }
+
+    trigger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (wrap.classList.contains('open')) closeCustomSelect(wrap);
+      else openPanel();
+    });
+
+    trigger.addEventListener('keydown', function (e) {
+      var isOpen = wrap.classList.contains('open');
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          if (!isOpen) openPanel(); else setActive(activeIdx + 1);
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          if (!isOpen) openPanel(); else setActive(activeIdx - 1);
+          break;
+        case 'Home':
+          if (isOpen) { e.preventDefault(); setActive(0); }
+          break;
+        case 'End':
+          if (isOpen) { e.preventDefault(); setActive(panel.children.length - 1); }
+          break;
+        case 'Enter':
+        case ' ':
+        case 'Spacebar':
+          e.preventDefault();
+          if (!isOpen) openPanel(); else selectIdx(activeIdx);
+          break;
+        case 'Tab':
+          if (isOpen) closeCustomSelect(wrap);
+          break;
+      }
+    });
+
+    panel.addEventListener('mousemove', function (e) {
+      var od = e.target.closest('.ss-cs-opt');
+      if (od) setActive(parseInt(od.getAttribute('data-idx'), 10));
+    });
+
+    panel.addEventListener('click', function (e) {
+      var od = e.target.closest('.ss-cs-opt');
+      if (!od) return;
+      e.stopPropagation();
+      selectIdx(parseInt(od.getAttribute('data-idx'), 10));
+    });
+  }
+
+  function closeCustomSelect(wrap) {
+    wrap.classList.remove('open');
+    wrap.classList.remove('cs-up');
+    var t = wrap.querySelector('.ss-cs-trigger');
+    if (t) {
+      t.setAttribute('aria-expanded', 'false');
+      t.removeAttribute('aria-activedescendant');
+    }
+  }
+
+  function closeAllCustomSelects() {
+    document.querySelectorAll('.ss-cs.open').forEach(closeCustomSelect);
+  }
+
+  function enhanceDrawerSelects() {
+    var body = document.getElementById('ss-dw-body');
+    if (!body) return;
+    body.querySelectorAll('select.ss-inp').forEach(buildCustomSelect);
   }
 
   function dwFootTemp() {
@@ -949,6 +1133,23 @@
     });
   }
 
+  function initCustomSelect() {
+    /* outside click → 열린 custom select 닫기 */
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.ss-cs')) closeAllCustomSelects();
+    });
+    /* ESC → 열린 select가 있으면 select만 닫고 Drawer 닫힘은 막는다.
+       capture 단계로 등록해 Drawer ESC 핸들러보다 먼저 처리. */
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (document.querySelector('.ss-cs.open')) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeAllCustomSelects();
+      }
+    }, true);
+  }
+
   function initAll() {
     renderStrip();
     renderTable();
@@ -968,6 +1169,7 @@
     initDrawer();
     initRegisterBtn();
     initEscapeKey();
+    initCustomSelect();
     initAll();
   });
 
