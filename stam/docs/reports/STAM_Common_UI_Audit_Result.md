@@ -1,7 +1,7 @@
 # STAM Common UI Audit Result
 
 > 자동 생성 — `node scripts/audit-common-ui.mjs`
-> Generated: 2026-06-12T16:48:38.789Z
+> Generated: 2026-06-12T23:59:28.332Z
 
 ---
 
@@ -9,8 +9,8 @@
 
 | 항목 | 값 |
 |---|---|
-| 생성 시각 | 2026-06-12T16:48:38.789Z |
-| 검사 보드 수 | 4 |
+| 생성 시각 | 2026-06-12T23:59:28.332Z |
+| 검사 보드 수 | 5 |
 | 전체 판단 | **PASS** |
 | P0 | 0건 |
 | P1 | 0건 |
@@ -28,6 +28,7 @@
 | **menu-screen-list** | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS |
 | **wbs** | ⚠️ PARTIAL | ⚠️ PARTIAL | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY | ✅ PASS | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY |
 | **screen-specification** | ⚠️ PARTIAL | ⚠️ PARTIAL | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY | ✅ PASS | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY |
+| **functional-specification** | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS |
 
 **범례**: ✅ PASS | ⚠️ PARTIAL | 🔵 LEGACY | 🔶 CAUTION | ❌ TODO
 
@@ -176,6 +177,40 @@
 - 발견: `ss-filter-`  `ss-fopt`  `toggleFilter`
 
 **참고 (P2)**: HTML 내 <style> 존재
+
+---
+
+### functional-specification `standard-board`
+
+**파일**: `stam/pages/boards/functional-specification.html` / `stam/js/stam.functional-specification.js` / `stam/css/stam.functional-specification.css`
+
+**CSS Order**: ✅ PASS
+- 발견: `../../css/stam.tokens.css`  `../../css/stam.shell.css`  `../../css/stam.components.css`  `../../css/stam.project-overview.css`  `../../css/stam.form-controls.css`
+
+**JS Order**: ✅ PASS
+- 발견: `../../js/stam.theme.js`  `../../js/stam.nav-data.js`  `../../js/stam.shell.js`  `../../js/stam.nav-render.js`  `../../js/stam.topbar-render.js`
+
+**App Shell**: ✅ PASS
+- 발견: `data-stam-left-nav`  `data-stam-topbar`  `data-stam-project-context`  `navRender.init('B5')`
+
+**Form Controls**: ✅ PASS
+- 발견: `stam-label`  `stam-input`  `stam-select`  `stam-textarea`
+
+**Drawer**: ✅ PASS
+- 발견: `stam-drawer`  `stam-drawer-scrim`
+
+**Table Row Sel**: ✅ PASS
+- 발견: `stam-table-row`  `is-selected`  `sel/selected (legacy)`  `stopPropagation`
+
+**Buttons**: ✅ PASS
+- 발견: `stam-btn`  `stam-btn-primary`  `stam-btn-ghost`  `stam-btn-outline`  `stam-btn-danger`
+- 누락: `stam-btn-secondary`  `stam-btn-warning`
+
+**Board Toolbar**: ✅ PASS
+- 발견: `stam-board-toolbar`  `stam-board-toolbar-left`  `stam-board-toolbar-base`  `stam-board-toolbar-right`
+
+**Board Filter**: ✅ PASS
+- 발견: `stam-board-filter-trigger`  `stam-board-filter-panel`  `STAM.boardFilter.init`  `stam.board-filter.js`  `stam.board-filter.css`
 
 ---
 

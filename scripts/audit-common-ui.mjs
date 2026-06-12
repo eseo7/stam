@@ -426,6 +426,14 @@ const BOARDS = [
     pageCss: 'stam.screen-specification.css',
     pageJs: 'stam.screen-specification.js',
   },
+  {
+    id: 'functional-specification', profile: 'standard-board', navId: 'B5',
+    htmlPath: 'stam/pages/boards/functional-specification.html',
+    jsPath: 'stam/js/stam.functional-specification.js',
+    cssPath: 'stam/css/stam.functional-specification.css',
+    pageCss: 'stam.functional-specification.css',
+    pageJs: 'stam.functional-specification.js',
+  },
 ];
 
 // ─── 실행 ─────────────────────────────────────────────────────────────────
