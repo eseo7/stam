@@ -1,7 +1,7 @@
 # STAM Common UI Audit Result
 
 > 자동 생성 — `node scripts/audit-common-ui.mjs`
-> Generated: 2026-06-12T23:59:28.332Z
+> Generated: 2026-06-13T00:16:36.538Z
 
 ---
 
@@ -9,7 +9,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 생성 시각 | 2026-06-12T23:59:28.332Z |
+| 생성 시각 | 2026-06-13T00:16:36.538Z |
 | 검사 보드 수 | 5 |
 | 전체 판단 | **PASS** |
 | P0 | 0건 |
@@ -27,7 +27,7 @@
 | **requirements** | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS |
 | **menu-screen-list** | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS |
 | **wbs** | ⚠️ PARTIAL | ⚠️ PARTIAL | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY | ✅ PASS | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY |
-| **screen-specification** | ⚠️ PARTIAL | ⚠️ PARTIAL | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY | ✅ PASS | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY |
+| **screen-specification** | ✅ PASS | ✅ PASS | ✅ PASS | 🔵 LEGACY | 🔵 LEGACY | ✅ PASS | ✅ PASS | 🔵 LEGACY | ⚠️ PARTIAL |
 | **functional-specification** | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS | ✅ PASS |
 
 **범례**: ✅ PASS | ⚠️ PARTIAL | 🔵 LEGACY | 🔶 CAUTION | ❌ TODO
@@ -146,13 +146,11 @@
 
 **파일**: `stam/pages/boards/screen-specification.html` / `stam/js/stam.screen-specification.js` / `stam/css/stam.screen-specification.css`
 
-**CSS Order**: ⚠️ PARTIAL
-- 발견: `../../css/stam.tokens.css`  `../../css/stam.shell.css`  `../../css/stam.components.css`  `../../css/stam.project-overview.css`  `../../css/stam.table-selection.css`
-- 누락: `stam.form-controls.css`  `stam.drawer.css`  `stam.board-toolbar.css`  `stam.board-filter.css`
+**CSS Order**: ✅ PASS
+- 발견: `../../css/stam.tokens.css`  `../../css/stam.shell.css`  `../../css/stam.components.css`  `../../css/stam.project-overview.css`  `../../css/stam.form-controls.css`
 
-**JS Order**: ⚠️ PARTIAL
+**JS Order**: ✅ PASS
 - 발견: `../../js/stam.theme.js`  `../../js/stam.nav-data.js`  `../../js/stam.shell.js`  `../../js/stam.nav-render.js`  `../../js/stam.topbar-render.js`
-- 누락: `stam.board-filter.js`
 
 **App Shell**: ✅ PASS
 - 발견: `data-stam-left-nav`  `data-stam-topbar`  `data-stam-project-context`  `navRender.init('B4')`
@@ -173,8 +171,9 @@
 **Board Toolbar**: 🔵 LEGACY
 - 발견: `ss-toolbar`
 
-**Board Filter**: 🔵 LEGACY
-- 발견: `ss-filter-`  `ss-fopt`  `toggleFilter`
+**Board Filter**: ⚠️ PARTIAL
+- 발견: `stam.board-filter.js`  `stam.board-filter.css`
+- 누락: `stam-board-filter-trigger`  `stam-board-filter-panel`  `STAM.boardFilter.init`
 
 **참고 (P2)**: HTML 내 <style> 존재
 

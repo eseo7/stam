@@ -94,12 +94,29 @@ function checkCssOrder(html, profile, pageCss) {
   // legacy-special-board: app shell CSS 검사 + 공통 CSS 선택적 검사
   const missingShell = CSS_APPSHELL.filter(s => !links.some(l => l.includes(s)));
   const presentCommon = CSS_COMMON_UI.filter(s => links.some(l => l.includes(s)));
+  const missingCommon = CSS_COMMON_UI.filter(s => !links.some(l => l.includes(s)));
 
   if (missingShell.length > 0) {
     warnings.push(`App Shell CSS 누락: ${missingShell.join(', ')}`);
     return { status: 'CAUTION', evidence, missing: missingShell, warnings };
   }
-  if (presentCommon.length > 0) return { status: 'PARTIAL', evidence, missing: CSS_COMMON_UI.filter(s => !links.some(l => l.includes(s))), warnings };
+
+  // 공통 CSS 전체 포함 + page CSS가 공통 CSS 뒤에 오는지 검사 → PASS
+  if (missingCommon.length === 0) {
+    let orderOk = true;
+    for (const s of presentCommon) {
+      const idx = links.findIndex(l => l.includes(s));
+      if (pageIdx !== -1 && idx > pageIdx) {
+        warnings.push(`CSS 순서 위험: ${s} 가 ${pageCss} 보다 뒤에 있음`);
+        orderOk = false;
+      }
+    }
+    if (orderOk) return { status: 'PASS', evidence, missing: [], warnings };
+    warnings.push('CSS 로드 순서 확인 필요');
+    return { status: 'CAUTION', evidence, missing: [], warnings };
+  }
+
+  if (presentCommon.length > 0) return { status: 'PARTIAL', evidence, missing: missingCommon, warnings };
   return { status: 'LEGACY', evidence, missing: [], warnings };
 }
 
