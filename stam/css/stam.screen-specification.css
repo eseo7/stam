@@ -1544,10 +1544,17 @@
 
 .screen-spec-page .ss-ic {
   background: var(--bg-sur);
-  padding: 8px 11px;
+  padding: 11px 14px;
 }
 
 .screen-spec-page .ss-ic.full {
+  grid-column: 1 / -1;
+}
+
+/* igrid 내부에서 ss-ic prefix 없이 생성된 .ic.full 셀 보완 */
+.screen-spec-page .ss-igrid .ic {
+  background: var(--bg-sur);
+  padding: 11px 14px;
   grid-column: 1 / -1;
 }
 
@@ -1557,13 +1564,14 @@
   color: var(--t3);
   text-transform: uppercase;
   letter-spacing: .04em;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .screen-spec-page .ss-iv {
   font-size: 12.5px;
   font-weight: 500;
   color: var(--t1);
+  line-height: 1.45;
   display: flex;
   align-items: center;
   gap: 5px;
