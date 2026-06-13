@@ -407,6 +407,23 @@
   }
 
   /* ─── 8. 드로어 전체보기 모달 ──────────────────────────── */
+
+  function renderLinkedRequirements(row) {
+    var ids = row ? (row.getAttribute('data-req') || '').split(',').filter(Boolean) : [];
+    if (!ids.length) return '<div class="wbs-dw-linked-empty">연결된 요구사항 없음</div>';
+    return ids.map(function (id) {
+      return '<div class="wbs-dw-linked-item"><span class="wbs-link-chip">' + id.trim() + '</span></div>';
+    }).join('');
+  }
+
+  function renderLinkedScreens(row) {
+    var ids = row ? (row.getAttribute('data-scr') || '').split(',').filter(Boolean) : [];
+    if (!ids.length) return '<div class="wbs-dw-linked-empty">연결된 화면설계 없음</div>';
+    return ids.map(function (id) {
+      return '<div class="wbs-dw-linked-item"><span class="wbs-link-chip">' + id.trim() + '</span></div>';
+    }).join('');
+  }
+
   function buildSec(title, rows) {
     var h = '<div class="wbs-drawer-sec"><div class="wbs-drawer-sec-title">' + title + '</div>';
     rows.forEach(function (r) {
@@ -454,8 +471,8 @@
     /* 연결 정보 */
     h += '<div class="wbs-drawer-sec fv-full">';
     h += '<div class="wbs-drawer-sec-title-flex"><span>연결 정보</span><span class="stf-link">전체 상세 →</span></div>';
-    h += '<div class="wbs-dw-linked-empty">연결된 요구사항 없음</div>';
-    h += '<div class="wbs-dw-linked-item"><span class="wbs-link-chip">wbs.html</span><span class="wbs-dw-li-name">WBS 화면 설계서</span><span class="wbs-chip wc-prog sm">진행중</span></div>';
+    h += renderLinkedRequirements(null);
+    h += renderLinkedScreens(null);
     h += '</div>';
     /* 작업 내용 */
     h += '<div class="wbs-drawer-sec fv-full">';
