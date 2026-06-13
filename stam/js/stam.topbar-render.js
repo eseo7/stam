@@ -69,9 +69,7 @@
   function hardRefreshCurrentPage() {
     var ts = String(Date.now());
     try { sessionStorage.setItem('stam:hardRefreshTs', ts); } catch (e) {}
-    var url = new URL(window.location.href);
-    url.searchParams.set('_r', ts);
-    window.location.href = url.toString();
+    window.location.reload();
   }
 
   /* 페이지 로드 시 sessionStorage의 hardRefreshTs를 사용해 STAM CSS asset 강제 재요청 */
