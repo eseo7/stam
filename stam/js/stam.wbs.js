@@ -793,7 +793,7 @@
       document.body.style.overflow = '';
     }
 
-    if (openBtn) openBtn.addEventListener('click', openModal);
+    if (openBtn) openBtn.addEventListener('click', function (e) { e.stopPropagation(); openModal(); });
     if (overlay) overlay.addEventListener('click', closeModal);
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
@@ -801,6 +801,21 @@
       if (e.key === 'Escape' && modal.getAttribute('data-open') === 'true') {
         closeModal();
       }
+    });
+  }
+
+  /* ─── 8b. 전체 간트 모달 그룹 아코디언 ────────────────── */
+  function initGanttAccordion() {
+    var hdrs = document.querySelectorAll('.wbs-gtl-grp-hdr-row[data-grp-key]');
+    hdrs.forEach(function(hdr) {
+      hdr.addEventListener('click', function() {
+        var key = hdr.getAttribute('data-grp-key');
+        var tasks = document.querySelector('.wbs-gtl-grp-tasks[data-grp-key="' + key + '"]');
+        if (!tasks) return;
+        var isOpen = hdr.getAttribute('data-open') !== 'false';
+        hdr.setAttribute('data-open', isOpen ? 'false' : 'true');
+        tasks.setAttribute('data-open', isOpen ? 'false' : 'true');
+      });
     });
   }
 
@@ -1053,6 +1068,7 @@
     initTopbarSearch();    /* topbar 검색 → 본문 검색 포커스 */
     initGanttToggle();
     initGanttFullviewModal();
+    initGanttAccordion();
     initGroupToggle();
     initFocusView();
     initCheckboxes();     /* 체크박스 셀 삽입 */
