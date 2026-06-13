@@ -776,6 +776,34 @@
 
 
 
+  /* ─── 8b. Gantt 전체보기 모달 ──────────────────────────── */
+  function initGanttFullviewModal() {
+    var modal    = document.getElementById('wbs-gantt-modal');
+    var overlay  = document.getElementById('wbs-gantt-modal-overlay');
+    var closeBtn = document.getElementById('wbs-gantt-modal-close');
+    var openBtn  = document.getElementById('wbs-gantt-fullview-btn');
+    if (!modal) return;
+
+    function openModal() {
+      modal.setAttribute('data-open', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+      modal.setAttribute('data-open', 'false');
+      document.body.style.overflow = '';
+    }
+
+    if (openBtn) openBtn.addEventListener('click', openModal);
+    if (overlay) overlay.addEventListener('click', closeModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.getAttribute('data-open') === 'true') {
+        closeModal();
+      }
+    });
+  }
+
   /* ─── 9. 섹션형 필터 패널 ──────────────────────────────── */
   function initFilterPanel() {
     var openBtn    = document.getElementById('wbs-filter-open-btn');
@@ -1024,6 +1052,7 @@
     initThemeToggleBtn();  /* 테마 토글 버튼 aria-label */
     initTopbarSearch();    /* topbar 검색 → 본문 검색 포커스 */
     initGanttToggle();
+    initGanttFullviewModal();
     initGroupToggle();
     initFocusView();
     initCheckboxes();     /* 체크박스 셀 삽입 */

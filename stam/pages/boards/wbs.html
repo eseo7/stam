@@ -132,6 +132,7 @@
             <button class="wbs-gantt-toggle" type="button" aria-label="접기 펼치기"><svg class="wbs-chevron-icon" viewBox="0 0 16 16" fill="none" width="12" height="12" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             <span class="wbs-gantt-title">일정 요약 타임라인</span>
             <span class="wbs-gantt-meta">2026-05-01 ~ 2026-07-31 · 91일 · 17건 · 읽기 전용</span>
+            <button class="wbs-btn wbs-gantt-fullview-btn" id="wbs-gantt-fullview-btn" type="button">전체 간트 보기 →</button>
           </div>
 
           <!-- 접이식 본문 -->
@@ -166,141 +167,75 @@
               </div>
             </div>
 
-            <!-- Timeline Grid (PC) -->
-            <div class="wbs-gtl-wrap">
-              <div class="wbs-gtl">
-
-                <!-- 월 헤더 -->
-                <div class="wbs-gtl-month-row">
-                  <div class="wbs-gtl-lhdr">기능그룹</div>
-                  <div class="wbs-gtl-mtrack">
-                    <div class="wbs-gtl-mcell">5월 (May)</div>
-                    <div class="wbs-gtl-mcell">6월 (Jun)</div>
-                    <div class="wbs-gtl-mcell">7월 (Jul)</div>
-                  </div>
+            <!-- 기능그룹별 일정 요약 목록 (보통 화면) -->
+            <div class="wbs-gsum-groups">
+              <div class="wbs-gsum-grp-hdr">
+                <span class="wbs-gsum-grp-hcol wbs-gsum-grp-name">기능그룹</span>
+                <span class="wbs-gsum-grp-hcol wbs-gsum-grp-period">기간</span>
+                <span class="wbs-gsum-grp-hcol wbs-gsum-grp-count">건수</span>
+                <span class="wbs-gsum-grp-hcol wbs-gsum-grp-status">상태</span>
+                <span class="wbs-gsum-grp-hcol wbs-gsum-grp-bar">진행률</span>
+              </div>
+              <div class="wbs-gsum-grp-row">
+                <span class="wbs-gsum-grp-name">기준본/IA</span>
+                <span class="wbs-gsum-grp-period">05-01 ~ 05-20</span>
+                <span class="wbs-gsum-grp-count">2건</span>
+                <span class="wbs-gsum-grp-status"><span class="wbs-chip wc-done sm">완료</span></span>
+                <div class="wbs-gsum-grp-bar">
+                  <div class="wbs-gsum-grp-track"><div class="wbs-gsum-grp-fill done" style="width:100%"></div></div>
+                  <span class="wbs-gsum-grp-pct">100%</span>
                 </div>
-
-                <!-- 주차 헤더 -->
-                <div class="wbs-gtl-week-row">
-                  <div class="wbs-gtl-lhdr" style="font-size:9px">기간 · 건수 · 상태</div>
-                  <div class="wbs-gtl-wtrack">
-                    <div class="wbs-gtl-wcell">W1</div>
-                    <div class="wbs-gtl-wcell">W2</div>
-                    <div class="wbs-gtl-wcell">W3</div>
-                    <div class="wbs-gtl-wcell">W4</div>
-                    <div class="wbs-gtl-wcell">W5</div>
-                    <div class="wbs-gtl-wcell wc-today">W6 今</div>
-                    <div class="wbs-gtl-wcell">W7</div>
-                    <div class="wbs-gtl-wcell">W8</div>
-                    <div class="wbs-gtl-wcell">W9</div>
-                    <div class="wbs-gtl-wcell">W10</div>
-                    <div class="wbs-gtl-wcell">W11</div>
-                    <div class="wbs-gtl-wcell">W12</div>
-                    <div class="wbs-gtl-wcell">W13</div>
-                  </div>
+              </div>
+              <div class="wbs-gsum-grp-row">
+                <span class="wbs-gsum-grp-name">App Shell/Navigation</span>
+                <span class="wbs-gsum-grp-period">05-10 ~ 06-05</span>
+                <span class="wbs-gsum-grp-count">3건</span>
+                <span class="wbs-gsum-grp-status"><span class="wbs-chip wc-done sm">완료</span></span>
+                <div class="wbs-gsum-grp-bar">
+                  <div class="wbs-gsum-grp-track"><div class="wbs-gsum-grp-fill done" style="width:100%"></div></div>
+                  <span class="wbs-gsum-grp-pct">100%</span>
                 </div>
-
-                <!-- Group: 기준본/IA → 05-01~05-20 left:0% width:21% done:100% -->
-                <div class="wbs-gtl-row">
-                  <div class="wbs-gtl-label">
-                    <span class="wbs-gtl-gname">기준본/IA</span>
-                    <span class="wbs-gtl-gmeta">05-01 ~ 05-20 · 2건 · 완료</span>
-                  </div>
-                  <div class="wbs-gtl-track">
-                    <div class="wbs-gtl-today" style="left:41%"></div>
-                    <div class="wbs-gtl-bar gb-done" style="left:0%;width:21%" aria-label="기준본/IA 완료 100%">
-                      <div class="wbs-gtl-fill" style="width:100%"></div>
-                      <span class="wbs-gtl-blab">완료 100%</span>
-                    </div>
-                  </div>
+              </div>
+              <div class="wbs-gsum-grp-row is-delay">
+                <span class="wbs-gsum-grp-name">WBS 화면</span>
+                <span class="wbs-gsum-grp-period">05-28 ~ 06-25</span>
+                <span class="wbs-gsum-grp-count">4건</span>
+                <span class="wbs-gsum-grp-status"><span class="wbs-chip wc-delay sm">지연 ⚠</span></span>
+                <div class="wbs-gsum-grp-bar">
+                  <div class="wbs-gsum-grp-track"><div class="wbs-gsum-grp-fill delay" style="width:52%"></div></div>
+                  <span class="wbs-gsum-grp-pct" style="color:var(--fail)">52%</span>
                 </div>
-
-                <!-- Group: App Shell/Navigation → 05-10~06-05 left:10% width:28% done:100% -->
-                <div class="wbs-gtl-row">
-                  <div class="wbs-gtl-label">
-                    <span class="wbs-gtl-gname">App Shell/Navigation</span>
-                    <span class="wbs-gtl-gmeta">05-10 ~ 06-05 · 3건 · 완료</span>
-                  </div>
-                  <div class="wbs-gtl-track">
-                    <div class="wbs-gtl-today" style="left:41%"></div>
-                    <div class="wbs-gtl-bar gb-done" style="left:10%;width:28%" aria-label="App Shell Navigation 완료 100%">
-                      <div class="wbs-gtl-fill" style="width:100%"></div>
-                      <span class="wbs-gtl-blab">완료 100%</span>
-                    </div>
-                  </div>
+              </div>
+              <div class="wbs-gsum-grp-row">
+                <span class="wbs-gsum-grp-name">산출물 게시판</span>
+                <span class="wbs-gsum-grp-period">06-10 ~ 07-10</span>
+                <span class="wbs-gsum-grp-count">3건</span>
+                <span class="wbs-gsum-grp-status"><span class="wbs-chip wc-wait sm">대기</span></span>
+                <div class="wbs-gsum-grp-bar">
+                  <div class="wbs-gsum-grp-track"><div class="wbs-gsum-grp-fill" style="width:0%"></div></div>
+                  <span class="wbs-gsum-grp-pct">0%</span>
                 </div>
-
-                <!-- Group: WBS 화면 → 05-28~06-25 left:30% width:31% prog:52% delay -->
-                <div class="wbs-gtl-row">
-                  <div class="wbs-gtl-label">
-                    <span class="wbs-gtl-gname">WBS 화면</span>
-                    <span class="wbs-gtl-gmeta">05-28 ~ 06-25 · 4건 · 지연</span>
-                  </div>
-                  <div class="wbs-gtl-track">
-                    <div class="wbs-gtl-today" style="left:41%"></div>
-                    <div class="wbs-gtl-bar gb-delay" style="left:30%;width:31%" aria-label="WBS 화면 지연 52%">
-                      <div class="wbs-gtl-fill" style="width:52%"></div>
-                      <span class="wbs-gtl-blab">52% ⚠ 지연</span>
-                    </div>
-                  </div>
+              </div>
+              <div class="wbs-gsum-grp-row">
+                <span class="wbs-gsum-grp-name">테스트/검수</span>
+                <span class="wbs-gsum-grp-period">06-20 ~ 07-25</span>
+                <span class="wbs-gsum-grp-count">3건</span>
+                <span class="wbs-gsum-grp-status"><span class="wbs-chip wc-wait sm">대기</span></span>
+                <div class="wbs-gsum-grp-bar">
+                  <div class="wbs-gsum-grp-track"><div class="wbs-gsum-grp-fill" style="width:0%"></div></div>
+                  <span class="wbs-gsum-grp-pct">0%</span>
                 </div>
-
-                <!-- Group: 산출물 게시판 → 06-10~07-10 left:44% width:33% wait:0% -->
-                <div class="wbs-gtl-row">
-                  <div class="wbs-gtl-label">
-                    <span class="wbs-gtl-gname">산출물 게시판</span>
-                    <span class="wbs-gtl-gmeta">06-10 ~ 07-10 · 3건 · 대기</span>
-                  </div>
-                  <div class="wbs-gtl-track">
-                    <div class="wbs-gtl-today" style="left:41%"></div>
-                    <div class="wbs-gtl-bar gb-wait" style="left:44%;width:33%" aria-label="산출물 게시판 대기 0%">
-                      <div class="wbs-gtl-fill" style="width:0%"></div>
-                      <span class="wbs-gtl-blab">대기 0%</span>
-                    </div>
-                  </div>
+              </div>
+              <div class="wbs-gsum-grp-row">
+                <span class="wbs-gsum-grp-name">오픈 준비</span>
+                <span class="wbs-gsum-grp-period">07-15 ~ 07-31</span>
+                <span class="wbs-gsum-grp-count">2건</span>
+                <span class="wbs-gsum-grp-status"><span class="wbs-chip wc-hold sm">보류</span></span>
+                <div class="wbs-gsum-grp-bar">
+                  <div class="wbs-gsum-grp-track wbs-gsum-grp-track-hold"><div class="wbs-gsum-grp-fill hold" style="width:0%"></div></div>
+                  <span class="wbs-gsum-grp-pct" style="color:var(--t3)">미정</span>
                 </div>
-
-                <!-- Group: 테스트/검수 → 06-20~07-25 left:55% width:38% wait:0% -->
-                <div class="wbs-gtl-row">
-                  <div class="wbs-gtl-label">
-                    <span class="wbs-gtl-gname">테스트/검수</span>
-                    <span class="wbs-gtl-gmeta">06-20 ~ 07-25 · 3건 · 대기</span>
-                  </div>
-                  <div class="wbs-gtl-track">
-                    <div class="wbs-gtl-today" style="left:41%"></div>
-                    <div class="wbs-gtl-bar gb-wait" style="left:55%;width:38%" aria-label="테스트 검수 대기 0%">
-                      <div class="wbs-gtl-fill" style="width:0%"></div>
-                      <span class="wbs-gtl-blab">대기 0%</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Group: 오픈 준비 → 07-15~07-31 left:82% width:17% hold -->
-                <div class="wbs-gtl-row">
-                  <div class="wbs-gtl-label">
-                    <span class="wbs-gtl-gname">오픈 준비</span>
-                    <span class="wbs-gtl-gmeta">07-15 ~ 07-31 · 2건 · 보류</span>
-                  </div>
-                  <div class="wbs-gtl-track">
-                    <div class="wbs-gtl-today" style="left:41%"></div>
-                    <div class="wbs-gtl-bar gb-hold" style="left:82%;width:17%" aria-label="오픈 준비 보류">
-                      <span class="wbs-gtl-blab">보류 · 일정 미정</span>
-                    </div>
-                  </div>
-                </div>
-
-              </div><!-- /.wbs-gtl -->
-            </div><!-- /.wbs-gtl-wrap -->
-
-            <!-- 상태 범례 -->
-            <div class="wbs-legend">
-              <span class="wbs-legend-lbl">상태</span>
-              <span class="wbs-lg-item"><span class="wbs-lg-sw lg-wait"></span>대기</span>
-              <span class="wbs-lg-item"><span class="wbs-lg-sw lg-prog"></span>진행중</span>
-              <span class="wbs-lg-item"><span class="wbs-lg-sw lg-done"></span>완료</span>
-              <span class="wbs-lg-item"><span class="wbs-lg-sw lg-delay"></span>지연</span>
-              <span class="wbs-lg-item"><span class="wbs-lg-sw lg-hold"></span>보류/일정 미정</span>
-              <span class="wbs-lg-item"><span class="wbs-lg-sw lg-today"></span>오늘선</span>
+              </div>
             </div>
 
             <!-- 모바일 축약 -->
@@ -1569,6 +1504,160 @@
     </main><!-- /.po-main -->
   </div><!-- /.po-body -->
 </div><!-- /.po-shell -->
+
+<!-- ======================================== Gantt 전체보기 모달 -->
+<div class="wbs-gantt-modal" id="wbs-gantt-modal" data-open="false" role="dialog" aria-label="전체 간트차트" aria-modal="true">
+  <div class="wbs-gantt-modal-overlay" id="wbs-gantt-modal-overlay"></div>
+  <div class="wbs-gantt-modal-panel">
+    <div class="wbs-gantt-modal-head">
+      <div class="wbs-gantt-modal-head-left">
+        <span class="wbs-gantt-title">일정 전체 간트차트</span>
+        <span class="wbs-gantt-meta">2026-05-01 ~ 2026-07-31 · 91일 · 17건 · 읽기 전용</span>
+      </div>
+      <button class="wbs-drawer-close wbs-gantt-modal-close" id="wbs-gantt-modal-close" type="button" aria-label="닫기">✕</button>
+    </div>
+    <div class="wbs-gantt-modal-body">
+
+      <!-- Full Gantt Timeline Grid -->
+      <div class="wbs-gtl-wrap">
+        <div class="wbs-gtl">
+
+          <!-- 월 헤더 -->
+          <div class="wbs-gtl-month-row">
+            <div class="wbs-gtl-lhdr">기능그룹</div>
+            <div class="wbs-gtl-mtrack">
+              <div class="wbs-gtl-mcell">5월 (May)</div>
+              <div class="wbs-gtl-mcell">6월 (Jun)</div>
+              <div class="wbs-gtl-mcell">7월 (Jul)</div>
+            </div>
+          </div>
+
+          <!-- 주차 헤더 -->
+          <div class="wbs-gtl-week-row">
+            <div class="wbs-gtl-lhdr" style="font-size:9px">기간 · 건수 · 상태</div>
+            <div class="wbs-gtl-wtrack">
+              <div class="wbs-gtl-wcell">W1</div>
+              <div class="wbs-gtl-wcell">W2</div>
+              <div class="wbs-gtl-wcell">W3</div>
+              <div class="wbs-gtl-wcell">W4</div>
+              <div class="wbs-gtl-wcell">W5</div>
+              <div class="wbs-gtl-wcell wc-today">W6 今</div>
+              <div class="wbs-gtl-wcell">W7</div>
+              <div class="wbs-gtl-wcell">W8</div>
+              <div class="wbs-gtl-wcell">W9</div>
+              <div class="wbs-gtl-wcell">W10</div>
+              <div class="wbs-gtl-wcell">W11</div>
+              <div class="wbs-gtl-wcell">W12</div>
+              <div class="wbs-gtl-wcell">W13</div>
+            </div>
+          </div>
+
+          <!-- Group: 기준본/IA -->
+          <div class="wbs-gtl-row">
+            <div class="wbs-gtl-label">
+              <span class="wbs-gtl-gname">기준본/IA</span>
+              <span class="wbs-gtl-gmeta">05-01 ~ 05-20 · 2건 · 완료</span>
+            </div>
+            <div class="wbs-gtl-track">
+              <div class="wbs-gtl-today" style="left:41%"></div>
+              <div class="wbs-gtl-bar gb-done" style="left:0%;width:21%" aria-label="기준본/IA 완료 100%">
+                <div class="wbs-gtl-fill" style="width:100%"></div>
+                <span class="wbs-gtl-blab">완료 100%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Group: App Shell/Navigation -->
+          <div class="wbs-gtl-row">
+            <div class="wbs-gtl-label">
+              <span class="wbs-gtl-gname">App Shell/Navigation</span>
+              <span class="wbs-gtl-gmeta">05-10 ~ 06-05 · 3건 · 완료</span>
+            </div>
+            <div class="wbs-gtl-track">
+              <div class="wbs-gtl-today" style="left:41%"></div>
+              <div class="wbs-gtl-bar gb-done" style="left:10%;width:28%" aria-label="App Shell Navigation 완료 100%">
+                <div class="wbs-gtl-fill" style="width:100%"></div>
+                <span class="wbs-gtl-blab">완료 100%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Group: WBS 화면 -->
+          <div class="wbs-gtl-row">
+            <div class="wbs-gtl-label">
+              <span class="wbs-gtl-gname">WBS 화면</span>
+              <span class="wbs-gtl-gmeta">05-28 ~ 06-25 · 4건 · 지연</span>
+            </div>
+            <div class="wbs-gtl-track">
+              <div class="wbs-gtl-today" style="left:41%"></div>
+              <div class="wbs-gtl-bar gb-delay" style="left:30%;width:31%" aria-label="WBS 화면 지연 52%">
+                <div class="wbs-gtl-fill" style="width:52%"></div>
+                <span class="wbs-gtl-blab">52% ⚠ 지연</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Group: 산출물 게시판 -->
+          <div class="wbs-gtl-row">
+            <div class="wbs-gtl-label">
+              <span class="wbs-gtl-gname">산출물 게시판</span>
+              <span class="wbs-gtl-gmeta">06-10 ~ 07-10 · 3건 · 대기</span>
+            </div>
+            <div class="wbs-gtl-track">
+              <div class="wbs-gtl-today" style="left:41%"></div>
+              <div class="wbs-gtl-bar gb-wait" style="left:44%;width:33%" aria-label="산출물 게시판 대기 0%">
+                <div class="wbs-gtl-fill" style="width:0%"></div>
+                <span class="wbs-gtl-blab">대기 0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Group: 테스트/검수 -->
+          <div class="wbs-gtl-row">
+            <div class="wbs-gtl-label">
+              <span class="wbs-gtl-gname">테스트/검수</span>
+              <span class="wbs-gtl-gmeta">06-20 ~ 07-25 · 3건 · 대기</span>
+            </div>
+            <div class="wbs-gtl-track">
+              <div class="wbs-gtl-today" style="left:41%"></div>
+              <div class="wbs-gtl-bar gb-wait" style="left:55%;width:38%" aria-label="테스트 검수 대기 0%">
+                <div class="wbs-gtl-fill" style="width:0%"></div>
+                <span class="wbs-gtl-blab">대기 0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Group: 오픈 준비 -->
+          <div class="wbs-gtl-row">
+            <div class="wbs-gtl-label">
+              <span class="wbs-gtl-gname">오픈 준비</span>
+              <span class="wbs-gtl-gmeta">07-15 ~ 07-31 · 2건 · 보류</span>
+            </div>
+            <div class="wbs-gtl-track">
+              <div class="wbs-gtl-today" style="left:41%"></div>
+              <div class="wbs-gtl-bar gb-hold" style="left:82%;width:17%" aria-label="오픈 준비 보류">
+                <span class="wbs-gtl-blab">보류 · 일정 미정</span>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /.wbs-gtl -->
+      </div><!-- /.wbs-gtl-wrap -->
+
+      <!-- 상태 범례 -->
+      <div class="wbs-legend">
+        <span class="wbs-legend-lbl">상태</span>
+        <span class="wbs-lg-item"><span class="wbs-lg-sw lg-wait"></span>대기</span>
+        <span class="wbs-lg-item"><span class="wbs-lg-sw lg-prog"></span>진행중</span>
+        <span class="wbs-lg-item"><span class="wbs-lg-sw lg-done"></span>완료</span>
+        <span class="wbs-lg-item"><span class="wbs-lg-sw lg-delay"></span>지연</span>
+        <span class="wbs-lg-item"><span class="wbs-lg-sw lg-hold"></span>보류/일정 미정</span>
+        <span class="wbs-lg-item"><span class="wbs-lg-sw lg-today"></span>오늘선</span>
+      </div>
+
+    </div><!-- /.wbs-gantt-modal-body -->
+  </div><!-- /.wbs-gantt-modal-panel -->
+</div><!-- /.wbs-gantt-modal -->
 
 <script src="../../js/stam.theme.js"></script>
 <script src="../../js/stam.nav-data.js"></script>
