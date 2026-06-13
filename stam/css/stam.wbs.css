@@ -3218,19 +3218,35 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
 }
 
 /* ============================================================
-   Section 30: Task-level Gantt rows (전체 간트 모달 내부)
+   Section 30: Task-level Gantt — accordion + compact rows
    ============================================================ */
+
+/* Group header — accordion style */
 .wbs-gtl-grp-hdr-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 12px;
+  gap: 6px;
+  padding: 4px 10px;
   background: var(--bg-sur2);
   border-bottom: 1px solid var(--bd);
-  border-top: 2px solid var(--bd);
+  border-top: 1px solid var(--bd);
   min-width: 680px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .1s;
 }
-.wbs-gtl-grp-hdr-row:first-of-type { border-top: none; }
+.wbs-gtl-grp-hdr-row:hover { background: var(--surf-hover); }
+.wbs-gtl-grp-chevron {
+  font-size: 9px;
+  color: var(--t3);
+  flex-shrink: 0;
+  line-height: 1;
+  display: inline-block;
+  transition: transform .15s ease;
+}
+.wbs-gtl-grp-hdr-row[data-open="false"] .wbs-gtl-grp-chevron {
+  transform: rotate(-90deg);
+}
 .wbs-gtl-grp-hdr-name {
   font-size: 10.5px;
   font-weight: 700;
@@ -3239,17 +3255,41 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
   letter-spacing: .02em;
 }
 .wbs-gtl-grp-hdr-meta {
-  font-size: 9.5px;
+  font-size: 9px;
   color: var(--t3);
   font-family: var(--font);
 }
-.wbs-gtl-task-row { min-height: 48px; }
-.wbs-gtl-task-row .wbs-gtl-track { height: 48px; }
+
+/* Accordion tasks container */
+.wbs-gtl-grp-tasks[data-open="false"] { display: none; }
+
+/* Compact task rows */
+.wbs-gtl-task-row { min-height: 36px; }
+.wbs-gtl-task-row .wbs-gtl-track { height: 36px; }
+.wbs-gtl-task-row .wbs-gtl-label {
+  padding: 3px 10px;
+  gap: 1px;
+}
+.wbs-gtl-task-row .wbs-gtl-gname {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.wbs-gtl-task-row .wbs-gtl-gmeta {
+  font-size: 8px;
+  line-height: 1.1;
+}
 .wbs-gtl-task-id {
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 700;
   color: var(--stam);
   font-family: var(--font);
   letter-spacing: .03em;
+  line-height: 1.1;
+}
+.wbs-gtl-task-row .wbs-gtl-bar { height: 14px; }
+.wbs-gtl-task-row .wbs-gtl-blab {
+  font-size: 8px;
+  padding: 0 4px;
 }
 
