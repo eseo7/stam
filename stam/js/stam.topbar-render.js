@@ -66,28 +66,11 @@
     ' stroke-linecap="round" stroke-linejoin="round"/>' +
     '</svg>';
 
-  function hardRefreshCurrentPage() {
+  function hardRefreshCurrentPage(event) {
+    if (event && event.preventDefault)   event.preventDefault();
+    if (event && event.stopPropagation)  event.stopPropagation();
     var ts = String(Date.now());
     try { sessionStorage.setItem('stam:hardRefreshTs', ts); } catch (e) {}
-
-    /* Firebase cleanUrls: .html 경로를 extensionless URL로 301 리다이렉트함.
-       extensionless URL에서 reload()를 호출하면 동일 path를 재요청하며
-       Firebase가 간헐적으로 wbs.html 매칭 실패 → index.html fallback을 반환함.
-       active nav item(.gitem.on)의 canonical .html href로 명시 이동해 우회한다. */
-    if (!/\.html$/i.test(window.location.pathname) && window.location.pathname !== '/') {
-      var activeItem = document.querySelector('.gitem.on[data-id]');
-      if (activeItem) {
-        var navId = activeItem.getAttribute('data-id');
-        var menus = (window.STAM && window.STAM.data && window.STAM.data.menus) || [];
-        for (var i = 0; i < menus.length; i++) {
-          var m = menus[i];
-          if (m.id === navId && m.href && m.href !== '#') {
-            window.location.href = '/' + m.href.replace(/^\//, '');
-            return;
-          }
-        }
-      }
-    }
     window.location.reload();
   }
 
