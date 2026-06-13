@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-12T23:59:28.331Z",
+  "generatedAt": "2026-06-13T00:16:36.538Z",
   "overallStatus": "PASS",
   "profiles": {
     "requirements": "standard-board",
@@ -509,15 +509,15 @@
       "profile": "legacy-special-board",
       "navId": "B4",
       "status": {
-        "cssOrder": "PARTIAL",
-        "jsOrder": "PARTIAL",
+        "cssOrder": "PASS",
+        "jsOrder": "PASS",
         "appShell": "PASS",
         "formControls": "LEGACY",
         "drawer": "LEGACY",
         "tableRowSelection": "PASS",
         "buttons": "PASS",
         "boardToolbar": "LEGACY",
-        "boardFilter": "LEGACY"
+        "boardFilter": "PARTIAL"
       },
       "files": {
         "html": "stam/pages/boards/screen-specification.html",
@@ -527,7 +527,7 @@
       "fileMissing": [],
       "details": {
         "cssOrder": {
-          "status": "PARTIAL",
+          "status": "PASS",
           "warnings": [],
           "notes": [],
           "evidence": {
@@ -536,19 +536,18 @@
               "../../css/stam.shell.css",
               "../../css/stam.components.css",
               "../../css/stam.project-overview.css",
+              "../../css/stam.form-controls.css",
+              "../../css/stam.drawer.css",
               "../../css/stam.table-selection.css",
-              "../../css/stam.buttons.css"
+              "../../css/stam.buttons.css",
+              "../../css/stam.board-toolbar.css",
+              "../../css/stam.board-filter.css"
             ]
           },
-          "missing": [
-            "stam.form-controls.css",
-            "stam.drawer.css",
-            "stam.board-toolbar.css",
-            "stam.board-filter.css"
-          ]
+          "missing": []
         },
         "jsOrder": {
-          "status": "PARTIAL",
+          "status": "PASS",
           "warnings": [],
           "notes": [],
           "evidence": {
@@ -558,12 +557,11 @@
               "../../js/stam.shell.js",
               "../../js/stam.nav-render.js",
               "../../js/stam.topbar-render.js",
-              "../../js/stam.project-context-render.js"
+              "../../js/stam.project-context-render.js",
+              "../../js/stam.board-filter.js"
             ]
           },
-          "missing": [
-            "stam.board-filter.js"
-          ]
+          "missing": []
         },
         "appShell": {
           "status": "PASS",
@@ -647,17 +645,20 @@
           "missing": []
         },
         "boardFilter": {
-          "status": "LEGACY",
+          "status": "PARTIAL",
           "warnings": [],
           "notes": [],
           "evidence": {
             "combined": [
-              "ss-filter-",
-              "ss-fopt",
-              "toggleFilter"
+              "stam.board-filter.js",
+              "stam.board-filter.css"
             ]
           },
-          "missing": []
+          "missing": [
+            "stam-board-filter-trigger",
+            "stam-board-filter-panel",
+            "STAM.boardFilter.init"
+          ]
         }
       },
       "refNotes": [
