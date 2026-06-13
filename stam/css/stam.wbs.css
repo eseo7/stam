@@ -2978,3 +2978,242 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
 .wbs-dialog-btn.ok { background: var(--stam); border-color: var(--stam); color: #fff; }
 .wbs-dialog-btn.ok:hover { background: var(--stam-h); border-color: var(--stam-h); }
 
+/* ============================================================
+ * 27. 간트 전체보기 버튼 (헤더 내)
+ * ============================================================ */
+.wbs-gantt-fullview-btn {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 11px !important;
+  padding: 4px 10px !important;
+  border-radius: var(--r-sm) !important;
+  background: var(--stam-soft) !important;
+  border-color: rgba(84,81,232,.24) !important;
+  color: var(--stam) !important;
+  font-weight: 700 !important;
+}
+.wbs-gantt-fullview-btn:hover {
+  background: var(--stam) !important;
+  border-color: var(--stam) !important;
+  color: #fff !important;
+}
+/* 접힌 상태에서는 버튼도 숨김 */
+.wbs-gantt-section[data-open="false"] .wbs-gantt-fullview-btn {
+  display: none;
+}
+
+/* ============================================================
+ * 28. 기능그룹별 일정 요약 목록 (보통 화면)
+ * ============================================================ */
+.wbs-gsum-groups {
+  border-bottom: 1px solid var(--bd);
+}
+.wbs-gsum-grp-hdr {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  background: var(--bg-sur2);
+  border-bottom: 1px solid var(--bd);
+}
+.wbs-gsum-grp-hcol {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  font-family: var(--font) !important;
+}
+.wbs-gsum-grp-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--bd);
+  transition: background 100ms;
+}
+.wbs-gsum-grp-row:last-child { border-bottom: none; }
+.wbs-gsum-grp-row:hover { background: var(--surf-hover, var(--bg-sur2)); }
+.wbs-gsum-grp-row.is-delay { background: rgba(255,66,66,.03); }
+.wbs-gsum-grp-row.is-delay:hover { background: rgba(255,66,66,.07); }
+.wbs-gsum-grp-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t1);
+  font-family: var(--font) !important;
+  min-width: 140px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wbs-gsum-grp-period {
+  font-size: 10.5px;
+  color: var(--t3);
+  font-family: var(--font) !important;
+  flex: 0 0 130px;
+  white-space: nowrap;
+}
+.wbs-gsum-grp-count {
+  font-size: 10.5px;
+  color: var(--t2);
+  font-family: var(--font) !important;
+  flex: 0 0 36px;
+  text-align: right;
+}
+.wbs-gsum-grp-status {
+  flex: 0 0 72px;
+  display: flex;
+  justify-content: flex-start;
+}
+.wbs-gsum-grp-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.wbs-gsum-grp-track {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-sur3);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 60px;
+}
+.wbs-gsum-grp-track-hold {
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 4px,
+    rgba(245,158,11,.25) 4px,
+    rgba(245,158,11,.25) 8px
+  );
+}
+.wbs-gsum-grp-fill {
+  height: 100%;
+  background: var(--stam);
+  border-radius: 3px;
+  transition: width 300ms ease;
+}
+.wbs-gsum-grp-fill.done  { background: var(--pass); }
+.wbs-gsum-grp-fill.delay { background: var(--fail); }
+.wbs-gsum-grp-fill.hold  { background: var(--warn); opacity: .5; }
+.wbs-gsum-grp-pct {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--t2);
+  font-family: var(--font) !important;
+  min-width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* 모바일: period/count 축약 */
+@media (max-width: 600px) {
+  .wbs-gsum-grp-period { display: none; }
+  .wbs-gsum-grp-count  { display: none; }
+  .wbs-gsum-grp-name   { min-width: 100px; flex: 0 0 100px; }
+}
+
+/* ============================================================
+ * 29. Gantt 전체보기 모달
+ * ============================================================ */
+.wbs-gantt-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  pointer-events: none;
+}
+.wbs-gantt-modal[data-open="true"] {
+  pointer-events: all;
+}
+.wbs-gantt-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.42);
+  opacity: 0;
+  transition: opacity 200ms;
+  cursor: pointer;
+}
+.wbs-gantt-modal[data-open="true"] .wbs-gantt-modal-overlay { opacity: 1; }
+
+.wbs-gantt-modal-panel {
+  position: absolute;
+  top: var(--topbar-h, 52px);
+  left: var(--sw, 256px);
+  right: 0;
+  bottom: 0;
+  background: var(--bg-sur);
+  border-left: 1px solid var(--bd);
+  box-shadow: -8px 0 32px rgba(0,0,0,.16);
+  display: flex;
+  flex-direction: column;
+  transform: translateY(16px);
+  opacity: 0;
+  transition: transform 220ms ease-out, opacity 200ms;
+}
+.wbs-gantt-modal[data-open="true"] .wbs-gantt-modal-panel {
+  transform: translateY(0);
+  opacity: 1;
+}
+/* Focus View 상태: sidebar 없음 */
+.po-shell.wbs-focus .wbs-gantt-modal-panel { left: 0; }
+
+.wbs-gantt-modal-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  background: var(--bg-sur2);
+  border-bottom: 1px solid var(--bd);
+  flex-shrink: 0;
+}
+.wbs-gantt-modal-head-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.wbs-gantt-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(84,81,232,.22) transparent;
+}
+.wbs-gantt-modal-body::-webkit-scrollbar { width: 5px; }
+.wbs-gantt-modal-body::-webkit-scrollbar-thumb {
+  background: rgba(84,81,232,.22);
+  border-radius: 99px;
+}
+/* 모달 내부의 간트 그리드: 가로 스크롤은 컨텐츠 영역에서만 */
+.wbs-gantt-modal-body .wbs-gtl-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-lg);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(84,81,232,.22) var(--bg-sur2);
+}
+.wbs-gantt-modal-body .wbs-gtl-wrap::-webkit-scrollbar { height: 5px; }
+.wbs-gantt-modal-body .wbs-gtl-wrap::-webkit-scrollbar-thumb {
+  background: rgba(84,81,232,.22);
+  border-radius: 99px;
+}
+.wbs-gantt-modal-body .wbs-legend {
+  border: 1px solid var(--bd);
+  border-top: none;
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+  background: var(--bg-sur2);
+}
+
+/* 모바일에서 모달 전체 폭 */
+@media (max-width: 800px) {
+  .wbs-gantt-modal-panel { left: 0; }
+}
+
