@@ -793,7 +793,7 @@
       document.body.style.overflow = '';
     }
 
-    if (openBtn) openBtn.addEventListener('click', openModal);
+    if (openBtn) openBtn.addEventListener('click', function (e) { e.stopPropagation(); openModal(); });
     if (overlay) overlay.addEventListener('click', closeModal);
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
