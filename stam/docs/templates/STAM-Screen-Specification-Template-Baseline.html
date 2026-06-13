@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Screen Specification Template Baseline</title>
+<link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../../css/stam.tokens.css">
+<link rel="stylesheet" href="../../css/stam.shell.css">
+<link rel="stylesheet" href="../../css/stam.components.css">
+<link rel="stylesheet" href="../../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../../css/stam.docs.css">
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a href="../STAM-Docs-Index.html" class="doc-nav-back">← Docs</a>
+  <span class="doc-nav-title">Screen Specification Template Baseline</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Baseline Draft v0.1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>2026-06-13</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Screen Spec Template</span>
+      <span class="toc-ver-pill">v0.1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Screen Identity</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Menu / URL / File Mapping</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Related Artifacts</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Purpose &amp; Scenario</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Layout Structure</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Component Composition</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Field Definition</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Button / Action / Event</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Validation &amp; Error</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Permission / State Rules</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Data / API / Interface</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Responsive / Mobile</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Accessibility / Keyboard</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>QA Checklist</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>Change History</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- Status Summary -->
+      <div class="ibox info" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <strong>STAM Screen Specification Template Baseline</strong>
+          <span class="sbadge plan" style="margin-left:auto;">Baseline Draft v0.1</span>
+          <span class="sbadge done">2026-06-13</span>
+        </div>
+        <p style="margin:0;font-size:.84em;line-height:1.65;opacity:.85;">
+          개별 화면설계서 작성 시 사용하는 공통 템플릿입니다.
+          각 화면마다 이 템플릿을 복사하여 해당 화면의 정보로 채웁니다.
+          16개 섹션으로 구성되며 화면 식별 정보부터 변경 이력까지 전 범위를 포함합니다.
+        </p>
+      </div>
+
+      <!-- S01 Overview -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>이 템플릿의 사용 방법</strong><br>
+            각 화면별 설계서 파일을 생성할 때 이 문서를 기준 구조로 사용합니다.<br>
+            <br>
+            <strong>파일 명명 규칙</strong><br>
+            <code>STAM-Screen-Spec-[SCR-ID]-[화면명약어].html</code><br>
+            예: <code>STAM-Screen-Spec-SCR-007-WBS.html</code><br>
+            <br>
+            <strong>저장 위치</strong><br>
+            <code>stam/docs/templates/screens/</code><br>
+            <br>
+            <strong>상태 배지 기준</strong>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+              <span class="sbadge plan">Draft</span><span style="font-size:.85em;opacity:.8;">— 초안 작성 중</span>
+              <span class="sbadge guide">Review</span><span style="font-size:.85em;opacity:.8;">— 검토 중</span>
+              <span class="sbadge done">Approved</span><span style="font-size:.85em;opacity:.8;">— 승인 완료</span>
+              <span class="sbadge lock">Locked</span><span style="font-size:.85em;opacity:.8;">— 변경 금지</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S02 Screen Identity -->
+      <section id="s02" class="sec" data-screen-label="02 Screen Identity">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Screen Identity</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:12px;">
+            화면을 고유하게 식별하는 메타 정보입니다. 모든 필드를 필수로 기입합니다.
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:.875em;">
+            <colgroup><col style="width:180px"><col></colgroup>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.6;white-space:nowrap;">Screen ID</td>
+                <td style="padding:10px 12px;"><code>SCR-XXX</code> — 화면 고유 ID (예: SCR-007)</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.6;">화면명 (KR)</td>
+                <td style="padding:10px 12px;">한국어 화면 명칭</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.6;">화면명 (EN)</td>
+                <td style="padding:10px 12px;">영문 화면 명칭</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.6;">버전</td>
+                <td style="padding:10px 12px;"><code>v0.1</code> — 초안부터 시작</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.6;">상태</td>
+                <td style="padding:10px 12px;">Draft / Review / Approved / Locked</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.6;">화면 유형</td>
+                <td style="padding:10px 12px;">List / Detail / Form / Dashboard / Modal / Drawer / Full-page</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.6;">담당자 (Owner)</td>
+                <td style="padding:10px 12px;">PM / Designer / Developer 이름</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.6;">최초 작성일</td>
+                <td style="padding:10px 12px;"><code>YYYY-MM-DD</code></td>
+              </tr>
+              <tr>
+                <td style="padding:10px 12px;opacity:.6;">최종 수정일</td>
+                <td style="padding:10px 12px;"><code>YYYY-MM-DD</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S03 Menu / URL / File Mapping -->
+      <section id="s03" class="sec" data-screen-label="03 Menu / URL / File Mapping">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Menu / URL / File Mapping</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:12px;">
+            Left Nav 메뉴 위치, 실제 URL, 파일 경로, nav-data 연결 정보를 기록합니다.
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:.875em;">
+            <colgroup><col style="width:180px"><col></colgroup>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.6;">메뉴 그룹</td>
+                <td style="padding:10px 12px;">예: B — Boards</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.6;">nav-data ID</td>
+                <td style="padding:10px 12px;"><code>B1</code> / <code>B4</code> 등 stam.nav-data.js 기준 ID</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.6;">메뉴 표시명</td>
+                <td style="padding:10px 12px;">Left Nav에 표시되는 한국어 명칭</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.6;">HTML 파일 경로</td>
+                <td style="padding:10px 12px;"><code>stam/pages/boards/[filename].html</code></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.6;">CSS 파일</td>
+                <td style="padding:10px 12px;"><code>stam/css/stam.[name].css</code></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.6;">JS 파일</td>
+                <td style="padding:10px 12px;"><code>stam/js/stam.[name].js</code></td>
+              </tr>
+              <tr>
+                <td style="padding:10px 12px;opacity:.6;">Firebase Hosting URL</td>
+                <td style="padding:10px 12px;"><code>https://stam-design-staging.web.app/pages/boards/[filename].html</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S04 Related Artifacts -->
+      <section id="s04" class="sec" data-screen-label="04 Related Artifacts">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Related Artifacts</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:12px;">
+            이 화면과 연결된 요구사항, WBS 항목, 인터페이스, 기능 정의 ID를 기록합니다.
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:.875em;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.12));">
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">유형</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">ID</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">설명</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;"><span class="sbadge plan" style="font-size:.75em;">REQ</span></td>
+                <td style="padding:10px 12px;"><code>REQ-XXX</code></td>
+                <td style="padding:10px 12px;opacity:.7;">연결된 요구사항 ID</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;"><span class="sbadge guide" style="font-size:.75em;">WBS</span></td>
+                <td style="padding:10px 12px;"><code>WBS-XXX</code></td>
+                <td style="padding:10px 12px;opacity:.7;">연결된 WBS 작업 ID</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;"><span class="sbadge done" style="font-size:.75em;">IFC</span></td>
+                <td style="padding:10px 12px;"><code>IFC-XXX</code></td>
+                <td style="padding:10px 12px;opacity:.7;">연결된 인터페이스 ID</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 12px;"><span class="sbadge lock" style="font-size:.75em;">FN</span></td>
+                <td style="padding:10px 12px;"><code>FN-XXX</code></td>
+                <td style="padding:10px 12px;opacity:.7;">연결된 기능 정의 ID</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S05 Purpose & Scenario -->
+      <section id="s05" class="sec" data-screen-label="05 Purpose & User Scenario">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Screen Purpose &amp; User Scenario</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:12px;">
+            이 화면이 존재하는 이유와 주요 사용자 시나리오를 기술합니다.
+          </div>
+          <div style="font-size:.875em;line-height:1.8;">
+            <p style="margin:0 0 12px;"><strong>화면 목적</strong></p>
+            <div style="padding:12px 16px;border-left:3px solid var(--c-accent,#4f7cff);border-radius:0 4px 4px 0;background:var(--c-surface-2,rgba(255,255,255,.04));margin-bottom:20px;opacity:.75;">
+              [이 화면이 사용자에게 제공하는 핵심 가치를 1–2문장으로 기술]
+            </div>
+            <p style="margin:0 0 12px;"><strong>주요 사용자 시나리오</strong></p>
+            <ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;">
+              <li style="opacity:.75;">[시나리오 1 — 사용자가 [목적]을 위해 이 화면에 진입하는 경로]</li>
+              <li style="opacity:.75;">[시나리오 2 — 주요 작업 흐름 기술]</li>
+              <li style="opacity:.75;">[시나리오 3 — 예외 / 엣지 케이스 기술]</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- S06 Layout Structure -->
+      <section id="s06" class="sec" data-screen-label="06 Layout Structure">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Layout Structure</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:12px;">
+            화면 레이아웃 구조와 각 영역의 역할을 기술합니다. STAM App Shell 기준을 따릅니다.
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:.875em;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.12));">
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">영역</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">클래스 / 구조</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">설명</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">Shell</td>
+                <td style="padding:10px 12px;"><code>.po-shell</code></td>
+                <td style="padding:10px 12px;opacity:.7;">flex column 100vh — 전체 앱 컨테이너</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">Topbar</td>
+                <td style="padding:10px 12px;"><code>.po-topbar</code></td>
+                <td style="padding:10px 12px;opacity:.7;">고정 높이 48px — data-stam-topbar 렌더</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">Left Nav</td>
+                <td style="padding:10px 12px;"><code>.po-sidebar</code></td>
+                <td style="padding:10px 12px;opacity:.7;">256px — data-stam-left-nav 렌더</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">Main Content</td>
+                <td style="padding:10px 12px;"><code>.po-main</code></td>
+                <td style="padding:10px 12px;opacity:.7;">flex:1 overflow-y:auto</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">Page Header</td>
+                <td style="padding:10px 12px;"><code>[page]-page-head</code></td>
+                <td style="padding:10px 12px;opacity:.7;">화면 제목 + 우측 액션 버튼 영역</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">Toolbar</td>
+                <td style="padding:10px 12px;"><code>[page]-toolbar</code></td>
+                <td style="padding:10px 12px;opacity:.7;">검색 + 필터 + 삭제 / 우측 액션</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">Content Body</td>
+                <td style="padding:10px 12px;">[화면별 정의]</td>
+                <td style="padding:10px 12px;opacity:.7;">테이블 / 카드 / 폼 등 주요 콘텐츠</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 12px;">Drawer / Dialog</td>
+                <td style="padding:10px 12px;"><code>[page]-drawer</code></td>
+                <td style="padding:10px 12px;opacity:.7;">상세 보기 / 등록 / 수정 Drawer 또는 Dialog</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S07 Component Composition -->
+      <section id="s07" class="sec" data-screen-label="07 Component Composition">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Component Composition</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:12px;">
+            이 화면에 사용된 STAM 공통 컴포넌트 목록과 각 적용 위치를 기록합니다.
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:.875em;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.12));">
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">컴포넌트</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">클래스</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">적용 위치</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">가이드 참조</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">Button</td>
+                <td style="padding:10px 12px;"><code>.stam-btn</code></td>
+                <td style="padding:10px 12px;opacity:.7;">[적용 위치]</td>
+                <td style="padding:10px 12px;opacity:.7;">Button Guide v1</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">Table</td>
+                <td style="padding:10px 12px;"><code>.stam-table</code></td>
+                <td style="padding:10px 12px;opacity:.7;">[적용 위치]</td>
+                <td style="padding:10px 12px;opacity:.7;">Table Guide v1</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">Drawer</td>
+                <td style="padding:10px 12px;"><code>.stam-drawer</code></td>
+                <td style="padding:10px 12px;opacity:.7;">[적용 위치]</td>
+                <td style="padding:10px 12px;opacity:.7;">Drawer Guide v1</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">Form</td>
+                <td style="padding:10px 12px;"><code>.stam-input</code></td>
+                <td style="padding:10px 12px;opacity:.7;">[적용 위치]</td>
+                <td style="padding:10px 12px;opacity:.7;">Form Controls Guide v1</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">Dialog</td>
+                <td style="padding:10px 12px;"><code>.stam-dialog</code></td>
+                <td style="padding:10px 12px;opacity:.7;">[적용 위치]</td>
+                <td style="padding:10px 12px;opacity:.7;">Dialog Guide v1</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 12px;">Topbar</td>
+                <td style="padding:10px 12px;"><code>data-stam-topbar</code></td>
+                <td style="padding:10px 12px;opacity:.7;">전체 화면 상단</td>
+                <td style="padding:10px 12px;opacity:.7;">Topbar Guide v1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S08 Field Definition -->
+      <section id="s08" class="sec" data-screen-label="08 Field Definition">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Field Definition</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:12px;">
+            화면에 표시되거나 입력받는 모든 필드를 정의합니다. 목록 컬럼 및 폼 필드를 모두 포함합니다.
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:.875em;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.12));">
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">필드명 (KR)</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">Key</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">타입</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">필수</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">설명</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">[필드명]</td>
+                <td style="padding:10px 12px;"><code>[key]</code></td>
+                <td style="padding:10px 12px;opacity:.7;">string / number / date / select / boolean</td>
+                <td style="padding:10px 12px;">Y / N</td>
+                <td style="padding:10px 12px;opacity:.7;">[설명]</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">[필드명]</td>
+                <td style="padding:10px 12px;"><code>[key]</code></td>
+                <td style="padding:10px 12px;opacity:.7;">—</td>
+                <td style="padding:10px 12px;">—</td>
+                <td style="padding:10px 12px;opacity:.7;">—</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 12px;opacity:.45;" colspan="5">
+                  + 필드 추가 시 행을 복사하여 사용
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S09 Button / Action / Event -->
+      <section id="s09" class="sec" data-screen-label="09 Button / Action / Event Definition">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Button / Action / Event Definition</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:12px;">
+            화면의 모든 액션(버튼 클릭, 행 클릭, 단축키 등) 정의와 결과 동작을 기록합니다.
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:.875em;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.12));">
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">버튼 / 트리거</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">위치</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">Variant</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">동작</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">권한 조건</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">[버튼명]</td>
+                <td style="padding:10px 12px;opacity:.7;">Page Header / Toolbar / Drawer</td>
+                <td style="padding:10px 12px;"><code>primary / secondary / ghost / danger</code></td>
+                <td style="padding:10px 12px;opacity:.7;">[결과 동작]</td>
+                <td style="padding:10px 12px;opacity:.7;">[역할 조건]</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">행 클릭</td>
+                <td style="padding:10px 12px;opacity:.7;">Table Row</td>
+                <td style="padding:10px 12px;">—</td>
+                <td style="padding:10px 12px;opacity:.7;">Drawer 열기 (detail 모드)</td>
+                <td style="padding:10px 12px;opacity:.7;">전체</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 12px;opacity:.45;" colspan="5">
+                  + 액션 추가 시 행을 복사하여 사용
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S10 Validation & Error -->
+      <section id="s10" class="sec" data-screen-label="10 Validation & Error Message">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Validation &amp; Error Message</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:12px;">
+            입력 유효성 검사 규칙과 에러 메시지 표시 기준을 정의합니다.
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:.875em;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.12));">
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">필드 / 조건</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">검사 규칙</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">에러 메시지</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">표시 위치</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">[필드명] 필수</td>
+                <td style="padding:10px 12px;opacity:.7;">값이 비어있으면 오류</td>
+                <td style="padding:10px 12px;opacity:.7;">[필드명]은(는) 필수 입력 항목입니다.</td>
+                <td style="padding:10px 12px;opacity:.7;">필드 하단 인라인</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">[필드명] 길이</td>
+                <td style="padding:10px 12px;opacity:.7;">최대 N자</td>
+                <td style="padding:10px 12px;opacity:.7;">최대 N자까지 입력할 수 있습니다.</td>
+                <td style="padding:10px 12px;opacity:.7;">필드 하단 인라인</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 12px;opacity:.45;" colspan="4">
+                  + 규칙 추가 시 행을 복사하여 사용
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S11 Permission / State Rules -->
+      <section id="s11" class="sec" data-screen-label="11 Permission / Visibility / State Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Permission / Visibility / State Rules</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:12px;">
+            역할별 접근 권한, 화면 요소의 표시/숨김 조건, 상태에 따른 UI 변경 규칙을 정의합니다.
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:.875em;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.12));">
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">역할 / 조건</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">접근 허용</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">숨김/비활성 요소</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">비고</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">Admin</td>
+                <td style="padding:10px 12px;opacity:.7;">전체</td>
+                <td style="padding:10px 12px;opacity:.7;">—</td>
+                <td style="padding:10px 12px;opacity:.7;">—</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">PM</td>
+                <td style="padding:10px 12px;opacity:.7;">[허용 범위]</td>
+                <td style="padding:10px 12px;opacity:.7;">[숨김 요소]</td>
+                <td style="padding:10px 12px;opacity:.7;">—</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">Viewer</td>
+                <td style="padding:10px 12px;opacity:.7;">읽기 전용</td>
+                <td style="padding:10px 12px;opacity:.7;">등록 / 수정 / 삭제 버튼</td>
+                <td style="padding:10px 12px;opacity:.7;">—</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 12px;opacity:.45;" colspan="4">
+                  + 역할 추가 시 행을 복사하여 사용
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S12 Data / API / Interface -->
+      <section id="s12" class="sec" data-screen-label="12 Data / API / Interface Mapping">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Data / API / Interface Mapping</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:12px;">
+            화면에서 사용하는 데이터 소스, API 엔드포인트(또는 Firebase 경로), 인터페이스 연결을 기록합니다.
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:.875em;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.12));">
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">동작</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">메서드</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">경로 / 컬렉션</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">비고</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">목록 조회</td>
+                <td style="padding:10px 12px;"><span class="sbadge done" style="font-size:.75em;">GET</span></td>
+                <td style="padding:10px 12px;opacity:.7;"><code>[Firebase 경로 또는 API endpoint]</code></td>
+                <td style="padding:10px 12px;opacity:.7;">페이지네이션 여부</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">단건 조회</td>
+                <td style="padding:10px 12px;"><span class="sbadge done" style="font-size:.75em;">GET</span></td>
+                <td style="padding:10px 12px;opacity:.7;"><code>[경로]/{id}</code></td>
+                <td style="padding:10px 12px;opacity:.7;">—</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">등록</td>
+                <td style="padding:10px 12px;"><span class="sbadge guide" style="font-size:.75em;">POST</span></td>
+                <td style="padding:10px 12px;opacity:.7;"><code>[경로]</code></td>
+                <td style="padding:10px 12px;opacity:.7;">—</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;">수정</td>
+                <td style="padding:10px 12px;"><span class="sbadge plan" style="font-size:.75em;">PUT</span></td>
+                <td style="padding:10px 12px;opacity:.7;"><code>[경로]/{id}</code></td>
+                <td style="padding:10px 12px;opacity:.7;">—</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 12px;">삭제</td>
+                <td style="padding:10px 12px;"><span class="sbadge lock" style="font-size:.75em;">DELETE</span></td>
+                <td style="padding:10px 12px;opacity:.7;"><code>[경로]/{id}</code></td>
+                <td style="padding:10px 12px;opacity:.7;">소프트 삭제 여부 명시</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S13 Responsive / Mobile -->
+      <section id="s13" class="sec" data-screen-label="13 Responsive / Mobile Baseline">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Responsive / Mobile Baseline</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:12px;">
+            STAM 모바일 기준(390px–430px)에서의 레이아웃 변경 규칙을 정의합니다.
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:.875em;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.12));">
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">브레이크포인트</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">변경 항목</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">규칙</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;"><code>≤ 768px</code></td>
+                <td style="padding:10px 12px;">Left Nav</td>
+                <td style="padding:10px 12px;opacity:.7;">숨김 처리 (display:none)</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;"><code>≤ 768px</code></td>
+                <td style="padding:10px 12px;">콘텐츠 레이아웃</td>
+                <td style="padding:10px 12px;opacity:.7;">1-column 전환</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;"><code>≤ 768px</code></td>
+                <td style="padding:10px 12px;">Drawer</td>
+                <td style="padding:10px 12px;opacity:.7;">left: 0; width: 100vw</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;"><code>≤ 480px</code></td>
+                <td style="padding:10px 12px;">액션 버튼</td>
+                <td style="padding:10px 12px;opacity:.7;">flex-wrap: wrap</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 12px;opacity:.45;" colspan="3">
+                  + 항목 추가 시 행을 복사하여 사용
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S14 Accessibility / Keyboard -->
+      <section id="s14" class="sec" data-screen-label="14 Accessibility / Keyboard / Scroll Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Accessibility / Keyboard / Scroll Rules</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:12px;">
+            키보드 탐색, 포커스 트랩, 스크롤 처리, 스크린리더 기준을 정의합니다.
+          </div>
+          <ul style="margin:0;padding-left:20px;font-size:.875em;display:flex;flex-direction:column;gap:10px;line-height:1.7;">
+            <li><strong>Tab 순서</strong> — [이 화면의 Tab 이동 순서 기술]</li>
+            <li><strong>포커스 트랩</strong> — Dialog / Drawer 열림 시 내부로 포커스 제한. <code>Escape</code>로 닫기.</li>
+            <li><strong>키보드 단축키</strong> — [화면별 단축키 정의 또는 "없음"]</li>
+            <li><strong>스크롤</strong> — <code>.po-main</code>에서 세로 스크롤. 테이블은 <code>.ss-table-scroll</code> 등 컨테이너에서 가로 스크롤.</li>
+            <li><strong>ARIA</strong> — <code>role</code>, <code>aria-label</code>, <code>aria-expanded</code> 적용 위치 기술.</li>
+            <li><strong>색상 대비</strong> — STAM 다크 테마 기준 4.5:1 이상 유지.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- S15 QA Checklist -->
+      <section id="s15" class="sec" data-screen-label="15 QA Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">QA Checklist</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:12px;">
+            화면 구현 완료 후 검증해야 할 QA 항목입니다. 체크 완료 시 담당자와 날짜를 기록합니다.
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:.875em;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.12));">
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">#</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">항목</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">기준</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">결과</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">확인자</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.5;">1</td>
+                <td style="padding:10px 12px;">화면 진입</td>
+                <td style="padding:10px 12px;opacity:.7;">Left Nav 클릭 시 정상 이동</td>
+                <td style="padding:10px 12px;"><span class="sbadge plan" style="font-size:.75em;">미확인</span></td>
+                <td style="padding:10px 12px;opacity:.5;">—</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.5;">2</td>
+                <td style="padding:10px 12px;">목록 렌더링</td>
+                <td style="padding:10px 12px;opacity:.7;">데이터 로드 및 테이블 표시 정상</td>
+                <td style="padding:10px 12px;"><span class="sbadge plan" style="font-size:.75em;">미확인</span></td>
+                <td style="padding:10px 12px;opacity:.5;">—</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.5;">3</td>
+                <td style="padding:10px 12px;">Drawer 열기/닫기</td>
+                <td style="padding:10px 12px;opacity:.7;">행 클릭 → Drawer 열림. Esc / 닫기 버튼 → 닫힘</td>
+                <td style="padding:10px 12px;"><span class="sbadge plan" style="font-size:.75em;">미확인</span></td>
+                <td style="padding:10px 12px;opacity:.5;">—</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.5;">4</td>
+                <td style="padding:10px 12px;">폼 유효성</td>
+                <td style="padding:10px 12px;opacity:.7;">필수 항목 미입력 시 에러 메시지 표시</td>
+                <td style="padding:10px 12px;"><span class="sbadge plan" style="font-size:.75em;">미확인</span></td>
+                <td style="padding:10px 12px;opacity:.5;">—</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.5;">5</td>
+                <td style="padding:10px 12px;">모바일 (390px)</td>
+                <td style="padding:10px 12px;opacity:.7;">Left Nav 숨김 / 1-column 레이아웃 정상</td>
+                <td style="padding:10px 12px;"><span class="sbadge plan" style="font-size:.75em;">미확인</span></td>
+                <td style="padding:10px 12px;opacity:.5;">—</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.5;">6</td>
+                <td style="padding:10px 12px;">다크/라이트 테마</td>
+                <td style="padding:10px 12px;opacity:.7;">테마 전환 시 색상 정상 반영</td>
+                <td style="padding:10px 12px;"><span class="sbadge plan" style="font-size:.75em;">미확인</span></td>
+                <td style="padding:10px 12px;opacity:.5;">—</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.5;">7</td>
+                <td style="padding:10px 12px;">권한 분기</td>
+                <td style="padding:10px 12px;opacity:.7;">Viewer 역할 진입 시 쓰기 버튼 숨김</td>
+                <td style="padding:10px 12px;"><span class="sbadge plan" style="font-size:.75em;">미확인</span></td>
+                <td style="padding:10px 12px;opacity:.5;">—</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;opacity:.5;">8</td>
+                <td style="padding:10px 12px;">콘솔 오류</td>
+                <td style="padding:10px 12px;opacity:.7;">브라우저 콘솔 오류 없음</td>
+                <td style="padding:10px 12px;"><span class="sbadge plan" style="font-size:.75em;">미확인</span></td>
+                <td style="padding:10px 12px;opacity:.5;">—</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 12px;opacity:.45;" colspan="5">
+                  + 항목 추가 시 행을 복사하여 사용
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S16 Change History -->
+      <section id="s16" class="sec" data-screen-label="16 Change History">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
+          <span class="sec-title">Change History</span>
+          <span class="sbadge guide">Template</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info" style="margin-bottom:12px;">
+            이 설계서의 변경 이력을 최신순으로 기록합니다.
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:.875em;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.12));">
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">버전</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">날짜</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">작성자</th>
+                <th style="padding:8px 12px;text-align:left;opacity:.5;font-weight:500;">변경 내용</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--c-border,rgba(255,255,255,.08));">
+                <td style="padding:10px 12px;"><code>v0.1</code></td>
+                <td style="padding:10px 12px;">2026-06-13</td>
+                <td style="padding:10px 12px;opacity:.7;">—</td>
+                <td style="padding:10px 12px;opacity:.7;">템플릿 초안 생성 (Baseline Draft)</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 12px;opacity:.45;" colspan="4">
+                  + 변경 시 행을 추가하여 기록 (최신순)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
