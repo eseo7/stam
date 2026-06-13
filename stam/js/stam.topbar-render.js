@@ -67,9 +67,30 @@
     '</svg>';
 
   function hardRefreshCurrentPage() {
+    var ts = String(Date.now());
+    try { sessionStorage.setItem('stam:hardRefreshTs', ts); } catch (e) {}
     var url = new URL(window.location.href);
-    url.searchParams.set('_r', String(Date.now()));
+    url.searchParams.set('_r', ts);
     window.location.href = url.toString();
+  }
+
+  /* 페이지 로드 시 sessionStorage의 hardRefreshTs를 사용해 STAM CSS asset 강제 재요청 */
+  function applyAssetCacheBusting() {
+    var ts = null;
+    try { ts = sessionStorage.getItem('stam:hardRefreshTs'); } catch (e) {}
+    if (!ts) return;
+    try { sessionStorage.removeItem('stam:hardRefreshTs'); } catch (e) {}
+
+    document.querySelectorAll('link[rel="stylesheet"]').forEach(function (link) {
+      var href = link.getAttribute('href') || '';
+      if (!href || !/css\/stam\./.test(href)) return;
+      var resolved = new URL(href, document.baseURI);
+      resolved.searchParams.delete('_r');
+      resolved.searchParams.set('_r', ts);
+      var fresh = link.cloneNode(false);
+      fresh.href = resolved.href;
+      link.parentNode.replaceChild(fresh, link);
+    });
   }
 
   function isDarkTheme() {
@@ -215,6 +236,7 @@
 
   /* ─── init: DOMContentLoaded 또는 즉시 ─── */
   function init() {
+    applyAssetCacheBusting();
     document.querySelectorAll('[data-stam-topbar]').forEach(renderTopbar);
   }
 
