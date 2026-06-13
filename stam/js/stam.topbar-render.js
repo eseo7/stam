@@ -67,8 +67,9 @@
     '</svg>';
 
   function hardRefreshCurrentPage(event) {
-    if (event && event.preventDefault)   event.preventDefault();
-    if (event && event.stopPropagation)  event.stopPropagation();
+    if (event && event.preventDefault)            event.preventDefault();
+    if (event && event.stopPropagation)           event.stopPropagation();
+    if (event && event.stopImmediatePropagation)  event.stopImmediatePropagation();
     var ts = String(Date.now());
     try { sessionStorage.setItem('stam:hardRefreshTs', ts); } catch (e) {}
     window.location.reload();
