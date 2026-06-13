@@ -82,7 +82,7 @@
         for (var i = 0; i < menus.length; i++) {
           var m = menus[i];
           if (m.id === navId && m.href && m.href !== '#') {
-            window.location.href = '/' + m.href;
+            window.location.href = '/' + m.href.replace(/^\//, '');
             return;
           }
         }
