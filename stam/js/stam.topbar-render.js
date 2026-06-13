@@ -34,11 +34,20 @@
     ' stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
     '</svg>';
 
-  var DOWNLOAD_SVG =
+  var REFRESH_SVG =
     '<svg class="stam-topbar-action-icon" viewBox="0 0 16 16" fill="none"' +
     ' width="16" height="16" aria-hidden="true">' +
-    '<path d="M8 2.5v6.8M8 9.3L5.6 6.9M8 9.3l2.4-2.4M3.5 11.5h9"' +
-    ' stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M14 2v4.5h-4.5" stroke="currentColor" stroke-width="1.8"' +
+    ' stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M14 6.5A6 6 0 1 1 10 2.5" stroke="currentColor" stroke-width="1.8"' +
+    ' stroke-linecap="round"/>' +
+    '</svg>';
+
+  var CHEVRON_DOWN_SVG =
+    '<svg class="stam-topbar-user-chev-icon" viewBox="0 0 16 16" fill="none"' +
+    ' width="12" height="12" aria-hidden="true">' +
+    '<path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8"' +
+    ' stroke-linecap="round" stroke-linejoin="round"/>' +
     '</svg>';
 
   var SEARCH_SVG =
@@ -56,6 +65,12 @@
     '<path d="M6.5 12.8a1.5 1.5 0 0 0 3 0" stroke="currentColor" stroke-width="1.8"' +
     ' stroke-linecap="round" stroke-linejoin="round"/>' +
     '</svg>';
+
+  function hardRefreshCurrentPage() {
+    var url = new URL(window.location.href);
+    url.searchParams.set('_r', String(Date.now()));
+    window.location.href = url.toString();
+  }
 
   function isDarkTheme() {
     if (window.STAM && typeof window.STAM.getTheme === 'function') {
@@ -146,9 +161,9 @@
       /* RIGHT — work actions · utilities */
       '<div class="stam-topbar-right">' +
         '<div class="stam-topbar-actions-work">' +
-          '<button class="stam-btn stam-btn--sm stam-btn--ghost stam-topbar-action" type="button"' +
-            ' aria-label="내보내기">' +
-            DOWNLOAD_SVG + '내보내기' +
+          '<button class="stam-btn stam-btn--sm stam-btn--ghost stam-topbar-action stam-topbar-refresh-btn" type="button"' +
+            ' aria-label="강력 새로고침" title="최신 화면 다시 불러오기">' +
+            REFRESH_SVG + '새로고침' +
           '</button>' +
         '</div>' +
         '<div class="stam-topbar-actions-sep" aria-hidden="true"></div>' +
@@ -168,11 +183,16 @@
             '<span class="stam-visually-hidden">' + themeActionLabel(isDarkTheme()) + '</span>' +
           '</button>' +
           '<button class="stam-btn stam-btn--sm stam-btn--ghost stam-topbar-user-btn"' +
-            ' type="button" aria-label="사용자 메뉴 열기">PM 김이름 <span class="stam-topbar-user-chev">∨</span></button>' +
+            ' type="button" aria-label="사용자 메뉴 열기">PM 김이름 <span class="stam-topbar-user-chev">' + CHEVRON_DOWN_SVG + '</span></button>' +
         '</div>' +
       '</div>';
 
     /* 테마 토글 클릭 · 외부 data-theme 변경 동기화 */
+    var refreshBtn = el.querySelector('.stam-topbar-refresh-btn');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', hardRefreshCurrentPage);
+    }
+
     var themeBtn = el.querySelector('.stam-theme-toggle');
     if (themeBtn) {
       updateThemeButton(themeBtn);
