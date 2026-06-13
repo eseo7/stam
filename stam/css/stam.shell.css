@@ -815,3 +815,18 @@ mark.nav-highlight {
 .po-main {
   min-width: 0;
 }
+
+/* ── hard refresh 직후 splash/FOUC 억제 (data-stam-skip-splash) ─── */
+[data-stam-skip-splash="true"] .po-topbar-logo img {
+  max-width: 28px !important;
+  max-height: 28px !important;
+  object-fit: contain !important;
+}
+[data-stam-skip-splash="true"] .wbs-drawer-panel {
+  transform: translateX(100%) !important;
+  transition: none !important;
+}
+[data-stam-skip-splash="true"] .wbs-drawer-overlay {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

@@ -66,18 +66,73 @@
     ' stroke-linecap="round" stroke-linejoin="round"/>' +
     '</svg>';
 
-  function hardRefreshCurrentPage() {
-    var ts = String(Date.now());
-    try { sessionStorage.setItem('stam:hardRefreshTs', ts); } catch (e) {}
-    window.location.reload();
+  function blockRefreshEvent(event) {
+    if (!event) return;
+    if (event.preventDefault)           event.preventDefault();
+    if (event.stopPropagation)          event.stopPropagation();
+    if (event.stopImmediatePropagation) event.stopImmediatePropagation();
   }
 
-  /* 페이지 로드 시 sessionStorage의 hardRefreshTs를 사용해 STAM CSS asset 강제 재요청 */
+  function showHardRefreshOverlay() {
+    if (document.querySelector('[data-stam-overlay="hard-refresh"]')) return;
+    var overlay = document.createElement('div');
+    overlay.setAttribute('data-stam-overlay', 'hard-refresh');
+    overlay.setAttribute('role', 'status');
+    overlay.setAttribute('aria-live', 'polite');
+    overlay.setAttribute('aria-label', '새로고침 중');
+    overlay.style.cssText = [
+      'position:fixed', 'inset:0', 'z-index:2147483647',
+      'display:flex', 'align-items:center', 'justify-content:center',
+      'background:var(--bg-base,#F8FAFC)', 'color:var(--t1,#0F172A)',
+      'opacity:0', 'pointer-events:all', 'transition:opacity 120ms ease-out'
+    ].join(';');
+    overlay.innerHTML =
+      '<div style="width:min(360px,calc(100vw - 48px));padding:28px 24px;' +
+      'border:1px solid var(--bd,#E2E8F0);border-radius:18px;' +
+      'background:var(--bg-sur,#FFFFFF);box-shadow:0 18px 48px rgba(15,23,42,.18);text-align:center;">' +
+        '<div style="width:44px;height:44px;margin:0 auto 14px;border-radius:999px;' +
+        'display:grid;place-items:center;color:var(--stam,#5451E8);' +
+        'background:rgba(84,81,232,.12);font-size:24px;">↻</div>' +
+        '<div style="font-size:15px;font-weight:800;color:var(--t1,#0F172A);">새로고침 중입니다</div>' +
+        '<div style="margin-top:6px;font-size:13px;color:var(--t2,#475569);">최신 화면을 불러오고 있습니다.</div>' +
+      '</div>';
+    document.body.appendChild(overlay);
+    requestAnimationFrame(function () { overlay.style.opacity = '1'; });
+  }
+
+  function hardRefreshCurrentPage(event) {
+    blockRefreshEvent(event);
+    var ts = String(Date.now());
+    try {
+      sessionStorage.setItem('stam:hardRefreshTs', ts);
+      sessionStorage.setItem('stam:skipSplashOnce', ts);
+    } catch (e) {}
+    showHardRefreshOverlay();
+    window.setTimeout(function () { window.location.reload(); }, 80);
+  }
+
+  /* 페이지 로드 시 sessionStorage의 hardRefreshTs를 사용해 STAM CSS asset 강제 재요청.
+   * skipSplash 플래그가 있으면 CSS 교체 전 inline style을 주입해 FOUC를 차단한다. */
   function applyAssetCacheBusting() {
     var ts = null;
     try { ts = sessionStorage.getItem('stam:hardRefreshTs'); } catch (e) {}
     if (!ts) return;
     try { sessionStorage.removeItem('stam:hardRefreshTs'); } catch (e) {}
+
+    /* stam.shell.js의 applySkipSplashOnce()가 먼저 실행되어 이 attribute를 붙인다 */
+    if (document.documentElement.getAttribute('data-stam-skip-splash') === 'true') {
+      var shield = document.createElement('style');
+      shield.setAttribute('data-stam-fouc-shield', '1');
+      shield.textContent =
+        '.po-topbar-logo img{max-width:28px!important;max-height:28px!important;object-fit:contain!important}' +
+        '.wbs-drawer-panel{transform:translateX(100%)!important;transition:none!important}' +
+        '.wbs-drawer-overlay{opacity:0!important;pointer-events:none!important}';
+      document.head.appendChild(shield);
+      window.setTimeout(function () {
+        if (shield.parentNode) shield.parentNode.removeChild(shield);
+        document.documentElement.removeAttribute('data-stam-skip-splash');
+      }, 800);
+    }
 
     document.querySelectorAll('link[rel="stylesheet"]').forEach(function (link) {
       var href = link.getAttribute('href') || '';
@@ -206,9 +261,12 @@
         '</div>' +
       '</div>';
 
-    /* 테마 토글 클릭 · 외부 data-theme 변경 동기화 */
+    /* 새로고침 버튼 — capture 페이즈로 등록해 drawer/document 핸들러보다 먼저 처리 */
     var refreshBtn = el.querySelector('.stam-topbar-refresh-btn');
     if (refreshBtn) {
+      ['pointerdown', 'mousedown', 'mouseup'].forEach(function (type) {
+        refreshBtn.addEventListener(type, blockRefreshEvent, true);
+      });
       refreshBtn.addEventListener('click', hardRefreshCurrentPage);
     }
 

@@ -405,6 +405,15 @@
     window.STAM.initTheme();
   }
 
+  /* hard refresh 직후 1회 splash skip — topbar-render의 applyAssetCacheBusting보다 먼저 실행 */
+  (function applySkipSplashOnce() {
+    var ts = 0;
+    try { ts = Number(sessionStorage.getItem('stam:skipSplashOnce') || 0); } catch (e) {}
+    if (!ts || (Date.now() - ts >= 5000)) return;
+    document.documentElement.setAttribute('data-stam-skip-splash', 'true');
+    try { sessionStorage.removeItem('stam:skipSplashOnce'); } catch (e) {}
+  }());
+
   window.STAM = window.STAM || {};
   window.STAM.shell = {
     renderSidebar:    renderSidebar,
