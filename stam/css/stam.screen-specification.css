@@ -2512,6 +2512,10 @@
 .ss-editor-view {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: var(--content-max, 1560px);
+  margin: 0 auto;
+  box-sizing: border-box;
   min-height: 100%;
   background: var(--bg-base);
   overflow-x: hidden;
@@ -2523,7 +2527,7 @@
   z-index: 20;
   background: var(--bg-sur);
   border-bottom: 1px solid var(--bd);
-  padding: 14px 32px;
+  padding: 14px var(--content-pad-x, 32px);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -2616,7 +2620,7 @@
   z-index: 20;
   background: var(--bg-sur2);
   border-top: 1px solid var(--bd);
-  padding: 12px 32px;
+  padding: 12px var(--content-pad-x, 32px);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -3573,6 +3577,9 @@
 ═══════════════════════════════════════════════════════ */
 .ss-editor-split {
   display: flex;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
   flex: 1 1 0;
   min-height: 0;
   min-width: 0;
