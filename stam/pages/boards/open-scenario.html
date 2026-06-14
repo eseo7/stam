@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오픈 시나리오 — 파르나스 리뉴얼 구축 — STAM</title>
+  <link rel="icon" href="../../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+  <link rel="stylesheet" href="../../css/stam.tokens.css">
+  <link rel="stylesheet" href="../../css/stam.shell.css">
+  <link rel="stylesheet" href="../../css/stam.components.css">
+  <link rel="stylesheet" href="../../css/stam.project-overview.css">
+  <link rel="stylesheet" href="../../css/stam.form-controls.css">
+  <link rel="stylesheet" href="../../css/stam.drawer.css">
+  <link rel="stylesheet" href="../../css/stam.table-selection.css">
+  <link rel="stylesheet" href="../../css/stam.buttons.css">
+  <link rel="stylesheet" href="../../css/stam.board-toolbar.css">
+  <link rel="stylesheet" href="../../css/stam.board-filter.css">
+  <link rel="stylesheet" href="../../css/stam.open-scenario.css">
+</head>
+<body>
+
+<div class="po-shell">
+
+  <header class="po-topbar stam-topbar" data-stam-topbar
+    data-tb-crumbs="내 프로젝트|파르나스 리뉴얼 구축|오픈 시나리오"
+    data-tb-client="파르나스호텔"
+    data-tb-search-placeholder="시나리오 ID · 시나리오명 검색"
+    data-tb-notif="true"></header>
+
+  <div class="po-body">
+
+    <nav class="po-sidebar" data-stam-left-nav aria-label="프로젝트 내비게이션"></nav>
+
+    <main class="po-main" id="po-main" data-screen-label="오픈 시나리오">
+
+      <section class="po-ctx" data-stam-project-context
+        data-pc-title="파르나스 리뉴얼 구축"
+        data-pc-client="파르나스호텔"
+        data-pc-stage="설계 단계"
+        data-pc-status="진행중"
+        data-pc-role="Project Admin / PM"
+        data-pc-date="기준일 2026-06-06"
+        data-pc-progress="74"
+        data-pc-risk="주의"
+        data-pc-risk-level="warn"
+        data-pc-updated="업데이트 오늘 03:20"></section>
+
+      <section class="os-page">
+
+        <!-- ── Page Header ── -->
+        <div class="os-page-hdr">
+          <div class="os-page-hdr-l">
+            <div class="os-page-title">오픈 시나리오</div>
+            <div class="os-page-desc">오픈 전/당일/후 실행 시나리오와 점검 상태를 관리합니다.</div>
+          </div>
+          <div class="os-page-hdr-r">
+            <button class="os-btn stam-btn stam-btn-outline" type="button" id="os-col-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              컬럼 설정
+            </button>
+            <button class="os-btn stam-btn stam-btn-outline" type="button" id="os-export-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              내보내기
+            </button>
+            <button class="os-btn os-btn-sitboard stam-btn stam-btn-outline" type="button" id="os-sitboard-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+              상황판 보기
+            </button>
+            <button class="os-btn stam-btn stam-btn-primary" type="button" id="os-reg-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              시나리오 등록
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Zone A: Opening Readiness Summary ── -->
+        <div class="os-readiness">
+          <div class="os-readiness-hd">
+            <span class="os-zone-tag">Zone A</span>
+            <span class="os-readiness-title">Opening Readiness Summary</span>
+            <span class="os-readiness-date">D-Day · 2026-06-06</span>
+          </div>
+          <div class="os-readiness-body">
+            <div class="os-readiness-left">
+              <div class="os-readiness-pct-row">
+                <span class="os-readiness-pct-label">오픈 준비율</span>
+                <span class="os-readiness-pct-val">74%</span>
+              </div>
+              <div class="os-readiness-bar-wrap">
+                <div class="os-readiness-bar-fill" style="width:74%"></div>
+              </div>
+              <div class="os-readiness-alert">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Rollback 미확정 · 고객확인 5건 대기 · 이슈 3건 미해소
+              </div>
+            </div>
+            <div class="os-kpi-row">
+              <div class="os-kpi-card">
+                <div class="os-kpi-num">24</div>
+                <div class="os-kpi-lbl">전체 시나리오</div>
+              </div>
+              <div class="os-kpi-card os-kpi-done">
+                <div class="os-kpi-num">8</div>
+                <div class="os-kpi-lbl">완료 (정상)</div>
+              </div>
+              <div class="os-kpi-card os-kpi-issue">
+                <div class="os-kpi-num">3</div>
+                <div class="os-kpi-lbl">이슈 발생</div>
+              </div>
+              <div class="os-kpi-card os-kpi-apv">
+                <div class="os-kpi-num">12</div>
+                <div class="os-kpi-lbl">승인 완료</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Phase filter tabs + status chips ── -->
+        <div class="os-filter">
+          <div class="os-filter-tabs">
+            <button class="os-tab on" type="button" data-os-tab="all">전체</button>
+            <button class="os-tab" type="button" data-os-tab="pre">오픈 전</button>
+            <button class="os-tab" type="button" data-os-tab="day">오픈 당일</button>
+            <button class="os-tab" type="button" data-os-tab="post">오픈 후</button>
+          </div>
+          <div class="os-filter-chips">
+            <button class="os-chip" type="button" data-os-chip="progress">진행</button>
+            <button class="os-chip os-chip-issue" type="button" data-os-chip="issue">이슈</button>
+            <button class="os-chip os-chip-hold" type="button" data-os-chip="hold">보류</button>
+            <button class="os-chip" type="button" data-os-chip="wait-confirm">고객확인 대기</button>
+            <button class="os-chip os-chip-apv" type="button" data-os-chip="approved">승인완료</button>
+            <button class="os-chip" type="button" data-os-chip="export">내보내기 포함</button>
+          </div>
+        </div>
+
+        <!-- ── Toolbar ── -->
+        <div class="os-toolbar stam-board-toolbar">
+          <div class="stam-board-toolbar-left">
+            <div class="stam-board-toolbar-base">
+              <div class="os-search stam-board-search">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--t3);flex-shrink:0" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="시나리오 ID · 시나리오명 · 담당자 검색" autocomplete="off">
+              </div>
+              <div class="os-toolbar-sep"></div>
+              <button class="os-filter-btn stam-board-filter-trigger" id="os-filter-open-btn" type="button" aria-expanded="false" aria-controls="os-filter-panel">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M4 8h8M6 12h4"/></svg>
+                필터
+                <span class="stam-board-filter-count" id="os-filter-count" style="display:none">0</span>
+              </button>
+            </div>
+          </div>
+          <div class="stam-board-toolbar-right">
+            <span class="os-tbl-count">8 / 24 표시</span>
+          </div>
+
+          <!-- 필터 패널 (stam.board-filter.js 렌더링) -->
+          <div class="stam-board-filter-panel" id="os-filter-panel" hidden>
+            <div class="stam-board-filter-grid"></div>
+            <div class="stam-board-filter-actions">
+              <button class="stam-btn stam-btn-ghost" id="os-filter-reset" type="button">초기화</button>
+              <button class="stam-btn stam-btn-primary" id="os-filter-apply" type="button">적용</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Zone C: Scenario List ── -->
+        <div class="os-scenario-table">
+          <div class="os-tbl-scroll">
+            <table class="os-tbl">
+              <colgroup>
+                <col style="min-width:200px">
+                <col style="width:88px">
+                <col style="width:88px">
+                <col style="width:104px">
+                <col style="width:104px">
+                <col style="width:80px">
+                <col style="width:76px">
+                <col style="width:88px">
+                <col style="width:80px">
+                <col style="width:52px">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>작업명</th>
+                  <th>담당자</th>
+                  <th>확인자</th>
+                  <th>예정 시작</th>
+                  <th>실제 시작</th>
+                  <th>체크 결과</th>
+                  <th>이슈 ID</th>
+                  <th>고객확인</th>
+                  <th>공개범위</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="os-tbody">
+
+                <!-- SCN-001 -->
+                <tr class="os-row" data-scn-id="SCN-001">
+                  <td>
+                    <div class="os-nm-cell">
+                      <span class="os-scn-id">SCN-001</span>
+                      <span class="os-scn-ph-badge os-ph-pre">사전준비</span>
+                    </div>
+                    <div class="os-scn-nm">DB 풀 백업 실행</div>
+                  </td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#5451E8">최</span>최태호</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#10B981">박</span>박지원</div></td>
+                  <td class="os-time">D-3 00:00</td>
+                  <td class="os-time">D-3 01:20</td>
+                  <td><span class="os-status-chip os-s-ok">완료</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-001">상세</button></td>
+                </tr>
+
+                <!-- SCN-003 -->
+                <tr class="os-row" data-scn-id="SCN-003">
+                  <td>
+                    <div class="os-nm-cell">
+                      <span class="os-scn-id">SCN-003</span>
+                      <span class="os-scn-ph-badge os-ph-pre">사전준비</span>
+                    </div>
+                    <div class="os-scn-nm">Rollback 계획 최종 검토</div>
+                  </td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#EC4899">이</span>이다은</div></td>
+                  <td class="os-time">D-2 16:00</td>
+                  <td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-issue">이슈</span></td>
+                  <td class="os-iss-col"><span class="os-iss-badge">ISS-012</span></td>
+                  <td><span class="os-confirm-chip os-c-review">검토중</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-003">상세</button></td>
+                </tr>
+
+                <!-- SCN-006 -->
+                <tr class="os-row" data-scn-id="SCN-006">
+                  <td>
+                    <div class="os-nm-cell">
+                      <span class="os-scn-id">SCN-006</span>
+                      <span class="os-scn-ph-badge os-ph-pre">사전준비</span>
+                    </div>
+                    <div class="os-scn-nm">운영팀 배포 권한 부여</div>
+                  </td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#10B981">박</span>박지원</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
+                  <td class="os-time">D-1 17:00</td>
+                  <td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-wait">대기</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-006">상세</button></td>
+                </tr>
+
+                <!-- SCN-007 -->
+                <tr class="os-row" data-scn-id="SCN-007">
+                  <td>
+                    <div class="os-nm-cell">
+                      <span class="os-scn-id">SCN-007</span>
+                      <span class="os-scn-ph-badge os-ph-day">D-Day</span>
+                    </div>
+                    <div class="os-scn-nm">시스템 점검 공지</div>
+                  </td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#5451E8">최</span>최태호</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#8B5CF6">홍</span>홍길동</div></td>
+                  <td class="os-time">06-06 02:00</td>
+                  <td class="os-time">06-06 02:05</td>
+                  <td><span class="os-status-chip os-s-ok">완료</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-confirm-chip os-c-share">고객공유</span></td>
+                  <td><span class="os-scope-chip os-scope-share">고객공유</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-007">상세</button></td>
+                </tr>
+
+                <!-- SCN-009 (D-Day 진행중 — 샘플 활성 행) -->
+                <tr class="os-row os-row-active" data-scn-id="SCN-009">
+                  <td>
+                    <div class="os-nm-cell">
+                      <span class="os-scn-id">SCN-009</span>
+                      <span class="os-scn-ph-badge os-ph-day">D-Day</span>
+                    </div>
+                    <div class="os-scn-nm">DB 마이그레이션 스크립트 실행</div>
+                  </td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#5451E8">최</span>최태호</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#10B981">박</span>박지원</div></td>
+                  <td class="os-time">06-06 02:30</td>
+                  <td class="os-time">06-06 02:33</td>
+                  <td><span class="os-status-chip os-s-prog">진행중</span></td>
+                  <td class="os-iss-col"><span class="os-iss-badge os-iss-warn">ISS-예정</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-009">상세</button></td>
+                </tr>
+
+                <!-- SCN-011 -->
+                <tr class="os-row" data-scn-id="SCN-011">
+                  <td>
+                    <div class="os-nm-cell">
+                      <span class="os-scn-id">SCN-011</span>
+                      <span class="os-scn-ph-badge os-ph-day">D-Day</span>
+                    </div>
+                    <div class="os-scn-nm">운영 서버 배포 (Blue-Green)</div>
+                  </td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#10B981">박</span>박지원</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
+                  <td class="os-time">06-06 04:00</td>
+                  <td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-wait">대기</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-011">상세</button></td>
+                </tr>
+
+                <!-- SCN-015 -->
+                <tr class="os-row" data-scn-id="SCN-015">
+                  <td>
+                    <div class="os-nm-cell">
+                      <span class="os-scn-id">SCN-015</span>
+                      <span class="os-scn-ph-badge os-ph-day">D-Day</span>
+                    </div>
+                    <div class="os-scn-nm">고객사 최종 확인 요청</div>
+                  </td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#8B5CF6">홍</span>홍길동 (고객)</div></td>
+                  <td class="os-time">06-06 06:30</td>
+                  <td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-wait">대기</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-confirm-chip os-c-wait">확인대기</span></td>
+                  <td><span class="os-scope-chip os-scope-share">고객공유</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-015">상세</button></td>
+                </tr>
+
+                <!-- SCN-019 -->
+                <tr class="os-row" data-scn-id="SCN-019">
+                  <td>
+                    <div class="os-nm-cell">
+                      <span class="os-scn-id">SCN-019</span>
+                      <span class="os-scn-ph-badge os-ph-post">오픈 후</span>
+                    </div>
+                    <div class="os-scn-nm">오픈 후 24시간 모니터링</div>
+                  </td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#EC4899">이</span>이다은</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
+                  <td class="os-time">D+1 시작</td>
+                  <td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-plan">예정</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-019">상세</button></td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+          <div class="os-tbl-foot">
+            <span>총 24건 중 8건 표시</span>
+            <div class="os-pg">
+              <button class="os-pgb" type="button" aria-label="이전 페이지">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button class="os-pgb on" type="button">1</button>
+              <button class="os-pgb" type="button">2</button>
+              <button class="os-pgb" type="button">3</button>
+              <button class="os-pgb" type="button" aria-label="다음 페이지">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Scrim ── -->
+        <div class="os-scrim stam-drawer-scrim" id="os-scrim"></div>
+
+        <!-- ══════════════ 상세 DRAWER ══════════════ -->
+        <div class="os-drawer stam-drawer" id="os-dw-detail" role="dialog" aria-modal="true" aria-label="시나리오 상세">
+
+          <!-- Drawer Head -->
+          <div class="os-dw-head">
+            <div class="os-dw-hrow1">
+              <span class="os-dw-id-badge">SCN-009</span>
+              <span class="os-dw-ph-chip os-ph-day">D-Day</span>
+              <span class="os-dw-scope-chip">내부공개</span>
+              <button class="os-dw-close" aria-label="닫기" id="os-dw-close-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div class="os-dw-title">DB 마이그레이션 스크립트 실행</div>
+            <div class="os-dw-meta">
+              <span class="os-dw-meta-item">단계: DB · 순서: 02</span>
+              <span class="os-status-chip os-s-prog">진행중</span>
+            </div>
+          </div>
+
+          <!-- 6탭 -->
+          <div class="os-dw-tabs">
+            <button class="os-dw-tab on" type="button" data-os-dwtab="info">기본정보</button>
+            <button class="os-dw-tab" type="button" data-os-dwtab="checklist">체크리스트</button>
+            <button class="os-dw-tab" type="button" data-os-dwtab="issue">이슈 연결</button>
+            <button class="os-dw-tab" type="button" data-os-dwtab="attach">첨부/URL</button>
+            <button class="os-dw-tab" type="button" data-os-dwtab="approval">승인/확인</button>
+            <button class="os-dw-tab" type="button" data-os-dwtab="history">댓글/이력</button>
+          </div>
+
+          <!-- Drawer Body -->
+          <div class="os-dw-body">
+
+            <!-- ── 기본정보 탭 ── -->
+            <div class="os-tab-panel" id="os-tab-info">
+
+              <div class="os-dw-sec">
+                <div class="os-dw-sec-hd">기본 정보</div>
+                <div class="os-info-grid">
+                  <div class="os-info-row">
+                    <div class="os-info-key">시나리오 ID</div>
+                    <div class="os-info-val os-info-val-id">SCN-009</div>
+                  </div>
+                  <div class="os-info-row">
+                    <div class="os-info-key">작업 순서</div>
+                    <div class="os-info-val">2번째</div>
+                  </div>
+                  <div class="os-info-row">
+                    <div class="os-info-key">담당자</div>
+                    <div class="os-info-val">
+                      <span class="os-ava" style="background:#5451E8">최</span>최태호 (DBA)
+                    </div>
+                  </div>
+                  <div class="os-info-row">
+                    <div class="os-info-key">확인자</div>
+                    <div class="os-info-val">
+                      <span class="os-ava" style="background:#10B981">박</span>박지원 (Tech Lead)
+                    </div>
+                  </div>
+                  <div class="os-info-row">
+                    <div class="os-info-key">예정 시작</div>
+                    <div class="os-info-val">2026-06-06 02:30</div>
+                  </div>
+                  <div class="os-info-row">
+                    <div class="os-info-key">예정 종료</div>
+                    <div class="os-info-val">2026-06-06 04:00</div>
+                  </div>
+                  <div class="os-info-row">
+                    <div class="os-info-key">실제 시작</div>
+                    <div class="os-info-val os-info-val-actual">2026-06-06 02:33</div>
+                  </div>
+                  <div class="os-info-row">
+                    <div class="os-info-key">현재 상태</div>
+                    <div class="os-info-val"><span class="os-status-chip os-s-prog">진행중</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="os-dw-sec">
+                <div class="os-dw-sec-hd">상세 작업 내용</div>
+                <div class="os-purp-box">
+                  DB 마이그레이션 스크립트 v1.0 ~ v3.0을 순차적으로 실행합니다.<br>
+                  각 스크립트 실행 후 Row count 정합성을 검증해야 합니다.
+                </div>
+              </div>
+
+              <div class="os-dw-sec">
+                <div class="os-dw-sec-hd">실행 조건 / 영향 범위</div>
+                <div class="os-info-grid">
+                  <div class="os-info-row">
+                    <div class="os-info-key">실행 조건</div>
+                    <div class="os-info-val">SCN-008 (DB 백업) 완료 후 실행</div>
+                  </div>
+                  <div class="os-info-row">
+                    <div class="os-info-key">영향 범위</div>
+                    <div class="os-info-val">메인 DB · API 서버 · 배치 서버</div>
+                  </div>
+                  <div class="os-info-row full">
+                    <div class="os-info-key">특이사항</div>
+                    <div class="os-info-val os-info-val-warn">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                      Rollback 스크립트 준비 완료 상태 확인 필요 · ISS-012 미해소
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- ── 체크리스트 탭 (placeholder) ── -->
+            <div class="os-tab-panel" id="os-tab-checklist" style="display:none">
+              <div class="os-tab-placeholder">
+                <div class="os-placeholder-ic">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                </div>
+                <div class="os-placeholder-txt">체크리스트 탭은 후속 PR에서 구현됩니다.</div>
+              </div>
+            </div>
+
+            <!-- ── 이슈 연결 탭 (placeholder) ── -->
+            <div class="os-tab-panel" id="os-tab-issue" style="display:none">
+              <div class="os-tab-placeholder">
+                <div class="os-placeholder-ic">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
+                <div class="os-placeholder-txt">이슈 연결 탭은 후속 PR에서 구현됩니다.</div>
+              </div>
+            </div>
+
+            <!-- ── 첨부/URL 탭 (placeholder) ── -->
+            <div class="os-tab-panel" id="os-tab-attach" style="display:none">
+              <div class="os-tab-placeholder">
+                <div class="os-placeholder-ic">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                </div>
+                <div class="os-placeholder-txt">첨부/URL 탭은 후속 PR에서 구현됩니다.</div>
+              </div>
+            </div>
+
+            <!-- ── 승인/확인 탭 (placeholder) ── -->
+            <div class="os-tab-panel" id="os-tab-approval" style="display:none">
+              <div class="os-tab-placeholder">
+                <div class="os-placeholder-ic">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div class="os-placeholder-txt">승인/확인 탭은 후속 PR에서 구현됩니다.</div>
+              </div>
+            </div>
+
+            <!-- ── 댓글/이력 탭 (placeholder) ── -->
+            <div class="os-tab-panel" id="os-tab-history" style="display:none">
+              <div class="os-tab-placeholder">
+                <div class="os-placeholder-ic">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <div class="os-placeholder-txt">댓글/이력 탭은 후속 PR에서 구현됩니다.</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Drawer Footer -->
+          <div class="os-dw-foot stam-drawer-foot">
+            <button class="stam-btn stam-btn-ghost" type="button" id="os-dw-cancel-btn">닫기</button>
+            <div style="flex:1"></div>
+            <button class="stam-btn stam-btn-outline" type="button">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              이슈 등록
+            </button>
+            <button class="stam-btn stam-btn-primary" type="button">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              체크 결과 업데이트
+            </button>
+          </div>
+
+        </div>
+        <!-- /os-dw-detail -->
+
+      </section>
+    </main>
+  </div>
+</div>
+
+<script src="../../js/stam.theme.js"></script>
+<script src="../../js/stam.nav-data.js"></script>
+<script src="../../js/stam.shell.js"></script>
+<script src="../../js/stam.nav-render.js"></script>
+<script src="../../js/stam.topbar-render.js"></script>
+<script src="../../js/stam.project-context-render.js"></script>
+<script src="../../js/stam.board-filter.js"></script>
+<script src="../../js/stam.open-scenario.js"></script>
+
+</body>
+</html>
