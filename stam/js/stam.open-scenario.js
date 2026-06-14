@@ -158,6 +158,7 @@
   }
 
   /* ── Checkbox: selected state · delete btn ────────────────────── */
+  /* class 기준: .os-row-cb(JS hook) + .stam-check(스타일), .os-cb-all(JS hook) + .stam-check(스타일) */
   function bindCheckboxes() {
     var cbAll     = document.querySelector('.os-cb-all');
     var deleteBtn = document.getElementById('os-delete-btn');
@@ -210,6 +211,7 @@
             row.classList.toggle('is-selected', cbAll.checked);
           }
         });
+        syncHeaderCb();
         updateDeleteBtn();
       });
     }
