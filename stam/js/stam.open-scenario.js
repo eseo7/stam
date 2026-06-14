@@ -157,7 +157,7 @@
     window.STAM.navRender.init('C8');
   }
 
-  /* ── Checkbox: hover reveal · selected state · delete btn ────── */
+  /* ── Checkbox: selected state · delete btn ────────────────────── */
   function bindCheckboxes() {
     var cbAll     = document.querySelector('.os-cb-all');
     var deleteBtn = document.getElementById('os-delete-btn');
@@ -171,8 +171,11 @@
     }
 
     function updateDeleteBtn() {
-      var count = document.querySelectorAll('.os-row-cb:checked').length;
-      if (deleteBtn) deleteBtn.disabled = count === 0;
+      if (!deleteBtn) return;
+      var n = document.querySelectorAll('.os-row-cb:checked').length;
+      deleteBtn.disabled = n === 0;
+      var lbl = deleteBtn.querySelector('.os-del-lbl');
+      if (lbl) lbl.textContent = n > 0 ? '삭제 (' + n + ')' : '삭제';
     }
 
     function syncHeaderCb() {
@@ -187,7 +190,10 @@
       cb.addEventListener('click', function (e) { e.stopPropagation(); });
       cb.addEventListener('change', function () {
         var row = cb.closest('tr');
-        if (row) row.classList.toggle('is-selected', cb.checked);
+        if (row) {
+          row.classList.toggle('sel', cb.checked);
+          row.classList.toggle('is-selected', cb.checked);
+        }
         syncHeaderCb();
         updateDeleteBtn();
       });
@@ -199,7 +205,10 @@
         getVisibleRowCbs().forEach(function (cb) {
           cb.checked = cbAll.checked;
           var row = cb.closest('tr');
-          if (row) row.classList.toggle('is-selected', cbAll.checked);
+          if (row) {
+            row.classList.toggle('sel', cbAll.checked);
+            row.classList.toggle('is-selected', cbAll.checked);
+          }
         });
         updateDeleteBtn();
       });
