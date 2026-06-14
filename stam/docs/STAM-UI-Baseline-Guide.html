@@ -57,6 +57,7 @@
       <li class="toc-item"><a href="#s18"><span class="toc-n">18</span>Forbidden Rules</a></li>
       <li class="toc-item"><a href="#s19"><span class="toc-n">19</span>First Board Implementation</a></li>
       <li class="toc-item"><a href="#s20"><span class="toc-n">20</span>Baseline Checklist</a></li>
+      <li class="toc-item"><a href="#s21"><span class="toc-n">21</span>Page Layout Contract</a></li>
     </ul>
   </aside>
 
@@ -802,6 +803,147 @@
             <div class="chk-item"><div class="chk-box"></div>Light / Dark 대응 확인</div>
             <div class="chk-item"><div class="chk-box"></div>1440 / 1600 / 1920 폭 확인</div>
             <div class="chk-item"><div class="chk-box"></div>콘솔 에러 없음</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S21 -->
+      <section id="s21" class="sec" data-screen-label="21 Page Layout Contract">
+        <div class="sec-hdr">
+          <span class="sec-n">21</span>
+          <span class="sec-title">Page Layout Contract</span>
+          <span class="sbadge lock">기준 고정</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            STAM 화면 공통 width 기준을 <strong>outer page wrapper 한 곳</strong>에서만 관리한다.
+            화면별로 width / max-width / padding을 감으로 직접 넣지 않는다.
+            이 계약을 어기는 경우 반드시 주석 또는 이 문서에 예외 사유를 남겨야 한다.
+          </div>
+
+          <!-- Width Ownership Rule -->
+          <p class="sub">Width Ownership Rule</p>
+          <div class="ibox info">
+            <strong>width는 outer page wrapper가 단독 소유한다.</strong>
+            inner wrapper · 섹션 · 카드 · 테이블 래퍼 등 내부 요소는 width를 재지정하지 않는다.
+            <code>--content-max</code> · <code>--content-pad-x</code> 두 토큰이 유일한 width 결정 소스이다.
+          </div>
+          <table class="stbl">
+            <thead><tr><th>소유자</th><th>역할</th><th>width 권한</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="mono">outer page wrapper</span><br><small>(예: <code>.screen-spec-page</code>)</small></td>
+                <td>전체 본문의 최대 폭·여백·가운데 정렬 담당</td>
+                <td class="mono" style="color:var(--pass);">✔ 소유 — 유일한 width 결정 지점</td>
+              </tr>
+              <tr>
+                <td><span class="mono">inner wrapper</span><br><small>(섹션 묶음 등)</small></td>
+                <td>레이아웃 내부 그룹핑 전용</td>
+                <td class="mono" style="color:var(--fail);">✖ 소유 금지</td>
+              </tr>
+              <tr>
+                <td>카드 · 테이블 · 폼 등</td>
+                <td>콘텐츠 자체 너비</td>
+                <td class="mono" style="color:var(--fail);">✖ max-width / 고정 px 직접 기입 금지</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Outer Wrapper / Inner Wrapper Rule -->
+          <p class="sub">Outer Wrapper / Inner Wrapper Rule</p>
+          <div class="two-col">
+            <div>
+              <p class="sub" style="font-size:11px;margin-bottom:6px;">Outer Wrapper — 필수 기준</p>
+              <div class="ibox info" style="font-size:12px;">
+                <code style="display:block;white-space:pre;line-height:1.8;">width: 100%;
+max-width: var(--content-max, 1560px);
+margin: 0 auto;
+padding: 20px var(--content-pad-x, 32px) 64px;
+box-sizing: border-box;</code>
+              </div>
+              <ul class="blist" style="margin-top:8px;">
+                <li>토큰이 없는 환경에서도 fallback 값으로 동작 보장</li>
+                <li><code>margin: 0 auto</code> 로 가운데 정렬 — 개별 화면에서 재선언 금지</li>
+                <li><code>box-sizing: border-box</code> 필수 — padding이 width 밖으로 넘치지 않도록</li>
+              </ul>
+            </div>
+            <div>
+              <p class="sub" style="font-size:11px;margin-bottom:6px;">Inner Wrapper — 허용 범위</p>
+              <div class="ibox info" style="font-size:12px;">
+                <code style="display:block;white-space:pre;line-height:1.8;">width: 100%;
+max-width: none;
+margin: 0;</code>
+              </div>
+              <ul class="blist" style="margin-top:8px;">
+                <li>섹션 묶음·카드 그룹·필터 영역 등 내부 구분 목적으로만 사용</li>
+                <li><code>max-width</code> 재설정 금지 — outer wrapper가 이미 제한함</li>
+                <li>개별 좌우 <code>padding</code> 추가 금지 — outer wrapper의 <code>--content-pad-x</code>가 담당</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Do / Don't -->
+          <p class="sub">Do / Don't</p>
+          <table class="stbl">
+            <thead><tr><th style="width:50%;">✔ Do</th><th style="width:50%;">✖ Don't</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><code>max-width: var(--content-max)</code> — outer wrapper에서</td>
+                <td><code>max-width: 1360px</code> · <code>1440px</code> · <code>1560px</code> 직접 기입</td>
+              </tr>
+              <tr>
+                <td><code>padding: 20px var(--content-pad-x, 32px) 64px</code></td>
+                <td><code>padding: 20px 40px</code> · <code>padding: 20px 32px</code> 직접 기입</td>
+              </tr>
+              <tr>
+                <td>inner wrapper: <code>width: 100%; max-width: none</code></td>
+                <td>inner wrapper에 <code>max-width: 1200px</code> 등 재설정</td>
+              </tr>
+              <tr>
+                <td>예외 화면: 주석 또는 이 문서에 사유 명시 후 사용</td>
+                <td>예외 사유 없이 임의 width 값 사용</td>
+              </tr>
+              <tr>
+                <td>Focus View 최대 폭: <code>var(--content-focus-max, 1760px)</code></td>
+                <td>Focus View에서 일반 본문과 같은 <code>--content-max</code> 재사용</td>
+              </tr>
+              <tr>
+                <td>토큰 fallback 형식: <code>var(--content-max, 1560px)</code></td>
+                <td>토큰 없이 <code>1560px</code> 단독 기입</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- 예외 처리 -->
+          <p class="sub">예외 화면 처리 원칙</p>
+          <div class="ibox warn">
+            <strong>예외가 필요한 경우</strong> 아래 형식으로 CSS 주석을 남기고 이 문서 예외 목록에도 추가한다.
+            <code style="display:block;margin-top:8px;white-space:pre;font-size:11px;">/* [Layout Exception] 화면명: {이유}
+   width: {값} — 기준 outer wrapper와 다른 이유를 1줄로 기재
+   승인: PR #{번호} */</code>
+          </div>
+          <table class="stbl">
+            <thead><tr><th>화면</th><th>예외 항목</th><th>사유</th><th>적용 PR</th></tr></thead>
+            <tbody>
+              <tr>
+                <td colspan="4" style="text-align:center;color:var(--t3);font-size:12px;">현재 등록된 예외 없음</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- QA Checklist -->
+          <p class="sub">QA Checklist — Page Layout</p>
+          <div class="chk-grid">
+            <div class="chk-item"><div class="chk-box"></div>목록 화면 좌측 시작선이 신규/상세/템플릿 화면과 일치</div>
+            <div class="chk-item"><div class="chk-box"></div>목록 화면 우측 끝선이 신규/상세/템플릿 화면과 일치</div>
+            <div class="chk-item"><div class="chk-box"></div>content width가 화면 간 동일 (1440 / 1600 / 1920 기준)</div>
+            <div class="chk-item"><div class="chk-box"></div>outer wrapper에서만 max-width 선언 확인</div>
+            <div class="chk-item"><div class="chk-box"></div>inner wrapper에 max-width 재설정 없음</div>
+            <div class="chk-item"><div class="chk-box"></div>고정 px 값 (1360 / 1440 / 1560 / 32 / 40 등) 직접 기입 없음</div>
+            <div class="chk-item"><div class="chk-box"></div>--content-max · --content-pad-x 토큰 사용 확인</div>
+            <div class="chk-item"><div class="chk-box"></div>box-sizing: border-box 적용 확인</div>
+            <div class="chk-item"><div class="chk-box"></div>예외 화면: CSS 주석 및 이 문서 예외 목록 등록 확인</div>
+            <div class="chk-item"><div class="chk-box"></div>Focus View 최대 폭 --content-focus-max 사용 확인</div>
           </div>
         </div>
       </section>
