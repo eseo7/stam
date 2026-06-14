@@ -10,85 +10,85 @@
   /* ── Data ── */
   var MENUS = [
     { id: 'G-01', name: '대시보드', screens: [
-      { id: 'SCR-001', name: '대시보드', ver: 'v1.1', wst: 'complete', rst: 'done', ast: 'approved', type: 'main', menu: '대시보드', owner: '박PM', av: '박', ac: '#5451E8', upd: '2026-06-07', hasImg: true, annots: 2,
+      { id: 'SCR-001', name: '대시보드', ver: 'v1.1', wst: 'complete', rst: 'done', ast: 'approved', type: 'main', menu: '대시보드', owner: '박PM', av: '박', ac: '#5451E8', upd: '2026-06-07', hasImg: true, annots: 2, template: 'dashboard', templateName: '대시보드 화면',
         purp: 'STAM 플랫폼 첫 진입 화면으로 프로젝트 전체 현황과 처리 대기 항목을 일람합니다.',
         acts: [{ n: '화면설계서 바로가기', loc: '현황 카드', act: '목록 이동' }, { n: '검토 요청 확인', loc: '알림 영역', act: 'Drawer 열기' }],
         links: { req: ['REQ-001'], art: [], work: [], ifc: [], fn: [] },
         hist: [{ k: 'edit', who: '박PM', at: '06-07', t: 'KPI 카드 순서 변경', f: 'v1.0', to: 'v1.1' }, { k: 'create', who: '이UX', at: '05-20', t: '최초 등록', n: 'v0.1' }] }
     ] },
     { id: 'G-02', name: '회원', screens: [
-      { id: 'SCR-002', name: '회원가입', ver: 'v1.0', wst: 'complete', rst: 'pending', ast: 'none', type: 'form', menu: '회원 > 회원가입', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-10', hasImg: true, annots: 3,
+      { id: 'SCR-002', name: '회원가입', ver: 'v1.0', wst: 'complete', rst: 'pending', ast: 'none', type: 'form', menu: '회원 > 회원가입', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-10', hasImg: true, annots: 3, template: 'form-create', templateName: '등록 Drawer 화면',
         purp: '사용자 계정 생성을 위한 정보 입력 화면입니다. 약관 동의, 본인 인증 단계를 포함합니다.',
         acts: [{ n: '이름·이메일 입력', loc: '폼 필드', act: '입력값 유효성 검사' }, { n: '회원가입 완료', loc: '제출 버튼', act: '계정 생성 처리' }],
         links: { req: ['REQ-001', 'REQ-002'], art: [], work: [], ifc: ['IFC-001'], fn: [] },
         hist: [{ k: 'edit', who: '이UX', at: '06-10', t: '약관 동의 항목 추가', f: 'v0.9', to: 'v1.0' }, { k: 'st', who: '김기획', at: '06-09', t: '검토 요청 전환', f: '작성완료', to: '검토 대기' }, { k: 'create', who: '이UX', at: '05-25', t: '최초 등록', n: 'v0.1' }] },
-      { id: 'SCR-003', name: '로그인 / 인증', ver: 'v1.2', wst: 'complete', rst: 'done', ast: 'approved', type: 'form', menu: '회원 > 로그인', owner: '최개발', av: '최', ac: '#00BF40', upd: '2026-06-05', hasImg: true, annots: 4,
+      { id: 'SCR-003', name: '로그인 / 인증', ver: 'v1.2', wst: 'complete', rst: 'done', ast: 'approved', type: 'form', menu: '회원 > 로그인', owner: '최개발', av: '최', ac: '#00BF40', upd: '2026-06-05', hasImg: true, annots: 4, template: 'form-create', templateName: '등록 Drawer 화면',
         purp: 'STAM 플랫폼 진입을 위한 인증 화면입니다.',
         acts: [{ n: '로그인', loc: '제출 버튼', act: '인증 처리' }, { n: '비밀번호 찾기', loc: '링크', act: '재설정 화면 이동' }],
         links: { req: ['REQ-001'], art: [], work: [], ifc: ['IFC-001'], fn: [] },
         hist: [{ k: 'edit', who: '최개발', at: '06-05', t: '접근성 개선', f: 'v1.1', to: 'v1.2' }, { k: 'st', who: '박PM', at: '05-28', t: '승인 완료', f: '검토 대기', to: '승인 완료' }] },
-      { id: 'SCR-004', name: '마이페이지', ver: 'v0.8', wst: 'writing', rst: 'none', ast: 'none', type: 'main', menu: '회원 > 마이페이지', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-08', hasImg: false, annots: 0,
+      { id: 'SCR-004', name: '마이페이지', ver: 'v0.8', wst: 'writing', rst: 'none', ast: 'none', type: 'main', menu: '회원 > 마이페이지', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-08', hasImg: false, annots: 0, template: 'dashboard', templateName: '대시보드 화면',
         purp: '로그인 사용자의 프로필, 활동 이력, 설정을 관리하는 화면입니다.',
         acts: [{ n: '프로필 수정', loc: '편집 버튼', act: '수정 폼 열기' }, { n: '활동 이력 조회', loc: '탭', act: '이력 목록 표시' }],
         links: { req: ['REQ-004'], art: [], work: [], ifc: [], fn: [] },
         hist: [{ k: 'edit', who: '이UX', at: '06-08', t: '활동 이력 탭 추가', f: 'v0.7', to: 'v0.8' }, { k: 'create', who: '이UX', at: '05-30', t: '최초 등록', n: 'v0.1' }] }
     ] },
     { id: 'G-03', name: '산출물 관리', screens: [
-      { id: 'SCR-005', name: '요구사항정의서 목록', ver: 'v1.0', wst: 'complete', rst: 'done', ast: 'approved', type: 'list', menu: '산출물 관리 > 요구사항정의서', owner: '김기획', av: '김', ac: '#6541F2', upd: '2026-06-07', hasImg: true, annots: 2,
+      { id: 'SCR-005', name: '요구사항정의서 목록', ver: 'v1.0', wst: 'complete', rst: 'done', ast: 'approved', type: 'list', menu: '산출물 관리 > 요구사항정의서', owner: '김기획', av: '김', ac: '#6541F2', upd: '2026-06-07', hasImg: true, annots: 2, template: 'list', templateName: '목록형 화면',
         purp: '프로젝트 요구사항을 정의하고 관리하는 목록 화면입니다.',
         acts: [{ n: '요구사항 등록', loc: '상단 버튼', act: '등록 Drawer 열기' }, { n: '행 클릭', loc: '목록 행', act: '상세 Drawer 열기' }],
         links: { req: [], art: [], work: ['WBS-010'], ifc: [], fn: ['FN-001'] },
         hist: [{ k: 'st', who: '박PM', at: '06-07', t: '승인 완료', f: '검토 대기', to: '승인 완료' }, { k: 'edit', who: '김기획', at: '06-05', t: '필터 구성 확정', f: 'v0.3', to: 'v1.0' }] },
-      { id: 'SCR-006', name: '메뉴구조 / 화면목록', ver: 'v0.5', wst: 'writing', rst: 'none', ast: 'none', type: 'list', menu: '산출물 관리 > 메뉴구조', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-09', hasImg: false, annots: 0,
+      { id: 'SCR-006', name: '메뉴구조 / 화면목록', ver: 'v0.5', wst: 'writing', rst: 'none', ast: 'none', type: 'list', menu: '산출물 관리 > 메뉴구조', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-09', hasImg: false, annots: 0, template: 'list', templateName: '목록형 화면',
         purp: '프로젝트의 메뉴 구조와 화면 목록을 계층형으로 관리하는 화면입니다.',
         acts: [{ n: '메뉴 추가', loc: '상단 버튼', act: '등록 Drawer 열기' }, { n: '화면 연결', loc: '행 액션', act: '화면설계서 연결' }],
         links: { req: ['REQ-011'], art: [], work: ['WBS-002'], ifc: [], fn: ['FN-002', 'FN-003'] },
         hist: [{ k: 'edit', who: '이UX', at: '06-09', t: '계층 표현 방식 수정', f: 'v0.4', to: 'v0.5' }, { k: 'create', who: '이UX', at: '06-01', t: '최초 등록', n: 'v0.1' }] },
-      { id: 'SCR-007', name: 'WBS 작업', ver: 'v1.1', wst: 'complete', rst: 'done', ast: 'approved', type: 'list', menu: '산출물 관리 > WBS 작업', owner: '박PM', av: '박', ac: '#5451E8', upd: '2026-06-06', hasImg: true, annots: 5,
+      { id: 'SCR-007', name: 'WBS 작업', ver: 'v1.1', wst: 'complete', rst: 'done', ast: 'approved', type: 'list', menu: '산출물 관리 > WBS 작업', owner: '박PM', av: '박', ac: '#5451E8', upd: '2026-06-06', hasImg: true, annots: 5, template: 'list', templateName: '목록형 화면',
         purp: '프로젝트 작업을 계획·관리하는 목록 화면입니다. 간트 타임라인을 포함합니다.',
         acts: [{ n: '작업 등록', loc: '상단 버튼', act: '등록 Drawer 열기' }, { n: '행 클릭', loc: '목록 행', act: '상세 Drawer 열기' }],
         links: { req: ['REQ-008'], art: [], work: ['WBS-007'], ifc: [], fn: [] },
         hist: [{ k: 'edit', who: '박PM', at: '06-06', t: '간트 타임라인 추가', f: 'v1.0', to: 'v1.1' }, { k: 'st', who: '박PM', at: '05-30', t: '승인 완료', f: '검토 대기', to: '승인 완료' }] },
-      { id: 'SCR-008', name: '화면설계서 목록', ver: 'v0.6', wst: 'writing', rst: 'none', ast: 'none', type: 'list', menu: '산출물 관리 > 화면설계서', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-09', hasImg: false, annots: 0,
+      { id: 'SCR-008', name: '화면설계서 목록', ver: 'v0.6', wst: 'writing', rst: 'none', ast: 'none', type: 'list', menu: '산출물 관리 > 화면설계서', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-09', hasImg: false, annots: 0, template: 'list', templateName: '목록형 화면',
         purp: '화면설계서를 메뉴 단위 hierarchy 구조로 관리하는 목록 화면입니다.',
         acts: [{ n: '화면 등록', loc: '상단 버튼', act: '등록 Drawer 열기' }, { n: '행 클릭', loc: '목록 행', act: '상세 Drawer 열기' }],
         links: { req: ['REQ-011'], art: ['ART-003'], work: ['WBS-011'], ifc: [], fn: [] },
         hist: [{ k: 'edit', who: '이UX', at: '06-09', t: 'hierarchy tree table 구조 적용', f: 'v0.5', to: 'v0.6' }, { k: 'create', who: '이UX', at: '06-01', t: '최초 등록', n: 'v0.1' }] },
-      { id: 'SCR-009', name: '화면설계서 상세', ver: 'v0.4', wst: 'complete', rst: 'done', ast: 'approved', type: 'detail', menu: '산출물 관리 > 화면설계서', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-08', hasImg: true, annots: 7,
+      { id: 'SCR-009', name: '화면설계서 상세', ver: 'v0.4', wst: 'complete', rst: 'done', ast: 'approved', type: 'detail', menu: '산출물 관리 > 화면설계서', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-08', hasImg: true, annots: 7, template: 'form-detail', templateName: '상세 Drawer 화면',
         purp: '화면설계서 항목의 개요·연결정보·검토이력을 우측 Drawer 방식으로 표시합니다.',
         acts: [{ n: '탭 전환', loc: 'Drawer 탭', act: '탭 콘텐츠 전환' }, { n: '검토 요청', loc: 'Drawer 하단', act: '상태 변경' }],
         links: { req: ['REQ-012'], art: ['ART-003'], work: ['WBS-009'], ifc: [], fn: ['FN-004'] },
         hist: [{ k: 'st', who: '박PM', at: '06-08', t: '승인 완료', f: '검토 대기', to: '승인 완료' }, { k: 'edit', who: '이UX', at: '06-07', t: '연결정보 탭 추가', f: 'v0.3', to: 'v0.4' }] },
-      { id: 'SCR-010', name: '화면설계서 등록', ver: 'v0.3', wst: 'writing', rst: 'none', ast: 'none', type: 'form', menu: '산출물 관리 > 화면설계서', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-08', hasImg: false, annots: 0,
+      { id: 'SCR-010', name: '화면설계서 등록', ver: 'v0.3', wst: 'writing', rst: 'none', ast: 'none', type: 'form', menu: '산출물 관리 > 화면설계서', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-08', hasImg: false, annots: 0, template: 'form-create', templateName: '등록 Drawer 화면',
         purp: '새 화면설계서를 등록하는 폼 화면입니다. 기본 정보, 이미지 첨부, 연결정보를 입력합니다.',
         acts: [{ n: '정보 입력', loc: '폼 필드', act: '유효성 검사' }, { n: '저장', loc: '하단 버튼', act: '등록 처리' }],
         links: { req: ['REQ-012'], art: [], work: ['WBS-009'], ifc: [], fn: [] },
         hist: [{ k: 'edit', who: '이UX', at: '06-08', t: '이미지 첨부 영역 추가', f: 'v0.2', to: 'v0.3' }, { k: 'create', who: '이UX', at: '06-03', t: '최초 등록', n: 'v0.1' }] },
-      { id: 'SCR-011', name: '화면설계서 수정', ver: 'v0.3', wst: 'writing', rst: 'none', ast: 'none', type: 'form', menu: '산출물 관리 > 화면설계서', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-08', hasImg: false, annots: 0,
+      { id: 'SCR-011', name: '화면설계서 수정', ver: 'v0.3', wst: 'writing', rst: 'none', ast: 'none', type: 'form', menu: '산출물 관리 > 화면설계서', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-08', hasImg: false, annots: 0, template: 'form-create', templateName: '등록 Drawer 화면',
         purp: '기존 화면설계서를 수정하는 폼 화면입니다. 변경 사유 입력 기능을 포함합니다.',
         acts: [{ n: '정보 수정', loc: '폼 필드', act: '유효성 검사' }, { n: '저장', loc: '하단 버튼', act: '변경 처리' }],
         links: { req: ['REQ-012'], art: [], work: ['WBS-009'], ifc: [], fn: [] },
         hist: [{ k: 'edit', who: '이UX', at: '06-08', t: '변경 사유 입력 추가', f: 'v0.2', to: 'v0.3' }, { k: 'create', who: '이UX', at: '06-03', t: '최초 등록', n: 'v0.1' }] }
     ] },
     { id: 'G-04', name: '검토 관리', screens: [
-      { id: 'SCR-012', name: '검토 요청 현황', ver: 'v0.7', wst: 'complete', rst: 'pending', ast: 'none', type: 'list', menu: '검토 관리 > 검토 요청 현황', owner: '김기획', av: '김', ac: '#6541F2', upd: '2026-06-09', hasImg: false, annots: 0,
+      { id: 'SCR-012', name: '검토 요청 현황', ver: 'v0.7', wst: 'complete', rst: 'pending', ast: 'none', type: 'list', menu: '검토 관리 > 검토 요청 현황', owner: '김기획', av: '김', ac: '#6541F2', upd: '2026-06-09', hasImg: false, annots: 0, template: 'approval', templateName: '승인/검토 화면',
         purp: '프로젝트 전체 검토 요청 현황을 일람하고 처리하는 화면입니다.',
         acts: [{ n: '검토 요청 확인', loc: '목록 행', act: '상세 Drawer 열기' }, { n: '승인/반려', loc: '행 액션', act: '상태 변경' }],
         links: { req: ['REQ-015'], art: [], work: [], ifc: [], fn: [] },
         hist: [{ k: 'st', who: '박PM', at: '06-09', t: '검토 요청 전환', f: '작성완료', to: '검토 대기' }, { k: 'edit', who: '김기획', at: '06-07', t: '상태 chip 구성 보정', f: 'v0.6', to: 'v0.7' }] },
-      { id: 'SCR-013', name: '검토 요청 결과', ver: 'v0.2', wst: 'writing', rst: 'none', ast: 'none', type: 'detail', menu: '검토 관리 > 검토 결과', owner: '김기획', av: '김', ac: '#6541F2', upd: '2026-06-09', hasImg: false, annots: 0,
+      { id: 'SCR-013', name: '검토 요청 결과', ver: 'v0.2', wst: 'writing', rst: 'none', ast: 'none', type: 'detail', menu: '검토 관리 > 검토 결과', owner: '김기획', av: '김', ac: '#6541F2', upd: '2026-06-09', hasImg: false, annots: 0, template: 'form-detail', templateName: '상세 Drawer 화면',
         purp: '검토 요청 처리 결과를 확인하는 화면입니다. 승인/반려 사유를 포함합니다.',
         acts: [{ n: '목록으로 돌아가기', loc: '하단 버튼', act: '목록 이동' }],
         links: { req: ['REQ-015'], art: [], work: [], ifc: [], fn: [] },
         hist: [{ k: 'create', who: '김기획', at: '06-09', t: '최초 등록', n: 'v0.1' }] }
     ] },
     { id: 'G-05', name: '보내기 / 설정', screens: [
-      { id: 'SCR-014', name: '산출물보내기', ver: 'v1.0', wst: 'complete', rst: 'pending', ast: 'none', type: 'popup', menu: '보내기 / 설정 >보내기', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-06', hasImg: false, annots: 0,
+      { id: 'SCR-014', name: '산출물보내기', ver: 'v1.0', wst: 'complete', rst: 'pending', ast: 'none', type: 'popup', menu: '보내기 / 설정 >보내기', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-06', hasImg: false, annots: 0, template: 'blank', templateName: '빈 템플릿',
         purp: '선택한 산출물을 PDF·Excel 등 형식으로보내는 팝업 화면입니다.',
         acts: [{ n: '형식 선택', loc: '라디오', act: '형식 변경' }, { n: '보내기', loc: '하단 버튼', act: '파일 생성' }],
         links: { req: [], art: ['ART-006'], work: [], ifc: ['IFC-002'], fn: ['FN-005'] },
         hist: [{ k: 'st', who: '김기획', at: '06-06', t: '검토 요청 전환', f: '작성완료', to: '검토 대기' }, { k: 'create', who: '이UX', at: '05-28', t: '최초 등록', n: 'v0.1' }] },
-      { id: 'SCR-015', name: '프로젝트 구성원 관리', ver: 'v0.3', wst: 'complete', rst: 'pending', ast: 'none', type: 'admin', menu: '보내기 / 설정 > 구성원 관리', owner: '박PM', av: '박', ac: '#5451E8', upd: '2026-06-09', hasImg: false, annots: 0,
+      { id: 'SCR-015', name: '프로젝트 구성원 관리', ver: 'v0.3', wst: 'complete', rst: 'pending', ast: 'none', type: 'admin', menu: '보내기 / 설정 > 구성원 관리', owner: '박PM', av: '박', ac: '#5451E8', upd: '2026-06-09', hasImg: false, annots: 0, template: 'blank', templateName: '빈 템플릿',
         purp: '프로젝트 참여 구성원의 역할 및 접근 범위를 관리하는 화면입니다.',
         acts: [{ n: '구성원 초대', loc: '상단 버튼', act: '초대 Drawer 열기' }, { n: '역할 변경', loc: '행 선택', act: '역할 저장' }],
         links: { req: ['REQ-004'], art: [], work: ['WBS-002'], ifc: [], fn: [] },
@@ -122,6 +122,86 @@
     canvas: '<path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/>',
     upload: '<polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>'
   };
+
+  /* ── Template definitions ── */
+  var TEMPLATES = [
+    { id: 'list', name: '목록형 화면', desc: '검색·필터·테이블 구조의 목록 화면', count: 7, use: '목록·조회·관리 화면', defaultType: 'list',
+      items: ['화면 제목', '검색 조건', '조회 버튼', '결과 테이블', '상태 chip', '행 액션', '빈 결과 상태'],
+      useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true,
+      icon: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/>' },
+    { id: 'form-create', name: '등록 Drawer 화면', desc: '입력 폼 중심의 등록·작성 Drawer 화면', count: 5, use: '신규 등록·작성 화면', defaultType: 'form',
+      items: ['화면 제목', '폼 입력 영역', '필수 항목 표시', '저장 버튼', '취소 버튼'],
+      useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false,
+      icon: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/>' },
+    { id: 'form-detail', name: '상세 Drawer 화면', desc: '저장된 항목을 읽기 전용으로 표시하는 상세 Drawer', count: 5, use: '상세 보기·이력 화면', defaultType: 'detail',
+      items: ['화면 제목', '기본 정보', '상태 표시', '변경 이력', '액션 버튼'],
+      useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false,
+      icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>' },
+    { id: 'dashboard', name: '대시보드 화면', desc: 'KPI 카드·차트 중심의 현황 요약 화면', count: 4, use: '현황 요약·통계 화면', defaultType: 'main',
+      items: ['화면 제목', 'KPI 카드', '차트/그래프 영역', '상세 링크'],
+      useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false,
+      icon: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>' },
+    { id: 'approval', name: '승인/검토 화면', desc: '검토 요청·승인·반려 워크플로우 화면', count: 6, use: '승인·검토·감사 화면', defaultType: 'list',
+      items: ['화면 제목', '검토 대상 목록', '상태 chip', '승인 액션', '반려 사유', '이력'],
+      useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: false,
+      icon: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>' },
+    { id: 'blank', name: '빈 템플릿', desc: '항목 없이 직접 구성하는 빈 화면 템플릿', count: 1, use: '비정형·커스텀 화면', defaultType: 'list',
+      items: ['화면 제목'],
+      useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false,
+      icon: '<rect x="3" y="3" width="18" height="18" rx="2"/>' }
+  ];
+
+  /* ── Create Form State (JS 메모리 only — no localStorage) ── */
+  var CS = {
+    template: 'list',
+    templateName: '목록형 화면',
+    screenName: '',
+    screenId: '',
+    bizArea: '',
+    screenType: 'list',
+    menuPath: '',
+    purpose: '',
+    memo: '',
+    screenTitle: '',
+    topNote: '',
+    useSearch: true,
+    useTable: true,
+    useStatusChip: true,
+    useRowAction: true,
+    useEmpty: true,
+    searchItems: [{ cond: '화면 ID', inputType: 'text', required: true, defaultVal: '', order: 1 }],
+    tableColumns: [{ name: '화면명', key: 'screenName', visible: true, sortable: true, width: '200px' }, { name: '상태', key: 'status', visible: true, sortable: false, width: '80px' }],
+    rowActions: [{ name: '상세 보기', style: 'ghost', link: '', permission: '전체', condition: '항상' }],
+    status: 'writing',
+    savedId: null
+  };
+
+  var SS_ID_SEQ = 16;
+
+  function resetCS(tplId) {
+    var tpl = TEMPLATES.filter(function (t) { return t.id === tplId; })[0] || TEMPLATES[0];
+    CS.template = tpl.id;
+    CS.templateName = tpl.name;
+    CS.screenName = '';
+    CS.screenId = '';
+    CS.bizArea = '';
+    CS.screenType = tpl.defaultType;
+    CS.menuPath = '';
+    CS.purpose = '';
+    CS.memo = '';
+    CS.screenTitle = '';
+    CS.topNote = '';
+    CS.useSearch = tpl.useSearch;
+    CS.useTable = tpl.useTable;
+    CS.useStatusChip = tpl.useStatusChip;
+    CS.useRowAction = tpl.useRowAction;
+    CS.useEmpty = tpl.useEmpty;
+    CS.searchItems = CS.useSearch ? [{ cond: '검색어', inputType: 'text', required: false, defaultVal: '', order: 1 }] : [];
+    CS.tableColumns = CS.useTable ? [{ name: '항목명', key: 'name', visible: true, sortable: true, width: '200px' }] : [];
+    CS.rowActions = CS.useRowAction ? [{ name: '상세 보기', style: 'ghost', link: '', permission: '전체', condition: '항상' }] : [];
+    CS.status = 'writing';
+    CS.savedId = null;
+  }
 
   /* State */
   var S = {
@@ -544,6 +624,7 @@
   }
 
   function openRegister() {
+    resetCS('list');
     showDw('register', null);
   }
 
@@ -556,7 +637,7 @@
   }
 
   function renderDw() {
-    var m = { detail: renderDetail, register: renderRegister, edit: renderEdit, reviewreq: renderReviewReq };
+    var m = { detail: renderDetail, register: renderRegister, edit: renderEdit, reviewreq: renderReviewReq, preview: renderPreviewDw };
     if (m[S.dwMode]) m[S.dwMode](S.dwItem);
     enhanceDrawerSelects();
   }
@@ -778,7 +859,43 @@
   }
 
   function tabOverview(d) {
-    return '<div class="ss-dw-sec"><div class="ss-dw-sec-hdr"><h3>상태</h3></div><div class="ss-status-row">' +
+    var tplRow = d.templateName
+      ? '<div class="ss-detail-tpl-row"><span class="ss-detail-tpl-lbl">템플릿</span><span class="ss-detail-tpl-val">' + d.templateName + '</span></div>'
+      : '';
+    var structItems = [
+      { lbl: '검색영역', on: d.type === 'list' || d.type === 'admin' },
+      { lbl: '결과테이블', on: d.type === 'list' || d.type === 'admin' },
+      { lbl: '상태 chip', on: d.wst !== 'none' },
+      { lbl: '행 액션', on: d.acts && d.acts.length > 0 },
+      { lbl: '빈 결과 상태', on: d.type === 'list' }
+    ];
+    var structRow = '<div class="ss-detail-struct-row">' +
+      structItems.map(function(si) {
+        return '<span class="ss-detail-struct-chip' + (si.on ? ' is-on' : '') + '">' + si.lbl + (si.on ? ' ✓' : '') + '</span>';
+      }).join('') +
+    '</div>';
+    /* Description table */
+    var descRows = [];
+    var dn = 1;
+    descRows.push({ n: dn++, name: '화면 제목', desc: d.name });
+    if (d.type === 'list' || d.type === 'admin') {
+      descRows.push({ n: dn++, name: '검색 조건', desc: '화면 ID · 화면명 검색' });
+      descRows.push({ n: dn++, name: '조회 버튼', desc: '조회 실행' });
+      descRows.push({ n: dn++, name: '결과 테이블', desc: '화면 목록 표시' });
+    }
+    if (d.wst !== 'none') descRows.push({ n: dn++, name: '상태 chip', desc: '작성/검토/승인 상태 표시' });
+    if (d.acts && d.acts.length) {
+      d.acts.forEach(function(a) { descRows.push({ n: dn++, name: a.n, desc: a.loc + ' → ' + a.act }); });
+    }
+    if (d.type === 'list') descRows.push({ n: dn++, name: '빈 결과 상태', desc: '결과 없음 안내 문구' });
+    var descTable = '<table class="ss-detail-desc-table"><thead><tr><th class="ss-detail-desc-num">번호</th><th>항목명</th><th>설명</th></tr></thead><tbody>' +
+      descRows.map(function(r) {
+        return '<tr><td class="ss-detail-desc-num">' + r.n + '</td><td class="ss-detail-desc-name">' + r.name + '</td><td class="ss-detail-desc-desc">' + r.desc + '</td></tr>';
+      }).join('') +
+    '</tbody></table>';
+
+    return tplRow + structRow +
+      '<div class="ss-dw-sec"><div class="ss-dw-sec-hdr"><h3>상태</h3></div><div class="ss-status-row">' +
       '<span class="ss-sr-item"><span class="ss-sr-lbl">작성</span>' + wChip(d.wst, true) + '</span>' +
       '<span class="ss-sr-sep"></span><span class="ss-sr-item"><span class="ss-sr-lbl">검토</span>' + rChip(d.rst, true) + '</span>' +
       '<span class="ss-sr-sep"></span><span class="ss-sr-item"><span class="ss-sr-lbl">승인</span>' + aChip(d.ast, true) + '</span></div></div>' +
@@ -800,7 +917,8 @@
         : '<div style="display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--t3)">' + ic(ICONS.img, 34, 1.5) + '<span style="font-size:12px;opacity:.5">이미지 없음</span></div>') +
       '</div><div class="ss-img-meta"><div class="ss-img-meta-row"><div class="ss-img-chips">' + imgChip(d.hasImg) + ' ' + annChip(d.annots) + '</div></div>' +
       '<div class="ss-img-actions"><button type="button" class="ss-btn ss-btn-out" style="font-size:11.5px;padding:5px 10px">' + ic(ICONS.edit, 12) + ' UI 주석 편집 열기</button>' +
-      '<button type="button" class="ss-btn ss-btn-ghost" style="font-size:11.5px;padding:5px 10px">' + ic(ICONS.canvas, 12) + ' 전체 캔버스 보기</button></div></div></div></div>';
+      '<button type="button" class="ss-btn ss-btn-ghost" style="font-size:11.5px;padding:5px 10px">' + ic(ICONS.canvas, 12) + ' 전체 캔버스 보기</button></div></div></div></div>' +
+      '<div class="ss-dw-sec"><div class="ss-dw-sec-hdr"><h3>Description 상세</h3></div>' + descTable + '</div>';
   }
 
   function tabLinks(d) {
@@ -856,6 +974,9 @@
     var head = document.getElementById('ss-dw-head');
     var body = document.getElementById('ss-dw-body');
     var foot = document.getElementById('ss-dw-foot');
+    var drawer = document.getElementById('ss-drawer');
+    if (drawer) drawer.classList.remove('is-wide');
+    if (foot) foot.className = 'ss-dw-foot';
     if (tabs) tabs.style.display = 'flex';
     if (head) {
       head.innerHTML = '<div class="ss-dw-hrow"><span class="ss-dw-id">' + d.id + '</span><span class="ss-vp">' + d.ver + '</span><span class="ss-dw-mode-badge is-detail">상세</span><span style="flex:1"></span>' +
@@ -883,38 +1004,433 @@
     }
   }
 
+  /* ── Create Drawer helpers ── */
+
+  function svgIcon(path, sz) {
+    sz = sz || 14;
+    return '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + path + '</svg>';
+  }
+
+  function buildTplCards() {
+    return '<div class="ss-tpl-grid" id="ss-tpl-grid">' +
+      TEMPLATES.map(function (t) {
+        var isActive = t.id === CS.template;
+        return '<div class="ss-tpl-card' + (isActive ? ' active' : '') + '" data-ss-tpl="' + t.id + '">' +
+          '<div class="ss-tpl-card-icon">' + svgIcon(t.icon, 14) + '</div>' +
+          '<div class="ss-tpl-card-name">' + t.name + '</div>' +
+          '<div class="ss-tpl-card-desc">' + t.desc + '</div>' +
+          '<div class="ss-tpl-card-meta">' +
+            '<span class="ss-tpl-card-badge">기본 항목 ' + t.count + '개</span>' +
+            '<span class="ss-tpl-card-badge">' + t.use + '</span>' +
+          '</div>' +
+          '<button type="button" class="ss-tpl-sel-btn" data-ss-tpl="' + t.id + '">' +
+            svgIcon(isActive ? '<polyline points="20 6 9 17 4 12"/>' : '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>', 11) +
+            (isActive ? '선택됨' : '이 템플릿 선택') +
+          '</button>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  function buildToggleSwitch(key, checked) {
+    return '<label class="ss-toggle-sw">' +
+      '<input type="checkbox" data-ss-toggle="' + key + '"' + (checked ? ' checked' : '') + '>' +
+      '<span class="ss-toggle-track"></span>' +
+      '<span class="ss-toggle-knob"></span>' +
+    '</label>';
+  }
+
+  function buildToggleRows() {
+    var rows = [
+      { key: 'useSearch', lbl: '검색영역 사용', sub: '검색 조건 입력 패널', on: CS.useSearch },
+      { key: 'useTable', lbl: '결과테이블 사용', sub: '컬럼 헤더와 데이터 행', on: CS.useTable },
+      { key: 'useStatusChip', lbl: '상태 chip 사용', sub: '작성/검토/승인 상태 표시', on: CS.useStatusChip },
+      { key: 'useRowAction', lbl: '행 액션 사용', sub: '행별 버튼 또는 드롭다운', on: CS.useRowAction },
+      { key: 'useEmpty', lbl: '빈 결과 상태 사용', sub: '결과 없음 안내 문구', on: CS.useEmpty }
+    ];
+    return '<div class="ss-toggle-grid">' +
+      rows.map(function (r) {
+        return '<div class="ss-toggle-row">' +
+          '<div class="ss-toggle-row-l">' +
+            '<span class="ss-toggle-lbl">' + r.lbl + '</span>' +
+            '<span class="ss-toggle-sub">' + r.sub + '</span>' +
+          '</div>' +
+          buildToggleSwitch(r.key, r.on) +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  function buildSearchBuilder() {
+    if (!CS.useSearch) return '<div class="ss-dw-sec-empty">검색영역 사용 안 함 — 화면 구조에서 켜면 표시됩니다.</div>';
+    var hdrs = ['<div class="ss-builder-col-lbl">조건명</div>','<div class="ss-builder-col-lbl">입력타입</div>','<div class="ss-builder-col-lbl">필수</div>','<div class="ss-builder-col-lbl">기본값</div>','<div class="ss-builder-col-lbl">순서</div>','<div></div>'];
+    return '<div class="ss-builder-rows" id="ss-sb-rows">' +
+      CS.searchItems.map(function (item, i) {
+        return '<div class="ss-builder-row ss-br-search" data-sb-idx="' + i + '">' +
+          '<div><div class="ss-builder-col-lbl">조건명</div><input class="ss-builder-inp" data-sb-field="cond" data-sb-idx="' + i + '" value="' + item.cond + '" placeholder="조건명"></div>' +
+          '<div><div class="ss-builder-col-lbl">입력타입</div><input class="ss-builder-inp" data-sb-field="inputType" data-sb-idx="' + i + '" value="' + item.inputType + '" placeholder="text / select / date"></div>' +
+          '<div><div class="ss-builder-col-lbl">필수</div><input class="ss-builder-inp" data-sb-field="required" data-sb-idx="' + i + '" value="' + (item.required ? 'Y' : 'N') + '" placeholder="Y/N"></div>' +
+          '<div><div class="ss-builder-col-lbl">기본값</div><input class="ss-builder-inp" data-sb-field="defaultVal" data-sb-idx="' + i + '" value="' + item.defaultVal + '" placeholder="기본값"></div>' +
+          '<div><div class="ss-builder-col-lbl">순서</div><input class="ss-builder-inp" data-sb-field="order" data-sb-idx="' + i + '" value="' + item.order + '" placeholder="1"></div>' +
+          '<div><div class="ss-builder-col-lbl">&nbsp;</div><button type="button" class="ss-builder-del" data-sb-del="' + i + '" title="삭제">' + svgIcon('<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>', 12) + '</button></div>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+    '<button type="button" class="ss-builder-add-btn" data-ss-builder-add="search">' +
+      svgIcon('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>', 12) + ' 검색 조건 추가' +
+    '</button>';
+  }
+
+  function buildColBuilder() {
+    if (!CS.useTable) return '<div class="ss-dw-sec-empty">결과테이블 사용 안 함 — 화면 구조에서 켜면 표시됩니다.</div>';
+    return '<div class="ss-builder-rows" id="ss-cb-rows">' +
+      CS.tableColumns.map(function (col, i) {
+        return '<div class="ss-builder-row ss-br-col" data-cb-idx="' + i + '">' +
+          '<div><div class="ss-builder-col-lbl">컬럼명</div><input class="ss-builder-inp" data-cb-field="name" data-cb-idx="' + i + '" value="' + col.name + '" placeholder="컬럼명"></div>' +
+          '<div><div class="ss-builder-col-lbl">데이터키</div><input class="ss-builder-inp" data-cb-field="key" data-cb-idx="' + i + '" value="' + col.key + '" placeholder="camelCase"></div>' +
+          '<div><div class="ss-builder-col-lbl">표시</div><input class="ss-builder-inp" data-cb-field="visible" data-cb-idx="' + i + '" value="' + (col.visible ? 'Y' : 'N') + '" placeholder="Y/N"></div>' +
+          '<div><div class="ss-builder-col-lbl">정렬가능</div><input class="ss-builder-inp" data-cb-field="sortable" data-cb-idx="' + i + '" value="' + (col.sortable ? 'Y' : 'N') + '" placeholder="Y/N"></div>' +
+          '<div><div class="ss-builder-col-lbl">너비</div><input class="ss-builder-inp" data-cb-field="width" data-cb-idx="' + i + '" value="' + col.width + '" placeholder="120px"></div>' +
+          '<div><div class="ss-builder-col-lbl">&nbsp;</div><button type="button" class="ss-builder-del" data-cb-del="' + i + '" title="삭제">' + svgIcon('<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>', 12) + '</button></div>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+    '<button type="button" class="ss-builder-add-btn" data-ss-builder-add="col">' +
+      svgIcon('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>', 12) + ' 컬럼 추가' +
+    '</button>';
+  }
+
+  function buildActionBuilder() {
+    if (!CS.useRowAction) return '<div class="ss-dw-sec-empty">행 액션 사용 안 함 — 화면 구조에서 켜면 표시됩니다.</div>';
+    return '<div class="ss-builder-rows" id="ss-ab-rows">' +
+      CS.rowActions.map(function (act, i) {
+        return '<div class="ss-builder-row ss-br-action" data-ab-idx="' + i + '">' +
+          '<div><div class="ss-builder-col-lbl">액션명</div><input class="ss-builder-inp" data-ab-field="name" data-ab-idx="' + i + '" value="' + act.name + '" placeholder="액션명"></div>' +
+          '<div><div class="ss-builder-col-lbl">버튼 스타일</div><input class="ss-builder-inp" data-ab-field="style" data-ab-idx="' + i + '" value="' + act.style + '" placeholder="primary / ghost"></div>' +
+          '<div><div class="ss-builder-col-lbl">연결 화면</div><input class="ss-builder-inp" data-ab-field="link" data-ab-idx="' + i + '" value="' + act.link + '" placeholder="화면 ID"></div>' +
+          '<div><div class="ss-builder-col-lbl">권한</div><input class="ss-builder-inp" data-ab-field="permission" data-ab-idx="' + i + '" value="' + act.permission + '" placeholder="전체/관리자"></div>' +
+          '<div><div class="ss-builder-col-lbl">표시조건</div><input class="ss-builder-inp" data-ab-field="condition" data-ab-idx="' + i + '" value="' + act.condition + '" placeholder="항상/로그인"></div>' +
+          '<div><div class="ss-builder-col-lbl">&nbsp;</div><button type="button" class="ss-builder-del" data-ab-del="' + i + '" title="삭제">' + svgIcon('<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>', 12) + '</button></div>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+    '<button type="button" class="ss-builder-add-btn" data-ss-builder-add="action">' +
+      svgIcon('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>', 12) + ' 액션 추가' +
+    '</button>';
+  }
+
+  function buildDescSummary() {
+    var items = [];
+    var n = 1;
+    var tpl = TEMPLATES.filter(function (t) { return t.id === CS.template; })[0];
+    if (CS.screenTitle || (tpl && tpl.items.indexOf('화면 제목') !== -1)) items.push({ n: n++, name: '화면 제목', src: '템플릿 기본', on: true });
+    if (CS.topNote) items.push({ n: n++, name: '상단 안내문구', src: '입력값 기반', on: true });
+    if (CS.useSearch) {
+      items.push({ n: n++, name: '검색 조건', src: '입력값 기반 (' + CS.searchItems.length + '개)', on: true });
+      items.push({ n: n++, name: '조회 버튼', src: '템플릿 기본', on: true });
+    }
+    if (CS.useTable) {
+      items.push({ n: n++, name: '결과 테이블', src: '입력값 기반 (' + CS.tableColumns.length + '열)', on: true });
+    }
+    if (CS.useStatusChip) items.push({ n: n++, name: '상태 chip', src: '입력값 기반', on: true });
+    if (CS.useRowAction) items.push({ n: n++, name: '행 액션', src: '입력값 기반 (' + CS.rowActions.length + '개)', on: true });
+    if (CS.useEmpty) items.push({ n: n++, name: '빈 결과 상태', src: '템플릿 기본', on: true });
+    if (!CS.useSearch) items.push({ n: 0, name: '검색영역', src: '사용 안 함', on: false });
+    if (!CS.useTable) items.push({ n: 0, name: '결과테이블', src: '사용 안 함', on: false });
+    if (!CS.useStatusChip) items.push({ n: 0, name: '상태 chip', src: '사용 안 함', on: false });
+    if (!CS.useRowAction) items.push({ n: 0, name: '행 액션', src: '사용 안 함', on: false });
+    if (!CS.useEmpty) items.push({ n: 0, name: '빈 결과 상태', src: '사용 안 함', on: false });
+
+    return '<table class="ss-desc-summary"><thead><tr>' +
+      '<th class="ss-dsn">번호</th><th class="ss-dsname">항목명</th><th class="ss-dssrc">생성 방식</th><th>상태</th>' +
+      '</tr></thead><tbody>' +
+      items.map(function (item) {
+        return '<tr>' +
+          '<td class="ss-dsn">' + (item.on ? '❶❷❸❹❺❻❼❽❾❿'.split('')[item.n - 1] || item.n : '—') + '</td>' +
+          '<td class="ss-dsname">' + item.name + '</td>' +
+          '<td class="ss-dssrc">' + item.src + '</td>' +
+          '<td>' + (item.on ? '<span class="ss-desc-chip-on">사용함</span>' : '<span class="ss-desc-chip-off">미사용</span>') + '</td>' +
+        '</tr>';
+      }).join('') +
+    '</tbody></table>';
+  }
+
+  function readCSFromForm() {
+    var f = function(id) { var el = document.getElementById(id); return el ? el.value : ''; };
+    CS.screenName = f('cs-screen-name');
+    CS.screenId = f('cs-screen-id');
+    CS.bizArea = f('cs-biz-area');
+    CS.menuPath = f('cs-menu-path');
+    CS.purpose = f('cs-purpose');
+    CS.memo = f('cs-memo');
+    CS.screenTitle = f('cs-screen-title');
+    CS.topNote = f('cs-top-note');
+    /* type from select */
+    var typeEl = document.getElementById('cs-screen-type');
+    if (typeEl) CS.screenType = typeEl.value;
+    /* builder inputs */
+    document.querySelectorAll('[data-sb-field]').forEach(function(inp) {
+      var idx = parseInt(inp.getAttribute('data-sb-idx'), 10);
+      var field = inp.getAttribute('data-sb-field');
+      if (CS.searchItems[idx] !== undefined) CS.searchItems[idx][field] = inp.value;
+    });
+    document.querySelectorAll('[data-cb-field]').forEach(function(inp) {
+      var idx = parseInt(inp.getAttribute('data-cb-idx'), 10);
+      var field = inp.getAttribute('data-cb-field');
+      if (CS.tableColumns[idx] !== undefined) CS.tableColumns[idx][field] = inp.value;
+    });
+    document.querySelectorAll('[data-ab-field]').forEach(function(inp) {
+      var idx = parseInt(inp.getAttribute('data-ab-idx'), 10);
+      var field = inp.getAttribute('data-ab-field');
+      if (CS.rowActions[idx] !== undefined) CS.rowActions[idx][field] = inp.value;
+    });
+  }
+
+  function updateCreateHeaderChips() {
+    var selChip = document.getElementById('ss-create-sel-chip');
+    var statusChip = document.getElementById('ss-create-status-chip');
+    if (selChip) selChip.textContent = '선택 템플릿: ' + CS.templateName;
+    if (statusChip) {
+      statusChip.textContent = CS.status === 'draft-saved' ? '임시저장됨' : CS.status === 'review-requested' ? '검토요청' : '작성중';
+      statusChip.className = 'ss-create-status-chip' + (CS.status === 'draft-saved' ? ' is-draft' : CS.status === 'review-requested' ? ' is-review' : '');
+    }
+    /* update desc summary if visible */
+    var descEl = document.getElementById('ss-desc-summary-wrap');
+    if (descEl) descEl.innerHTML = buildDescSummary();
+  }
+
   function renderRegister() {
     var tabs = document.getElementById('ss-dw-tabs');
     var head = document.getElementById('ss-dw-head');
     var body = document.getElementById('ss-dw-body');
     var foot = document.getElementById('ss-dw-foot');
+    var drawer = document.getElementById('ss-drawer');
     if (tabs) tabs.style.display = 'none';
+    if (drawer) drawer.classList.remove('is-wide');
+
     if (head) {
-      head.innerHTML = '<div class="ss-dw-hrow"><span class="ss-dw-mode-badge is-create">신규 등록</span><span style="flex:1"></span><button type="button" class="ss-dw-close" data-ss-dw-action="close" aria-label="닫기">' + ic(ICONS.close, 15) + '</button></div>' +
-        '<div class="ss-dw-htitle">화면 등록</div><div class="ss-dw-hdesc">화면설계서 기본 정보, 이미지, 연결정보를 등록합니다.</div>';
+      head.innerHTML =
+        '<div class="ss-dw-hrow">' +
+          '<span class="ss-dw-mode-badge is-create">신규 등록</span>' +
+          '<span style="flex:1"></span>' +
+          '<button type="button" class="ss-dw-close" data-ss-dw-action="close" aria-label="닫기">' + ic(ICONS.close, 15) + '</button>' +
+        '</div>' +
+        '<div class="ss-dw-htitle">화면설계서 작성</div>' +
+        '<div class="ss-dw-head-chips">' +
+          '<span class="ss-create-status-chip" id="ss-create-status-chip">작성중</span>' +
+          '<span class="ss-sel-chip" id="ss-create-sel-chip">선택 템플릿: ' + CS.templateName + '</span>' +
+        '</div>' +
+        '<div class="ss-dw-hguide">템플릿을 선택한 뒤 입력폼을 작성합니다.</div>';
     }
+
     if (body) {
-      body.innerHTML = '<div class="ss-fs"><div class="ss-fs-hdr"><span class="ss-fs-num">1</span><span class="ss-fs-title">기본 정보</span></div><div class="ss-fgrid">' +
-        '<div class="ss-ffield"><label class="ss-flbl">화면 ID <span class="ss-req">*</span></label><input class="ss-inp ro" value="자동 생성" readonly></div>' +
-        '<div class="ss-ffield"><label class="ss-flbl">화면명 <span class="ss-req">*</span></label><input class="ss-inp" placeholder="화면명 입력"></div>' +
-        '<div class="ss-ffield"><label class="ss-flbl">화면 유형 <span class="ss-req">*</span></label><select class="ss-inp"><option value="">유형 선택</option><option>목록 화면</option><option>상세 화면</option><option>폼 화면</option><option>팝업</option><option>관리 화면</option></select></div>' +
-        '<div class="ss-ffield"><label class="ss-flbl">버전</label><input class="ss-inp" value="v0.1" placeholder="v0.1"></div>' +
-        '<div class="ss-ffield full"><label class="ss-flbl">메뉴 경로 <span class="ss-req">*</span></label><select class="ss-inp"><option value="">메뉴 그룹 선택</option><option>대시보드</option><option>회원</option><option>산출물 관리</option><option>검토 관리</option><option>보내기 / 설정</option></select></div></div></div>' +
-        '<div class="ss-fs"><div class="ss-fs-hdr"><span class="ss-fs-num">2</span><span class="ss-fs-title">작성 정보</span></div><div class="ss-fgrid">' +
-        '<div class="ss-ffield"><label class="ss-flbl">담당자 <span class="ss-req">*</span></label><input class="ss-inp" placeholder="담당자 이름"></div>' +
-        '<div class="ss-ffield"><label class="ss-flbl">초기 상태</label><select class="ss-inp"><option>작성중</option><option>작성완료</option></select></div>' +
-        '<div class="ss-ffield full"><label class="ss-flbl">화면 목적</label><textarea class="ss-inp" placeholder="이 화면의 목적을 간략히 기술합니다." rows="3"></textarea></div></div></div>' +
-        '<div class="ss-fs"><div class="ss-fs-hdr"><span class="ss-fs-num">3</span><span class="ss-fs-title">화면 이미지</span></div><div class="ss-upload-area">' + ic(ICONS.upload, 24, 1.5) +
-        '<span style="font-size:12.5px;font-weight:600">이미지 첨부</span><span style="font-size:11px;color:var(--t3)">PNG, JPG, GIF · 최대 10MB</span></div></div>' +
-        '<div class="ss-fs"><div class="ss-fs-hdr"><span class="ss-fs-num">4</span><span class="ss-fs-title">연결정보</span></div><div class="ss-link-group">' +
-        '<button type="button" class="ss-link-add">' + ic(ICONS.plus, 11) + ' 요구사항 연결</button>' +
-        '<button type="button" class="ss-link-add">' + ic(ICONS.plus, 11) + ' 작업 연결</button>' +
-        '<button type="button" class="ss-link-add">' + ic(ICONS.plus, 11) + ' 인터페이스 연결</button></div></div>';
+      body.innerHTML =
+        /* 1. 템플릿 선택 */
+        '<div class="ss-dw-sec">' +
+          '<div class="ss-dw-sec-hdr"><h3>① 템플릿 선택</h3></div>' +
+          buildTplCards() +
+        '</div>' +
+
+        /* 2. 기본 정보 */
+        '<div class="ss-dw-sec">' +
+          '<div class="ss-dw-sec-hdr"><h3>② 기본 정보</h3></div>' +
+          '<div class="ss-fgrid">' +
+            '<div class="ss-ffield"><label class="ss-flbl">화면명 <span class="ss-req">*</span></label><input id="cs-screen-name" class="ss-inp" value="' + CS.screenName + '" placeholder="화면명 입력"></div>' +
+            '<div class="ss-ffield"><label class="ss-flbl">화면 ID</label><input id="cs-screen-id" class="ss-inp ro" value="자동 생성 (SCR-' + (SS_ID_SEQ < 10 ? '0' + SS_ID_SEQ : SS_ID_SEQ) + ')" readonly></div>' +
+            '<div class="ss-ffield"><label class="ss-flbl">업무영역</label><input id="cs-biz-area" class="ss-inp" value="' + CS.bizArea + '" placeholder="예: 산출물 관리"></div>' +
+            '<div class="ss-ffield"><label class="ss-flbl">화면유형 <span class="ss-req">*</span></label>' +
+              '<select id="cs-screen-type" class="ss-inp">' +
+                '<option value="list"' + (CS.screenType === 'list' ? ' selected' : '') + '>목록 화면</option>' +
+                '<option value="detail"' + (CS.screenType === 'detail' ? ' selected' : '') + '>상세 화면</option>' +
+                '<option value="form"' + (CS.screenType === 'form' ? ' selected' : '') + '>폼 화면</option>' +
+                '<option value="popup"' + (CS.screenType === 'popup' ? ' selected' : '') + '>팝업</option>' +
+                '<option value="admin"' + (CS.screenType === 'admin' ? ' selected' : '') + '>관리 화면</option>' +
+                '<option value="main"' + (CS.screenType === 'main' ? ' selected' : '') + '>메인/대시보드</option>' +
+              '</select>' +
+            '</div>' +
+            '<div class="ss-ffield full"><label class="ss-flbl">메뉴 경로 <span class="ss-req">*</span></label><input id="cs-menu-path" class="ss-inp" value="' + CS.menuPath + '" placeholder="예: 산출물 관리 > 화면설계서"></div>' +
+            '<div class="ss-ffield full"><label class="ss-flbl">화면 목적</label><textarea id="cs-purpose" class="ss-inp" rows="2" placeholder="이 화면의 목적을 간략히 기술합니다.">' + CS.purpose + '</textarea></div>' +
+            '<div class="ss-ffield full"><label class="ss-flbl">작성 메모</label><textarea id="cs-memo" class="ss-inp" rows="2" placeholder="기획·디자인 메모를 남깁니다.">' + CS.memo + '</textarea></div>' +
+          '</div>' +
+        '</div>' +
+
+        /* 3. 화면 구조 */
+        '<div class="ss-dw-sec">' +
+          '<div class="ss-dw-sec-hdr"><h3>③ 화면 구조</h3><span class="ss-dw-sec-hdr-note">사용 여부를 켜면 해당 builder가 표시됩니다</span></div>' +
+          '<div class="ss-fgrid" style="margin-bottom:12px">' +
+            '<div class="ss-ffield"><label class="ss-flbl">화면 제목</label><input id="cs-screen-title" class="ss-inp" value="' + CS.screenTitle + '" placeholder="화면 상단 표시 제목"></div>' +
+            '<div class="ss-ffield"><label class="ss-flbl">상단 안내문구</label><input id="cs-top-note" class="ss-inp" value="' + CS.topNote + '" placeholder="선택 입력"></div>' +
+          '</div>' +
+          buildToggleRows() +
+        '</div>' +
+
+        /* 4. 검색 조건 */
+        '<div class="ss-dw-sec" id="ss-sec-search">' +
+          '<div class="ss-dw-sec-hdr"><h3>④ 검색 조건 항목</h3></div>' +
+          buildSearchBuilder() +
+        '</div>' +
+
+        /* 5. 테이블 컬럼 */
+        '<div class="ss-dw-sec" id="ss-sec-col">' +
+          '<div class="ss-dw-sec-hdr"><h3>⑤ 테이블 컬럼 항목</h3></div>' +
+          buildColBuilder() +
+        '</div>' +
+
+        /* 6. 행 액션 */
+        '<div class="ss-dw-sec" id="ss-sec-action">' +
+          '<div class="ss-dw-sec-hdr"><h3>⑥ 행 액션 항목</h3></div>' +
+          buildActionBuilder() +
+        '</div>' +
+
+        /* 7. Description 요약 */
+        '<div class="ss-dw-sec">' +
+          '<div class="ss-dw-sec-hdr"><h3>⑦ 자동 생성 Description 요약</h3><span class="ss-dw-sec-hdr-note">상세 설명은 미리보기 및 상세 Drawer에서 확인</span></div>' +
+          '<div id="ss-desc-summary-wrap">' + buildDescSummary() + '</div>' +
+        '</div>' +
+
+        /* 8. 첨부파일 */
+        '<div class="ss-dw-sec">' +
+          '<div class="ss-dw-sec-hdr"><h3>⑧ 첨부파일 참고자료</h3></div>' +
+          '<div class="ss-attach-zone">' +
+            '<div class="ss-attach-zone-icon">' + svgIcon('<polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>', 28) + '</div>' +
+            '<div class="ss-attach-zone-title">참고자료 파일명 입력 또는 드롭</div>' +
+            '<div class="ss-attach-zone-sub">PNG, PDF, DOCX, XLSX · 참고용 파일 목록으로 관리됩니다</div>' +
+            '<input class="ss-inp" style="max-width:320px;margin-top:4px" placeholder="파일명 직접 입력 (예: 화면설계서_v1.pdf)">' +
+          '</div>' +
+          '<div class="ss-attach-note">첨부파일은 화면 구조를 대체하지 않고 참고자료로만 사용합니다.</div>' +
+        '</div>';
     }
+
     if (foot) {
-      foot.innerHTML = '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary" data-ss-dw-action="close">취소</button>' +
-        dwFootTemp() + dwFootFullView() +
-        '<button type="button" class="stam-btn stam-btn--md stam-btn--primary ss-dw-btn-primary">등록</button>';
+      foot.className = 'ss-dw-foot ss-create-foot';
+      foot.innerHTML =
+        '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary" data-ss-dw-action="close">취소</button>' +
+        '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary" data-ss-dw-action="create-draft">임시저장</button>' +
+        '<span class="ss-foot-spacer"></span>' +
+        '<button type="button" class="stam-btn stam-btn--md stam-btn--ghost" data-ss-dw-action="create-preview">미리보기</button>' +
+        '<button type="button" class="stam-btn stam-btn--md stam-btn--primary ss-dw-btn-primary" data-ss-dw-action="create-save">저장</button>' +
+        '<button type="button" class="stam-btn stam-btn--md ss-btn-review" data-ss-dw-action="create-review">검토요청</button>';
+    }
+    enhanceDrawerSelects();
+  }
+
+  /* ── Preview Drawer ── */
+  function renderPreviewDw() {
+    readCSFromForm();
+    var tabs = document.getElementById('ss-dw-tabs');
+    var head = document.getElementById('ss-dw-head');
+    var body = document.getElementById('ss-dw-body');
+    var foot = document.getElementById('ss-dw-foot');
+    var drawer = document.getElementById('ss-drawer');
+    if (tabs) tabs.style.display = 'none';
+    if (drawer) drawer.classList.add('is-wide');
+
+    if (head) {
+      head.innerHTML =
+        '<div class="ss-dw-hrow">' +
+          '<span class="ss-dw-mode-badge is-create">미리보기</span>' +
+          '<span style="flex:1"></span>' +
+          '<button type="button" class="ss-dw-close" data-ss-dw-action="preview-back" aria-label="돌아가기">' + ic(ICONS.close, 15) + '</button>' +
+        '</div>' +
+        '<div class="ss-dw-htitle">화면설계서 미리보기</div>' +
+        '<div class="ss-dw-head-chips">' +
+          '<span class="ss-sel-chip">선택 템플릿: ' + CS.templateName + '</span>' +
+          '<span class="ss-create-status-chip">현재 입력값 기준</span>' +
+          '<span class="ss-create-status-chip">사용함 항목만 자동 재번호</span>' +
+          '<span class="ss-create-status-chip">샘플 데이터 아님</span>' +
+        '</div>';
+    }
+
+    /* Build description items (active only) */
+    var descItems = [];
+    var n = 1;
+    var sName = CS.screenName || '(화면명 미입력)';
+    if (CS.screenTitle || true) descItems.push({ n: n++, name: '화면 제목', detail: CS.screenTitle || sName, type: 'title' });
+    if (CS.topNote) descItems.push({ n: n++, name: '상단 안내문구', detail: CS.topNote, type: 'note' });
+    if (CS.useSearch) {
+      descItems.push({ n: n++, name: '검색 조건', detail: CS.searchItems.map(function(i){return i.cond;}).join(', ') || '검색 조건 없음', type: 'search' });
+      descItems.push({ n: n++, name: '조회 버튼', detail: '조회 실행', type: 'btn' });
+    }
+    if (CS.useTable) descItems.push({ n: n++, name: '결과 테이블', detail: CS.tableColumns.map(function(c){return c.name;}).join(', ') || '컬럼 없음', type: 'table' });
+    if (CS.useStatusChip) descItems.push({ n: n++, name: '상태 chip', detail: '작성중 / 완료 / 승인 완료', type: 'chip' });
+    if (CS.useRowAction) descItems.push({ n: n++, name: '행 액션', detail: CS.rowActions.map(function(a){return a.name;}).join(', ') || '액션 없음', type: 'action' });
+    if (CS.useEmpty) descItems.push({ n: n++, name: '빈 결과 상태', detail: '결과 없음 안내 문구 표시', type: 'empty' });
+
+    /* Left: mockup */
+    var mockupRows = '';
+    descItems.forEach(function(item) {
+      if (item.type === 'title') {
+        mockupRows += '<div class="ss-mock-section ss-mock-title-bar"><span class="ss-mock-marker">' + item.n + '</span><span class="ss-mock-title">' + (CS.screenTitle || sName) + '</span></div>';
+      } else if (item.type === 'note') {
+        mockupRows += '<div class="ss-mock-section" style="font-size:11px;color:var(--t3);padding:6px 10px;background:var(--bg-sur2);border-radius:4px;border-left:3px solid var(--brand)"><span class="ss-mock-marker">' + item.n + '</span> ' + CS.topNote + '</div>';
+      } else if (item.type === 'search') {
+        mockupRows += '<div class="ss-mock-section"><div style="font-size:9px;color:var(--t3);margin-bottom:4px"><span class="ss-mock-marker">' + item.n + '</span> 검색 조건</div>' +
+          '<div class="ss-mock-search-row">' +
+          CS.searchItems.slice(0, 3).map(function(si) {
+            return '<div class="ss-mock-search-inp">' + si.cond + '</div>';
+          }).join('') +
+          '</div></div>';
+      } else if (item.type === 'btn') {
+        mockupRows += '<div class="ss-mock-section" style="display:flex;gap:6px"><span class="ss-mock-marker">' + item.n + '</span><div class="ss-mock-btn">조회</div><div class="ss-mock-btn ghost">초기화</div></div>';
+      } else if (item.type === 'table') {
+        var cols = CS.tableColumns.slice(0, 4);
+        mockupRows += '<div class="ss-mock-section"><div style="font-size:9px;color:var(--t3);margin-bottom:4px"><span class="ss-mock-marker">' + item.n + '</span> 결과 테이블</div>' +
+          '<table class="ss-mock-table"><thead><tr>' + cols.map(function(c){return '<th>' + c.name + '</th>';}).join('') + (CS.useStatusChip ? '<th>상태</th>' : '') + (CS.useRowAction ? '<th>액션</th>' : '') + '</tr></thead>' +
+          '<tbody><tr>' + cols.map(function(){return '<td style="color:var(--t3);font-size:10px">샘플</td>';}).join('') +
+          (CS.useStatusChip ? '<td><span class="ss-mock-chip">완료</span></td>' : '') +
+          (CS.useRowAction && CS.rowActions[0] ? '<td><span style="font-size:9.5px;color:var(--brand)">' + CS.rowActions[0].name + '</span></td>' : '') +
+          '</tr><tr>' + cols.map(function(){return '<td style="color:var(--t3);font-size:10px">샘플</td>';}).join('') +
+          (CS.useStatusChip ? '<td><span class="ss-mock-chip" style="background:rgba(100,116,139,.10);color:#64748B">작성중</span></td>' : '') +
+          (CS.useRowAction && CS.rowActions[0] ? '<td><span style="font-size:9.5px;color:var(--brand)">' + CS.rowActions[0].name + '</span></td>' : '') +
+          '</tr></tbody></table></div>';
+      } else if (item.type === 'empty') {
+        mockupRows += '<div class="ss-mock-empty"><span class="ss-mock-marker">' + item.n + '</span> 조건에 맞는 결과가 없습니다.</div>';
+      }
+    });
+
+    if (body) {
+      body.innerHTML =
+        '<div class="ss-preview-labels">' +
+          '<span class="ss-preview-label accent">선택 템플릿: ' + CS.templateName + '</span>' +
+          '<span class="ss-preview-label">사용함 항목만 자동 재번호</span>' +
+          '<span class="ss-preview-label">숨김/삭제 항목 제외</span>' +
+          '<span class="ss-preview-label">샘플 데이터 아님</span>' +
+        '</div>' +
+        '<div class="ss-preview-layout">' +
+          '<div class="ss-preview-mockup">' +
+            '<div class="ss-preview-mockup-bar">' +
+              '<span class="ss-preview-mockup-title">' + (CS.screenTitle || sName) + '</span>' +
+              '<span class="ss-preview-mockup-tag">UI 목업</span>' +
+            '</div>' +
+            '<div class="ss-preview-mockup-body">' + (mockupRows || '<div class="ss-mock-empty">입력된 구조가 없습니다. 폼을 작성한 뒤 미리보기를 확인하세요.</div>') + '</div>' +
+          '</div>' +
+          '<div class="ss-preview-desc-panel">' +
+            '<div class="ss-preview-desc-hdr">Description (' + descItems.length + '개 항목)</div>' +
+            '<div class="ss-preview-desc-list">' +
+              descItems.map(function(item) {
+                return '<div class="ss-preview-desc-item">' +
+                  '<div class="ss-preview-marker">' + item.n + '</div>' +
+                  '<div class="ss-preview-desc-content">' +
+                    '<div class="ss-preview-desc-name">' + item.name + '</div>' +
+                    '<div class="ss-preview-desc-detail">' + item.detail + '</div>' +
+                  '</div>' +
+                '</div>';
+              }).join('') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    if (foot) {
+      foot.className = 'ss-dw-foot ss-create-foot';
+      foot.innerHTML =
+        '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary" data-ss-dw-action="preview-back">작성 계속</button>' +
+        '<span class="ss-foot-spacer"></span>' +
+        (CS.savedId
+          ? '<button type="button" class="stam-btn stam-btn--md stam-btn--ghost" data-ss-dw-action="preview-detail">저장된 상세 보기</button>'
+          : '') +
+        '<button type="button" class="stam-btn stam-btn--md stam-btn--primary ss-dw-btn-primary" data-ss-dw-action="create-save">저장</button>' +
+        '<button type="button" class="stam-btn stam-btn--md" data-ss-dw-action="close">닫기</button>';
     }
   }
 
@@ -1109,28 +1625,172 @@
     }
   }
 
+  function mockSave() {
+    readCSFromForm();
+    var newId = 'SCR-0' + (SS_ID_SEQ++);
+    var typeKey = CS.screenType || 'list';
+    var newScreen = {
+      id: newId,
+      name: CS.screenName || '(이름 없음)',
+      ver: 'v0.1',
+      wst: CS.status === 'review-requested' ? 'complete' : 'writing',
+      rst: CS.status === 'review-requested' ? 'pending' : 'none',
+      ast: 'none',
+      type: typeKey,
+      menu: CS.menuPath || '미지정',
+      owner: '작성자',
+      av: '나',
+      ac: '#5451E8',
+      upd: '2026-06-14',
+      hasImg: false,
+      annots: 0,
+      purp: CS.purpose || '화면 목적 미입력',
+      acts: CS.rowActions.map(function(a) { return { n: a.name, loc: '행', act: a.condition }; }),
+      links: { req: [], art: [], work: [], ifc: [], fn: [] },
+      hist: [{ k: 'create', who: '나', at: '06-14', t: '최초 등록', n: 'v0.1' }],
+      template: CS.template,
+      templateName: CS.templateName
+    };
+    /* 산출물 관리 그룹에 추가 */
+    var grp = MENUS.filter(function(g) { return g.id === 'G-03'; })[0];
+    if (grp) grp.screens.push(newScreen);
+    ALL_SCREENS.push(newScreen);
+    CS.savedId = newId;
+    return newScreen;
+  }
+
   function initDrawer() {
     var scrim = document.getElementById('ss-dw-scrim');
     if (scrim) scrim.addEventListener('click', closeDw);
 
     var drawer = document.getElementById('ss-drawer');
     if (!drawer) return;
+
+    /* Template card selection (event delegation on drawer) */
     drawer.addEventListener('click', function (e) {
+      /* template card */
+      var tplBtn = e.target.closest('[data-ss-tpl]');
+      if (tplBtn && (S.dwMode === 'register')) {
+        var tplId = tplBtn.getAttribute('data-ss-tpl');
+        readCSFromForm();
+        resetCS(tplId);
+        renderRegister();
+        return;
+      }
+
+      /* builder add */
+      var builderAdd = e.target.closest('[data-ss-builder-add]');
+      if (builderAdd) {
+        var bType = builderAdd.getAttribute('data-ss-builder-add');
+        readCSFromForm();
+        if (bType === 'search') CS.searchItems.push({ cond: '', inputType: 'text', required: false, defaultVal: '', order: CS.searchItems.length + 1 });
+        else if (bType === 'col') CS.tableColumns.push({ name: '', key: '', visible: true, sortable: false, width: '120px' });
+        else if (bType === 'action') CS.rowActions.push({ name: '', style: 'ghost', link: '', permission: '전체', condition: '항상' });
+        renderRegister();
+        return;
+      }
+
+      /* builder delete */
+      var sbDel = e.target.closest('[data-sb-del]');
+      if (sbDel) {
+        readCSFromForm();
+        var idx = parseInt(sbDel.getAttribute('data-sb-del'), 10);
+        CS.searchItems.splice(idx, 1);
+        renderRegister();
+        return;
+      }
+      var cbDel = e.target.closest('[data-cb-del]');
+      if (cbDel) {
+        readCSFromForm();
+        var idx = parseInt(cbDel.getAttribute('data-cb-del'), 10);
+        CS.tableColumns.splice(idx, 1);
+        renderRegister();
+        return;
+      }
+      var abDel = e.target.closest('[data-ab-del]');
+      if (abDel) {
+        readCSFromForm();
+        var idx = parseInt(abDel.getAttribute('data-ab-del'), 10);
+        CS.rowActions.splice(idx, 1);
+        renderRegister();
+        return;
+      }
+
+      /* tab */
       var tabBtn = e.target.closest('[data-ss-tab]');
       if (tabBtn) {
         setTab(parseInt(tabBtn.getAttribute('data-ss-tab'), 10));
         return;
       }
+
+      /* action buttons */
       var actionBtn = e.target.closest('[data-ss-dw-action]');
       if (!actionBtn) return;
       var act = actionBtn.getAttribute('data-ss-dw-action');
-      if (act === 'close') closeDw();
-      else if (act === 'edit') openEdit();
-      else if (act === 'reviewreq') openReviewReq();
-      else if (act === 'detail-back' && S.dwItem) openDetail(S.dwItem.id);
+
+      if (act === 'close') { closeDw(); }
+      else if (act === 'edit') { openEdit(); }
+      else if (act === 'reviewreq') { openReviewReq(); }
+      else if (act === 'detail-back' && S.dwItem) { openDetail(S.dwItem.id); }
       else if (act === 'fullview') {
         var page = actionBtn.getAttribute('data-ss-fullview-page');
         if (page) window.location.href = page;
+      }
+      /* Create Drawer actions */
+      else if (act === 'create-draft') {
+        readCSFromForm();
+        CS.status = 'draft-saved';
+        updateCreateHeaderChips();
+      }
+      else if (act === 'create-preview') {
+        S.dwMode = 'preview';
+        renderPreviewDw();
+      }
+      else if (act === 'create-save') {
+        var saved = mockSave();
+        closeDw();
+        renderStrip();
+        renderTable();
+        /* open detail of newly saved screen */
+        setTimeout(function() { openDetail(saved.id); }, 50);
+      }
+      else if (act === 'create-review') {
+        readCSFromForm();
+        CS.status = 'review-requested';
+        var saved2 = mockSave();
+        closeDw();
+        renderStrip();
+        renderTable();
+        setTimeout(function() { openDetail(saved2.id); }, 50);
+      }
+      /* Preview actions */
+      else if (act === 'preview-back') {
+        S.dwMode = 'register';
+        renderRegister();
+      }
+      else if (act === 'preview-detail') {
+        if (CS.savedId) { closeDw(); setTimeout(function(){ openDetail(CS.savedId); }, 50); }
+      }
+    });
+
+    /* Toggle switches */
+    drawer.addEventListener('change', function(e) {
+      var toggle = e.target.closest('[data-ss-toggle]');
+      if (toggle && S.dwMode === 'register') {
+        readCSFromForm();
+        var key = toggle.getAttribute('data-ss-toggle');
+        CS[key] = toggle.checked;
+        /* rebuild relevant builder sections */
+        var secSearch = document.getElementById('ss-sec-search');
+        var secCol = document.getElementById('ss-sec-col');
+        var secAction = document.getElementById('ss-sec-action');
+        var descWrap = document.getElementById('ss-desc-summary-wrap');
+        if (secSearch) secSearch.innerHTML = '<div class="ss-dw-sec-hdr"><h3>④ 검색 조건 항목</h3></div>' + buildSearchBuilder();
+        if (secCol) secCol.innerHTML = '<div class="ss-dw-sec-hdr"><h3>⑤ 테이블 컬럼 항목</h3></div>' + buildColBuilder();
+        if (secAction) secAction.innerHTML = '<div class="ss-dw-sec-hdr"><h3>⑥ 행 액션 항목</h3></div>' + buildActionBuilder();
+        if (descWrap) descWrap.innerHTML = buildDescSummary();
+        enhanceDrawerSelects();
+        return;
       }
     });
   }
