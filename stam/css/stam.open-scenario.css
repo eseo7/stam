@@ -730,3 +730,312 @@ body:has(.os-page) .po-main { overflow-x: hidden; }
 [data-theme="dark"] .os-row-active td { background: rgba(84,81,232,.07); }
 [data-theme="dark"] .os-row-active:hover td { background: rgba(84,81,232,.11); }
 [data-theme="dark"] .os-scn-id { background: rgba(139,127,248,.10); border-color: rgba(139,127,248,.22); }
+
+/* ════════════════════════════════════════════════════════════
+ * PR #81 — Zone A 보강 + Zone B / F / G 신규
+ * ════════════════════════════════════════════════════════════ */
+
+/* ── Zone section headers (Zone B/C/F/G 공통) ── */
+.os-zone-section-hd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 0 8px;
+}
+.os-zone-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t1);
+  letter-spacing: -.015em;
+}
+.os-zone-section-sub {
+  font-size: 11px;
+  color: var(--t3);
+}
+
+/* ── Zone A: D-Day card + readiness-top ── */
+.os-readiness-top {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.os-dday-card {
+  flex-shrink: 0;
+  min-width: 84px;
+  background: rgba(84,81,232,.08);
+  border: 1px solid rgba(84,81,232,.22);
+  border-radius: var(--r-md);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+}
+.os-dday-sub {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--stam);
+  opacity: .7;
+}
+.os-dday-val {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--stam);
+  letter-spacing: -.03em;
+  line-height: 1;
+}
+.os-dday-dt {
+  font-size: 10px;
+  color: var(--stam);
+  opacity: .75;
+  font-family: var(--mono);
+}
+.os-readiness-prog {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* KPI 추가 색상 (고객확인대기 amber, 보류 warn) */
+.os-kpi-cw  .os-kpi-num { color: #B45309; }
+.os-kpi-hold .os-kpi-num { color: var(--os-cautionary); }
+
+/* ── Zone B: Timeline / Step Board ── */
+.os-timeline-board { margin-bottom: 4px; }
+.os-timeline-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+.os-phase-card {
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--os-shadow-e);
+}
+.os-phase-card-active {
+  border-color: var(--stam);
+  background: rgba(84,81,232,.018);
+}
+.os-phase-card-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background: var(--bg-sur2);
+  border-bottom: 1px solid var(--bd);
+}
+.os-phase-card-active .os-phase-card-hd {
+  background: rgba(84,81,232,.07);
+  border-bottom-color: rgba(84,81,232,.22);
+}
+.os-phase-card-info { display: flex; align-items: center; gap: 6px; }
+.os-phase-card-period { font-size: 10.5px; color: var(--t3); }
+.os-phase-card-count {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--t3);
+  white-space: nowrap;
+}
+.os-pcc-prog { color: var(--stam); }
+.os-phase-card-body { padding: 2px 0; }
+.os-step-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-bottom: 1px solid rgba(226,232,240,.45);
+  min-height: 30px;
+}
+[data-theme="dark"] .os-step-row { border-bottom-color: rgba(60,70,90,.45); }
+.os-step-row:last-child { border-bottom: 0; }
+.os-step-issue { background: rgba(220,38,38,.04); }
+.os-step-num {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--t3);
+  flex-shrink: 0;
+  width: 18px;
+}
+.os-step-name {
+  flex: 1;
+  font-size: 11.5px;
+  color: var(--t1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.os-step-who { flex-shrink: 0; }
+.os-step-row .os-status-chip { flex-shrink: 0; font-size: 10px; padding: 1px 6px; }
+
+/* ── Zone F: Issue & Risk Board ── */
+.os-risk-board { margin-top: 4px; }
+.os-risk-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.os-risk-card {
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  padding: 12px 12px 10px;
+  box-shadow: var(--os-shadow-e);
+}
+.os-rc-danger { border-color: var(--fail); background: rgba(220,38,38,.02); }
+.os-rc-warn   { border-color: var(--warn); background: rgba(245,158,11,.02); }
+.os-rc-purple { border-color: var(--stam); background: rgba(84,81,232,.02); }
+.os-risk-card-hd {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 9px;
+}
+.os-risk-icon { flex-shrink: 0; color: var(--t3); }
+.os-rc-danger .os-risk-icon { color: var(--fail); }
+.os-rc-warn   .os-risk-icon { color: var(--warn); }
+.os-rc-purple .os-risk-icon { color: var(--stam); }
+.os-risk-card-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--t1);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.os-risk-cnt {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -.04em;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.os-cnt-danger { color: var(--fail); }
+.os-cnt-warn   { color: var(--warn); }
+.os-cnt-purple { color: var(--stam); }
+.os-cnt-neutral { color: var(--t2); }
+.os-risk-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.os-risk-item {
+  font-size: 10.5px;
+  color: var(--t2);
+  padding: 4px 0;
+  border-top: 1px solid var(--bd-s);
+  line-height: 1.35;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+.os-risk-item::before { content: '·'; flex-shrink: 0; color: var(--t3); }
+
+/* ── Zone G: Approval / Confirmation ── */
+.os-approval-section { margin-top: 4px; margin-bottom: 0; }
+.os-approval-wrap {
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-lg);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  box-shadow: var(--os-shadow-e);
+  flex-wrap: wrap;
+}
+.os-approval-flow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+  min-width: 320px;
+}
+.os-apv-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.os-apv-step-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bd);
+  background: var(--bg-sur2);
+  color: var(--t3);
+}
+.os-apv-done .os-apv-step-icon { background: var(--pass-bg); border-color: var(--pass); color: var(--pass); }
+.os-apv-prog .os-apv-step-icon { background: var(--warn-bg); border-color: var(--warn); color: var(--warn); }
+.os-apv-step-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--t1);
+  white-space: nowrap;
+}
+.os-apv-step-status {
+  font-size: 10px;
+  color: var(--t3);
+  white-space: nowrap;
+}
+.os-apv-done .os-apv-step-status { color: var(--pass); font-weight: 600; }
+.os-apv-prog .os-apv-step-status { color: var(--warn); font-weight: 600; }
+.os-apv-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--bd);
+  min-width: 20px;
+  align-self: flex-start;
+  margin-top: 17px;
+}
+.os-conn-done { background: var(--pass); }
+.os-conn-prog { background: linear-gradient(90deg, var(--pass) 50%, var(--bd) 50%); }
+.os-apv-action {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.os-apv-action-label {
+  font-size: 10.5px;
+  color: var(--t3);
+  font-weight: 600;
+}
+.os-apv-wait-chip { font-size: 11px; padding: 4px 12px; }
+
+/* ── 반응형 보정 ── */
+@media (max-width: 960px) {
+  .os-timeline-grid { grid-template-columns: 1fr; }
+  .os-risk-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+
+/* ── Dark mode: Zone B / F / G ── */
+[data-theme="dark"] .os-phase-card  { box-shadow: none; }
+[data-theme="dark"] .os-risk-card   { box-shadow: none; }
+[data-theme="dark"] .os-approval-wrap { box-shadow: none; }
+[data-theme="dark"] .os-rc-danger   { background: rgba(220,38,38,.05); }
+[data-theme="dark"] .os-rc-warn     { background: rgba(245,158,11,.05); }
+[data-theme="dark"] .os-rc-purple   { background: rgba(84,81,232,.05); }
+[data-theme="dark"] .os-dday-card   { background: rgba(84,81,232,.14); }
+[data-theme="dark"] .os-step-issue  { background: rgba(220,38,38,.07); }
+[data-theme="dark"] .os-phase-card-active { background: rgba(84,81,232,.05); }
+[data-theme="dark"] .os-phase-card-active .os-phase-card-hd { background: rgba(84,81,232,.12); }
