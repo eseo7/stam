@@ -1000,6 +1000,700 @@
     }
   }
 
+  /* ================================================================
+   * FULLPAGE EDITOR — View Mode 구조
+   * view.mode: list | template | editor | preview
+   * draft: template/editor/preview 전용
+   * savedItems: list/detail 기준 (ALL_SCREENS와 동기화)
+   * ================================================================ */
+
+  /* ── State ── */
+  var SSP = {
+    view: { mode: 'list' },
+    editor: { mode: 'create', activeId: null },
+    detailDrawer: { open: false, activeId: null },
+    draft: null,
+    savedItems: []
+  };
+
+  var SS_SEQ = 16;
+
+  /* ── Template definitions ── */
+  var TEMPLATES = [
+    { id: 'list', name: '목록형 화면', desc: '검색·필터·테이블 구조의 목록 화면', count: 7, use: '목록·조회·관리 화면', defaultType: 'list',
+      items: ['화면 제목', '검색 조건', '조회 버튼', '결과 테이블', '상태 chip', '행 액션', '빈 결과 상태'],
+      useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true,
+      iconPath: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/>' },
+    { id: 'form-create', name: '등록 Drawer 화면', desc: '입력 폼 중심의 등록·작성 Drawer 화면', count: 5, use: '신규 등록·작성 화면', defaultType: 'form',
+      items: ['화면 제목', '폼 입력 영역', '필수 항목 표시', '저장 버튼', '취소 버튼'],
+      useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false,
+      iconPath: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/>' },
+    { id: 'form-detail', name: '상세 Drawer 화면', desc: '저장된 항목을 읽기 전용으로 표시하는 상세 Drawer', count: 5, use: '상세 보기·이력 화면', defaultType: 'detail',
+      items: ['화면 제목', '기본 정보', '상태 표시', '변경 이력', '액션 버튼'],
+      useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false,
+      iconPath: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>' },
+    { id: 'dashboard', name: '대시보드 화면', desc: 'KPI 카드·차트 중심의 현황 요약 화면', count: 4, use: '현황 요약·통계 화면', defaultType: 'main',
+      items: ['화면 제목', 'KPI 카드', '차트/그래프 영역', '상세 링크'],
+      useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false,
+      iconPath: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>' },
+    { id: 'approval', name: '승인/검토 화면', desc: '검토 요청·승인·반려 워크플로우 화면', count: 6, use: '승인·검토·감사 화면', defaultType: 'list',
+      items: ['화면 제목', '검토 대상 목록', '상태 chip', '승인 액션', '반려 사유', '이력'],
+      useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: false,
+      iconPath: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>' },
+    { id: 'blank', name: '빈 템플릿', desc: '항목 없이 직접 구성하는 빈 화면 템플릿', count: 1, use: '비정형·커스텀 화면', defaultType: 'list',
+      items: ['화면 제목'],
+      useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false,
+      iconPath: '<rect x="3" y="3" width="18" height="18" rx="2"/>' }
+  ];
+
+  function findTpl(id) {
+    for (var i = 0; i < TEMPLATES.length; i++) { if (TEMPLATES[i].id === id) return TEMPLATES[i]; }
+    return TEMPLATES[0];
+  }
+
+  function svgIc(path, sz, sw) {
+    sz = sz || 14; sw = sw || 2;
+    return '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round">' + path + '</svg>';
+  }
+
+  /* ── View switching ── */
+  function switchView(mode) {
+    SSP.view.mode = mode;
+    var listEl = document.querySelector('.screen-spec-page');
+    var tplEl = document.getElementById('ss-template-view');
+    var edEl = document.getElementById('ss-editor-view');
+    var pvEl = document.getElementById('ss-preview-view');
+    if (listEl) listEl.style.display = mode === 'list' ? '' : 'none';
+    if (tplEl) tplEl.style.display = mode === 'template' ? '' : 'none';
+    if (edEl) edEl.style.display = mode === 'editor' ? '' : 'none';
+    if (pvEl) pvEl.style.display = mode === 'preview' ? '' : 'none';
+    /* scroll po-main to top when switching away from list */
+    var poMain = document.getElementById('po-main');
+    if (poMain && mode !== 'list') poMain.scrollTop = 0;
+  }
+
+  /* ── Draft management ── */
+  function initDraft(tplId) {
+    var tpl = findTpl(tplId);
+    var idNum = SS_SEQ < 10 ? '0' + SS_SEQ : '' + SS_SEQ;
+    SSP.draft = {
+      template: tpl.id,
+      templateName: tpl.name,
+      screenName: '',
+      screenId: 'SCR-' + idNum,
+      bizArea: '',
+      screenType: tpl.defaultType,
+      menuPath: '',
+      purpose: '',
+      memo: '',
+      screenTitle: '',
+      topNote: '',
+      useSearch: tpl.useSearch,
+      useTable: tpl.useTable,
+      useStatusChip: tpl.useStatusChip,
+      useRowAction: tpl.useRowAction,
+      useEmpty: tpl.useEmpty,
+      searchItems: tpl.useSearch ? [{ cond: '검색어', inputType: 'text', required: false, defaultVal: '', order: 1 }] : [],
+      tableColumns: tpl.useTable ? [{ name: '항목명', key: 'name', visible: true, sortable: true, width: '200px' }, { name: '상태', key: 'status', visible: true, sortable: false, width: '80px' }] : [],
+      rowActions: tpl.useRowAction ? [{ name: '상세 보기', style: 'ghost', link: '', permission: '전체', condition: '항상' }] : [],
+      attachmentNote: ''
+    };
+    SSP.editor.mode = 'create';
+    SSP.editor.activeId = null;
+  }
+
+  function readDraftFromForm() {
+    var d = SSP.draft;
+    if (!d) return;
+    var g = function(id) { var el = document.getElementById(id); return el ? el.value : ''; };
+    d.screenName = g('ed-screen-name');
+    d.bizArea = g('ed-biz-area');
+    d.menuPath = g('ed-menu-path');
+    d.purpose = g('ed-purpose');
+    d.memo = g('ed-memo');
+    d.screenTitle = g('ed-screen-title');
+    d.topNote = g('ed-top-note');
+    var typeEl = document.getElementById('ed-screen-type');
+    if (typeEl) d.screenType = typeEl.value;
+    ['useSearch', 'useTable', 'useStatusChip', 'useRowAction', 'useEmpty'].forEach(function(k) {
+      var el = document.querySelector('[data-ed-toggle="' + k + '"]');
+      if (el) d[k] = el.checked;
+    });
+    document.querySelectorAll('[data-ed-sb-field]').forEach(function(inp) {
+      var idx = parseInt(inp.getAttribute('data-ed-sb-idx'), 10);
+      var field = inp.getAttribute('data-ed-sb-field');
+      if (d.searchItems[idx] !== undefined) d.searchItems[idx][field] = inp.value;
+    });
+    document.querySelectorAll('[data-ed-cb-field]').forEach(function(inp) {
+      var idx = parseInt(inp.getAttribute('data-ed-cb-idx'), 10);
+      var field = inp.getAttribute('data-ed-cb-field');
+      if (d.tableColumns[idx] !== undefined) d.tableColumns[idx][field] = inp.value;
+    });
+    document.querySelectorAll('[data-ed-ab-field]').forEach(function(inp) {
+      var idx = parseInt(inp.getAttribute('data-ed-ab-idx'), 10);
+      var field = inp.getAttribute('data-ed-ab-field');
+      if (d.rowActions[idx] !== undefined) d.rowActions[idx][field] = inp.value;
+    });
+  }
+
+  /* ── Template View ── */
+  function renderTemplateView() {
+    var el = document.getElementById('ss-template-view');
+    if (!el) return;
+    el.innerHTML =
+      '<div class="ss-tpl-view-inner">' +
+        '<div class="ss-tpl-view-hdr">' +
+          '<button type="button" class="ss-tpl-back" data-ssv-action="list">' +
+            svgIc('<polyline points="15 18 9 12 15 6"/>', 14) + ' 목록으로' +
+          '</button>' +
+          '<h2 class="ss-tpl-view-title">화면설계서 작성 — 템플릿 선택</h2>' +
+          '<p class="ss-tpl-view-sub">적합한 템플릿을 선택하면 기본 구조가 자동으로 구성됩니다. 선택 후 자유롭게 수정할 수 있습니다.</p>' +
+        '</div>' +
+        '<div class="ss-tpl-grid">' +
+          TEMPLATES.map(function(tpl) {
+            return '<div class="ss-tpl-card" data-ssv-tpl="' + tpl.id + '">' +
+              '<div class="ss-tpl-card-icon">' + svgIc(tpl.iconPath, 20) + '</div>' +
+              '<div class="ss-tpl-card-name">' + tpl.name + '</div>' +
+              '<div class="ss-tpl-card-desc">' + tpl.desc + '</div>' +
+              '<div class="ss-tpl-card-info">' +
+                '<span class="ss-tpl-card-badge">기본 항목 ' + tpl.count + '개</span>' +
+                '<span class="ss-tpl-card-badge">' + tpl.use + '</span>' +
+              '</div>' +
+              '<div class="ss-tpl-card-items">' +
+                tpl.items.map(function(item) {
+                  return '<span class="ss-tpl-item-chip">' + item + '</span>';
+                }).join('') +
+              '</div>' +
+              '<button type="button" class="ss-tpl-sel-btn" data-ssv-tpl="' + tpl.id + '">' +
+                svgIc('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>', 12) +
+                ' 이 템플릿으로 작성' +
+              '</button>' +
+            '</div>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+  }
+
+  /* ── Editor builder helpers ── */
+  function edToggleRow(key, checked, label, sub) {
+    return '<div class="ss-ed-toggle-row">' +
+      '<div class="ss-ed-toggle-row-l">' +
+        '<span class="ss-ed-toggle-lbl">' + label + '</span>' +
+        (sub ? '<span class="ss-ed-toggle-sub">' + sub + '</span>' : '') +
+      '</div>' +
+      '<label class="ss-ed-toggle-sw">' +
+        '<input type="checkbox" data-ed-toggle="' + key + '"' + (checked ? ' checked' : '') + '>' +
+        '<span class="ss-ed-toggle-track"></span>' +
+        '<span class="ss-ed-toggle-knob"></span>' +
+      '</label>' +
+    '</div>';
+  }
+
+  var DEL_IC = '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>';
+
+  function buildSearchBuilder() {
+    var d = SSP.draft;
+    if (!d || !d.useSearch) return '<div class="ss-ed-builder-off">검색영역을 사용하지 않습니다 — 화면 구조에서 켜면 여기에 표시됩니다.</div>';
+    return '<div class="ss-ed-builder-rows" id="ed-sb-rows">' +
+      d.searchItems.map(function(item, i) {
+        return '<div class="ss-ed-builder-row">' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">조건명</label><input class="ss-ed-binp" data-ed-sb-field="cond" data-ed-sb-idx="' + i + '" value="' + (item.cond||'') + '" placeholder="조건명"></div>' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">입력타입</label><input class="ss-ed-binp" data-ed-sb-field="inputType" data-ed-sb-idx="' + i + '" value="' + (item.inputType||'') + '" placeholder="text/select/date"></div>' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">필수</label><input class="ss-ed-binp" style="width:52px" data-ed-sb-field="required" data-ed-sb-idx="' + i + '" value="' + (item.required ? 'Y' : 'N') + '" placeholder="Y/N"></div>' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">기본값</label><input class="ss-ed-binp" data-ed-sb-field="defaultVal" data-ed-sb-idx="' + i + '" value="' + (item.defaultVal||'') + '" placeholder="기본값"></div>' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">순서</label><input class="ss-ed-binp" style="width:52px" data-ed-sb-field="order" data-ed-sb-idx="' + i + '" value="' + (item.order||1) + '" placeholder="1"></div>' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">&nbsp;</label><button type="button" class="ss-ed-builder-del" data-ed-sb-del="' + i + '">' + svgIc(DEL_IC, 13) + '</button></div>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+    '<button type="button" class="ss-ed-builder-add" data-ed-add="search">' + svgIc('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>', 12) + ' 검색 조건 추가</button>';
+  }
+
+  function buildColBuilder() {
+    var d = SSP.draft;
+    if (!d || !d.useTable) return '<div class="ss-ed-builder-off">결과테이블을 사용하지 않습니다 — 화면 구조에서 켜면 여기에 표시됩니다.</div>';
+    return '<div class="ss-ed-builder-rows" id="ed-cb-rows">' +
+      d.tableColumns.map(function(col, i) {
+        return '<div class="ss-ed-builder-row">' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">컬럼명</label><input class="ss-ed-binp" data-ed-cb-field="name" data-ed-cb-idx="' + i + '" value="' + (col.name||'') + '" placeholder="컬럼명"></div>' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">데이터키</label><input class="ss-ed-binp" data-ed-cb-field="key" data-ed-cb-idx="' + i + '" value="' + (col.key||'') + '" placeholder="camelCase"></div>' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">표시</label><input class="ss-ed-binp" style="width:52px" data-ed-cb-field="visible" data-ed-cb-idx="' + i + '" value="' + (col.visible ? 'Y' : 'N') + '" placeholder="Y/N"></div>' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">정렬가능</label><input class="ss-ed-binp" style="width:60px" data-ed-cb-field="sortable" data-ed-cb-idx="' + i + '" value="' + (col.sortable ? 'Y' : 'N') + '" placeholder="Y/N"></div>' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">너비</label><input class="ss-ed-binp" style="width:68px" data-ed-cb-field="width" data-ed-cb-idx="' + i + '" value="' + (col.width||'120px') + '" placeholder="120px"></div>' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">&nbsp;</label><button type="button" class="ss-ed-builder-del" data-ed-cb-del="' + i + '">' + svgIc(DEL_IC, 13) + '</button></div>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+    '<button type="button" class="ss-ed-builder-add" data-ed-add="col">' + svgIc('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>', 12) + ' 컬럼 추가</button>';
+  }
+
+  function buildActionBuilder() {
+    var d = SSP.draft;
+    if (!d || !d.useRowAction) return '<div class="ss-ed-builder-off">행 액션을 사용하지 않습니다 — 화면 구조에서 켜면 여기에 표시됩니다.</div>';
+    return '<div class="ss-ed-builder-rows" id="ed-ab-rows">' +
+      d.rowActions.map(function(act, i) {
+        return '<div class="ss-ed-builder-row">' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">액션명</label><input class="ss-ed-binp" data-ed-ab-field="name" data-ed-ab-idx="' + i + '" value="' + (act.name||'') + '" placeholder="액션명"></div>' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">버튼 스타일</label><input class="ss-ed-binp" data-ed-ab-field="style" data-ed-ab-idx="' + i + '" value="' + (act.style||'ghost') + '" placeholder="primary/ghost"></div>' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">연결 화면</label><input class="ss-ed-binp" data-ed-ab-field="link" data-ed-ab-idx="' + i + '" value="' + (act.link||'') + '" placeholder="화면 ID"></div>' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">권한</label><input class="ss-ed-binp" data-ed-ab-field="permission" data-ed-ab-idx="' + i + '" value="' + (act.permission||'전체') + '" placeholder="전체/관리자"></div>' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">표시조건</label><input class="ss-ed-binp" data-ed-ab-field="condition" data-ed-ab-idx="' + i + '" value="' + (act.condition||'항상') + '" placeholder="항상/로그인"></div>' +
+          '<div class="ss-ed-bc"><label class="ss-ed-blbl">&nbsp;</label><button type="button" class="ss-ed-builder-del" data-ed-ab-del="' + i + '">' + svgIc(DEL_IC, 13) + '</button></div>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+    '<button type="button" class="ss-ed-builder-add" data-ed-add="action">' + svgIc('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>', 12) + ' 액션 추가</button>';
+  }
+
+  function buildDescTable(d) {
+    var items = []; var n = 1;
+    items.push({ n: n++, name: '화면 제목', src: '템플릿 기본', on: true });
+    if (d.topNote) items.push({ n: n++, name: '상단 안내문구', src: '입력값 기반', on: true });
+    if (d.useSearch) {
+      items.push({ n: n++, name: '검색 조건', src: '입력값 기반 (' + d.searchItems.length + '개)', on: true });
+      items.push({ n: n++, name: '조회 버튼', src: '템플릿 기본', on: true });
+    }
+    if (d.useTable) items.push({ n: n++, name: '결과 테이블', src: '입력값 기반 (' + d.tableColumns.length + '열)', on: true });
+    if (d.useStatusChip) items.push({ n: n++, name: '상태 chip', src: '템플릿 기본', on: true });
+    if (d.useRowAction) items.push({ n: n++, name: '행 액션', src: '입력값 기반 (' + d.rowActions.length + '개)', on: true });
+    if (d.useEmpty) items.push({ n: n++, name: '빈 결과 상태', src: '템플릿 기본', on: true });
+    ['useSearch','useTable','useStatusChip','useRowAction','useEmpty'].forEach(function(k) {
+      if (!d[k]) {
+        var lblMap = { useSearch: '검색영역', useTable: '결과테이블', useStatusChip: '상태 chip', useRowAction: '행 액션', useEmpty: '빈 결과 상태' };
+        items.push({ n: 0, name: lblMap[k], src: '사용 안 함', on: false });
+      }
+    });
+    var nums = ['❶','❷','❸','❹','❺','❻','❼','❽','❾','❿'];
+    return '<table class="ss-ed-desc-table"><thead><tr>' +
+      '<th style="width:40px">번호</th><th>항목명</th><th>생성 방식</th><th style="width:70px">상태</th>' +
+      '</tr></thead><tbody>' +
+      items.map(function(item) {
+        return '<tr>' +
+          '<td class="ss-ed-desc-num">' + (item.on ? (nums[item.n - 1] || item.n) : '—') + '</td>' +
+          '<td class="ss-ed-desc-name">' + item.name + '</td>' +
+          '<td class="ss-ed-desc-src">' + item.src + '</td>' +
+          '<td>' + (item.on ? '<span class="ss-ed-chip-on">사용함</span>' : '<span class="ss-ed-chip-off">미사용</span>') + '</td>' +
+        '</tr>';
+      }).join('') +
+    '</tbody></table>';
+  }
+
+  /* ── Editor View ── */
+  function renderEditorView() {
+    var d = SSP.draft;
+    if (!d) return;
+    var headEl = document.getElementById('ss-editor-head');
+    var navEl = document.getElementById('ss-editor-nav');
+    var mainEl = document.getElementById('ss-editor-main');
+    var footEl = document.getElementById('ss-editor-foot');
+    var edView = document.getElementById('ss-editor-view');
+    if (edView) edView.classList.remove('ss-ev-wide');
+
+    var edTitle = SSP.editor.mode === 'edit' ? '화면설계서 수정' : '화면설계서 작성';
+
+    if (headEl) {
+      headEl.innerHTML =
+        '<div class="ss-ed-head-l">' +
+          '<button type="button" class="ss-ed-back-btn" data-ssv-action="list">' +
+            svgIc('<polyline points="15 18 9 12 15 6"/>', 14) + ' 목록으로' +
+          '</button>' +
+          '<span class="ss-ed-head-sep"></span>' +
+          '<span class="ss-ed-head-title">' + edTitle + '</span>' +
+          '<span class="ss-ed-tpl-chip">' + d.templateName + '</span>' +
+        '</div>' +
+        '<div class="ss-ed-head-r">' +
+          '<span class="ss-ed-save-hint">저장 안 됨</span>' +
+          '<button type="button" class="ss-ed-pv-btn" data-ssv-action="preview">' +
+            svgIc('<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>', 14) + ' 미리보기' +
+          '</button>' +
+        '</div>';
+    }
+
+    var navItems = [
+      { id: 'sec-basic', label: '기본 정보' }, { id: 'sec-structure', label: '화면 구조' },
+      { id: 'sec-search', label: '검색 조건' }, { id: 'sec-columns', label: '테이블 컬럼' },
+      { id: 'sec-actions', label: '행 액션' }, { id: 'sec-desc', label: 'Description 요약' },
+      { id: 'sec-attach', label: '첨부파일' }, { id: 'sec-related', label: '연관 정보' }
+    ];
+
+    if (navEl) {
+      navEl.innerHTML = '<ul class="ss-ed-nav-list">' +
+        navItems.map(function(item) {
+          return '<li><a href="#' + item.id + '" class="ss-ed-nav-link" data-ssv-nav="' + item.id + '">' + item.label + '</a></li>';
+        }).join('') +
+      '</ul>';
+    }
+
+    if (mainEl) {
+      mainEl.innerHTML =
+        '<section class="ss-ed-section" id="sec-basic">' +
+          '<div class="ss-ed-sec-hdr"><h3 class="ss-ed-sec-title">기본 정보</h3></div>' +
+          '<div class="ss-ed-form-grid">' +
+            '<div class="ss-ed-field"><label class="ss-ed-lbl">화면명 <span class="ss-req">*</span></label><input id="ed-screen-name" class="ss-ed-inp" value="' + d.screenName + '" placeholder="화면명 입력"></div>' +
+            '<div class="ss-ed-field"><label class="ss-ed-lbl">화면 ID</label><input class="ss-ed-inp ss-ed-ro" value="' + d.screenId + '" readonly></div>' +
+            '<div class="ss-ed-field"><label class="ss-ed-lbl">업무영역</label><input id="ed-biz-area" class="ss-ed-inp" value="' + d.bizArea + '" placeholder="예: 산출물 관리"></div>' +
+            '<div class="ss-ed-field"><label class="ss-ed-lbl">화면유형 <span class="ss-req">*</span></label>' +
+              '<select id="ed-screen-type" class="ss-ed-inp">' +
+                '<option value="list"' + (d.screenType === 'list' ? ' selected' : '') + '>목록 화면</option>' +
+                '<option value="detail"' + (d.screenType === 'detail' ? ' selected' : '') + '>상세 화면</option>' +
+                '<option value="form"' + (d.screenType === 'form' ? ' selected' : '') + '>폼 화면</option>' +
+                '<option value="popup"' + (d.screenType === 'popup' ? ' selected' : '') + '>팝업</option>' +
+                '<option value="admin"' + (d.screenType === 'admin' ? ' selected' : '') + '>관리 화면</option>' +
+                '<option value="main"' + (d.screenType === 'main' ? ' selected' : '') + '>메인/대시보드</option>' +
+              '</select>' +
+            '</div>' +
+            '<div class="ss-ed-field ss-ed-field-full"><label class="ss-ed-lbl">메뉴 경로 <span class="ss-req">*</span></label><input id="ed-menu-path" class="ss-ed-inp" value="' + d.menuPath + '" placeholder="예: 산출물 관리 > 화면설계서"></div>' +
+            '<div class="ss-ed-field ss-ed-field-full"><label class="ss-ed-lbl">화면 목적</label><textarea id="ed-purpose" class="ss-ed-inp ss-ed-ta" rows="3" placeholder="이 화면의 목적을 간략히 기술합니다.">' + d.purpose + '</textarea></div>' +
+            '<div class="ss-ed-field ss-ed-field-full"><label class="ss-ed-lbl">작성 메모</label><textarea id="ed-memo" class="ss-ed-inp ss-ed-ta" rows="2" placeholder="기획·디자인 메모를 남깁니다.">' + d.memo + '</textarea></div>' +
+            '<div class="ss-ed-field"><label class="ss-ed-lbl">담당자</label><input class="ss-ed-inp ss-ed-ro" value="(로그인 계정 자동 적용)" readonly><span class="ss-ed-helper">1차: placeholder</span></div>' +
+          '</div>' +
+        '</section>' +
+
+        '<section class="ss-ed-section" id="sec-structure">' +
+          '<div class="ss-ed-sec-hdr"><h3 class="ss-ed-sec-title">화면 구조</h3><span class="ss-ed-sec-note">켜면 해당 builder가 활성화됩니다</span></div>' +
+          '<div class="ss-ed-form-grid" style="margin-bottom:14px">' +
+            '<div class="ss-ed-field"><label class="ss-ed-lbl">화면 제목</label><input id="ed-screen-title" class="ss-ed-inp" value="' + d.screenTitle + '" placeholder="화면 상단 표시 제목"></div>' +
+            '<div class="ss-ed-field"><label class="ss-ed-lbl">상단 안내문구</label><input id="ed-top-note" class="ss-ed-inp" value="' + d.topNote + '" placeholder="선택 입력"></div>' +
+          '</div>' +
+          '<div class="ss-ed-toggle-grid">' +
+            edToggleRow('useSearch', d.useSearch, '검색영역 사용', '검색 조건 입력 패널') +
+            edToggleRow('useTable', d.useTable, '결과테이블 사용', '컬럼 헤더와 데이터 행') +
+            edToggleRow('useStatusChip', d.useStatusChip, '상태 chip 사용', '작성/검토/승인 상태 표시') +
+            edToggleRow('useRowAction', d.useRowAction, '행 액션 사용', '행별 버튼 또는 드롭다운') +
+            edToggleRow('useEmpty', d.useEmpty, '빈 결과 상태 사용', '결과 없음 안내 문구') +
+          '</div>' +
+        '</section>' +
+
+        '<section class="ss-ed-section" id="sec-search">' +
+          '<div class="ss-ed-sec-hdr"><h3 class="ss-ed-sec-title">검색 조건 항목</h3></div>' +
+          '<div id="ed-search-builder">' + buildSearchBuilder() + '</div>' +
+        '</section>' +
+
+        '<section class="ss-ed-section" id="sec-columns">' +
+          '<div class="ss-ed-sec-hdr"><h3 class="ss-ed-sec-title">테이블 컬럼 항목</h3></div>' +
+          '<div id="ed-col-builder">' + buildColBuilder() + '</div>' +
+        '</section>' +
+
+        '<section class="ss-ed-section" id="sec-actions">' +
+          '<div class="ss-ed-sec-hdr"><h3 class="ss-ed-sec-title">행 액션 항목</h3></div>' +
+          '<div id="ed-action-builder">' + buildActionBuilder() + '</div>' +
+        '</section>' +
+
+        '<section class="ss-ed-section" id="sec-desc">' +
+          '<div class="ss-ed-sec-hdr"><h3 class="ss-ed-sec-title">Description 요약</h3><span class="ss-ed-sec-note">읽기 전용 · 상세 설명은 Preview 및 상세 Drawer에서 확인</span></div>' +
+          '<div id="ed-desc-summary">' + buildDescTable(d) + '</div>' +
+        '</section>' +
+
+        '<section class="ss-ed-section" id="sec-attach">' +
+          '<div class="ss-ed-sec-hdr"><h3 class="ss-ed-sec-title">첨부파일 참고자료</h3></div>' +
+          '<div class="ss-ed-attach-zone">' +
+            svgIc('<polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>', 28, 1.5) +
+            '<span class="ss-ed-attach-title">참고자료 파일명 입력</span>' +
+            '<input class="ss-ed-inp" style="max-width:320px" placeholder="파일명 직접 입력 (예: 화면설계서_v1.pdf)">' +
+          '</div>' +
+          '<div class="ss-ed-attach-note">첨부파일은 화면 구조를 대체하지 않고 참고자료로만 사용합니다.</div>' +
+        '</section>' +
+
+        '<section class="ss-ed-section" id="sec-related">' +
+          '<div class="ss-ed-sec-hdr"><h3 class="ss-ed-sec-title">연관 정보</h3><span class="ss-ed-sec-note">1차: UI placeholder · 실제 연결은 추후 구현</span></div>' +
+          '<div class="ss-ed-related-grid">' +
+            '<div class="ss-ed-related-item"><div class="ss-ed-related-lbl">연관 요구사항</div><div class="ss-ed-related-ph">연결 추가 (준비중)</div></div>' +
+            '<div class="ss-ed-related-item"><div class="ss-ed-related-lbl">연관 WBS</div><div class="ss-ed-related-ph">연결 추가 (준비중)</div></div>' +
+            '<div class="ss-ed-related-item"><div class="ss-ed-related-lbl">메뉴/IA 위치</div><div class="ss-ed-related-ph">IA 매핑 (준비중)</div></div>' +
+            '<div class="ss-ed-related-item"><div class="ss-ed-related-lbl">연결 화면</div><div class="ss-ed-related-ph">화면 Flow 연결 (준비중)</div></div>' +
+          '</div>' +
+        '</section>';
+    }
+
+    if (footEl) {
+      footEl.innerHTML =
+        '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary" data-ssv-action="list">취소</button>' +
+        '<button type="button" class="stam-btn stam-btn--md stam-btn--ghost" data-ssv-action="preview">' + svgIc('<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>', 14) + ' 미리보기</button>' +
+        '<span style="flex:1"></span>' +
+        '<button type="button" class="stam-btn stam-btn--md stam-btn--primary" data-ssv-action="save">저장</button>' +
+        '<button type="button" class="stam-btn stam-btn--md stam-btn--ghost" title="저장 + 검토요청 (준비중)" disabled>저장 + 검토요청</button>';
+    }
+  }
+
+  function refreshEditorBuilders() {
+    var sb = document.getElementById('ed-search-builder');
+    var cb = document.getElementById('ed-col-builder');
+    var ab = document.getElementById('ed-action-builder');
+    var ds = document.getElementById('ed-desc-summary');
+    if (sb) sb.innerHTML = buildSearchBuilder();
+    if (cb) cb.innerHTML = buildColBuilder();
+    if (ab) ab.innerHTML = buildActionBuilder();
+    if (ds && SSP.draft) ds.innerHTML = buildDescTable(SSP.draft);
+  }
+
+  /* ── Preview View ── */
+  function buildPreviewItems(d) {
+    var items = []; var n = 1;
+    var sName = d.screenName || '(화면명 미입력)';
+    items.push({ n: n++, name: '화면 제목', detail: d.screenTitle || sName, type: 'title' });
+    if (d.topNote) items.push({ n: n++, name: '상단 안내문구', detail: d.topNote, type: 'note' });
+    if (d.useSearch) {
+      items.push({ n: n++, name: '검색 조건', detail: d.searchItems.map(function(i){return i.cond||'—';}).join(', '), type: 'search' });
+      items.push({ n: n++, name: '조회 버튼', detail: '검색 실행 → 결과테이블 갱신', type: 'btn' });
+    }
+    if (d.useTable) items.push({ n: n++, name: '결과 테이블', detail: d.tableColumns.map(function(c){return c.name||'—';}).join(', '), type: 'table' });
+    if (d.useStatusChip) items.push({ n: n++, name: '상태 chip', detail: '작성중 / 작성완료 / 검토대기 / 승인완료', type: 'chip' });
+    if (d.useRowAction) items.push({ n: n++, name: '행 액션', detail: d.rowActions.map(function(a){return a.name||'—';}).join(', '), type: 'action' });
+    if (d.useEmpty) items.push({ n: n++, name: '빈 결과 상태', detail: '조건에 맞는 결과가 없습니다.', type: 'empty' });
+    return items;
+  }
+
+  function buildMockup(d, items) {
+    var sName = d.screenName || '(화면명)';
+    var html = '';
+    items.forEach(function(item) {
+      var m = '<span class="ss-pv-marker">' + item.n + '</span>';
+      if (item.type === 'title') {
+        html += '<div class="ss-pv-mock-sec ss-pv-title-bar">' + m + '<span class="ss-pv-title">' + (d.screenTitle || sName) + '</span></div>';
+      } else if (item.type === 'note') {
+        html += '<div class="ss-pv-mock-sec ss-pv-note-bar">' + m + ' ' + d.topNote + '</div>';
+      } else if (item.type === 'search') {
+        var srInps = d.searchItems.slice(0, 3).map(function(si) {
+          return '<div class="ss-pv-search-inp">' + (si.cond || '검색') + '</div>';
+        }).join('');
+        html += '<div class="ss-pv-mock-sec"><div class="ss-pv-sec-lbl">' + m + ' 검색 조건</div><div class="ss-pv-search-row">' + srInps + '</div></div>';
+      } else if (item.type === 'btn') {
+        html += '<div class="ss-pv-mock-sec ss-pv-btn-row">' + m + '<span class="ss-pv-btn-p">조회</span><span class="ss-pv-btn-g">초기화</span></div>';
+      } else if (item.type === 'table') {
+        var cols = d.tableColumns.slice(0, 4);
+        var thHtml = cols.map(function(c){return '<th>' + (c.name||'—') + '</th>';}).join('') +
+          (d.useStatusChip ? '<th>상태</th>' : '') + (d.useRowAction && d.rowActions.length ? '<th>액션</th>' : '');
+        var tdHtml = cols.map(function(){return '<td>샘플</td>';}).join('') +
+          (d.useStatusChip ? '<td><span class="ss-pv-chip">완료</span></td>' : '') +
+          (d.useRowAction && d.rowActions[0] ? '<td><span class="ss-pv-act-lnk">' + (d.rowActions[0].name||'보기') + '</span></td>' : '');
+        html += '<div class="ss-pv-mock-sec"><div class="ss-pv-sec-lbl">' + m + ' 결과 테이블</div>' +
+          '<table class="ss-pv-table"><thead><tr>' + thHtml + '</tr></thead><tbody>' +
+          '<tr>' + tdHtml + '</tr><tr>' + tdHtml + '</tr>' +
+          '</tbody></table></div>';
+      } else if (item.type === 'chip') {
+        /* rendered inline in table */
+      } else if (item.type === 'action') {
+        /* rendered inline in table */
+      } else if (item.type === 'empty') {
+        html += '<div class="ss-pv-empty">' + m + ' 조건에 맞는 결과가 없습니다.</div>';
+      }
+    });
+    return html || '<div class="ss-pv-empty">입력된 구조가 없습니다. 편집기에서 화면 구조를 작성한 뒤 다시 확인하세요.</div>';
+  }
+
+  function renderPreviewView() {
+    readDraftFromForm();
+    var d = SSP.draft;
+    if (!d) return;
+    var el = document.getElementById('ss-preview-view');
+    if (!el) return;
+    var items = buildPreviewItems(d);
+    var sName = d.screenName || '(화면명 미입력)';
+    el.innerHTML =
+      '<div class="ss-pv-head">' +
+        '<div class="ss-pv-head-l">' +
+          '<button type="button" class="ss-pv-back-btn" data-ssv-action="editor">' +
+            svgIc('<polyline points="15 18 9 12 15 6"/>', 14) + ' 편집으로 돌아가기' +
+          '</button>' +
+          '<span class="ss-pv-draft-chip">초안 미리보기</span>' +
+          '<span class="ss-pv-tpl-chip">' + d.templateName + '</span>' +
+        '</div>' +
+        '<div class="ss-pv-head-r">' +
+          '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary" data-ssv-action="editor">편집으로 돌아가기</button>' +
+          '<button type="button" class="stam-btn stam-btn--md stam-btn--primary" data-ssv-action="save">저장</button>' +
+          '<button type="button" class="stam-btn stam-btn--md stam-btn--ghost" data-ssv-action="save-detail">저장 후 상세 보기</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ss-pv-labels">' +
+        '<span class="ss-pv-label">현재 입력값 기준</span>' +
+        '<span class="ss-pv-label">사용함 항목만 자동 재번호</span>' +
+        '<span class="ss-pv-label">숨김/삭제 항목 제외</span>' +
+        '<span class="ss-pv-label">샘플 데이터 아님</span>' +
+      '</div>' +
+      '<div class="ss-pv-layout">' +
+        '<div class="ss-pv-mockup">' +
+          '<div class="ss-pv-mockup-bar">' +
+            '<span class="ss-pv-mockup-title">' + (d.screenTitle || sName) + '</span>' +
+            '<span class="ss-pv-mockup-tag">UI 목업</span>' +
+          '</div>' +
+          '<div class="ss-pv-mockup-body">' + buildMockup(d, items) + '</div>' +
+        '</div>' +
+        '<div class="ss-pv-desc-panel">' +
+          '<div class="ss-pv-desc-hdr">Description<span style="font-size:11px;font-weight:400;color:var(--t3);margin-left:6px">' + items.length + '개 항목</span></div>' +
+          '<div class="ss-pv-desc-list">' +
+            items.map(function(item) {
+              return '<div class="ss-pv-desc-item">' +
+                '<div class="ss-pv-desc-marker">' + item.n + '</div>' +
+                '<div class="ss-pv-desc-content">' +
+                  '<div class="ss-pv-desc-name">' + item.name + '</div>' +
+                  '<div class="ss-pv-desc-detail">' + item.detail + '</div>' +
+                '</div>' +
+              '</div>';
+            }).join('') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  /* ── Save flow ── */
+  function execSave() {
+    readDraftFromForm();
+    var d = SSP.draft;
+    if (!d) return null;
+    var nameEl = document.getElementById('ed-screen-name');
+    var name = nameEl ? nameEl.value.trim() : d.screenName.trim();
+    if (!name) {
+      if (nameEl) {
+        nameEl.focus();
+        nameEl.style.outline = '2px solid #DC2626';
+        setTimeout(function() { nameEl.style.outline = ''; }, 2000);
+      }
+      alert('화면명을 입력하세요.');
+      return null;
+    }
+    var newId = d.screenId;
+    SS_SEQ++;
+    var saved = {
+      id: newId, name: name, ver: 'v0.1',
+      wst: 'writing', rst: 'none', ast: 'none',
+      type: d.screenType || 'list',
+      menu: d.menuPath || '미지정',
+      owner: '나', av: '나', ac: '#5451E8',
+      upd: '2026-06-14', hasImg: false, annots: 0,
+      purp: d.purpose || '',
+      acts: (d.rowActions || []).map(function(a) { return { n: a.name||'액션', loc: '행 액션', act: a.condition||'항상' }; }),
+      links: { req: [], art: [], work: [], ifc: [], fn: [] },
+      hist: [{ k: 'create', who: '나', at: '06-14', t: '최초 등록', n: 'v0.1' }],
+      template: d.template, templateName: d.templateName,
+      _draft: d
+    };
+    SSP.savedItems.push(saved);
+    for (var i = 0; i < MENUS.length; i++) {
+      if (MENUS[i].id === 'G-03') { MENUS[i].screens.push(saved); break; }
+    }
+    ALL_SCREENS.push(saved);
+    SSP.draft = null;
+    return saved;
+  }
+
+  /* ── View event handler ── */
+  function initViewEvents() {
+    /* Global delegation: data-ssv-action = list | template | editor | preview | save | save-detail */
+    document.addEventListener('click', function(e) {
+      /* Template selection */
+      var tplBtn = e.target.closest('[data-ssv-tpl]');
+      if (tplBtn && SSP.view.mode === 'template') {
+        var tplId = tplBtn.getAttribute('data-ssv-tpl');
+        initDraft(tplId);
+        switchView('editor');
+        renderEditorView();
+        return;
+      }
+
+      /* ssv-action routing */
+      var actionBtn = e.target.closest('[data-ssv-action]');
+      if (!actionBtn) return;
+      var act = actionBtn.getAttribute('data-ssv-action');
+
+      if (act === 'list') {
+        SSP.draft = null;
+        switchView('list');
+        renderStrip();
+        renderTable();
+
+      } else if (act === 'template') {
+        switchView('template');
+        renderTemplateView();
+
+      } else if (act === 'editor') {
+        switchView('editor');
+        renderEditorView();
+
+      } else if (act === 'preview') {
+        switchView('preview');
+        renderPreviewView();
+        var poMain = document.getElementById('po-main');
+        if (poMain) poMain.scrollTop = 0;
+
+      } else if (act === 'save' || act === 'save-detail') {
+        var saved = execSave();
+        if (!saved) return;
+        switchView('list');
+        renderStrip();
+        renderTable();
+        if (act === 'save-detail') {
+          setTimeout(function() { openDetail(saved.id); }, 80);
+        }
+
+      } else if (act === 'back-to-template') {
+        switchView('template');
+        renderTemplateView();
+      }
+    });
+
+    /* Toggle change → refresh builders */
+    document.addEventListener('change', function(e) {
+      var toggle = e.target.closest('[data-ed-toggle]');
+      if (toggle && SSP.view.mode === 'editor' && SSP.draft) {
+        readDraftFromForm();
+        var key = toggle.getAttribute('data-ed-toggle');
+        SSP.draft[key] = toggle.checked;
+        refreshEditorBuilders();
+        return;
+      }
+    });
+
+    /* Builder add/delete */
+    document.addEventListener('click', function(e) {
+      if (SSP.view.mode !== 'editor' || !SSP.draft) return;
+
+      var addBtn = e.target.closest('[data-ed-add]');
+      if (addBtn) {
+        readDraftFromForm();
+        var t = addBtn.getAttribute('data-ed-add');
+        if (t === 'search') SSP.draft.searchItems.push({ cond: '', inputType: 'text', required: false, defaultVal: '', order: SSP.draft.searchItems.length + 1 });
+        else if (t === 'col') SSP.draft.tableColumns.push({ name: '', key: '', visible: true, sortable: false, width: '120px' });
+        else if (t === 'action') SSP.draft.rowActions.push({ name: '', style: 'ghost', link: '', permission: '전체', condition: '항상' });
+        refreshEditorBuilders();
+        return;
+      }
+
+      var sbDel = e.target.closest('[data-ed-sb-del]');
+      if (sbDel) {
+        readDraftFromForm();
+        SSP.draft.searchItems.splice(parseInt(sbDel.getAttribute('data-ed-sb-del'), 10), 1);
+        refreshEditorBuilders(); return;
+      }
+      var cbDel = e.target.closest('[data-ed-cb-del]');
+      if (cbDel) {
+        readDraftFromForm();
+        SSP.draft.tableColumns.splice(parseInt(cbDel.getAttribute('data-ed-cb-del'), 10), 1);
+        refreshEditorBuilders(); return;
+      }
+      var abDel = e.target.closest('[data-ed-ab-del]');
+      if (abDel) {
+        readDraftFromForm();
+        SSP.draft.rowActions.splice(parseInt(abDel.getAttribute('data-ed-ab-del'), 10), 1);
+        refreshEditorBuilders(); return;
+      }
+    }, true);
+
+    /* Section nav smooth scroll */
+    document.addEventListener('click', function(e) {
+      var navLink = e.target.closest('[data-ssv-nav]');
+      if (navLink && SSP.view.mode === 'editor') {
+        e.preventDefault();
+        var targetId = navLink.getAttribute('data-ssv-nav');
+        var targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          document.querySelectorAll('.ss-ed-nav-link').forEach(function(l) { l.classList.remove('active'); });
+          navLink.classList.add('active');
+        }
+      }
+    });
+  }
+
   /* ── Event wiring ── */
   function initNav() {
     if (window.STAM && window.STAM.navRender) {
@@ -1137,7 +1831,10 @@
 
   function initRegisterBtn() {
     var regBtn = document.getElementById('ss-reg-btn');
-    if (regBtn) regBtn.addEventListener('click', openRegister);
+    if (regBtn) regBtn.addEventListener('click', function() {
+      switchView('template');
+      renderTemplateView();
+    });
   }
 
   function initEscapeKey() {
@@ -1191,6 +1888,7 @@
     initDelete();
     initDrawer();
     initRegisterBtn();
+    initViewEvents();
     initEscapeKey();
     initCustomSelect();
     initAll();
