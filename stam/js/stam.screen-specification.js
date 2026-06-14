@@ -1012,6 +1012,7 @@
     view: { mode: 'list' },
     editor: { mode: 'create', activeId: null, previewDirty: false, previewAppliedAt: null },
     detailDrawer: { open: false, activeId: null },
+    serviceType: 'branding',
     templateTab: 'front',
     draft: null,
     previewModel: null,
