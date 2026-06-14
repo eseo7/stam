@@ -1021,119 +1021,142 @@
 
   var SS_SEQ = 16;
 
-  /* ── Template group definitions (Front / Admin) ── */
-  var TEMPLATE_GROUPS = {
-    front: [
-      { id: 'front-login', name: '로그인 화면',
-        desc: '이메일·비밀번호 로그인, SNS 로그인 구조',
-        screenType: 'form', recommendedUse: '인증 진입 화면',
-        defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false },
-        items: ['로그인 폼', 'SNS 로그인 버튼', '아이디/비밀번호 찾기 링크', '회원가입 링크'],
-        iconPath: '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>' },
-      { id: 'front-signup', name: '회원가입/약관동의 화면',
-        desc: '이용약관 동의 → 정보 입력 → 가입 완료 단계 구조',
-        screenType: 'form', recommendedUse: '회원가입 플로우',
-        defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false },
-        items: ['약관동의 목록', '정보 입력 폼', '필수/선택 표시', '가입 버튼'],
-        iconPath: '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>' },
-      { id: 'front-find', name: '아이디/비밀번호 찾기 화면',
-        desc: '이메일·휴대폰 인증으로 계정 정보를 찾는 구조',
-        screenType: 'form', recommendedUse: '계정 찾기 화면',
-        defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false },
-        items: ['탭 (아이디/비밀번호 찾기)', '인증 수단 선택', '인증 코드 입력', '결과 안내'],
-        iconPath: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>' },
-      { id: 'front-home', name: '홈/랜딩 화면',
-        desc: '주요 기능과 콘텐츠를 소개하는 랜딩 구조',
-        screenType: 'main', recommendedUse: '홈·랜딩 화면',
-        defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false },
-        items: ['히어로 배너', '주요 기능 카드', '최신 공지사항', 'CTA 버튼'],
-        iconPath: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>' },
-      { id: 'front-list', name: '목록/검색 화면',
-        desc: '검색·필터·목록 카드 또는 테이블 구조',
-        screenType: 'list', recommendedUse: '사용자용 목록·검색 화면',
-        defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: false, useEmpty: true },
-        items: ['검색 조건', '조회 버튼', '결과 목록/테이블', '상태 chip', '빈 결과 안내'],
-        iconPath: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>' },
-      { id: 'front-detail', name: '상세/콘텐츠 화면',
-        desc: '항목 상세 정보를 읽기 전용으로 보여주는 구조',
-        screenType: 'detail', recommendedUse: '콘텐츠 상세 보기 화면',
-        defaultStructure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false },
-        items: ['콘텐츠 제목', '기본 정보 영역', '상태 표시', '첨부파일', '뒤로가기/목록 버튼'],
-        iconPath: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>' },
-      { id: 'front-form', name: '신청/문의 폼 화면',
-        desc: '사용자가 직접 입력하고 제출하는 폼 구조',
-        screenType: 'form', recommendedUse: '신청·문의·설문 화면',
-        defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false },
-        items: ['폼 제목', '입력 필드', '필수 항목 표시', '첨부파일 업로드', '제출/취소 버튼'],
-        iconPath: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/>' },
-      { id: 'front-mypage', name: '마이페이지/프로필 화면',
-        desc: '내 정보 확인·수정, 활동 이력, 설정 구조',
-        screenType: 'detail', recommendedUse: '마이페이지·프로필 화면',
-        defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false },
-        items: ['프로필 영역', '내 정보 편집 링크', '활동 이력/신청 내역', '알림·설정'],
-        iconPath: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' }
-    ],
-    admin: [
-      { id: 'admin-dashboard', name: '운영 대시보드 화면',
-        desc: 'KPI 카드·차트·최근 이벤트 중심의 현황 요약 화면',
-        screenType: 'main', recommendedUse: '현황 요약·통계 화면',
-        defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false },
-        items: ['KPI 카드 그리드', '차트/그래프 영역', '최근 이벤트 목록', '빠른 링크'],
-        iconPath: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>' },
-      { id: 'admin-list', name: '관리 목록/검색 화면',
-        desc: '검색·필터·테이블·행 액션 중심의 관리 목록 화면',
-        screenType: 'list', recommendedUse: '목록·조회·관리 화면',
-        defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true },
-        items: ['검색 조건', '조회 버튼', '결과 테이블', '상태 chip', '행 액션', '빈 결과 상태'],
-        iconPath: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/>' },
-      { id: 'admin-form', name: '등록/수정/상세 폼 화면',
-        desc: '항목 등록·수정·상세 보기를 하나의 폼으로 처리하는 구조',
-        screenType: 'form', recommendedUse: '등록·수정·상세 화면',
-        defaultStructure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false },
-        items: ['폼 입력 영역', '필수 항목 표시', '상태 표시', '저장/취소 버튼'],
-        iconPath: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/>' },
-      { id: 'admin-approval', name: '승인/검토 처리 화면',
-        desc: '검토 요청·승인·반려 워크플로우 처리 화면',
-        screenType: 'list', recommendedUse: '승인·검토·감사 화면',
-        defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: false },
-        items: ['검토 대상 목록', '상태 chip', '승인 액션', '반려 사유 입력', '처리 이력'],
-        iconPath: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>' },
-      { id: 'admin-user', name: '사용자/권한 관리 화면',
-        desc: '사용자 계정, 역할, 권한을 관리하는 구조',
-        screenType: 'list', recommendedUse: '사용자·권한 관리 화면',
-        defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true },
-        items: ['검색 조건', '사용자 목록 테이블', '권한 chip', '역할 할당 액션', '계정 잠금/해제'],
-        iconPath: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
-      { id: 'admin-settings', name: '설정/공통코드 관리 화면',
-        desc: '시스템 설정, 공통 코드, 메뉴 구성 등을 관리하는 화면',
-        screenType: 'list', recommendedUse: '설정·코드 관리 화면',
-        defaultStructure: { useSearch: true, useTable: true, useStatusChip: false, useRowAction: true, useEmpty: false },
-        items: ['분류 탭/트리', '코드 목록 테이블', '등록/수정 폼', '저장/취소 버튼'],
-        iconPath: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>' },
-      { id: 'admin-file', name: '파일/첨부/Import/Export 화면',
-        desc: '파일 업로드, 대량 가져오기·내보내기 관리 화면',
-        screenType: 'list', recommendedUse: '파일·Import/Export 관리 화면',
-        defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true },
-        items: ['파일 업로드 영역', '파일 목록 테이블', '상태 chip', '다운로드/삭제 액션', 'Import/Export 버튼'],
-        iconPath: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>' },
-      { id: 'admin-log', name: '이력/감사로그 화면',
-        desc: '사용자 활동, 변경 이력, 감사 로그를 조회하는 화면',
-        screenType: 'list', recommendedUse: '이력·감사로그 화면',
-        defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: false, useEmpty: false },
-        items: ['기간 검색 조건', '이벤트 필터', '로그 테이블', '상태 chip', '상세 보기'],
-        iconPath: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>' }
-    ]
-  };
+  /* ── Service type + template definitions (1Depth: service type, 2Depth: front/admin) ── */
+  var SERVICE_TYPES = [
+    { id: 'branding', name: '홍보형',
+      front: [
+        { id: 'branding-f1', name: '메인/랜딩 화면', desc: '브랜드·서비스 소개를 위한 히어로 섹션 중심 랜딩 구조', screenType: 'main', recommendedUse: '홍보·브랜드 홈', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['히어로 섹션', '주요 서비스 카드', 'CTA 버튼', '고객사/수상 실적'], iconPath: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>' },
+        { id: 'branding-f2', name: '회사소개/서비스소개 화면', desc: '회사·팀·서비스를 소개하는 콘텐츠 페이지 구조', screenType: 'detail', recommendedUse: '소개·About 화면', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['섹션 제목', '텍스트+이미지 블록', '팀 소개', '연혁'], iconPath: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' },
+        { id: 'branding-f3', name: '상품/서비스 소개 상세 화면', desc: '특정 상품·서비스의 기능·가격·FAQ를 상세 소개하는 구조', screenType: 'detail', recommendedUse: '상품·서비스 상세 소개', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['상품 이미지', '주요 기능 목록', '가격/플랜 비교', 'FAQ', 'CTA 버튼'], iconPath: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>' },
+        { id: 'branding-f4', name: '문의/상담 신청 화면', desc: '문의 유형 선택·내용 입력·제출 구조', screenType: 'form', recommendedUse: '문의·상담 신청', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['문의 유형 선택', '이름·연락처 입력', '내용 입력', '파일 첨부', '제출 버튼'], iconPath: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' },
+        { id: 'branding-f5', name: '공지/뉴스 목록 화면', desc: '공지사항·뉴스·보도자료 목록 구조', screenType: 'list', recommendedUse: '공지·뉴스 목록', defaultStructure: { useSearch: true, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: true }, items: ['카테고리 탭', '검색 조건', '게시글 목록', '빈 결과 안내'], iconPath: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>' },
+        { id: 'branding-f6', name: '빈 템플릿', desc: '아무 구조도 없는 빈 캔버스. 처음부터 직접 설계합니다.', screenType: 'form', recommendedUse: '자유 설계', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['직접 구성'], iconPath: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/>' }
+      ],
+      admin: [
+        { id: 'branding-a1', name: '문의/상담 관리 화면', desc: '접수된 문의·상담 목록을 검색·처리하는 관리 화면', screenType: 'list', recommendedUse: '문의·상담 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true }, items: ['검색 조건', '문의 목록 테이블', '상태 chip', '답변/처리 액션', '빈 결과 안내'], iconPath: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' },
+        { id: 'branding-a2', name: '콘텐츠/배너 관리 화면', desc: '홈페이지 콘텐츠·배너를 등록·수정·노출 설정하는 관리 화면', screenType: 'list', recommendedUse: '배너·콘텐츠 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: false }, items: ['검색 조건', '콘텐츠 목록 테이블', '노출 상태 chip', '수정/삭제 액션'], iconPath: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>' },
+        { id: 'branding-a3', name: '공지/뉴스 관리 화면', desc: '공지사항·뉴스를 등록·수정·노출하는 관리 화면', screenType: 'list', recommendedUse: '공지·뉴스 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true }, items: ['검색 조건', '게시글 목록 테이블', '공개 상태 chip', '수정/삭제 액션', '빈 결과 안내'], iconPath: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>' },
+        { id: 'branding-a4', name: '팝업/노출 관리 화면', desc: '팝업·레이어 광고의 등록·기간·노출 순서를 관리하는 화면', screenType: 'list', recommendedUse: '팝업·배너 노출 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: false }, items: ['검색 조건', '팝업 목록 테이블', '노출 상태 chip', '순서 조정 액션'], iconPath: '<rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>' },
+        { id: 'branding-a5', name: '통계 대시보드 화면', desc: '방문자·유입·문의 현황 KPI 및 차트 요약 화면', screenType: 'main', recommendedUse: '통계·현황 대시보드', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['KPI 카드 그리드', '방문자 차트', '유입 경로 차트', '최근 문의 목록'], iconPath: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>' },
+        { id: 'branding-a6', name: '빈 템플릿', desc: '아무 구조도 없는 빈 캔버스. 처음부터 직접 설계합니다.', screenType: 'list', recommendedUse: '자유 설계', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['직접 구성'], iconPath: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/>' }
+      ]
+    },
+    { id: 'commerce', name: '커머스형',
+      front: [
+        { id: 'commerce-f1', name: '메인/홈 화면', desc: '추천 상품·기획전·배너 중심의 쇼핑몰 홈 구조', screenType: 'main', recommendedUse: '쇼핑몰 홈', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['메인 배너', '추천 상품 카드', '기획전 섹션', '최근 본 상품'], iconPath: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>' },
+        { id: 'commerce-f2', name: '상품 목록/검색 화면', desc: '검색·카테고리·필터·정렬 중심의 상품 탐색 화면', screenType: 'list', recommendedUse: '상품 탐색 화면', defaultStructure: { useSearch: true, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: true }, items: ['카테고리 필터', '검색 조건', '상품 카드 그리드', '정렬 선택', '빈 결과 안내'], iconPath: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>' },
+        { id: 'commerce-f3', name: '상품 상세 화면', desc: '상품 이미지·설명·옵션·구매 버튼 구조', screenType: 'detail', recommendedUse: '상품 상세 보기', defaultStructure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false }, items: ['상품 이미지 슬라이드', '상품명·가격', '옵션 선택', '수량·장바구니·구매 버튼', '상세 설명 탭'], iconPath: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>' },
+        { id: 'commerce-f4', name: '장바구니 화면', desc: '선택 상품 목록·수량 조정·금액 합계 구조', screenType: 'list', recommendedUse: '장바구니', defaultStructure: { useSearch: false, useTable: true, useStatusChip: false, useRowAction: true, useEmpty: true }, items: ['상품 목록 테이블', '수량 조정 액션', '금액 합계', '주문하기 버튼', '빈 결과 안내'], iconPath: '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>' },
+        { id: 'commerce-f5', name: '주문/결제 화면', desc: '배송지·결제수단·최종 확인 단계 구조', screenType: 'form', recommendedUse: '주문·결제 플로우', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['주문 상품 요약', '배송지 입력', '결제수단 선택', '최종 금액 확인', '결제 버튼'], iconPath: '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>' },
+        { id: 'commerce-f6', name: '주문 완료 화면', desc: '결제 완료 안내·주문번호·다음 단계 안내 구조', screenType: 'form', recommendedUse: '주문 완료 확인', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['완료 아이콘', '주문번호 표시', '배송 안내', '홈/내역 이동 버튼'], iconPath: '<polyline points="20 6 9 17 4 12"/>' },
+        { id: 'commerce-f7', name: '마이페이지/주문내역 화면', desc: '내 주문·적립금·쿠폰·배송지 관리 구조', screenType: 'detail', recommendedUse: '마이페이지·주문내역', defaultStructure: { useSearch: false, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: false }, items: ['프로필 영역', '주문내역 테이블', '상태 chip', '재구매/취소 액션'], iconPath: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' },
+        { id: 'commerce-f8', name: '인증 흐름 화면', desc: '로그인·회원가입·비밀번호 찾기 단계 구조', screenType: 'form', recommendedUse: '쇼핑몰 로그인·가입', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['로그인 폼', 'SNS 로그인', '회원가입 탭', '아이디/비밀번호 찾기'], iconPath: '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>' }
+      ],
+      admin: [
+        { id: 'commerce-a1', name: '운영 대시보드 화면', desc: '매출·주문·회원 KPI 및 최근 이벤트 요약 화면', screenType: 'main', recommendedUse: '커머스 운영 대시보드', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['KPI 카드 그리드', '매출 차트', '최근 주문 목록', '빠른 링크'], iconPath: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>' },
+        { id: 'commerce-a2', name: '상품 관리 목록 화면', desc: '상품 검색·필터·목록·상태 관리 화면', screenType: 'list', recommendedUse: '상품 목록 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true }, items: ['검색 조건', '상품 목록 테이블', '판매 상태 chip', '수정/삭제 액션', '빈 결과 안내'], iconPath: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="9" x2="9" y2="21"/>' },
+        { id: 'commerce-a3', name: '상품 등록/수정/상세 화면', desc: '상품 정보·이미지·옵션·가격을 등록·수정하는 폼', screenType: 'form', recommendedUse: '상품 등록·수정', defaultStructure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false }, items: ['기본 정보 폼', '이미지 업로드', '옵션 빌더', '가격·재고 입력', '저장/취소 버튼'], iconPath: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/>' },
+        { id: 'commerce-a4', name: '주문 관리 화면', desc: '주문 검색·상태 필터·처리·배송 관리 화면', screenType: 'list', recommendedUse: '주문 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: false }, items: ['검색 조건', '주문 목록 테이블', '주문 상태 chip', '발송/취소 액션'], iconPath: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>' },
+        { id: 'commerce-a5', name: '회원 관리 화면', desc: '회원 검색·등급·상태 관리 화면', screenType: 'list', recommendedUse: '회원 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true }, items: ['검색 조건', '회원 목록 테이블', '등급 chip', '계정 관리 액션', '빈 결과 안내'], iconPath: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
+        { id: 'commerce-a6', name: '쿠폰/프로모션 관리 화면', desc: '쿠폰 코드·프로모션 생성·배포·현황 관리', screenType: 'list', recommendedUse: '쿠폰·프로모션 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: false }, items: ['검색 조건', '쿠폰 목록 테이블', '사용 상태 chip', '발급/만료 액션'], iconPath: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>' },
+        { id: 'commerce-a7', name: '정산/매출 관리 화면', desc: '기간별 매출·정산 현황·지급 내역을 관리하는 화면', screenType: 'list', recommendedUse: '정산·매출 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: false, useEmpty: false }, items: ['기간 검색', '정산 목록 테이블', '정산 상태 chip', '매출 합계'], iconPath: '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>' },
+        { id: 'commerce-a8', name: '배송/클레임 관리 화면', desc: '배송 현황·반품·교환 요청 처리 관리 화면', screenType: 'list', recommendedUse: '배송·클레임 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: false }, items: ['검색 조건', '배송/클레임 목록 테이블', '처리 상태 chip', '처리/반려 액션'], iconPath: '<rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>' }
+      ]
+    },
+    { id: 'business', name: '업무시스템형',
+      front: [
+        { id: 'business-f1', name: '로그인 화면', desc: '이메일·비밀번호 로그인, SSO 연동 구조', screenType: 'form', recommendedUse: '업무 시스템 로그인', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['로그인 폼', 'SSO/소셜 로그인', '아이디·비밀번호 찾기', '로그인 버튼'], iconPath: '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>' },
+        { id: 'business-f2', name: '내 업무 목록 화면', desc: '나에게 할당된 처리 대기·진행 중인 업무 목록 구조', screenType: 'list', recommendedUse: '내 업무·할 일 목록', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true }, items: ['상태 탭', '검색 조건', '업무 목록 테이블', '상태 chip', '처리/상세 액션', '빈 결과 안내'], iconPath: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>' },
+        { id: 'business-f3', name: '신청/등록 폼 화면', desc: '업무 신청·등록을 위한 멀티 섹션 입력 폼 구조', screenType: 'form', recommendedUse: '신청·등록 폼', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['폼 섹션', '필수 항목 표시', '첨부파일 업로드', '제출/임시저장 버튼'], iconPath: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/>' },
+        { id: 'business-f4', name: '상세/처리현황 화면', desc: '신청 항목의 상세 정보와 처리 단계·이력을 확인하는 화면', screenType: 'detail', recommendedUse: '신청 상세·처리현황', defaultStructure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false }, items: ['기본 정보 영역', '처리 단계 스텝', '처리 이력', '상태 chip', '추가 요청 버튼'], iconPath: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>' },
+        { id: 'business-f5', name: '알림/메시지 화면', desc: '시스템 알림·메시지 목록과 상세 확인 구조', screenType: 'list', recommendedUse: '알림·메시지 목록', defaultStructure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: true }, items: ['알림 유형 탭', '알림 목록', '읽음 상태 chip', '빈 결과 안내'], iconPath: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>' },
+        { id: 'business-f6', name: '마이페이지 화면', desc: '내 정보·신청 이력·알림 설정을 관리하는 구조', screenType: 'detail', recommendedUse: '마이페이지', defaultStructure: { useSearch: false, useTable: true, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['프로필 영역', '신청 이력 테이블', '알림 설정', '비밀번호 변경'], iconPath: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' },
+        { id: 'business-f7', name: '빈 템플릿', desc: '아무 구조도 없는 빈 캔버스. 처음부터 직접 설계합니다.', screenType: 'form', recommendedUse: '자유 설계', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['직접 구성'], iconPath: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/>' }
+      ],
+      admin: [
+        { id: 'business-a1', name: '관리 대시보드 화면', desc: 'KPI·처리 현황·대기 항목 중심의 운영 대시보드', screenType: 'main', recommendedUse: '업무 관리 대시보드', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['KPI 카드 그리드', '처리 현황 차트', '대기 항목 목록', '빠른 링크'], iconPath: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>' },
+        { id: 'business-a2', name: '관리 목록/검색 화면', desc: '검색·필터·테이블·행 액션 중심의 관리 목록 화면', screenType: 'list', recommendedUse: '업무 목록·관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true }, items: ['검색 조건', '결과 테이블', '상태 chip', '행 액션', '빈 결과 안내'], iconPath: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/>' },
+        { id: 'business-a3', name: '등록/수정/상세 폼 화면', desc: '항목 등록·수정·상세 보기를 하나의 폼으로 처리하는 구조', screenType: 'form', recommendedUse: '등록·수정·상세 화면', defaultStructure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false }, items: ['폼 입력 영역', '필수 항목 표시', '상태 chip', '저장/취소 버튼'], iconPath: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/>' },
+        { id: 'business-a4', name: '승인/검토 처리 화면', desc: '검토 요청·승인·반려 워크플로우 처리 화면', screenType: 'list', recommendedUse: '승인·검토 처리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: false }, items: ['검토 대상 목록', '상태 chip', '승인·반려 액션', '처리 이력'], iconPath: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>' },
+        { id: 'business-a5', name: '사용자/권한 관리 화면', desc: '사용자 계정·역할·권한을 관리하는 화면', screenType: 'list', recommendedUse: '사용자·권한 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true }, items: ['검색 조건', '사용자 목록 테이블', '권한 chip', '역할 할당 액션', '계정 잠금/해제'], iconPath: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
+        { id: 'business-a6', name: '설정/공통코드 관리 화면', desc: '시스템 설정·공통 코드·메뉴 구성을 관리하는 화면', screenType: 'list', recommendedUse: '설정·코드 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: false, useRowAction: true, useEmpty: false }, items: ['분류 탭', '코드 목록 테이블', '등록/수정 폼', '저장 버튼'], iconPath: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>' },
+        { id: 'business-a7', name: '이력/감사로그 화면', desc: '사용자 활동·변경 이력·감사 로그를 조회하는 화면', screenType: 'list', recommendedUse: '이력·감사로그', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: false, useEmpty: false }, items: ['기간 검색', '이벤트 필터', '로그 테이블', '상태 chip', '상세 보기'], iconPath: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>' },
+        { id: 'business-a8', name: '파일/Import/Export 화면', desc: '파일 업로드·대량 가져오기·내보내기 관리 화면', screenType: 'list', recommendedUse: '파일·Import/Export 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true }, items: ['파일 업로드 영역', '파일 목록 테이블', '상태 chip', '다운로드/삭제 액션', 'Import/Export 버튼'], iconPath: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>' }
+      ]
+    },
+    { id: 'community', name: '커뮤니티/콘텐츠형',
+      front: [
+        { id: 'community-f1', name: '메인/피드 화면', desc: '최신 게시글·추천 콘텐츠·인기 태그 중심의 피드 구조', screenType: 'main', recommendedUse: '메인·피드 화면', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['추천 콘텐츠 카드', '인기 태그', '팔로잉 피드', 'CTA 버튼'], iconPath: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>' },
+        { id: 'community-f2', name: '게시글/콘텐츠 목록 화면', desc: '카테고리·검색·정렬 중심의 게시글 목록 구조', screenType: 'list', recommendedUse: '게시글·콘텐츠 목록', defaultStructure: { useSearch: true, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: true }, items: ['카테고리 탭', '검색 조건', '게시글 카드 목록', '정렬 선택', '빈 결과 안내'], iconPath: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>' },
+        { id: 'community-f3', name: '게시글/콘텐츠 상세 화면', desc: '본문·미디어·좋아요·공유·댓글 구조', screenType: 'detail', recommendedUse: '게시글·콘텐츠 상세', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['콘텐츠 제목', '본문+미디어', '좋아요·공유 버튼', '댓글 목록', '관련 콘텐츠'], iconPath: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>' },
+        { id: 'community-f4', name: '작성/등록 화면', desc: '게시글·콘텐츠 작성을 위한 에디터 구조', screenType: 'form', recommendedUse: '게시글·콘텐츠 작성', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['제목 입력', '리치 에디터', '카테고리·태그 선택', '이미지 첨부', '발행/임시저장 버튼'], iconPath: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/>' },
+        { id: 'community-f5', name: '댓글/리뷰 화면', desc: '댓글 목록·입력·신고·좋아요 구조', screenType: 'list', recommendedUse: '댓글·리뷰 화면', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: true }, items: ['댓글 입력 영역', '댓글 목록', '좋아요·신고 버튼', '빈 결과 안내'], iconPath: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' },
+        { id: 'community-f6', name: '프로필 화면', desc: '사용자 정보·작성 콘텐츠·팔로우 구조', screenType: 'detail', recommendedUse: '사용자 프로필', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['프로필 이미지·정보', '팔로우/팔로워', '작성 콘텐츠 목록', '활동 이력'], iconPath: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' },
+        { id: 'community-f7', name: '알림 화면', desc: '좋아요·댓글·팔로우 알림 목록 구조', screenType: 'list', recommendedUse: '알림 목록', defaultStructure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: true }, items: ['알림 유형 탭', '알림 목록', '읽음 상태 chip', '빈 결과 안내'], iconPath: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>' },
+        { id: 'community-f8', name: '빈 템플릿', desc: '아무 구조도 없는 빈 캔버스. 처음부터 직접 설계합니다.', screenType: 'form', recommendedUse: '자유 설계', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['직접 구성'], iconPath: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/>' }
+      ],
+      admin: [
+        { id: 'community-a1', name: '콘텐츠 관리 목록 화면', desc: '게시글·콘텐츠 검색·상태 관리·삭제 화면', screenType: 'list', recommendedUse: '콘텐츠 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true }, items: ['검색 조건', '콘텐츠 목록 테이블', '노출 상태 chip', '수정/삭제 액션', '빈 결과 안내'], iconPath: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>' },
+        { id: 'community-a2', name: '콘텐츠 등록/수정/상세 화면', desc: '게시글·콘텐츠를 등록·수정하는 관리용 에디터 화면', screenType: 'form', recommendedUse: '콘텐츠 등록·수정', defaultStructure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false }, items: ['제목·카테고리 입력', '리치 에디터', '이미지 업로드', '공개 상태 chip', '저장/취소 버튼'], iconPath: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/>' },
+        { id: 'community-a3', name: '댓글/신고 관리 화면', desc: '댓글·신고 목록 검색·처리·숨김 관리 화면', screenType: 'list', recommendedUse: '댓글·신고 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true }, items: ['검색 조건', '댓글/신고 목록 테이블', '처리 상태 chip', '숨김/삭제 액션', '빈 결과 안내'], iconPath: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' },
+        { id: 'community-a4', name: '회원 관리 화면', desc: '커뮤니티 회원 검색·등급·정지 관리 화면', screenType: 'list', recommendedUse: '회원 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: false }, items: ['검색 조건', '회원 목록 테이블', '등급 chip', '정지/해제 액션'], iconPath: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
+        { id: 'community-a5', name: '카테고리 관리 화면', desc: '콘텐츠 분류·태그·카테고리 트리 구조 관리 화면', screenType: 'list', recommendedUse: '카테고리·태그 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: false, useRowAction: true, useEmpty: false }, items: ['분류 트리', '카테고리 목록 테이블', '등록/수정/삭제 액션'], iconPath: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>' },
+        { id: 'community-a6', name: '통계 대시보드 화면', desc: '방문자·게시글·활성 유저 KPI 및 차트 대시보드', screenType: 'main', recommendedUse: '커뮤니티 통계 대시보드', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['KPI 카드 그리드', '활성 유저 차트', '인기 콘텐츠 목록', '빠른 링크'], iconPath: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>' },
+        { id: 'community-a7', name: '공지/배너 관리 화면', desc: '커뮤니티 공지·배너 등록·노출 관리 화면', screenType: 'list', recommendedUse: '공지·배너 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: false }, items: ['검색 조건', '공지/배너 목록 테이블', '노출 상태 chip', '수정/삭제 액션'], iconPath: '<rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>' },
+        { id: 'community-a8', name: '빈 템플릿', desc: '아무 구조도 없는 빈 캔버스. 처음부터 직접 설계합니다.', screenType: 'list', recommendedUse: '자유 설계', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['직접 구성'], iconPath: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/>' }
+      ]
+    },
+    { id: 'reservation', name: '예약/신청형',
+      front: [
+        { id: 'reservation-f1', name: '예약/신청 메인 화면', desc: '예약 가능 서비스·일정 카드 중심의 메인 구조', screenType: 'main', recommendedUse: '예약·신청 메인', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['서비스 카드', '일정 선택 캘린더', '빠른 예약 CTA', '안내 섹션'], iconPath: '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' },
+        { id: 'reservation-f2', name: '일정/상품 목록 화면', desc: '예약 가능한 일정·상품 목록 탐색 화면', screenType: 'list', recommendedUse: '예약 가능 목록', defaultStructure: { useSearch: true, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: true }, items: ['날짜·조건 검색', '일정/상품 카드 목록', '잔여 수량 chip', '빈 결과 안내'], iconPath: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>' },
+        { id: 'reservation-f3', name: '예약/신청 상세 화면', desc: '예약 가능 일정·상세 정보·예약 시작 구조', screenType: 'detail', recommendedUse: '예약 상세 안내', defaultStructure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false }, items: ['서비스 정보', '일정 상세', '가용 상태 chip', '예약하기 버튼'], iconPath: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>' },
+        { id: 'reservation-f4', name: '예약/신청 폼 화면', desc: '예약자 정보·옵션·일정 선택 입력 폼 구조', screenType: 'form', recommendedUse: '예약·신청 폼', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['예약자 정보 입력', '옵션·수량 선택', '일정 선택', '메모 입력', '예약 완료 버튼'], iconPath: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/>' },
+        { id: 'reservation-f5', name: '예약 완료 화면', desc: '예약 완료 안내·예약번호·다음 단계 안내 구조', screenType: 'form', recommendedUse: '예약 완료 확인', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['완료 아이콘', '예약번호 표시', '예약 내역 요약', '내 예약 이동 버튼'], iconPath: '<polyline points="20 6 9 17 4 12"/>' },
+        { id: 'reservation-f6', name: '내 예약/신청 내역 화면', desc: '신청한 예약 목록·상태·상세 확인 구조', screenType: 'list', recommendedUse: '내 예약·신청 내역', defaultStructure: { useSearch: false, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true }, items: ['예약 내역 테이블', '예약 상태 chip', '상세/취소 액션', '빈 결과 안내'], iconPath: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>' },
+        { id: 'reservation-f7', name: '취소/변경 화면', desc: '예약 취소·날짜·옵션 변경 요청 처리 구조', screenType: 'form', recommendedUse: '예약 취소·변경', defaultStructure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false }, items: ['예약 정보 요약', '취소/변경 사유 선택', '위약금 안내', '확인 버튼'], iconPath: '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>' },
+        { id: 'reservation-f8', name: '빈 템플릿', desc: '아무 구조도 없는 빈 캔버스. 처음부터 직접 설계합니다.', screenType: 'form', recommendedUse: '자유 설계', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['직접 구성'], iconPath: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/>' }
+      ],
+      admin: [
+        { id: 'reservation-a1', name: '예약/신청 관리 목록 화면', desc: '접수된 예약·신청 목록을 검색·필터·처리하는 관리 화면', screenType: 'list', recommendedUse: '예약·신청 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true }, items: ['검색 조건', '예약 목록 테이블', '예약 상태 chip', '승인/반려 액션', '빈 결과 안내'], iconPath: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>' },
+        { id: 'reservation-a2', name: '예약 상세/처리 화면', desc: '예약 상세 정보 확인·처리·메모 추가 관리 화면', screenType: 'detail', recommendedUse: '예약 상세 처리', defaultStructure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false }, items: ['예약 정보 영역', '처리 단계 스텝', '처리 이력', '상태 chip', '처리 버튼'], iconPath: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>' },
+        { id: 'reservation-a3', name: '일정/재고 관리 화면', desc: '예약 가능 일정·정원·재고를 등록·관리하는 화면', screenType: 'list', recommendedUse: '일정·재고 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: false }, items: ['검색 조건', '일정 목록 테이블', '잔여 상태 chip', '추가/마감 액션'], iconPath: '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' },
+        { id: 'reservation-a4', name: '승인/반려 처리 화면', desc: '승인 대기 예약·신청을 검토·승인·반려하는 화면', screenType: 'list', recommendedUse: '승인·반려 처리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: false }, items: ['검색 조건', '대기 목록 테이블', '상태 chip', '승인·반려 액션', '사유 입력'], iconPath: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>' },
+        { id: 'reservation-a5', name: '고객/신청자 관리 화면', desc: '예약·신청한 고객 정보와 이력을 관리하는 화면', screenType: 'list', recommendedUse: '고객·신청자 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true }, items: ['검색 조건', '고객 목록 테이블', '등급 chip', '이력 조회 액션', '빈 결과 안내'], iconPath: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
+        { id: 'reservation-a6', name: '알림/메시지 관리 화면', desc: '예약 확정·취소·리마인드 알림 발송 관리 화면', screenType: 'list', recommendedUse: '알림·메시지 관리', defaultStructure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: false }, items: ['검색 조건', '알림 목록 테이블', '발송 상태 chip', '재발송/취소 액션'], iconPath: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>' },
+        { id: 'reservation-a7', name: '통계 대시보드 화면', desc: '예약 건수·매출·취소율 KPI 및 차트 대시보드', screenType: 'main', recommendedUse: '예약 통계 대시보드', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['KPI 카드 그리드', '예약 추이 차트', '취소율 차트', '최근 예약 목록'], iconPath: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>' },
+        { id: 'reservation-a8', name: '빈 템플릿', desc: '아무 구조도 없는 빈 캔버스. 처음부터 직접 설계합니다.', screenType: 'list', recommendedUse: '자유 설계', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['직접 구성'], iconPath: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/>' }
+      ]
+    },
+    { id: 'blank', name: '빈 템플릿',
+      front: [
+        { id: 'blank-f1', name: '빈 Front 화면', desc: '아무 구조도 없는 빈 캔버스. Front 화면을 처음부터 직접 설계합니다.', screenType: 'form', recommendedUse: '자유 설계 (Front)', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['직접 구성'], iconPath: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/>' }
+      ],
+      admin: [
+        { id: 'blank-a1', name: '빈 Admin 화면', desc: '아무 구조도 없는 빈 캔버스. Admin 화면을 처음부터 직접 설계합니다.', screenType: 'list', recommendedUse: '자유 설계 (Admin)', defaultStructure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false }, items: ['직접 구성'], iconPath: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/>' }
+      ]
+    }
+  ];
 
   function findTemplateById(id) {
-    var groups = ['front', 'admin'];
-    for (var g = 0; g < groups.length; g++) {
-      var list = TEMPLATE_GROUPS[groups[g]];
-      for (var i = 0; i < list.length; i++) {
-        if (list[i].id === id) return list[i];
+    for (var s = 0; s < SERVICE_TYPES.length; s++) {
+      var st = SERVICE_TYPES[s];
+      var groups = ['front', 'admin'];
+      for (var g = 0; g < groups.length; g++) {
+        var list = st[groups[g]] || [];
+        for (var i = 0; i < list.length; i++) {
+          if (list[i].id === id) return list[i];
+        }
       }
     }
-    return TEMPLATE_GROUPS.front[0];
+    return SERVICE_TYPES[0].front[0];
+  }
+
+  function findServiceTypeById(stId) {
+    for (var s = 0; s < SERVICE_TYPES.length; s++) {
+      if (SERVICE_TYPES[s].id === stId) return SERVICE_TYPES[s];
+    }
+    return SERVICE_TYPES[0];
   }
 
   function svgIc(path, sz, sw) {
@@ -1157,27 +1180,19 @@
   }
 
   /* ── Draft management ── */
-  function createDraftFromTemplate(tpl, group) {
+  function createDraftFromTemplate(tpl, group, stId, stName) {
     var idNum = SS_SEQ < 10 ? '0' + SS_SEQ : '' + SS_SEQ;
     var ds = tpl.defaultStructure || {};
     SSP.draft = {
-      template: tpl.id,
-      templateName: tpl.name,
-      templateGroup: group || 'front',
-      screenName: '',
-      screenId: 'SCR-' + idNum,
-      bizArea: '',
-      screenType: tpl.screenType || 'list',
-      menuPath: '',
-      purpose: '',
-      memo: '',
-      screenTitle: '',
-      topNote: '',
-      useSearch:     !!ds.useSearch,
-      useTable:      !!ds.useTable,
-      useStatusChip: !!ds.useStatusChip,
-      useRowAction:  !!ds.useRowAction,
-      useEmpty:      !!ds.useEmpty,
+      template: tpl.id, templateName: tpl.name, templateGroup: group || 'front',
+      templateKind: 'page',
+      serviceType: stId || SSP.serviceType || 'branding',
+      serviceTypeName: stName || (findServiceTypeById(stId || SSP.serviceType || 'branding').name),
+      screenName: '', screenId: 'SCR-' + idNum, bizArea: '',
+      screenType: tpl.screenType || 'list', menuPath: '', purpose: '', memo: '',
+      screenTitle: '', topNote: '',
+      useSearch: !!ds.useSearch, useTable: !!ds.useTable,
+      useStatusChip: !!ds.useStatusChip, useRowAction: !!ds.useRowAction, useEmpty: !!ds.useEmpty,
       searchItems: ds.useSearch ? [{ cond: '검색어', inputType: 'text', required: false, defaultVal: '', order: 1 }] : [],
       tableColumns: ds.useTable ? [
         { name: '항목명', key: 'name', visible: true, sortable: true, width: '200px' },
@@ -1234,7 +1249,10 @@
   function renderTemplateView() {
     var el = document.getElementById('ss-template-view');
     if (!el) return;
+    var st = SSP.serviceType || 'branding';
     var group = SSP.templateTab || 'front';
+    var stObj = findServiceTypeById(st);
+
     el.innerHTML =
       '<div class="ss-tpl-view-inner">' +
         '<div class="ss-tpl-view-hdr">' +
@@ -1242,7 +1260,12 @@
             svgIc('<polyline points="15 18 9 12 15 6"/>', 14) + ' 목록으로' +
           '</button>' +
           '<h2 class="ss-tpl-view-title">화면설계서 작성 — 템플릿 선택</h2>' +
-          '<p class="ss-tpl-view-sub">화면 유형에 맞는 그룹을 선택하고 템플릿을 고르세요. 선택 후 자유롭게 수정할 수 있습니다.</p>' +
+          '<p class="ss-tpl-view-sub">서비스 유형을 선택하고 Front·Admin 탭에서 템플릿을 고르세요.</p>' +
+        '</div>' +
+        '<div class="ss-svc-type-bar">' +
+          SERVICE_TYPES.map(function(s) {
+            return '<button type="button" class="ss-svc-type-btn' + (s.id === st ? ' active' : '') + '" data-ssv-svc-type="' + s.id + '">' + s.name + '</button>';
+          }).join('') +
         '</div>' +
         '<div class="ss-template-tabs">' +
           '<button type="button" class="ss-template-tab' + (group === 'front' ? ' active' : '') + '" data-ssv-tab-group="front">' +
@@ -1253,27 +1276,25 @@
           '</button>' +
         '</div>' +
         '<div class="ss-tpl-grid" id="ss-tpl-grid">' +
-          TEMPLATE_GROUPS[group].map(function(tpl) {
-            return '<div class="ss-tpl-card" data-ssv-tpl="' + tpl.id + '">' +
-              '<div class="ss-tpl-card-icon">' + svgIc(tpl.iconPath, 20) + '</div>' +
-              '<div class="ss-tpl-card-name">' + tpl.name + '</div>' +
-              '<div class="ss-tpl-card-desc">' + tpl.desc + '</div>' +
-              '<div class="ss-tpl-card-info">' +
-                '<span class="ss-tpl-card-badge">' + tpl.recommendedUse + '</span>' +
-              '</div>' +
-              '<div class="ss-tpl-card-items">' +
-                tpl.items.map(function(item) {
-                  return '<span class="ss-tpl-item-chip">' + item + '</span>';
-                }).join('') +
-              '</div>' +
-              '<button type="button" class="ss-tpl-sel-btn" data-ssv-tpl="' + tpl.id + '">' +
-                svgIc('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>', 12) +
-                ' 이 템플릿으로 작성' +
-              '</button>' +
-            '</div>';
-          }).join('') +
+          renderTplCardHtml(stObj, group) +
         '</div>' +
       '</div>';
+  }
+
+  function renderTplCardHtml(stObj, group) {
+    var list = (stObj && stObj[group]) || [];
+    return list.map(function(tpl) {
+      return '<div class="ss-tpl-card" data-ssv-tpl="' + tpl.id + '">' +
+        '<div class="ss-tpl-card-icon">' + svgIc(tpl.iconPath, 20) + '</div>' +
+        '<div class="ss-tpl-card-name">' + tpl.name + '</div>' +
+        '<div class="ss-tpl-card-desc">' + tpl.desc + '</div>' +
+        '<div class="ss-tpl-card-info"><span class="ss-tpl-card-badge">' + tpl.recommendedUse + '</span></div>' +
+        '<div class="ss-tpl-card-items">' + tpl.items.map(function(item) { return '<span class="ss-tpl-item-chip">' + item + '</span>'; }).join('') + '</div>' +
+        '<button type="button" class="ss-tpl-sel-btn" data-ssv-tpl="' + tpl.id + '">' +
+          svgIc('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>', 12) + ' 이 템플릿으로 작성' +
+        '</button>' +
+      '</div>';
+    }).join('');
   }
 
   /* ── Editor builder helpers ── */
@@ -1581,7 +1602,11 @@
           '</button>' +
           '<span class="ss-ed-head-sep"></span>' +
           '<span class="ss-ed-head-title">' + edTitle + '</span>' +
-          '<span class="ss-ed-tpl-chip">' + groupLabel + ' · ' + d.templateName + '</span>' +
+          '<span class="ss-ed-ctx-chip ss-ed-ctx-svc">' + (d.serviceTypeName || '') + '</span>' +
+          '<span class="ss-ed-ctx-chip-sep">·</span>' +
+          '<span class="ss-ed-ctx-chip ss-ed-ctx-grp">' + groupLabel + '</span>' +
+          '<span class="ss-ed-ctx-chip-sep">·</span>' +
+          '<span class="ss-ed-ctx-chip ss-ed-ctx-tpl">' + d.templateName + '</span>' +
         '</div>' +
         '<div class="ss-ed-head-r">' +
           '<span class="ss-ed-save-hint" id="ed-save-hint">저장 안 됨</span>' +
@@ -1759,6 +1784,7 @@
       links: { req: [], art: [], work: [], ifc: [], fn: [] },
       hist: [{ k: 'create', who: '나', at: '06-14', t: '최초 등록', n: 'v0.1' }],
       template: d.template, templateName: d.templateName, templateGroup: d.templateGroup || 'front',
+      templateKind: d.templateKind || 'page', serviceType: d.serviceType || 'branding', serviceTypeName: d.serviceTypeName || '',
       _draft: d
     };
     SSP.savedItems.push(saved);
@@ -1774,6 +1800,19 @@
   function initViewEvents() {
     /* Global delegation: data-ssv-action = list | template | editor | preview | save | save-detail */
     document.addEventListener('click', function(e) {
+      /* Service type (1Depth) selection */
+      var svcBtn = e.target.closest('[data-ssv-svc-type]');
+      if (svcBtn && SSP.view.mode === 'template') {
+        var newSt = svcBtn.getAttribute('data-ssv-svc-type');
+        SSP.serviceType = newSt;
+        document.querySelectorAll('[data-ssv-svc-type]').forEach(function(b) { b.classList.remove('active'); });
+        svcBtn.classList.add('active');
+        var stObj = findServiceTypeById(newSt);
+        var grid = document.getElementById('ss-tpl-grid');
+        if (grid) grid.innerHTML = renderTplCardHtml(stObj, SSP.templateTab || 'front');
+        return;
+      }
+
       /* Template tab switch */
       var tabBtn = e.target.closest('[data-ssv-tab-group]');
       if (tabBtn && SSP.view.mode === 'template') {
@@ -1782,17 +1821,7 @@
         document.querySelectorAll('[data-ssv-tab-group]').forEach(function(b) { b.classList.remove('active'); });
         tabBtn.classList.add('active');
         var grid = document.getElementById('ss-tpl-grid');
-        if (grid) grid.innerHTML = (TEMPLATE_GROUPS[grp] || []).map(function(tpl) {
-          return '<div class="ss-tpl-card" data-ssv-tpl="' + tpl.id + '">' +
-            '<div class="ss-tpl-card-icon">' + svgIc(tpl.iconPath, 20) + '</div>' +
-            '<div class="ss-tpl-card-name">' + tpl.name + '</div>' +
-            '<div class="ss-tpl-card-desc">' + tpl.desc + '</div>' +
-            '<div class="ss-tpl-card-info"><span class="ss-tpl-card-badge">' + tpl.recommendedUse + '</span></div>' +
-            '<div class="ss-tpl-card-items">' + tpl.items.map(function(item) { return '<span class="ss-tpl-item-chip">' + item + '</span>'; }).join('') + '</div>' +
-            '<button type="button" class="ss-tpl-sel-btn" data-ssv-tpl="' + tpl.id + '">' +
-              svgIc('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>', 12) + ' 이 템플릿으로 작성' +
-            '</button></div>';
-        }).join('');
+        if (grid) grid.innerHTML = renderTplCardHtml(findServiceTypeById(SSP.serviceType || 'branding'), grp);
         return;
       }
 
@@ -1801,7 +1830,8 @@
       if (tplBtn && SSP.view.mode === 'template') {
         var tplId = tplBtn.getAttribute('data-ssv-tpl');
         var tpl = findTemplateById(tplId);
-        if (tpl) createDraftFromTemplate(tpl, SSP.templateTab);
+        var stObj = findServiceTypeById(SSP.serviceType || 'branding');
+        if (tpl) createDraftFromTemplate(tpl, SSP.templateTab, SSP.serviceType, stObj.name);
         switchView('editor');
         renderEditorView();
         return;
