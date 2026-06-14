@@ -2310,7 +2310,8 @@
 /* ── Template View ── */
 .ss-template-view {
   padding: 32px 40px 48px;
-  min-height: 100%;
+  flex: 1 1 0;          /* flex child of po-main, scrolls via po-main */
+  min-height: 0;
   box-sizing: border-box;
   overflow-x: hidden;
 }
@@ -2507,20 +2508,21 @@
 .ss-editor-view {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  flex: 1 1 0;      /* fill remaining po-main space (below po-ctx) */
+  min-height: 0;    /* allow flex shrinking so po-main never scrolls in editor mode */
+  overflow: hidden;
   background: var(--bg-base);
-  overflow-x: hidden;
 }
 
 .ss-editor-head {
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;   /* fixed height in flex column — no longer sticky */
   z-index: 20;
   background: var(--bg-sur);
   border-bottom: 1px solid var(--bd);
   padding: 14px 32px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
 }
 
@@ -2606,8 +2608,7 @@
 }
 
 .ss-editor-foot {
-  position: sticky;
-  bottom: 0;
+  flex-shrink: 0;   /* fixed height in flex column — no longer sticky */
   z-index: 20;
   background: var(--bg-sur2);
   border-top: 1px solid var(--bd);
@@ -2997,7 +2998,8 @@
 
 /* ── Preview View ── */
 .ss-preview-view {
-  min-height: 100%;
+  flex: 1 1 0;        /* flex child of po-main, scrolls via po-main overflow-y: auto */
+  min-height: 0;
   background: var(--bg-base);
 }
 
@@ -3155,10 +3157,7 @@
    CSS PATCH — class name alignment + missing selectors
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── Editor head layout ── */
-.ss-editor-head {
-  justify-content: space-between;
-}
+/* ── Editor head layout (justify-content merged into primary definition above) ── */
 
 .ss-editor-main {
   padding-bottom: 80px; /* clear sticky footer */
@@ -3565,41 +3564,36 @@
 
 /* ═══════════════════════════════════════════════════════
    Split Editor: .ss-editor-split
+   Grid layout ensures left=fluid, right=fixed regardless of template content
 ═══════════════════════════════════════════════════════ */
 .ss-editor-split {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(440px, 34vw, 560px);
   flex: 1 1 0;
   min-height: 0;
-  min-width: 0;
   overflow: hidden;
 }
 
-/* Left: live wireframe panel — grows to fill remaining space */
+/* Left: live wireframe panel — fills grid column 1 */
 .ss-live-wireframe {
-  flex: 1 1 0;
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   background: var(--bg2, #f8f9fa);
   border-right: 1.5px solid var(--bdr, #e5e7eb);
   overflow: hidden;
-  /* Bound height so wireframe-body can scroll internally */
-  max-height: calc(100vh - var(--topbar-h, 48px) - 120px);
 }
 
-/* Right: form panel — fixed-clamp width, scrollable */
+/* Right: form panel — fills grid column 2, scrolls internally */
 .ss-editor-form-panel {
-  flex: 0 0 clamp(440px, 34vw, 560px);
-  width: clamp(440px, 34vw, 560px);
   min-width: 0;
-  display: flex;
-  flex-direction: column;
+  min-height: 0;
+  /* Block layout: children stack naturally; overflow-y activates reliably */
   overflow-y: auto;
   background: var(--bg1, #fff);
-  /* Constrain so content scrolls within panel rather than pushing po-main */
-  max-height: calc(100vh - var(--topbar-h, 48px) - 120px);
-  /* padding-bottom ensures last field clears the sticky editor-foot */
-  padding-bottom: 64px;
+  /* bottom padding so last section isn't flush against the scroll end */
+  padding-bottom: 32px;
 }
 
 /* ── Wireframe head bar ── */
@@ -3655,6 +3649,7 @@
 /* ── Wireframe body (scrollable) ── */
 .ss-wireframe-body {
   flex: 1 1 0;
+  min-height: 0;   /* required for overflow-y: auto to activate in flex column */
   overflow-y: auto;
   padding: 16px;
 }
