@@ -1,6 +1,6 @@
 /* ─────────────────────────────────────────────
-   STAM 공통 선택형 테이블 UI 시스템  v2.0
-   PR #86 — 공통 기준 정리 및 Open Scenario 적용
+   STAM 공통 선택형 테이블 UI 시스템  v3.0
+   PR #87 — MSL 기준 확정 및 Bare HTML Table 적용
 
    공통 class 목록:
      .stam-select-table   — 선택형 테이블 루트 (<table> 에 부착)
@@ -8,6 +8,7 @@
      .stam-table-search   — 검색 input 래퍼
      .stam-filter-btn     — 필터 버튼
      .stam-delete-btn     — 삭제 버튼
+     .stam-delete-label   — 삭제 버튼 내 텍스트 레이블 (선택 수 표시)
      .stam-check-cell     — checkbox th/td
      .stam-check          — checkbox input (header/row 공통)
      .stam-table-row      — 클릭 가능한 데이터 행
@@ -16,6 +17,13 @@
      - row selection 배경/bar → .stam-select-table 범위 안에서만 적용
      - .stam-check / .stam-filter-btn / .stam-delete-btn → 독립 사용 가능
      - 기존 .stam-table-row 전역 하위 호환 규칙 유지 (섹션 8)
+
+   MSL 기준값:
+     - 선택 배경(라이트): rgba(84, 81, 232, .06)
+     - 선택 배경(다크):   rgba(139, 127, 248, .08)
+     - 좌측 bar: ::before, width 3px, border-radius: 0 2px 2px 0
+     - 행 높이: 36px
+     - checkbox border: 1.5px solid var(--bd-s)
 
    로드 순서:
      stam.components.css → stam.table-selection.css → 페이지 CSS
@@ -87,6 +95,7 @@
    4. 삭제 버튼
       미선택: disabled + "삭제"
       선택 있음: enabled + "삭제 (N)"
+      .stam-delete-label — 내부 텍스트 레이블
    ═══════════════════════════════════════ */
 .stam-delete-btn {
   display: inline-flex;
@@ -177,55 +186,105 @@
 [data-theme="dark"] .stam-check:hover { border-color: var(--stam); }
 
 /* ═══════════════════════════════════════
-   6. 행 기본 (전역 — 기존 코드 호환)
+   6. 선택형 테이블 구조 스타일
+      .stam-select-table 범위 안에서만 적용
+   ═══════════════════════════════════════ */
+.stam-select-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.stam-select-table thead th {
+  background: var(--bg-sur2);
+  text-align: left;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--t3);
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--bd);
+  white-space: nowrap;
+}
+
+.stam-select-table tbody .stam-table-row td {
+  padding: 0 10px;
+  height: 36px;
+  border-bottom: 1px solid rgba(226, 232, 240, .55);
+  font-size: 12px;
+  color: var(--t2);
+  white-space: nowrap;
+  vertical-align: middle;
+  transition: background 80ms;
+  position: relative;
+}
+
+.stam-select-table tbody .stam-table-row:last-child td {
+  border-bottom: 0;
+}
+
+[data-theme="dark"] .stam-select-table tbody .stam-table-row td {
+  border-bottom-color: rgba(60, 70, 90, .55);
+}
+
+/* ═══════════════════════════════════════
+   7. 행 기본 (전역 — 기존 코드 호환)
    ═══════════════════════════════════════ */
 .stam-table-row { cursor: pointer; }
 
 /* ═══════════════════════════════════════
-   7. 선택형 테이블 — 행 선택 스타일
+   8. 선택형 테이블 — 행 선택 스타일
       반드시 .stam-select-table 범위 안에서만 적용
       다른 화면의 .stam-table-row 에 영향 없음
    ═══════════════════════════════════════ */
 
-/* 선택된 행 배경 */
+/* 선택된 행 배경 (MSL 기준: rgba(84,81,232,.06)) */
 .stam-select-table tbody tr.stam-table-row.is-selected td,
 .stam-select-table tbody tr.stam-table-row.sel td,
 .stam-select-table tbody tr.stam-table-row.selected td {
-  background: rgba(139, 127, 248, .08);
+  background: rgba(84, 81, 232, .06);
 }
 
 /* 선택된 행 좌측 active bar
-   box-shadow inset 방식: border-collapse 테이블에서도 안정적으로 동작
-   pseudo-element와 달리 overflow/position 영향 없음 */
-.stam-select-table tbody tr.stam-table-row.is-selected td:first-child,
-.stam-select-table tbody tr.stam-table-row.sel td:first-child,
-.stam-select-table tbody tr.stam-table-row.selected td:first-child {
-  box-shadow: inset 3px 0 0 var(--stam);
-}
-
-/* 다크 모드 */
-[data-theme="dark"] .stam-select-table tbody tr.stam-table-row.is-selected td,
-[data-theme="dark"] .stam-select-table tbody tr.stam-table-row.sel td,
-[data-theme="dark"] .stam-select-table tbody tr.stam-table-row.selected td {
-  background: rgba(139, 127, 248, .13);
+   ::before 방식: border-radius 지원, MSL과 동일한 구현
+   td에 position:relative 가 있어야 동작 */
+.stam-select-table tbody tr.stam-table-row.is-selected td:first-child::before,
+.stam-select-table tbody tr.stam-table-row.sel td:first-child::before,
+.stam-select-table tbody tr.stam-table-row.selected td:first-child::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--stam);
+  border-radius: 0 2px 2px 0;
 }
 
 /* hover (미선택 행만) */
 .stam-select-table tbody tr.stam-table-row:not(.is-selected):not(.sel):not(.selected):hover td {
   background: rgba(84, 81, 232, .025);
 }
+
+/* 다크 모드 */
+[data-theme="dark"] .stam-select-table tbody tr.stam-table-row.is-selected td,
+[data-theme="dark"] .stam-select-table tbody tr.stam-table-row.sel td,
+[data-theme="dark"] .stam-select-table tbody tr.stam-table-row.selected td {
+  background: rgba(139, 127, 248, .08);
+}
+
 [data-theme="dark"] .stam-select-table tbody tr.stam-table-row:not(.is-selected):not(.sel):not(.selected):hover td {
   background: rgba(84, 81, 232, .05);
 }
 
 /* ═══════════════════════════════════════
-   8. 하위 호환 — .stam-select-table 없는 기존 사용
+   9. 하위 호환 — .stam-select-table 없는 기존 사용
       (.stam-table-row 만 있는 페이지의 선택 스타일 유지)
    ═══════════════════════════════════════ */
 .stam-table-row.is-selected td,
 .stam-table-row.sel td,
 .stam-table-row.selected td {
-  background: rgba(139, 127, 248, .08);
+  background: rgba(84, 81, 232, .06);
 }
 
 .stam-table-row.is-selected td:first-child,
@@ -244,13 +303,13 @@
   bottom: 0;
   width: 3px;
   background: var(--stam);
-  border-radius: 0 3px 3px 0;
+  border-radius: 0 2px 2px 0;
 }
 
 [data-theme="dark"] .stam-table-row.is-selected td,
 [data-theme="dark"] .stam-table-row.sel td,
 [data-theme="dark"] .stam-table-row.selected td {
-  background: rgba(139, 127, 248, .13);
+  background: rgba(139, 127, 248, .08);
 }
 
 .stam-table-row:not(.is-selected):not(.sel):not(.selected):hover td {

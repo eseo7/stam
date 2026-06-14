@@ -175,7 +175,7 @@
       if (!deleteBtn) return;
       var n = document.querySelectorAll('.os-row-cb:checked').length;
       deleteBtn.disabled = n === 0;
-      var lbl = deleteBtn.querySelector('.os-del-lbl');
+      var lbl = deleteBtn.querySelector('.stam-delete-label');
       if (lbl) lbl.textContent = n > 0 ? '삭제 (' + n + ')' : '삭제';
     }
 

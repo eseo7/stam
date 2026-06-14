@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM Common Select Table — Bare HTML Preview v3.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <link rel="stylesheet" href="../css/stam.table-selection.css">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--t1);
+      margin: 0;
+      padding: 32px;
+      min-height: 100vh;
+    }
+    .preview-header {
+      margin-bottom: 24px;
+    }
+    .preview-header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 4px;
+      color: var(--t1);
+    }
+    .preview-header p {
+      font-size: 12px;
+      color: var(--t3);
+      margin: 0;
+    }
+    .preview-section {
+      background: var(--bg-sur);
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 1px 6px rgba(0,0,0,.06);
+      margin-bottom: 32px;
+    }
+    .preview-section-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--bd);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--t3);
+      background: var(--bg-sur2);
+    }
+    .preview-section-body {
+      padding: 16px;
+    }
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-sur);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--t2);
+      cursor: pointer;
+      z-index: 100;
+    }
+    .chip-badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      background: rgba(84,81,232,.1);
+      color: var(--stam);
+      border: 1px solid rgba(84,81,232,.2);
+    }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  다크 모드
+</button>
+
+<div class="preview-header">
+  <h1>STAM 공통 선택형 테이블 <span class="chip-badge">v3.0</span></h1>
+  <p>Bare HTML Preview — stam.tokens.css + stam.components.css + stam.table-selection.css 만 로드 (페이지 전용 CSS 없음)</p>
+</div>
+
+<!-- ── 섹션 1: 툴바 ── -->
+<div class="preview-section">
+  <div class="preview-section-header">1. .stam-select-toolbar — 검색 + 필터 + 삭제</div>
+  <div class="preview-section-body">
+    <div class="stam-select-toolbar">
+      <div class="stam-table-search">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" placeholder="시나리오 검색">
+      </div>
+      <button class="stam-filter-btn" id="filterBtn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        필터
+      </button>
+      <button class="stam-delete-btn" type="button" disabled id="deleteBtn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        <span class="stam-delete-label">삭제</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 섹션 2: 선택형 테이블 ── -->
+<div class="preview-section">
+  <div class="preview-section-header">2. .stam-select-table — 선택형 테이블</div>
+  <div style="overflow-x:auto">
+    <table class="stam-select-table" id="previewTable">
+      <thead>
+        <tr>
+          <th class="stam-check-cell"><input class="stam-check" type="checkbox" id="cbAll"></th>
+          <th>ID</th>
+          <th>시나리오명</th>
+          <th>담당자</th>
+          <th>단계</th>
+          <th>체크 결과</th>
+          <th>수정일</th>
+        </tr>
+      </thead>
+      <tbody id="tblBody">
+        <tr class="stam-table-row" data-id="1">
+          <td class="stam-check-cell"><input class="stam-check row-cb" type="checkbox"></td>
+          <td><code style="font-size:10.5px;font-family:var(--mono,monospace);color:var(--stam)">SCN-001</code></td>
+          <td>결제 플로우 전체 검증</td>
+          <td>최태호</td>
+          <td>오픈 전</td>
+          <td><span style="color:#16a34a;font-weight:600;font-size:11px">완료</span></td>
+          <td>2026-06-12</td>
+        </tr>
+        <tr class="stam-table-row" data-id="2">
+          <td class="stam-check-cell"><input class="stam-check row-cb" type="checkbox"></td>
+          <td><code style="font-size:10.5px;font-family:var(--mono,monospace);color:var(--stam)">SCN-002</code></td>
+          <td>회원 가입 / 로그인 UI 검증</td>
+          <td>박지원</td>
+          <td>오픈 전</td>
+          <td><span style="color:#d97706;font-weight:600;font-size:11px">진행중</span></td>
+          <td>2026-06-11</td>
+        </tr>
+        <tr class="stam-table-row" data-id="3">
+          <td class="stam-check-cell"><input class="stam-check row-cb" type="checkbox"></td>
+          <td><code style="font-size:10.5px;font-family:var(--mono,monospace);color:var(--stam)">SCN-003</code></td>
+          <td>상품 상세 페이지 로딩 속도</td>
+          <td>김민수</td>
+          <td>오픈 당일</td>
+          <td><span style="color:#64748b;font-weight:600;font-size:11px">대기</span></td>
+          <td>2026-06-10</td>
+        </tr>
+        <tr class="stam-table-row" data-id="4">
+          <td class="stam-check-cell"><input class="stam-check row-cb" type="checkbox"></td>
+          <td><code style="font-size:10.5px;font-family:var(--mono,monospace);color:var(--stam)">SCN-004</code></td>
+          <td>장바구니 수량 업데이트</td>
+          <td>이다은</td>
+          <td>오픈 당일</td>
+          <td><span style="color:#dc2626;font-weight:600;font-size:11px">이슈</span></td>
+          <td>2026-06-09</td>
+        </tr>
+        <tr class="stam-table-row" data-id="5">
+          <td class="stam-check-cell"><input class="stam-check row-cb" type="checkbox"></td>
+          <td><code style="font-size:10.5px;font-family:var(--mono,monospace);color:var(--stam)">SCN-005</code></td>
+          <td>모바일 반응형 레이아웃 검수</td>
+          <td>최태호</td>
+          <td>오픈 후</td>
+          <td><span style="color:#16a34a;font-weight:600;font-size:11px">완료</span></td>
+          <td>2026-06-08</td>
+        </tr>
+        <tr class="stam-table-row" data-id="6">
+          <td class="stam-check-cell"><input class="stam-check row-cb" type="checkbox"></td>
+          <td><code style="font-size:10.5px;font-family:var(--mono,monospace);color:var(--stam)">SCN-006</code></td>
+          <td>이메일 알림 발송 테스트</td>
+          <td>박지원</td>
+          <td>오픈 후</td>
+          <td><span style="color:#64748b;font-weight:600;font-size:11px">예정</span></td>
+          <td>2026-06-07</td>
+        </tr>
+        <tr class="stam-table-row" data-id="7">
+          <td class="stam-check-cell"><input class="stam-check row-cb" type="checkbox"></td>
+          <td><code style="font-size:10.5px;font-family:var(--mono,monospace);color:var(--stam)">SCN-007</code></td>
+          <td>관리자 권한 분리 검증</td>
+          <td>김민수</td>
+          <td>오픈 전</td>
+          <td><span style="color:#d97706;font-weight:600;font-size:11px">진행중</span></td>
+          <td>2026-06-06</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 섹션 3: 단독 컴포넌트 ── -->
+<div class="preview-section">
+  <div class="preview-section-header">3. 단독 컴포넌트 — .stam-check / .stam-filter-btn / .stam-delete-btn</div>
+  <div class="preview-section-body" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2);cursor:pointer">
+      <input class="stam-check" type="checkbox"> 기본
+    </label>
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2);cursor:pointer">
+      <input class="stam-check" type="checkbox" checked> 선택됨
+    </label>
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2);cursor:pointer">
+      <input class="stam-check" type="checkbox" id="indetermCb"> 부분선택 (indeterminate)
+    </label>
+    <button class="stam-filter-btn">필터</button>
+    <button class="stam-filter-btn is-open">필터 (열림)</button>
+    <button class="stam-delete-btn" disabled><span class="stam-delete-label">삭제</span></button>
+    <button class="stam-delete-btn"><span class="stam-delete-label">삭제 (3)</span></button>
+  </div>
+</div>
+
+<script>
+(function () {
+  // indeterminate checkbox
+  var ic = document.getElementById('indetermCb');
+  if (ic) ic.indeterminate = true;
+
+  // theme toggle
+  var themeBtn = document.getElementById('themeToggle');
+  themeBtn.addEventListener('click', function () {
+    var html = document.documentElement;
+    var isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeBtn.innerHTML = isDark
+      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> 다크 모드'
+      : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> 라이트 모드';
+  });
+
+  // row selection
+  var cbAll    = document.getElementById('cbAll');
+  var deleteBtn = document.getElementById('deleteBtn');
+  var rowCbs   = document.querySelectorAll('.row-cb');
+
+  function getCheckedCount() {
+    return Array.from(rowCbs).filter(function (cb) { return cb.checked; }).length;
+  }
+
+  function updateDeleteBtn() {
+    var n = getCheckedCount();
+    deleteBtn.disabled = n === 0;
+    var lbl = deleteBtn.querySelector('.stam-delete-label');
+    if (lbl) lbl.textContent = n > 0 ? '삭제 (' + n + ')' : '삭제';
+  }
+
+  function syncHeaderCb() {
+    var checked = getCheckedCount();
+    cbAll.checked = checked > 0 && checked === rowCbs.length;
+    cbAll.indeterminate = checked > 0 && checked < rowCbs.length;
+  }
+
+  rowCbs.forEach(function (cb) {
+    cb.addEventListener('click', function (e) { e.stopPropagation(); });
+    cb.addEventListener('change', function () {
+      var row = cb.closest('tr');
+      if (row) {
+        row.classList.toggle('is-selected', cb.checked);
+      }
+      syncHeaderCb();
+      updateDeleteBtn();
+    });
+  });
+
+  cbAll.addEventListener('click', function (e) { e.stopPropagation(); });
+  cbAll.addEventListener('change', function () {
+    rowCbs.forEach(function (cb) {
+      cb.checked = cbAll.checked;
+      var row = cb.closest('tr');
+      if (row) row.classList.toggle('is-selected', cbAll.checked);
+    });
+    syncHeaderCb();
+    updateDeleteBtn();
+  });
+
+  deleteBtn.addEventListener('click', function () {
+    if (!deleteBtn.disabled) {
+      alert('선택된 항목: ' + getCheckedCount() + '건\n(Bare Preview — 실제 삭제 미구현)');
+    }
+  });
+
+  // filter btn toggle demo
+  var filterBtn = document.getElementById('filterBtn');
+  filterBtn.addEventListener('click', function () {
+    filterBtn.classList.toggle('is-open');
+  });
+
+  // row click (checkbox cell 제외)
+  document.querySelectorAll('#tblBody .stam-table-row').forEach(function (row) {
+    row.addEventListener('click', function (e) {
+      if (e.target.closest('.stam-check-cell')) return;
+      var cb = row.querySelector('.row-cb');
+      if (cb) {
+        cb.checked = !cb.checked;
+        row.classList.toggle('is-selected', cb.checked);
+        syncHeaderCb();
+        updateDeleteBtn();
+      }
+    });
+  });
+}());
+</script>
+</body>
+</html>
