@@ -3122,7 +3122,7 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
 .wbs-gantt-modal {
   position: fixed;
   inset: 0;
-  z-index: 150;
+  z-index: 300;
   pointer-events: none;
 }
 .wbs-gantt-modal[data-open="true"] {
@@ -3140,13 +3140,11 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
 
 .wbs-gantt-modal-panel {
   position: absolute;
-  top: var(--topbar-h, 52px);
-  left: var(--sw, 256px);
+  top: 0;
+  left: 0;
   right: 0;
   bottom: 0;
   background: var(--bg-sur);
-  border-left: 1px solid var(--bd);
-  box-shadow: -8px 0 32px rgba(0,0,0,.16);
   display: flex;
   flex-direction: column;
   transform: translateY(16px);
@@ -3157,7 +3155,7 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
   transform: translateY(0);
   opacity: 1;
 }
-/* Focus View 상태: sidebar 없음 */
+/* Focus View 상태: sidebar 없음 — fullscreen 전환 후 중복, 무해하여 유지 */
 .po-shell.wbs-focus .wbs-gantt-modal-panel { left: 0; }
 
 .wbs-gantt-modal-head {
