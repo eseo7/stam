@@ -3078,3 +3078,380 @@
   background: rgba(34,197,94,.18);
   color: #4ade80;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   CSS PATCH — class name alignment + missing selectors
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Editor head layout ── */
+.ss-editor-head {
+  justify-content: space-between;
+}
+
+.ss-editor-main {
+  padding-bottom: 80px; /* clear sticky footer */
+}
+
+.ss-ed-head-l,
+.ss-ed-head-r {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ss-ed-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--t2);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 120ms, color 120ms;
+}
+
+.ss-ed-back-btn:hover {
+  background: var(--bg-sur2);
+  color: var(--t1);
+}
+
+.ss-ed-head-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--bd);
+  flex-shrink: 0;
+}
+
+.ss-ed-tpl-chip,
+.ss-pv-tpl-chip {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--bg-sur2);
+  color: var(--t2);
+  border: 1px solid var(--bd);
+}
+
+.ss-ed-save-hint {
+  font-size: 11px;
+  color: var(--t3);
+}
+
+.ss-ed-pv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brand);
+  background: var(--stam-soft);
+  border: 1.5px solid var(--brand);
+  border-radius: 7px;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: background 140ms;
+}
+
+.ss-ed-pv-btn:hover {
+  background: var(--brand);
+  color: #fff;
+}
+
+/* ── Nav aliases ── */
+.ss-ed-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* alias: JS renders ss-ed-nav-link, CSS block uses ss-ed-nav-item */
+.ss-ed-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  font-size: 13px;
+  color: var(--t2);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+  border-left: 3px solid transparent;
+  text-decoration: none;
+  display: block;
+}
+
+.ss-ed-nav-link:hover {
+  background: var(--bg-sur2);
+  color: var(--t1);
+}
+
+.ss-ed-nav-link.active {
+  color: var(--brand);
+  border-left-color: var(--brand);
+  background: var(--stam-soft);
+  font-weight: 600;
+}
+
+/* ── Toggle aliases ── */
+.ss-ed-toggle-row-l {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* alias: js uses ss-ed-toggle-lbl / ss-ed-toggle-sub */
+.ss-ed-toggle-lbl {
+  font-size: 13px;
+  color: var(--t1);
+}
+
+.ss-ed-toggle-sub {
+  font-size: 11px;
+  color: var(--t3);
+}
+
+/* Toggle track/knob — JS uses ss-ed-toggle-track/knob, CSS originally used sw-track/sw-thumb */
+.ss-ed-toggle-sw .ss-ed-toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--bd);
+  border-radius: 20px;
+  transition: background 180ms;
+  cursor: pointer;
+}
+
+.ss-ed-toggle-sw .ss-ed-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 180ms;
+  pointer-events: none;
+}
+
+.ss-ed-toggle-sw input:checked ~ .ss-ed-toggle-track {
+  background: var(--brand);
+}
+
+.ss-ed-toggle-sw input:checked ~ .ss-ed-toggle-knob {
+  transform: translateX(16px);
+}
+
+/* ── Field aliases ── */
+/* alias: JS uses ss-ed-lbl, CSS defined ss-ed-label */
+.ss-ed-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t2);
+  letter-spacing: .01em;
+}
+
+/* alias: JS uses ss-ed-field-full, CSS uses ss-ed-field.is-span2 */
+.ss-ed-field-full {
+  grid-column: span 2;
+}
+
+/* alias: JS uses ss-ed-sec-note, CSS uses ss-ed-sec-badge */
+.ss-ed-sec-note {
+  font-size: 11px;
+  color: var(--t3);
+  font-weight: 400;
+}
+
+.ss-ed-ro {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+.ss-req {
+  color: var(--danger, #e53e3e);
+  margin-left: 2px;
+}
+
+.ss-ed-helper {
+  font-size: 11px;
+  color: var(--t3);
+  margin-top: 2px;
+}
+
+/* ── Builder aliases ── */
+.ss-ed-blbl {
+  font-size: 11px;
+  color: var(--t3);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ss-ed-builder-off {
+  font-size: 12px;
+  color: var(--t3);
+  padding: 12px 0;
+  font-style: italic;
+}
+
+/* ── Preview head layout ── */
+.ss-pv-head {
+  justify-content: space-between;
+}
+
+.ss-pv-head-l,
+.ss-pv-head-r {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ss-pv-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--t2);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 120ms, color 120ms;
+}
+
+.ss-pv-back-btn:hover {
+  background: var(--bg-sur2);
+  color: var(--t1);
+}
+
+/* alias: JS renders ss-pv-draft-chip, QA checks ss-pv-badge */
+.ss-pv-draft-chip,
+.ss-pv-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: rgba(34,197,94,.12);
+  color: #15803d;
+}
+
+/* ── Preview info labels ── */
+.ss-pv-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 32px;
+  border-bottom: 1px solid var(--bd);
+  background: var(--bg-sur2);
+}
+
+.ss-pv-label {
+  font-size: 11px;
+  color: var(--t3);
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+}
+
+/* ── Preview mockup bar ── */
+.ss-pv-mockup-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t2);
+  flex: 1;
+}
+
+.ss-pv-mockup-tag {
+  font-size: 11px;
+  color: var(--t3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+}
+
+/* ── Preview desc panel ── */
+.ss-pv-desc-hdr {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t1);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--bd);
+  margin-bottom: 12px;
+}
+
+.ss-pv-desc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ss-pv-desc-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.ss-pv-desc-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.ss-pv-desc-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ss-pv-desc-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t1);
+  margin-bottom: 2px;
+}
+
+.ss-pv-desc-detail {
+  font-size: 11px;
+  color: var(--t3);
+  line-height: 1.45;
+}
+
+.ss-pv-empty {
+  padding: 32px 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--t3);
+}
+
+/* ── Desc table cell classes ── */
+.ss-ed-desc-num {
+  text-align: center;
+  font-size: 14px;
+}
+
+.ss-ed-desc-name {
+  font-weight: 500;
+}
+
+.ss-ed-desc-src {
+  color: var(--t3);
+  font-size: 12px;
+}
+
+/* ── Dark mode patches ── */
+[data-theme="dark"] .ss-pv-draft-chip {
+  background: rgba(34,197,94,.18);
+  color: #4ade80;
+}
