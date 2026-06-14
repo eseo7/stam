@@ -1208,7 +1208,7 @@
     },
     'commerce-f7': {
       defaultWireframeType: 'commerce-my-dashboard',
-      defaultFlowLinks: [{ to: 'commerce-f7', label: '주문/활동 내역' }],
+      defaultFlowLinks: [],
       defaultComponents: [
         { id: 'cmp-my-profile',    type: 'wf-my-profile',    name: '사용자 요약',         enabled: true, description: '닉네임·등급·아바타 요약 카드',     props: {} },
         { id: 'cmp-order-status',  type: 'wf-order-status',  name: '주문 진행 상태',      enabled: true, description: '주문·결제·배송·완료 단계 현황',    props: {} },
