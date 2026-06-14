@@ -156,6 +156,20 @@
     window.STAM.navRender.init('C8');
   }
 
+  /* ── 전체 보기 / 접기 toggle ─────────────────────────────────── */
+  var showAllBtn   = document.getElementById('os-show-all-btn');
+  var scnTable     = document.getElementById('os-scenario-table');
+  var listCountTxt = document.querySelector('.os-list-count-text');
+  var tblCount     = document.querySelector('.os-tbl-count');
+  if (showAllBtn && scnTable) {
+    showAllBtn.addEventListener('click', function () {
+      var expanded = scnTable.classList.toggle('os-list-expanded');
+      showAllBtn.textContent = expanded ? '접기' : '전체 보기';
+      if (listCountTxt) listCountTxt.textContent = expanded ? '총 24건 전체 표시' : '총 24건 중 8건 표시';
+      if (tblCount) tblCount.textContent = expanded ? '24 / 24 표시' : '8 / 24 표시';
+    });
+  }
+
   /* ── Init ────────────────────────────────────────────────────── */
   bindRows();
   bindDetailButtons();

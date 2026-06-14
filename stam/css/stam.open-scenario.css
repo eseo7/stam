@@ -321,6 +321,29 @@ body:has(.os-page) .po-main { overflow-x: hidden; }
 }
 .os-filter-btn:hover { background: var(--bg-sur2); color: var(--t1); }
 .os-filter-btn.is-open { background: var(--stam-soft); border-color: var(--stam); color: var(--stam); }
+.os-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: var(--r-md);
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--bd-s);
+  background: var(--bg-sur);
+  color: var(--t3);
+  cursor: pointer;
+  transition: all 120ms;
+  white-space: nowrap;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+.os-delete-btn:not(:disabled):hover {
+  background: var(--fail-bg);
+  border-color: var(--fail);
+  color: var(--fail);
+}
+.os-delete-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .os-tbl-count { font-size: 11px; color: var(--t3); }
 
 /* ── Scenario Table ── */
@@ -335,7 +358,7 @@ body:has(.os-page) .po-main { overflow-x: hidden; }
 .os-tbl {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  min-width: 1080px;
 }
 .os-tbl thead th {
   background: var(--bg-sur2);
@@ -814,7 +837,7 @@ body:has(.os-page) .po-main { overflow-x: hidden; }
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  align-items: start;
+  align-items: stretch;
 }
 .os-phase-card {
   background: var(--bg-sur);
@@ -822,6 +845,8 @@ body:has(.os-page) .po-main { overflow-x: hidden; }
   border-radius: var(--r-lg);
   overflow: hidden;
   box-shadow: var(--os-shadow-e);
+  display: flex;
+  flex-direction: column;
 }
 .os-phase-card-active {
   border-color: var(--stam);
@@ -848,7 +873,7 @@ body:has(.os-page) .po-main { overflow-x: hidden; }
   white-space: nowrap;
 }
 .os-pcc-prog { color: var(--stam); }
-.os-phase-card-body { padding: 2px 0; }
+.os-phase-card-body { padding: 2px 0; flex: 1; }
 .os-step-row {
   display: flex;
   align-items: center;
@@ -1021,6 +1046,43 @@ body:has(.os-page) .po-main { overflow-x: hidden; }
   font-weight: 600;
 }
 .os-apv-wait-chip { font-size: 11px; padding: 4px 12px; }
+
+/* ── Zone C: 분리 컬럼 스타일 ── */
+.os-stage-col { font-size: 10.5px; color: var(--t3); white-space: nowrap; }
+.os-seq-col { font-family: var(--mono); font-size: 10.5px; color: var(--t3); text-align: center; }
+td.os-scn-nm { font-size: 12px; color: var(--t1); font-weight: 500; }
+.os-apv-chip { font-size: 10px; padding: 1px 5px; }
+.os-apv-text { font-size: 10.5px; color: var(--t3); }
+.os-scope-internal { background: rgba(100,116,139,.10); color: #64748B; }
+
+/* ── Zone C: 전체 보기 / 접기 ── */
+.os-extra-row { display: none; }
+.os-list-expanded .os-extra-row { display: table-row; }
+.os-list-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--bd);
+  background: var(--bg-sur2);
+}
+.os-list-count-text { font-size: 11.5px; color: var(--t3); }
+.os-show-all-btn {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--stam);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 2px 6px;
+  border-radius: var(--r-sm);
+  transition: background 100ms;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.os-show-all-btn:hover { background: var(--stam-soft); text-decoration: none; }
 
 /* ── 반응형 보정 ── */
 @media (max-width: 960px) {

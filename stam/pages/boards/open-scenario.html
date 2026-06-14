@@ -309,14 +309,6 @@
             <button class="os-tab" type="button" data-os-tab="day">오픈 당일</button>
             <button class="os-tab" type="button" data-os-tab="post">오픈 후</button>
           </div>
-          <div class="os-filter-chips">
-            <button class="os-chip" type="button" data-os-chip="progress">진행</button>
-            <button class="os-chip os-chip-issue" type="button" data-os-chip="issue">이슈</button>
-            <button class="os-chip os-chip-hold" type="button" data-os-chip="hold">보류</button>
-            <button class="os-chip" type="button" data-os-chip="wait-confirm">고객확인 대기</button>
-            <button class="os-chip os-chip-apv" type="button" data-os-chip="approved">승인완료</button>
-            <button class="os-chip" type="button" data-os-chip="export">내보내기 포함</button>
-          </div>
         </div>
 
         <!-- ── Toolbar ── -->
@@ -332,6 +324,10 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M4 8h8M6 12h4"/></svg>
                 필터
                 <span class="stam-board-filter-count" id="os-filter-count" style="display:none">0</span>
+              </button>
+              <button class="os-delete-btn" type="button" disabled aria-label="선택된 시나리오 삭제" title="선택된 시나리오 삭제">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                삭제
               </button>
             </div>
           </div>
@@ -350,23 +346,32 @@
         </div>
 
         <!-- ── Zone C: Scenario List ── -->
-        <div class="os-scenario-table">
+        <div class="os-scenario-table" id="os-scenario-table">
           <div class="os-tbl-scroll">
             <table class="os-tbl">
               <colgroup>
-                <col style="min-width:200px">
-                <col style="width:88px">
-                <col style="width:88px">
-                <col style="width:104px">
-                <col style="width:104px">
-                <col style="width:80px">
                 <col style="width:76px">
-                <col style="width:88px">
-                <col style="width:80px">
+                <col style="width:68px">
+                <col style="width:60px">
+                <col style="width:36px">
+                <col style="min-width:160px">
+                <col style="width:82px">
+                <col style="width:82px">
+                <col style="width:82px">
+                <col style="width:82px">
+                <col style="width:72px">
+                <col style="width:64px">
                 <col style="width:52px">
+                <col style="width:72px">
+                <col style="width:64px">
+                <col style="width:44px">
               </colgroup>
               <thead>
                 <tr>
+                  <th>ID</th>
+                  <th>구분</th>
+                  <th>단계</th>
+                  <th>순서</th>
                   <th>작업명</th>
                   <th>담당자</th>
                   <th>확인자</th>
@@ -374,6 +379,7 @@
                   <th>실제 시작</th>
                   <th>체크 결과</th>
                   <th>이슈 ID</th>
+                  <th>승인</th>
                   <th>고객확인</th>
                   <th>공개범위</th>
                   <th></th>
@@ -381,182 +387,397 @@
               </thead>
               <tbody id="os-tbody">
 
-                <!-- SCN-001 -->
                 <tr class="os-row" data-scn-id="SCN-001">
-                  <td>
-                    <div class="os-nm-cell">
-                      <span class="os-scn-id">SCN-001</span>
-                      <span class="os-scn-ph-badge os-ph-pre">사전준비</span>
-                    </div>
-                    <div class="os-scn-nm">DB 풀 백업 실행</div>
-                  </td>
+                  <td><span class="os-scn-id">SCN-001</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-pre">오픈 전</span></td>
+                  <td class="os-stage-col">DB</td><td class="os-seq-col">01</td>
+                  <td class="os-scn-nm">DB 풀 백업 실행</td>
                   <td><div class="os-who"><span class="os-ava" style="background:#5451E8">최</span>최태호</div></td>
                   <td><div class="os-who"><span class="os-ava" style="background:#10B981">박</span>박지원</div></td>
-                  <td class="os-time">D-3 00:00</td>
-                  <td class="os-time">D-3 01:20</td>
+                  <td class="os-time">D-3 00:00</td><td class="os-time">D-3 01:20</td>
                   <td><span class="os-status-chip os-s-ok">완료</span></td>
                   <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-ok os-apv-chip">완료</span></td>
                   <td><span class="os-confirm-chip os-c-none">미요청</span></td>
                   <td><span class="os-scope-chip">내부공개</span></td>
                   <td><button class="os-detail-btn" type="button" data-scn="SCN-001">상세</button></td>
                 </tr>
 
-                <!-- SCN-003 -->
+                <tr class="os-row" data-scn-id="SCN-002">
+                  <td><span class="os-scn-id">SCN-002</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-pre">오픈 전</span></td>
+                  <td class="os-stage-col">공지</td><td class="os-seq-col">02</td>
+                  <td class="os-scn-nm">서비스 점검 공지 발송</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#10B981">박</span>박지원</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
+                  <td class="os-time">D-3 09:00</td><td class="os-time">D-3 09:10</td>
+                  <td><span class="os-status-chip os-s-ok">완료</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-ok os-apv-chip">완료</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-002">상세</button></td>
+                </tr>
+
                 <tr class="os-row" data-scn-id="SCN-003">
-                  <td>
-                    <div class="os-nm-cell">
-                      <span class="os-scn-id">SCN-003</span>
-                      <span class="os-scn-ph-badge os-ph-pre">사전준비</span>
-                    </div>
-                    <div class="os-scn-nm">Rollback 계획 최종 검토</div>
-                  </td>
+                  <td><span class="os-scn-id">SCN-003</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-pre">오픈 전</span></td>
+                  <td class="os-stage-col">인프라</td><td class="os-seq-col">03</td>
+                  <td class="os-scn-nm">Rollback 계획 최종 검토</td>
                   <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
                   <td><div class="os-who"><span class="os-ava" style="background:#EC4899">이</span>이다은</div></td>
-                  <td class="os-time">D-2 16:00</td>
-                  <td class="os-time" style="color:var(--t3)">—</td>
+                  <td class="os-time">D-2 16:00</td><td class="os-time" style="color:var(--t3)">—</td>
                   <td><span class="os-status-chip os-s-issue">이슈</span></td>
                   <td class="os-iss-col"><span class="os-iss-badge">ISS-012</span></td>
+                  <td><span class="os-apv-text">대기</span></td>
                   <td><span class="os-confirm-chip os-c-review">검토중</span></td>
                   <td><span class="os-scope-chip">내부공개</span></td>
                   <td><button class="os-detail-btn" type="button" data-scn="SCN-003">상세</button></td>
                 </tr>
 
-                <!-- SCN-006 -->
+                <tr class="os-row" data-scn-id="SCN-004">
+                  <td><span class="os-scn-id">SCN-004</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-pre">오픈 전</span></td>
+                  <td class="os-stage-col">인프라</td><td class="os-seq-col">04</td>
+                  <td class="os-scn-nm">CDN 캐시 초기화</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#EC4899">이</span>이다은</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#5451E8">최</span>최태호</div></td>
+                  <td class="os-time">D-2 20:00</td><td class="os-time">D-2 20:05</td>
+                  <td><span class="os-status-chip os-s-ok">완료</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-ok os-apv-chip">완료</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-004">상세</button></td>
+                </tr>
+
+                <tr class="os-row" data-scn-id="SCN-005">
+                  <td><span class="os-scn-id">SCN-005</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-pre">오픈 전</span></td>
+                  <td class="os-stage-col">인프라</td><td class="os-seq-col">05</td>
+                  <td class="os-scn-nm">API Gateway 설정 적용</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#5451E8">최</span>최태호</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#8B5CF6">홍</span>홍길동</div></td>
+                  <td class="os-time">D-1 14:00</td><td class="os-time">D-1 14:30</td>
+                  <td><span class="os-status-chip os-s-ok">완료</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-ok os-apv-chip">완료</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-005">상세</button></td>
+                </tr>
+
                 <tr class="os-row" data-scn-id="SCN-006">
-                  <td>
-                    <div class="os-nm-cell">
-                      <span class="os-scn-id">SCN-006</span>
-                      <span class="os-scn-ph-badge os-ph-pre">사전준비</span>
-                    </div>
-                    <div class="os-scn-nm">운영팀 배포 권한 부여</div>
-                  </td>
+                  <td><span class="os-scn-id">SCN-006</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-pre">오픈 전</span></td>
+                  <td class="os-stage-col">운영</td><td class="os-seq-col">06</td>
+                  <td class="os-scn-nm">운영팀 배포 권한 부여</td>
                   <td><div class="os-who"><span class="os-ava" style="background:#10B981">박</span>박지원</div></td>
                   <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
-                  <td class="os-time">D-1 17:00</td>
-                  <td class="os-time" style="color:var(--t3)">—</td>
+                  <td class="os-time">D-1 17:00</td><td class="os-time" style="color:var(--t3)">—</td>
                   <td><span class="os-status-chip os-s-wait">대기</span></td>
                   <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
                   <td><span class="os-confirm-chip os-c-none">미요청</span></td>
                   <td><span class="os-scope-chip">내부공개</span></td>
                   <td><button class="os-detail-btn" type="button" data-scn="SCN-006">상세</button></td>
                 </tr>
 
-                <!-- SCN-007 -->
                 <tr class="os-row" data-scn-id="SCN-007">
-                  <td>
-                    <div class="os-nm-cell">
-                      <span class="os-scn-id">SCN-007</span>
-                      <span class="os-scn-ph-badge os-ph-day">D-Day</span>
-                    </div>
-                    <div class="os-scn-nm">시스템 점검 공지</div>
-                  </td>
+                  <td><span class="os-scn-id">SCN-007</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
+                  <td class="os-stage-col">공지</td><td class="os-seq-col">01</td>
+                  <td class="os-scn-nm">시스템 점검 공지</td>
                   <td><div class="os-who"><span class="os-ava" style="background:#5451E8">최</span>최태호</div></td>
                   <td><div class="os-who"><span class="os-ava" style="background:#8B5CF6">홍</span>홍길동</div></td>
-                  <td class="os-time">06-06 02:00</td>
-                  <td class="os-time">06-06 02:05</td>
+                  <td class="os-time">06-06 02:00</td><td class="os-time">06-06 02:05</td>
                   <td><span class="os-status-chip os-s-ok">완료</span></td>
                   <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-ok os-apv-chip">완료</span></td>
                   <td><span class="os-confirm-chip os-c-share">고객공유</span></td>
                   <td><span class="os-scope-chip os-scope-share">고객공유</span></td>
                   <td><button class="os-detail-btn" type="button" data-scn="SCN-007">상세</button></td>
                 </tr>
 
-                <!-- SCN-009 (D-Day 진행중 — 샘플 활성 행) -->
-                <tr class="os-row os-row-active" data-scn-id="SCN-009">
-                  <td>
-                    <div class="os-nm-cell">
-                      <span class="os-scn-id">SCN-009</span>
-                      <span class="os-scn-ph-badge os-ph-day">D-Day</span>
-                    </div>
-                    <div class="os-scn-nm">DB 마이그레이션 스크립트 실행</div>
-                  </td>
+                <tr class="os-row" data-scn-id="SCN-008">
+                  <td><span class="os-scn-id">SCN-008</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
+                  <td class="os-stage-col">DB</td><td class="os-seq-col">02</td>
+                  <td class="os-scn-nm">DB 백업 완료 검증</td>
                   <td><div class="os-who"><span class="os-ava" style="background:#5451E8">최</span>최태호</div></td>
                   <td><div class="os-who"><span class="os-ava" style="background:#10B981">박</span>박지원</div></td>
-                  <td class="os-time">06-06 02:30</td>
-                  <td class="os-time">06-06 02:33</td>
+                  <td class="os-time">06-06 02:20</td><td class="os-time">06-06 02:25</td>
+                  <td><span class="os-status-chip os-s-ok">완료</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-ok os-apv-chip">완료</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-008">상세</button></td>
+                </tr>
+
+                <!-- ── extra rows (hidden until 전체 보기) ── -->
+                <tr class="os-row os-extra-row" data-scn-id="SCN-009">
+                  <td><span class="os-scn-id">SCN-009</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
+                  <td class="os-stage-col">DB</td><td class="os-seq-col">03</td>
+                  <td class="os-scn-nm">DB 마이그레이션 스크립트 실행</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#5451E8">최</span>최태호</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#10B981">박</span>박지원</div></td>
+                  <td class="os-time">06-06 02:30</td><td class="os-time">06-06 02:33</td>
                   <td><span class="os-status-chip os-s-prog">진행중</span></td>
                   <td class="os-iss-col"><span class="os-iss-badge os-iss-warn">ISS-예정</span></td>
+                  <td><span class="os-apv-text">대기</span></td>
                   <td><span class="os-confirm-chip os-c-none">미요청</span></td>
                   <td><span class="os-scope-chip">내부공개</span></td>
                   <td><button class="os-detail-btn" type="button" data-scn="SCN-009">상세</button></td>
                 </tr>
 
-                <!-- SCN-011 -->
-                <tr class="os-row" data-scn-id="SCN-011">
-                  <td>
-                    <div class="os-nm-cell">
-                      <span class="os-scn-id">SCN-011</span>
-                      <span class="os-scn-ph-badge os-ph-day">D-Day</span>
-                    </div>
-                    <div class="os-scn-nm">운영 서버 배포 (Blue-Green)</div>
-                  </td>
+                <tr class="os-row os-extra-row" data-scn-id="SCN-010">
+                  <td><span class="os-scn-id">SCN-010</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
+                  <td class="os-stage-col">검증</td><td class="os-seq-col">04</td>
+                  <td class="os-scn-nm">배포 전 헬스체크</td>
                   <td><div class="os-who"><span class="os-ava" style="background:#10B981">박</span>박지원</div></td>
                   <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
-                  <td class="os-time">06-06 04:00</td>
-                  <td class="os-time" style="color:var(--t3)">—</td>
+                  <td class="os-time">06-06 03:50</td><td class="os-time" style="color:var(--t3)">—</td>
                   <td><span class="os-status-chip os-s-wait">대기</span></td>
                   <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-010">상세</button></td>
+                </tr>
+
+                <tr class="os-row os-extra-row" data-scn-id="SCN-011">
+                  <td><span class="os-scn-id">SCN-011</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
+                  <td class="os-stage-col">배포</td><td class="os-seq-col">05</td>
+                  <td class="os-scn-nm">운영 서버 배포 (Blue-Green)</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#10B981">박</span>박지원</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
+                  <td class="os-time">06-06 04:00</td><td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-wait">대기</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
                   <td><span class="os-confirm-chip os-c-none">미요청</span></td>
                   <td><span class="os-scope-chip">내부공개</span></td>
                   <td><button class="os-detail-btn" type="button" data-scn="SCN-011">상세</button></td>
                 </tr>
 
-                <!-- SCN-015 -->
-                <tr class="os-row" data-scn-id="SCN-015">
-                  <td>
-                    <div class="os-nm-cell">
-                      <span class="os-scn-id">SCN-015</span>
-                      <span class="os-scn-ph-badge os-ph-day">D-Day</span>
-                    </div>
-                    <div class="os-scn-nm">고객사 최종 확인 요청</div>
-                  </td>
+                <tr class="os-row os-extra-row" data-scn-id="SCN-012">
+                  <td><span class="os-scn-id">SCN-012</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
+                  <td class="os-stage-col">검증</td><td class="os-seq-col">06</td>
+                  <td class="os-scn-nm">배포 후 스모크 테스트</td>
                   <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
-                  <td><div class="os-who"><span class="os-ava" style="background:#8B5CF6">홍</span>홍길동 (고객)</div></td>
-                  <td class="os-time">06-06 06:30</td>
-                  <td class="os-time" style="color:var(--t3)">—</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#EC4899">이</span>이다은</div></td>
+                  <td class="os-time">06-06 05:00</td><td class="os-time" style="color:var(--t3)">—</td>
                   <td><span class="os-status-chip os-s-wait">대기</span></td>
                   <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-012">상세</button></td>
+                </tr>
+
+                <tr class="os-row os-extra-row" data-scn-id="SCN-013">
+                  <td><span class="os-scn-id">SCN-013</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
+                  <td class="os-stage-col">확인</td><td class="os-seq-col">07</td>
+                  <td class="os-scn-nm">고객사 서비스 화면 확인</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#8B5CF6">홍</span>홍길동</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
+                  <td class="os-time">06-06 05:30</td><td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-wait">대기</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
+                  <td><span class="os-confirm-chip os-c-wait">확인대기</span></td>
+                  <td><span class="os-scope-chip os-scope-share">고객공유</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-013">상세</button></td>
+                </tr>
+
+                <tr class="os-row os-extra-row" data-scn-id="SCN-014">
+                  <td><span class="os-scn-id">SCN-014</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
+                  <td class="os-stage-col">배포</td><td class="os-seq-col">08</td>
+                  <td class="os-scn-nm">서비스 오픈 선언</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#5451E8">최</span>최태호</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#8B5CF6">홍</span>홍길동</div></td>
+                  <td class="os-time">06-06 06:00</td><td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-plan">예정</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip os-scope-internal">내부전용</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-014">상세</button></td>
+                </tr>
+
+                <tr class="os-row os-extra-row" data-scn-id="SCN-015">
+                  <td><span class="os-scn-id">SCN-015</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
+                  <td class="os-stage-col">확인</td><td class="os-seq-col">09</td>
+                  <td class="os-scn-nm">고객사 최종 확인 요청</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#8B5CF6">홍</span>홍길동 (고객)</div></td>
+                  <td class="os-time">06-06 06:30</td><td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-wait">대기</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
                   <td><span class="os-confirm-chip os-c-wait">확인대기</span></td>
                   <td><span class="os-scope-chip os-scope-share">고객공유</span></td>
                   <td><button class="os-detail-btn" type="button" data-scn="SCN-015">상세</button></td>
                 </tr>
 
-                <!-- SCN-019 -->
-                <tr class="os-row" data-scn-id="SCN-019">
-                  <td>
-                    <div class="os-nm-cell">
-                      <span class="os-scn-id">SCN-019</span>
-                      <span class="os-scn-ph-badge os-ph-post">오픈 후</span>
-                    </div>
-                    <div class="os-scn-nm">오픈 후 24시간 모니터링</div>
-                  </td>
+                <tr class="os-row os-extra-row" data-scn-id="SCN-016">
+                  <td><span class="os-scn-id">SCN-016</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
+                  <td class="os-stage-col">모니터링</td><td class="os-seq-col">10</td>
+                  <td class="os-scn-nm">초기 모니터링 실시</td>
                   <td><div class="os-who"><span class="os-ava" style="background:#EC4899">이</span>이다은</div></td>
-                  <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
-                  <td class="os-time">D+1 시작</td>
-                  <td class="os-time" style="color:var(--t3)">—</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#10B981">박</span>박지원</div></td>
+                  <td class="os-time">06-06 07:00</td><td class="os-time" style="color:var(--t3)">—</td>
                   <td><span class="os-status-chip os-s-plan">예정</span></td>
                   <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-016">상세</button></td>
+                </tr>
+
+                <tr class="os-row os-extra-row" data-scn-id="SCN-017">
+                  <td><span class="os-scn-id">SCN-017</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
+                  <td class="os-stage-col">모니터링</td><td class="os-seq-col">01</td>
+                  <td class="os-scn-nm">24시간 모니터링</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#EC4899">이</span>이다은</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
+                  <td class="os-time">D+1 시작</td><td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-plan">예정</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-017">상세</button></td>
+                </tr>
+
+                <tr class="os-row os-extra-row" data-scn-id="SCN-018">
+                  <td><span class="os-scn-id">SCN-018</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
+                  <td class="os-stage-col">분석</td><td class="os-seq-col">02</td>
+                  <td class="os-scn-nm">오류 로그 분석</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#5451E8">최</span>최태호</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#10B981">박</span>박지원</div></td>
+                  <td class="os-time">D+1 09:00</td><td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-plan">예정</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-018">상세</button></td>
+                </tr>
+
+                <tr class="os-row os-extra-row" data-scn-id="SCN-019">
+                  <td><span class="os-scn-id">SCN-019</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
+                  <td class="os-stage-col">확인</td><td class="os-seq-col">03</td>
+                  <td class="os-scn-nm">고객 피드백 수집</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#10B981">박</span>박지원</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
+                  <td class="os-time">D+2 시작</td><td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-plan">예정</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
                   <td><span class="os-confirm-chip os-c-none">미요청</span></td>
                   <td><span class="os-scope-chip">내부공개</span></td>
                   <td><button class="os-detail-btn" type="button" data-scn="SCN-019">상세</button></td>
                 </tr>
 
+                <tr class="os-row os-extra-row" data-scn-id="SCN-020">
+                  <td><span class="os-scn-id">SCN-020</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
+                  <td class="os-stage-col">보고</td><td class="os-seq-col">04</td>
+                  <td class="os-scn-nm">운영 안정화 완료 보고</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#F59E0B">김</span>김민수</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#5451E8">최</span>최태호</div></td>
+                  <td class="os-time">D+3 09:00</td><td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-plan">예정</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-020">상세</button></td>
+                </tr>
+
+                <tr class="os-row os-extra-row" data-scn-id="SCN-021">
+                  <td><span class="os-scn-id">SCN-021</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
+                  <td class="os-stage-col">보고</td><td class="os-seq-col">05</td>
+                  <td class="os-scn-nm">최종 결과 보고서 제출</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#8B5CF6">홍</span>홍길동</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#5451E8">최</span>최태호</div></td>
+                  <td class="os-time">D+5 09:00</td><td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-plan">예정</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-021">상세</button></td>
+                </tr>
+
+                <tr class="os-row os-extra-row" data-scn-id="SCN-022">
+                  <td><span class="os-scn-id">SCN-022</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
+                  <td class="os-stage-col">보안</td><td class="os-seq-col">06</td>
+                  <td class="os-scn-nm">운영 후 취약점 점검</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#10B981">박</span>박지원</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#EC4899">이</span>이다은</div></td>
+                  <td class="os-time">D+3 14:00</td><td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-plan">예정</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip os-scope-internal">내부전용</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-022">상세</button></td>
+                </tr>
+
+                <tr class="os-row os-extra-row" data-scn-id="SCN-023">
+                  <td><span class="os-scn-id">SCN-023</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
+                  <td class="os-stage-col">인프라</td><td class="os-seq-col">07</td>
+                  <td class="os-scn-nm">임시 용량 증설 해제</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#EC4899">이</span>이다은</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#5451E8">최</span>최태호</div></td>
+                  <td class="os-time">D+5 14:00</td><td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-plan">예정</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-023">상세</button></td>
+                </tr>
+
+                <tr class="os-row os-extra-row" data-scn-id="SCN-024">
+                  <td><span class="os-scn-id">SCN-024</span></td>
+                  <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
+                  <td class="os-stage-col">보고</td><td class="os-seq-col">08</td>
+                  <td class="os-scn-nm">오픈 성과 공유 보고회</td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#5451E8">최</span>최태호</div></td>
+                  <td><div class="os-who"><span class="os-ava" style="background:#8B5CF6">홍</span>홍길동</div></td>
+                  <td class="os-time">D+7 14:00</td><td class="os-time" style="color:var(--t3)">—</td>
+                  <td><span class="os-status-chip os-s-plan">예정</span></td>
+                  <td class="os-iss-col" style="color:var(--t3)">—</td>
+                  <td><span class="os-apv-text">대기</span></td>
+                  <td><span class="os-confirm-chip os-c-none">미요청</span></td>
+                  <td><span class="os-scope-chip">내부공개</span></td>
+                  <td><button class="os-detail-btn" type="button" data-scn="SCN-024">상세</button></td>
+                </tr>
+
               </tbody>
             </table>
           </div>
-          <div class="os-tbl-foot">
-            <span>총 24건 중 8건 표시</span>
-            <div class="os-pg">
-              <button class="os-pgb" type="button" aria-label="이전 페이지">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-              </button>
-              <button class="os-pgb on" type="button">1</button>
-              <button class="os-pgb" type="button">2</button>
-              <button class="os-pgb" type="button">3</button>
-              <button class="os-pgb" type="button" aria-label="다음 페이지">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-              </button>
-            </div>
+          <div class="os-list-footer">
+            <span class="os-list-count-text">총 24건 중 8건 표시</span>
+            <button class="os-show-all-btn" type="button" id="os-show-all-btn">전체 보기</button>
           </div>
         </div>
 
