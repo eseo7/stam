@@ -277,7 +277,26 @@ body:has(.os-page) .po-main { overflow-x: hidden; }
 .os-chip-apv:hover, .os-chip-apv.on { border-color: var(--os-positive); color: var(--os-positive); }
 .os-chip-apv.on { background: var(--os-pos-bg); }
 
-/* ── Toolbar ── */
+/* ── Filter+Toolbar bar (tabs + controls on same line) ── */
+.os-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0 8px;
+  flex-wrap: wrap;
+  position: relative;
+}
+.os-filter-bar-div {
+  width: 1px;
+  height: 18px;
+  background: var(--bd);
+  flex-shrink: 0;
+}
+.os-filter-panel-anchor {
+  position: relative;
+}
+
+/* ── Toolbar (kept for backwards-compat, now unused wrapper) ── */
 .os-toolbar { margin-bottom: 8px; }
 .os-search {
   display: flex;
@@ -1049,8 +1068,33 @@ body:has(.os-page) .po-main { overflow-x: hidden; }
 
 /* ── Zone C: 분리 컬럼 스타일 ── */
 .os-stage-col { font-size: 10.5px; color: var(--t3); white-space: nowrap; }
-.os-seq-col { font-family: var(--mono); font-size: 10.5px; color: var(--t3); text-align: center; }
 td.os-scn-nm { font-size: 12px; color: var(--t1); font-weight: 500; }
+
+/* ── Checkbox column ── */
+.os-th-cb, .os-td-cb {
+  text-align: center;
+  padding: 0 6px !important;
+  vertical-align: middle;
+}
+.os-cb-all, .os-row-cb {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: var(--stam);
+  display: block;
+  margin: auto;
+}
+
+/* ── Row status bar column ── */
+.os-th-bar { padding: 0 !important; }
+.os-row-bar { padding: 0 !important; }
+.os-bar-ok    { background: #10B981; }
+.os-bar-prog  { background: #5451E8; }
+.os-bar-issue { background: #EF4444; }
+.os-bar-wait  { background: #CBD5E1; }
+.os-bar-plan  { background: #E2E8F0; }
+[data-theme="dark"] .os-bar-wait { background: #334155; }
+[data-theme="dark"] .os-bar-plan { background: #1E293B; }
 .os-apv-chip { font-size: 10px; padding: 1px 5px; }
 .os-apv-text { font-size: 10.5px; color: var(--t3); }
 .os-scope-internal { background: rgba(100,116,139,.10); color: #64748B; }
