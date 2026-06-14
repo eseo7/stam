@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STAM Common Select Table — Bare HTML Preview v3.0</title>
+  <title>STAM Common Select Table — Bare HTML Preview v3.1</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <!-- 공통 CSS 3개만 로드 — stam.open-scenario.css 로드 금지 -->
   <link rel="stylesheet" href="../css/stam.tokens.css">
   <link rel="stylesheet" href="../css/stam.components.css">
   <link rel="stylesheet" href="../css/stam.table-selection.css">
@@ -18,20 +19,9 @@
       padding: 32px;
       min-height: 100vh;
     }
-    .preview-header {
-      margin-bottom: 24px;
-    }
-    .preview-header h1 {
-      font-size: 18px;
-      font-weight: 700;
-      margin: 0 0 4px;
-      color: var(--t1);
-    }
-    .preview-header p {
-      font-size: 12px;
-      color: var(--t3);
-      margin: 0;
-    }
+    .preview-header { margin-bottom: 24px; }
+    .preview-header h1 { font-size: 18px; font-weight: 700; margin: 0 0 4px; color: var(--t1); }
+    .preview-header p { font-size: 12px; color: var(--t3); margin: 0; }
     .preview-section {
       background: var(--bg-sur);
       border: 1px solid var(--bd);
@@ -50,16 +40,14 @@
       color: var(--t3);
       background: var(--bg-sur2);
     }
-    .preview-section-body {
-      padding: 16px;
-    }
+    .preview-section-body { padding: 16px; }
     .theme-toggle {
       position: fixed;
       top: 20px;
       right: 20px;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background: var(--bg-sur);
       border: 1px solid var(--bd);
       border-radius: 8px;
@@ -68,6 +56,7 @@
       font-weight: 600;
       color: var(--t2);
       cursor: pointer;
+      font-family: inherit;
       z-index: 100;
     }
     .chip-badge {
@@ -90,27 +79,37 @@
 </button>
 
 <div class="preview-header">
-  <h1>STAM 공통 선택형 테이블 <span class="chip-badge">v3.0</span></h1>
+  <h1>STAM 공통 선택형 테이블 <span class="chip-badge">v3.1</span></h1>
   <p>Bare HTML Preview — stam.tokens.css + stam.components.css + stam.table-selection.css 만 로드 (페이지 전용 CSS 없음)</p>
 </div>
 
-<!-- ── 섹션 1: 툴바 ── -->
+<!-- ── 섹션 1: Toolbar 공통 구조 ── -->
 <div class="preview-section">
-  <div class="preview-section-header">1. .stam-select-toolbar — 검색 + 필터 + 삭제</div>
+  <div class="preview-section-header">1. .stam-list-toolbar — 검색 + 필터 + 삭제</div>
   <div class="preview-section-body">
-    <div class="stam-select-toolbar">
-      <div class="stam-table-search">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="search" placeholder="시나리오 검색">
+    <!-- .stam-list-toolbar: 검색+필터+삭제 툴바 래퍼 -->
+    <div class="stam-list-toolbar">
+
+      <!-- .stam-list-search: 검색 input 래퍼 -->
+      <div class="stam-list-search">
+        <!-- .stam-list-search-icon: 검색 아이콘 -->
+        <svg class="stam-list-search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <!-- .stam-list-search-input: 검색 input -->
+        <input class="stam-list-search-input" type="search" placeholder="ID · 제목 · 담당자 검색">
       </div>
+
+      <!-- .stam-filter-btn + .stam-btn-icon -->
       <button class="stam-filter-btn" id="filterBtn">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        <svg class="stam-btn-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
         필터
       </button>
+
+      <!-- .stam-delete-btn + .stam-btn-icon + .stam-delete-label -->
       <button class="stam-delete-btn" type="button" disabled id="deleteBtn">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        <svg class="stam-btn-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
         <span class="stam-delete-label">삭제</span>
       </button>
+
     </div>
   </div>
 </div>
@@ -200,7 +199,7 @@
   </div>
 </div>
 
-<!-- ── 섹션 3: 단독 컴포넌트 ── -->
+<!-- ── 섹션 3: 단독 컴포넌트 확인 ── -->
 <div class="preview-section">
   <div class="preview-section-header">3. 단독 컴포넌트 — .stam-check / .stam-filter-btn / .stam-delete-btn</div>
   <div class="preview-section-body" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
@@ -213,10 +212,22 @@
     <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2);cursor:pointer">
       <input class="stam-check" type="checkbox" id="indetermCb"> 부분선택 (indeterminate)
     </label>
-    <button class="stam-filter-btn">필터</button>
-    <button class="stam-filter-btn is-open">필터 (열림)</button>
-    <button class="stam-delete-btn" disabled><span class="stam-delete-label">삭제</span></button>
-    <button class="stam-delete-btn"><span class="stam-delete-label">삭제 (3)</span></button>
+    <button class="stam-filter-btn">
+      <svg class="stam-btn-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      필터
+    </button>
+    <button class="stam-filter-btn is-open">
+      <svg class="stam-btn-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      필터 (열림)
+    </button>
+    <button class="stam-delete-btn" disabled>
+      <svg class="stam-btn-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      <span class="stam-delete-label">삭제</span>
+    </button>
+    <button class="stam-delete-btn">
+      <svg class="stam-btn-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      <span class="stam-delete-label">삭제 (3)</span>
+    </button>
   </div>
 </div>
 
@@ -228,22 +239,22 @@
 
   // theme toggle
   var themeBtn = document.getElementById('themeToggle');
+  var moonIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  var sunIcon  = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>';
   themeBtn.addEventListener('click', function () {
     var html = document.documentElement;
     var isDark = html.getAttribute('data-theme') === 'dark';
     html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-    themeBtn.innerHTML = isDark
-      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> 다크 모드'
-      : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> 라이트 모드';
+    themeBtn.innerHTML = isDark ? moonIcon + ' 다크 모드' : sunIcon + ' 라이트 모드';
   });
 
   // row selection
-  var cbAll    = document.getElementById('cbAll');
+  var cbAll     = document.getElementById('cbAll');
   var deleteBtn = document.getElementById('deleteBtn');
-  var rowCbs   = document.querySelectorAll('.row-cb');
+  var rowCbs    = Array.from(document.querySelectorAll('.row-cb'));
 
   function getCheckedCount() {
-    return Array.from(rowCbs).filter(function (cb) { return cb.checked; }).length;
+    return rowCbs.filter(function (cb) { return cb.checked; }).length;
   }
 
   function updateDeleteBtn() {
@@ -263,9 +274,7 @@
     cb.addEventListener('click', function (e) { e.stopPropagation(); });
     cb.addEventListener('change', function () {
       var row = cb.closest('tr');
-      if (row) {
-        row.classList.toggle('is-selected', cb.checked);
-      }
+      if (row) row.classList.toggle('is-selected', cb.checked);
       syncHeaderCb();
       updateDeleteBtn();
     });
