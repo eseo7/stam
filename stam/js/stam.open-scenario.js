@@ -157,28 +157,59 @@
     window.STAM.navRender.init('C8');
   }
 
-  /* ── Checkbox: select-all + delete btn enable/disable ───────── */
+  /* ── Checkbox: hover reveal · selected state · delete btn ────── */
   function bindCheckboxes() {
     var cbAll     = document.querySelector('.os-cb-all');
     var deleteBtn = document.getElementById('os-delete-btn');
+
+    function getVisibleRowCbs() {
+      var expanded = scnTable && scnTable.classList.contains('os-list-expanded');
+      return Array.from(document.querySelectorAll('.os-row-cb')).filter(function (cb) {
+        var row = cb.closest('tr');
+        return !row.classList.contains('os-extra-row') || expanded;
+      });
+    }
 
     function updateDeleteBtn() {
       var count = document.querySelectorAll('.os-row-cb:checked').length;
       if (deleteBtn) deleteBtn.disabled = count === 0;
     }
 
+    function syncHeaderCb() {
+      if (!cbAll) return;
+      var vis = getVisibleRowCbs();
+      var checked = vis.filter(function (cb) { return cb.checked; }).length;
+      cbAll.checked = checked > 0 && checked === vis.length;
+      cbAll.indeterminate = checked > 0 && checked < vis.length;
+    }
+
     document.querySelectorAll('.os-row-cb').forEach(function (cb) {
       cb.addEventListener('click', function (e) { e.stopPropagation(); });
-      cb.addEventListener('change', updateDeleteBtn);
+      cb.addEventListener('change', function () {
+        var row = cb.closest('tr');
+        if (row) row.classList.toggle('is-selected', cb.checked);
+        syncHeaderCb();
+        updateDeleteBtn();
+      });
     });
 
     if (cbAll) {
       cbAll.addEventListener('click', function (e) { e.stopPropagation(); });
       cbAll.addEventListener('change', function () {
-        document.querySelectorAll('.os-row-cb').forEach(function (cb) {
+        getVisibleRowCbs().forEach(function (cb) {
           cb.checked = cbAll.checked;
+          var row = cb.closest('tr');
+          if (row) row.classList.toggle('is-selected', cbAll.checked);
         });
         updateDeleteBtn();
+      });
+    }
+
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', function () {
+        if (!deleteBtn.disabled) {
+          alert('선택된 시나리오 삭제는 후속 PR에서 구현합니다.');
+        }
       });
     }
   }

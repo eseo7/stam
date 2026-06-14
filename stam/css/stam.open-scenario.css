@@ -1084,10 +1084,15 @@ td.os-scn-nm { font-size: 12px; color: var(--t1); font-weight: 500; }
   display: block;
   margin: auto;
 }
+/* row checkbox: hidden by default, appears on hover / selected */
+.os-row-cb { opacity: 0; transition: opacity 120ms; }
+.os-row:hover .os-row-cb { opacity: .55; }
+.os-row.is-selected .os-row-cb { opacity: 1; }
 
 /* ── Row status bar column ── */
 .os-th-bar { padding: 0 !important; }
-.os-row-bar { padding: 0 !important; }
+.os-row-bar { padding: 0 !important; opacity: 0; transition: opacity 120ms; }
+.os-row.is-selected .os-row-bar { opacity: 1; }
 .os-bar-ok    { background: #10B981; }
 .os-bar-prog  { background: #5451E8; }
 .os-bar-issue { background: #EF4444; }
@@ -1095,6 +1100,12 @@ td.os-scn-nm { font-size: 12px; color: var(--t1); font-weight: 500; }
 .os-bar-plan  { background: #E2E8F0; }
 [data-theme="dark"] .os-bar-wait { background: #334155; }
 [data-theme="dark"] .os-bar-plan { background: #1E293B; }
+
+/* ── Row selected state ── */
+.os-row.is-selected td { background: rgba(84,81,232,.05) !important; }
+.os-row.is-selected:hover td { background: rgba(84,81,232,.08) !important; }
+[data-theme="dark"] .os-row.is-selected td { background: rgba(84,81,232,.09) !important; }
+[data-theme="dark"] .os-row.is-selected:hover td { background: rgba(84,81,232,.13) !important; }
 .os-apv-chip { font-size: 10px; padding: 1px 5px; }
 .os-apv-text { font-size: 10.5px; color: var(--t3); }
 .os-scope-internal { background: rgba(100,116,139,.10); color: #64748B; }
