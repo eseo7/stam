@@ -29,6 +29,7 @@
     document.querySelectorAll('#os-tbody .os-row').forEach(function (row) {
       row.addEventListener('click', function (e) {
         if (e.target.closest('.os-detail-btn')) return;
+        if (e.target.closest('.os-td-cb')) return;
         openDetailDrawer(row.getAttribute('data-scn-id'));
       });
     });
@@ -156,6 +157,32 @@
     window.STAM.navRender.init('C8');
   }
 
+  /* ── Checkbox: select-all + delete btn enable/disable ───────── */
+  function bindCheckboxes() {
+    var cbAll     = document.querySelector('.os-cb-all');
+    var deleteBtn = document.getElementById('os-delete-btn');
+
+    function updateDeleteBtn() {
+      var count = document.querySelectorAll('.os-row-cb:checked').length;
+      if (deleteBtn) deleteBtn.disabled = count === 0;
+    }
+
+    document.querySelectorAll('.os-row-cb').forEach(function (cb) {
+      cb.addEventListener('click', function (e) { e.stopPropagation(); });
+      cb.addEventListener('change', updateDeleteBtn);
+    });
+
+    if (cbAll) {
+      cbAll.addEventListener('click', function (e) { e.stopPropagation(); });
+      cbAll.addEventListener('change', function () {
+        document.querySelectorAll('.os-row-cb').forEach(function (cb) {
+          cb.checked = cbAll.checked;
+        });
+        updateDeleteBtn();
+      });
+    }
+  }
+
   /* ── 전체 보기 / 접기 toggle ─────────────────────────────────── */
   var showAllBtn   = document.getElementById('os-show-all-btn');
   var scnTable     = document.getElementById('os-scenario-table');
@@ -176,5 +203,6 @@
   bindDrawerTabs();
   bindPhaseTabs();
   bindFilterChips();
+  bindCheckboxes();
 
 }());
