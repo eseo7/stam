@@ -1138,6 +1138,121 @@
     }
   ];
 
+  /* ── Wireframe presets — 템플릿별 초기 구성 요소 (defaultComponents 기반) ── */
+  var WIREFRAME_PRESETS = {
+    'commerce-f1': {
+      defaultWireframeType: 'commerce-home',
+      defaultFlowLinks: [{ to: 'commerce-f2', label: '상품 탐색' }],
+      defaultComponents: [
+        { id: 'cmp-header',          type: 'wf-header',          name: '상단 헤더',          enabled: true, description: '로고·검색·장바구니·로그인 영역', props: {} },
+        { id: 'cmp-search-bar',      type: 'wf-search-bar',      name: '검색 영역',          enabled: true, description: '통합 검색 입력',                  props: {} },
+        { id: 'cmp-hero',            type: 'wf-hero',            name: '메인 배너/히어로',   enabled: true, description: '기획전·브랜드 배너 슬라이드',       props: {} },
+        { id: 'cmp-quick-menu',      type: 'wf-quick-menu',      name: '퀵 메뉴',            enabled: true, description: '카테고리 빠른 이동 아이콘',        props: {} },
+        { id: 'cmp-product-section', type: 'wf-product-section', name: '추천 상품 섹션',     enabled: true, description: '개인화 추천·인기 상품 카드',       props: {} },
+        { id: 'cmp-promo-section',   type: 'wf-promo-section',   name: '기획전/프로모션 섹션', enabled: true, description: '시즌·테마 기획전 배너',         props: {} },
+        { id: 'cmp-footer-info',     type: 'wf-footer-info',     name: '하단 안내 영역',     enabled: true, description: '배송·혜택·고객센터 안내',          props: {} }
+      ]
+    },
+    'commerce-f2': {
+      defaultWireframeType: 'commerce-product-list',
+      defaultFlowLinks: [{ to: 'commerce-f3', label: '상품 상세 보기' }],
+      defaultComponents: [
+        { id: 'cmp-list-title',    type: 'wf-screen-title',   name: '목록 제목/결과 수',    enabled: true, description: '카테고리명·검색어·결과 건수 표시', props: {} },
+        { id: 'cmp-filter',        type: 'wf-filter',         name: '검색/필터 영역',       enabled: true, description: '카테고리·가격·브랜드·조건 필터',   props: {} },
+        { id: 'cmp-sort',          type: 'wf-sort',           name: '정렬 영역',            enabled: true, description: '인기순·최신순·가격순 정렬 선택',   props: {} },
+        { id: 'cmp-product-grid',  type: 'wf-product-grid',   name: '상품 카드 그리드',     enabled: true, description: '썸네일·상품명·가격·찜 버튼 카드', props: {} },
+        { id: 'cmp-pagination',    type: 'wf-pagination',     name: '페이지네이션',         enabled: true, description: '페이지 이동 또는 더보기 버튼',     props: {} },
+        { id: 'cmp-empty',         type: 'wf-empty',          name: '빈 결과 상태',         enabled: true, description: '검색 결과 없음 안내',              props: {} }
+      ]
+    },
+    'commerce-f3': {
+      defaultWireframeType: 'commerce-product-detail',
+      defaultFlowLinks: [{ to: 'commerce-f4', label: '장바구니 담기' }],
+      domainOptions: [
+        { id: 'fresh-food', name: '신선식품 정보', enabled: false, fields: ['원산지', '유통기한', '보관법', '알레르기', '배송 유형', '도착 예정일'] }
+      ],
+      defaultComponents: [
+        { id: 'cmp-gallery',          type: 'wf-image-gallery',    name: '이미지/갤러리 영역',    enabled: true, description: '상품 대표 이미지·썸네일 슬라이드', props: {} },
+        { id: 'cmp-product-info',     type: 'wf-product-info',     name: '상품명/가격/상태 정보', enabled: true, description: '상품명·판매가·할인율·재고 상태',   props: {} },
+        { id: 'cmp-option-selector',  type: 'wf-option-selector',  name: '옵션/수량 선택',        enabled: true, description: '색상·사이즈·수량 선택 영역',      props: {} },
+        { id: 'cmp-cta-buy',          type: 'wf-cta-buy',          name: '장바구니/구매 CTA',     enabled: true, description: '장바구니 담기·바로 구매 버튼',    props: {} },
+        { id: 'cmp-detail-tabs',      type: 'wf-detail-tabs',      name: '상세정보/후기/문의 탭', enabled: true, description: '상품 상세·구매 후기·문의 탭 전환', props: {} },
+        { id: 'cmp-related-products', type: 'wf-related-products', name: '추천 상품 영역',        enabled: true, description: '함께 구매·최근 본 상품 가로 스크롤', props: {} }
+      ]
+    },
+    'commerce-f4': {
+      defaultWireframeType: 'commerce-cart',
+      defaultFlowLinks: [{ to: 'commerce-f5', label: '주문/결제 이동' }],
+      defaultComponents: [
+        { id: 'cmp-cart-title',   type: 'wf-cart-title',   name: '장바구니 제목',         enabled: true, description: '장바구니 헤더·총 상품 수',         props: {} },
+        { id: 'cmp-bulk-action',  type: 'wf-bulk-action',  name: '선택/삭제 일괄 액션',   enabled: true, description: '전체 선택·선택 삭제 컨트롤',       props: {} },
+        { id: 'cmp-cart-items',   type: 'wf-cart-items',   name: '상품 목록',             enabled: true, description: '상품 이미지·이름·옵션·수량·금액 행', props: {} },
+        { id: 'cmp-delivery-info',type: 'wf-delivery-info',name: '배송/수령 정보 요약',   enabled: true, description: '배송 방법·도착 예정 안내',          props: {} },
+        { id: 'cmp-order-summary',type: 'wf-order-summary',name: '주문 금액 요약',        enabled: true, description: '상품 금액·할인·배송비·결제 예정액', props: {} },
+        { id: 'cmp-cart-cta',     type: 'wf-cart-cta',     name: '주문하기 CTA',          enabled: true, description: '선택 상품 주문 버튼',              props: {} },
+        { id: 'cmp-cart-empty',   type: 'wf-cart-empty',   name: '빈 장바구니 상태',      enabled: true, description: '상품 없음 안내·쇼핑 계속 버튼',    props: {} }
+      ]
+    },
+    'commerce-f5': {
+      defaultWireframeType: 'commerce-checkout',
+      defaultFlowLinks: [{ to: 'commerce-f6', label: '주문 완료' }],
+      defaultComponents: [
+        { id: 'cmp-address',          type: 'wf-checkout-address',  name: '배송지 정보',      enabled: true, description: '배송지 선택·수령인·주소 입력',      props: {} },
+        { id: 'cmp-co-items',         type: 'wf-checkout-items',    name: '주문 상품 요약',   enabled: true, description: '주문 상품 목록 축약 표시',           props: {} },
+        { id: 'cmp-co-discount',      type: 'wf-checkout-discount', name: '쿠폰/포인트/할인',enabled: true, description: '쿠폰 코드·포인트 사용 입력',         props: {} },
+        { id: 'cmp-co-payment',       type: 'wf-checkout-payment',  name: '결제수단',         enabled: true, description: '카드·계좌이체·간편결제 선택',       props: {} },
+        { id: 'cmp-co-terms',         type: 'wf-checkout-terms',    name: '약관 동의',        enabled: true, description: '구매 약관·개인정보 동의 체크',      props: {} },
+        { id: 'cmp-co-price',         type: 'wf-checkout-price',    name: '결제 금액 요약',   enabled: true, description: '최종 결제 금액·혜택 적용 합계',     props: {} },
+        { id: 'cmp-co-cta',           type: 'wf-checkout-cta',      name: '결제 CTA',         enabled: true, description: '결제하기 버튼',                     props: {} }
+      ]
+    },
+    'commerce-f7': {
+      defaultWireframeType: 'commerce-my-dashboard',
+      defaultFlowLinks: [{ to: 'commerce-f7', label: '주문/활동 내역' }],
+      defaultComponents: [
+        { id: 'cmp-my-profile',    type: 'wf-my-profile',    name: '사용자 요약',         enabled: true, description: '닉네임·등급·아바타 요약 카드',     props: {} },
+        { id: 'cmp-order-status',  type: 'wf-order-status',  name: '주문 진행 상태',      enabled: true, description: '주문·결제·배송·완료 단계 현황',    props: {} },
+        { id: 'cmp-asset-summary', type: 'wf-asset-summary', name: '쿠폰/포인트/자산 요약', enabled: true, description: '보유 쿠폰 수·포인트 잔액 카드', props: {} },
+        { id: 'cmp-quick-links',   type: 'wf-quick-links',   name: '빠른 메뉴',           enabled: true, description: '주문내역·찜·리뷰·문의 빠른 이동', props: {} },
+        { id: 'cmp-recent-orders', type: 'wf-recent-orders', name: '최근 주문/최근 활동', enabled: true, description: '최근 주문 상품 목록',              props: {} }
+      ]
+    },
+    'business-a2': {
+      defaultWireframeType: 'business-admin-list',
+      defaultComponents: [
+        { id: 'cmp-screen-title',  type: 'wf-screen-title',  name: '화면 제목',     enabled: true, description: '화면명·등록 버튼',                    props: {} },
+        { id: 'cmp-search-filter', type: 'wf-search-filter', name: '검색 조건',     enabled: true, description: '검색어·날짜·상태 조건 입력',           props: {} },
+        { id: 'cmp-search-btn',    type: 'wf-search-btn',    name: '조회/초기화 버튼', enabled: true, description: '조회·초기화 실행 버튼',            props: {} },
+        { id: 'cmp-stats',         type: 'wf-stats-summary', name: '요약 통계',     enabled: true, description: '전체·처리중·완료 등 건수 요약',       props: {} },
+        { id: 'cmp-data-table',    type: 'wf-data-table',    name: '결과 테이블',   enabled: true, description: '컬럼 헤더·데이터 행·정렬',            props: {} },
+        { id: 'cmp-status-chip',   type: 'wf-status-chip',   name: '상태 chip',     enabled: true, description: '작성·검토·승인 상태 칩',              props: {} },
+        { id: 'cmp-row-action',    type: 'wf-row-action',    name: '행 액션',       enabled: true, description: '상세·수정·삭제 행 버튼',              props: {} },
+        { id: 'cmp-empty-state',   type: 'wf-empty',         name: '빈 결과 상태',  enabled: true, description: '결과 없음 안내 문구',                 props: {} }
+      ]
+    },
+    'business-a3': {
+      defaultWireframeType: 'business-admin-form',
+      defaultComponents: [
+        { id: 'cmp-form-basic',    type: 'wf-form-section',  name: '기본 정보 섹션',   enabled: true, description: '이름·ID·상태 등 기본 입력 필드',     props: {} },
+        { id: 'cmp-form-fields',   type: 'wf-form-fields',   name: '입력 필드 그룹',   enabled: true, description: '섹션별 세부 입력 필드',               props: {} },
+        { id: 'cmp-file-upload',   type: 'wf-file-upload',   name: '첨부파일 영역',    enabled: true, description: '파일 선택·드롭 업로드 영역',          props: {} },
+        { id: 'cmp-validation',    type: 'wf-validation-msg',name: '검증 메시지',      enabled: true, description: '필수 입력·형식 오류 안내',            props: {} },
+        { id: 'cmp-form-cta',      type: 'wf-form-cta',      name: '저장/취소 CTA',   enabled: true, description: '저장·취소·삭제 버튼 영역',            props: {} }
+      ]
+    },
+    'business-a4': {
+      defaultWireframeType: 'business-approval',
+      defaultComponents: [
+        { id: 'cmp-appr-summary',   type: 'wf-approval-summary',  name: '요청 정보 요약', enabled: true, description: '요청자·일시·유형 요약 카드',       props: {} },
+        { id: 'cmp-appr-content',   type: 'wf-approval-content',  name: '신청 내용',      enabled: true, description: '검토 대상 신청 내용 상세',         props: {} },
+        { id: 'cmp-review-comment', type: 'wf-review-comment',    name: '검토 의견',      enabled: true, description: '검토자 의견 입력 텍스트에리어',    props: {} },
+        { id: 'cmp-appr-cta',       type: 'wf-approval-cta',      name: '승인/반려 CTA',  enabled: true, description: '승인·반려·보완 요청 버튼',         props: {} },
+        { id: 'cmp-history',        type: 'wf-history',           name: '처리 이력',      enabled: true, description: '처리 단계·담당자·일시 타임라인',   props: {} },
+        { id: 'cmp-perm-notice',    type: 'wf-permission-notice', name: '권한/상태 안내', enabled: true, description: '현재 처리 권한 및 상태 안내',      props: {} }
+      ]
+    }
+  };
+
   function findTemplateById(id) {
     for (var s = 0; s < SERVICE_TYPES.length; s++) {
       var st = SERVICE_TYPES[s];
@@ -1201,6 +1316,14 @@
       rowActions: ds.useRowAction ? [{ name: '상세 보기', style: 'ghost', link: '', permission: '전체', condition: '항상' }] : [],
       attachmentNote: ''
     };
+    /* Apply wireframe preset if available */
+    var preset = WIREFRAME_PRESETS[tpl.id] || {};
+    SSP.draft.defaultWireframeType = preset.defaultWireframeType || null;
+    SSP.draft.defaultFlowLinks = (preset.defaultFlowLinks || []).slice();
+    SSP.draft.domainOptions = (preset.domainOptions || []).map(function(o) { return Object.assign({}, o); });
+    SSP.draft.components = (preset.defaultComponents || []).map(function(c) {
+      return { id: c.id, type: c.type, name: c.name, enabled: c.enabled !== false, description: c.description || '', props: Object.assign({}, c.props || {}) };
+    });
     SSP.editor.mode = 'create';
     SSP.editor.activeId = null;
     SSP.editor.previewDirty = false;
@@ -1405,24 +1528,35 @@
   function buildPreviewModelFromDraft(draft) {
     if (!draft) return null;
     var items = []; var n = 1;
-    var sName = draft.screenTitle || draft.screenName || '(화면명 미입력)';
-    items.push({ n: n++, name: '화면 제목', type: 'title', value: sName });
-    if (draft.topNote) items.push({ n: n++, name: '상단 안내문구', type: 'note', value: draft.topNote });
-    if (draft.useSearch) {
-      items.push({ n: n++, name: '검색 조건', type: 'search', value: draft.searchItems.slice() });
-      items.push({ n: n++, name: '조회 버튼', type: 'btn', value: null });
+    if (draft.components && draft.components.length > 0) {
+      /* component-based wireframe (preset templates) */
+      draft.components.forEach(function(cmp) {
+        if (cmp.enabled !== false) {
+          items.push({ n: n++, name: cmp.name, type: cmp.type, value: cmp.description || '', props: cmp.props || {} });
+        }
+      });
+    } else {
+      /* fallback: toggle-based wireframe */
+      var sName = draft.screenTitle || draft.screenName || '(화면명 미입력)';
+      items.push({ n: n++, name: '화면 제목', type: 'title', value: sName });
+      if (draft.topNote) items.push({ n: n++, name: '상단 안내문구', type: 'note', value: draft.topNote });
+      if (draft.useSearch) {
+        items.push({ n: n++, name: '검색 조건', type: 'search', value: draft.searchItems.slice() });
+        items.push({ n: n++, name: '조회 버튼', type: 'btn', value: null });
+      }
+      if (draft.useTable) items.push({ n: n++, name: '결과 테이블', type: 'table', value: draft.tableColumns.slice() });
+      if (draft.useStatusChip) items.push({ n: n++, name: '상태 chip', type: 'chip', value: null });
+      if (draft.useRowAction) items.push({ n: n++, name: '행 액션', type: 'actions', value: draft.rowActions.slice() });
+      if (draft.useEmpty) items.push({ n: n++, name: '빈 결과 상태', type: 'empty', value: null });
     }
-    if (draft.useTable) items.push({ n: n++, name: '결과 테이블', type: 'table', value: draft.tableColumns.slice() });
-    if (draft.useStatusChip) items.push({ n: n++, name: '상태 chip', type: 'chip', value: null });
-    if (draft.useRowAction) items.push({ n: n++, name: '행 액션', type: 'actions', value: draft.rowActions.slice() });
-    if (draft.useEmpty) items.push({ n: n++, name: '빈 결과 상태', type: 'empty', value: null });
     return {
       items: items,
       screenName: draft.screenName,
       screenTitle: draft.screenTitle,
       templateName: draft.templateName,
       templateGroup: draft.templateGroup,
-      screenType: draft.screenType
+      screenType: draft.screenType,
+      defaultWireframeType: draft.defaultWireframeType || null
     };
   }
 
@@ -1484,8 +1618,200 @@
           '<div class="ss-wf-acts">' + acts.map(function(a) { return '<div class="ss-wf-act-btn">' + (a.name || '액션') + '</div>'; }).join('') + '</div>' +
         '</div>';
       case 'empty':
-        return '<div class="ss-wf-block ss-wf-block--empty">' + marker + '<div class="ss-wf-empty-ph">빈 결과 상태</div></div>';
-      default: return '';
+      case 'wf-empty':
+        return '<div class="ss-wf-block ss-wf-block--empty">' + marker + '<div class="ss-wf-empty-ph">' + (item.name || '빈 결과 상태') + '</div></div>';
+
+      /* ── Component-based wireframe types ── */
+      case 'wf-hero':
+        return '<div class="ss-wf-block ss-wf-block--hero">' + marker +
+          '<div class="ss-wf-hero-inner"><div class="ss-wf-hero-ph"></div><div class="ss-wf-cmp-desc">' + item.value + '</div></div></div>';
+      case 'wf-header':
+        return '<div class="ss-wf-block ss-wf-block--header">' + marker +
+          '<div class="ss-wf-header-row"><span class="ss-wf-hd-logo">LOGO</span><span class="ss-wf-hd-search-ph"></span><span class="ss-wf-hd-icons">☰</span></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-quick-menu':
+        return '<div class="ss-wf-block ss-wf-block--quick-menu">' + marker +
+          '<div class="ss-wf-quick-grid">' + ['식품','패션','뷰티','생활','스포츠','디지털'].map(function(l) { return '<div class="ss-wf-quick-item"><div class="ss-wf-qi-icon"></div><span class="ss-wf-qi-lbl">' + l + '</span></div>'; }).join('') + '</div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-product-section':
+      case 'wf-related-products':
+        return '<div class="ss-wf-block ss-wf-block--product-section">' + marker +
+          '<div class="ss-wf-sec-title-row"><span class="ss-wf-sec-lbl">' + item.name + '</span></div>' +
+          '<div class="ss-wf-product-row">' + [1,2,3,4].map(function() { return '<div class="ss-wf-product-card"><div class="ss-wf-pc-img"></div><div class="ss-wf-pc-name"></div><div class="ss-wf-pc-price"></div></div>'; }).join('') + '</div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-product-grid':
+        return '<div class="ss-wf-block ss-wf-block--product-grid">' + marker +
+          '<div class="ss-wf-grid-3">' + [1,2,3,4,5,6].map(function() { return '<div class="ss-wf-product-card"><div class="ss-wf-pc-img"></div><div class="ss-wf-pc-name"></div><div class="ss-wf-pc-price"></div></div>'; }).join('') + '</div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-promo-section':
+        return '<div class="ss-wf-block ss-wf-block--promo">' + marker +
+          '<div class="ss-wf-promo-ph"><span>기획전/프로모션 배너</span></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-product-info':
+        return '<div class="ss-wf-block ss-wf-block--product-info">' + marker +
+          '<div class="ss-wf-pi-rows"><div class="ss-wf-pi-row ss-wf-pi-name"></div><div class="ss-wf-pi-row ss-wf-pi-price"></div><div class="ss-wf-pi-row ss-wf-pi-status"></div></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-image-gallery':
+        return '<div class="ss-wf-block ss-wf-block--gallery">' + marker +
+          '<div class="ss-wf-gallery-row"><div class="ss-wf-gallery-main"></div><div class="ss-wf-gallery-thumbs">' + [1,2,3,4].map(function() { return '<div class="ss-wf-gallery-th"></div>'; }).join('') + '</div></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-option-selector':
+        return '<div class="ss-wf-block ss-wf-block--option">' + marker +
+          '<div class="ss-wf-opt-row"><div class="ss-wf-opt-sel"></div><div class="ss-wf-opt-qty"></div></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-detail-tabs':
+        return '<div class="ss-wf-block ss-wf-block--tabs">' + marker +
+          '<div class="ss-wf-tab-row"><span class="ss-wf-tab active">상세정보</span><span class="ss-wf-tab">구매후기</span><span class="ss-wf-tab">문의</span></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-cart-items':
+        return '<div class="ss-wf-block ss-wf-block--cart-items">' + marker +
+          '<div class="ss-wf-cart-rows">' + [1,2].map(function() { return '<div class="ss-wf-cart-row"><div class="ss-wf-cr-img"></div><div class="ss-wf-cr-info"><div class="ss-wf-cr-name"></div><div class="ss-wf-cr-opt"></div></div><div class="ss-wf-cr-qty"></div><div class="ss-wf-cr-price"></div></div>'; }).join('') + '</div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-order-summary':
+      case 'wf-checkout-price':
+        return '<div class="ss-wf-block ss-wf-block--summary">' + marker +
+          '<div class="ss-wf-summary-rows"><div class="ss-wf-sum-row"><span></span><span></span></div><div class="ss-wf-sum-row"><span></span><span></span></div><div class="ss-wf-sum-total"><span>결제 금액</span><span class="ss-wf-sum-amt"></span></div></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-cta-buy':
+      case 'wf-cart-cta':
+      case 'wf-checkout-cta':
+        return '<div class="ss-wf-block ss-wf-block--cta-primary">' + marker +
+          '<div class="ss-wf-cta-row"><div class="ss-wf-cta-ghost">' + (item.type === 'wf-cta-buy' ? '장바구니 담기' : '주문하기') + '</div><div class="ss-wf-cta-primary">' + (item.type === 'wf-checkout-cta' ? '결제하기' : '구매하기') + '</div></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-approval-cta':
+        return '<div class="ss-wf-block ss-wf-block--approval-cta">' + marker +
+          '<div class="ss-wf-appr-cta-row"><div class="ss-wf-appr-approve">승인</div><div class="ss-wf-appr-reject">반려</div><div class="ss-wf-appr-request">보완 요청</div></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-my-profile':
+        return '<div class="ss-wf-block ss-wf-block--my-profile">' + marker +
+          '<div class="ss-wf-profile-card"><div class="ss-wf-profile-avatar"></div><div class="ss-wf-profile-info"><div class="ss-wf-pi-name"></div><div class="ss-wf-pi-grade"></div></div></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-order-status':
+        return '<div class="ss-wf-block ss-wf-block--order-status">' + marker +
+          '<div class="ss-wf-step-row">' + ['결제완료','배송준비','배송중','배송완료'].map(function(s,i) { return '<div class="ss-wf-step' + (i===0?' active':'') + '"><div class="ss-wf-step-dot"></div><span class="ss-wf-step-lbl">' + s + '</span></div>'; }).join('<div class="ss-wf-step-line"></div>') + '</div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-asset-summary':
+      case 'wf-stats-summary':
+        return '<div class="ss-wf-block ss-wf-block--stat-cards">' + marker +
+          '<div class="ss-wf-stat-row"><div class="ss-wf-stat-card"><div class="ss-wf-sc-val"></div><div class="ss-wf-sc-lbl">쿠폰</div></div><div class="ss-wf-stat-card"><div class="ss-wf-sc-val"></div><div class="ss-wf-sc-lbl">포인트</div></div><div class="ss-wf-stat-card"><div class="ss-wf-sc-val"></div><div class="ss-wf-sc-lbl">적립금</div></div></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-data-table':
+        return '<div class="ss-wf-block ss-wf-block--data-table">' + marker +
+          '<div class="ss-wf-table-wrap"><table class="ss-wf-table"><thead><tr><th>항목</th><th>상태</th><th>날짜</th><th>담당자</th></tr></thead><tbody>' +
+          [1,2,3].map(function() { return '<tr><td><div class="ss-wf-cell-ph"></div></td><td><div class="ss-wf-cell-ph"></div></td><td><div class="ss-wf-cell-ph"></div></td><td><div class="ss-wf-cell-ph"></div></td></tr>'; }).join('') +
+          '</tbody></table></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-status-chip':
+        return '<div class="ss-wf-block ss-wf-block--status-chips">' + marker +
+          '<div class="ss-wf-chips"><span class="ss-wf-chip-item ss-wf-ci--a">작성</span><span class="ss-wf-chip-item ss-wf-ci--b">검토</span><span class="ss-wf-chip-item ss-wf-ci--c">승인</span><span class="ss-wf-chip-item ss-wf-ci--d">반려</span></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-row-action':
+        return '<div class="ss-wf-block ss-wf-block--row-action">' + marker +
+          '<div class="ss-wf-acts"><div class="ss-wf-act-btn">상세</div><div class="ss-wf-act-btn">수정</div><div class="ss-wf-act-btn">삭제</div></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-history':
+        return '<div class="ss-wf-block ss-wf-block--history">' + marker +
+          '<div class="ss-wf-timeline">' + ['등록','검토요청','승인'].map(function(s) { return '<div class="ss-wf-tl-item"><div class="ss-wf-tl-dot"></div><div class="ss-wf-tl-body"><span class="ss-wf-tl-status">' + s + '</span><span class="ss-wf-tl-meta"></span></div></div>'; }).join('') + '</div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-approval-summary':
+        return '<div class="ss-wf-block ss-wf-block--appr-summary">' + marker +
+          '<div class="ss-wf-appr-card"><div class="ss-wf-ac-row"><span class="ss-wf-ac-lbl">요청자</span><span class="ss-wf-ac-val"></span></div><div class="ss-wf-ac-row"><span class="ss-wf-ac-lbl">요청일</span><span class="ss-wf-ac-val"></span></div><div class="ss-wf-ac-row"><span class="ss-wf-ac-lbl">유형</span><span class="ss-wf-ac-val"></span></div></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-search-bar':
+      case 'wf-filter':
+      case 'wf-search-filter':
+        return '<div class="ss-wf-block ss-wf-block--filter">' + marker +
+          '<div class="ss-wf-filter-row"><div class="ss-wf-f-inp"></div><div class="ss-wf-f-inp"></div><div class="ss-wf-f-inp ss-wf-f-wide"></div></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-sort':
+        return '<div class="ss-wf-block ss-wf-block--sort">' + marker +
+          '<div class="ss-wf-sort-row"><span class="ss-wf-sort-btn active">인기순</span><span class="ss-wf-sort-btn">최신순</span><span class="ss-wf-sort-btn">가격순</span></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-pagination':
+        return '<div class="ss-wf-block ss-wf-block--pagination">' + marker +
+          '<div class="ss-wf-page-row"><span class="ss-wf-page-btn">‹</span><span class="ss-wf-page-btn active">1</span><span class="ss-wf-page-btn">2</span><span class="ss-wf-page-btn">3</span><span class="ss-wf-page-btn">›</span></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-form-section':
+      case 'wf-form-fields':
+        return '<div class="ss-wf-block ss-wf-block--form-section">' + marker +
+          '<div class="ss-wf-form-rows"><div class="ss-wf-form-row"><div class="ss-wf-fr-lbl"></div><div class="ss-wf-fr-inp"></div></div><div class="ss-wf-form-row"><div class="ss-wf-fr-lbl"></div><div class="ss-wf-fr-inp"></div></div><div class="ss-wf-form-row"><div class="ss-wf-fr-lbl"></div><div class="ss-wf-fr-inp ss-wf-fr-ta"></div></div></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-form-cta':
+        return '<div class="ss-wf-block ss-wf-block--form-cta">' + marker +
+          '<div class="ss-wf-cta-row"><div class="ss-wf-cta-ghost">취소</div><div class="ss-wf-cta-primary">저장</div></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-screen-title':
+        return '<div class="ss-wf-block ss-wf-block--screen-title">' + marker +
+          '<div class="ss-wf-screen-title-row"><span class="ss-wf-st-text">' + (item.value || item.name || '화면 제목') + '</span><span class="ss-wf-st-btn">+ 등록</span></div></div>';
+      case 'wf-cart-title':
+        return '<div class="ss-wf-block ss-wf-block--cart-title">' + marker +
+          '<div class="ss-wf-cart-title-row"><strong>' + (item.name || '장바구니') + '</strong><span class="ss-wf-cmp-desc">' + item.value + '</span></div></div>';
+      case 'wf-bulk-action':
+        return '<div class="ss-wf-block ss-wf-block--bulk-action">' + marker +
+          '<div class="ss-wf-bulk-row"><span class="ss-wf-bulk-chk">☐ 전체 선택</span><span class="ss-wf-bulk-del">선택 삭제</span></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-delivery-info':
+        return '<div class="ss-wf-block ss-wf-block--delivery-info">' + marker +
+          '<div class="ss-wf-delivery-row"><span class="ss-wf-delivery-ph">배송 방법 · 도착 예정 안내</span></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-cart-empty':
+        return '<div class="ss-wf-block ss-wf-block--cart-empty">' + marker +
+          '<div class="ss-wf-empty-ph">' + (item.value || '장바구니가 비어 있습니다') + '</div></div>';
+      case 'wf-checkout-address':
+        return '<div class="ss-wf-block ss-wf-block--checkout-section">' + marker +
+          '<div class="ss-wf-co-label">배송지 정보</div><div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-checkout-items':
+        return '<div class="ss-wf-block ss-wf-block--checkout-section">' + marker +
+          '<div class="ss-wf-co-label">주문 상품 요약</div><div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-checkout-discount':
+        return '<div class="ss-wf-block ss-wf-block--checkout-section">' + marker +
+          '<div class="ss-wf-co-label">쿠폰 / 포인트</div><div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-checkout-payment':
+        return '<div class="ss-wf-block ss-wf-block--checkout-section">' + marker +
+          '<div class="ss-wf-co-label">결제수단 선택</div><div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-checkout-terms':
+        return '<div class="ss-wf-block ss-wf-block--checkout-section">' + marker +
+          '<div class="ss-wf-co-label">약관 동의</div><div class="ss-wf-co-chk-row"><span>☐ 전체 동의</span></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-quick-links':
+        return '<div class="ss-wf-block ss-wf-block--quick-links">' + marker +
+          '<div class="ss-wf-qlinks-row"><span class="ss-wf-qlink-item">주문내역</span><span class="ss-wf-qlink-item">찜목록</span><span class="ss-wf-qlink-item">리뷰</span><span class="ss-wf-qlink-item">문의</span></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-recent-orders':
+        return '<div class="ss-wf-block ss-wf-block--recent-orders">' + marker +
+          '<div class="ss-wf-recent-row"><div class="ss-wf-recent-ph"></div><div class="ss-wf-recent-ph"></div><div class="ss-wf-recent-ph"></div></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-file-upload':
+        return '<div class="ss-wf-block ss-wf-block--file-upload">' + marker +
+          '<div class="ss-wf-upload-box">📎 파일 선택 / 드롭</div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-validation-msg':
+        return '<div class="ss-wf-block ss-wf-block--validation">' + marker +
+          '<div class="ss-wf-val-msg">⚠ 필수 입력 · 형식 오류 안내</div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-approval-content':
+        return '<div class="ss-wf-block ss-wf-block--appr-content">' + marker +
+          '<div class="ss-wf-appr-content-ph"><div class="ss-wf-cmp-desc">' + item.value + '</div></div></div>';
+      case 'wf-review-comment':
+        return '<div class="ss-wf-block ss-wf-block--review-comment">' + marker +
+          '<div class="ss-wf-textarea-ph">검토 의견 입력...</div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-permission-notice':
+        return '<div class="ss-wf-block ss-wf-block--permission-notice">' + marker +
+          '<div class="ss-wf-notice-row">ℹ ' + (item.value || '현재 처리 권한 및 상태 안내') + '</div></div>';
+      case 'wf-search-btn':
+        return '<div class="ss-wf-block ss-wf-block--btn">' + marker +
+          '<div class="ss-wf-btn-row"><div class="ss-wf-btn-mock">조회</div><div class="ss-wf-btn-ghost">초기화</div></div>' +
+          '<div class="ss-wf-cmp-desc">' + item.value + '</div></div>';
+      case 'wf-footer-info':
+        return '<div class="ss-wf-block ss-wf-block--footer-info">' + marker +
+          '<div class="ss-wf-footer-ph">' + (item.value || '배송·혜택·고객센터 안내') + '</div></div>';
+      default:
+        /* generic component block */
+        return '<div class="ss-wf-block ss-wf-block--generic">' + marker +
+          '<div class="ss-wf-generic-inner"><span class="ss-wf-generic-name">' + (item.name || '') + '</span>' +
+          (item.value ? '<span class="ss-wf-cmp-desc">' + item.value + '</span>' : '') +
+          '</div></div>';
     }
   }
 
