@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM Board Form Field Contract v1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <link rel="stylesheet" href="../css/stam.form-controls.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--t1); margin: 0; padding: 32px; }
+    .doc-header { margin-bottom: 28px; }
+    .doc-header h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+    .doc-header p { font-size: 12px; color: var(--t3); margin: 0; }
+    .meta { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .meta .chip { font-size:11px; padding:3px 8px; border-radius:4px; background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .related { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:11px; }
+    .related a { color: var(--stam); text-decoration: none; padding: 4px 10px; border: 1px solid var(--bd); border-radius: 6px; background: var(--bg-sur); }
+    .related a:hover { background: var(--bg-sur2); }
+    .sec { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; margin-bottom: 22px; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+    .sec-h { padding: 12px 16px; border-bottom: 1px solid var(--bd); background: var(--bg-sur2); font-size: 11px; font-weight: 700; letter-spacing:.06em; text-transform: uppercase; color: var(--t3); }
+    .sec-b { padding: 16px; font-size: 12.5px; color: var(--t2); line-height: 1.75; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--stam); background: rgba(84,81,232,.08); padding: 1px 5px; border-radius: 3px; }
+    pre { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font-size: 11.5px; line-height: 1.55; color: var(--t1); }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+    table.t { width: 100%; border-collapse: collapse; font-size: 12px; }
+    table.t th, table.t td { padding: 8px 10px; border-bottom: 1px solid var(--bd); text-align: left; vertical-align: top; }
+    table.t thead th { background: var(--bg-sur2); color: var(--t3); text-transform: uppercase; font-size: 10px; letter-spacing: .06em; font-weight: 700; white-space: nowrap; }
+    ul.tight, ol.tight { margin: 6px 0; padding-left: 22px; } ul.tight li, ol.tight li { margin: 3px 0; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; line-height:1.5; white-space:nowrap; }
+    .pill.ok { background:#dcfce7; color:#166534; }
+    .pill.bad { background:#fee2e2; color:#991b1b; }
+    .pill.warn { background:#fef3c7; color:#92400e; }
+    .pill.info { background:#dbeafe; color:#1e40af; }
+    .pill.neutral { background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid2 .col { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; }
+    .grid2 h4 { margin: 0 0 6px; font-size: 12px; font-weight: 700; }
+    .col.do h4 { color: #16a34a; } .col.dont h4 { color: #dc2626; }
+    .verdict-box { border:1px solid var(--bd); border-left:4px solid var(--stam); border-radius:8px; padding:14px 16px; background:var(--bg-sur2); }
+    .demo { border:1px dashed var(--bd); border-radius:8px; padding:14px; margin-top:10px; background:var(--bg); max-width:520px; }
+    .theme-toggle { position: fixed; top: 16px; right: 16px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--bg-sur); color: var(--t2); font-size: 11px; cursor: pointer; }
+    @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } body { padding:16px; } }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">다크 모드</button>
+
+<div class="doc-header">
+  <h1>STAM Board Form Field Contract <span class="pill ok">v1</span></h1>
+  <p>게시판 상세/등록/수정 Drawer 안에서 쓰는 Form field(label·input·help·error·required·grid)를 공통 <code>stam.form-controls.css</code> 기준으로 통일하기 위한 계약 문서. Drawer 전면 공통화 전, field 단위부터 수렴한다.</p>
+  <div class="meta">
+    <span class="chip">버전: v1</span>
+    <span class="chip">공통 CSS: stam.form-controls.css</span>
+    <span class="chip">기준 PR: #102 · #115 Drawer Audit</span>
+    <span class="chip">성격: Form Field 계약</span>
+  </div>
+  <div class="related">
+    <span style="color:var(--t3);align-self:center">Related:</span>
+    <a href="STAM-Board-Drawer-Detail-Form-Audit-v1.html">Drawer Audit v1</a>
+    <a href="STAM-Common-Form-Controls-Preview.html">Form Controls Preview v1</a>
+    <a href="STAM-Board-List-Template-Contract-v1.html">Board List Contract v1</a>
+    <a href="STAM-Custom-Select-Contract-v1.html">Custom Select Contract v1</a>
+    <a href="STAM-Form-Controls-Guide.html">Form Controls Guide</a>
+    <a href="STAM-Docs-Index.html">Docs Index</a>
+  </div>
+</div>
+
+<!-- ── 1. Summary ── -->
+<div class="sec">
+  <div class="sec-h">Section 1 · Summary</div>
+  <div class="sec-b">
+    <div class="verdict-box">
+      <p style="margin:0 0 4px;font-weight:700;color:var(--t1)">신규/기존 게시판 Drawer Form 은 가능한 한 동일한 field 구조를 사용한다.</p>
+      <p style="margin:0;color:var(--t2)">Drawer 전체 공통화(shell/header/footer) 이전에, <strong>label / input / help / error / required / grid 단위부터</strong> 공통 <code>stam.form-controls.css</code> 클래스로 수렴한다. PR #115 Drawer Audit 의 1순위 권장 항목이다. 이미 fn/msl/rq drawer 가 <code>.stam-label/.stam-input/.stam-textarea/.stam-select</code> 를 병행 사용 중이므로 진입 위험이 낮다.</p>
+    </div>
+    <p style="margin-top:10px;color:var(--t3);font-size:11px">* 본 계약은 <strong>문서</strong>다. 제품 CSS/JS 는 수정하지 않으며, 화면별 적용은 별도 코드 PR 로 진행한다. 새 class 가 필요하면 "<span class="pill neutral">문서 제안</span>" 으로만 남기고 제품 CSS 는 건드리지 않는다.</p>
+  </div>
+</div>
+
+<!-- ── 2. 기본 Form Field 구조 ── -->
+<div class="sec">
+  <div class="sec-h">Section 2 · 기본 Form Field 구조</div>
+  <div class="sec-b">
+<pre><code>&lt;div class="stam-form-field"&gt;
+  &lt;label class="stam-label"&gt;기능명 &lt;span class="req"&gt;*&lt;/span&gt;&lt;/label&gt;
+  &lt;input type="text" class="stam-input" placeholder="기능명을 입력하세요"&gt;
+  &lt;p class="stam-field-help"&gt;최대 80자.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class="stam-form-field is-error"&gt;
+  &lt;label class="stam-label"&gt;코드 &lt;span class="req"&gt;*&lt;/span&gt;&lt;/label&gt;
+  &lt;input type="text" class="stam-input" value="BRD-"&gt;
+  &lt;p class="stam-field-error"&gt;코드 형식이 올바르지 않습니다.&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+    <table class="t" style="margin-top:10px">
+      <thead><tr><th>구성요소</th><th>class</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>field wrapper</td><td><code>.stam-form-field</code></td><td>label + control + help/error 컨테이너. 상태(<code>.is-error</code> 등) 부착 지점.</td></tr>
+        <tr><td>label</td><td><code>.stam-label</code></td><td>11px / 600 / 컨트롤 위. <code>margin-bottom:4px</code></td></tr>
+        <tr><td>required mark</td><td><code>.stam-label .req</code></td><td><code>*</code> 빨강(<code>--fc-err-bd</code>) 700. 선택은 <code>.opt</code></td></tr>
+        <tr><td>text input</td><td><code>.stam-input</code></td><td>h 36px / radius 8px / 13px</td></tr>
+        <tr><td>select</td><td><code>.stam-select</code></td><td>네이티브 select (custom select 는 Section 4 참조)</td></tr>
+        <tr><td>textarea</td><td><code>.stam-textarea</code></td><td>멀티라인, min-height 화면별</td></tr>
+        <tr><td>date</td><td><code>.stam-date</code></td><td><code>type="date"</code> / <code>datetime-local</code></td></tr>
+        <tr><td>help text</td><td><code>.stam-field-help</code></td><td>컨트롤 아래 11px <code>--t3</code></td></tr>
+        <tr><td>error text</td><td><code>.stam-field-error</code></td><td>컨트롤 아래 11px red, <code>.is-error</code> 와 함께</td></tr>
+        <tr><td>readonly/display value</td><td><code>.stam-input[readonly]</code> / <code>.is-readonly</code></td><td>bg <code>--fc-bg-ro</code> — disabled 와 톤 구분</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 3. 권장 class / attribute ── -->
+<div class="sec">
+  <div class="sec-h">Section 3 · 권장 class / attribute</div>
+  <div class="sec-b">
+    <p>모두 <strong>이미 존재하는</strong> <code>stam.form-controls.css</code> 클래스다(신규 CSS 아님). 토큰은 <code>--fc-*</code>.</p>
+    <table class="t">
+      <thead><tr><th>class</th><th>역할</th><th>핵심 토큰</th></tr></thead>
+      <tbody>
+        <tr><td><code>.stam-form-field</code></td><td>단일 필드 컨테이너</td><td>field 간 <code>margin-top: --fc-row-gap(16px)</code></td></tr>
+        <tr><td><code>.stam-form-grid</code></td><td>2컬럼 그리드</td><td><code>gap: --fc-grid-gap(16px)</code>, ≤640px 1열</td></tr>
+        <tr><td><code>.stam-form-grid .full-span</code></td><td>그리드 내 전체폭 필드</td><td><code>grid-column: 1 / -1</code></td></tr>
+        <tr><td><code>.stam-form-row</code> / <code>.is-horizontal</code></td><td>행 그룹 / 가로 배치</td><td><code>--fc-row-gap</code></td></tr>
+        <tr><td><code>.stam-label</code> · <code>.req</code> · <code>.opt</code></td><td>라벨 / 필수 / 선택</td><td>11px·600 / red·700 / t3</td></tr>
+        <tr><td><code>.stam-input</code> · <code>.stam-textarea</code> · <code>.stam-select</code> · <code>.stam-date</code></td><td>컨트롤</td><td>h 36px(<code>--fc-h</code>) / radius 8px / focus ring <code>--fc-ring</code></td></tr>
+        <tr><td><code>.stam-input--sm</code> 등</td><td>소형 변형</td><td>h 28px(<code>--fc-h-sm</code>)</td></tr>
+        <tr><td><code>.stam-field-help</code> · <code>.stam-field-error</code></td><td>도움말 / 오류 메시지</td><td>11px(<code>--fc-help-fs</code>)</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* <span class="pill neutral">문서 제안</span> required 표기를 <strong><code>.stam-label .req</code> 로 통일</strong> 권장 — 현재 화면들은 <code>.fn-req-mark</code> / <code>.rq-req-mark</code> / <code>.msl-req-mark</code> 등 화면별 class 를 쓴다. 전환은 적용 PR 에서(본 문서는 제품 CSS 미수정).</p>
+  </div>
+</div>
+
+<!-- ── 4. Field 타입별 계약 ── -->
+<div class="sec">
+  <div class="sec-h">Section 4 · Field 타입별 계약</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>타입</th><th>마크업 기준</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>text input</td><td><code>&lt;input type="text" class="stam-input"&gt;</code></td><td>placeholder <code>--fc-ph(t3)</code></td></tr>
+        <tr><td>textarea</td><td><code>&lt;textarea class="stam-textarea"&gt;</code></td><td>min-height 는 화면 inline style 허용</td></tr>
+        <tr><td>select (네이티브)</td><td><code>&lt;select class="stam-select"&gt;</code></td><td>단순 폼</td></tr>
+        <tr><td>custom select</td><td><code>.stam-cs</code> 패턴</td><td><a href="STAM-Custom-Select-Contract-v1.html">Custom Select Contract v1</a> 따름. 드로어 내 강조 select 는 custom select.</td></tr>
+        <tr><td>date input</td><td><code>&lt;input type="date" class="stam-date"&gt;</code></td><td>빈 값 placeholder 처리 내장</td></tr>
+        <tr><td>number input</td><td><code>&lt;input type="number" class="stam-input"&gt;</code></td><td>text 와 동일 컨트롤(<code>.stam-input</code>)</td></tr>
+        <tr><td>badge/chip display</td><td>읽기 표시 — 화면 도메인 chip</td><td>상태/등급 chip 은 화면별 유지(시각 토큰만 공통). 입력 아님.</td></tr>
+        <tr><td>readonly field</td><td><code>.stam-input[readonly]</code> 또는 <code>.is-readonly</code></td><td>상세 mode 값 표시. bg <code>--fc-bg-ro</code></td></tr>
+        <tr><td>file/attachment</td><td><span class="pill neutral">placeholder</span></td><td>현재 화면 미구현(os 탭 placeholder). 추가 시 별도 계약.</td></tr>
+        <tr><td>comment/history</td><td><span class="pill neutral">placeholder</span></td><td>field 가 아닌 drawer 섹션(탭/inline). 본 계약 범위 밖 — Drawer 계약에서 다룸.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 5. Label / Required 계약 ── -->
+<div class="sec">
+  <div class="sec-h">Section 5 · Label / Required 계약</div>
+  <div class="sec-b">
+    <ul class="tight">
+      <li><strong>label 위치:</strong> 컨트롤 <strong>위</strong>(top-label), <code>.stam-label</code> (block, margin-bottom 4px). 가로 라벨은 <code>.stam-form-row.is-horizontal</code> 만 예외.</li>
+      <li><strong>필수값 표시:</strong> 라벨 끝에 <code>&lt;span class="req"&gt;*&lt;/span&gt;</code>. 색 <code>--fc-err-bd</code>(red), 700.</li>
+      <li><strong>선택 표시:</strong> 필요 시 <code>&lt;span class="opt"&gt;(선택)&lt;/span&gt;</code> — t3, 약하게.</li>
+      <li><strong>required mark 문구/시각:</strong> 기호는 <code>*</code> 통일(텍스트 "필수" 남발 금지). 화면별 색/위치 재정의 금지.</li>
+      <li><strong>접근성:</strong> 필수 입력은 <code>required</code> 또는 <code>aria-required="true"</code>, 오류 시 <code>aria-invalid="true"</code> + 에러 메시지 <code>id</code> 를 컨트롤 <code>aria-describedby</code> 로 연결 권장. label 은 <code>for</code>/<code>id</code> 또는 wrapping 으로 연결.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 6. Grid / Layout 계약 ── -->
+<div class="sec">
+  <div class="sec-h">Section 6 · Grid / Layout 계약</div>
+  <div class="sec-b">
+<pre><code>&lt;div class="stam-form-grid"&gt;
+  &lt;div class="stam-form-field"&gt; ... &lt;/div&gt;          &lt;!-- 1칸 --&gt;
+  &lt;div class="stam-form-field"&gt; ... &lt;/div&gt;          &lt;!-- 1칸 --&gt;
+  &lt;div class="stam-form-field full-span"&gt; ... &lt;/div&gt; &lt;!-- 2칸 전체폭 --&gt;
+&lt;/div&gt;</code></pre>
+    <ul class="tight" style="margin-top:8px">
+      <li><strong>1열:</strong> <code>.stam-form-row</code>(필드 세로 스택) 또는 grid 미사용.</li>
+      <li><strong>2열:</strong> <code>.stam-form-grid</code> (gap 16px, 640px 이하 자동 1열).</li>
+      <li><strong>full-width field:</strong> grid 안에서 <code>.full-span</code> (<code>grid-column: 1 / -1</code>).</li>
+      <li><strong>section divider / field group:</strong> 섹션 구분(번호·제목)은 화면별 레이아웃 허용 — field 자체 구조만 공통. 섹션 헤더는 도메인 자유(<code>.fn-fs</code>/<code>.rq-fs</code> 등 유지 가능).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 7. 상태 계약 ── -->
+<div class="sec">
+  <div class="sec-h">Section 7 · 상태 계약</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>상태</th><th>지정 방법</th><th>시각</th></tr></thead>
+      <tbody>
+        <tr><td>default</td><td>—</td><td>bg <code>--fc-bg</code> / border <code>--fc-bd</code></td></tr>
+        <tr><td>focus</td><td><code>:focus</code></td><td>border <code>--fc-bd-focus</code> + ring <code>--fc-ring</code>(3px)</td></tr>
+        <tr><td>disabled</td><td><code>:disabled</code> + <code>.is-disabled</code></td><td>opacity .45 + pointer-events none (속성·class 함께 권장)</td></tr>
+        <tr><td>readonly</td><td><code>[readonly]</code> + <code>.is-readonly</code></td><td>bg <code>--fc-bg-ro(bg-sur2)</code> — disabled 와 구분</td></tr>
+        <tr><td>error</td><td><code>.is-error</code> (field 또는 control)</td><td>border/bg/ring red + <code>.stam-field-error</code> 메시지</td></tr>
+        <tr><td>success/valid</td><td><code>.is-success</code></td><td>border/bg/ring green</td></tr>
+        <tr><td>loading/saving</td><td><span class="pill neutral">문서 제안</span> 컨트롤 <code>disabled</code> + 버튼 spinner</td><td>저장 중 폼 비활성. 전용 class 미정 — 적용 PR 에서 정의.</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* field-level <code>.is-error</code>/<code>.is-success</code>/<code>.is-disabled</code>/<code>.is-readonly</code> 는 <code>.stam-form-field</code> 에 부착 시 내부 control 로 톤 전파(form-controls.css 규칙).</p>
+  </div>
+</div>
+
+<!-- ── 8. Drawer 모드별 사용 기준 ── -->
+<div class="sec">
+  <div class="sec-h">Section 8 · Drawer 모드별 사용 기준</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>모드</th><th>field 기준</th></tr></thead>
+      <tbody>
+        <tr><td>상세(detail)</td><td>읽기 표시 — 값은 <code>.is-readonly</code> input 또는 표시 전용 마크업. 편집 컨트롤 비활성/숨김. required mark 불필요.</td></tr>
+        <tr><td>등록(register)</td><td>편집 가능 <code>.stam-input/.stam-select/.stam-textarea/.stam-date</code> + required mark + help/error.</td></tr>
+        <tr><td>수정(edit)</td><td>등록과 동일 컨트롤 + 기존 값 prefill. 변경 불가 키(예: ID)는 <code>.is-readonly</code>.</td></tr>
+        <tr><td>상세 → 수정 전환</td><td>전환 시 <strong>같은 필드 구조·라벨·grid·required 기준 유지</strong>. 멀티 drawer(fn/msl/rq) / 단일 drawer+mode(ss/wbs) 어느 방식이든 field 마크업은 동일 계약.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 9. 금지 사항 ── -->
+<div class="sec">
+  <div class="sec-h">Section 9 · 금지 사항</div>
+  <div class="sec-b">
+    <div class="grid2">
+      <div class="col do">
+        <h4>✅ Do</h4>
+        <ul class="tight">
+          <li>공통 <code>.stam-form-field/.stam-label/.stam-input/...</code> 사용</li>
+          <li>required = <code>.stam-label .req</code> 통일</li>
+          <li>help/error = 컨트롤 아래 <code>.stam-field-help/.stam-field-error</code></li>
+          <li>grid = <code>.stam-form-grid</code> + <code>.full-span</code></li>
+          <li>화면 고유는 섹션 레이아웃·도메인 chip 만</li>
+        </ul>
+      </div>
+      <div class="col dont">
+        <h4>❌ Don't</h4>
+        <ul class="tight">
+          <li>화면별 label/input 시각 스타일 새로 만들기</li>
+          <li>required 표시 방식 제각각(색/위치/문구) 구현</li>
+          <li>help/error 위치 제각각 구현</li>
+          <li>제품 CSS(<code>stam.form-controls.css</code> 등) 수정 / 복붙</li>
+          <li>저장/API/localStorage/Firestore 로직 변경</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 10. 적용 우선순위 ── -->
+<div class="sec">
+  <div class="sec-h">Section 10 · 적용 우선순위</div>
+  <div class="sec-b">
+    <ol class="tight">
+      <li><strong>기능정의서</strong> — 이미 <code>.stam-label/.stam-input/.stam-textarea</code> 병행. required(<code>.fn-req-mark</code>→<code>.req</code>)·help/error 정리 위주, 최저 위험.</li>
+      <li><strong>메뉴/화면목록</strong> — <code>.msl-flbl.stam-label</code>/<code>.msl-inp.stam-input</code> 병행. 요구사항과 쌍둥이.</li>
+      <li><strong>요구사항</strong> — <code>.rq-*</code> + <code>.stam-*</code> 병행. 메뉴/화면목록 패턴 재사용.</li>
+      <li><strong>Open Scenario</strong> — 신규 등록/수정 drawer 생길 때 본 계약 적용(현재 읽기전용).</li>
+      <li><strong>화면설계서 / WBS</strong> — 특수 구조(JS 렌더 / 전용 form class)로 <strong>별도 검토</strong>. 화면설계서 렌더 폼·WBS <code>.wbs-drawer-form-*</code> 는 구조 검토 후 수렴 여부 결정.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ── 11. QA 체크리스트 ── -->
+<div class="sec">
+  <div class="sec-h">Section 11 · QA 체크리스트</div>
+  <div class="sec-b">
+    <ol class="tight">
+      <li>label 표시 — <code>.stam-label</code> 위치/크기.</li>
+      <li>required 표시 — <code>.req</code> 빨강 <code>*</code>.</li>
+      <li>input/select/textarea 높이 — 36px(<code>--fc-h</code>) 일관.</li>
+      <li>focus 상태 — border <code>--fc-bd-focus</code> + ring.</li>
+      <li>error/help text — 컨트롤 아래 노출 + <code>.is-error</code> 톤.</li>
+      <li>readonly display — bg <code>--fc-bg-ro</code> (disabled 와 구분).</li>
+      <li>drawer 상세/등록/수정 mode 전환 시 field 구조 유지.</li>
+      <li>console error 0.</li>
+      <li>제품 코드 변경 없음(본 문서는 docs-only).</li>
+    </ol>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 시각 기준은 <a href="STAM-Common-Form-Controls-Preview.html">Form Controls Preview v1</a>(form-controls.css 단독 로드) 와 육안 비교한다.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById('themeToggle');
+  b.addEventListener('click', function(){
+    var html = document.documentElement;
+    var d = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', d ? 'light' : 'dark');
+    b.textContent = d ? '다크 모드' : '라이트 모드';
+  });
+})();
+</script>
+</body>
+</html>
