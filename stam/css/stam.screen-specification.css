@@ -1713,44 +1713,8 @@
   letter-spacing: 0;
 }
 
-.screen-spec-page .ss-inp {
-  width: 100%;
-  min-height: 32px;
-  border: 1px solid var(--bd);
-  border-radius: var(--r-md);
-  padding: 6px 10px;
-  font-size: 12px;
-  color: var(--t1);
-  background-color: var(--bg-sur);
-  outline: none;
-  transition: border-color 150ms, box-shadow 150ms;
-  line-height: 1.4;
-  box-sizing: border-box;
-}
-
-.screen-spec-page .ss-inp:focus {
-  border-color: var(--bd-f);
-  box-shadow: 0 0 0 2px var(--stam-soft);
-}
-
-.screen-spec-page .ss-inp.ro {
-  background-color: var(--bg-sur2);
-  color: var(--t3);
-}
-
-[data-theme="dark"] .screen-spec-page .ss-inp {
-  background-color: var(--bg-sur2);
-  border-color: var(--bd);
-  color: var(--t1);
-}
-
-.screen-spec-page textarea.ss-inp {
-  height: auto;
-  min-height: 60px;
-  padding: 6px 10px;
-  line-height: 1.5;
-  resize: vertical;
-}
+/* PR #102: input / textarea 시각 스타일은 stam.form-controls.css(.stam-input / .stam-textarea)가 담당.
+   레거시 select(.ss-inp 사용)는 drawer에서 buildCustomSelect()로 교체되므로 별도 스타일 불필요. */
 
 /* select: 네이티브 느낌 제거 + WBS/STAM form tone custom arrow */
 .screen-spec-page select.ss-inp {
@@ -2321,9 +2285,10 @@
   margin-left: 2px;
 }
 
-.ss-ed-inp,
-.ss-ed-sel,
-.ss-ed-ta {
+/* PR #102: input / textarea 시각 스타일은 stam.form-controls.css(.stam-input / .stam-textarea)가 담당.
+   editor 화면유형 select(.ss-ed-inp 사용) 및 .ss-ed-sel만 레거시 시각 유지. */
+select.ss-ed-inp,
+.ss-ed-sel {
   width: 100%;
   box-sizing: border-box;
   padding: 8px 12px;
@@ -2337,17 +2302,10 @@
   font-family: inherit;
 }
 
-.ss-ed-inp:focus,
-.ss-ed-sel:focus,
-.ss-ed-ta:focus {
+select.ss-ed-inp:focus,
+.ss-ed-sel:focus {
   border-color: var(--brand);
   box-shadow: 0 0 0 3px var(--stam-soft);
-}
-
-.ss-ed-ta {
-  resize: vertical;
-  min-height: 72px;
-  line-height: 1.55;
 }
 
 .ss-ed-sel {
@@ -2768,9 +2726,9 @@
   border-color: var(--bd);
 }
 
-[data-theme="dark"] .ss-ed-inp,
+/* PR #102: input / textarea dark 토큰은 stam.form-controls.css가 담당. select / binp만 유지. */
+[data-theme="dark"] select.ss-ed-inp,
 [data-theme="dark"] .ss-ed-sel,
-[data-theme="dark"] .ss-ed-ta,
 [data-theme="dark"] .ss-ed-binp {
   background: var(--bg-sur2);
   color: var(--t1);

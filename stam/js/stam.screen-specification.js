@@ -902,15 +902,15 @@
     }
     if (body) {
       body.innerHTML = '<div class="ss-fs"><div class="ss-fs-hdr"><span class="ss-fs-num">1</span><span class="ss-fs-title">기본 정보</span></div><div class="ss-fgrid">' +
-        '<div class="ss-ffield"><label class="ss-flbl">화면 ID <span class="ss-req">*</span></label><input class="ss-inp ro" value="자동 생성" readonly></div>' +
-        '<div class="ss-ffield"><label class="ss-flbl">화면명 <span class="ss-req">*</span></label><input class="ss-inp" placeholder="화면명 입력"></div>' +
-        '<div class="ss-ffield"><label class="ss-flbl">화면 유형 <span class="ss-req">*</span></label><select class="ss-inp"><option value="">유형 선택</option><option>목록 화면</option><option>상세 화면</option><option>폼 화면</option><option>팝업</option><option>관리 화면</option></select></div>' +
-        '<div class="ss-ffield"><label class="ss-flbl">버전</label><input class="ss-inp" value="v0.1" placeholder="v0.1"></div>' +
-        '<div class="ss-ffield full"><label class="ss-flbl">메뉴 경로 <span class="ss-req">*</span></label><select class="ss-inp"><option value="">메뉴 그룹 선택</option><option>대시보드</option><option>회원</option><option>산출물 관리</option><option>검토 관리</option><option>보내기 / 설정</option></select></div></div></div>' +
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">화면 ID <span class="ss-req">*</span></label><input class="ss-inp stam-input is-readonly ro" value="자동 생성" readonly></div>' +
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">화면명 <span class="ss-req">*</span></label><input class="ss-inp stam-input" placeholder="화면명 입력"></div>' +
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">화면 유형 <span class="ss-req">*</span></label><select class="ss-inp"><option value="">유형 선택</option><option>목록 화면</option><option>상세 화면</option><option>폼 화면</option><option>팝업</option><option>관리 화면</option></select></div>' +
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">버전</label><input class="ss-inp stam-input" value="v0.1" placeholder="v0.1"></div>' +
+        '<div class="ss-ffield full"><label class="ss-flbl stam-label">메뉴 경로 <span class="ss-req">*</span></label><select class="ss-inp"><option value="">메뉴 그룹 선택</option><option>대시보드</option><option>회원</option><option>산출물 관리</option><option>검토 관리</option><option>보내기 / 설정</option></select></div></div></div>' +
         '<div class="ss-fs"><div class="ss-fs-hdr"><span class="ss-fs-num">2</span><span class="ss-fs-title">작성 정보</span></div><div class="ss-fgrid">' +
-        '<div class="ss-ffield"><label class="ss-flbl">담당자 <span class="ss-req">*</span></label><input class="ss-inp" placeholder="담당자 이름"></div>' +
-        '<div class="ss-ffield"><label class="ss-flbl">초기 상태</label><select class="ss-inp"><option>작성중</option><option>작성완료</option></select></div>' +
-        '<div class="ss-ffield full"><label class="ss-flbl">화면 목적</label><textarea class="ss-inp" placeholder="이 화면의 목적을 간략히 기술합니다." rows="3"></textarea></div></div></div>' +
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">담당자 <span class="ss-req">*</span></label><input class="ss-inp stam-input" placeholder="담당자 이름"></div>' +
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">초기 상태</label><select class="ss-inp"><option>작성중</option><option>작성완료</option></select></div>' +
+        '<div class="ss-ffield full"><label class="ss-flbl stam-label">화면 목적</label><textarea class="ss-inp stam-textarea" placeholder="이 화면의 목적을 간략히 기술합니다." rows="3"></textarea></div></div></div>' +
         '<div class="ss-fs"><div class="ss-fs-hdr"><span class="ss-fs-num">3</span><span class="ss-fs-title">화면 이미지</span></div><div class="ss-upload-area">' + ic(ICONS.upload, 24, 1.5) +
         '<span style="font-size:12.5px;font-weight:600">이미지 첨부</span><span style="font-size:11px;color:var(--t3)">PNG, JPG, GIF · 최대 10MB</span></div></div>' +
         '<div class="ss-fs"><div class="ss-fs-hdr"><span class="ss-fs-num">4</span><span class="ss-fs-title">연결정보</span></div><div class="ss-link-group">' +
@@ -942,14 +942,14 @@
         '<div><div style="font-size:12.5px;font-weight:700;color:var(--t1)">' + d.name + '</div>' +
         '<div style="font-size:11px;color:var(--t3);margin-top:2px">' + d.menu + ' · ' + d.upd + ' 최종 수정</div></div></div>' +
         '<div class="ss-fs"><div class="ss-fs-hdr"><span class="ss-fs-num">1</span><span class="ss-fs-title">기본 정보 수정</span></div><div class="ss-fgrid">' +
-        '<div class="ss-ffield"><label class="ss-flbl">화면명 <span class="ss-req">*</span></label><input class="ss-inp" value="' + d.name + '"></div>' +
-        '<div class="ss-ffield"><label class="ss-flbl">화면 유형</label><select class="ss-inp"><option>' + (TYP[d.type] ? TYP[d.type].lbl : d.type) + '</option></select></div>' +
-        '<div class="ss-ffield"><label class="ss-flbl">담당자</label><input class="ss-inp" value="' + d.owner + '"></div>' +
-        '<div class="ss-ffield"><label class="ss-flbl">버전</label><input class="ss-inp" value="' + d.ver + '"></div>' +
-        '<div class="ss-ffield full"><label class="ss-flbl">화면 목적</label><textarea class="ss-inp" rows="3">' + d.purp + '</textarea></div></div></div>' +
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">화면명 <span class="ss-req">*</span></label><input class="ss-inp stam-input" value="' + d.name + '"></div>' +
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">화면 유형</label><select class="ss-inp"><option>' + (TYP[d.type] ? TYP[d.type].lbl : d.type) + '</option></select></div>' +
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">담당자</label><input class="ss-inp stam-input" value="' + d.owner + '"></div>' +
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">버전</label><input class="ss-inp stam-input" value="' + d.ver + '"></div>' +
+        '<div class="ss-ffield full"><label class="ss-flbl stam-label">화면 목적</label><textarea class="ss-inp stam-textarea" rows="3">' + d.purp + '</textarea></div></div></div>' +
         '<div class="ss-fs"><div class="ss-fs-hdr"><span class="ss-fs-num">2</span><span class="ss-fs-title">상태 정보</span></div><div class="ss-fgrid">' +
-        '<div class="ss-ffield"><label class="ss-flbl">작성 상태</label><select class="ss-inp"><option' + (d.wst === 'writing' ? ' selected' : '') + '>작성중</option><option' + (d.wst === 'complete' ? ' selected' : '') + '>작성완료</option></select></div>' +
-        '<div class="ss-ffield"><label class="ss-flbl">검토 상태</label><input class="ss-inp ro" value="' + (RST[d.rst] ? RST[d.rst].lbl : '-') + '" readonly></div></div></div>' +
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">작성 상태</label><select class="ss-inp"><option' + (d.wst === 'writing' ? ' selected' : '') + '>작성중</option><option' + (d.wst === 'complete' ? ' selected' : '') + '>작성완료</option></select></div>' +
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">검토 상태</label><input class="ss-inp stam-input is-readonly ro" value="' + (RST[d.rst] ? RST[d.rst].lbl : '-') + '" readonly></div></div></div>' +
         '<div class="ss-fs"><div class="ss-fs-hdr"><span class="ss-fs-num">3</span><span class="ss-fs-title">화면 이미지 관리</span></div><div class="ss-img-card"><div class="ss-img-thumb" style="min-height:100px">' +
         (d.hasImg
           ? '<div style="display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--t3)">' + ic(ICONS.img, 34, 1) + '<span style="font-size:11.5px;opacity:.5">현재 이미지</span></div>'
@@ -960,7 +960,7 @@
           : '<button type="button" class="ss-btn ss-btn-out" style="font-size:11.5px;padding:5px 10px">' + ic(ICONS.upload, 12) + ' 이미지 첨부</button>') +
         '</div></div></div></div>' +
         '<div class="ss-fs"><div class="ss-fs-hdr"><span class="ss-fs-num">4</span><span class="ss-fs-title">변경 사유</span></div><div class="ss-ffield">' +
-        '<label class="ss-flbl">변경 사유</label><textarea class="ss-inp" rows="3" placeholder="이번 수정의 변경 사유를 간략히 기술합니다."></textarea>' +
+        '<label class="ss-flbl stam-label">변경 사유</label><textarea class="ss-inp stam-textarea" rows="3" placeholder="이번 수정의 변경 사유를 간략히 기술합니다."></textarea>' +
         '<span class="ss-helper">버전 이력에 기록됩니다.</span></div></div>';
     }
     if (foot) {
@@ -988,17 +988,17 @@
         '<div style="display:flex;align-items:center;gap:6px;margin-top:4px">' + wChip(d.wst) + ' ' + typChip(d.type) + '</div></div>' +
         '<span class="ss-dw-id" style="margin-left:auto">' + d.id + '</span></div></div>' +
         '<div class="ss-dw-sec"><div class="ss-dw-sec-hdr"><h3>검토자</h3></div><div class="ss-fgrid">' +
-        '<div class="ss-ffield full"><label class="ss-flbl">검토자 <span class="ss-req">*</span></label>' +
+        '<div class="ss-ffield full"><label class="ss-flbl stam-label">검토자 <span class="ss-req">*</span></label>' +
         '<select class="ss-inp"><option value="">검토자 선택</option><option>박PM</option><option>김기획</option><option>이UX</option><option>최개발</option></select>' +
         '<span class="ss-helper">검토 완료 시 알림이 발송됩니다.</span></div></div></div>' +
-        '<div class="ss-dw-sec"><div class="ss-dw-sec-hdr"><h3>요청 메시지</h3></div><div class="ss-ffield"><label class="ss-flbl">메시지</label>' +
-        '<textarea class="ss-inp" rows="4" placeholder="검토 요청 메시지를 입력합니다."></textarea></div></div>' +
+        '<div class="ss-dw-sec"><div class="ss-dw-sec-hdr"><h3>요청 메시지</h3></div><div class="ss-ffield"><label class="ss-flbl stam-label">메시지</label>' +
+        '<textarea class="ss-inp stam-textarea" rows="4" placeholder="검토 요청 메시지를 입력합니다."></textarea></div></div>' +
         '<div class="ss-dw-sec"><div class="ss-dw-sec-hdr"><h3>마감일</h3></div><div class="ss-fgrid">' +
-        '<div class="ss-ffield"><label class="ss-flbl">마감일</label><input type="date" class="ss-inp" value="2026-06-18"></div>' +
-        '<div class="ss-ffield"><label class="ss-flbl">우선순위</label><select class="ss-inp"><option>보통</option><option>높음</option><option>긴급</option></select></div></div></div>' +
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">마감일</label><input type="date" class="ss-inp stam-input" value="2026-06-18"></div>' +
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">우선순위</label><select class="ss-inp"><option>보통</option><option>높음</option><option>긴급</option></select></div></div></div>' +
         '<div class="ss-dw-sec"><div class="ss-dw-sec-hdr"><h3>관련 버전</h3></div><div class="ss-fgrid">' +
-        '<div class="ss-ffield"><label class="ss-flbl">검토 버전</label><input class="ss-inp ro" value="' + d.ver + '" readonly></div>' +
-        '<div class="ss-ffield"><label class="ss-flbl">작성 상태</label><input class="ss-inp ro" value="' + (WST[d.wst] ? WST[d.wst].lbl : '-') + '" readonly></div></div></div>';
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">검토 버전</label><input class="ss-inp stam-input is-readonly ro" value="' + d.ver + '" readonly></div>' +
+        '<div class="ss-ffield"><label class="ss-flbl stam-label">작성 상태</label><input class="ss-inp stam-input is-readonly ro" value="' + (WST[d.wst] ? WST[d.wst].lbl : '-') + '" readonly></div></div></div>';
     }
     if (foot) {
       foot.innerHTML = '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary" data-ss-dw-action="close">취소</button>' +
@@ -1853,10 +1853,10 @@
       '<section class="ss-ed-section" id="sec-basic">' +
         '<div class="ss-ed-sec-hdr"><h3 class="ss-ed-sec-title">기본 정보</h3></div>' +
         '<div class="ss-ed-form-grid">' +
-          '<div class="ss-ed-field"><label class="ss-ed-lbl">화면명 <span class="ss-req">*</span></label><input id="ed-screen-name" class="ss-ed-inp" value="' + d.screenName + '" placeholder="화면명 입력"></div>' +
-          '<div class="ss-ed-field"><label class="ss-ed-lbl">화면 ID</label><input class="ss-ed-inp ss-ed-ro" value="' + d.screenId + '" readonly></div>' +
-          '<div class="ss-ed-field"><label class="ss-ed-lbl">업무영역</label><input id="ed-biz-area" class="ss-ed-inp" value="' + d.bizArea + '" placeholder="예: 산출물 관리"></div>' +
-          '<div class="ss-ed-field"><label class="ss-ed-lbl">화면유형 <span class="ss-req">*</span></label>' +
+          '<div class="ss-ed-field"><label class="ss-ed-lbl stam-label">화면명 <span class="ss-req">*</span></label><input id="ed-screen-name" class="ss-ed-inp stam-input" value="' + d.screenName + '" placeholder="화면명 입력"></div>' +
+          '<div class="ss-ed-field"><label class="ss-ed-lbl stam-label">화면 ID</label><input class="ss-ed-inp ss-ed-ro stam-input is-readonly" value="' + d.screenId + '" readonly></div>' +
+          '<div class="ss-ed-field"><label class="ss-ed-lbl stam-label">업무영역</label><input id="ed-biz-area" class="ss-ed-inp stam-input" value="' + d.bizArea + '" placeholder="예: 산출물 관리"></div>' +
+          '<div class="ss-ed-field"><label class="ss-ed-lbl stam-label">화면유형 <span class="ss-req">*</span></label>' +
             '<select id="ed-screen-type" class="ss-ed-inp">' +
               '<option value="list"' + (d.screenType === 'list' ? ' selected' : '') + '>목록 화면</option>' +
               '<option value="detail"' + (d.screenType === 'detail' ? ' selected' : '') + '>상세 화면</option>' +
@@ -1866,16 +1866,16 @@
               '<option value="main"' + (d.screenType === 'main' ? ' selected' : '') + '>메인/대시보드</option>' +
             '</select>' +
           '</div>' +
-          '<div class="ss-ed-field ss-ed-field-full"><label class="ss-ed-lbl">메뉴 경로 <span class="ss-req">*</span></label><input id="ed-menu-path" class="ss-ed-inp" value="' + d.menuPath + '" placeholder="예: 산출물 관리 > 화면설계서"></div>' +
-          '<div class="ss-ed-field ss-ed-field-full"><label class="ss-ed-lbl">화면 목적</label><textarea id="ed-purpose" class="ss-ed-inp ss-ed-ta" rows="3" placeholder="이 화면의 목적을 간략히 기술합니다.">' + d.purpose + '</textarea></div>' +
-          '<div class="ss-ed-field ss-ed-field-full"><label class="ss-ed-lbl">작성 메모</label><textarea id="ed-memo" class="ss-ed-inp ss-ed-ta" rows="2" placeholder="기획·디자인 메모를 남깁니다.">' + d.memo + '</textarea></div>' +
+          '<div class="ss-ed-field ss-ed-field-full"><label class="ss-ed-lbl stam-label">메뉴 경로 <span class="ss-req">*</span></label><input id="ed-menu-path" class="ss-ed-inp stam-input" value="' + d.menuPath + '" placeholder="예: 산출물 관리 > 화면설계서"></div>' +
+          '<div class="ss-ed-field ss-ed-field-full"><label class="ss-ed-lbl stam-label">화면 목적</label><textarea id="ed-purpose" class="ss-ed-inp ss-ed-ta stam-textarea" rows="3" placeholder="이 화면의 목적을 간략히 기술합니다.">' + d.purpose + '</textarea></div>' +
+          '<div class="ss-ed-field ss-ed-field-full"><label class="ss-ed-lbl stam-label">작성 메모</label><textarea id="ed-memo" class="ss-ed-inp ss-ed-ta stam-textarea" rows="2" placeholder="기획·디자인 메모를 남깁니다.">' + d.memo + '</textarea></div>' +
         '</div>' +
       '</section>' +
       '<section class="ss-ed-section" id="sec-structure">' +
         '<div class="ss-ed-sec-hdr"><h3 class="ss-ed-sec-title">화면 구조</h3><span class="ss-ed-sec-note">켜면 해당 builder가 활성화됩니다</span></div>' +
         '<div class="ss-ed-form-grid" style="margin-bottom:14px">' +
-          '<div class="ss-ed-field"><label class="ss-ed-lbl">화면 제목</label><input id="ed-screen-title" class="ss-ed-inp" value="' + d.screenTitle + '" placeholder="화면 상단 표시 제목"></div>' +
-          '<div class="ss-ed-field"><label class="ss-ed-lbl">상단 안내문구</label><input id="ed-top-note" class="ss-ed-inp" value="' + d.topNote + '" placeholder="선택 입력"></div>' +
+          '<div class="ss-ed-field"><label class="ss-ed-lbl stam-label">화면 제목</label><input id="ed-screen-title" class="ss-ed-inp stam-input" value="' + d.screenTitle + '" placeholder="화면 상단 표시 제목"></div>' +
+          '<div class="ss-ed-field"><label class="ss-ed-lbl stam-label">상단 안내문구</label><input id="ed-top-note" class="ss-ed-inp stam-input" value="' + d.topNote + '" placeholder="선택 입력"></div>' +
         '</div>' +
         '<div class="ss-ed-toggle-grid">' +
           edToggleRow('useSearch', d.useSearch, '검색영역 사용', '검색 조건 입력 패널') +
