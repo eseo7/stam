@@ -1398,6 +1398,32 @@
   border-radius: 0 2px 2px 0;
 }
 
+/* row click 활성 상태 (.is-active) — 상세 drawer 대상.
+   WBS table 은 .stam-select-table 가 아니라 공통 table-selection.css 가 닿지 않으므로
+   체크박스 선택(.selected)과 동일 톤의 WBS 한정 최소 스타일을 둔다. */
+.wbs-data-row.is-active > td {
+  background: rgba(84,81,232,.05) !important;
+}
+[data-theme="dark"] .wbs-data-row.is-active > td {
+  background: rgba(84,81,232,.13) !important;
+}
+.wbs-data-row.is-active:hover > td {
+  background: rgba(84,81,232,.09) !important;
+}
+[data-theme="dark"] .wbs-data-row.is-active:hover > td {
+  background: rgba(84,81,232,.18) !important;
+}
+.wbs-data-row.is-active > td.wbs-td-chk::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--stam);
+  border-radius: 0 2px 2px 0;
+}
+
 /* ============================================================
  * 14. 그룹 행 공정률
  * ============================================================ */
