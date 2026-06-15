@@ -1,0 +1,247 @@
+/* ─────────────────────────────────────────────
+   STAM Board Common Layout — Header & Footer v1
+   PR #95 — 게시판 상단/하단 공통 레이아웃
+
+   목적:
+     모든 게시판의 상단(제목·설명·액션 버튼)과 하단(건수·pagination) 을
+     동일한 높이·간격·톤으로 일원화. 화면별 CSS 가 이 영역을 다시
+     정의하지 않도록 강제.
+
+   상단:
+     .stam-board-header           — 전체 wrapper (flex space-between, border-bottom)
+       .stam-board-title-wrap     — 좌측: 제목 + 설명 그룹
+         .stam-board-title        — 제목 (18px / 700)
+         .stam-board-desc         — 설명 (12px / t3)
+       .stam-board-actions        — 우측: 액션 버튼 그룹 (flex gap 6px)
+         .stam-board-action-btn   — 공통 액션 버튼 base
+           .is-primary            — 등록/작성 (var(--stam))
+           .is-secondary          — 내보내기/외 (outline)
+         .stam-board-action-icon  — 버튼 내 SVG (12px)
+
+   하단:
+     .stam-board-footer           — 전체 wrapper (flex space-between, border-top, bg-sur2)
+       .stam-board-count          — 좌측: 건수 표기 (11.5px / t3)
+       .stam-board-pagination     — 우측: 페이지 버튼 그룹 (flex gap 3px)
+         .stam-page-btn           — 페이지 버튼 (26×26)
+           .is-current            — 현재 페이지 (stam bg, white)
+           [disabled]             — 이전/다음 disabled
+
+   로드 순서:
+     stam.components.css → stam.board-layout.css → stam.table-selection.css → 페이지 CSS
+   ───────────────────────────────────────────── */
+
+/* ═══════════════════════════════════════
+   1. 상단 헤더 — .stam-board-header
+   ═══════════════════════════════════════ */
+.stam-board-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0 14px;
+  border-bottom: 1px solid var(--bd);
+  margin-bottom: 16px;
+}
+
+.stam-board-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.stam-board-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--t1);
+  letter-spacing: -0.022em;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.stam-board-desc {
+  font-size: 12px;
+  color: var(--t3);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.stam-board-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════
+   2. 액션 버튼 — .stam-board-action-btn
+   ═══════════════════════════════════════ */
+.stam-board-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: var(--r-md, 6px);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  border: 1px solid var(--bd-s);
+  background: var(--bg-sur);
+  color: var(--t2);
+  cursor: pointer;
+  transition: background 120ms, color 120ms, border-color 120ms;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.stam-board-action-btn:hover {
+  background: var(--bg-sur2);
+  color: var(--t1);
+}
+
+.stam-board-action-btn.is-secondary {
+  /* secondary = outline (기본값과 동일) */
+}
+
+.stam-board-action-btn.is-primary {
+  background: var(--stam);
+  border-color: var(--stam);
+  color: #fff;
+}
+
+.stam-board-action-btn.is-primary:hover {
+  background: var(--stam-h, var(--brand-h, var(--stam)));
+  border-color: var(--stam-h, var(--brand-h, var(--stam)));
+  color: #fff;
+  filter: brightness(0.95);
+}
+
+.stam-board-action-btn[disabled],
+.stam-board-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stam-board-action-icon {
+  flex-shrink: 0;
+  display: block;
+}
+
+/* ═══════════════════════════════════════
+   3. 하단 푸터 — .stam-board-footer
+   ═══════════════════════════════════════ */
+.stam-board-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 16px;
+  border-top: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  font-size: 11.5px;
+  color: var(--t3);
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+.stam-board-count {
+  font-size: 11.5px;
+  color: var(--t3);
+  white-space: nowrap;
+}
+
+.stam-board-count b,
+.stam-board-count strong {
+  color: var(--t1);
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════
+   4. Pagination — .stam-board-pagination
+   ═══════════════════════════════════════ */
+.stam-board-pagination {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.stam-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: 6px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  color: var(--t2);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 100ms, color 100ms, border-color 100ms;
+  line-height: 1;
+}
+
+.stam-page-btn:hover:not([disabled]):not(.is-current) {
+  background: var(--bg-sur2);
+  color: var(--t1);
+  border-color: var(--bd-s);
+}
+
+.stam-page-btn.is-current {
+  background: var(--stam);
+  border-color: var(--stam);
+  color: #fff;
+  font-weight: 700;
+  cursor: default;
+}
+
+.stam-page-btn[disabled],
+.stam-page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.stam-page-btn .stam-board-action-icon {
+  width: 12px;
+  height: 12px;
+}
+
+/* ═══════════════════════════════════════
+   5. 다크 모드
+   ═══════════════════════════════════════ */
+[data-theme="dark"] .stam-board-action-btn {
+  border-color: var(--bd-s);
+  background: var(--bg-sur);
+  color: var(--t2);
+}
+
+[data-theme="dark"] .stam-board-action-btn:hover {
+  background: var(--bg-sur2);
+  color: var(--t1);
+}
+
+[data-theme="dark"] .stam-board-action-btn.is-primary {
+  background: var(--stam);
+  border-color: var(--stam);
+  color: #fff;
+}
+
+[data-theme="dark"] .stam-board-footer {
+  background: var(--bg-sur2);
+}
+
+[data-theme="dark"] .stam-page-btn {
+  background: var(--bg-sur);
+  border-color: var(--bd);
+  color: var(--t2);
+}
+
+[data-theme="dark"] .stam-page-btn.is-current {
+  background: var(--stam);
+  border-color: var(--stam);
+  color: #fff;
+}

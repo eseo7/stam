@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM Common Board Header / Footer Preview v1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <link rel="stylesheet" href="../css/stam.board-layout.css">
+  <style>
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--t1); margin:0; padding:32px; }
+    .ph { margin-bottom:24px; }
+    .ph h1 { font-size:18px; font-weight:700; margin:0 0 4px; }
+    .ph p { font-size:12px; color:var(--t3); margin:0; }
+    .sec { background:var(--bg-sur); border:1px solid var(--bd); border-radius:10px; overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,.05); margin-bottom:32px; }
+    .sec-h { padding:12px 16px; border-bottom:1px solid var(--bd); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--t3); background:var(--bg-sur2); }
+    .sec-b { padding: 0 16px 16px; }
+    .theme-toggle { position:fixed; top:16px; right:16px; padding:6px 12px; border-radius:8px; border:1px solid var(--bd); background:var(--bg-sur); color:var(--t2); font-size:11px; cursor:pointer; }
+    .sample-bg { background:var(--bg); border:1px dashed var(--bd); border-radius:8px; padding:0 16px; margin-top:8px; }
+    .table-stub { background:var(--bg-sur); border:1px solid var(--bd); border-radius:8px; overflow:hidden; }
+    .table-stub .stub-rows { padding:20px; color:var(--t3); font-size:12px; text-align:center; }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">다크 모드</button>
+
+<div class="ph">
+  <h1>STAM Common Board Header / Footer Preview v1</h1>
+  <p>모든 게시판 상단(제목·설명·액션) / 하단(건수·pagination) 공통 클래스 시각 확인 — stam.tokens / components / board-layout 만 로드</p>
+</div>
+
+<!-- ───────── A. 게시판 상단 ───────── -->
+<div class="sec">
+  <div class="sec-h">A1. 기본 게시판 상단 (내보내기 + 등록)</div>
+  <div class="sec-b">
+    <div class="sample-bg">
+      <div class="stam-board-header">
+        <div class="stam-board-title-wrap">
+          <h2 class="stam-board-title">기능정의서</h2>
+          <p class="stam-board-desc">화면별 기능을 정의하고 요구사항·화면설계서와 연결하여 개발 기준을 명세합니다.</p>
+        </div>
+        <div class="stam-board-actions">
+          <button class="stam-board-action-btn is-secondary" type="button">
+            <svg class="stam-board-action-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            내보내기
+          </button>
+          <button class="stam-board-action-btn is-primary" type="button">
+            <svg class="stam-board-action-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            기능 등록
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sec-h">A2. 액션 버튼 1개만 (Primary)</div>
+  <div class="sec-b">
+    <div class="sample-bg">
+      <div class="stam-board-header">
+        <div class="stam-board-title-wrap">
+          <h2 class="stam-board-title">요구사항정의서</h2>
+          <p class="stam-board-desc">기능·화면·데이터·정책 요구사항을 관리합니다.</p>
+        </div>
+        <div class="stam-board-actions">
+          <button class="stam-board-action-btn is-primary" type="button">
+            <svg class="stam-board-action-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            요구사항 등록
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sec-h">A3. 액션 버튼 없음 — 제목/설명만</div>
+  <div class="sec-b">
+    <div class="sample-bg">
+      <div class="stam-board-header">
+        <div class="stam-board-title-wrap">
+          <h2 class="stam-board-title">대시보드</h2>
+          <p class="stam-board-desc">읽기 전용 보드 — 작성 액션 없음.</p>
+        </div>
+        <div class="stam-board-actions"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sec-h">A4. 다중 secondary + primary (Open Scenario 패턴)</div>
+  <div class="sec-b">
+    <div class="sample-bg">
+      <div class="stam-board-header">
+        <div class="stam-board-title-wrap">
+          <h2 class="stam-board-title">오픈 시나리오</h2>
+          <p class="stam-board-desc">오픈 전/당일/후 실행 시나리오와 점검 상태를 관리합니다.</p>
+        </div>
+        <div class="stam-board-actions">
+          <button class="stam-board-action-btn is-secondary" type="button">컬럼 설정</button>
+          <button class="stam-board-action-btn is-secondary" type="button">내보내기</button>
+          <button class="stam-board-action-btn is-secondary" type="button">상황판 보기</button>
+          <button class="stam-board-action-btn is-primary" type="button">시나리오 등록</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───────── B. 게시판 하단 ───────── -->
+<div class="sec">
+  <div class="sec-h">B1. 기본 게시판 하단 (이전 disabled · 1 current · 다음 enabled)</div>
+  <div class="sec-b">
+    <div class="table-stub">
+      <div class="stub-rows">— 테이블 본문 (예시) —</div>
+      <div class="stam-board-footer">
+        <span class="stam-board-count">총 <b>5</b>건 중 <b>5</b>건 표시</span>
+        <div class="stam-board-pagination">
+          <button class="stam-page-btn" type="button" disabled aria-label="이전 페이지">
+            <svg class="stam-board-action-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button class="stam-page-btn is-current" type="button">1</button>
+          <button class="stam-page-btn" type="button" aria-label="다음 페이지">
+            <svg class="stam-board-action-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sec-h">B2. 다중 페이지 (이전/다음 enabled · 2 current)</div>
+  <div class="sec-b">
+    <div class="table-stub">
+      <div class="stub-rows">— 테이블 본문 —</div>
+      <div class="stam-board-footer">
+        <span class="stam-board-count">총 <b>74</b>건 중 <b>10</b>건 표시 · 페이지 <b>2</b>/8</span>
+        <div class="stam-board-pagination">
+          <button class="stam-page-btn" type="button" aria-label="이전 페이지">
+            <svg class="stam-board-action-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button class="stam-page-btn" type="button">1</button>
+          <button class="stam-page-btn is-current" type="button">2</button>
+          <button class="stam-page-btn" type="button">3</button>
+          <button class="stam-page-btn" type="button">4</button>
+          <button class="stam-page-btn" type="button" aria-label="다음 페이지">
+            <svg class="stam-board-action-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sec-h">B3. 마지막 페이지 (다음 disabled)</div>
+  <div class="sec-b">
+    <div class="table-stub">
+      <div class="stub-rows">— 테이블 본문 —</div>
+      <div class="stam-board-footer">
+        <span class="stam-board-count">총 <b>74</b>건 중 <b>4</b>건 표시 · 페이지 <b>8</b>/8</span>
+        <div class="stam-board-pagination">
+          <button class="stam-page-btn" type="button">7</button>
+          <button class="stam-page-btn is-current" type="button">8</button>
+          <button class="stam-page-btn" type="button" disabled aria-label="다음 페이지">
+            <svg class="stam-board-action-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById('themeToggle');
+  b.addEventListener('click', function(){
+    var html = document.documentElement;
+    var d = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', d ? 'light' : 'dark');
+    b.textContent = d ? '다크 모드' : '라이트 모드';
+  });
+})();
+</script>
+</body>
+</html>
