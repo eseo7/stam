@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM Board List Template Contract v1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <link rel="stylesheet" href="../css/stam.table-selection.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--t1); margin: 0; padding: 32px; }
+    .doc-header { margin-bottom: 28px; }
+    .doc-header h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+    .doc-header p { font-size: 12px; color: var(--t3); margin: 0; }
+    .meta { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .meta .chip { font-size:11px; padding:3px 8px; border-radius:4px; background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .related { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:11px; }
+    .related a { color: var(--stam); text-decoration: none; padding: 4px 10px; border: 1px solid var(--bd); border-radius: 6px; background: var(--bg-sur); }
+    .related a:hover { background: var(--bg-sur2); }
+    .sec { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; margin-bottom: 22px; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+    .sec-h { padding: 12px 16px; border-bottom: 1px solid var(--bd); background: var(--bg-sur2); font-size: 11px; font-weight: 700; letter-spacing:.06em; text-transform: uppercase; color: var(--t3); }
+    .sec-b { padding: 16px; font-size: 12.5px; color: var(--t2); line-height: 1.75; }
+    code, pre code { font-family: 'JetBrains Mono', monospace; }
+    code { font-size: 11px; color: var(--stam); background: rgba(84,81,232,.08); padding: 1px 5px; border-radius: 3px; }
+    pre { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font-size: 11.5px; line-height: 1.55; color: var(--t1); }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+    table.t { width: 100%; border-collapse: collapse; font-size: 12px; }
+    table.t th, table.t td { padding: 8px 10px; border-bottom: 1px solid var(--bd); text-align: left; vertical-align: top; }
+    table.t thead th { background: var(--bg-sur2); color: var(--t3); text-transform: uppercase; font-size: 10px; letter-spacing: .06em; font-weight: 700; white-space: nowrap; }
+    ul.tight, ol.tight { margin: 6px 0; padding-left: 22px; } ul.tight li, ol.tight li { margin: 3px 0; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; line-height:1.5; }
+    .pill.ok { background:#dcfce7; color:#166534; }
+    .pill.bad { background:#fee2e2; color:#991b1b; }
+    .pill.warn { background:#fef3c7; color:#92400e; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid2 .col { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; }
+    .grid2 h4 { margin: 0 0 6px; font-size: 12px; font-weight: 700; }
+    .col.do h4 { color: #16a34a; }
+    .col.dont h4 { color: #dc2626; }
+    .theme-toggle { position: fixed; top: 16px; right: 16px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--bg-sur); color: var(--t2); font-size: 11px; cursor: pointer; }
+    @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">다크 모드</button>
+
+<div class="doc-header">
+  <h1>STAM Board List Template Contract <span class="pill ok">v1</span></h1>
+  <p>STAM 의 모든 게시판 목록 화면이 동일한 목록 구조와 상태 규칙을 사용하도록 강제하는 기준 문서.</p>
+  <div class="meta">
+    <span class="chip">공통 CSS: stam.table-selection.css</span>
+    <span class="chip">기준 PR: #86 / #88 / #89</span>
+    <span class="chip">버전: v1</span>
+  </div>
+  <div class="related">
+    <span style="color:var(--t3);align-self:center">Related:</span>
+    <a href="STAM-Common-List-Table-Audit-Report-v1.html">Audit Report v1</a>
+    <a href="STAM-Common-Select-Table-Preview.html">Bare Preview (table-selection)</a>
+    <a href="STAM-Board-Toolbar-Guide.html">Board Toolbar Guide</a>
+    <a href="STAM-Board-Filter-Guide.html">Board Filter Guide</a>
+  </div>
+</div>
+
+<!-- ── 00. 핵심 원칙 ── -->
+<div class="sec">
+  <div class="sec-h">Section 00 · 핵심 원칙</div>
+  <div class="sec-b">
+    <ol class="tight">
+      <li>새 게시판 목록은 화면별로 검색/필터/삭제/checkbox/table row 스타일을 <strong>새로 만들지 않는다</strong>.</li>
+      <li>공통 class 와 공통 CSS/JS 규칙을 사용한다.</li>
+      <li>화면별 CSS 는 <strong>컬럼 폭 · Zone 배치 · 카드 배치 · 업무별 뱃지</strong>만 담당한다.</li>
+      <li><strong>checkbox · selected row · active row · left bar · delete button · filter button · search input</strong> 스타일을 화면별 CSS 에서 재정의 금지.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ── 01. 표준 HTML 구조 ── -->
+<div class="sec">
+  <div class="sec-h">Section 01 · Board List 표준 HTML 구조</div>
+  <div class="sec-b">
+<pre><code>&lt;!-- 1) 목록 상단 toolbar --&gt;
+&lt;div class="stam-list-toolbar"&gt;
+
+  &lt;!-- 2) 검색 input --&gt;
+  &lt;div class="stam-list-search"&gt;
+    &lt;svg class="stam-list-search-icon" width="13" height="13" viewBox="0 0 24 24" ...&gt;&lt;/svg&gt;
+    &lt;input class="stam-list-search-input" type="search" placeholder="ID · 제목 · 담당자 검색"&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 3) 필터 버튼 --&gt;
+  &lt;button class="stam-filter-btn" type="button"&gt;
+    &lt;svg class="stam-btn-icon" ...&gt;&lt;/svg&gt; 필터
+  &lt;/button&gt;
+
+  &lt;!-- 4) 삭제 버튼 --&gt;
+  &lt;button class="stam-delete-btn" type="button" disabled&gt;
+    &lt;svg class="stam-btn-icon" ...&gt;&lt;/svg&gt;
+    &lt;span class="stam-delete-label"&gt;삭제&lt;/span&gt;
+  &lt;/button&gt;
+
+&lt;/div&gt;
+
+&lt;!-- 5) selectable table --&gt;
+&lt;table class="stam-select-table"&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;!-- 6) header checkbox --&gt;
+      &lt;th class="stam-check-cell"&gt;&lt;input class="stam-check" type="checkbox"&gt;&lt;/th&gt;
+      &lt;th&gt;ID&lt;/th&gt;&lt;th&gt;제목&lt;/th&gt;&lt;th&gt;담당자&lt;/th&gt; ...
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;!-- 7) row — row click 시 .is-active, checkbox 시 .is-selected --&gt;
+    &lt;tr class="stam-table-row" data-id="..."&gt;
+      &lt;td class="stam-check-cell"&gt;&lt;input class="stam-check" type="checkbox"&gt;&lt;/td&gt;
+      &lt;td&gt;...&lt;/td&gt; ...
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+</code></pre>
+    <p style="color:var(--t3);font-size:11px;margin-top:8px">
+      * 페이지별 namespace 클래스(<code>.os-row</code>, <code>.msl-data-row</code> 등) 를 부가적으로 붙이는 것은 허용. 단 공통 class 는 반드시 포함.
+    </p>
+  </div>
+</div>
+
+<!-- ── 02. 필수 공통 class ── -->
+<div class="sec">
+  <div class="sec-h">Section 02 · 필수 공통 class</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>Class</th><th>역할</th><th>적용 위치</th></tr></thead>
+      <tbody>
+        <tr><td><code>.stam-list-toolbar</code></td><td>목록 상단 toolbar wrapper</td><td>toolbar &lt;div&gt;</td></tr>
+        <tr><td><code>.stam-list-search</code></td><td>검색 input wrapper</td><td>검색 &lt;div&gt;</td></tr>
+        <tr><td><code>.stam-list-search-icon</code></td><td>검색 아이콘 (SVG)</td><td>검색 wrapper 내 SVG</td></tr>
+        <tr><td><code>.stam-list-search-input</code></td><td>검색 input</td><td>&lt;input type="search"&gt;</td></tr>
+        <tr><td><code>.stam-filter-btn</code></td><td>필터 버튼 (open=<code>.is-open</code>)</td><td>&lt;button&gt;</td></tr>
+        <tr><td><code>.stam-delete-btn</code></td><td>삭제 버튼 (disabled/enabled)</td><td>&lt;button&gt;</td></tr>
+        <tr><td><code>.stam-delete-label</code></td><td>삭제 버튼 내 텍스트 레이블</td><td>버튼 내 &lt;span&gt;</td></tr>
+        <tr><td><code>.stam-btn-icon</code></td><td>버튼 내부 SVG 공통</td><td>버튼 내 SVG</td></tr>
+        <tr><td><code>.stam-select-table</code></td><td>선택형 테이블 루트</td><td>&lt;table&gt;</td></tr>
+        <tr><td><code>.stam-check-cell</code></td><td>checkbox th/td</td><td>&lt;th&gt;/&lt;td&gt;</td></tr>
+        <tr><td><code>.stam-check</code></td><td>checkbox input (header/row 공통)</td><td>&lt;input type="checkbox"&gt;</td></tr>
+        <tr><td><code>.stam-table-row</code></td><td>데이터 행</td><td>&lt;tr&gt;</td></tr>
+        <tr><td><code>.is-active</code></td><td>row click 상태 — drawer 대상</td><td>&lt;tr&gt;</td></tr>
+        <tr><td><code>.is-selected</code></td><td>checkbox 선택 상태 — bulk action 대상</td><td>&lt;tr&gt;</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 03. 공통 placeholder 규칙 ── -->
+<div class="sec">
+  <div class="sec-h">Section 03 · 공통 placeholder 규칙</div>
+  <div class="sec-b">
+    <ul class="tight">
+      <li>기본 문구: <code>ID · 제목 · 담당자 검색</code></li>
+      <li>도메인 특화가 필요한 경우 <strong>"{도메인 ID} · {도메인 명} · 담당자 검색"</strong> 구조만 허용</li>
+      <li>화면마다 임의 placeholder 금지 ("검색", "작업명 검색" 같은 자유 문구 사용 불가)</li>
+    </ul>
+    <table class="t" style="margin-top:8px">
+      <thead><tr><th>화면</th><th>허용 placeholder</th></tr></thead>
+      <tbody>
+        <tr><td>Open Scenario</td><td><code>ID · 제목 · 담당자 검색</code></td></tr>
+        <tr><td>메뉴/화면 목록</td><td><code>화면 ID · 화면명 · 담당자 검색</code></td></tr>
+        <tr><td>요구사항</td><td><code>요구사항 ID · 요구사항명 · 담당자 검색</code></td></tr>
+        <tr><td>기능정의서</td><td><code>기능 ID · 기능명 · 담당자 검색</code></td></tr>
+        <tr><td>화면설계서</td><td><code>화면 ID · 화면명 · 담당자 검색</code> (현재 "메뉴명" 표기는 후속 PR 에서 조정)</td></tr>
+        <tr><td>WBS</td><td><code>작업 ID · 작업명 · 담당자 검색</code> (현재 "작업명 검색" 은 후속 PR 에서 조정)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 04. 상태 규칙 ── -->
+<div class="sec">
+  <div class="sec-h">Section 04 · 행 상태 규칙 (normal / .is-active / .is-selected / 둘 다)</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>상태</th><th>트리거</th><th>checkbox</th><th>delete count</th><th>left bar</th><th>drawer</th></tr></thead>
+      <tbody>
+        <tr><td>normal</td><td>—</td><td>unchecked</td><td>미포함</td><td>없음</td><td>—</td></tr>
+        <tr><td><code>.is-active</code></td><td>row click</td><td>unchecked 유지</td><td>미포함</td><td>표시</td><td>open</td></tr>
+        <tr><td><code>.is-selected</code></td><td>checkbox click</td><td>checked</td><td>포함</td><td>표시</td><td>닫힘</td></tr>
+        <tr><td><code>.is-active.is-selected</code></td><td>selected row click</td><td>checked 유지</td><td>포함</td><td>표시</td><td>open</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">
+      * <code>.is-active</code> 는 <strong>drawer 대상</strong> — 한 번에 하나만. 다른 row 클릭 시 이전 <code>.is-active</code> 자동 제거.<br>
+      * <code>.is-selected</code> 는 <strong>bulk action 대상</strong> — 다중 선택 가능. checkbox click 시에만 토글.
+    </p>
+  </div>
+</div>
+
+<!-- ── 05. 삭제 버튼 규칙 ── -->
+<div class="sec">
+  <div class="sec-h">Section 05 · 삭제 버튼 규칙</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>선택 수</th><th>버튼 상태</th><th>레이블 텍스트</th></tr></thead>
+      <tbody>
+        <tr><td>0개</td><td>disabled</td><td>"삭제"</td></tr>
+        <tr><td>1개</td><td>enabled</td><td>"삭제 (1)"</td></tr>
+        <tr><td>N개</td><td>enabled</td><td>"삭제 (N)"</td></tr>
+      </tbody>
+    </table>
+    <ul class="tight" style="margin-top:8px">
+      <li>스타일은 <code>.stam-delete-btn</code> 기준만 사용 — 화면별 스타일 재정의 금지.</li>
+      <li>실제 삭제 기능(API · localStorage · Firestore 등)은 화면별 데이터 로직에서 처리. 본 계약서는 <strong>UI 계약</strong>만 정의.</li>
+      <li>레이블은 <code>.stam-delete-label</code> 내부에서만 갱신 (JS: <code>btn.querySelector('.stam-delete-label').textContent</code>).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 06. 필터 버튼 규칙 ── -->
+<div class="sec">
+  <div class="sec-h">Section 06 · 필터 버튼 규칙</div>
+  <div class="sec-b">
+    <ul class="tight">
+      <li>버튼 class: <code>.stam-filter-btn</code></li>
+      <li>open 상태: <code>.is-open</code> (열려있을 때 토글)</li>
+      <li>icon class: <code>.stam-btn-icon</code></li>
+      <li>화면별 색상 커스텀 금지 — <code>var(--stam)</code> · <code>var(--stam-soft)</code> 만 사용</li>
+      <li>필터 팝업(<code>.stam-board-filter-panel</code> 등) 은 별도 가이드 (Board Filter Guide) 참조</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 07. 화면별 CSS 허용/금지 ── -->
+<div class="sec">
+  <div class="sec-h">Section 07 · 화면별 CSS 허용/금지</div>
+  <div class="sec-b">
+    <div class="grid2">
+      <div class="col do">
+        <h4>✅ 화면별 CSS 에서 허용</h4>
+        <ul class="tight">
+          <li>컬럼 폭 (<code>th</code>/<code>td</code> width)</li>
+          <li>Zone / 카드 / 섹션 배치 (grid, flex layout)</li>
+          <li>화면 고유 여백 (page padding, section gap)</li>
+          <li>특수 업무 뱃지 (상태 chip, 등급 chip 등 도메인 표시)</li>
+        </ul>
+      </div>
+      <div class="col dont">
+        <h4>❌ 화면별 CSS 에서 금지</h4>
+        <ul class="tight">
+          <li>checkbox 스타일 재정의</li>
+          <li>selected row background 재정의</li>
+          <li>active row bar 재정의</li>
+          <li>delete button 스타일 재정의</li>
+          <li>filter button 스타일 재정의</li>
+          <li>search input 기본 스타일 재정의</li>
+          <li>row height 재정의 (기본 36px)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 08. 새 게시판 생성 체크리스트 ── -->
+<div class="sec">
+  <div class="sec-h">Section 08 · 새 게시판 생성 체크리스트</div>
+  <div class="sec-b">
+    <ol class="tight">
+      <li><code>stam.table-selection.css</code> 로드 여부 (페이지 &lt;head&gt; 확인)</li>
+      <li>toolbar class <code>.stam-list-toolbar</code> 적용 여부</li>
+      <li>검색 wrapper/input/icon class 적용 여부</li>
+      <li>필터 버튼 <code>.stam-filter-btn</code> 적용 여부</li>
+      <li>삭제 버튼 <code>.stam-delete-btn</code> + <code>.stam-delete-label</code> 적용 여부</li>
+      <li>테이블 <code>.stam-select-table</code> 적용 여부</li>
+      <li>체크박스 cell/input class <code>.stam-check-cell</code> · <code>.stam-check</code> 적용 여부</li>
+      <li>행 <code>.stam-table-row</code> 적용 여부</li>
+      <li>JS: row click → <code>.is-active</code> 부여 / 다른 row 클릭 시 해제</li>
+      <li>JS: checkbox change → <code>.is-selected</code> 토글</li>
+      <li>JS: delete count = <code>.stam-check:checked</code> 행 수 ↔ <code>.stam-delete-label</code> 갱신</li>
+      <li>placeholder 가 패턴(<code>{도메인 ID} · {도메인 명} · 담당자 검색</code>) 을 따르는지</li>
+      <li>화면별 CSS 에 금지 셀렉터 부재 확인 (Section 07 ❌ 항목)</li>
+      <li>Bare Preview (<a href="STAM-Common-Select-Table-Preview.html">STAM-Common-Select-Table-Preview.html</a>) 와 육안 비교</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ── 09. Do / Don't ── -->
+<div class="sec">
+  <div class="sec-h">Section 09 · Do / Don't</div>
+  <div class="sec-b">
+    <div class="grid2">
+      <div class="col do">
+        <h4>✅ Do</h4>
+        <ul class="tight">
+          <li>공통 class 사용</li>
+          <li>Bare Preview 기준과 육안 비교</li>
+          <li><code>.is-active</code> 와 <code>.is-selected</code> 상태 분리</li>
+          <li>레이블 텍스트 갱신은 <code>.stam-delete-label</code> 내부만</li>
+          <li>row 36px 유지</li>
+        </ul>
+      </div>
+      <div class="col dont">
+        <h4>❌ Don't</h4>
+        <ul class="tight">
+          <li><code>.wbs-*</code> · <code>.ss-*</code> · <code>.os-*</code> · <code>.msl-*</code> · <code>.rq-*</code> · <code>.fn-*</code> 로 공통 UI 재구현</li>
+          <li>화면별 CSS 에서 checkbox/delete/filter/search/table-row 스타일 재정의</li>
+          <li>computed style 만 보고 PASS 처리 (실제 인터랙션 미검증)</li>
+          <li>row click 으로 checkbox 를 체크하는 동작</li>
+          <li>checkbox click 으로 drawer 를 여는 동작</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 10. 후속 적용 순서 ── -->
+<div class="sec">
+  <div class="sec-h">Section 10 · 후속 적용 순서</div>
+  <div class="sec-b">
+    <ol class="tight">
+      <li>기능정의서 (functional-specification) — 가장 가까운 화면, smoke 우선</li>
+      <li>메뉴/화면 목록 (menu-screen-list)</li>
+      <li>요구사항 (requirements)</li>
+      <li>삭제 버튼 공통화 (모든 화면 일괄)</li>
+      <li>검색/필터 toolbar 공통화 (모든 화면 일괄, 필터 팝업은 별도 분리)</li>
+      <li>화면설계서 (screen-specification)</li>
+      <li>WBS (wbs) — 회귀 위험 최대, 마지막. 실삭제 동작 보존 보고 선행</li>
+    </ol>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">
+      * 각 단계 PR 별 Bare Preview 비교 → staging 캡처 → merge 순서 유지. 자세한 Audit / 권장 순서는
+      <a href="STAM-Common-List-Table-Audit-Report-v1.html">Audit Report v1</a> 참조.
+    </p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById('themeToggle');
+  b.addEventListener('click', function(){
+    var html = document.documentElement;
+    var d = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', d ? 'light' : 'dark');
+    b.textContent = d ? '다크 모드' : '라이트 모드';
+  });
+})();
+</script>
+</body>
+</html>
