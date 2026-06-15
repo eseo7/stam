@@ -222,7 +222,9 @@
   if (listRoot && window.STAMBoardList) {
     boardApi = window.STAMBoardList.init(listRoot, {
       deleteBtn: '#fn-del-btn',
+      clearActiveOnCheckbox: false,
       onRowActivate: function () { openDrawer('detail'); },
+      onClearActive: function () { closeAll(); },
     });
   }
 
