@@ -114,9 +114,68 @@
   </div>
 </div>
 
+<!-- ── 섹션 1.5: 행 상태 (normal / active / selected / active+selected) ── -->
+<div class="preview-section">
+  <div class="preview-section-header">1.5. 행 상태 — normal · is-active · is-selected · is-active.is-selected</div>
+  <div style="padding:10px 16px 4px;font-size:11.5px;color:var(--t3);line-height:1.6">
+    <strong style="color:var(--t2)">공통 룰</strong> —
+    <code>.is-active</code> : 행 클릭으로 drawer 가 열린 행 (checkbox 미선택, delete count 미포함, left bar 표시) ·
+    <code>.is-selected</code> : checkbox 선택 (bulk action 대상, delete count 포함, left bar 표시) ·
+    두 상태는 독립적으로 동작하며 동시에 부여될 수 있음.
+  </div>
+  <div style="overflow-x:auto">
+    <table class="stam-select-table">
+      <thead>
+        <tr>
+          <th class="stam-check-cell"><input class="stam-check" type="checkbox" disabled></th>
+          <th>상태</th>
+          <th>설명</th>
+          <th>checkbox</th>
+          <th>left bar</th>
+          <th>delete count</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="stam-table-row">
+          <td class="stam-check-cell"><input class="stam-check" type="checkbox"></td>
+          <td><strong style="color:var(--t1)">normal</strong></td>
+          <td>기본 행</td>
+          <td>unchecked</td>
+          <td>없음</td>
+          <td>미포함</td>
+        </tr>
+        <tr class="stam-table-row is-active">
+          <td class="stam-check-cell"><input class="stam-check" type="checkbox"></td>
+          <td><strong style="color:var(--stam)">is-active</strong></td>
+          <td>행 클릭 / drawer target</td>
+          <td>unchecked</td>
+          <td>표시</td>
+          <td>미포함</td>
+        </tr>
+        <tr class="stam-table-row is-selected">
+          <td class="stam-check-cell"><input class="stam-check" type="checkbox" checked></td>
+          <td><strong style="color:var(--stam)">is-selected</strong></td>
+          <td>checkbox 선택 / bulk action target</td>
+          <td>checked</td>
+          <td>표시</td>
+          <td>포함</td>
+        </tr>
+        <tr class="stam-table-row is-active is-selected">
+          <td class="stam-check-cell"><input class="stam-check" type="checkbox" checked></td>
+          <td><strong style="color:var(--stam)">is-active + is-selected</strong></td>
+          <td>선택된 행을 클릭해 drawer open</td>
+          <td>checked</td>
+          <td>표시</td>
+          <td>포함</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 <!-- ── 섹션 2: 선택형 테이블 ── -->
 <div class="preview-section">
-  <div class="preview-section-header">2. .stam-select-table — 선택형 테이블</div>
+  <div class="preview-section-header">2. .stam-select-table — 선택형 테이블 (인터랙티브)</div>
   <div style="overflow-x:auto">
     <table class="stam-select-table" id="previewTable">
       <thead>
@@ -303,17 +362,14 @@
     filterBtn.classList.toggle('is-open');
   });
 
-  // row click (checkbox cell 제외)
+  // row click (checkbox cell 제외) → .is-active 만 부여 (checkbox/.is-selected 와 무관)
   document.querySelectorAll('#tblBody .stam-table-row').forEach(function (row) {
     row.addEventListener('click', function (e) {
       if (e.target.closest('.stam-check-cell')) return;
-      var cb = row.querySelector('.row-cb');
-      if (cb) {
-        cb.checked = !cb.checked;
-        row.classList.toggle('is-selected', cb.checked);
-        syncHeaderCb();
-        updateDeleteBtn();
-      }
+      document.querySelectorAll('#tblBody .stam-table-row.is-active').forEach(function (r) {
+        if (r !== row) r.classList.remove('is-active');
+      });
+      row.classList.add('is-active');
     });
   });
 }());
