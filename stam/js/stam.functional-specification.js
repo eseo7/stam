@@ -197,64 +197,26 @@
     enhanceFnDrawerSelects(el);
   }
 
-  function closeAll(resetState) {
+  // closeAll: drawer/scrim/custom-select 만 닫는다.
+  // is-selected 는 controller 가 관리 — drawer 닫기로 selection 을 해제하지 않는다.
+  function closeAll() {
     closeAllFnCustomSelects();
     if (scrim) scrim.classList.remove('show');
     document.querySelectorAll('.fn-drawer').forEach(function (d) {
       d.classList.remove('open');
     });
-    if (resetState !== false) {
-      document.querySelectorAll('#fn-tbody .fn-data-row.is-selected').forEach(function (r) {
-        r.classList.remove('is-selected');
-        var cb = r.querySelector('.fn-cb');
-        if (cb) cb.checked = false;
-      });
-    }
   }
 
-  // ── Row click → detail drawer ────────────────────────────────
-  function bindRows() {
-    var rows = document.querySelectorAll('#fn-tbody .fn-data-row');
-    rows.forEach(function (row) {
-      row.addEventListener('click', function (e) {
-        if (e.target.classList.contains('fn-cb')) return;
-        rows.forEach(function (r) { r.classList.remove('is-selected'); });
-        row.classList.add('is-selected');
-        openDrawer('detail');
-      });
+  // STAMBoardList Controller 가 row active / checkbox selected / delete count /
+  // header checkbox / Escape 의 .is-active 해제를 일괄 담당한다.
+  // 본 화면은 onRowActivate 만 drawer open 으로 연결한다.
+  var listRoot = document.querySelector('[data-stam-board-list]');
+  var boardApi = null;
+  if (listRoot && window.STAMBoardList) {
+    boardApi = window.STAMBoardList.init(listRoot, {
+      deleteBtn: '#fn-del-btn',
+      onRowActivate: function () { openDrawer('detail'); },
     });
-  }
-
-  // ── Checkbox: select row, update delete button ────────────────
-  function bindCheckboxes() {
-    var delBtn = document.getElementById('fn-del-btn');
-    var allCb  = document.getElementById('fn-cb-all');
-
-    document.querySelectorAll('#fn-tbody .fn-cb').forEach(function (cb) {
-      cb.addEventListener('change', function () {
-        var row = cb.closest('.fn-data-row');
-        if (row) { row.classList.toggle('is-selected', cb.checked); }
-        updateDelBtn();
-      });
-    });
-
-    if (allCb) {
-      allCb.addEventListener('change', function () {
-        document.querySelectorAll('#fn-tbody .fn-cb').forEach(function (cb) {
-          cb.checked = allCb.checked;
-          var row = cb.closest('.fn-data-row');
-          if (row) { row.classList.toggle('is-selected', cb.checked); }
-        });
-        updateDelBtn();
-      });
-    }
-
-    function updateDelBtn() {
-      if (!delBtn) return;
-      var n = document.querySelectorAll('#fn-tbody .fn-cb:checked').length;
-      delBtn.disabled = n === 0;
-      delBtn.querySelector('.fn-del-lbl').textContent = n > 0 ? '삭제 (' + n + ')' : '삭제';
-    }
   }
 
   // ── detail drawer → 수정 button ─────────────────────────────
@@ -264,14 +226,19 @@
     });
   });
 
+  function closeAllAndClearActive() {
+    closeAll();
+    if (boardApi) boardApi.clearActive();
+  }
+
   // ── Close buttons ─────────────────────────────────────────────
   document.querySelectorAll('.fn-dw-close, [data-fn-close]').forEach(function (el) {
-    el.addEventListener('click', function () { closeAll(); });
+    el.addEventListener('click', closeAllAndClearActive);
   });
 
   // ── Scrim click → close ───────────────────────────────────────
   if (scrim) {
-    scrim.addEventListener('click', function () { closeAll(); });
+    scrim.addEventListener('click', closeAllAndClearActive);
   }
 
   // ── ESC key (custom select 우선, 없으면 drawer 닫기) ──────────
@@ -282,7 +249,7 @@
       e.stopPropagation();
       closeAllFnCustomSelects();
     } else {
-      closeAll();
+      closeAllAndClearActive();
     }
   }, true);
 
@@ -327,8 +294,7 @@
   if (window.STAM && window.STAM.navRender) {
     window.STAM.navRender.init('B5');
   }
-  bindRows();
-  bindCheckboxes();
+  // Row/checkbox/delete count 바인딩은 STAMBoardList Controller 가 담당 (위)
 
   /* ── Board Filter 공통 컴포넌트 초기화 ── */
   if (window.STAM && window.STAM.boardFilter) {

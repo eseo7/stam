@@ -124,9 +124,9 @@
                 필터
                 <span class="fn-filter-cnt stam-board-filter-count" id="fn-filter-count" style="display:none">0</span>
               </button>
-              <button class="fn-btn fn-btn-del stam-btn stam-btn-danger stam-board-delete" id="fn-del-btn" type="button" disabled>
+              <button class="fn-btn fn-btn-del stam-btn stam-btn-danger stam-board-delete stam-delete-btn" id="fn-del-btn" type="button" disabled>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                <span class="fn-del-lbl">삭제</span>
+                <span class="fn-del-lbl stam-delete-label">삭제</span>
               </button>
             </div>
           </div>
@@ -147,7 +147,7 @@
         <!-- ── Table ── -->
         <div class="fn-tbl-outer">
           <div class="fn-tbl-scroll">
-            <table class="fn-table">
+            <table class="fn-table stam-select-table" data-stam-board-list>
               <colgroup>
                 <col style="width:40px">
                 <col style="min-width:220px">
@@ -161,7 +161,7 @@
               </colgroup>
               <thead>
                 <tr>
-                  <th class="fn-ch"><input type="checkbox" class="fn-cb" id="fn-cb-all"></th>
+                  <th class="fn-ch stam-check-cell"><input type="checkbox" class="fn-cb stam-check" id="fn-cb-all" data-stam-check-all></th>
                   <th>기능 ID / 기능명</th>
                   <th>연결 요구사항</th>
                   <th>연결 화면</th>
@@ -175,7 +175,7 @@
               <tbody id="fn-tbody">
                 <!-- FN-001 -->
                 <tr class="fn-data-row stam-table-row">
-                  <td class="fn-ch"><input type="checkbox" class="fn-cb" onclick="event.stopPropagation()"></td>
+                  <td class="fn-ch stam-check-cell"><input type="checkbox" class="fn-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="fn-id-cell">
                       <span class="fn-fn-id">FN-001</span>
@@ -197,7 +197,7 @@
                 </tr>
                 <!-- FN-002 -->
                 <tr class="fn-data-row stam-table-row">
-                  <td class="fn-ch"><input type="checkbox" class="fn-cb" onclick="event.stopPropagation()"></td>
+                  <td class="fn-ch stam-check-cell"><input type="checkbox" class="fn-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="fn-id-cell">
                       <span class="fn-fn-id">FN-002</span>
@@ -219,7 +219,7 @@
                 </tr>
                 <!-- FN-003 -->
                 <tr class="fn-data-row stam-table-row">
-                  <td class="fn-ch"><input type="checkbox" class="fn-cb" onclick="event.stopPropagation()"></td>
+                  <td class="fn-ch stam-check-cell"><input type="checkbox" class="fn-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="fn-id-cell">
                       <span class="fn-fn-id">FN-003</span>
@@ -241,7 +241,7 @@
                 </tr>
                 <!-- FN-004 -->
                 <tr class="fn-data-row stam-table-row">
-                  <td class="fn-ch"><input type="checkbox" class="fn-cb" onclick="event.stopPropagation()"></td>
+                  <td class="fn-ch stam-check-cell"><input type="checkbox" class="fn-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="fn-id-cell">
                       <span class="fn-fn-id">FN-004</span>
@@ -263,7 +263,7 @@
                 </tr>
                 <!-- FN-005 -->
                 <tr class="fn-data-row stam-table-row">
-                  <td class="fn-ch"><input type="checkbox" class="fn-cb" onclick="event.stopPropagation()"></td>
+                  <td class="fn-ch stam-check-cell"><input type="checkbox" class="fn-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="fn-id-cell">
                       <span class="fn-fn-id">FN-005</span>
@@ -764,6 +764,7 @@
 <script src="../../js/stam.topbar-render.js"></script>
 <script src="../../js/stam.project-context-render.js"></script>
 <script src="../../js/stam.board-filter.js"></script>
+<script src="../../js/stam.board-list.js"></script>
 <script src="../../js/stam.functional-specification.js"></script>
 
 </body>
