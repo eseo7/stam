@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM Common Custom Select Preview v1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <link rel="stylesheet" href="../css/stam.custom-select.css">
+  <style>
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--t1); margin:0; padding:32px; }
+    .ph { margin-bottom:24px; }
+    .ph h1 { font-size:18px; font-weight:700; margin:0 0 4px; }
+    .ph p { font-size:12px; color:var(--t3); margin:0; }
+    .related { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:11px; }
+    .related a { color:var(--stam); text-decoration:none; padding:4px 10px; border:1px solid var(--bd); border-radius:6px; background:var(--bg-sur); }
+    .grid { display:grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap:20px; }
+    @media (max-width: 1000px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } }
+    .sec { background:var(--bg-sur); border:1px solid var(--bd); border-radius:10px; overflow:visible; box-shadow:0 1px 6px rgba(0,0,0,.05); margin-bottom:28px; }
+    .sec-h { padding:12px 16px; border-bottom:1px solid var(--bd); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--t3); background:var(--bg-sur2); }
+    .sec-b { padding:16px; }
+    .card-label { font-size:11px; color:var(--t3); margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+    .card-label code { font-family:'JetBrains Mono', monospace; font-size:10.5px; background:rgba(84,81,232,.08); color:var(--stam); padding:1px 5px; border-radius:3px; }
+    .demo { position:relative; }
+    .theme-toggle { position:fixed; top:16px; right:16px; padding:6px 12px; border-radius:8px; border:1px solid var(--bd); background:var(--bg-sur); color:var(--t2); font-size:11px; cursor:pointer; z-index:200; }
+    /* For the demo we keep menus statically visible inside .demo.show-menu */
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">다크 모드</button>
+
+<div class="ph">
+  <h1>STAM Common Custom Select Preview <span style="font-size:11px;background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;margin-left:8px;font-weight:700">v1</span></h1>
+  <p>공통 <code>.stam-cs-*</code> 클래스 시각 확인 — stam.tokens / components / custom-select 만 로드. fn-cs / ss-cs / wbs-sel 통합 기준.</p>
+  <div class="related">
+    <span style="color:var(--t3);align-self:center">Related:</span>
+    <a href="STAM-Board-List-Template-Contract-v1.html">Board List Contract v1</a>
+    <a href="STAM-Common-Select-Table-Preview.html">Select Table Preview</a>
+    <a href="STAM-Docs-Index.html">Docs Index</a>
+  </div>
+</div>
+
+<!-- ── A. 기본 상태 ── -->
+<div class="sec">
+  <div class="sec-h">A. 기본 상태 — closed</div>
+  <div class="sec-b">
+    <div class="grid">
+      <div>
+        <div class="card-label">기본 (값 있음)</div>
+        <div class="stam-cs">
+          <button type="button" class="stam-cs-trigger" data-stam-cs-toggle aria-haspopup="listbox" aria-expanded="false">
+            <span class="stam-cs-value">클로드</span>
+            <svg class="stam-cs-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+      </div>
+      <div>
+        <div class="card-label">placeholder (값 없음)</div>
+        <div class="stam-cs">
+          <button type="button" class="stam-cs-trigger" data-stam-cs-toggle aria-haspopup="listbox" aria-expanded="false">
+            <span class="stam-cs-value is-placeholder">— 담당자 선택 —</span>
+            <svg class="stam-cs-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+      </div>
+      <div>
+        <div class="card-label">disabled <code>.is-disabled</code></div>
+        <div class="stam-cs is-disabled">
+          <button type="button" class="stam-cs-trigger" disabled aria-haspopup="listbox" aria-expanded="false">
+            <span class="stam-cs-value">박PM</span>
+            <svg class="stam-cs-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── B. open 상태 (panel 표시) ── -->
+<div class="sec">
+  <div class="sec-h">B. open 상태 — panel 표시 / hover / selected / placeholder</div>
+  <div class="sec-b">
+    <div class="grid">
+      <!-- B1: 선택된 옵션 + hover/active 옵션 -->
+      <div>
+        <div class="card-label">선택 + hover/active 옵션</div>
+        <div class="stam-cs is-open" style="margin-bottom:200px">
+          <button type="button" class="stam-cs-trigger" data-stam-cs-toggle aria-haspopup="listbox" aria-expanded="true">
+            <span class="stam-cs-value">박PM</span>
+            <svg class="stam-cs-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="stam-cs-menu" role="listbox">
+            <div class="stam-cs-opt" role="option">
+              <span class="stam-cs-check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="stam-cs-otext">이서연</span>
+            </div>
+            <div class="stam-cs-opt is-active" role="option">
+              <span class="stam-cs-check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="stam-cs-otext">김기획</span>
+            </div>
+            <div class="stam-cs-opt is-sel" role="option" aria-selected="true">
+              <span class="stam-cs-check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="stam-cs-otext">박PM</span>
+            </div>
+            <div class="stam-cs-opt" role="option">
+              <span class="stam-cs-check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="stam-cs-otext">최개발</span>
+            </div>
+            <div class="stam-cs-opt" role="option">
+              <span class="stam-cs-check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="stam-cs-otext">정디자인</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- B2: placeholder 옵션 + 긴 텍스트 -->
+      <div>
+        <div class="card-label">placeholder 옵션 + 긴 텍스트 ellipsis</div>
+        <div class="stam-cs is-open" style="margin-bottom:200px">
+          <button type="button" class="stam-cs-trigger" data-stam-cs-toggle aria-haspopup="listbox" aria-expanded="true">
+            <span class="stam-cs-value is-placeholder">— 단계 선택 —</span>
+            <svg class="stam-cs-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="stam-cs-menu" role="listbox">
+            <div class="stam-cs-opt is-placeholder" role="option">
+              <span class="stam-cs-check"></span>
+              <span class="stam-cs-otext">— 단계 선택 —</span>
+            </div>
+            <div class="stam-cs-opt" role="option">
+              <span class="stam-cs-check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="stam-cs-otext">착수</span>
+            </div>
+            <div class="stam-cs-opt" role="option">
+              <span class="stam-cs-check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="stam-cs-otext">분석</span>
+            </div>
+            <div class="stam-cs-opt is-sel" role="option" aria-selected="true">
+              <span class="stam-cs-check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="stam-cs-otext">설계 — 매우 긴 옵션 텍스트가 들어가도 줄임표로 처리됩니다 (ellipsis)</span>
+            </div>
+            <div class="stam-cs-opt" role="option">
+              <span class="stam-cs-check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="stam-cs-otext">구현</span>
+            </div>
+            <div class="stam-cs-opt is-disabled" role="option" aria-disabled="true">
+              <span class="stam-cs-check"></span>
+              <span class="stam-cs-otext">검수 (disabled 옵션)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- B3: focus only (no menu) -->
+      <div>
+        <div class="card-label">focus / open 상태 ring 만</div>
+        <div class="stam-cs is-open" style="margin-bottom:80px">
+          <button type="button" class="stam-cs-trigger" data-stam-cs-toggle aria-haspopup="listbox" aria-expanded="true" aria-label="포커스 상태 demo">
+            <span class="stam-cs-value">검토자 (focus ring)</span>
+            <svg class="stam-cs-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── C. 스펙 요약 ── -->
+<div class="sec">
+  <div class="sec-h">C. 스펙 요약</div>
+  <div class="sec-b" style="font-size:12px; line-height:1.7; color:var(--t2)">
+    <ul>
+      <li>Trigger: h <b>38px</b> / radius <code>--r-md</code> / bd <code>--bd</code> / bg <code>--bg-sur</code> / 12.5px <code>--t1</code></li>
+      <li>Open / focus ring: border <code>--stam</code> + box-shadow 0 0 0 2px <code>--stam-soft</code></li>
+      <li>Menu: bg <code>--bg-sur</code> / border <code>--bd</code> / shadow 0 8px 24px / radius <code>--r-md</code> / max-h 220px</li>
+      <li>Option: padding 7px 9px / radius <code>--r-sm</code> / 12.5px / 500 / color <code>--t2</code></li>
+      <li>Hover · is-active: bg <code>--bg-sur2</code>, color <code>--t1</code> (라이트) / <code>rgba(255,255,255,.06)</code> (다크)</li>
+      <li>Selected: bg <code>--stam-soft</code>, color <code>--stam</code>, font-weight <b>700</b> + check icon 표시</li>
+      <li>Placeholder: color <code>--t3</code>, hover bg-sur2 + color 유지</li>
+      <li>Disabled (whole): opacity .5 + pointer-events none / disabled option: opacity .4 + pointer-events none</li>
+      <li>Flip up: <code>.stam-cs.is-up .stam-cs-menu</code> (bottom: calc(100%+4px))</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById('themeToggle');
+  b.addEventListener('click', function(){
+    var html = document.documentElement;
+    var d = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', d ? 'light' : 'dark');
+    b.textContent = d ? '다크 모드' : '라이트 모드';
+  });
+})();
+</script>
+</body>
+</html>

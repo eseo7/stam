@@ -1,0 +1,272 @@
+/* ─────────────────────────────────────────────
+   STAM Common Custom Select v1
+   PR #97 — fn-cs / ss-cs / wbs-sel 패턴 통합
+
+   목적:
+     게시판·drawer 어디서나 같은 custom select(dropdown) 모양을 쓰도록
+     공통 class 와 스타일을 한 곳에 정의. 새 화면이 화면별 .{ns}-cs-*
+     를 만드는 것을 막는다.
+
+   기본 사용 (정적):
+     <div class="stam-cs" data-stam-cs>
+       <button type="button" class="stam-cs-trigger" data-stam-cs-toggle
+         aria-haspopup="listbox" aria-expanded="false">
+         <span class="stam-cs-value">선택</span>
+         <svg class="stam-cs-icon" ...>caret</svg>
+       </button>
+       <div class="stam-cs-menu" role="listbox">
+         <div class="stam-cs-opt is-sel" role="option" aria-selected="true">
+           <span class="stam-cs-check"><svg ...>check</svg></span>
+           <span class="stam-cs-otext">옵션 A</span>
+         </div>
+         <div class="stam-cs-opt" role="option">
+           <span class="stam-cs-check"><svg ...>check</svg></span>
+           <span class="stam-cs-otext">옵션 B</span>
+         </div>
+       </div>
+     </div>
+
+   상태 클래스 (root <div class="stam-cs"> 에 부여):
+     .is-open       — panel 열림
+     .is-up         — panel 위로 펼침 (clipping 보정)
+     .is-disabled   — 전체 비활성
+
+   옵션 상태 (.stam-cs-opt 에 부여):
+     .is-sel        — 선택됨 (check 표시)
+     .is-active     — 키보드 강조 (hover 와 동일 톤)
+     .is-placeholder— placeholder 옵션 (강조색 금지)
+     .is-disabled   — 개별 옵션 비활성
+
+   로드 순서:
+     stam.components.css → stam.custom-select.css → 페이지 CSS
+   ───────────────────────────────────────────── */
+
+/* ═══════════════════════════════════════
+   1. Root
+   ═══════════════════════════════════════ */
+.stam-cs {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.stam-cs.is-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════
+   2. Trigger
+   ═══════════════════════════════════════ */
+.stam-cs-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  height: 38px;
+  padding: 0 11px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md, 6px);
+  background: var(--bg-sur);
+  color: var(--t1);
+  font-size: 12.5px;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color 120ms, box-shadow 120ms;
+}
+
+.stam-cs-trigger:hover { border-color: var(--bd-f, var(--bd-s)); }
+
+.stam-cs.is-open > .stam-cs-trigger,
+.stam-cs-trigger:focus-visible {
+  border-color: var(--stam);
+  box-shadow: 0 0 0 2px var(--stam-soft);
+  outline: none;
+}
+
+.stam-cs-trigger:disabled,
+.stam-cs.is-disabled .stam-cs-trigger {
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════
+   3. Value text
+   ═══════════════════════════════════════ */
+.stam-cs-value {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stam-cs-value.is-placeholder { color: var(--t3); }
+
+/* ═══════════════════════════════════════
+   4. Caret icon
+   ═══════════════════════════════════════ */
+.stam-cs-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--t3);
+  transition: transform 150ms, color 150ms;
+}
+
+.stam-cs.is-open .stam-cs-icon {
+  transform: rotate(180deg);
+  color: var(--stam);
+}
+
+/* ═══════════════════════════════════════
+   5. Menu (panel)
+   ═══════════════════════════════════════ */
+.stam-cs-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  max-height: 220px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md, 6px);
+  background: var(--bg-sur);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, .12);
+  display: none;
+  box-sizing: border-box;
+}
+
+.stam-cs.is-open .stam-cs-menu { display: block; }
+
+.stam-cs.is-up .stam-cs-menu {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+
+/* 스크롤바 스타일 */
+.stam-cs-menu::-webkit-scrollbar { width: 5px; }
+.stam-cs-menu::-webkit-scrollbar-thumb { background: rgba(84, 81, 232, .32); border-radius: 99px; }
+.stam-cs-menu::-webkit-scrollbar-track { background: transparent; }
+
+/* ═══════════════════════════════════════
+   6. Option
+   ─ 상태 우선순위 (낮음 → 높음):
+   1) base
+   2) placeholder base
+   3) hover / is-active (실 option)
+   4) placeholder hover / is-active (약하게)
+   5) is-sel (실 option, hover 보다 우선)
+   ═══════════════════════════════════════ */
+.stam-cs-opt {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 9px;
+  border-radius: var(--r-sm, 4px);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--t2);
+  background: transparent;
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+  user-select: none;
+}
+
+.stam-cs-opt.is-placeholder {
+  color: var(--t3);
+  background: transparent;
+  font-weight: 500;
+}
+
+.stam-cs-opt:hover,
+.stam-cs-opt.is-active {
+  background: var(--bg-sur2);
+  color: var(--t1);
+}
+
+.stam-cs-opt.is-placeholder:hover,
+.stam-cs-opt.is-placeholder.is-active {
+  background: var(--bg-sur2);
+  color: var(--t3);
+}
+
+.stam-cs-opt.is-sel {
+  background: var(--stam-soft);
+  color: var(--stam);
+  font-weight: 700;
+}
+
+.stam-cs-opt.is-sel:hover,
+.stam-cs-opt.is-sel.is-active {
+  background: var(--stam-soft);
+  color: var(--stam);
+}
+
+.stam-cs-opt.is-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════
+   7. Check slot
+   ═══════════════════════════════════════ */
+.stam-cs-check {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 13px;
+  height: 13px;
+  color: var(--stam);
+  visibility: hidden;
+}
+
+.stam-cs-opt.is-sel:not(.is-placeholder) .stam-cs-check {
+  visibility: visible;
+}
+
+.stam-cs-otext {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════
+   8. Dark mode
+   ═══════════════════════════════════════ */
+[data-theme="dark"] .stam-cs-trigger {
+  background: var(--bg-sur2);
+  border-color: var(--bd);
+  color: var(--t1);
+}
+
+[data-theme="dark"] .stam-cs-menu {
+  background: var(--bg-sur2);
+  border-color: var(--bd);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .45);
+}
+
+[data-theme="dark"] .stam-cs-opt:hover,
+[data-theme="dark"] .stam-cs-opt.is-active {
+  background: rgba(255, 255, 255, .06);
+  color: var(--t1);
+}
+
+[data-theme="dark"] .stam-cs-opt.is-placeholder:hover,
+[data-theme="dark"] .stam-cs-opt.is-placeholder.is-active {
+  background: rgba(255, 255, 255, .04);
+  color: var(--t3);
+}
+
+[data-theme="dark"] .stam-cs-opt.is-sel,
+[data-theme="dark"] .stam-cs-opt.is-sel:hover {
+  background: var(--stam-soft);
+  color: var(--stam);
+}
