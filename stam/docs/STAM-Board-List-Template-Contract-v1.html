@@ -411,6 +411,58 @@ window.STAMBoardList.init(document.querySelector('[data-stam-board-list]'), {
   </div>
 </div>
 
+<!-- ── 10'''. 공통 Form Controls ── -->
+<div class="sec">
+  <div class="sec-h">Section 10''' · 공통 Form Controls — <code>.stam-input</code> / <code>.stam-textarea</code> / <code>.stam-label</code></div>
+  <div class="sec-b">
+    <p>drawer / 등록 폼 / 검색 / 필터 등에서 사용하는 text input · textarea · label · help · error 메시지는 화면별 namespace(<code>.fn-inp</code> / <code>.msl-inp</code> / <code>.rq-inp</code>)를 새로 만들지 않고 공통 <code>.stam-input</code> / <code>.stam-textarea</code> 패턴을 사용한다. CSS 파일: <code>stam/css/stam.form-controls.css</code>. 시각 기준 및 dom 구조는 <a href="STAM-Common-Form-Controls-Preview.html">Form Controls Preview v1</a> 참조.</p>
+<pre><code>&lt;div class="stam-form-field"&gt;
+  &lt;label class="stam-label"&gt;제목&lt;span class="req"&gt;*&lt;/span&gt;&lt;/label&gt;
+  &lt;input type="text" class="stam-input" placeholder="제목을 입력하세요"&gt;
+  &lt;p class="stam-field-help"&gt;최대 80자.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class="stam-form-field is-error"&gt;
+  &lt;label class="stam-label"&gt;코드&lt;span class="req"&gt;*&lt;/span&gt;&lt;/label&gt;
+  &lt;input type="text" class="stam-input" value="BRD-"&gt;
+  &lt;p class="stam-field-error"&gt;코드 형식이 올바르지 않습니다.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class="stam-form-grid"&gt;
+  &lt;div class="stam-form-field"&gt;... &lt;/div&gt;
+  &lt;div class="stam-form-field"&gt;... &lt;/div&gt;
+  &lt;div class="stam-form-field full-span"&gt;
+    &lt;label class="stam-label"&gt;설명&lt;/label&gt;
+    &lt;textarea class="stam-textarea" placeholder="설명"&gt;&lt;/textarea&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+    <table class="t" style="margin-top:10px">
+      <thead><tr><th>Control 상태</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td><code>:focus</code></td><td>border <code>--fc-bd-focus</code> + 3px soft ring <code>--fc-ring</code></td></tr>
+        <tr><td><code>::placeholder</code></td><td>color <code>--fc-ph (--t3)</code></td></tr>
+        <tr><td><code>:disabled</code> · <code>.is-disabled</code></td><td>opacity .45 + pointer-events none + cursor not-allowed</td></tr>
+        <tr><td><code>[readonly]</code> · <code>.is-readonly</code></td><td>bg <code>--fc-bg-ro (--bg-sur2)</code> — disabled 와 톤 구분</td></tr>
+        <tr><td><code>.is-error</code></td><td>border/bg/ring red + <code>.stam-field-error</code> 메시지</td></tr>
+        <tr><td><code>.is-success</code></td><td>border/bg/ring green</td></tr>
+      </tbody>
+    </table>
+    <table class="t" style="margin-top:8px">
+      <thead><tr><th>Field-level 상태 (<code>.stam-form-field</code>)</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td><code>.is-error</code></td><td>내부 input / textarea / select / date 에 error 톤 자동 전파</td></tr>
+        <tr><td><code>.is-success</code></td><td>내부 control 에 success 톤 자동 전파</td></tr>
+        <tr><td><code>.is-disabled</code></td><td>내부 control + label opacity 일괄 적용</td></tr>
+        <tr><td><code>.is-readonly</code></td><td>내부 input/textarea/date 에 readonly 톤 일괄 적용</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">
+      * 검색 input(<code>.stam-list-search-input</code>, <code>stam.table-selection.css</code>)은 toolbar 내부 wrapper 기반 컴포넌트이며 본 공통 <code>.stam-input</code> 과 selector 가 겹치지 않는다. 화면별 <code>.fn-inp</code> / <code>.msl-inp</code> / <code>.rq-inp</code> 는 후속 PR 에서 점진 전환한다.
+    </p>
+  </div>
+</div>
+
 <!-- ── 10. 후속 적용 순서 ── -->
 <div class="sec">
   <div class="sec-h">Section 10 · 후속 적용 순서</div>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM Common Form Controls Preview v1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <link rel="stylesheet" href="../css/stam.form-controls.css">
+  <style>
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--t1); margin:0; padding:32px; }
+    .ph { margin-bottom:24px; }
+    .ph h1 { font-size:18px; font-weight:700; margin:0 0 4px; }
+    .ph p { font-size:12px; color:var(--t3); margin:0; }
+    .related { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:11px; }
+    .related a { color:var(--stam); text-decoration:none; padding:4px 10px; border:1px solid var(--bd); border-radius:6px; background:var(--bg-sur); }
+    .grid { display:grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap:20px; }
+    @media (max-width: 1000px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } }
+    .sec { background:var(--bg-sur); border:1px solid var(--bd); border-radius:10px; overflow:visible; box-shadow:0 1px 6px rgba(0,0,0,.05); margin-bottom:28px; }
+    .sec-h { padding:12px 16px; border-bottom:1px solid var(--bd); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--t3); background:var(--bg-sur2); }
+    .sec-b { padding:16px; }
+    .card-label { font-size:11px; color:var(--t3); margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+    .card-label code { font-family:'JetBrains Mono', monospace; font-size:10.5px; background:rgba(84,81,232,.08); color:var(--stam); padding:1px 5px; border-radius:3px; }
+    .theme-toggle { position:fixed; top:16px; right:16px; padding:6px 12px; border-radius:8px; border:1px solid var(--bd); background:var(--bg-sur); color:var(--t2); font-size:11px; cursor:pointer; z-index:200; }
+    .spec ul { font-size:12px; line-height:1.7; color:var(--t2); margin:0; padding-left:18px; }
+    .spec code { font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--stam); }
+    .twoframe { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    @media (max-width: 720px) { .twoframe { grid-template-columns:1fr; } }
+    .frame { border:1px solid var(--bd); border-radius:10px; padding:16px; }
+    .frame.light { background:#FFFFFF; color:#0F172A; }
+    .frame.dark  { background:#0B1020; color:#E2E8F0; }
+    .frame .ftitle { font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; opacity:.6; margin-bottom:10px; }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">다크 모드</button>
+
+<div class="ph">
+  <h1>STAM Common Form Controls Preview <span style="font-size:11px;background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;margin-left:8px;font-weight:700">v1</span></h1>
+  <p>공통 <code>.stam-input</code> / <code>.stam-textarea</code> / <code>.stam-label</code> 시각 확인 — stam.tokens / components / form-controls 만 로드. fn-inp / msl-inp / rq-inp 통합 기준.</p>
+  <div class="related">
+    <span style="color:var(--t3);align-self:center">Related:</span>
+    <a href="STAM-Board-List-Template-Contract-v1.html">Board List Contract v1</a>
+    <a href="STAM-Common-Custom-Select-Preview.html">Custom Select Preview</a>
+    <a href="STAM-Form-Controls-Guide.html">Form Controls Guide</a>
+    <a href="STAM-Docs-Index.html">Docs Index</a>
+  </div>
+</div>
+
+<!-- ── A. text input 상태 ── -->
+<div class="sec">
+  <div class="sec-h">A. text input — 기본 / placeholder / focus / disabled / readonly</div>
+  <div class="sec-b">
+    <div class="grid">
+      <div>
+        <div class="card-label">기본 (값 있음) <code>.stam-input</code></div>
+        <input type="text" class="stam-input" value="STAM 신규 보드">
+      </div>
+      <div>
+        <div class="card-label">placeholder (값 없음)</div>
+        <input type="text" class="stam-input" placeholder="제목을 입력하세요">
+      </div>
+      <div>
+        <div class="card-label">focus 상태 (자동 포커스)</div>
+        <input type="text" class="stam-input" id="autoFocus" value="포커스 ring 미리보기">
+      </div>
+      <div>
+        <div class="card-label">disabled <code>:disabled</code></div>
+        <input type="text" class="stam-input" disabled value="비활성 입력">
+      </div>
+      <div>
+        <div class="card-label">readonly <code>[readonly]</code></div>
+        <input type="text" class="stam-input" readonly value="읽기전용 값">
+      </div>
+      <div>
+        <div class="card-label">error <code>.is-error</code></div>
+        <input type="text" class="stam-input is-error" value="잘못된 값">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── B. warning / success ── -->
+<div class="sec">
+  <div class="sec-h">B. warning · success 상태 — class 기준</div>
+  <div class="sec-b">
+    <div class="grid">
+      <div>
+        <div class="card-label">success <code>.is-success</code></div>
+        <input type="text" class="stam-input is-success" value="검증 통과">
+      </div>
+      <div>
+        <div class="card-label">warning (후보 · is-error 톤 차용)</div>
+        <input type="text" class="stam-input is-error" style="--fc-err-bd:#F59E0B;--fc-err-bg:rgba(245,158,11,.06);--fc-err-ring:0 0 0 3px rgba(245,158,11,.16)" value="주의 — 확인 필요">
+      </div>
+      <div>
+        <div class="card-label">type=search <code>type="search"</code></div>
+        <input type="search" class="stam-input" value="검색어">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── C. textarea ── -->
+<div class="sec">
+  <div class="sec-h">C. textarea — 기본 / placeholder / disabled / readonly / error</div>
+  <div class="sec-b">
+    <div class="grid">
+      <div>
+        <div class="card-label">기본 <code>.stam-textarea</code></div>
+        <textarea class="stam-textarea" rows="3">여러 줄 입력 — min-height 80px, resize: vertical</textarea>
+      </div>
+      <div>
+        <div class="card-label">placeholder</div>
+        <textarea class="stam-textarea" placeholder="설명을 입력하세요&#10;여러 줄 입력 가능"></textarea>
+      </div>
+      <div>
+        <div class="card-label">disabled</div>
+        <textarea class="stam-textarea" disabled>비활성 textarea</textarea>
+      </div>
+      <div>
+        <div class="card-label">readonly</div>
+        <textarea class="stam-textarea" readonly>읽기전용 textarea — 회색 배경</textarea>
+      </div>
+      <div>
+        <div class="card-label">error <code>.is-error</code></div>
+        <textarea class="stam-textarea is-error">오류 상태 textarea</textarea>
+      </div>
+      <div>
+        <div class="card-label">success <code>.is-success</code></div>
+        <textarea class="stam-textarea is-success">검증 통과 textarea</textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── D. label · required · help · error message ── -->
+<div class="sec">
+  <div class="sec-h">D. label / required / help / error message</div>
+  <div class="sec-b">
+    <div class="grid">
+      <div>
+        <div class="card-label">label + required <code>.stam-label .req</code></div>
+        <div class="stam-form-field">
+          <label class="stam-label">제목<span class="req">*</span></label>
+          <input type="text" class="stam-input" placeholder="제목을 입력하세요">
+        </div>
+      </div>
+      <div>
+        <div class="card-label">label + optional</div>
+        <div class="stam-form-field">
+          <label class="stam-label">메모<span class="opt">(선택)</span></label>
+          <input type="text" class="stam-input" placeholder="메모">
+        </div>
+      </div>
+      <div>
+        <div class="card-label">label + help text <code>.stam-field-help</code></div>
+        <div class="stam-form-field">
+          <label class="stam-label">담당자 이메일</label>
+          <input type="email" class="stam-input" placeholder="user@stam.io">
+          <p class="stam-field-help">알림 메일이 발송됩니다.</p>
+        </div>
+      </div>
+      <div>
+        <div class="card-label">label + error message <code>.stam-field-error</code></div>
+        <div class="stam-form-field is-error">
+          <label class="stam-label">화면 코드<span class="req">*</span></label>
+          <input type="text" class="stam-input" value="SCR-">
+          <p class="stam-field-error">코드 형식이 올바르지 않습니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── E. 폼 레이아웃 ── -->
+<div class="sec">
+  <div class="sec-h">E. form layout — grid / row / field</div>
+  <div class="sec-b">
+    <div class="card-label"><code>.stam-form-grid</code> — 2컬럼 / 좁은 화면에서 1컬럼</div>
+    <div class="stam-form-grid">
+      <div class="stam-form-field">
+        <label class="stam-label">제목<span class="req">*</span></label>
+        <input type="text" class="stam-input" value="신규 보드">
+      </div>
+      <div class="stam-form-field">
+        <label class="stam-label">코드<span class="req">*</span></label>
+        <input type="text" class="stam-input" value="BRD-001">
+      </div>
+      <div class="stam-form-field full-span">
+        <label class="stam-label">설명</label>
+        <textarea class="stam-textarea" placeholder="보드 설명을 입력하세요"></textarea>
+        <p class="stam-field-help">최대 500자.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── F. light / dark 비교 ── -->
+<div class="sec">
+  <div class="sec-h">F. light / dark 동시 비교</div>
+  <div class="sec-b">
+    <div class="twoframe">
+      <div class="frame light" data-theme="light">
+        <div class="ftitle">Light</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <input type="text" class="stam-input" placeholder="placeholder">
+          <input type="text" class="stam-input" value="값 있음">
+          <input type="text" class="stam-input" readonly value="readonly">
+          <input type="text" class="stam-input" disabled value="disabled">
+          <input type="text" class="stam-input is-error" value="error">
+          <textarea class="stam-textarea" rows="2" placeholder="textarea"></textarea>
+        </div>
+      </div>
+      <div class="frame dark" data-theme="dark">
+        <div class="ftitle">Dark</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <input type="text" class="stam-input" placeholder="placeholder">
+          <input type="text" class="stam-input" value="값 있음">
+          <input type="text" class="stam-input" readonly value="readonly">
+          <input type="text" class="stam-input" disabled value="disabled">
+          <input type="text" class="stam-input is-error" value="error">
+          <textarea class="stam-textarea" rows="2" placeholder="textarea"></textarea>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--t3);margin:10px 0 0">* 좌/우 프레임 각각 <code>data-theme</code> 속성 지정 — 토큰만으로 light/dark 톤 전환되는지 시각 확인.</p>
+  </div>
+</div>
+
+<!-- ── G. 스펙 요약 ── -->
+<div class="sec">
+  <div class="sec-h">G. 스펙 요약</div>
+  <div class="sec-b spec">
+    <ul>
+      <li><b>Input</b>: height <code>--fc-h (36px)</code> / radius <code>--fc-radius (8px)</code> / bd <code>--fc-bd</code> / bg <code>--fc-bg</code> / text <code>--fc-text</code> / 13px</li>
+      <li><b>Focus</b>: border <code>--fc-bd-focus</code> + box-shadow <code>--fc-ring (0 0 0 3px rgba(stam,.15))</code></li>
+      <li><b>Placeholder</b>: color <code>--fc-ph (--t3)</code></li>
+      <li><b>Disabled</b>: opacity <code>--fc-disabled-opacity (.45)</code> + pointer-events none + cursor not-allowed</li>
+      <li><b>Readonly</b>: bg <code>--fc-bg-ro (--bg-sur2)</code> + color <code>--t2</code> (disabled와 구분)</li>
+      <li><b>Textarea</b>: min-height 80px / resize vertical (disabled·readonly에서 none)</li>
+      <li><b>Error</b>: border <code>--fc-err-bd (#EF4444)</code> + bg <code>--fc-err-bg</code> + ring <code>--fc-err-ring</code> + 메시지 <code>.stam-field-error</code></li>
+      <li><b>Success</b>: border <code>--fc-ok-bd (#10B981)</code> + bg <code>--fc-ok-bg</code> + ring <code>--fc-ok-ring</code></li>
+      <li><b>Warning</b>: 이번 PR에서는 별도 토큰 없이 <code>.is-error</code> 톤을 amber(#F59E0B)로 변수 오버라이드 (제품 적용 보류)</li>
+      <li><b>Label</b>: 11px / 600 / <code>--t2</code> · <code>.req</code> 빨간 별표 · <code>.opt</code> 회색 보조</li>
+      <li><b>Help / Error 메시지</b>: <code>.stam-field-help</code> (t3) / <code>.stam-field-error</code> (err-text + 경고 아이콘)</li>
+      <li><b>Field-level 상태 전파</b>: <code>.stam-form-field.is-error</code> / <code>.is-success</code> / <code>.is-disabled</code> / <code>.is-readonly</code> 가 내부 control 에 자동 적용</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── H. 적용 범위 / 비적용 ── -->
+<div class="sec">
+  <div class="sec-h">H. 이번 PR 범위</div>
+  <div class="sec-b spec">
+    <ul>
+      <li>공통 CSS: <code>stam/css/stam.form-controls.css</code> — 이미 존재. 이번 PR에서 CSS 변경 없음.</li>
+      <li>Preview 생성: <code>stam/docs/STAM-Common-Form-Controls-Preview.html</code> (본 문서)</li>
+      <li>Docs 링크: Component Guide / Docs Index / Contract v1 에 본 Preview 링크 추가</li>
+      <li>제품 화면 적용 보류: <code>.fn-inp</code> / <code>.msl-inp</code> / <code>.rq-inp</code> 등 화면별 입력 클래스는 후속 PR에서 단계적 전환</li>
+      <li>금지 파일 미수정: tokens / custom-select / board-layout / table-selection / board-list.js / nav-data.js / shell·topbar·sidebar 렌더러 / API·저장 로직</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById('themeToggle');
+  b.addEventListener('click', function(){
+    var html = document.documentElement;
+    var d = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', d ? 'light' : 'dark');
+    b.textContent = d ? '다크 모드' : '라이트 모드';
+  });
+  var f = document.getElementById('autoFocus');
+  if (f) { try { f.focus({preventScroll:true}); } catch(e) { f.focus(); } }
+})();
+</script>
+</body>
+</html>
