@@ -51,11 +51,13 @@
   <div class="meta">
     <span class="chip">조사일: 2026-06-15</span>
     <span class="chip">기준 PR: #105 Audit · #100 (WBS custom select)</span>
+    <span class="chip">반영: #111 (row active/selected 분리 정상화)</span>
     <span class="chip">대상: WBS 1개 화면</span>
     <span class="chip">성격: 구조 검토 (코드 미수정)</span>
   </div>
   <div class="related">
     <span style="color:var(--t3);align-self:center">Related:</span>
+    <a href="STAM-WBS-Board-List-Contract-v1.html">WBS Board List Contract v1</a>
     <a href="STAM-Board-List-Controller-Target-Audit-Report-v1.html">Controller Target Audit v1</a>
     <a href="STAM-Board-List-Template-Contract-v1.html">Board List Contract v1</a>
     <a href="STAM-Custom-Select-Contract-v1.html">Custom Select Contract v1</a>
@@ -68,12 +70,14 @@
   <div class="sec-h">Section 1 · Summary</div>
   <div class="sec-b">
     <div class="verdict-box">
-      <p class="big">최종 판정: <span class="pill warn">Controller 확장 설계 필요</span> &nbsp;(직접 적용 보류 · 현행 유지)</p>
-      <p style="margin:0;color:var(--t2)">WBS 는 <strong>그룹 다중 <code>&lt;tbody&gt;</code> + 런타임 주입 행 checkbox + 22컬럼 가로스크롤/포커스/Gantt/전체보기 모드</strong>가 얽힌 특수 구조다. 현행은 checkbox 선택·삭제 카운트·전체선택은 동작하지만, <strong>row click 이 <code>.is-active</code> 가 아니라 <code>.is-selected</code> 를 부여</strong>하여 계약(row=active / checkbox=selected 분리)을 충족하지 못한다. 평면 행 모델인 <code>STAMBoardList</code> 를 그대로 적용하기에는 위험이 크다.</p>
+      <p class="big">최종 판정: <span class="pill neutral">STAMBoardList 직접 적용 보류</span> <span class="pill neutral">WBS 특수 구조 · 현행 유지</span> <span class="pill ok">자체 WBS 계약으로 관리</span></p>
+      <p style="margin:0;color:var(--t2)">WBS 는 <strong>그룹 다중 <code>&lt;tbody&gt;</code> + 런타임 주입 행 checkbox + 22컬럼 가로스크롤/포커스/Gantt/전체보기 모드</strong>가 얽힌 특수 구조라, 평면 행 모델인 <code>STAMBoardList</code> 직접 적용은 보류한다. 다만 <strong>PR #111 에서 row=active / checkbox=selected 분리 원칙은 정상화 완료</strong>되어, WBS 도 Board List 상호작용 계약을 (자체 구현으로) 충족한다. WBS 는 당분간 <a href="STAM-WBS-Board-List-Contract-v1.html">WBS 전용 Board List 계약</a> 기준으로 유지하고, <code>STAMBoardList</code> 확장 설계는 장기 과제(별도 PR)로 둔다.</p>
     </div>
     <ul class="tight" style="margin-top:12px">
-      <li><strong>직접 Controller 적용:</strong> ❌ 보류 — 그룹 다중 tbody / 주입형 checkbox / 행클릭·드로어·포커스·Gantt 얽힘과 충돌.</li>
-      <li><strong>권장 방향:</strong> ① 단기 — <strong>현행 유지</strong>. ② 중기 — <strong>WBS 전용 계약 문서화</strong> + <strong><code>STAMBoardList</code> 그룹/주입형 어댑터 확장 설계</strong>(별도 PR, <code>stam.board-list.js</code> 변경 동반). ③ (선택) 소규모 정상화 PR 로 <strong>row click → <code>.is-active</code> 분리</strong> 및 삭제 라벨 표준화만 우선 교정 가능.</li>
+      <li><strong>STAMBoardList 직접 적용:</strong> ❌ 보류 — 그룹 다중 tbody / 주입형 checkbox / 가로스크롤·포커스·Gantt·전체보기 얽힘.</li>
+      <li><strong>row active / checkbox selected 분리:</strong> ✅ <strong>PR #111 에서 정상화 완료</strong> (WBS 자체 로직, <code>board-list.js</code> 미수정).</li>
+      <li><strong>관리 기준:</strong> <a href="STAM-WBS-Board-List-Contract-v1.html">WBS Board List Contract v1</a> — 자체 계약 문서로 유지.</li>
+      <li><strong>장기 과제:</strong> <code>STAMBoardList</code> 그룹/주입형 어댑터 확장 설계는 <strong>별도 PR 에서만</strong> 검토(<code>stam.board-list.js</code> 변경 동반).</li>
     </ul>
   </div>
 </div>
@@ -114,17 +118,17 @@
   <div class="sec-h">Section 3 · Board List Contract 대비표</div>
   <div class="sec-b" style="overflow-x:auto">
     <table class="t">
-      <thead><tr><th>항목</th><th>계약 기준</th><th>WBS 현행 (Playwright 실측)</th><th>충족</th></tr></thead>
+      <thead><tr><th>항목</th><th>계약 기준</th><th>WBS 현행 (PR #111 반영 · Playwright 실측)</th><th>충족</th></tr></thead>
       <tbody>
-        <tr><td>row click</td><td><code>.is-active</code> + drawer open, 선택 미변경</td><td>drawer open ✓ — 단, <code>.is-active</code> 아님 / <code>.is-selected</code> 부여, <strong>다른 행 <code>.is-selected</code> 시각 해제</strong></td><td class="no">✗</td></tr>
+        <tr><td>row click</td><td><code>.is-active</code> + drawer open, 선택 미변경</td><td><strong>PR #111: <code>.is-active</code> 만 부여</strong> + drawer open, checkbox checked·count 미변경, <code>.is-selected</code> 미부여</td><td class="yes">✓</td></tr>
         <tr><td>checkbox click</td><td><code>.is-selected</code> + checked + count 포함, drawer 미오픈</td><td><code>.is-selected</code> + checked + <code>삭제 1</code> + drawer 미오픈</td><td class="yes">✓</td></tr>
-        <tr><td>selected + active 동시</td><td>지원(<code>.is-selected.is-active</code>)</td><td><code>.is-active</code> 부재 → 분리 불가. row click 이 선택 시각과 충돌</td><td class="no">✗</td></tr>
-        <tr><td>Escape</td><td><code>.is-active</code> 해제, <code>.is-selected</code> 유지</td><td>drawer 닫힘 + 선택 유지 (active 개념 없음)</td><td class="part">부분</td></tr>
-        <tr><td>delete count</td><td><code>삭제 (N)</code>, <code>.stam-delete-label</code></td><td><code>삭제 N</code>(괄호 없음), 버튼 textContent 직접</td><td class="part">부분</td></tr>
-        <tr><td>header checkbox</td><td><code>[data-stam-check-all]</code>, 전체/부분/indeterminate</td><td><code>#wbs-chk-all</code>(속성 없음) — 전체선택·indeterminate 동작 ✓</td><td class="part">부분</td></tr>
+        <tr><td>selected + active 동시</td><td>지원(<code>.is-selected.is-active</code>)</td><td><strong>PR #111: selected row 를 click 하면 <code>.is-selected.is-active</code> 동시 상태 가능</strong></td><td class="yes">✓</td></tr>
+        <tr><td>Escape / drawer close</td><td><code>.is-active</code> 해제, <code>.is-selected</code> 유지</td><td><strong>PR #111: <code>.is-active</code> 만 해제</strong>, <code>.is-selected</code>·checked·count 유지</td><td class="yes">✓</td></tr>
+        <tr><td>delete count</td><td><code>삭제 (N)</code>, <code>.stam-delete-label</code></td><td>checkbox 기준 <code>삭제 N</code>(WBS 자체 라벨 표기, 괄호 없음) — 동작은 동일, 표기만 차이</td><td class="part">부분</td></tr>
+        <tr><td>header checkbox</td><td><code>[data-stam-check-all]</code>, 전체/부분/indeterminate</td><td><code>#wbs-chk-all</code>(공통 속성 없음) — 전체선택·indeterminate 동작 ✓</td><td class="part">부분</td></tr>
       </tbody>
     </table>
-    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 핵심 미충족: row click 이 <code>.is-active</code> 가 아니라 <code>.is-selected</code> 를 부여하고 다른 행의 선택 시각을 지운다. 이때 <strong>지워진 행의 checkbox 는 여전히 checked 이고 삭제 카운트도 유지</strong>되어, 시각 선택(하이라이트)과 논리 선택(checkbox/카운트)이 <strong>desync</strong> 된다. (화면설계서가 계약을 완전 충족했던 것과 대비.)</p>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* <strong>PR #111 이후 핵심 상호작용 계약(row=active / checkbox=selected / 동시 상태 / Escape 분리)은 모두 충족</strong>한다(이전 desync 해소). 남은 "부분" 항목은 <strong>공통 hook 마크업 차이</strong>(삭제 라벨 <code>삭제 N</code> 표기 · <code>data-stam-check-all</code>/<code>.stam-delete-label</code> 미부여)일 뿐 동작은 계약과 일치한다. 이 마크업 정합은 <code>STAMBoardList</code> 확장 설계 시 함께 정리한다.</p>
   </div>
 </div>
 
@@ -139,7 +143,7 @@
         <tr><td>동적(주입형) checkbox</td><td>행 checkbox 를 JS 가 런타임 주입(<code>initCheckboxes</code>)</td><td class="part">중 — init 순서 의존 + 주입 핸들러와 컨트롤러 위임 이중화</td></tr>
         <tr><td>가로 스크롤 / 포커스 컬럼</td><td>22컬럼 와이드, <code>.is-focus-col</code>/<code>.is-shared-col</code> 표시 토글, Gantt 섹션</td><td class="part">중 — 레이아웃·표시 토글이 컨트롤러와 무관하나 행 구조 가정에 영향</td></tr>
         <tr><td>특수 필터/접기펼치기</td><td>그룹 토글·전체 펼치기/접기·Gantt 접기·포커스 모드·드로어 전체보기</td><td class="part">중 — 상호작용 다수, 회귀 표면 큼</td></tr>
-        <tr><td>row click 충돌</td><td>row click 이 <code>.is-selected</code> 부여 + 타행 선택 시각 해제 + 드로어 오픈이 한 핸들러에 묶임</td><td class="no">높음 — 계약(row=active) 적용하려면 핸들러 재설계 필요</td></tr>
+        <tr><td>row click 충돌 <span class="pill ok">PR #111 해소</span></td><td>(이전) row click 이 <code>.is-selected</code> 부여 + 타행 선택 시각 해제 → desync. <strong>PR #111 에서 row click = <code>.is-active</code> 만으로 분리하여 해소</strong></td><td class="part">완화 — 현재는 계약 충족. 단 그룹/주입형 구조 위험은 잔존</td></tr>
         <tr><td>저장/삭제/API 연결 가능성</td><td>현행 삭제는 확인 후 동작(목업). 실제 삭제/저장 로직 연결 시 컨트롤러 <code>onDelete</code> 경유 필요</td><td class="part">중 — 본 검토 범위 밖, 적용 PR 시 분리 처리</td></tr>
       </tbody>
     </table>
@@ -158,7 +162,7 @@
         <tr><td>③ Controller 확장 필요</td><td class="yes">권장(중기)</td><td>공통 컨트롤러가 <strong>그룹 다중 tbody · 런타임 주입 checkbox · row=active/checkbox=selected 분리</strong>를 지원하도록 <code>stam.board-list.js</code> 확장 설계가 선행되어야 완전 적용 가능</td></tr>
       </tbody>
     </table>
-    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 화면설계서(PR #109)는 자체 엔진이 <strong>계약을 이미 충족</strong>해 "현행 유지"였으나, WBS 는 row-click 충돌로 <strong>계약 일부 미충족</strong>이라는 점이 다르다. 따라서 단순 현행 유지보다 한 단계 위인 "확장 설계 필요"로 판정한다.</p>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* PR #111 이후 WBS 의 row-click 충돌이 해소되어 <strong>핵심 상호작용 계약은 자체 구현으로 충족</strong>한다. 따라서 단기 판정은 <strong>직접 적용 보류 · 현행 유지(자체 WBS 계약 관리)</strong> 이며, ③ Controller 확장(옵션)은 <strong>장기 과제</strong>로 둔다(별도 PR, <code>board-list.js</code> 변경 동반). 화면설계서(#109)와 동일하게 "특수 구조 현행 유지" 트랙으로 수렴.</p>
   </div>
 </div>
 
@@ -167,10 +171,10 @@
   <div class="sec-h">Section 6 · 권장 다음 작업</div>
   <div class="sec-b">
     <ol class="tight">
-      <li><strong>현행 유지 (단기)</strong> — 본 PR 은 조사·문서화만. WBS 제품 코드는 변경하지 않는다.</li>
-      <li><strong>WBS 전용 계약 문서화</strong> — 그룹 다중 tbody·주입형 checkbox·포커스/Gantt/전체보기 모드를 포함한 WBS 목록 계약(별도 docs)을 정의해, 공통 계약과의 차이를 명문화.</li>
-      <li><strong><code>STAMBoardList</code> 확장 설계 (중기, 별도 PR)</strong> — 그룹/주입형 checkbox 어댑터 + row=active/checkbox=selected 분리 옵션을 컨트롤러에 추가. <code>stam.board-list.js</code> 변경을 동반하므로 본 검토 범위 밖, 전용 PR 로 진행.</li>
-      <li><strong>(선택) 소규모 정상화 PR</strong> — 컨트롤러 확장 전이라도, WBS 자체 JS 에서 <em>row click → <code>.is-active</code></em> 분리 및 삭제 라벨 <code>삭제 (N)</code> 표준화만 우선 교정 가능(시각 desync 해소). 단 이는 WBS JS 수정이라 별도 승인 필요.</li>
+      <li><strong>row active / checkbox selected 분리</strong> — <span class="pill ok">PR #111 완료</span> (WBS 자체 로직, <code>board-list.js</code> 미수정).</li>
+      <li><strong>WBS 전용 계약 문서화</strong> — <span class="pill ok">본 PR #112 완료</span>: <a href="STAM-WBS-Board-List-Contract-v1.html">STAM WBS Board List Contract v1</a> 생성. 그룹 다중 tbody·주입형 checkbox·포커스/Gantt/전체보기 포함, 공통 계약과의 차이 명문화.</li>
+      <li><strong>현행 유지 (단기)</strong> — WBS 는 위 자체 계약 기준으로 유지. 제품 코드 추가 변경 없음.</li>
+      <li><strong><code>STAMBoardList</code> 확장 설계 (장기, 별도 PR)</strong> — 그룹/주입형 checkbox 어댑터 + row=active/checkbox=selected 분리 옵션을 컨트롤러에 추가하고 삭제 라벨/<code>data-stam-check-all</code> 등 마크업 hook 정합. <code>stam.board-list.js</code> 변경을 동반하므로 전용 PR 로만 진행.</li>
     </ol>
   </div>
 </div>
@@ -179,18 +183,24 @@
 <div class="sec">
   <div class="sec-h">Section 7 · QA 기록</div>
   <div class="sec-b">
-    <p><strong>검증 방법:</strong> 정적 분석(HTML/JS/CSS 직접 판독) + Playwright(Chromium) 로 <strong>미수정 WBS 화면</strong> 동작 probe (<code>file://</code> 로드).</p>
-    <p style="margin-top:6px"><strong>확인 결과 (probe):</strong></p>
+    <p><strong>검증 방법:</strong> 정적 분석(HTML/JS/CSS 직접 판독) + Playwright(Chromium) 동작 probe (<code>file://</code> 로드).</p>
+    <p style="margin-top:6px"><strong>① 최초 조사 (PR #110, 미수정 상태):</strong></p>
     <ul class="tight">
       <li>화면 로드 status 200, 데이터행 17 / 주입 checkbox 17 / 그룹 헤더 tbody 6 / 그룹 행 tbody 6.</li>
       <li><code>.stam-select-table</code> 0 · <code>[data-stam-board-list]</code> 0 · <code>[data-stam-check-all]</code> 0 · <code>.stam-delete-label</code> 0 (모두 미적용).</li>
-      <li>checkbox click → 행 <code>.is-selected</code> + checked + <code>삭제 1</code>, drawer 미오픈 ✓. 2개 선택 → <code>삭제 2</code> + master indeterminate ✓.</li>
-      <li><strong>row click → <code>.is-active</code>=false / <code>.is-selected</code>=true</strong>, drawer open ✓. 동시에 다른 선택행의 <code>.is-selected</code> 시각은 해제되지만 <strong>그 행 checkbox 는 checked 유지·<code>삭제 2</code> 카운트 유지 → 시각·논리 선택 desync 확인.</strong></li>
-      <li>Escape → drawer 닫힘, 선택 유지(active 개념 없음).</li>
-      <li>master 전체선택 → 17/17 checked, <code>삭제 17</code>.</li>
-      <li><strong>콘솔 오류 0.</strong></li>
+      <li>checkbox click → 행 <code>.is-selected</code> + checked + <code>삭제 1</code>, drawer 미오픈 ✓.</li>
+      <li><strong>row click → <code>.is-active</code>=false / <code>.is-selected</code>=true</strong>, 타행 선택 시각 해제되나 checkbox·카운트 유지 → <strong>desync 확인</strong>(미충족).</li>
     </ul>
-    <p style="margin-top:6px;color:var(--t3);font-size:11px">* 본 검토는 제품 코드를 수정하지 않았다(working tree clean). 위 probe 는 미수정 상태의 현행 동작 기록이다.</p>
+    <p style="margin-top:6px"><strong>② PR #111 이후 재검증 (row active/selected 분리 적용):</strong> Playwright 30/30 PASS · 콘솔 오류 0</p>
+    <ul class="tight">
+      <li>row click → <code>.is-active</code> 만 부여 / checkbox unchecked 유지 / <code>.is-selected</code> 미부여 / delete count 미증가 / drawer open ✓.</li>
+      <li>다른 row click → 이전 <code>.is-active</code> 해제 · 새 행 <code>.is-active</code> ✓.</li>
+      <li>checkbox click → <code>.is-selected</code> + checked + <code>삭제 1</code> + drawer 미오픈 + <code>.is-active</code> 미부여 ✓.</li>
+      <li>selected row click → <code>.is-selected.is-active</code> 동시 / checked·count(<code>삭제 1</code>) 유지 / drawer open ✓.</li>
+      <li>Escape / drawer close → <code>.is-active</code> 만 해제 / <code>.is-selected</code>·checked·count 유지 ✓.</li>
+      <li>header 전체선택(<code>삭제 17</code>)/전체해제/indeterminate ✓ · 그룹 접기·펼치기 ✓ · focus toggle 존재 ✓ · <code>.is-active</code> 배경 적용 ✓.</li>
+    </ul>
+    <p style="margin-top:6px;color:var(--t3);font-size:11px">* 본 문서(PR #112)는 제품 코드를 수정하지 않는다(docs-only). row-click 분리 교정은 PR #111 에서 WBS JS/CSS 로 반영되었다.</p>
   </div>
 </div>
 
