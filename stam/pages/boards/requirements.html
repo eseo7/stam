@@ -125,9 +125,9 @@
                 필터
                 <span class="rq-filter-cnt stam-board-filter-count" id="rq-filter-count" style="display:none">0</span>
               </button>
-              <button class="rq-btn rq-btn-del stam-btn stam-btn-danger stam-board-delete" id="rq-del-btn" type="button" disabled>
+              <button class="rq-btn rq-btn-del stam-btn stam-btn-danger stam-board-delete stam-delete-btn" id="rq-del-btn" type="button" disabled>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                <span class="rq-del-lbl">삭제</span>
+                <span class="rq-del-lbl stam-delete-label">삭제</span>
               </button>
             </div>
           </div>
@@ -148,7 +148,7 @@
         <!-- ── Table ── -->
         <div class="rq-tbl-outer">
           <div class="rq-tbl-scroll">
-            <table class="rq-table">
+            <table class="rq-table stam-select-table" data-stam-board-list>
               <colgroup>
                 <col style="width:40px">
                 <col style="min-width:240px">
@@ -162,7 +162,7 @@
               </colgroup>
               <thead>
                 <tr>
-                  <th class="rq-ch"><input type="checkbox" class="rq-cb" id="rq-cb-all"></th>
+                  <th class="rq-ch stam-check-cell"><input type="checkbox" class="rq-cb stam-check" id="rq-cb-all" data-stam-check-all></th>
                   <th>요구사항 ID / 요구사항명</th>
                   <th>유형</th>
                   <th>우선순위</th>
@@ -176,7 +176,7 @@
               <tbody id="rq-tbody">
                 <!-- REQ-001 -->
                 <tr class="rq-data-row stam-table-row">
-                  <td class="rq-ch"><input type="checkbox" class="rq-cb" onclick="event.stopPropagation()"></td>
+                  <td class="rq-ch stam-check-cell"><input type="checkbox" class="rq-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="rq-req-id-cell">
                       <span class="rq-req-id">REQ-001</span>
@@ -198,7 +198,7 @@
                 </tr>
                 <!-- REQ-002 -->
                 <tr class="rq-data-row stam-table-row">
-                  <td class="rq-ch"><input type="checkbox" class="rq-cb" onclick="event.stopPropagation()"></td>
+                  <td class="rq-ch stam-check-cell"><input type="checkbox" class="rq-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="rq-req-id-cell">
                       <span class="rq-req-id">REQ-002</span>
@@ -220,7 +220,7 @@
                 </tr>
                 <!-- REQ-003 -->
                 <tr class="rq-data-row stam-table-row">
-                  <td class="rq-ch"><input type="checkbox" class="rq-cb" onclick="event.stopPropagation()"></td>
+                  <td class="rq-ch stam-check-cell"><input type="checkbox" class="rq-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="rq-req-id-cell">
                       <span class="rq-req-id">REQ-003</span>
@@ -242,7 +242,7 @@
                 </tr>
                 <!-- REQ-004 -->
                 <tr class="rq-data-row stam-table-row">
-                  <td class="rq-ch"><input type="checkbox" class="rq-cb" onclick="event.stopPropagation()"></td>
+                  <td class="rq-ch stam-check-cell"><input type="checkbox" class="rq-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="rq-req-id-cell">
                       <span class="rq-req-id">REQ-004</span>
@@ -264,7 +264,7 @@
                 </tr>
                 <!-- REQ-005 -->
                 <tr class="rq-data-row stam-table-row">
-                  <td class="rq-ch"><input type="checkbox" class="rq-cb" onclick="event.stopPropagation()"></td>
+                  <td class="rq-ch stam-check-cell"><input type="checkbox" class="rq-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="rq-req-id-cell">
                       <span class="rq-req-id">REQ-005</span>
@@ -286,7 +286,7 @@
                 </tr>
                 <!-- REQ-006 -->
                 <tr class="rq-data-row stam-table-row">
-                  <td class="rq-ch"><input type="checkbox" class="rq-cb" onclick="event.stopPropagation()"></td>
+                  <td class="rq-ch stam-check-cell"><input type="checkbox" class="rq-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="rq-req-id-cell">
                       <span class="rq-req-id">REQ-006</span>
@@ -308,7 +308,7 @@
                 </tr>
                 <!-- REQ-007 -->
                 <tr class="rq-data-row stam-table-row">
-                  <td class="rq-ch"><input type="checkbox" class="rq-cb" onclick="event.stopPropagation()"></td>
+                  <td class="rq-ch stam-check-cell"><input type="checkbox" class="rq-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="rq-req-id-cell">
                       <span class="rq-req-id">REQ-007</span>
@@ -922,6 +922,7 @@ Summary Strip에서 상태별 건수와 연결 수가 확인된다.
 <script src="../../js/stam.topbar-render.js"></script>
 <script src="../../js/stam.project-context-render.js"></script>
 <script src="../../js/stam.board-filter.js"></script>
+<script src="../../js/stam.board-list.js"></script>
 <script src="../../js/stam.requirements.js"></script>
 
 </body>

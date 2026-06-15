@@ -189,7 +189,7 @@
   const scrim = document.getElementById('rq-scrim');
 
   function openDrawer(type) {
-    closeAll(false);
+    closeAll();
     const el = document.getElementById('rq-dw-' + type);
     if (!el) return;
     scrim.classList.add('show');
@@ -197,67 +197,35 @@
     enhanceRqDrawerSelects(el);
   }
 
-  function closeAll(resetState) {
+  // drawer / scrim / custom-select 만 닫는다.
+  // .is-selected 는 Controller(checkbox) 소유 — drawer 닫기로 selection 을 해제하지 않는다.
+  function closeAll() {
     closeAllRqCustomSelects();
     if (scrim) scrim.classList.remove('show');
     document.querySelectorAll('.rq-drawer').forEach(function (d) {
       d.classList.remove('open');
     });
-    if (resetState !== false) {
-      document.querySelectorAll('#rq-tbody .rq-data-row.sel').forEach(function (r) {
-        r.classList.remove('sel');
-        r.classList.remove('is-selected');
-        var cb = r.querySelector('.rq-cb');
-        if (cb) cb.checked = false;
-      });
-    }
   }
 
-  // ── Row click → detail drawer ────────────────────────────────
-  function bindRows() {
-    var rows = document.querySelectorAll('#rq-tbody .rq-data-row');
-    rows.forEach(function (row) {
-      row.addEventListener('click', function (e) {
-        if (e.target.classList.contains('rq-cb')) return;
-        rows.forEach(function (r) { r.classList.remove('sel'); r.classList.remove('is-selected'); });
-        row.classList.add('sel');
-        row.classList.add('is-selected');
-        openDrawer('detail');
-      });
+  // STAMBoardList Controller 가 row .is-active / checkbox .is-selected / delete count(삭제 (N)) /
+  // header 전체선택·indeterminate / Escape 의 .is-active 해제를 일괄 담당.
+  // 본 화면은 onRowActivate 만 상세 drawer open 으로 연결한다.
+  var listRoot = document.querySelector('[data-stam-board-list]');
+  var boardApi = null;
+  if (listRoot && window.STAMBoardList) {
+    boardApi = window.STAMBoardList.init(listRoot, {
+      deleteBtn: '#rq-del-btn',
+      onRowActivate: function () { openDrawer('detail'); },
     });
   }
 
-  // ── Checkbox: select row, update delete button ────────────────
-  function bindCheckboxes() {
-    var delBtn = document.getElementById('rq-del-btn');
-    var allCb  = document.getElementById('rq-cb-all');
-
-    document.querySelectorAll('#rq-tbody .rq-cb').forEach(function (cb) {
-      cb.addEventListener('change', function () {
-        var row = cb.closest('.rq-data-row');
-        if (row) { row.classList.toggle('sel', cb.checked); row.classList.toggle('is-selected', cb.checked); }
-        updateDelBtn();
-      });
-    });
-
-    if (allCb) {
-      allCb.addEventListener('change', function () {
-        document.querySelectorAll('#rq-tbody .rq-cb').forEach(function (cb) {
-          cb.checked = allCb.checked;
-          var row = cb.closest('.rq-data-row');
-          if (row) { row.classList.toggle('sel', cb.checked); row.classList.toggle('is-selected', cb.checked); }
-        });
-        updateDelBtn();
-      });
-    }
-
-    function updateDelBtn() {
-      if (!delBtn) return;
-      var n = document.querySelectorAll('#rq-tbody .rq-cb:checked').length;
-      delBtn.disabled = n === 0;
-      delBtn.querySelector('.rq-del-lbl').textContent = n > 0 ? '삭제 (' + n + ')' : '삭제';
-    }
+  function closeAllAndClearActive() {
+    closeAll();
+    if (boardApi) boardApi.clearActive();
   }
+
+  // Row click / checkbox / delete count / header 전체선택 은 STAMBoardList Controller 가 담당.
+  // 화면 자체 bindRows() / bindCheckboxes() 는 제거됨 (row click=.is-active, checkbox=.is-selected 분리).
 
   // ── Detail drawer → 수정 button ─────────────────────────────
   document.querySelectorAll('[data-rq-open]').forEach(function (el) {
@@ -268,15 +236,15 @@
 
   // ── Close buttons ─────────────────────────────────────────────
   document.querySelectorAll('.rq-dw-close, [data-rq-close]').forEach(function (el) {
-    el.addEventListener('click', function () { closeAll(); });
+    el.addEventListener('click', closeAllAndClearActive);
   });
 
   // ── Scrim click → close ───────────────────────────────────────
   if (scrim) {
-    scrim.addEventListener('click', function () { closeAll(); });
+    scrim.addEventListener('click', closeAllAndClearActive);
   }
 
-  // ── ESC key (custom select 우선, 없으면 drawer 닫기) ──────────
+  // ── ESC key (custom select 우선, 없으면 drawer 닫기 + .is-active 해제) ──
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
     if (document.querySelector('.rq-cs.open')) {
@@ -284,7 +252,7 @@
       e.stopPropagation();
       closeAllRqCustomSelects();
     } else {
-      closeAll();
+      closeAllAndClearActive();
     }
   }, true);
 
@@ -317,8 +285,7 @@
   if (window.STAM && window.STAM.navRender) {
     window.STAM.navRender.init('B1');
   }
-  bindRows();
-  bindCheckboxes();
+  // row click / checkbox / 전체선택 / delete count 는 STAMBoardList 가 담당 (위 init 참조).
 
   /* ── Board Filter 공통 컴포넌트 초기화 ── */
   if (window.STAM && window.STAM.boardFilter) {
