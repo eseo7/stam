@@ -316,8 +316,8 @@ body:has(.os-page) .po-main { overflow-x: hidden; }
 .os-tbl {
   min-width: 1080px;
 }
-.os-row-active td { background: rgba(84,81,232,.04); }
-.os-row-active:hover td { background: rgba(84,81,232,.07); }
+/* active row 시각 효과는 공통 CSS(.stam-table-row.is-active) 가 담당.
+   .os-row-active 는 더 이상 사용하지 않음 — JS hook 도 .is-active 로 통일. */
 
 .os-nm-cell { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
 .os-scn-id {
@@ -679,8 +679,6 @@ body:has(.os-page) .po-main { overflow-x: hidden; }
 /* ── Dark mode overrides ── */
 [data-theme="dark"] .os-readiness { box-shadow: none; }
 [data-theme="dark"] .os-scenario-table { box-shadow: none; }
-[data-theme="dark"] .os-row-active td { background: rgba(84,81,232,.07); }
-[data-theme="dark"] .os-row-active:hover td { background: rgba(84,81,232,.11); }
 [data-theme="dark"] .os-scn-id { background: rgba(139,127,248,.10); border-color: rgba(139,127,248,.22); }
 
 /* ════════════════════════════════════════════════════════════

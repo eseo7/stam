@@ -5,23 +5,27 @@
   var scrim  = document.getElementById('os-scrim');
   var drawer = document.getElementById('os-dw-detail');
 
+  function clearActiveRows() {
+    document.querySelectorAll('.os-row.is-active').forEach(function (r) {
+      r.classList.remove('is-active');
+    });
+  }
+
   function openDetailDrawer(scnId) {
     if (!drawer) return;
     scrim && scrim.classList.add('show');
     drawer.classList.add('open');
-    var activeRow = document.querySelector('.os-row-active');
-    if (activeRow) activeRow.classList.remove('os-row-active');
+    clearActiveRows();
     if (scnId) {
       var row = document.querySelector('.os-row[data-scn-id="' + scnId + '"]');
-      if (row) row.classList.add('os-row-active');
+      if (row) row.classList.add('is-active');
     }
   }
 
   function closeDrawer() {
     scrim && scrim.classList.remove('show');
     drawer && drawer.classList.remove('open');
-    var activeRow = document.querySelector('.os-row-active');
-    if (activeRow) activeRow.classList.remove('os-row-active');
+    clearActiveRows();
   }
 
   /* ── Row click → detail drawer ─────────────────────────────── */
