@@ -158,6 +158,7 @@
   }
 
   /* ── Checkbox: selected state · delete btn ────────────────────── */
+  /* class 기준: .os-row-cb(JS hook) + .stam-check(스타일), .os-cb-all(JS hook) + .stam-check(스타일) */
   function bindCheckboxes() {
     var cbAll     = document.querySelector('.os-cb-all');
     var deleteBtn = document.getElementById('os-delete-btn');
@@ -174,7 +175,7 @@
       if (!deleteBtn) return;
       var n = document.querySelectorAll('.os-row-cb:checked').length;
       deleteBtn.disabled = n === 0;
-      var lbl = deleteBtn.querySelector('.os-del-lbl');
+      var lbl = deleteBtn.querySelector('.stam-delete-label');
       if (lbl) lbl.textContent = n > 0 ? '삭제 (' + n + ')' : '삭제';
     }
 
@@ -210,6 +211,7 @@
             row.classList.toggle('is-selected', cbAll.checked);
           }
         });
+        syncHeaderCb();
         updateDeleteBtn();
       });
     }

@@ -302,7 +302,7 @@
         </div>
 
         <!-- ── Phase filter tabs + Toolbar (동일 줄) ── -->
-        <div class="os-filter-bar">
+        <div class="os-filter-bar stam-list-toolbar">
           <div class="os-filter-tabs">
             <button class="os-tab on" type="button" data-os-tab="all">전체</button>
             <button class="os-tab" type="button" data-os-tab="pre">오픈 전</button>
@@ -310,14 +310,14 @@
             <button class="os-tab" type="button" data-os-tab="post">오픈 후</button>
           </div>
           <div class="os-filter-bar-div"></div>
-          <div class="os-search stam-board-search">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--t3);flex-shrink:0" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="시나리오 ID · 시나리오명 · 담당자 검색" autocomplete="off">
+          <div class="stam-list-search stam-board-search">
+            <svg class="stam-list-search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="stam-list-search-input" type="text" placeholder="ID · 제목 · 담당자 검색" autocomplete="off">
           </div>
           <div class="os-toolbar-sep"></div>
           <div class="os-filter-panel-anchor">
-            <button class="os-filter-btn stam-board-filter-trigger" id="os-filter-open-btn" type="button" aria-expanded="false" aria-controls="os-filter-panel">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M4 8h8M6 12h4"/></svg>
+            <button class="stam-filter-btn stam-board-filter-trigger" id="os-filter-open-btn" type="button" aria-expanded="false" aria-controls="os-filter-panel">
+              <svg class="stam-btn-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M4 8h8M6 12h4"/></svg>
               필터
               <span class="stam-board-filter-count" id="os-filter-count" style="display:none">0</span>
             </button>
@@ -330,9 +330,9 @@
               </div>
             </div>
           </div>
-          <button class="os-delete-btn" type="button" disabled id="os-delete-btn" aria-label="선택된 시나리오 삭제" title="선택된 시나리오 삭제">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-            <span class="os-del-lbl">삭제</span>
+          <button class="stam-delete-btn" type="button" disabled id="os-delete-btn" aria-label="선택된 시나리오 삭제" title="선택된 시나리오 삭제">
+            <svg class="stam-btn-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            <span class="stam-delete-label">삭제</span>
           </button>
           <span class="os-tbl-count" style="margin-left:auto">8 / 24 표시</span>
         </div>
@@ -340,7 +340,7 @@
         <!-- ── Zone C: Scenario List ── -->
         <div class="os-scenario-table" id="os-scenario-table">
           <div class="os-tbl-scroll">
-            <table class="os-tbl">
+            <table class="os-tbl stam-select-table">
               <colgroup>
                 <col style="width:28px">
                 <col style="width:76px">
@@ -360,7 +360,7 @@
               </colgroup>
               <thead>
                 <tr>
-                  <th class="os-th-cb"><input type="checkbox" class="os-cb-all" aria-label="전체 선택"></th>
+                  <th class="os-th-cb stam-check-cell"><input type="checkbox" class="os-cb-all stam-check" aria-label="전체 선택"></th>
                   <th>ID</th>
                   <th>구분</th>
                   <th>단계</th>
@@ -380,7 +380,7 @@
               <tbody id="os-tbody">
 
                 <tr class="os-row stam-table-row" data-scn-id="SCN-001">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-001</span></td>
                   <td><span class="os-scn-ph-badge os-ph-pre">오픈 전</span></td>
                   <td class="os-stage-col">DB</td>
@@ -397,7 +397,7 @@
                 
 
                 <tr class="os-row stam-table-row" data-scn-id="SCN-002">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-002</span></td>
                   <td><span class="os-scn-ph-badge os-ph-pre">오픈 전</span></td>
                   <td class="os-stage-col">공지</td>
@@ -414,7 +414,7 @@
                 
 
                 <tr class="os-row stam-table-row" data-scn-id="SCN-003">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-003</span></td>
                   <td><span class="os-scn-ph-badge os-ph-pre">오픈 전</span></td>
                   <td class="os-stage-col">인프라</td>
@@ -431,7 +431,7 @@
                 
 
                 <tr class="os-row stam-table-row" data-scn-id="SCN-004">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-004</span></td>
                   <td><span class="os-scn-ph-badge os-ph-pre">오픈 전</span></td>
                   <td class="os-stage-col">인프라</td>
@@ -448,7 +448,7 @@
                 
 
                 <tr class="os-row stam-table-row" data-scn-id="SCN-005">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-005</span></td>
                   <td><span class="os-scn-ph-badge os-ph-pre">오픈 전</span></td>
                   <td class="os-stage-col">인프라</td>
@@ -465,7 +465,7 @@
                 
 
                 <tr class="os-row stam-table-row" data-scn-id="SCN-006">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-006</span></td>
                   <td><span class="os-scn-ph-badge os-ph-pre">오픈 전</span></td>
                   <td class="os-stage-col">운영</td>
@@ -482,7 +482,7 @@
                 
 
                 <tr class="os-row stam-table-row" data-scn-id="SCN-007">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-007</span></td>
                   <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
                   <td class="os-stage-col">공지</td>
@@ -499,7 +499,7 @@
                 
 
                 <tr class="os-row stam-table-row" data-scn-id="SCN-008">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-008</span></td>
                   <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
                   <td class="os-stage-col">DB</td>
@@ -517,7 +517,7 @@
 
                 <!-- ── extra rows (hidden until 전체 보기) ── -->
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-009">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-009</span></td>
                   <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
                   <td class="os-stage-col">DB</td>
@@ -534,7 +534,7 @@
                 
 
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-010">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-010</span></td>
                   <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
                   <td class="os-stage-col">검증</td>
@@ -551,7 +551,7 @@
                 
 
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-011">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-011</span></td>
                   <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
                   <td class="os-stage-col">배포</td>
@@ -568,7 +568,7 @@
                 
 
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-012">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-012</span></td>
                   <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
                   <td class="os-stage-col">검증</td>
@@ -585,7 +585,7 @@
                 
 
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-013">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-013</span></td>
                   <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
                   <td class="os-stage-col">확인</td>
@@ -602,7 +602,7 @@
                 
 
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-014">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-014</span></td>
                   <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
                   <td class="os-stage-col">배포</td>
@@ -619,7 +619,7 @@
                 
 
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-015">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-015</span></td>
                   <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
                   <td class="os-stage-col">확인</td>
@@ -636,7 +636,7 @@
                 
 
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-016">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-016</span></td>
                   <td><span class="os-scn-ph-badge os-ph-day">오픈 당일</span></td>
                   <td class="os-stage-col">모니터링</td>
@@ -653,7 +653,7 @@
                 
 
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-017">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-017</span></td>
                   <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
                   <td class="os-stage-col">모니터링</td>
@@ -670,7 +670,7 @@
                 
 
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-018">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-018</span></td>
                   <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
                   <td class="os-stage-col">분석</td>
@@ -687,7 +687,7 @@
                 
 
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-019">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-019</span></td>
                   <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
                   <td class="os-stage-col">확인</td>
@@ -704,7 +704,7 @@
                 
 
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-020">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-020</span></td>
                   <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
                   <td class="os-stage-col">보고</td>
@@ -721,7 +721,7 @@
                 
 
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-021">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-021</span></td>
                   <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
                   <td class="os-stage-col">보고</td>
@@ -738,7 +738,7 @@
                 
 
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-022">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-022</span></td>
                   <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
                   <td class="os-stage-col">보안</td>
@@ -755,7 +755,7 @@
                 
 
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-023">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-023</span></td>
                   <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
                   <td class="os-stage-col">인프라</td>
@@ -772,7 +772,7 @@
                 
 
                 <tr class="os-row os-extra-row stam-table-row" data-scn-id="SCN-024">
-                  <td class="os-td-cb"><input type="checkbox" class="os-row-cb" aria-label="선택"></td>
+                  <td class="os-td-cb stam-check-cell"><input type="checkbox" class="os-row-cb stam-check" aria-label="선택"></td>
                   <td><span class="os-scn-id">SCN-024</span></td>
                   <td><span class="os-scn-ph-badge os-ph-post">오픈 후</span></td>
                   <td class="os-stage-col">보고</td>

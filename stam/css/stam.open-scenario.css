@@ -298,71 +298,10 @@ body:has(.os-page) .po-main { overflow-x: hidden; }
 
 /* ── Toolbar (kept for backwards-compat, now unused wrapper) ── */
 .os-toolbar { margin-bottom: 8px; }
-.os-search {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  background: var(--bg-sur);
-  border: 1px solid var(--bd);
-  border-radius: var(--r-md);
-  padding: 6px 11px;
-  flex: 0 0 280px;
-  transition: border-color 120ms;
-}
-.os-search:focus-within { border-color: var(--stam); box-shadow: 0 0 0 2px var(--stam-soft); }
-.os-search input {
-  border: 0;
-  background: transparent;
-  outline: none;
-  font-size: 12px;
-  color: var(--t1);
-  width: 100%;
-  font-family: inherit;
-}
-.os-search input::placeholder { color: var(--t3); }
+/* .os-search → stam-list-search (공통 class로 대체, stam.table-selection.css) */
 .os-toolbar-sep { width: 1px; height: 22px; background: var(--bd); flex-shrink: 0; }
-.os-filter-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  border-radius: var(--r-md);
-  font-size: 12px;
-  font-weight: 600;
-  border: 1px solid var(--bd-s);
-  background: var(--bg-sur);
-  color: var(--t2);
-  cursor: pointer;
-  transition: all 120ms;
-  white-space: nowrap;
-  font-family: inherit;
-  flex-shrink: 0;
-}
-.os-filter-btn:hover { background: var(--bg-sur2); color: var(--t1); }
-.os-filter-btn.is-open { background: var(--stam-soft); border-color: var(--stam); color: var(--stam); }
-.os-delete-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  border-radius: var(--r-md);
-  font-size: 12px;
-  font-weight: 600;
-  border: 1px solid var(--bd-s);
-  background: var(--bg-sur);
-  color: var(--t3);
-  cursor: pointer;
-  transition: all 120ms;
-  white-space: nowrap;
-  font-family: inherit;
-  flex-shrink: 0;
-}
-.os-delete-btn:not(:disabled):hover {
-  background: var(--fail-bg);
-  border-color: var(--fail);
-  color: var(--fail);
-}
-.os-delete-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+/* .os-filter-btn → .stam-filter-btn (공통 class로 대체, stam.table-selection.css) */
+/* .os-delete-btn → .stam-delete-btn (공통 class로 대체, stam.table-selection.css) */
 .os-tbl-count { font-size: 11px; color: var(--t3); }
 
 /* ── Scenario Table ── */
@@ -375,36 +314,8 @@ body:has(.os-page) .po-main { overflow-x: hidden; }
 }
 .os-tbl-scroll { overflow-x: auto; }
 .os-tbl {
-  width: 100%;
-  border-collapse: collapse;
   min-width: 1080px;
 }
-.os-tbl thead th {
-  background: var(--bg-sur2);
-  text-align: left;
-  font-size: 9.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  color: var(--t3);
-  padding: 9px 10px;
-  border-bottom: 1px solid var(--bd);
-  white-space: nowrap;
-}
-.os-row { cursor: pointer; }
-.os-row td {
-  padding: 0 10px;
-  height: 40px;
-  border-bottom: 1px solid rgba(226,232,240,.55);
-  font-size: 12px;
-  color: var(--t2);
-  white-space: nowrap;
-  vertical-align: middle;
-  transition: background 80ms;
-}
-[data-theme="dark"] .os-row td { border-bottom-color: rgba(60,70,90,.55); }
-.os-row:last-child td { border-bottom: 0; }
-.os-row:hover td { background: rgba(84,81,232,.025); }
 .os-row-active td { background: rgba(84,81,232,.04); }
 .os-row-active:hover td { background: rgba(84,81,232,.07); }
 
@@ -768,7 +679,6 @@ body:has(.os-page) .po-main { overflow-x: hidden; }
 /* ── Dark mode overrides ── */
 [data-theme="dark"] .os-readiness { box-shadow: none; }
 [data-theme="dark"] .os-scenario-table { box-shadow: none; }
-[data-theme="dark"] .os-row:hover td { background: rgba(84,81,232,.05); }
 [data-theme="dark"] .os-row-active td { background: rgba(84,81,232,.07); }
 [data-theme="dark"] .os-row-active:hover td { background: rgba(84,81,232,.11); }
 [data-theme="dark"] .os-scn-id { background: rgba(139,127,248,.10); border-color: rgba(139,127,248,.22); }
@@ -1071,55 +981,9 @@ body:has(.os-page) .po-main { overflow-x: hidden; }
 td.os-scn-nm { font-size: 12px; color: var(--t1); font-weight: 500; }
 
 /* ── Checkbox column ── */
-.os-th-cb, .os-td-cb {
-  text-align: center;
-  padding: 0 6px !important;
-  vertical-align: middle;
-  position: relative;
-}
-/* header checkbox: native accent-color style */
-.os-cb-all {
-  width: 14px;
-  height: 14px;
-  cursor: pointer;
-  accent-color: var(--stam);
-  display: block;
-  margin: auto;
-}
-/* row checkbox: custom styled, always visible — matches msl-cb reference */
-.os-row-cb {
-  width: 15px;
-  height: 15px;
-  border-radius: 3px;
-  border: 1.5px solid var(--bd-s);
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  background: var(--bg-sur);
-  transition: all 100ms;
-  position: relative;
-  flex-shrink: 0;
-  display: inline-block;
-  vertical-align: middle;
-}
-.os-row-cb:hover { border-color: var(--stam); }
-.os-row-cb:checked { background: var(--stam); border-color: var(--stam); }
-.os-row-cb:checked::after {
-  content: "";
-  position: absolute;
-  left: 3px;
-  top: 1.5px;
-  width: 5px;
-  height: 8px;
-  border: 1.8px solid #fff;
-  border-top: 0;
-  border-left: 0;
-  transform: rotate(40deg);
-}
-[data-theme="dark"] .os-row-cb {
-  border-color: rgba(130,130,160,.45);
-  background: var(--bg-sur2);
-}
+/* .os-th-cb, .os-td-cb → .stam-check-cell (공통 class로 대체, stam.table-selection.css) */
+.os-th-cb, .os-td-cb { position: relative; }
+/* .os-cb-all, .os-row-cb → .stam-check (공통 class로 대체, stam.table-selection.css) */
 .os-apv-chip { font-size: 10px; padding: 1px 5px; }
 .os-apv-text { font-size: 10.5px; color: var(--t3); }
 .os-scope-internal { background: rgba(100,116,139,.10); color: #64748B; }
