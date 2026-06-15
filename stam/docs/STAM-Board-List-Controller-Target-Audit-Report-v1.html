@@ -54,9 +54,10 @@
   <p>공통 목록 컨트롤러 <code>window.STAMBoardList</code> 적용 대상 6개 게시판 화면의 적용 현황 · 잔존 자체 로직 · 다음 조치 우선순위를 조사한 Audit 문서.</p>
   <div class="meta">
     <span class="chip">조사일: 2026-06-15</span>
-    <span class="chip">기준 PR: #92 (Controller) · #93 (기능정의서 1차 적용)</span>
+    <span class="chip">기준 PR: #92 (Controller) · #93 (기능정의서)</span>
+    <span class="chip">진행 반영: #106 · #107 · #108 · #109</span>
     <span class="chip">대상: 6개 화면</span>
-    <span class="chip">성격: Audit (코드 미수정)</span>
+    <span class="chip">성격: Audit + 진행 현황</span>
   </div>
   <div class="related">
     <span style="color:var(--t3);align-self:center">Related:</span>
@@ -73,14 +74,15 @@
   <div class="sec-h">Section 00 · Audit 개요 & 판정 범례</div>
   <div class="sec-b">
     <p>본 문서는 <a href="STAM-Board-List-Template-Contract-v1.html">Board List Template Contract v1</a> 의 공통 목록 구조와 공통 JS 컨트롤러 <code>stam.board-list.js</code> (<code>window.STAMBoardList</code>) 가 각 게시판 화면에 어디까지 적용되었는지, 화면별 자체 row/checkbox/delete 로직이 남아있는지, 다음 조치는 무엇인지를 조사한 결과다.</p>
-    <p><strong>이번 PR(#105)은 Audit 문서 생성만 한다.</strong> 제품 화면 코드 · JS · CSS 는 수정하지 않으며, Controller 적용이나 legacy class 정리는 후속 PR 에서 진행한다.</p>
+    <p>본 문서는 PR #105 에서 생성된 후, 후속 적용 PR(#106 Open Scenario · #107 메뉴/화면목록 · #108 요구사항)과 #109 화면설계서 조사 결과를 반영해 현황을 갱신했다. <strong>본 보정(PR #109)은 본 Audit 문서만 수정</strong>하며 제품 화면 코드 · JS · CSS 는 변경하지 않는다.</p>
     <div class="legend">
-      <span class="pill ok">완료</span>
+      <span class="pill ok">완료 (Controller 적용)</span>
       <span class="pill warn">Controller 적용 필요</span>
       <span class="pill info">legacy class 정리 필요</span>
-      <span class="pill neutral">특수 구조 · 별도 검토</span>
+      <span class="pill neutral">특수 구조 · 현행 유지 / 별도 검토</span>
       <span class="pill bad">보류</span>
     </div>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px"><strong>진행 현황(2026-06-15 기준):</strong> 일반 Board List Controller 적용 완료 — 기능정의서(#93) · Open Scenario(#106) · 메뉴/화면목록(#107) · 요구사항(#108). 특수 구조 현행 유지 — 화면설계서(#109 조사, 적용 보류). 특수 구조 별도 검토 — WBS.</p>
     <p style="margin-top:8px;color:var(--t3);font-size:11px">기준 컨트롤러 hook: <code>data-stam-board-list</code> (root) · <code>.stam-select-table</code> · <code>.stam-table-row</code> · <code>.stam-check</code> · <code>[data-stam-check-all]</code> · <code>.stam-delete-btn</code> / <code>.stam-delete-label</code> · <code>STAMBoardList.init()</code>.</p>
   </div>
 </div>
@@ -114,37 +116,37 @@
         </tr>
         <tr>
           <td class="scr">Open Scenario</td>
-          <td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td><td class="yes">✓</td><td class="no">✗</td>
-          <td class="yes">잔존</td>
-          <td><span class="pill warn">적용 필요</span></td>
+          <td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td>
+          <td class="no">없음</td>
+          <td><span class="pill ok">완료 (#106)</span></td>
         </tr>
         <tr>
           <td class="scr">화면설계서</td>
-          <td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td><td class="part">부분(JS)</td><td class="part">부분</td><td class="no">✗</td><td class="yes">✓</td><td class="no">✗</td>
-          <td class="yes">잔존</td>
-          <td><span class="pill warn">적용 필요</span></td>
+          <td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td><td class="part">부분(JS)</td><td class="part">부분(JS)</td><td class="no">✗</td><td class="yes">✓</td><td class="no">✗</td>
+          <td class="yes">잔존(자체 엔진)</td>
+          <td><span class="pill neutral">특수 구조 · 현행 유지</span></td>
         </tr>
         <tr>
           <td class="scr">메뉴/화면목록</td>
-          <td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td>
-          <td class="yes">잔존</td>
-          <td><span class="pill warn">적용 필요</span> <span class="pill info">legacy</span></td>
+          <td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td>
+          <td class="no">없음</td>
+          <td><span class="pill ok">완료 (#107)</span> <span class="pill info">legacy 잔존</span></td>
         </tr>
         <tr>
           <td class="scr">요구사항</td>
-          <td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td>
-          <td class="yes">잔존</td>
-          <td><span class="pill warn">적용 필요</span> <span class="pill info">legacy</span></td>
+          <td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td>
+          <td class="no">없음</td>
+          <td><span class="pill ok">완료 (#108)</span> <span class="pill info">legacy 잔존</span></td>
         </tr>
         <tr>
           <td class="scr">WBS</td>
           <td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td>
           <td class="yes">잔존</td>
-          <td><span class="pill neutral">별도 검토</span></td>
+          <td><span class="pill neutral">특수 구조 · 별도 검토</span></td>
         </tr>
       </tbody>
     </table>
-    <p style="margin-top:8px;color:var(--t3);font-size:11px">✓ = 적용 · ✗ = 미적용 · 부분 = 일부만 적용(JS 렌더링 포함). ④⑤ 카운트는 정적 마크업 + JS 렌더 양쪽 기준. 모든 화면이 헤더 전체선택 checkbox(<code>#*-cb-all</code> / <code>.*-cb-all</code>)는 보유하나 <code>data-stam-check-all</code> 속성은 기능정의서에만 부여됨.</p>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">✓ = 적용 · ✗ = 미적용 · 부분 = 일부만 적용(JS 렌더링 포함). 일반 4개 화면(기능정의서·Open Scenario·메뉴/화면목록·요구사항)은 Controller 적용 완료 — 8종 hook 전부 ✓, 자체 row/checkbox/delete 로직 제거. 화면설계서는 자체 그룹/상태 엔진으로 계약 동작을 충족하므로 Controller 직접 적용을 보류(현행 유지)한다. WBS 는 별도 구조 검토 대상.</p>
   </div>
 </div>
 
@@ -165,47 +167,45 @@
     </div>
 
     <div class="scard">
-      <h4>Open Scenario <span class="pill warn">Controller 적용 필요</span> <span class="pill ok" style="opacity:.85">근접</span></h4>
-      <div class="path">pages/boards/open-scenario.html (table:344) · js/stam.open-scenario.js (254行)</div>
+      <h4>Open Scenario <span class="pill ok">완료 (PR #106)</span></h4>
+      <div class="path">pages/boards/open-scenario.html · js/stam.open-scenario.js</div>
       <ul class="tight" style="margin-top:6px">
-        <li>마크업은 거의 완성형: <code>&lt;table class="os-tbl stam-select-table"&gt;</code>, 행 <code>.stam-table-row</code>(24), checkbox <code>.os-row-cb + .stam-check</code>, 헤더 <code>.os-cb-all + .stam-check</code>, 삭제 버튼 <code>.stam-delete-btn</code> + <code>.stam-delete-label</code>.</li>
-        <li><strong>미적용:</strong> <code>stam.board-list.js</code> 미로드, root <code>data-stam-board-list</code> 없음, 헤더 <code>data-stam-check-all</code> 없음, <code>STAMBoardList.init()</code> 미호출.</li>
-        <li><strong>잔존 자체 로직:</strong> <code>.os-cb-all</code> 전체선택 핸들러(JS 약 165~)와 delete-count 갱신(JS 182~183, 이미 <code>.stam-delete-label</code> 사용)이 화면 자체 구현.</li>
-        <li>행이 정적 마크업이라 회귀 위험 낮음 → <strong>파일럿 2호로 가장 적합.</strong> 필요한 작업: board-list.js 로드 + root attr + check-all attr + init() + 자체 로직 제거.</li>
+        <li>PR #106 에서 공통 8종 hook 전부 적용 + <code>STAMBoardList.init({ deleteBtn:'#os-delete-btn', onRowActivate→openDetailDrawer })</code>.</li>
+        <li>자체 <code>bindRows()</code> / <code>bindCheckboxes()</code> 제거 — 컨트롤러 위임. 헤더 전체선택은 계약 표준(전체 행)으로 통일.</li>
+        <li>Playwright(Chromium) 27건 PASS. 정적 행 구조라 회귀 위험 낮은 파일럿 2호였다.</li>
       </ul>
     </div>
 
     <div class="scard">
-      <h4>화면설계서 <span class="pill warn">Controller 적용 필요</span></h4>
-      <div class="path">pages/boards/screen-specification.html (table:187) · js/stam.screen-specification.js (2,490行)</div>
+      <h4>화면설계서 <span class="pill neutral">특수 구조 · 현행 유지 권장</span> <span class="pill ok" style="opacity:.85">자체 엔진으로 계약 충족</span></h4>
+      <div class="path">pages/boards/screen-specification.html (table:187) · js/stam.screen-specification.js (2,490行) · PR #109 조사</div>
       <ul class="tight" style="margin-top:6px">
-        <li>마크업 일부 공통화: <code>&lt;table class="ss-table stam-select-table"&gt;</code>, 헤더 <code>.ss-cb + .stam-check + .stam-check-cell</code>(#ss-cb-all), 삭제 버튼 <code>.stam-delete-btn</code> + <code>.stam-delete-label</code>.</li>
-        <li><strong>행은 JS 동적 렌더링</strong>(innerHTML 다수) — 정적 <code>.stam-table-row</code> 0, JS 내 일부만 부여. 공통 행/checkbox class 의 일관 부여 필요.</li>
-        <li><strong>미적용:</strong> board-list.js 미로드, root attr 없음, check-all attr 없음, init() 미호출.</li>
-        <li><strong>잔존 자체 로직:</strong> 전체선택(JS 335·401), delete-count(JS 373) 등 자체 구현. 파일 규모(2.5K행)·동적 렌더링으로 <strong>중간 난이도</strong> — 렌더 경로에서 공통 class 일관 부여 후 init.</li>
+        <li><strong>PR #109 조사 결과 Controller 직접 적용을 보류(현행 유지)한다.</strong> 마크업 일부는 공통화되어 있으나(<code>&lt;table class="ss-table stam-select-table"&gt;</code>, 헤더 <code>#ss-cb-all .stam-check .stam-check-cell</code>, 삭제 <code>.stam-delete-btn</code>/<code>.stam-delete-label</code>), 자체 엔진 구조가 컨트롤러 모델과 근본적으로 다르다.</li>
+        <li><strong>row 는 JS <code>renderTable()</code> 에서 동적 렌더링</strong> — 빈 <code>&lt;tbody id="ss-tbody"&gt;</code> 에 매 상호작용마다 <code>tbody.innerHTML</code> 통째 교체(검색·필터·그룹 펼침·그룹선택·drawer open/close).</li>
+        <li><strong>선택 상태의 source of truth 가 DOM 이 아니라 <code>S.sel</code> Set</strong> — 행 <code>.is-selected</code> / 헤더 / 그룹 체크박스 / delete count 가 모두 <code>S.sel</code> 에서 파생·재렌더된다. <code>.is-active</code> 도 <code>S.openId</code> 기반 재렌더.</li>
+        <li><strong>그룹 헤더행(<code>.ss-gr-row</code>) + 데이터행(<code>.ss-sc-row.stam-table-row</code>) 2종 구조.</strong> 그룹 헤더는 <strong>그룹 전체선택 checkbox + indeterminate</strong> 보유(<code>data-ss-grp-sel</code>). 그룹 checkbox 도 <code>.stam-check</code> 라 컨트롤러 change 핸들러와 충돌.</li>
+        <li><strong>현행이 이미 Board List 계약 동작을 충족</strong> — 미수정 상태 Playwright(Chromium) <strong>20/20 PASS</strong>: row click = <code>.is-active</code> + drawer open(checkbox unchecked·count 미증가), checkbox click = <code>.is-selected</code> + checked + <code>삭제 (N)</code>(drawer 미오픈), selected row click = <code>.is-selected.is-active</code> 동시, Escape = <code>.is-active</code> 해제 / <code>.is-selected</code> 유지, header 전체선택·전체해제·indeterminate.</li>
+        <li><strong>적용 보류 사유:</strong> Controller 강제 적용 시 ① <code>S.sel</code> vs 컨트롤러 DOM 상태의 <strong>이중 진실원</strong>, ② 전체 tbody 재렌더링이 컨트롤러가 쓴 class 를 소실, ③ 그룹 checkbox / indeterminate 충돌 위험. 최소 수정 불가 · 대규모 리라이트(2.5K行) = 회귀 위험 큼, 동작 이득 없음.</li>
       </ul>
     </div>
 
     <div class="scard">
-      <h4>메뉴/화면목록 <span class="pill warn">Controller 적용 필요</span> <span class="pill info">legacy 정리 필요</span></h4>
-      <div class="path">pages/boards/menu-screen-list.html (table:151) · js/stam.menu-screen-list.js (343行)</div>
+      <h4>메뉴/화면목록 <span class="pill ok">완료 (PR #107)</span> <span class="pill info">legacy 잔존</span></h4>
+      <div class="path">pages/boards/menu-screen-list.html · js/stam.menu-screen-list.js</div>
       <ul class="tight" style="margin-top:6px">
-        <li>테이블 <code>&lt;table class="msl-table"&gt;</code> — <code>.stam-select-table</code> 없음. 행 <code>.stam-table-row</code>(8)만 공통, checkbox 는 <code>.msl-cb</code>(공통 <code>.stam-check</code> 없음).</li>
-        <li>삭제 버튼 <code>.stam-board-delete</code> + <code>.msl-del-lbl</code> — 공통 <code>.stam-delete-btn</code> / <code>.stam-delete-label</code> 아님.</li>
-        <li>헤더 전체선택 <code>#msl-cb-all</code>(.msl-cb) 존재, <code>data-stam-check-all</code> 없음.</li>
-        <li><strong>잔존 자체 로직:</strong> 전체선택(JS 233), delete-count <code>.msl-del-lbl</code> 갱신(JS 258) 등 자체 구현. 행은 JS 렌더링.</li>
-        <li>요구사항 화면과 <strong>구조가 쌍둥이</strong> — 동일 매핑(공통 class 보강 + delete-btn/label 전환 + init + 자체 로직 제거 + <code>.msl-*</code> legacy 정리)으로 처리 가능.</li>
+        <li>PR #107 에서 공통 8종 hook 적용(<code>.stam-select-table</code> · <code>data-stam-board-list</code> · <code>.stam-check(-cell)</code> · <code>data-stam-check-all</code> · <code>.stam-delete-btn/-label</code>) + <code>STAMBoardList.init({ deleteBtn:'#msl-del-btn', onRowActivate→openDrawer('detail') })</code>.</li>
+        <li>자체 <code>bindRows()</code>/<code>bindCheckboxes()</code> 제거. <strong>기존 row click 이 <code>.is-selected</code> 부여하던 잘못된 모델을 계약대로 <code>.is-active</code> 로 교정</strong>(checkbox 만 <code>.is-selected</code>).</li>
+        <li>Playwright 27건 PASS. legacy <code>.msl-*</code> class 는 화면 고유 스타일 유지용으로 병행 — 대청소는 별도 PR.</li>
       </ul>
     </div>
 
     <div class="scard">
-      <h4>요구사항 <span class="pill warn">Controller 적용 필요</span> <span class="pill info">legacy 정리 필요</span></h4>
-      <div class="path">pages/boards/requirements.html (table:151) · js/stam.requirements.js (343행)</div>
+      <h4>요구사항 <span class="pill ok">완료 (PR #108)</span> <span class="pill info">legacy 잔존</span></h4>
+      <div class="path">pages/boards/requirements.html · js/stam.requirements.js</div>
       <ul class="tight" style="margin-top:6px">
-        <li>메뉴/화면목록과 동일 패턴: <code>&lt;table class="rq-table"&gt;</code>(select-table 없음), 행 <code>.stam-table-row</code>(7), checkbox <code>.rq-cb</code>, 삭제 <code>.stam-board-delete</code> + <code>.rq-del-lbl</code>.</li>
-        <li>헤더 전체선택 <code>#rq-cb-all</code>(.rq-cb), <code>data-stam-check-all</code> 없음.</li>
-        <li><strong>잔존 자체 로직:</strong> 전체선택(JS 233), delete-count <code>.rq-del-lbl</code> 갱신(JS 258) — 메뉴/화면목록과 동일 라인 구조.</li>
-        <li>메뉴/화면목록과 <strong>쌍둥이</strong> → 동일 PR 패턴 재사용. legacy <code>.rq-*</code> 정리 동반.</li>
+        <li>PR #108 에서 메뉴/화면목록(#107) 쌍둥이 패턴 그대로 적용 — 공통 8종 hook + <code>STAMBoardList.init({ deleteBtn:'#rq-del-btn', onRowActivate→openDrawer('detail') })</code>.</li>
+        <li>자체 <code>bindRows()</code>/<code>bindCheckboxes()</code> 제거. row click <code>.is-selected</code> → <code>.is-active</code> 교정(checkbox 만 <code>.is-selected</code>).</li>
+        <li>Playwright 27건 PASS. legacy <code>.rq-*</code> 병행 유지 — 대청소는 별도 PR.</li>
       </ul>
     </div>
 
@@ -230,10 +230,10 @@
     <table class="t">
       <thead><tr><th>판정</th><th>화면</th><th>비고</th></tr></thead>
       <tbody>
-        <tr><td><span class="pill ok">완료</span></td><td>기능정의서</td><td>PR #93 적용 · PR #104 검증 27/27 PASS</td></tr>
-        <tr><td><span class="pill warn">Controller 적용 필요</span></td><td>Open Scenario · 화면설계서 · 메뉴/화면목록 · 요구사항</td><td>4개 — 적용 난이도/근접도 상이 (Section 04 순서)</td></tr>
-        <tr><td><span class="pill info">legacy class 정리 필요</span></td><td>메뉴/화면목록 · 요구사항</td><td><code>.msl-*</code> / <code>.rq-*</code> 전용 class → 공통 class 전환 동반</td></tr>
-        <tr><td><span class="pill neutral">특수 구조 · 별도 검토</span></td><td>WBS</td><td>그룹/Gantt + portal — 설계 검토 선행</td></tr>
+        <tr><td><span class="pill ok">완료 (Controller 적용)</span></td><td>기능정의서 · Open Scenario · 메뉴/화면목록 · 요구사항</td><td>일반 Board List 4개 — #93/#104 · #106 · #107 · #108, 각 Playwright PASS</td></tr>
+        <tr><td><span class="pill info">legacy class 정리 필요</span></td><td>메뉴/화면목록 · 요구사항 (· 기능정의서)</td><td><code>.msl-*</code> / <code>.rq-*</code> (/ <code>.fn-*</code>) 병행 잔존 → 별도 저우선 PR</td></tr>
+        <tr><td><span class="pill neutral">특수 구조 · 현행 유지</span></td><td>화면설계서</td><td>그룹/상태(<code>S.sel</code>)·전체 재렌더 엔진으로 계약 충족(현행 20/20 PASS) — Controller 직접 적용 보류 (PR #109 조사)</td></tr>
+        <tr><td><span class="pill neutral">특수 구조 · 별도 검토</span></td><td>WBS</td><td>그룹/Gantt + portal — 구조 검토 선행</td></tr>
         <tr><td><span class="pill bad">보류</span></td><td>—</td><td>현재 없음</td></tr>
       </tbody>
     </table>
@@ -242,32 +242,29 @@
 
 <!-- ── 04. 권장 PR 순서 ── -->
 <div class="sec">
-  <div class="sec-h">Section 04 · 권장 다음 PR 순서</div>
+  <div class="sec-h">Section 04 · 권장 다음 작업</div>
   <div class="sec-b">
-    <p>적용 근접도(낮은 회귀 위험) → 쌍둥이 패턴 재사용 효율 → 대형/특수 화면 순으로 권장한다.</p>
+    <p>일반 Board List 4개 화면 적용이 완료되었고, 화면설계서는 현행 유지로 결정되었다. <strong>다음 권장 작업은 <em>WBS Board List 구조 검토</em></strong>(적용이 아닌 설계 검토 선행)이다.</p>
     <ol class="tight">
-      <li><strong>Open Scenario</strong> — 마크업 거의 완성, 정적 행, 최소 변경. <em>파일럿 2호</em>로 컨트롤러 적용 패턴을 2번째로 검증.</li>
-      <li><strong>메뉴/화면목록</strong> — 쌍둥이 패턴 A 확립(공통 class 보강 + delete-btn/label 전환 + init + 자체 로직 제거 + <code>.msl-*</code> 정리).</li>
-      <li><strong>요구사항</strong> — 쌍둥이 패턴 B, A 의 매핑 그대로 재사용. (2·3 은 연속 처리 권장)</li>
-      <li><strong>화면설계서</strong> — 동적 렌더링·대형 파일, 중간 난이도. 렌더 경로 공통 class 일관화 후 init.</li>
-      <li><strong>WBS</strong> — 직접 적용 전 <em>설계 검토 PR/문서</em> 선행(그룹 행·presentation/모바일·portal). 검토 후 적용 여부/방식 결정.</li>
+      <li><strong>WBS Board List 구조 검토</strong> — 직접 적용 전 구조 검토 문서/PR 선행. 그룹 요약·Gantt 행 혼합, <code>.wbs-chk</code> 전체선택, portal 커스텀 select(PR #100) 상호작용을 분석하고, ① 현행 유지 ② 부분 적용 ③ <code>STAMBoardList</code> 확장(그룹/외부상태 어댑터) 중 방향을 결정한다.</li>
+      <li><strong>(저우선) legacy class 대청소</strong> — 적용 완료 화면의 <code>.fn-*</code> / <code>.msl-*</code> / <code>.rq-*</code> / <code>.os-*</code> 병행 class 정리(현행 동작 영향 없음, 화면별 분리 PR).</li>
     </ol>
     <p style="margin-top:8px;color:var(--t3);font-size:11px">
-      * 각 적용 PR 은 <a href="STAM-Common-Select-Table-Preview.html">Bare Preview</a> 육안 비교 + Playwright smoke(기능정의서 PR #104 기준 항목) 를 동일하게 수행한다. 계약 기준: <a href="STAM-Board-List-Template-Contract-v1.html">Board List Contract v1</a>.<br>
-      * 기능정의서 legacy class 정리는 별도 저우선 PR 로 분리 가능(현행 동작에 영향 없음).
+      * 완료 화면 회귀 기준: <a href="STAM-Common-Select-Table-Preview.html">Bare Preview</a> 육안 비교 + Playwright smoke(기능정의서 PR #104 기준 항목). 계약 기준: <a href="STAM-Board-List-Template-Contract-v1.html">Board List Contract v1</a>.<br>
+      * 화면설계서는 <span class="pill neutral">특수 구조 · 현행 유지</span> 로 분류됨 — Controller 직접 적용 대상에서 제외(PR #109 조사). 향후 공통화가 필요하면 <code>STAMBoardList</code> 에 그룹 행 + 외부 상태(Set) 어댑터를 더하는 별도 설계 PR 로만 진행(컨트롤러 확장 = <code>stam.board-list.js</code> 변경 동반).
     </p>
   </div>
 </div>
 
 <!-- ── 05. 본 PR 범위 / 제약 ── -->
 <div class="sec">
-  <div class="sec-h">Section 05 · 본 PR(#105) 범위 & 제약</div>
+  <div class="sec-h">Section 05 · 문서 범위 & 제약</div>
   <div class="sec-b">
     <ul class="tight">
-      <li>본 PR 은 <strong>Audit 문서 생성만</strong> 한다 — 본 파일(<code>STAM-Board-List-Controller-Target-Audit-Report-v1.html</code>) 외 변경 없음.</li>
+      <li>PR #105 가 본 문서를 생성했고, <strong>PR #109(본 보정)는 이 Audit 문서만 수정</strong>한다 — 화면설계서 재분류 및 #106~#108 진행 현황 반영. 본 파일(<code>STAM-Board-List-Controller-Target-Audit-Report-v1.html</code>) 외 변경 없음.</li>
       <li>제품 화면(<code>stam/pages/**</code>) · <code>stam/js/**</code> · <code>stam/css/**</code> 미수정.</li>
       <li><code>stam.board-list.js</code> · <code>stam.nav-data.js</code> · shell/topbar/sidebar 렌더러 · 저장/삭제/API/localStorage/Firestore 로직 미변경.</li>
-      <li>Controller 적용 · legacy class 정리는 <strong>본 PR 에서 수행하지 않으며</strong>, 본 조사 결과를 기준으로 후속 PR 에서 진행한다.</li>
+      <li>화면설계서 Controller 직접 적용은 보류(현행 유지). 향후 적용 · legacy class 정리는 별도 후속 PR 에서 진행한다.</li>
     </ul>
   </div>
 </div>
