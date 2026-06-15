@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM WBS Board List Structure Review v1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--t1); margin: 0; padding: 32px; }
+    .doc-header { margin-bottom: 28px; }
+    .doc-header h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+    .doc-header p { font-size: 12px; color: var(--t3); margin: 0; }
+    .meta { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .meta .chip { font-size:11px; padding:3px 8px; border-radius:4px; background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .related { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:11px; }
+    .related a { color: var(--stam); text-decoration: none; padding: 4px 10px; border: 1px solid var(--bd); border-radius: 6px; background: var(--bg-sur); }
+    .related a:hover { background: var(--bg-sur2); }
+    .sec { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; margin-bottom: 22px; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+    .sec-h { padding: 12px 16px; border-bottom: 1px solid var(--bd); background: var(--bg-sur2); font-size: 11px; font-weight: 700; letter-spacing:.06em; text-transform: uppercase; color: var(--t3); }
+    .sec-b { padding: 16px; font-size: 12.5px; color: var(--t2); line-height: 1.75; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--stam); background: rgba(84,81,232,.08); padding: 1px 5px; border-radius: 3px; }
+    table.t { width: 100%; border-collapse: collapse; font-size: 12px; }
+    table.t th, table.t td { padding: 8px 10px; border-bottom: 1px solid var(--bd); text-align: left; vertical-align: top; }
+    table.t thead th { background: var(--bg-sur2); color: var(--t3); text-transform: uppercase; font-size: 10px; letter-spacing: .06em; font-weight: 700; white-space: nowrap; }
+    ul.tight, ol.tight { margin: 6px 0; padding-left: 22px; } ul.tight li, ol.tight li { margin: 3px 0; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; line-height:1.5; white-space:nowrap; }
+    .pill.ok { background:#dcfce7; color:#166534; }
+    .pill.bad { background:#fee2e2; color:#991b1b; }
+    .pill.warn { background:#fef3c7; color:#92400e; }
+    .pill.info { background:#dbeafe; color:#1e40af; }
+    .pill.neutral { background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .yes { color:#16a34a; font-weight:700; }
+    .no  { color:#dc2626; font-weight:700; }
+    .part{ color:#b45309; font-weight:700; }
+    .verdict-box { border:1px solid var(--bd); border-left:4px solid var(--stam); border-radius:8px; padding:14px 16px; background:var(--bg-sur2); }
+    .verdict-box .big { font-size:15px; font-weight:700; color:var(--t1); margin:0 0 4px; }
+    .theme-toggle { position: fixed; top: 16px; right: 16px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--bg-sur); color: var(--t2); font-size: 11px; cursor: pointer; }
+    @media (max-width: 860px) { body { padding:16px; } table.t { font-size:11px; } }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">다크 모드</button>
+
+<div class="doc-header">
+  <h1>STAM WBS Board List Structure Review <span class="pill ok">v1</span></h1>
+  <p>WBS 화면에 공통 목록 컨트롤러 <code>window.STAMBoardList</code> 를 적용할 수 있는지 구조를 조사하고 판정한 검토 문서. <strong>조사·문서화 전용 — 제품 코드 미수정.</strong></p>
+  <div class="meta">
+    <span class="chip">조사일: 2026-06-15</span>
+    <span class="chip">기준 PR: #105 Audit · #100 (WBS custom select)</span>
+    <span class="chip">대상: WBS 1개 화면</span>
+    <span class="chip">성격: 구조 검토 (코드 미수정)</span>
+  </div>
+  <div class="related">
+    <span style="color:var(--t3);align-self:center">Related:</span>
+    <a href="STAM-Board-List-Controller-Target-Audit-Report-v1.html">Controller Target Audit v1</a>
+    <a href="STAM-Board-List-Template-Contract-v1.html">Board List Contract v1</a>
+    <a href="STAM-Custom-Select-Contract-v1.html">Custom Select Contract v1</a>
+    <a href="STAM-Docs-Index.html">Docs Index</a>
+  </div>
+</div>
+
+<!-- ── 1. Summary ── -->
+<div class="sec">
+  <div class="sec-h">Section 1 · Summary</div>
+  <div class="sec-b">
+    <div class="verdict-box">
+      <p class="big">최종 판정: <span class="pill warn">Controller 확장 설계 필요</span> &nbsp;(직접 적용 보류 · 현행 유지)</p>
+      <p style="margin:0;color:var(--t2)">WBS 는 <strong>그룹 다중 <code>&lt;tbody&gt;</code> + 런타임 주입 행 checkbox + 22컬럼 가로스크롤/포커스/Gantt/전체보기 모드</strong>가 얽힌 특수 구조다. 현행은 checkbox 선택·삭제 카운트·전체선택은 동작하지만, <strong>row click 이 <code>.is-active</code> 가 아니라 <code>.is-selected</code> 를 부여</strong>하여 계약(row=active / checkbox=selected 분리)을 충족하지 못한다. 평면 행 모델인 <code>STAMBoardList</code> 를 그대로 적용하기에는 위험이 크다.</p>
+    </div>
+    <ul class="tight" style="margin-top:12px">
+      <li><strong>직접 Controller 적용:</strong> ❌ 보류 — 그룹 다중 tbody / 주입형 checkbox / 행클릭·드로어·포커스·Gantt 얽힘과 충돌.</li>
+      <li><strong>권장 방향:</strong> ① 단기 — <strong>현행 유지</strong>. ② 중기 — <strong>WBS 전용 계약 문서화</strong> + <strong><code>STAMBoardList</code> 그룹/주입형 어댑터 확장 설계</strong>(별도 PR, <code>stam.board-list.js</code> 변경 동반). ③ (선택) 소규모 정상화 PR 로 <strong>row click → <code>.is-active</code> 분리</strong> 및 삭제 라벨 표준화만 우선 교정 가능.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 2. WBS 구조 요약 ── -->
+<div class="sec">
+  <div class="sec-h">Section 2 · WBS 구조 요약</div>
+  <div class="sec-b">
+    <p><strong>대상 파일</strong></p>
+    <table class="t">
+      <thead><tr><th>파일</th><th>규모</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td><code>stam/pages/boards/wbs.html</code></td><td>1,924 행</td><td>테이블·행 정적 HTML, 그룹 다중 tbody</td></tr>
+        <tr><td><code>stam/js/stam.wbs.js</code></td><td>1,134 행</td><td>선택·삭제·드로어·Gantt·포커스·그룹토글·portal select</td></tr>
+        <tr><td><code>stam/css/stam.wbs.css</code></td><td>~90KB</td><td>WBS 전용 시각(가로스크롤·포커스컬럼·Gantt 등)</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:12px"><strong>DOM 구조</strong></p>
+    <ul class="tight">
+      <li><code>stam.board-list.js</code> <strong>미로드</strong>. <code>&lt;table class="wbs-table"&gt;</code> — <code>.stam-select-table</code> · <code>data-stam-board-list</code> 없음.</li>
+      <li><strong>22 컬럼</strong> 와이드 테이블 → <code>.wbs-tbl-inner#wbs-tbl-inner</code> 기반 <strong>가로 스크롤</strong>. 컬럼은 <code>.is-shared-col</code> / <code>.is-focus-col</code> / <code>.col-d</code> 로 구분(포커스 모드에서 표시 토글).</li>
+      <li><strong>그룹마다 <code>&lt;tbody&gt;</code> 2개</strong>: <code>.wbs-grp-hdr-body</code>(그룹 헤더행 — <code>colspan="22"</code>, 토글 버튼·진행바·통계) + <code>.wbs-grp-rows[data-grp]</code>(데이터행). 현재 <strong>6개 그룹 / 17개 데이터행</strong>.</li>
+      <li>데이터행: <code>&lt;tr class="wbs-data-row stam-table-row" data-wbs-id="WBS-00X"&gt;</code> — 정적 HTML. <code>.stam-table-row</code> 는 이미 부여됨.</li>
+      <li><strong>행 checkbox 는 정적 HTML 에 없고 JS 가 런타임 주입</strong>(<code>initCheckboxes</code>): 각 행 맨 앞에 <code>&lt;td class="wbs-td-chk"&gt;&lt;input class="wbs-chk wbs-row-chk"&gt;</code> 삽입. 헤더에는 전체선택 <code>#wbs-chk-all</code> 존재.</li>
+      <li>삭제 버튼 <code>#wbs-delete-btn</code> — 라벨이 별도 <code>.stam-delete-label</code> span 이 아니라 <strong>버튼 자체 textContent</strong>, 형식은 <code>삭제 N</code>(괄호 없음).</li>
+      <li>부가 구조: <strong>Gantt 섹션</strong>(접기/펼치기 maxHeight 애니메이션) · <strong>포커스 모드</strong>(<code>data-focus-toggle</code>/<code>data-focus-exit</code>) · <strong>그룹 토글 / 전체 펼치기·접기</strong> · <strong>드로어 전체보기(full view)</strong> · <strong>portal 마운트 custom select</strong>(PR #100).</li>
+    </ul>
+    <p style="margin-top:12px"><strong>상태 관리 방식</strong></p>
+    <ul class="tight">
+      <li><strong>선택 source of truth = DOM</strong> (<code>.wbs-row-chk:checked</code>) — 별도 JS state Set 없음. 전체선택/indeterminate/삭제 카운트 모두 DOM 쿼리로 계산(<code>updateMasterChk</code> / <code>updateDeleteBtn</code>).</li>
+      <li>행 시각 상태는 <code>.selected</code> + <code>.is-selected</code> 병행 토글. <strong><code>.is-active</code> 개념은 사용하지 않는다.</strong></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 3. Board List Contract 대비표 ── -->
+<div class="sec">
+  <div class="sec-h">Section 3 · Board List Contract 대비표</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>항목</th><th>계약 기준</th><th>WBS 현행 (Playwright 실측)</th><th>충족</th></tr></thead>
+      <tbody>
+        <tr><td>row click</td><td><code>.is-active</code> + drawer open, 선택 미변경</td><td>drawer open ✓ — 단, <code>.is-active</code> 아님 / <code>.is-selected</code> 부여, <strong>다른 행 <code>.is-selected</code> 시각 해제</strong></td><td class="no">✗</td></tr>
+        <tr><td>checkbox click</td><td><code>.is-selected</code> + checked + count 포함, drawer 미오픈</td><td><code>.is-selected</code> + checked + <code>삭제 1</code> + drawer 미오픈</td><td class="yes">✓</td></tr>
+        <tr><td>selected + active 동시</td><td>지원(<code>.is-selected.is-active</code>)</td><td><code>.is-active</code> 부재 → 분리 불가. row click 이 선택 시각과 충돌</td><td class="no">✗</td></tr>
+        <tr><td>Escape</td><td><code>.is-active</code> 해제, <code>.is-selected</code> 유지</td><td>drawer 닫힘 + 선택 유지 (active 개념 없음)</td><td class="part">부분</td></tr>
+        <tr><td>delete count</td><td><code>삭제 (N)</code>, <code>.stam-delete-label</code></td><td><code>삭제 N</code>(괄호 없음), 버튼 textContent 직접</td><td class="part">부분</td></tr>
+        <tr><td>header checkbox</td><td><code>[data-stam-check-all]</code>, 전체/부분/indeterminate</td><td><code>#wbs-chk-all</code>(속성 없음) — 전체선택·indeterminate 동작 ✓</td><td class="part">부분</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 핵심 미충족: row click 이 <code>.is-active</code> 가 아니라 <code>.is-selected</code> 를 부여하고 다른 행의 선택 시각을 지운다. 이때 <strong>지워진 행의 checkbox 는 여전히 checked 이고 삭제 카운트도 유지</strong>되어, 시각 선택(하이라이트)과 논리 선택(checkbox/카운트)이 <strong>desync</strong> 된다. (화면설계서가 계약을 완전 충족했던 것과 대비.)</p>
+  </div>
+</div>
+
+<!-- ── 4. 위험 요소 ── -->
+<div class="sec">
+  <div class="sec-h">Section 4 · 위험 요소</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>요소</th><th>내용</th><th>Controller 적용 시 위험</th></tr></thead>
+      <tbody>
+        <tr><td>그룹 구조</td><td>그룹마다 <code>.wbs-grp-hdr-body</code> + <code>.wbs-grp-rows</code> 2개 tbody, 그룹 헤더행 <code>colspan="22"</code></td><td class="no">높음 — 컨트롤러 평면 행/단일 tbody 가정과 불일치, 그룹 헤더행 오인 가능</td></tr>
+        <tr><td>동적(주입형) checkbox</td><td>행 checkbox 를 JS 가 런타임 주입(<code>initCheckboxes</code>)</td><td class="part">중 — init 순서 의존 + 주입 핸들러와 컨트롤러 위임 이중화</td></tr>
+        <tr><td>가로 스크롤 / 포커스 컬럼</td><td>22컬럼 와이드, <code>.is-focus-col</code>/<code>.is-shared-col</code> 표시 토글, Gantt 섹션</td><td class="part">중 — 레이아웃·표시 토글이 컨트롤러와 무관하나 행 구조 가정에 영향</td></tr>
+        <tr><td>특수 필터/접기펼치기</td><td>그룹 토글·전체 펼치기/접기·Gantt 접기·포커스 모드·드로어 전체보기</td><td class="part">중 — 상호작용 다수, 회귀 표면 큼</td></tr>
+        <tr><td>row click 충돌</td><td>row click 이 <code>.is-selected</code> 부여 + 타행 선택 시각 해제 + 드로어 오픈이 한 핸들러에 묶임</td><td class="no">높음 — 계약(row=active) 적용하려면 핸들러 재설계 필요</td></tr>
+        <tr><td>저장/삭제/API 연결 가능성</td><td>현행 삭제는 확인 후 동작(목업). 실제 삭제/저장 로직 연결 시 컨트롤러 <code>onDelete</code> 경유 필요</td><td class="part">중 — 본 검토 범위 밖, 적용 PR 시 분리 처리</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 5. 적용 가능성 판정 ── -->
+<div class="sec">
+  <div class="sec-h">Section 5 · 적용 가능성 판정</div>
+  <div class="sec-b">
+    <table class="t">
+      <thead><tr><th>옵션</th><th>가능성</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td>① 직접 Controller 적용</td><td class="no">불가(보류)</td><td>그룹 다중 tbody + 주입형 checkbox + row-click 얽힘 → 최소 수정 불가, 회귀 위험 큼</td></tr>
+        <tr><td>② 일부 hook 만 적용</td><td class="part">부분 가능</td><td><code>data-stam-check-all</code> 부여, 삭제 버튼을 <code>.stam-delete-btn</code> + <code>.stam-delete-label</code>(<code>삭제 (N)</code>) 표준화, 행 <code>.stam-table-row</code> 는 이미 존재 — <strong>마크업/라벨 정규화는 컨트롤러 없이도 가능</strong>(시각·계약 일부 정렬)</td></tr>
+        <tr><td>③ Controller 확장 필요</td><td class="yes">권장(중기)</td><td>공통 컨트롤러가 <strong>그룹 다중 tbody · 런타임 주입 checkbox · row=active/checkbox=selected 분리</strong>를 지원하도록 <code>stam.board-list.js</code> 확장 설계가 선행되어야 완전 적용 가능</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 화면설계서(PR #109)는 자체 엔진이 <strong>계약을 이미 충족</strong>해 "현행 유지"였으나, WBS 는 row-click 충돌로 <strong>계약 일부 미충족</strong>이라는 점이 다르다. 따라서 단순 현행 유지보다 한 단계 위인 "확장 설계 필요"로 판정한다.</p>
+  </div>
+</div>
+
+<!-- ── 6. 권장 다음 작업 ── -->
+<div class="sec">
+  <div class="sec-h">Section 6 · 권장 다음 작업</div>
+  <div class="sec-b">
+    <ol class="tight">
+      <li><strong>현행 유지 (단기)</strong> — 본 PR 은 조사·문서화만. WBS 제품 코드는 변경하지 않는다.</li>
+      <li><strong>WBS 전용 계약 문서화</strong> — 그룹 다중 tbody·주입형 checkbox·포커스/Gantt/전체보기 모드를 포함한 WBS 목록 계약(별도 docs)을 정의해, 공통 계약과의 차이를 명문화.</li>
+      <li><strong><code>STAMBoardList</code> 확장 설계 (중기, 별도 PR)</strong> — 그룹/주입형 checkbox 어댑터 + row=active/checkbox=selected 분리 옵션을 컨트롤러에 추가. <code>stam.board-list.js</code> 변경을 동반하므로 본 검토 범위 밖, 전용 PR 로 진행.</li>
+      <li><strong>(선택) 소규모 정상화 PR</strong> — 컨트롤러 확장 전이라도, WBS 자체 JS 에서 <em>row click → <code>.is-active</code></em> 분리 및 삭제 라벨 <code>삭제 (N)</code> 표준화만 우선 교정 가능(시각 desync 해소). 단 이는 WBS JS 수정이라 별도 승인 필요.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ── 7. QA 기록 ── -->
+<div class="sec">
+  <div class="sec-h">Section 7 · QA 기록</div>
+  <div class="sec-b">
+    <p><strong>검증 방법:</strong> 정적 분석(HTML/JS/CSS 직접 판독) + Playwright(Chromium) 로 <strong>미수정 WBS 화면</strong> 동작 probe (<code>file://</code> 로드).</p>
+    <p style="margin-top:6px"><strong>확인 결과 (probe):</strong></p>
+    <ul class="tight">
+      <li>화면 로드 status 200, 데이터행 17 / 주입 checkbox 17 / 그룹 헤더 tbody 6 / 그룹 행 tbody 6.</li>
+      <li><code>.stam-select-table</code> 0 · <code>[data-stam-board-list]</code> 0 · <code>[data-stam-check-all]</code> 0 · <code>.stam-delete-label</code> 0 (모두 미적용).</li>
+      <li>checkbox click → 행 <code>.is-selected</code> + checked + <code>삭제 1</code>, drawer 미오픈 ✓. 2개 선택 → <code>삭제 2</code> + master indeterminate ✓.</li>
+      <li><strong>row click → <code>.is-active</code>=false / <code>.is-selected</code>=true</strong>, drawer open ✓. 동시에 다른 선택행의 <code>.is-selected</code> 시각은 해제되지만 <strong>그 행 checkbox 는 checked 유지·<code>삭제 2</code> 카운트 유지 → 시각·논리 선택 desync 확인.</strong></li>
+      <li>Escape → drawer 닫힘, 선택 유지(active 개념 없음).</li>
+      <li>master 전체선택 → 17/17 checked, <code>삭제 17</code>.</li>
+      <li><strong>콘솔 오류 0.</strong></li>
+    </ul>
+    <p style="margin-top:6px;color:var(--t3);font-size:11px">* 본 검토는 제품 코드를 수정하지 않았다(working tree clean). 위 probe 는 미수정 상태의 현행 동작 기록이다.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById('themeToggle');
+  b.addEventListener('click', function(){
+    var html = document.documentElement;
+    var d = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', d ? 'light' : 'dark');
+    b.textContent = d ? '다크 모드' : '라이트 모드';
+  });
+})();
+</script>
+</body>
+</html>
