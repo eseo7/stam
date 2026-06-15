@@ -253,24 +253,44 @@
 .stam-table-row { cursor: pointer; }
 
 /* ═══════════════════════════════════════
-   8. 선택형 테이블 — 행 선택 스타일
+   8. 선택형 테이블 — 행 상태 스타일
       반드시 .stam-select-table 범위 안에서만 적용
       다른 화면의 .stam-table-row 에 영향 없음
+
+      공통 상태 정의:
+        .is-active   — 사용자가 행을 클릭해서 drawer 가 열린 현재 행
+                       (checkbox 와 무관 / delete count 미포함)
+        .is-selected — checkbox 로 선택된 bulk action 대상 행
+                       (checkbox checked / delete count 포함)
+        .is-active.is-selected — 선택된 행을 클릭해 drawer 가 열린 상태
+
+      둘 다 좌측 bar 표시. 배경은 selected 가 더 진함.
+      bar 색/두께는 같은 기준 (var(--stam), 3px).
    ═══════════════════════════════════════ */
 
-/* 선택된 행 배경 (MSL 기준: rgba(84,81,232,.06)) */
+/* active 행 배경 (drawer target — 옅음) */
+.stam-select-table tbody tr.stam-table-row.is-active td {
+  background: rgba(84, 81, 232, .035);
+}
+
+/* selected 행 배경 (bulk action target — MSL 기준 .06) */
 .stam-select-table tbody tr.stam-table-row.is-selected td,
 .stam-select-table tbody tr.stam-table-row.sel td,
 .stam-select-table tbody tr.stam-table-row.selected td {
   background: rgba(84, 81, 232, .06);
 }
 
-/* 선택된 행 좌측 active bar
-   ::before 방식: border-radius 지원, MSL과 동일한 구현
-   td에 position:relative 가 있어야 동작 */
-.stam-select-table tbody tr.stam-table-row.is-selected td:first-child::before,
-.stam-select-table tbody tr.stam-table-row.sel td:first-child::before,
-.stam-select-table tbody tr.stam-table-row.selected td:first-child::before {
+/* active + selected 동시: selected 배경 유지 */
+.stam-select-table tbody tr.stam-table-row.is-active.is-selected td {
+  background: rgba(84, 81, 232, .08);
+}
+
+/* 좌측 active bar — is-active / is-selected 양쪽 모두 동일 기준 (3px, var(--stam))
+   ::before 방식: td 에 position:relative 가 있어야 동작 (섹션 7 에서 설정됨) */
+.stam-select-table tbody tr.stam-table-row.is-active   > td:first-child::before,
+.stam-select-table tbody tr.stam-table-row.is-selected > td:first-child::before,
+.stam-select-table tbody tr.stam-table-row.sel         > td:first-child::before,
+.stam-select-table tbody tr.stam-table-row.selected    > td:first-child::before {
   content: "";
   position: absolute;
   left: 0;
@@ -279,21 +299,28 @@
   width: 3px;
   background: var(--stam);
   border-radius: 0 2px 2px 0;
+  z-index: 1;
 }
 
-/* hover (미선택 행만) */
-.stam-select-table tbody tr.stam-table-row:not(.is-selected):not(.sel):not(.selected):hover td {
+/* hover (active/selected 가 아닌 행만) */
+.stam-select-table tbody tr.stam-table-row:not(.is-active):not(.is-selected):not(.sel):not(.selected):hover td {
   background: rgba(84, 81, 232, .025);
 }
 
 /* 다크 모드 */
+[data-theme="dark"] .stam-select-table tbody tr.stam-table-row.is-active td {
+  background: rgba(139, 127, 248, .05);
+}
 [data-theme="dark"] .stam-select-table tbody tr.stam-table-row.is-selected td,
 [data-theme="dark"] .stam-select-table tbody tr.stam-table-row.sel td,
 [data-theme="dark"] .stam-select-table tbody tr.stam-table-row.selected td {
   background: rgba(139, 127, 248, .08);
 }
+[data-theme="dark"] .stam-select-table tbody tr.stam-table-row.is-active.is-selected td {
+  background: rgba(139, 127, 248, .11);
+}
 
-[data-theme="dark"] .stam-select-table tbody tr.stam-table-row:not(.is-selected):not(.sel):not(.selected):hover td {
+[data-theme="dark"] .stam-select-table tbody tr.stam-table-row:not(.is-active):not(.is-selected):not(.sel):not(.selected):hover td {
   background: rgba(84, 81, 232, .05);
 }
 
@@ -301,18 +328,26 @@
    9. 하위 호환 — .stam-select-table 없는 기존 사용
       (.stam-table-row 만 있는 페이지의 선택 스타일 유지)
    ═══════════════════════════════════════ */
+.stam-table-row.is-active td {
+  background: rgba(84, 81, 232, .035);
+}
 .stam-table-row.is-selected td,
 .stam-table-row.sel td,
 .stam-table-row.selected td {
   background: rgba(84, 81, 232, .06);
 }
+.stam-table-row.is-active.is-selected td {
+  background: rgba(84, 81, 232, .08);
+}
 
+.stam-table-row.is-active td:first-child,
 .stam-table-row.is-selected td:first-child,
 .stam-table-row.sel td:first-child,
 .stam-table-row.selected td:first-child {
   position: relative;
 }
 
+.stam-table-row.is-active td:first-child::before,
 .stam-table-row.is-selected td:first-child::before,
 .stam-table-row.sel td:first-child::before,
 .stam-table-row.selected td:first-child::before {

@@ -5,30 +5,42 @@
   var scrim  = document.getElementById('os-scrim');
   var drawer = document.getElementById('os-dw-detail');
 
+  /* drawer 가 열린 현재 행 = .is-active
+     (공통 룰: checkbox 선택과 무관, delete count 미포함, left bar 표시)
+     drawer 닫기 시 .is-active 제거 (drawer target 만 의미하므로) */
+  function clearActiveRows() {
+    document.querySelectorAll('#os-tbody .stam-table-row.is-active').forEach(function (r) {
+      r.classList.remove('is-active');
+    });
+  }
+
   function openDetailDrawer(scnId) {
     if (!drawer) return;
     scrim && scrim.classList.add('show');
     drawer.classList.add('open');
-    var activeRow = document.querySelector('.os-row-active');
-    if (activeRow) activeRow.classList.remove('os-row-active');
+    clearActiveRows();
     if (scnId) {
-      var row = document.querySelector('.os-row[data-scn-id="' + scnId + '"]');
-      if (row) row.classList.add('os-row-active');
+      var row = document.querySelector('#os-tbody .stam-table-row[data-scn-id="' + scnId + '"]');
+      if (row) row.classList.add('is-active');
     }
   }
 
   function closeDrawer() {
     scrim && scrim.classList.remove('show');
     drawer && drawer.classList.remove('open');
-    var activeRow = document.querySelector('.os-row-active');
-    if (activeRow) activeRow.classList.remove('os-row-active');
+    clearActiveRows();
   }
 
   /* ── Row click → detail drawer ─────────────────────────────── */
+  /* 공통 룰:
+       - row 클릭만으로 checkbox 가 toggle 되지 않는다
+       - row 클릭만으로 .is-selected 가 붙지 않는다
+       - row 에는 .is-active 만 부여한다  */
   function bindRows() {
-    document.querySelectorAll('#os-tbody .os-row').forEach(function (row) {
+    document.querySelectorAll('#os-tbody .stam-table-row').forEach(function (row) {
       row.addEventListener('click', function (e) {
         if (e.target.closest('.os-detail-btn')) return;
+        if (e.target.closest('.stam-check-cell')) return;
         if (e.target.closest('.os-td-cb')) return;
         openDetailDrawer(row.getAttribute('data-scn-id'));
       });
@@ -191,10 +203,7 @@
       cb.addEventListener('click', function (e) { e.stopPropagation(); });
       cb.addEventListener('change', function () {
         var row = cb.closest('tr');
-        if (row) {
-          row.classList.toggle('sel', cb.checked);
-          row.classList.toggle('is-selected', cb.checked);
-        }
+        if (row) row.classList.toggle('is-selected', cb.checked);
         syncHeaderCb();
         updateDeleteBtn();
       });
@@ -206,10 +215,7 @@
         getVisibleRowCbs().forEach(function (cb) {
           cb.checked = cbAll.checked;
           var row = cb.closest('tr');
-          if (row) {
-            row.classList.toggle('sel', cbAll.checked);
-            row.classList.toggle('is-selected', cbAll.checked);
-          }
+          if (row) row.classList.toggle('is-selected', cbAll.checked);
         });
         syncHeaderCb();
         updateDeleteBtn();
