@@ -198,17 +198,21 @@
     function closeDrawer() {
       drawer.setAttribute('data-open', 'false');
       document.body.style.overflow = '';
+      /* drawer 닫힘 → .is-active 만 해제. checkbox 선택(.selected/.is-selected)·카운트는 유지 */
+      document.querySelectorAll('.wbs-data-row.is-active').forEach(function (r) {
+        r.classList.remove('is-active');
+      });
     }
 
-    /* 행 클릭 → 상세 모드 (체크박스 상태 변경 없음) */
+    /* 행 클릭 → 상세 모드 (.is-active 만 부여, 체크박스 선택/카운트는 건드리지 않음) */
     document.querySelectorAll('.wbs-data-row').forEach(function (row) {
       row.addEventListener('click', function (e) {
         if (e.target.closest && e.target.closest('.wbs-td-chk')) return;
-        document.querySelectorAll('.wbs-data-row').forEach(function (r) {
-          if (r !== row) { r.classList.remove('selected'); r.classList.remove('is-selected'); }
+        /* 다른 행의 .is-active 해제 (active = 상세 drawer 대상, 한 번에 하나) */
+        document.querySelectorAll('.wbs-data-row.is-active').forEach(function (r) {
+          if (r !== row) r.classList.remove('is-active');
         });
-        row.classList.add('selected');
-        row.classList.add('is-selected');
+        row.classList.add('is-active');
         openDrawer('detail');
       });
     });
