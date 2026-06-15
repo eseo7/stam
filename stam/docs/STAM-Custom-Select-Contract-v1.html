@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM Custom Select Contract v1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <link rel="stylesheet" href="../css/stam.custom-select.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--t1); margin: 0; padding: 32px; }
+    .doc-header { margin-bottom: 28px; }
+    .doc-header h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+    .doc-header p { font-size: 12px; color: var(--t3); margin: 0; }
+    .meta { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .meta .chip { font-size:11px; padding:3px 8px; border-radius:4px; background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .related { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:11px; }
+    .related a { color: var(--stam); text-decoration: none; padding: 4px 10px; border: 1px solid var(--bd); border-radius: 6px; background: var(--bg-sur); }
+    .related a:hover { background: var(--bg-sur2); }
+    .sec { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; margin-bottom: 22px; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+    .sec-h { padding: 12px 16px; border-bottom: 1px solid var(--bd); background: var(--bg-sur2); font-size: 11px; font-weight: 700; letter-spacing:.06em; text-transform: uppercase; color: var(--t3); }
+    .sec-b { padding: 16px; font-size: 12.5px; color: var(--t2); line-height: 1.75; }
+    code, pre code { font-family: 'JetBrains Mono', monospace; }
+    code { font-size: 11px; color: var(--stam); background: rgba(84,81,232,.08); padding: 1px 5px; border-radius: 3px; }
+    pre { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font-size: 11.5px; line-height: 1.55; color: var(--t1); }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+    table.t { width: 100%; border-collapse: collapse; font-size: 12px; }
+    table.t th, table.t td { padding: 8px 10px; border-bottom: 1px solid var(--bd); text-align: left; vertical-align: top; }
+    table.t thead th { background: var(--bg-sur2); color: var(--t3); text-transform: uppercase; font-size: 10px; letter-spacing: .06em; font-weight: 700; white-space: nowrap; }
+    ul.tight, ol.tight { margin: 6px 0; padding-left: 22px; } ul.tight li, ol.tight li { margin: 3px 0; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; line-height:1.5; }
+    .pill.ok { background:#dcfce7; color:#166534; }
+    .pill.bad { background:#fee2e2; color:#991b1b; }
+    .pill.warn { background:#fef3c7; color:#92400e; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid2 .col { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; }
+    .grid2 h4 { margin: 0 0 6px; font-size: 12px; font-weight: 700; }
+    .col.do h4 { color: #16a34a; }
+    .col.dont h4 { color: #dc2626; }
+    .theme-toggle { position: fixed; top: 16px; right: 16px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--bg-sur); color: var(--t2); font-size: 11px; cursor: pointer; }
+    @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">다크 모드</button>
+
+<div class="doc-header">
+  <h1>STAM Custom Select Contract <span class="pill ok">v1</span></h1>
+  <p>STAM 의 모든 커스텀 select / dropdown / multiselect 가 화면별 전용 select 스타일을 새로 만들지 않고 공통 <code>.stam-cs-*</code> 구조를 사용하도록 강제하는 기준 문서.</p>
+  <div class="meta">
+    <span class="chip">공통 CSS: stam.custom-select.css</span>
+    <span class="chip">기준 PR: #97 (공통 패턴) · #98 / #99 / #100 (적용)</span>
+    <span class="chip">버전: v1</span>
+  </div>
+  <div class="related">
+    <span style="color:var(--t3);align-self:center">Related:</span>
+    <a href="STAM-Common-Custom-Select-Preview.html">Custom Select — Bare Preview</a>
+    <a href="STAM-Board-List-Template-Contract-v1.html">Board List Contract v1</a>
+    <a href="STAM-Form-Controls-Guide.html">Form Controls Guide</a>
+    <a href="STAM-Component-Guide.html">Component Guide</a>
+    <a href="STAM-Docs-Index.html">Docs Index</a>
+  </div>
+</div>
+
+<!-- ── 00. 핵심 원칙 ── -->
+<div class="sec">
+  <div class="sec-h">Section 00 · Custom Select 핵심 원칙</div>
+  <div class="sec-b">
+    <ol class="tight">
+      <li>새 select 는 화면별 <code>.wbs-sel-*</code> · <code>.ss-sel-*</code> · <code>.rq-sel-*</code> · <code>.fn-cs-*</code> 같은 전용 <strong>시각 class 를 새로 만들지 않는다</strong>.</li>
+      <li>공통 class <code>.stam-cs-*</code> 를 기본으로 사용한다. 시각 스타일(배경 · 테두리 · hover · selected · icon rotate · placeholder · dark)은 모두 공통 CSS <code>stam.custom-select.css</code> 가 담당한다.</li>
+      <li>화면별 CSS 는 <strong>위치 · z-index · portal mount 특성 · max-height · 옵션 개수에 따른 menu height · 화면 고유 width</strong> 같은 <strong>구조 보정만</strong> 허용한다.</li>
+      <li>legacy namespace class(<code>.wbs-sel-*</code> 등)는 구조/스크립트 호환용으로만 유지하고, 시각 스타일을 다시 정의하지 않는다.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ── 01. 필수 공통 class ── -->
+<div class="sec">
+  <div class="sec-h">Section 01 · 필수 공통 class</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>Class</th><th>역할</th><th>적용 위치</th></tr></thead>
+      <tbody>
+        <tr><td><code>.stam-cs</code></td><td>custom select 루트 (open/disabled 상태 보유)</td><td>래퍼 &lt;div&gt;</td></tr>
+        <tr><td><code>.stam-cs-trigger</code></td><td>현재 값 + caret 을 보여주는 클릭 트리거</td><td>&lt;button type="button"&gt;</td></tr>
+        <tr><td><code>.stam-cs-value</code></td><td>현재 선택 값 텍스트</td><td>트리거 내 &lt;span&gt;</td></tr>
+        <tr><td><code>.stam-cs-value.is-placeholder</code></td><td>값 없음(placeholder) 상태 — t3 색</td><td>트리거 내 &lt;span&gt;</td></tr>
+        <tr><td><code>.stam-cs-icon</code></td><td>caret 아이콘 (open 시 회전)</td><td>트리거 내 SVG</td></tr>
+        <tr><td><code>.stam-cs-menu</code></td><td>옵션 패널 (listbox)</td><td>&lt;div role="listbox"&gt;</td></tr>
+        <tr><td><code>.stam-cs-opt</code></td><td>개별 옵션</td><td>&lt;div role="option"&gt;</td></tr>
+        <tr><td><code>.stam-cs-opt.is-sel</code></td><td>선택된 옵션 — stam-soft 배경 + check 표시</td><td>&lt;div role="option"&gt;</td></tr>
+        <tr><td><code>.stam-cs-check</code></td><td>check icon 슬롯 (선택 시에만 visible · 항상 고정폭)</td><td>옵션 내 &lt;span&gt;</td></tr>
+        <tr><td><code>.stam-cs-otext</code></td><td>옵션 텍스트 (긴 텍스트 ellipsis)</td><td>옵션 내 &lt;span&gt;</td></tr>
+      </tbody>
+    </table>
+    <p style="color:var(--t3);font-size:11px;margin-top:8px">
+      * 화면별 namespace class(<code>.wbs-sel-box</code>, <code>.wbs-sel-menu</code> 등)를 부가적으로 병행하는 것은 허용. 단 위 공통 class 는 반드시 포함하고, 시각 스타일은 공통 CSS 가 담당한다. CSS 파일: <code>stam/css/stam.custom-select.css</code>. 시각 기준은 <a href="STAM-Common-Custom-Select-Preview.html">Custom Select Bare Preview</a> 참조.
+    </p>
+  </div>
+</div>
+
+<!-- ── 02. 상태 class ── -->
+<div class="sec">
+  <div class="sec-h">Section 02 · 상태 class</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>대상</th><th>Class</th><th>의미</th></tr></thead>
+      <tbody>
+        <tr><td>root <code>.stam-cs</code></td><td><code>.is-open</code></td><td>panel 열림 + caret 회전 + ring</td></tr>
+        <tr><td>root <code>.stam-cs</code></td><td><code>.is-up</code></td><td>panel 을 위로 펼침 (clipping 보정, 선택적)</td></tr>
+        <tr><td>root <code>.stam-cs</code></td><td><code>.is-disabled</code></td><td>전체 비활성 (opacity .5 + pointer-events none) — 필요 시</td></tr>
+        <tr><td>option <code>.stam-cs-opt</code></td><td><code>.is-sel</code></td><td>선택됨 — stam-soft 배경 + stam 텍스트 + 700 + check 표시</td></tr>
+        <tr><td>option <code>.stam-cs-opt</code></td><td><code>.is-active</code></td><td>키보드 강조 — hover 와 동일 톤 (bg-sur2 / t1)</td></tr>
+        <tr><td>option <code>.stam-cs-opt</code></td><td><code>.is-placeholder</code></td><td>placeholder 옵션 — 강조색 금지 (t3 유지)</td></tr>
+        <tr><td>option <code>.stam-cs-opt</code></td><td><code>.is-disabled</code></td><td>개별 옵션 비활성 (opacity .4) — 필요 시</td></tr>
+        <tr><td>value <code>.stam-cs-value</code></td><td><code>.is-placeholder</code></td><td>트리거 값이 placeholder 상태</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">
+      * 핵심 3종: root open = <code>.is-open</code>, selected option = <code>.is-sel</code>, placeholder = <code>.is-placeholder</code>. 이 3종은 모든 select 에서 반드시 적용한다. disabled 는 필요 시 <code>.is-disabled</code>.
+    </p>
+  </div>
+</div>
+
+<!-- ── 03. 표준 HTML 구조 ── -->
+<div class="sec">
+  <div class="sec-h">Section 03 · 표준 HTML 구조 예시</div>
+  <div class="sec-b">
+    <p><strong>1) single select</strong> — 값 있음 / placeholder</p>
+<pre><code>&lt;!-- 값 있음 --&gt;
+&lt;div class="stam-cs"&gt;
+  &lt;button type="button" class="stam-cs-trigger" data-stam-cs-toggle
+          aria-haspopup="listbox" aria-expanded="false"&gt;
+    &lt;span class="stam-cs-value"&gt;박PM&lt;/span&gt;
+    &lt;svg class="stam-cs-icon" ...&gt;caret&lt;/svg&gt;
+  &lt;/button&gt;
+  &lt;div class="stam-cs-menu" role="listbox"&gt;
+    &lt;div class="stam-cs-opt is-sel" role="option" aria-selected="true"&gt;
+      &lt;span class="stam-cs-check"&gt;&lt;svg ...&gt;check&lt;/svg&gt;&lt;/span&gt;
+      &lt;span class="stam-cs-otext"&gt;박PM&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="stam-cs-opt" role="option"&gt;
+      &lt;span class="stam-cs-check"&gt;&lt;svg ...&gt;check&lt;/svg&gt;&lt;/span&gt;
+      &lt;span class="stam-cs-otext"&gt;김기획&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- placeholder (값 없음) --&gt;
+&lt;div class="stam-cs"&gt;
+  &lt;button type="button" class="stam-cs-trigger" aria-haspopup="listbox" aria-expanded="false"&gt;
+    &lt;span class="stam-cs-value is-placeholder"&gt;— 담당자 선택 —&lt;/span&gt;
+    &lt;svg class="stam-cs-icon" ...&gt;caret&lt;/svg&gt;
+  &lt;/button&gt;
+  &lt;div class="stam-cs-menu" role="listbox"&gt; ... &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+    <p style="margin-top:14px"><strong>2) option selected 상태</strong> — 선택 옵션에 <code>.is-sel</code> + <code>aria-selected="true"</code>, check 슬롯은 모든 옵션에 동일하게 두고 <code>.is-sel</code> 일 때만 보인다.</p>
+<pre><code>&lt;div class="stam-cs-opt is-sel" role="option" aria-selected="true"&gt;
+  &lt;span class="stam-cs-check"&gt;&lt;svg ...&gt;check&lt;/svg&gt;&lt;/span&gt;
+  &lt;span class="stam-cs-otext"&gt;설계&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+
+    <p style="margin-top:14px"><strong>3) multiselect</strong> — 동일 구조. 여러 옵션에 <code>.is-sel</code> 부여, 트리거 값은 요약 텍스트("3개 선택" 등)로 표시. 시각 스타일은 single 과 동일하게 공통 class 사용.</p>
+<pre><code>&lt;div class="stam-cs" data-multiselect&gt;
+  &lt;button type="button" class="stam-cs-trigger" aria-haspopup="listbox" aria-expanded="false"&gt;
+    &lt;span class="stam-cs-value"&gt;김기획, 박PM (+1)&lt;/span&gt;
+    &lt;svg class="stam-cs-icon" ...&gt;caret&lt;/svg&gt;
+  &lt;/button&gt;
+  &lt;div class="stam-cs-menu" role="listbox" aria-multiselectable="true"&gt;
+    &lt;div class="stam-cs-opt is-sel" role="option" aria-selected="true"&gt;
+      &lt;span class="stam-cs-check"&gt;&lt;svg ...&gt;check&lt;/svg&gt;&lt;/span&gt;
+      &lt;span class="stam-cs-otext"&gt;김기획&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="stam-cs-opt is-sel" role="option" aria-selected="true"&gt;
+      &lt;span class="stam-cs-check"&gt;&lt;svg ...&gt;check&lt;/svg&gt;&lt;/span&gt;
+      &lt;span class="stam-cs-otext"&gt;박PM&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="stam-cs-opt" role="option"&gt;
+      &lt;span class="stam-cs-check"&gt;&lt;svg ...&gt;check&lt;/svg&gt;&lt;/span&gt;
+      &lt;span class="stam-cs-otext"&gt;최개발&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+    <p style="margin-top:14px"><strong>4) portal-mount dropdown</strong> — menu 를 body/portal 로 이동해 띄우는 경우. 공통 class 는 그대로 유지하고, <strong>위치 좌표 · z-index · display:block override 만</strong> 화면별 inline/CSS 로 보정한다 (WBS 사례 = Section 06).</p>
+<pre><code>&lt;!-- 트리거는 화면 안에, menu 는 portal 로 이동 --&gt;
+&lt;div class="stam-cs wbs-sel-box"&gt;
+  &lt;button type="button" class="stam-cs-trigger" aria-haspopup="listbox" aria-expanded="false"&gt;
+    &lt;span class="stam-cs-value is-placeholder"&gt;— 단계 선택 —&lt;/span&gt;
+    &lt;svg class="stam-cs-icon" ...&gt;caret&lt;/svg&gt;
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- portal mount 위치로 이동된 menu (좌표/z-index 만 화면별 보정) --&gt;
+&lt;div class="stam-cs-menu wbs-sel-menu" role="listbox"
+     style="display:block; top:...px; left:...px; width:...px;"&gt;
+  &lt;div class="stam-cs-opt" role="option"&gt;
+    &lt;span class="stam-cs-check"&gt;&lt;svg ...&gt;check&lt;/svg&gt;&lt;/span&gt;
+    &lt;span class="stam-cs-otext"&gt;착수&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    <p style="color:var(--t3);font-size:11px;margin-top:8px">
+      * caret SVG / check SVG 의 구체 path 는 <a href="STAM-Common-Custom-Select-Preview.html">Bare Preview</a> 의 마크업을 그대로 복사해 사용한다.
+    </p>
+  </div>
+</div>
+
+<!-- ── 04. 화면별 CSS 허용/금지 ── -->
+<div class="sec">
+  <div class="sec-h">Section 04 · 화면별 CSS 허용/금지</div>
+  <div class="sec-b">
+    <div class="grid2">
+      <div class="col do">
+        <h4>✅ 화면별 CSS 에서 허용 (구조 보정)</h4>
+        <ul class="tight">
+          <li>portal mount 위치 보정 (top / left / transform 등 좌표)</li>
+          <li>z-index (다른 UI 위로 띄우기)</li>
+          <li>max-height (긴 옵션 목록 스크롤)</li>
+          <li>옵션 개수에 따른 menu height</li>
+          <li>화면 고유 width (트리거 / menu 폭)</li>
+        </ul>
+      </div>
+      <div class="col dont">
+        <h4>❌ 화면별 CSS 에서 금지 (시각 재정의)</h4>
+        <ul class="tight">
+          <li>trigger 배경 / 테두리 / hover 재정의</li>
+          <li>option hover 색상 재정의</li>
+          <li>selected option 색상 재정의</li>
+          <li>icon rotate 스타일 재정의</li>
+          <li>dark mode 색상 재정의</li>
+          <li>placeholder 색상 재정의</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 05. WBS 적용 사례 (PR #100) ── -->
+<div class="sec">
+  <div class="sec-h">Section 05 · WBS 적용 사례 — PR #100</div>
+  <div class="sec-b">
+    <p>WBS custom dropdown 은 <strong>PR #100</strong> 에서 공통 <code>.stam-cs-*</code> 패턴을 병행 적용한 <strong>기준 사례</strong>이다.</p>
+    <ul class="tight">
+      <li>WBS 는 기존 <code>.wbs-sel-*</code> legacy class 와 공통 <code>.stam-cs-*</code> class 를 <strong>병행 적용</strong>한다. legacy class 는 구조/스크립트 호환용으로만 유지한다.</li>
+      <li>루트 <code>.wbs-selectbox</code> 에 <code>.stam-cs</code>, 트리거 &lt;button&gt; 에 <code>.stam-cs-trigger</code>, 값 span 에 <code>.stam-cs-value</code>(+ 값 없을 때 <code>.is-placeholder</code>), caret 에 <code>.stam-cs-icon</code>, 옵션에 <code>.stam-cs-opt</code>(+ 선택 시 <code>.is-sel</code>), check 슬롯에 <code>.stam-cs-check</code>, 텍스트에 <code>.stam-cs-otext</code>, menu 에 <code>.stam-cs-menu</code> 병행.</li>
+      <li>open 상태는 박스에 <code>.is-open</code> 토글 → 공통 <code>.stam-cs.is-open</code> selector 매칭으로 ring / caret 회전이 공통 CSS 로 적용.</li>
+      <li>WBS 는 <strong>portal-mount</strong> 특성 때문에 <code>.wbs-sel-menu</code> 의 <strong>z-index / padding / max-height 일부만</strong> 유지한다. 공통 <code>.stam-cs-menu</code> 가 기본 <code>display:none</code> + <code>right:0</code> 이므로, portal 마운트 시 inline override(<code>display:block</code> + 절대 좌표 top/left/width)로 위치만 보정.</li>
+      <li>WBS 전용 시각 CSS(<code>.wbs-sel</code> base / hover / open / placeholder / <code>.wbs-sel-opt</code> hover / selected / dark 변형 등 약 38줄)는 <strong>제거</strong>되고, 시각 스타일은 전부 <code>.stam-cs-*</code> 공통 CSS 가 담당한다.</li>
+      <li>WBS portal-mount select smoke <span class="pill ok">PASS</span> — 키보드 / click outside / portal 위치 / 선택 동작 확인 완료.</li>
+    </ul>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">
+      * 즉, WBS 의 잔여 화면별 CSS 는 Section 04 의 ✅ 허용 항목(z-index · max-height · portal 위치 · padding)뿐이며, ❌ 금지 항목(시각 재정의)은 없다. WBS 는 PR #100 기준을 유지하고 추가 변경은 별도 QA 후 진행한다.
+    </p>
+  </div>
+</div>
+
+<!-- ── 06. 새 select 생성 체크리스트 ── -->
+<div class="sec">
+  <div class="sec-h">Section 06 · 새 select 생성 체크리스트</div>
+  <div class="sec-b">
+    <ol class="tight">
+      <li><code>stam.custom-select.css</code> 로드 여부 (페이지 &lt;head&gt; · 페이지 CSS 보다 앞)</li>
+      <li>공통 <code>.stam-cs-*</code> class(루트 / trigger / value / icon / menu / opt / check / otext) 적용 여부</li>
+      <li>상태 적용 여부 — root <code>.is-open</code> / option <code>.is-sel</code> / placeholder <code>.is-placeholder</code> (필요 시 <code>.is-disabled</code>)</li>
+      <li>keyboard 조작 (위/아래 · Enter · Esc) / click outside 닫힘 / portal 마운트 여부 확인</li>
+      <li>Bare Preview(<a href="STAM-Common-Custom-Select-Preview.html">STAM-Common-Custom-Select-Preview.html</a>) 또는 실제 화면과 육안 비교 여부</li>
+      <li>화면별 CSS 에 select 시각 스타일 재정의가 없는지 확인 (Section 04 ❌ 항목)</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ── 07. Do / Don't ── -->
+<div class="sec">
+  <div class="sec-h">Section 07 · Do / Don't</div>
+  <div class="sec-b">
+    <div class="grid2">
+      <div class="col do">
+        <h4>✅ Do</h4>
+        <ul class="tight">
+          <li>공통 <code>.stam-cs-*</code> class 병행 적용</li>
+          <li>legacy class 는 구조 / 스크립트 호환용으로만 유지</li>
+          <li>시각 스타일은 공통 CSS(<code>stam.custom-select.css</code>)에서 관리</li>
+          <li>핵심 상태 3종(<code>.is-open</code> / <code>.is-sel</code> / <code>.is-placeholder</code>) 적용</li>
+          <li>Bare Preview 기준과 육안 비교</li>
+        </ul>
+      </div>
+      <div class="col dont">
+        <h4>❌ Don't</h4>
+        <ul class="tight">
+          <li>새 화면에서 전용 select 디자인 재구현 (<code>.wbs-sel-*</code> · <code>.ss-sel-*</code> · <code>.rq-sel-*</code> 시각 class 신설)</li>
+          <li>화면별 hover / selected / dark style 생성</li>
+          <li>trigger / option / icon / placeholder 색상 화면별 재정의</li>
+          <li>computed style 만 보고 PASS 처리 (실 인터랙션 미검증)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 08. 후속 적용 순서 ── -->
+<div class="sec">
+  <div class="sec-h">Section 08 · 후속 적용 순서</div>
+  <div class="sec-b">
+    <ol class="tight">
+      <li>기능정의서 (functional-specification) select 확인 — PR #98 기준</li>
+      <li>메뉴 / 화면목록 (menu-screen-list) select 확인</li>
+      <li>요구사항 (requirements) select 확인</li>
+      <li>화면설계서 (screen-specification) select 확인 — PR #99 기준</li>
+      <li>WBS 는 PR #100 기준 유지, 추가 변경은 별도 QA 후 진행</li>
+    </ol>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">
+      * 각 단계 PR 별 Bare Preview 비교 → 실제 화면 캡처 → merge 순서 유지. 공통 패턴 시각 기준은
+      <a href="STAM-Common-Custom-Select-Preview.html">Custom Select Bare Preview</a>, 목록 측 계약은
+      <a href="STAM-Board-List-Template-Contract-v1.html">Board List Contract v1</a> 참조.
+    </p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById('themeToggle');
+  b.addEventListener('click', function(){
+    var html = document.documentElement;
+    var d = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', d ? 'light' : 'dark');
+    b.textContent = d ? '다크 모드' : '라이트 모드';
+  });
+})();
+</script>
+</body>
+</html>
