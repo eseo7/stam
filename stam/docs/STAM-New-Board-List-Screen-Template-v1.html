@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM New Board List Screen Template v1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--t1); margin: 0; padding: 32px; }
+    .doc-header { margin-bottom: 28px; }
+    .doc-header h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+    .doc-header p { font-size: 12px; color: var(--t3); margin: 0; }
+    .meta { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .meta .chip { font-size:11px; padding:3px 8px; border-radius:4px; background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .related { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:11px; }
+    .related a { color: var(--stam); text-decoration: none; padding: 4px 10px; border: 1px solid var(--bd); border-radius: 6px; background: var(--bg-sur); }
+    .related a:hover { background: var(--bg-sur2); }
+    .sec { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; margin-bottom: 22px; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+    .sec-h { padding: 12px 16px; border-bottom: 1px solid var(--bd); background: var(--bg-sur2); font-size: 11px; font-weight: 700; letter-spacing:.06em; text-transform: uppercase; color: var(--t3); }
+    .sec-b { padding: 16px; font-size: 12.5px; color: var(--t2); line-height: 1.75; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--stam); background: rgba(84,81,232,.08); padding: 1px 5px; border-radius: 3px; }
+    pre { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font-size: 11.5px; line-height: 1.55; color: var(--t1); }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+    table.t { width: 100%; border-collapse: collapse; font-size: 12px; }
+    table.t th, table.t td { padding: 8px 10px; border-bottom: 1px solid var(--bd); text-align: left; vertical-align: top; }
+    table.t thead th { background: var(--bg-sur2); color: var(--t3); text-transform: uppercase; font-size: 10px; letter-spacing: .06em; font-weight: 700; white-space: nowrap; }
+    ul.tight, ol.tight { margin: 6px 0; padding-left: 22px; } ul.tight li, ol.tight li { margin: 3px 0; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; line-height:1.5; white-space:nowrap; }
+    .pill.ok { background:#dcfce7; color:#166534; }
+    .pill.bad { background:#fee2e2; color:#991b1b; }
+    .pill.warn { background:#fef3c7; color:#92400e; }
+    .pill.neutral { background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid2 .col { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; }
+    .grid2 h4 { margin: 0 0 6px; font-size: 12px; font-weight: 700; }
+    .col.do h4 { color: #16a34a; } .col.dont h4 { color: #dc2626; }
+    .verdict-box { border:1px solid var(--bd); border-left:4px solid var(--stam); border-radius:8px; padding:14px 16px; background:var(--bg-sur2); }
+    .theme-toggle { position: fixed; top: 16px; right: 16px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--bg-sur); color: var(--t2); font-size: 11px; cursor: pointer; }
+    @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } body { padding:16px; } }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">다크 모드</button>
+
+<div class="doc-header">
+  <h1>STAM New Board List Screen Template <span class="pill ok">v1</span></h1>
+  <p>신규 게시판 목록 화면을 만들 때 동일한 Board List 구조 · 동작 계약 · 검증 기준을 따르도록 강제하는 생성 템플릿 문서.</p>
+  <div class="meta">
+    <span class="chip">버전: v1</span>
+    <span class="chip">공통 JS: stam.board-list.js</span>
+    <span class="chip">기준 PR: #92 Controller · #105~#113 표준화 트랙</span>
+    <span class="chip">성격: 생성 템플릿</span>
+  </div>
+  <div class="related">
+    <span style="color:var(--t3);align-self:center">Related:</span>
+    <a href="STAM-Board-List-Template-Contract-v1.html">Board List Contract v1</a>
+    <a href="STAM-Common-Select-Table-Preview.html">Bare Preview</a>
+    <a href="STAM-Board-List-Controller-Target-Audit-Report-v1.html">Controller Target Audit v1</a>
+    <a href="STAM-WBS-Board-List-Structure-Review-v1.html">WBS Structure Review v1</a>
+    <a href="STAM-WBS-Board-List-Contract-v1.html">WBS Contract v1</a>
+    <a href="STAM-Docs-Index.html">Docs Index</a>
+  </div>
+</div>
+
+<!-- ── 1. Summary ── -->
+<div class="sec">
+  <div class="sec-h">Section 1 · Summary</div>
+  <div class="sec-b">
+    <div class="verdict-box">
+      <p style="margin:0 0 4px;font-weight:700;color:var(--t1)">신규 게시판은 기본적으로 공통 컨트롤러 <code>window.STAMBoardList</code> 를 사용한다.</p>
+      <p style="margin:0;color:var(--t2)">특수 구조가 아니라면 화면별 <strong>선택(selection) / row-click / delete-count 로직을 직접 만들지 않는다.</strong> 공통 class + 공통 JS 한 줄 init 으로 row=active / checkbox=selected / 삭제 카운트 / 전체선택·indeterminate / Escape 분리를 모두 얻는다.</p>
+    </div>
+    <ul class="tight" style="margin-top:12px">
+      <li>적용 완료 사례: 기능정의서(#93) · Open Scenario(#106) · 메뉴/화면목록(#107) · 요구사항(#108).</li>
+      <li>특수 구조 예외: 화면설계서(#109, 그룹/상태 rerender — 현행 유지) · WBS(#110~#112, 다중 tbody/Gantt/주입형 checkbox — 자체 계약).</li>
+      <li>본 템플릿은 <a href="STAM-Board-List-Template-Contract-v1.html">Board List Contract v1</a> 의 적용 절차를 신규 화면 관점으로 정리한 것이다.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 2. 신규 게시판 기본 구조 ── -->
+<div class="sec">
+  <div class="sec-h">Section 2 · 신규 게시판 기본 구조 (HTML)</div>
+  <div class="sec-b">
+<pre><code>&lt;!-- 1) toolbar: 검색 / 필터 / 삭제 버튼 --&gt;
+&lt;div class="xx-toolbar stam-board-toolbar"&gt;
+  &lt;div class="stam-board-toolbar-left"&gt;
+    &lt;div class="stam-board-toolbar-base"&gt;
+      &lt;div class="xx-search stam-board-search"&gt;
+        &lt;svg ...&gt;&lt;/svg&gt;
+        &lt;input type="text" placeholder="ID · 제목 · 담당자 검색" autocomplete="off"&gt;
+      &lt;/div&gt;
+      &lt;button class="stam-board-filter-trigger" id="xx-filter-open-btn" type="button"&gt;필터&lt;/button&gt;
+      &lt;!-- 삭제 버튼: 공통 class + id --&gt;
+      &lt;button class="stam-btn stam-btn-danger stam-delete-btn" id="xx-del-btn" type="button" disabled&gt;
+        &lt;svg ...&gt;&lt;/svg&gt;
+        &lt;span class="stam-delete-label"&gt;삭제&lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 2) table root: .stam-select-table + data-stam-board-list --&gt;
+&lt;table class="xx-table stam-select-table" data-stam-board-list&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;!-- 3) header checkbox: data-stam-check-all --&gt;
+      &lt;th class="stam-check-cell"&gt;&lt;input type="checkbox" class="stam-check" id="xx-cb-all" data-stam-check-all&gt;&lt;/th&gt;
+      &lt;th&gt;ID&lt;/th&gt;&lt;th&gt;제목&lt;/th&gt;&lt;th&gt;담당자&lt;/th&gt; ...
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody id="xx-tbody"&gt;
+    &lt;!-- 4) 데이터 행: .stam-table-row + data-id --&gt;
+    &lt;tr class="xx-data-row stam-table-row" data-id="XX-001"&gt;
+      &lt;!-- 5) row checkbox: .stam-check-cell + .stam-check --&gt;
+      &lt;td class="stam-check-cell"&gt;&lt;input type="checkbox" class="stam-check"&gt;&lt;/td&gt;
+      &lt;td&gt;XX-001&lt;/td&gt;&lt;td&gt;제목&lt;/td&gt; ...
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;!-- 6) 상세 drawer / scrim 은 화면별 마크업 (예: #xx-dw-detail, #xx-scrim) --&gt;</code></pre>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">
+      * <strong>script load 순서:</strong> <code>stam.board-list.js</code> 를 화면별 JS(<code>stam.xx.js</code>) <strong>앞</strong>에 로드한다.<br>
+      &lt;script src="../../js/stam.board-list.js"&gt;&lt;/script&gt; → &lt;script src="../../js/stam.xx.js"&gt;&lt;/script&gt;<br>
+      * <code>xx</code> 는 화면 namespace. 화면 고유 namespace class(<code>.xx-*</code>)는 시각/레이아웃 보조용으로만 병행하고, 선택/active 동작은 공통 class 가 담당한다.
+    </p>
+  </div>
+</div>
+
+<!-- ── 3. 필수 class / attribute ── -->
+<div class="sec">
+  <div class="sec-h">Section 3 · 필수 class / attribute</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>대상</th><th>class / attribute</th><th>역할</th></tr></thead>
+      <tbody>
+        <tr><td>table root</td><td><code>.stam-select-table</code> + <code>[data-stam-board-list]</code></td><td>공통 시각 + 컨트롤러 init 대상 root</td></tr>
+        <tr><td>데이터 행 &lt;tr&gt;</td><td><code>.stam-table-row</code></td><td>row click(active) / 선택 대상 행</td></tr>
+        <tr><td>checkbox cell &lt;th&gt;/&lt;td&gt;</td><td><code>.stam-check-cell</code></td><td>checkbox 셀 + 좌측 bar 앵커</td></tr>
+        <tr><td>checkbox &lt;input&gt;</td><td><code>.stam-check</code></td><td>행/헤더 공통 checkbox</td></tr>
+        <tr><td>header checkbox</td><td><code>.stam-check</code> + <code>[data-stam-check-all]</code></td><td>전체선택 / indeterminate 대상</td></tr>
+        <tr><td>삭제 버튼</td><td><code>.stam-delete-btn</code></td><td>선택 수 기준 enable/disable</td></tr>
+        <tr><td>삭제 라벨 &lt;span&gt;</td><td><code>.stam-delete-label</code></td><td><code>삭제 (N)</code> 텍스트 갱신 대상</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 행 상태 class <code>.is-active</code>(row click) / <code>.is-selected</code>(checkbox)는 컨트롤러가 부여한다 — 마크업에 미리 넣지 않는다. 시각 스타일은 <code>stam.table-selection.css</code> 가 담당(화면별 CSS 복붙 금지).</p>
+  </div>
+</div>
+
+<!-- ── 4. 필수 JS 초기화 예시 ── -->
+<div class="sec">
+  <div class="sec-h">Section 4 · 필수 JS 초기화 예시</div>
+  <div class="sec-b">
+<pre><code>// stam.xx.js — board-list.js 가 먼저 로드된 상태
+var listRoot = document.querySelector('[data-stam-board-list]');
+var boardApi = null;
+if (listRoot &amp;&amp; window.STAMBoardList) {
+  boardApi = window.STAMBoardList.init(listRoot, {
+    deleteBtn: '#xx-del-btn',                  // 삭제 버튼 selector
+    onRowActivate: function (row, api) {       // row click 직후 (이미 .is-active 부여됨)
+      openDetailDrawer(row.getAttribute('data-id'));   // 화면별 상세 drawer open 함수 호출
+    },
+    onDelete: function (rows, api) {           // 삭제 버튼 클릭 (선택>=1 일 때만)
+      // 실제 삭제 로직은 화면별 데이터 계층에서 — 본 init 에서는 호출만
+    },
+    // onClearActive, onSelectionChange, clearActiveOnCheckbox 는 선택적
+  });
+}
+
+// drawer close / Escape 시 active 동기화
+function closeDetailDrawer() {
+  // scrim/drawer 닫기 (화면별 UI)
+  if (boardApi) boardApi.clearActive();        // .is-active 만 해제 — selected 는 유지
+}</code></pre>
+    <table class="t" style="margin-top:10px">
+      <thead><tr><th>API / option</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td><code>STAMBoardList.init(root, opts)</code></td><td>root(<code>[data-stam-board-list]</code>)에 row/checkbox/delete/header 위임 부착. <code>api</code> 반환.</td></tr>
+        <tr><td><code>onRowActivate(row, api)</code></td><td>row click 직후 호출 — 여기서 상세 drawer open. (active 부여는 컨트롤러가 이미 처리)</td></tr>
+        <tr><td><code>onDelete(rows, api)</code></td><td>삭제 버튼 클릭(선택≥1) 시 호출. 실제 삭제는 화면별 데이터 로직.</td></tr>
+        <tr><td><code>api.clearActive()</code></td><td>drawer close / Escape 시 <code>.is-active</code> 만 해제(선택 유지).</td></tr>
+        <tr><td><code>api.getSelectedRows()</code> / <code>clearSelected()</code> / <code>refresh()</code></td><td>선택 행 조회 / 선택 초기화 / DOM 재렌더 후 재계산.</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 컨트롤러가 document keydown Escape → <code>clearActive</code> 를 자체 처리한다. 화면별 Escape 핸들러는 drawer UI 닫기 + <code>api.clearActive()</code> 동기화만 추가하면 된다.</p>
+  </div>
+</div>
+
+<!-- ── 5. 공통 동작 계약 ── -->
+<div class="sec">
+  <div class="sec-h">Section 5 · 공통 동작 계약</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>상호작용</th><th>계약</th></tr></thead>
+      <tbody>
+        <tr><td>row click</td><td>클릭 행에 <code>.is-active</code> 부여(다른 행 active 해제) + 상세 drawer open. <strong>checkbox checked / delete count 변경 금지</strong>, <code>.is-selected</code> 부여 금지.</td></tr>
+        <tr><td>checkbox click</td><td>행에 <code>.is-selected</code> + checked + delete count 갱신. <strong>drawer open 금지.</strong></td></tr>
+        <tr><td>selected row click</td><td><code>.is-selected.is-active</code> <strong>동시 상태 가능</strong> — checkbox checked / count 유지하며 drawer open.</td></tr>
+        <tr><td>Escape / drawer close</td><td><strong><code>.is-active</code> 만 해제.</strong> <code>.is-selected</code> · checked · delete count 는 <strong>유지.</strong></td></tr>
+        <tr><td>header checkbox</td><td>전체선택 / 전체해제 / 일부 선택 시 indeterminate (컨트롤러 자동).</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 6. 삭제 버튼 계약 ── -->
+<div class="sec">
+  <div class="sec-h">Section 6 · 삭제 버튼 계약</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>선택 수</th><th>버튼 상태</th><th>라벨 (<code>.stam-delete-label</code>)</th></tr></thead>
+      <tbody>
+        <tr><td>0개</td><td><code>disabled</code></td><td><code>삭제</code></td></tr>
+        <tr><td>1개</td><td><code>enabled</code></td><td><code>삭제 (1)</code></td></tr>
+        <tr><td>N개</td><td><code>enabled</code></td><td><code>삭제 (N)</code></td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 라벨 갱신은 컨트롤러가 <code>.stam-delete-label</code> 내부 textContent 로 처리. 화면별로 직접 갱신하지 않는다. 실제 삭제 동작은 <code>onDelete</code> 콜백 안에서 화면별 데이터 로직으로.</p>
+  </div>
+</div>
+
+<!-- ── 7. 신규 게시판에서 금지할 것 ── -->
+<div class="sec">
+  <div class="sec-h">Section 7 · 신규 게시판에서 금지할 것</div>
+  <div class="sec-b">
+    <div class="grid2">
+      <div class="col do">
+        <h4>✅ Do</h4>
+        <ul class="tight">
+          <li>공통 class + <code>STAMBoardList.init()</code> 사용</li>
+          <li>상세 drawer 만 <code>onRowActivate</code> 로 연결</li>
+          <li>실제 삭제는 <code>onDelete</code> 콜백에서 화면별 처리</li>
+          <li>시각은 <code>stam.table-selection.css</code> 에 위임</li>
+          <li><a href="STAM-Common-Select-Table-Preview.html">Bare Preview</a> 와 육안 비교 + Playwright smoke</li>
+        </ul>
+      </div>
+      <div class="col dont">
+        <h4>❌ Don't</h4>
+        <ul class="tight">
+          <li>화면별 row-click <strong>선택</strong> 로직 재구현 (row click 으로 <code>.is-selected</code> 부여 금지)</li>
+          <li>화면별 checkbox / delete count 로직 재구현</li>
+          <li>공통 CSS(<code>table-selection</code>) 복붙 / 화면별 재정의</li>
+          <li><code>stam.board-list.js</code> 임의 수정</li>
+          <li>공통 class 없이 독자 table selection 구조 생성</li>
+          <li>checkbox click 으로 drawer 열기 / row click 으로 checkbox 체크</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 8. 예외 처리 기준 ── -->
+<div class="sec">
+  <div class="sec-h">Section 8 · 예외 처리 기준 (특수 구조)</div>
+  <div class="sec-b">
+    <p>아래와 같은 특수 구조는 평면형 <code>STAMBoardList</code> 직접 적용 대상이 아니다. <strong>Controller 직접 적용 전에 구조 검토 문서를 먼저 만든다.</strong></p>
+    <ul class="tight">
+      <li><strong>그룹 / 상태 기반 전체 rerender 구조</strong> — 화면설계서처럼 선택 상태가 JS state(<code>Set</code>)이고 tbody 를 통째 재렌더하는 경우. (참고: <a href="STAM-Board-List-Controller-Target-Audit-Report-v1.html">Controller Target Audit v1</a> — 화면설계서 "특수 구조 · 현행 유지")</li>
+      <li><strong>다중 tbody / Gantt / JS 주입 checkbox / 특수 focus 구조</strong> — WBS 처럼 그룹별 다중 <code>&lt;tbody&gt;</code>, 런타임 주입 checkbox, 22컬럼 가로스크롤·Gantt·focus 모드가 얽힌 경우. (참고: <a href="STAM-WBS-Board-List-Structure-Review-v1.html">WBS Structure Review v1</a> / <a href="STAM-WBS-Board-List-Contract-v1.html">WBS Contract v1</a>)</li>
+    </ul>
+    <p style="margin-top:6px;color:var(--t3);font-size:11px">* 이 경우에도 <strong>상호작용 계약(Section 5·6)은 동일하게 충족</strong>하되, 구현은 자체 로직 + 화면 전용 계약 문서로 관리한다. 직접 적용/확장 설계 여부는 검토 문서 판정에 따른다.</p>
+  </div>
+</div>
+
+<!-- ── 9. QA 체크리스트 ── -->
+<div class="sec">
+  <div class="sec-h">Section 9 · QA 체크리스트</div>
+  <div class="sec-b">
+    <ol class="tight">
+      <li>화면 status 200 / <strong>console error 0</strong>.</li>
+      <li>row click → 클릭 행 <code>.is-active</code> / checkbox unchecked 유지 / <code>.is-selected</code> 미부여 / delete count 미증가 / drawer open.</li>
+      <li>다른 row click → 이전 행 <code>.is-active</code> 해제 · 새 행 <code>.is-active</code>.</li>
+      <li>checkbox click → <code>.is-selected</code> / checked / <code>삭제 (1)</code> / drawer 미오픈.</li>
+      <li>selected row click → <code>.is-selected.is-active</code> 동시 / checked·count 유지 / drawer open.</li>
+      <li>header checkbox → 전체선택 / 전체해제 / 일부선택 indeterminate.</li>
+      <li>Escape / drawer close → <code>.is-active</code> 만 해제 / selected·checked·delete count 유지.</li>
+      <li>delete count → 0개 <code>삭제</code> disabled · 1개 <code>삭제 (1)</code> · N개 <code>삭제 (N)</code>.</li>
+      <li>search / filter smoke (목록 검색·필터 동작 확인).</li>
+      <li>금지 파일 변경 없음 (<code>stam.board-list.js</code> · 공통 CSS · 다른 화면 등).</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ── 10. PR 작성 기준 ── -->
+<div class="sec">
+  <div class="sec-h">Section 10 · PR 작성 기준</div>
+  <div class="sec-b">
+    <ul class="tight">
+      <li><strong>일반 게시판</strong> — Controller 적용 PR (HTML 공통 class + <code>init()</code> + 자체 선택/카운트 로직 제거). 변경 범위는 해당 화면 HTML/JS 로 한정.</li>
+      <li><strong>특수 게시판</strong> — Controller 직접 적용 전 <strong>구조 검토 PR(docs)</strong> 을 먼저 만들어 판정(직접 적용 / 부분 적용 / 현행 유지 / 확장 설계). 그 후 적용/계약 PR.</li>
+      <li><strong>docs-only / code PR 분리</strong> — 문서(템플릿·계약·검토)와 제품 코드 변경은 별도 PR 로 분리한다.</li>
+      <li>각 적용 PR 은 <a href="STAM-Common-Select-Table-Preview.html">Bare Preview</a> 비교 + Playwright smoke + merge 후 staging deploy 확인을 수행한다.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById('themeToggle');
+  b.addEventListener('click', function(){
+    var html = document.documentElement;
+    var d = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', d ? 'light' : 'dark');
+    b.textContent = d ? '다크 모드' : '라이트 모드';
+  });
+})();
+</script>
+</body>
+</html>
