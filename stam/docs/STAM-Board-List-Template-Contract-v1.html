@@ -369,6 +369,48 @@ window.STAMBoardList.init(document.querySelector('[data-stam-board-list]'), {
   </div>
 </div>
 
+<!-- ── 10''. 공통 Custom Select ── -->
+<div class="sec">
+  <div class="sec-h">Section 10'' · 공통 Custom Select — <code>.stam-cs-*</code></div>
+  <div class="sec-b">
+    <p>drawer / 필터 / 등록 폼 등에서 사용하는 dropdown 은 화면별 namespace(<code>.fn-cs-*</code> / <code>.ss-cs-*</code> / <code>.wbs-sel-*</code>) 를 새로 만들지 않고 공통 <code>.stam-cs-*</code> 패턴을 사용한다. CSS 파일: <code>stam/css/stam.custom-select.css</code>. 시각 기준 및 dom 구조는 <a href="STAM-Common-Custom-Select-Preview.html">Custom Select Preview v1</a> 참조.</p>
+<pre><code>&lt;div class="stam-cs"&gt;
+  &lt;button type="button" class="stam-cs-trigger" aria-haspopup="listbox" aria-expanded="false"&gt;
+    &lt;span class="stam-cs-value"&gt;박PM&lt;/span&gt;
+    &lt;svg class="stam-cs-icon" ...&gt;caret&lt;/svg&gt;
+  &lt;/button&gt;
+  &lt;div class="stam-cs-menu" role="listbox"&gt;
+    &lt;div class="stam-cs-opt is-sel" role="option" aria-selected="true"&gt;
+      &lt;span class="stam-cs-check"&gt;&lt;svg ...&gt;check&lt;/svg&gt;&lt;/span&gt;
+      &lt;span class="stam-cs-otext"&gt;박PM&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="stam-cs-opt"&gt;
+      &lt;span class="stam-cs-check"&gt;&lt;svg ...&gt;check&lt;/svg&gt;&lt;/span&gt;
+      &lt;span class="stam-cs-otext"&gt;김기획&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+    <table class="t" style="margin-top:10px">
+      <thead><tr><th>Root 상태</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td><code>.is-open</code></td><td>panel 표시 + caret 회전 + ring</td></tr>
+        <tr><td><code>.is-up</code></td><td>panel 을 위로 펼침 (clipping 보정)</td></tr>
+        <tr><td><code>.is-disabled</code></td><td>전체 비활성 (opacity 0.5 + pointer-events none)</td></tr>
+      </tbody>
+    </table>
+    <table class="t" style="margin-top:8px">
+      <thead><tr><th>옵션 상태</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td><code>.is-sel</code></td><td>선택됨 — stam-soft 배경 + stam 텍스트 + 700 + check 표시</td></tr>
+        <tr><td><code>.is-active</code></td><td>키보드 강조 — hover 와 동일 톤 (bg-sur2 / t1)</td></tr>
+        <tr><td><code>.is-placeholder</code></td><td>placeholder 옵션 — 강조색 금지 (t3 유지)</td></tr>
+        <tr><td><code>.is-disabled</code></td><td>개별 옵션 비활성 (opacity 0.4)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 <!-- ── 10. 후속 적용 순서 ── -->
 <div class="sec">
   <div class="sec-h">Section 10 · 후속 적용 순서</div>
