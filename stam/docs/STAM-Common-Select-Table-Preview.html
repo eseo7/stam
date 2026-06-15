@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="../css/stam.tokens.css">
   <link rel="stylesheet" href="../css/stam.components.css">
   <link rel="stylesheet" href="../css/stam.table-selection.css">
+  <!-- PR #92: 공통 Board List Controller -->
+  <script src="../js/stam.board-list.js"></script>
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -124,10 +126,10 @@
 <div class="preview-section">
   <div class="preview-section-header">2. .stam-select-table — 선택형 테이블</div>
   <div style="overflow-x:auto">
-    <table class="stam-select-table" id="previewTable">
+    <table class="stam-select-table" id="previewTable" data-stam-board-list>
       <thead>
         <tr>
-          <th class="stam-check-cell"><input class="stam-check" type="checkbox" id="cbAll"></th>
+          <th class="stam-check-cell"><input class="stam-check" type="checkbox" id="cbAll" data-stam-check-all></th>
           <th>ID</th>
           <th>시나리오명</th>
           <th>담당자</th>
@@ -350,73 +352,21 @@
     themeBtn.innerHTML = isDark ? moonIcon + ' 다크 모드' : sunIcon + ' 라이트 모드';
   });
 
-  // row selection
-  var cbAll     = document.getElementById('cbAll');
-  var deleteBtn = document.getElementById('deleteBtn');
-  var rowCbs    = Array.from(document.querySelectorAll('.row-cb'));
-
-  function getCheckedCount() {
-    return rowCbs.filter(function (cb) { return cb.checked; }).length;
-  }
-
-  function updateDeleteBtn() {
-    var n = getCheckedCount();
-    deleteBtn.disabled = n === 0;
-    var lbl = deleteBtn.querySelector('.stam-delete-label');
-    if (lbl) lbl.textContent = n > 0 ? '삭제 (' + n + ')' : '삭제';
-  }
-
-  function syncHeaderCb() {
-    var checked = getCheckedCount();
-    cbAll.checked = checked > 0 && checked === rowCbs.length;
-    cbAll.indeterminate = checked > 0 && checked < rowCbs.length;
-  }
-
-  rowCbs.forEach(function (cb) {
-    cb.addEventListener('click', function (e) { e.stopPropagation(); });
-    cb.addEventListener('change', function () {
-      var row = cb.closest('tr');
-      if (row) row.classList.toggle('is-selected', cb.checked);
-      syncHeaderCb();
-      updateDeleteBtn();
+  // PR #92: 공통 Board List Controller 사용 — 인라인 row/checkbox/delete 로직 제거
+  // (row click → .is-active / checkbox → .is-selected / delete count / header checkbox 일괄 위임)
+  if (window.STAMBoardList) {
+    window.STAMBoardList.init(document.getElementById('previewTable'), {
+      deleteBtn: '#deleteBtn',
+      onDelete: function (rows) {
+        alert('선택된 항목: ' + rows.length + '건\n(Bare Preview — 실제 삭제 미구현)');
+      }
     });
-  });
-
-  cbAll.addEventListener('click', function (e) { e.stopPropagation(); });
-  cbAll.addEventListener('change', function () {
-    rowCbs.forEach(function (cb) {
-      cb.checked = cbAll.checked;
-      var row = cb.closest('tr');
-      if (row) row.classList.toggle('is-selected', cbAll.checked);
-    });
-    syncHeaderCb();
-    updateDeleteBtn();
-  });
-
-  deleteBtn.addEventListener('click', function () {
-    if (!deleteBtn.disabled) {
-      alert('선택된 항목: ' + getCheckedCount() + '건\n(Bare Preview — 실제 삭제 미구현)');
-    }
-  });
+  }
 
   // filter btn toggle demo
   var filterBtn = document.getElementById('filterBtn');
   filterBtn.addEventListener('click', function () {
     filterBtn.classList.toggle('is-open');
-  });
-
-  // row click (checkbox cell 제외)
-  document.querySelectorAll('#tblBody .stam-table-row').forEach(function (row) {
-    row.addEventListener('click', function (e) {
-      if (e.target.closest('.stam-check-cell')) return;
-      var cb = row.querySelector('.row-cb');
-      if (cb) {
-        cb.checked = !cb.checked;
-        row.classList.toggle('is-selected', cb.checked);
-        syncHeaderCb();
-        updateDeleteBtn();
-      }
-    });
   });
 }());
 </script>
