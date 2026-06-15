@@ -5,46 +5,44 @@
   var scrim  = document.getElementById('os-scrim');
   var drawer = document.getElementById('os-dw-detail');
 
-  function clearActiveRows() {
-    document.querySelectorAll('.os-row.is-active').forEach(function (r) {
-      r.classList.remove('is-active');
-    });
-  }
-
-  function openDetailDrawer(scnId) {
+  /* row 의 .is-active / .is-selected / delete count / header 전체선택 은
+     공통 Controller(window.STAMBoardList) 가 담당한다. 본 함수는 drawer UI 만 연다. */
+  function openDetailDrawer(/* scnId */) {
     if (!drawer) return;
     scrim && scrim.classList.add('show');
     drawer.classList.add('open');
-    clearActiveRows();
-    if (scnId) {
-      var row = document.querySelector('.os-row[data-scn-id="' + scnId + '"]');
-      if (row) row.classList.add('is-active');
-    }
   }
 
   function closeDrawer() {
     scrim && scrim.classList.remove('show');
     drawer && drawer.classList.remove('open');
-    clearActiveRows();
+    if (boardApi) boardApi.clearActive();
   }
 
-  /* ── Row click → detail drawer ─────────────────────────────── */
-  function bindRows() {
-    document.querySelectorAll('#os-tbody .os-row').forEach(function (row) {
-      row.addEventListener('click', function (e) {
-        if (e.target.closest('.os-detail-btn')) return;
-        if (e.target.closest('.os-td-cb')) return;
-        openDetailDrawer(row.getAttribute('data-scn-id'));
-      });
+  /* ── Board List Controller 연결 ──────────────────────────────
+     row click = .is-active + drawer open / checkbox = .is-selected /
+     header 전체선택 / delete count(삭제 (N)) / Escape 의 .is-active 해제를 위임. */
+  var listRoot = document.querySelector('[data-stam-board-list]');
+  var boardApi = null;
+  if (listRoot && window.STAMBoardList) {
+    boardApi = window.STAMBoardList.init(listRoot, {
+      deleteBtn: '#os-delete-btn',
+      onRowActivate: function (row) { openDetailDrawer(row.getAttribute('data-scn-id')); },
+      // 실제 삭제 로직은 만들지 않음 — placeholder 만 유지 (선택 1개 이상일 때만 호출됨).
+      onDelete: function () { alert('선택된 시나리오 삭제는 후속 PR에서 구현합니다.'); },
     });
   }
 
-  /* ── [상세] button click ──────────────────────────────────────── */
+  /* ── [상세] button click ──────────────────────────────────────
+     행 내부 [상세] 버튼은 Controller 가 interactive 로 보고 무시하므로,
+     해당 행의 click 을 재발행해 Controller 의 row activate(.is-active + drawer) 로 위임. */
   function bindDetailButtons() {
     document.querySelectorAll('.os-detail-btn').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        openDetailDrawer(btn.getAttribute('data-scn'));
+        var row = btn.closest('.stam-table-row');
+        if (row) row.click();
+        else openDetailDrawer(btn.getAttribute('data-scn'));
       });
     });
   }
@@ -161,73 +159,10 @@
     window.STAM.navRender.init('C8');
   }
 
-  /* ── Checkbox: selected state · delete btn ────────────────────── */
-  /* class 기준: .os-row-cb(JS hook) + .stam-check(스타일), .os-cb-all(JS hook) + .stam-check(스타일) */
-  function bindCheckboxes() {
-    var cbAll     = document.querySelector('.os-cb-all');
-    var deleteBtn = document.getElementById('os-delete-btn');
-
-    function getVisibleRowCbs() {
-      var expanded = scnTable && scnTable.classList.contains('os-list-expanded');
-      return Array.from(document.querySelectorAll('.os-row-cb')).filter(function (cb) {
-        var row = cb.closest('tr');
-        return !row.classList.contains('os-extra-row') || expanded;
-      });
-    }
-
-    function updateDeleteBtn() {
-      if (!deleteBtn) return;
-      var n = document.querySelectorAll('.os-row-cb:checked').length;
-      deleteBtn.disabled = n === 0;
-      var lbl = deleteBtn.querySelector('.stam-delete-label');
-      if (lbl) lbl.textContent = n > 0 ? '삭제 (' + n + ')' : '삭제';
-    }
-
-    function syncHeaderCb() {
-      if (!cbAll) return;
-      var vis = getVisibleRowCbs();
-      var checked = vis.filter(function (cb) { return cb.checked; }).length;
-      cbAll.checked = checked > 0 && checked === vis.length;
-      cbAll.indeterminate = checked > 0 && checked < vis.length;
-    }
-
-    document.querySelectorAll('.os-row-cb').forEach(function (cb) {
-      cb.addEventListener('click', function (e) { e.stopPropagation(); });
-      cb.addEventListener('change', function () {
-        var row = cb.closest('tr');
-        if (row) {
-          row.classList.toggle('sel', cb.checked);
-          row.classList.toggle('is-selected', cb.checked);
-        }
-        syncHeaderCb();
-        updateDeleteBtn();
-      });
-    });
-
-    if (cbAll) {
-      cbAll.addEventListener('click', function (e) { e.stopPropagation(); });
-      cbAll.addEventListener('change', function () {
-        getVisibleRowCbs().forEach(function (cb) {
-          cb.checked = cbAll.checked;
-          var row = cb.closest('tr');
-          if (row) {
-            row.classList.toggle('sel', cbAll.checked);
-            row.classList.toggle('is-selected', cbAll.checked);
-          }
-        });
-        syncHeaderCb();
-        updateDeleteBtn();
-      });
-    }
-
-    if (deleteBtn) {
-      deleteBtn.addEventListener('click', function () {
-        if (!deleteBtn.disabled) {
-          alert('선택된 시나리오 삭제는 후속 PR에서 구현합니다.');
-        }
-      });
-    }
-  }
+  /* ── Checkbox / 전체선택 / delete count: 공통 Controller 위임 ─────
+     row .is-selected, header 전체선택/indeterminate, 삭제 (N) 라벨은
+     STAMBoardList.init() 가 처리한다 (위 onRowActivate/onDelete 연결 참조).
+     화면 자체 bindCheckboxes() 는 제거. */
 
   /* ── 전체 보기 / 접기 toggle ─────────────────────────────────── */
   var showAllBtn   = document.getElementById('os-show-all-btn');
@@ -244,11 +179,11 @@
   }
 
   /* ── Init ────────────────────────────────────────────────────── */
-  bindRows();
+  /* row click / checkbox / 전체선택 / delete count 는 STAMBoardList 가 담당.
+     화면 자체 bindRows() / bindCheckboxes() 는 제거됨. */
   bindDetailButtons();
   bindDrawerTabs();
   bindPhaseTabs();
   bindFilterChips();
-  bindCheckboxes();
 
 }());
