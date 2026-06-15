@@ -370,7 +370,7 @@
     var lbl = document.getElementById('ss-del-btn-lbl');
     if (!btn) return;
     btn.disabled = n === 0;
-    if (lbl) lbl.textContent = n > 0 ? '삭제 ' + n : '삭제';
+    if (lbl) lbl.textContent = n > 0 ? '삭제 (' + n + ')' : '삭제';
   }
 
   /* ── Delete ── */
@@ -436,7 +436,7 @@
       var cbChecked = grpSelCount === grp.screens.length && grp.screens.length > 0;
       var cbIndet = grpSelCount > 0 && grpSelCount < grp.screens.length;
       html += '<tr class="ss-gr-row">' +
-        '<td class="ss-ch"><input type="checkbox" class="ss-cb" id="cb-' + grp.id + '"' +
+        '<td class="ss-ch stam-check-cell"><input type="checkbox" class="ss-cb stam-check" id="cb-' + grp.id + '"' +
         (cbChecked ? ' checked' : '') + (cbIndet ? ' data-indet' : '') +
         ' data-ss-grp-sel="' + grp.id + '"></td>' +
         '<td colspan="7"><div class="ss-gr-cell" data-ss-grp="' + grp.id + '">' +
@@ -455,8 +455,8 @@
         var last = i === screens.length - 1;
         var isSel = S.sel.has(s.id);
         var isOpen = S.openId === s.id;
-        html += '<tr class="ss-sc-row stam-table-row' + (isSel ? ' sel is-selected' : '') + (isOpen ? ' is-row-open' : '') + (last ? ' lg' : '') + '" data-id="' + s.id + '">' +
-          '<td class="ss-ch"><input type="checkbox" class="ss-cb"' + (isSel ? ' checked' : '') +
+        html += '<tr class="ss-sc-row stam-table-row' + (isSel ? ' sel is-selected' : '') + (isOpen ? ' is-active' : '') + (last ? ' lg' : '') + '" data-id="' + s.id + '">' +
+          '<td class="ss-ch stam-check-cell"><input type="checkbox" class="ss-cb stam-check"' + (isSel ? ' checked' : '') +
           ' data-ss-sel="' + s.id + '"></td>' +
           '<td class="ss-name-col"><div class="ss-sc-cell"><span class="ss-sc-ind">└</span>' +
           '<span class="ss-sc-id">' + s.id + '</span><span class="ss-sc-name">' + s.name + '</span>' +
