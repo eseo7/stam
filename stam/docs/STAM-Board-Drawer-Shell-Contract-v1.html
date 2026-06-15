@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM Board Drawer Shell Contract v1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--t1); margin: 0; padding: 32px; }
+    .doc-header { margin-bottom: 28px; }
+    .doc-header h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+    .doc-header p { font-size: 12px; color: var(--t3); margin: 0; }
+    .meta { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .meta .chip { font-size:11px; padding:3px 8px; border-radius:4px; background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .related { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:11px; }
+    .related a { color: var(--stam); text-decoration: none; padding: 4px 10px; border: 1px solid var(--bd); border-radius: 6px; background: var(--bg-sur); }
+    .related a:hover { background: var(--bg-sur2); }
+    .sec { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; margin-bottom: 22px; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+    .sec-h { padding: 12px 16px; border-bottom: 1px solid var(--bd); background: var(--bg-sur2); font-size: 11px; font-weight: 700; letter-spacing:.06em; text-transform: uppercase; color: var(--t3); }
+    .sec-b { padding: 16px; font-size: 12.5px; color: var(--t2); line-height: 1.75; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--stam); background: rgba(84,81,232,.08); padding: 1px 5px; border-radius: 3px; }
+    pre { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font-size: 11.5px; line-height: 1.55; color: var(--t1); }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+    table.t { width: 100%; border-collapse: collapse; font-size: 12px; }
+    table.t th, table.t td { padding: 8px 10px; border-bottom: 1px solid var(--bd); text-align: left; vertical-align: top; }
+    table.t thead th { background: var(--bg-sur2); color: var(--t3); text-transform: uppercase; font-size: 10px; letter-spacing: .06em; font-weight: 700; white-space: nowrap; }
+    ul.tight, ol.tight { margin: 6px 0; padding-left: 22px; } ul.tight li, ol.tight li { margin: 3px 0; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; line-height:1.5; white-space:nowrap; }
+    .pill.ok { background:#dcfce7; color:#166534; }
+    .pill.bad { background:#fee2e2; color:#991b1b; }
+    .pill.warn { background:#fef3c7; color:#92400e; }
+    .pill.info { background:#dbeafe; color:#1e40af; }
+    .pill.neutral { background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid2 .col { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; }
+    .grid2 h4 { margin: 0 0 6px; font-size: 12px; font-weight: 700; }
+    .col.do h4 { color: #16a34a; } .col.dont h4 { color: #dc2626; }
+    .verdict-box { border:1px solid var(--bd); border-left:4px solid var(--stam); border-radius:8px; padding:14px 16px; background:var(--bg-sur2); }
+    .theme-toggle { position: fixed; top: 16px; right: 16px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--bg-sur); color: var(--t2); font-size: 11px; cursor: pointer; }
+    @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } body { padding:16px; } }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">다크 모드</button>
+
+<div class="doc-header">
+  <h1>STAM Board Drawer Shell Contract <span class="pill ok">v1</span></h1>
+  <p>게시판 상세/등록/수정 Drawer 의 외곽 구조 · header · body · footer · close · scrim · Escape · action button 기준을 공통 <code>stam.drawer.css</code> 기반으로 통일하기 위한 계약 문서.</p>
+  <div class="meta">
+    <span class="chip">버전: v1</span>
+    <span class="chip">공통 CSS: stam.drawer.css</span>
+    <span class="chip">기준 PR: #115 Drawer Audit · #116 Form Field Contract</span>
+    <span class="chip">성격: Drawer Shell 계약</span>
+  </div>
+  <div class="related">
+    <span style="color:var(--t3);align-self:center">Related:</span>
+    <a href="STAM-Board-Drawer-Detail-Form-Audit-v1.html">Drawer Audit v1</a>
+    <a href="STAM-Board-Form-Field-Contract-v1.html">Form Field Contract v1</a>
+    <a href="STAM-Drawer-Token-Mapping-v1.html">Drawer Token Mapping v1</a>
+    <a href="STAM-Board-List-Template-Contract-v1.html">Board List Contract v1</a>
+    <a href="components/STAM-Drawer-Guide.html">Drawer Guide</a>
+    <a href="STAM-Docs-Index.html">Docs Index</a>
+  </div>
+</div>
+
+<!-- ── 1. Summary ── -->
+<div class="sec">
+  <div class="sec-h">Section 1 · Summary</div>
+  <div class="sec-b">
+    <div class="verdict-box">
+      <p style="margin:0 0 4px;font-weight:700;color:var(--t1)">Drawer 전체를 즉시 공통화하지 않고, shell / header / footer / action 기준부터 계약화한다.</p>
+      <p style="margin:0;color:var(--t2)">신규 게시판 Drawer 는 본 계약(공통 <code>stam.drawer.css</code> = <code>.stam-drawer</code> · <code>.stam-drawer-scrim</code> · <code>.stam-drawer-head/-body/-foot</code> · <code>.stam-drawer-title/-subtitle</code>)을 우선 따른다. 본문 폼은 <a href="STAM-Board-Form-Field-Contract-v1.html">Form Field Contract</a>, 본문 목록 상호작용은 <a href="STAM-Board-List-Template-Contract-v1.html">Board List Contract</a> 와 연계.</p>
+    </div>
+    <ul class="tight" style="margin-top:10px">
+      <li>현행 fn/os/msl/rq 는 루트에 <code>.stam-drawer</code> + scrim <code>.stam-drawer-scrim</code> 을 이미 병행(<code>.open</code>/<code>.show</code> class 토글).</li>
+      <li>ss/wbs 는 단일 drawer + mode 전환(JS 렌더 / <code>data-mode</code>) — 특수 구조로 별도 검토(Section 10).</li>
+      <li>본 계약은 <strong>문서</strong>다. 제품 CSS/JS 미수정, 화면별 적용은 별도 코드 PR. 새 class 는 "<span class="pill neutral">문서 제안</span>" 으로만.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 2. Drawer 기본 구조 ── -->
+<div class="sec">
+  <div class="sec-h">Section 2 · Drawer 기본 구조</div>
+  <div class="sec-b">
+<pre><code>&lt;!-- scrim 은 drawer 와 형제, body 직속 권장 --&gt;
+&lt;div class="stam-drawer-scrim" id="xx-scrim"&gt;&lt;/div&gt;
+
+&lt;div class="stam-drawer" id="xx-dw-detail" role="dialog" aria-modal="true" aria-label="기능 상세"&gt;
+  &lt;header class="stam-drawer-head"&gt;
+    &lt;!-- badge / title / subtitle·meta / close --&gt;
+    &lt;div class="stam-drawer-title"&gt;요구사항 목록 조회&lt;/div&gt;
+    &lt;div class="stam-drawer-subtitle"&gt;FN-001 · 검토완료&lt;/div&gt;
+    &lt;button class="stam-drawer-close" aria-label="닫기"&gt;✕&lt;/button&gt;
+  &lt;/header&gt;
+
+  &lt;div class="stam-drawer-body"&gt;
+    &lt;!-- section / form-field(Form Field Contract) / tab / readonly display --&gt;
+  &lt;/div&gt;
+
+  &lt;footer class="stam-drawer-foot"&gt;
+    &lt;!-- 좌측 메타 + 우측 action 버튼 (.stam-btn 계열) --&gt;
+  &lt;/footer&gt;
+&lt;/div&gt;</code></pre>
+    <table class="t" style="margin-top:10px">
+      <thead><tr><th>구성요소</th><th>class</th><th>기준</th></tr></thead>
+      <tbody>
+        <tr><td>drawer root</td><td><code>.stam-drawer</code></td><td>우측 고정, width <code>min(860px, 100vw-32px)</code>, <code>.is-narrow(720)</code>/<code>.is-wide(1040)</code>, z 50</td></tr>
+        <tr><td>scrim/overlay</td><td><code>.stam-drawer-scrim</code></td><td>inset:0, z 49, <code>.show</code> 로 opacity/pointer 토글</td></tr>
+        <tr><td>panel(open)</td><td><code>.stam-drawer.open</code></td><td><code>transform:none</code> (기본 translateX 102% 에서 슬라이드 인)</td></tr>
+        <tr><td>header</td><td><code>.stam-drawer-head</code></td><td>flex-shrink:0, border-bottom</td></tr>
+        <tr><td>body</td><td><code>.stam-drawer-body</code></td><td><code>flex:1; overflow-y:auto</code> (스크롤 영역)</td></tr>
+        <tr><td>footer</td><td><code>.stam-drawer-foot</code></td><td>flex-shrink:0, border-top, bg-sur2, <code>display:flex; gap:8px</code></td></tr>
+        <tr><td>close button</td><td><code>.stam-drawer-close</code> <span class="pill neutral">제안</span></td><td>header 우상단, <code>aria-label="닫기"</code> (현행 화면별 <code>.xx-dw-close</code>)</td></tr>
+        <tr><td>action button area</td><td>footer 내 <code>.stam-btn</code> 계열</td><td>좌측 메타 / 우측 action (Section 6)</td></tr>
+        <tr><td>title / subtitle</td><td><code>.stam-drawer-title</code> · <code>.stam-drawer-subtitle</code></td><td>17px·700 / 12px·t3</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 토큰: <code>--stam-drawer-width/-narrow/-wide</code> · <code>--stam-drawer-z(50)</code>/<code>-scrim-z(49)</code> · <code>--stam-drawer-transition(260ms)</code> · <code>--stam-drawer-head/body/foot-px(24px)</code>. (<a href="STAM-Drawer-Token-Mapping-v1.html">Drawer Token Mapping v1</a>)</p>
+  </div>
+</div>
+
+<!-- ── 3. Drawer mode 계약 ── -->
+<div class="sec">
+  <div class="sec-h">Section 3 · Drawer mode 계약</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>mode</th><th>header title</th><th>footer 버튼</th><th>body</th></tr></thead>
+      <tbody>
+        <tr><td>detail</td><td>항목명 + id/상태 badge</td><td>(좌) 최종변경 메타 · (우) 수정 + 확장 action(검토요청 등)</td><td>readonly 표시 / 탭(있으면)</td></tr>
+        <tr><td>register/create</td><td>"신규 등록" + NEW badge</td><td>(우) 취소 · 임시저장(선택) · 등록(primary)</td><td>편집 form-field + required</td></tr>
+        <tr><td>edit</td><td>항목명 + id/상태 badge</td><td>(우) 취소 · 임시저장(선택) · 저장(primary)</td><td>편집 form-field, 기존 값 prefill</td></tr>
+        <tr><td>detail → edit 전환</td><td colspan="3">멀티 drawer(fn/msl/rq): <code>data-*-open="edit"</code> 로 edit drawer open / 단일 drawer(ss/wbs): <code>setMode('edit')</code> 또는 <code>S.dwMode</code>. 어느 방식이든 <strong>header/footer/필드 계약 동일 유지</strong>.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 4. Header 계약 ── -->
+<div class="sec">
+  <div class="sec-h">Section 4 · Header 계약</div>
+  <div class="sec-b">
+    <ul class="tight">
+      <li><strong>title:</strong> <code>.stam-drawer-title</code> (17px·700). 항목명 또는 "신규 등록".</li>
+      <li><strong>subtitle/meta:</strong> <code>.stam-drawer-subtitle</code> (12px·t3) — id · 담당자 · 최종수정 등 보조 정보.</li>
+      <li><strong>status badge/chip:</strong> 상태/우선순위 chip 은 화면 도메인 chip 유지(시각 토큰만 공통). header meta 영역에 배치.</li>
+      <li><strong>close button 위치:</strong> header <strong>우상단</strong> 고정. <code>aria-label="닫기"</code> 필수. mode 무관 항상 노출.</li>
+      <li><strong>optional action 영역:</strong> header 우측에 보조 action(예: 즐겨찾기) 둘 수 있으나, 주요 action 은 footer 에 둔다.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 5. Body 계약 ── -->
+<div class="sec">
+  <div class="sec-h">Section 5 · Body 계약</div>
+  <div class="sec-b">
+    <ul class="tight">
+      <li><strong>scroll 영역:</strong> <code>.stam-drawer-body</code> 만 스크롤(<code>flex:1; overflow-y:auto</code>). header/footer 고정.</li>
+      <li><strong>section 구분:</strong> 섹션(번호·제목)은 화면별 레이아웃 허용(<code>.fn-fs</code>/<code>.rq-fs</code> 등). 구조는 자유, 필드는 공통.</li>
+      <li><strong>form field contract 연결:</strong> 입력 필드는 <a href="STAM-Board-Form-Field-Contract-v1.html">Board Form Field Contract</a>(<code>.stam-form-field/.stam-label/.stam-input/...</code>) 사용.</li>
+      <li><strong>tab 영역:</strong> detail 에 탭 허용(fn 3 / rq 4 / os 6). 탭 컴포넌트 자체 공통화는 후속(현재 화면별 class 유지 허용).</li>
+      <li><strong>empty/readonly/display:</strong> detail 값 표시는 <code>.is-readonly</code> input 또는 표시 전용 마크업. 빈 값은 "—" 등 일관 표기.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 6. Footer 계약 ── -->
+<div class="sec">
+  <div class="sec-h">Section 6 · Footer 계약</div>
+  <div class="sec-b">
+    <p><code>.stam-drawer-foot</code> = <code>display:flex; gap:8px</code>. <strong>좌측 = 메타/보조</strong>, <strong>우측 = action 버튼</strong>(사이 <code>flex:1</code> spacer). 버튼은 <code>.stam-btn</code> 계열.</p>
+    <table class="t">
+      <thead><tr><th>action</th><th>버튼 class</th><th>배치</th></tr></thead>
+      <tbody>
+        <tr><td>닫기/취소</td><td><code>.stam-btn .stam-btn-ghost</code> (secondary)</td><td>우측 그룹 좌단</td></tr>
+        <tr><td>임시저장(선택)</td><td><code>.stam-btn .stam-btn-outline</code></td><td>취소 옆</td></tr>
+        <tr><td>저장 / 등록</td><td><code>.stam-btn .stam-btn-primary</code></td><td>우측 끝(primary, 1개)</td></tr>
+        <tr><td>수정</td><td><code>.stam-btn .stam-btn-primary</code> (detail)</td><td>detail 우측 끝</td></tr>
+        <tr><td>삭제</td><td><code>.stam-btn .stam-btn-danger</code></td><td>danger 는 분리 배치(목록 일괄삭제는 Board List Contract)</td></tr>
+        <tr><td>검토/승인/반려 등 확장</td><td><code>.stam-btn</code> + 화면 보조 class</td><td>primary 좌측에 secondary 로</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* <strong>버튼 순서 통일:</strong> (좌)취소 → 보조(임시저장/검토) → (우)primary 1개. primary 는 mode 당 1개. danger 남발 금지.</p>
+  </div>
+</div>
+
+<!-- ── 7. Open / Close 계약 ── -->
+<div class="sec">
+  <div class="sec-h">Section 7 · Open / Close 계약</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>트리거</th><th>동작</th></tr></thead>
+      <tbody>
+        <tr><td>row click</td><td>detail drawer open (목록은 Board List Controller <code>onRowActivate</code> → 화면 drawer open). row 는 <code>.is-active</code>.</td></tr>
+        <tr><td>등록 버튼</td><td>create/register drawer open (선택 행 없음).</td></tr>
+        <tr><td>상세 내 수정 버튼</td><td>edit mode 전환(<code>data-*-open="edit"</code> 또는 <code>setMode('edit')</code>).</td></tr>
+        <tr><td>close button</td><td>drawer 닫기(<code>.open</code> 제거) + scrim <code>.show</code> 제거.</td></tr>
+        <tr><td>scrim click</td><td>close 와 동일.</td></tr>
+        <tr><td>Escape</td><td>열린 custom-select 우선 닫기 → 없으면 drawer 닫기.</td></tr>
+        <tr><td>close 시 active row</td><td><strong><code>.is-active</code> 만 해제</strong>(Board List <code>api.clearActive()</code>), <code>.is-selected</code>/checkbox/삭제 카운트는 <strong>유지</strong>.</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* open/close 메커니즘은 <code>.open</code>/<code>.show</code> class 토글로 통일 권장. WBS 의 <code>data-open</code> attr 방식은 특수 예외(Section 10).</p>
+  </div>
+</div>
+
+<!-- ── 8. 접근성 / 키보드 ── -->
+<div class="sec">
+  <div class="sec-h">Section 8 · 접근성 / 키보드 기준</div>
+  <div class="sec-b">
+    <ul class="tight">
+      <li><strong>focus 이동:</strong> open 시 drawer 내 첫 포커서블(또는 close)로 이동, close 시 트리거(row/버튼)로 복귀 권장.</li>
+      <li><strong>Escape:</strong> custom-select 우선 → drawer 닫기(Section 7).</li>
+      <li><strong>aria:</strong> drawer 루트 <code>role="dialog"</code> + <code>aria-modal="true"</code> + <code>aria-label</code>(또는 title <code>id</code> 를 <code>aria-labelledby</code>).</li>
+      <li><strong>button title:</strong> close 는 <code>aria-label="닫기"</code>, 아이콘 전용 버튼은 <code>aria-label</code>/<code>title</code> 필수.</li>
+      <li><strong>focus trap:</strong> tab focus trap(drawer 내 순환)은 <span class="pill neutral">향후 과제</span> 로 표시 — 현재 미구현, 후속 공통 JS 검토.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 9. 화면별 적용 기준 ── -->
+<div class="sec">
+  <div class="sec-h">Section 9 · 화면별 적용 기준</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>화면</th><th>현행</th><th>적용 기준</th></tr></thead>
+      <tbody>
+        <tr><td>기능정의서</td><td>멀티 drawer + <code>.stam-drawer</code> 병행</td><td>shell/header/footer 계약 우선 적용 후보(정적 HTML)</td></tr>
+        <tr><td>메뉴/화면목록</td><td>멀티 drawer (요구사항 쌍둥이)</td><td>fn 패턴 재사용</td></tr>
+        <tr><td>요구사항</td><td>멀티 drawer</td><td>메뉴/화면목록과 동일 적용</td></tr>
+        <tr><td>Open Scenario</td><td>detail only (읽기전용)</td><td>등록/수정 추가 시 본 계약 적용</td></tr>
+        <tr><td>화면설계서</td><td>단일 drawer + JS 전체 렌더</td><td class="warn">특수 — 별도 검토(Section 10)</td></tr>
+        <tr><td>WBS</td><td>단일 drawer + <code>data-mode</code> CSS visibility</td><td class="warn">특수 — 별도 검토(Section 10)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 10. 예외 처리 기준 ── -->
+<div class="sec">
+  <div class="sec-h">Section 10 · 예외 처리 기준 (특수 구조)</div>
+  <div class="sec-b">
+    <ul class="tight">
+      <li><strong>화면설계서:</strong> 단일 drawer + <code>S.dwMode</code> 기반 <strong>JS 전체 렌더</strong>(renderDetail/Register/Edit) + 별도 <strong>full editor view</strong>(<code>#ss-editor-view</code>). 골격이 JS 문자열 생성 → 공통 shell 마크업 직접 적용 어려움. 구조 검토 선행.</li>
+      <li><strong>WBS:</strong> 단일 drawer + <code>data-mode</code> CSS visibility, <strong>전체보기 inline</strong>(<code>#wbs-fv-inline</code>), Gantt, 댓글/이력 inline 섹션. open/close 가 <code>data-open</code> attr. <a href="STAM-WBS-Board-List-Contract-v1.html">WBS Contract</a> 트랙에서 별도 관리.</li>
+      <li><strong>Open Scenario:</strong> 현재 detail only — 등록/수정 신설 시 본 계약 따름.</li>
+      <li>→ 특수 구조는 <strong>별도 계약 또는 구조 검토 선행</strong>(Board List 트랙과 동일 원칙). 본 shell 계약 일괄 강제 적용 금지.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 11. 금지 사항 ── -->
+<div class="sec">
+  <div class="sec-h">Section 11 · 금지 사항</div>
+  <div class="sec-b">
+    <div class="grid2">
+      <div class="col do">
+        <h4>✅ Do</h4>
+        <ul class="tight">
+          <li>공통 <code>.stam-drawer / -scrim / -head / -body / -foot</code> 사용</li>
+          <li>open/close = <code>.open</code>/<code>.show</code> class 토글</li>
+          <li>footer 순서: 취소 → 보조 → primary(1개)</li>
+          <li>close 시 <code>.is-active</code> 만 해제(선택 유지)</li>
+          <li>body 폼은 Form Field Contract 사용</li>
+        </ul>
+      </div>
+      <div class="col dont">
+        <h4>❌ Don't</h4>
+        <ul class="tight">
+          <li>화면별 drawer shell 새로 만들기</li>
+          <li>close/Escape 동작 제각각 구현</li>
+          <li>footer button 순서/타입 제각각 구현</li>
+          <li>저장/API/localStorage/Firestore 로직 변경</li>
+          <li>제품 CSS(<code>stam.drawer.css</code> 등) 수정 / 복붙</li>
+          <li><code>stam.board-list.js</code> 수정</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 12. QA 체크리스트 ── -->
+<div class="sec">
+  <div class="sec-h">Section 12 · QA 체크리스트</div>
+  <div class="sec-b">
+    <ol class="tight">
+      <li>drawer open — <code>.open</code> + scrim <code>.show</code>, 우측 슬라이드 인.</li>
+      <li>close button — 닫힘 + scrim 제거.</li>
+      <li>scrim click — 닫힘.</li>
+      <li>Escape close — custom-select 우선 → drawer.</li>
+      <li>active row 처리 — close 시 <code>.is-active</code> 만 해제, <code>.is-selected</code>/카운트 유지.</li>
+      <li>footer button 표시 — mode별 순서/타입(취소→보조→primary).</li>
+      <li>detail/create/edit mode 전환 — header title/footer 기준 일치.</li>
+      <li>form field contract 유지 — 본문 폼 <code>.stam-*</code> 클래스.</li>
+      <li>console error 0.</li>
+      <li>제품 코드 변경 없음(본 문서는 docs-only).</li>
+    </ol>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 시각/토큰 기준은 <a href="STAM-Drawer-Token-Mapping-v1.html">Drawer Token Mapping v1</a> 및 <a href="components/STAM-Drawer-Guide.html">Drawer Guide</a> 와 정합.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById('themeToggle');
+  b.addEventListener('click', function(){
+    var html = document.documentElement;
+    var d = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', d ? 'light' : 'dark');
+    b.textContent = d ? '다크 모드' : '라이트 모드';
+  });
+})();
+</script>
+</body>
+</html>
