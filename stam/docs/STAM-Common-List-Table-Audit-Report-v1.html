@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM 공통 목록형 테이블 UI Audit Report v1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <link rel="stylesheet" href="../css/stam.table-selection.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--t1); margin: 0; padding: 32px; }
+    .audit-header { margin-bottom: 28px; }
+    .audit-header h1 { font-size: 20px; font-weight: 700; margin: 0 0 6px; }
+    .audit-header p { font-size: 12px; color: var(--t3); margin: 0; }
+    .meta { display:flex; gap:12px; flex-wrap:wrap; margin-top:10px; }
+    .meta .chip { font-size:11px; padding:3px 8px; border-radius:4px; background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .audit-section { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; margin-bottom: 24px; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+    .audit-section-header { padding: 12px 16px; border-bottom: 1px solid var(--bd); background: var(--bg-sur2); font-size: 11px; font-weight: 700; letter-spacing:.06em; text-transform: uppercase; color: var(--t3); }
+    .audit-section-body { padding: 16px; font-size: 12px; color: var(--t2); line-height: 1.7; }
+    table.cmp { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+    table.cmp th, table.cmp td { padding: 7px 9px; border-bottom: 1px solid var(--bd); text-align: left; vertical-align: top; }
+    table.cmp thead th { background: var(--bg-sur2); color: var(--t3); text-transform: uppercase; font-size: 9.5px; letter-spacing: .06em; font-weight: 700; white-space: nowrap; }
+    table.cmp code { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--stam); background: rgba(84,81,232,.08); padding: 1px 5px; border-radius: 3px; }
+    .ok   { color: #16a34a; font-weight: 700; }
+    .warn { color: #d97706; font-weight: 700; }
+    .bad  { color: #dc2626; font-weight: 700; }
+    .pill { display:inline-block; padding:1px 7px; border-radius:10px; font-size:10px; font-weight:700; line-height:1.5; }
+    .pill.ok   { background:#dcfce7; color:#166534; }
+    .pill.warn { background:#fef3c7; color:#92400e; }
+    .pill.bad  { background:#fee2e2; color:#991b1b; }
+    ul.tight { margin: 6px 0; padding-left: 20px; }
+    ul.tight li { margin: 2px 0; }
+    .theme-toggle { position: fixed; top: 16px; right: 16px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--bg-sur); color: var(--t2); font-size: 11px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">다크 모드</button>
+
+<div class="audit-header">
+  <h1>STAM 공통 목록형 테이블 UI Audit Report <span class="pill ok">v1</span></h1>
+  <p>PR #88 기준 공통 상태 룰(<code>.stam-select-table</code> / <code>.stam-table-row.is-active</code> / <code>.is-selected</code>) 대비 화면별 현재 구현 비교</p>
+  <div class="meta">
+    <span class="chip">기준 CSS: stam.table-selection.css</span>
+    <span class="chip">기준 Preview: STAM-Common-Select-Table-Preview.html</span>
+    <span class="chip">조사 대상 6개 화면</span>
+    <span class="chip">제품 화면 미수정</span>
+  </div>
+</div>
+
+<!-- ───────────────── 01. 공통 기준 요약 ───────────────── -->
+<div class="audit-section">
+  <div class="audit-section-header">Section 01 · 공통 기준 요약 (Target Standard)</div>
+  <div class="audit-section-body">
+    <ul class="tight">
+      <li>Toolbar: <code>.stam-list-toolbar</code></li>
+      <li>Search: <code>.stam-list-search</code> · <code>.stam-list-search-icon</code> · <code>.stam-list-search-input</code></li>
+      <li>Filter button: <code>.stam-filter-btn</code> (open=<code>.is-open</code>) · 아이콘 <code>.stam-btn-icon</code></li>
+      <li>Delete button: <code>.stam-delete-btn</code> · 레이블 <code>.stam-delete-label</code> · 미선택 "삭제" disabled / 선택 "삭제 (N)" enabled</li>
+      <li>Checkbox: <code>.stam-check-cell</code> · <code>.stam-check</code> (15×15, border 1.5px)</li>
+      <li>Table: <code>.stam-select-table</code> · 행 <code>.stam-table-row</code></li>
+      <li>State: row click → <code>.is-active</code> / checkbox → <code>.is-selected</code> / 둘 다 → <code>.is-active.is-selected</code></li>
+      <li>Row height: <strong>36px</strong></li>
+      <li>Selected bg: 라이트 <code>rgba(84,81,232,.06)</code> / 다크 <code>rgba(139,127,248,.08)</code></li>
+      <li>Left active bar: <code>::before</code> width 3px, border-radius 0 2px 2px 0, color <code>var(--stam)</code></li>
+      <li>공통 placeholder: <code>ID · 제목 · 담당자 검색</code> (도메인별 변경 허용 — 다만 패턴 일관성 유지)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ───────────────── 02. 화면별 현재 class 비교 ───────────────── -->
+<div class="audit-section">
+  <div class="audit-section-header">Section 02 · 화면별 현재 class 비교</div>
+  <div class="audit-section-body" style="overflow-x:auto">
+    <table class="cmp">
+      <thead>
+        <tr>
+          <th>화면</th>
+          <th>Toolbar</th>
+          <th>Search wrapper</th>
+          <th>Filter btn</th>
+          <th>Delete btn</th>
+          <th>Table</th>
+          <th>Row</th>
+          <th>Checkbox</th>
+          <th>Selected class</th>
+          <th>Active class</th>
+          <th>Row height</th>
+          <th>준수도</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Open Scenario</strong><br><span style="color:var(--t3)">open-scenario.html</span></td>
+          <td><code>.stam-list-toolbar</code></td>
+          <td><code>.stam-list-search</code></td>
+          <td><code>.stam-filter-btn</code></td>
+          <td><code>.stam-delete-btn</code></td>
+          <td><code>.stam-select-table</code></td>
+          <td><code>.stam-table-row</code></td>
+          <td><code>.stam-check</code></td>
+          <td><code>.is-selected</code></td>
+          <td><code>.is-active</code></td>
+          <td>36px</td>
+          <td><span class="pill ok">100%</span></td>
+        </tr>
+        <tr>
+          <td><strong>WBS</strong><br><span style="color:var(--t3)">wbs.html</span></td>
+          <td><code>.wbs-filter-bar</code></td>
+          <td><code>.wbs-search-wrap</code></td>
+          <td><code>.wbs-filter-open-btn</code></td>
+          <td><code>.wbs-btn-delete</code></td>
+          <td><code>.wbs-table</code></td>
+          <td><code>.wbs-data-row.stam-table-row</code></td>
+          <td><code>.wbs-chk</code></td>
+          <td>custom</td>
+          <td>—</td>
+          <td>36px (td)</td>
+          <td><span class="pill bad">~0%</span></td>
+        </tr>
+        <tr>
+          <td><strong>화면설계서</strong><br><span style="color:var(--t3)">screen-specification.html</span></td>
+          <td>—</td>
+          <td><code>.ss-search</code></td>
+          <td><code>.ss-filter-btn</code> +<br><code>.stam-board-filter-trigger</code></td>
+          <td><code>.ss-btn-del</code></td>
+          <td><code>.ss-table</code></td>
+          <td><code>tr</code> (no class)</td>
+          <td><code>.ss-cb</code></td>
+          <td>—</td>
+          <td>—</td>
+          <td>암묵</td>
+          <td><span class="pill bad">~5%</span></td>
+        </tr>
+        <tr>
+          <td><strong>메뉴/화면 목록</strong><br><span style="color:var(--t3)">menu-screen-list.html</span></td>
+          <td><code>.stam-board-toolbar</code></td>
+          <td><code>.msl-search</code> +<br><code>.stam-board-search</code></td>
+          <td><code>.msl-filter-btn</code> +<br><code>.stam-board-filter-trigger</code></td>
+          <td><code>.msl-btn-del</code> +<br><code>.stam-board-delete</code></td>
+          <td><code>.msl-table</code></td>
+          <td><code>.msl-data-row.stam-table-row</code></td>
+          <td><code>.msl-cb</code></td>
+          <td><code>.sel</code> (legacy fallback)</td>
+          <td>—</td>
+          <td>36px</td>
+          <td><span class="pill warn">~85%</span></td>
+        </tr>
+        <tr>
+          <td><strong>요구사항</strong><br><span style="color:var(--t3)">requirements.html</span></td>
+          <td><code>.stam-board-toolbar</code></td>
+          <td><code>.rq-search</code> +<br><code>.stam-board-search</code></td>
+          <td><code>.rq-filter-btn</code> +<br><code>.stam-board-filter-trigger</code></td>
+          <td><code>.rq-btn-del</code> +<br><code>.stam-board-delete</code></td>
+          <td><code>.rq-table</code></td>
+          <td><code>.rq-data-row.stam-table-row</code></td>
+          <td><code>.rq-cb</code></td>
+          <td><code>.sel</code> (legacy fallback)</td>
+          <td>—</td>
+          <td>36px</td>
+          <td><span class="pill warn">~85%</span></td>
+        </tr>
+        <tr>
+          <td><strong>기능정의서</strong><br><span style="color:var(--t3)">functional-specification.html</span></td>
+          <td><code>.stam-board-toolbar</code></td>
+          <td><code>.fn-search</code> +<br><code>.stam-board-search</code></td>
+          <td><code>.fn-filter-btn</code> +<br><code>.stam-board-filter-trigger</code></td>
+          <td><code>.fn-btn-del</code> +<br><code>.stam-board-delete</code></td>
+          <td><code>.fn-table</code></td>
+          <td><code>.fn-data-row.stam-table-row</code></td>
+          <td><code>.fn-cb</code></td>
+          <td><code>.is-selected</code> ✓</td>
+          <td>—</td>
+          <td>36px</td>
+          <td><span class="pill warn">~95%</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top:10px;color:var(--t3);font-size:11px">
+      * <strong>active</strong> 상태(row click)는 Open Scenario 외에는 일관된 구현이 없음 — drawer 가 있는 화면(SS / MSL / FN / RQ 일부)에서도 공통 <code>.is-active</code> 룰 부재.
+    </p>
+  </div>
+</div>
+
+<!-- ───────────────── 03. 삭제 버튼 비교 ───────────────── -->
+<div class="audit-section">
+  <div class="audit-section-header">Section 03 · 삭제 버튼 비교</div>
+  <div class="audit-section-body" style="overflow-x:auto">
+    <table class="cmp">
+      <thead>
+        <tr>
+          <th>화면</th>
+          <th>버튼 class</th>
+          <th>레이블 class</th>
+          <th>disabled 텍스트</th>
+          <th>count 표시</th>
+          <th>실삭제 API</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Open Scenario</td><td><code>.stam-delete-btn</code></td><td><code>.stam-delete-label</code></td><td>"삭제"</td><td>"삭제 (N)"</td><td>없음(placeholder alert)</td><td>기준</td></tr>
+        <tr><td>WBS</td><td><code>.wbs-btn-delete</code></td><td>자체</td><td>"삭제"</td><td>"삭제 (N)"</td><td>로컬 state 변경 있음</td><td><span class="warn">동작 변경 시 영향 — 반드시 사전 보고</span></td></tr>
+        <tr><td>화면설계서</td><td><code>.ss-btn-del</code></td><td><code>.ss-del-btn-lbl</code></td><td>"삭제"</td><td>"삭제 (N)"</td><td>없음</td><td>label class 명만 다름</td></tr>
+        <tr><td>메뉴/화면 목록</td><td><code>.msl-btn-del</code> + <code>.stam-board-delete</code></td><td>자체</td><td>"삭제"</td><td>"삭제 (N)"</td><td>없음</td><td>공통 trigger class 채택</td></tr>
+        <tr><td>요구사항</td><td><code>.rq-btn-del</code> + <code>.stam-board-delete</code></td><td>자체</td><td>"삭제"</td><td>"삭제 (N)"</td><td>없음</td><td>동일 패턴</td></tr>
+        <tr><td>기능정의서</td><td><code>.fn-btn-del</code> + <code>.stam-board-delete</code></td><td>자체</td><td>"삭제"</td><td>"삭제 (N)"</td><td>없음</td><td>동일 패턴</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">
+      * 모든 화면이 "삭제" / "삭제 (N)" 텍스트와 disabled 전이 기준은 동일. 차이는 class 네임스페이스뿐.<br>
+      * <strong>WBS</strong> 만 실제 로컬 state 변경 동작이 있는 것으로 보임 — 공통화 시 동작 보존 확인 필수.
+    </p>
+  </div>
+</div>
+
+<!-- ───────────────── 04. 필터 버튼 비교 ───────────────── -->
+<div class="audit-section">
+  <div class="audit-section-header">Section 04 · 필터 버튼 비교</div>
+  <div class="audit-section-body" style="overflow-x:auto">
+    <table class="cmp">
+      <thead>
+        <tr><th>화면</th><th>버튼 class</th><th>아이콘 class</th><th>open class</th><th>팝업 class</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Open Scenario</td><td><code>.stam-filter-btn</code> + <code>.stam-board-filter-trigger</code></td><td><code>.stam-btn-icon</code></td><td><code>.is-open</code></td><td><code>.stam-board-filter-panel</code></td><td>기준</td></tr>
+        <tr><td>WBS</td><td><code>.wbs-filter-open-btn</code></td><td>inline svg</td><td>자체</td><td>자체</td><td><span class="bad">독립 시스템</span></td></tr>
+        <tr><td>화면설계서</td><td><code>.ss-filter-btn</code> + <code>.stam-board-filter-trigger</code></td><td>inline svg</td><td>자체</td><td><code>.ss-filter-pop</code></td><td>trigger만 공통</td></tr>
+        <tr><td>메뉴/화면 목록</td><td><code>.msl-filter-btn</code> + <code>.stam-board-filter-trigger</code></td><td>inline svg</td><td>공통</td><td><code>.stam-board-filter-panel</code></td><td>가장 일관</td></tr>
+        <tr><td>요구사항</td><td><code>.rq-filter-btn</code> + <code>.stam-board-filter-trigger</code></td><td>inline svg</td><td>공통</td><td><code>.stam-board-filter-panel</code></td><td>동일 패턴</td></tr>
+        <tr><td>기능정의서</td><td><code>.fn-filter-btn</code> + <code>.stam-board-filter-trigger</code></td><td>inline svg</td><td>공통</td><td><code>.stam-board-filter-panel</code></td><td>동일 패턴</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 필터 팝업 공통화 (<code>.stam-board-filter-panel</code> ↔ <code>.ss-filter-pop</code>) 는 별도 PR 권장.</p>
+  </div>
+</div>
+
+<!-- ───────────────── 05. 검색 영역/placeholder 비교 ───────────────── -->
+<div class="audit-section">
+  <div class="audit-section-header">Section 05 · 검색 영역 / placeholder 비교</div>
+  <div class="audit-section-body" style="overflow-x:auto">
+    <table class="cmp">
+      <thead>
+        <tr><th>화면</th><th>wrapper</th><th>input class</th><th>icon class</th><th>placeholder</th><th>패턴 일치</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Open Scenario</td><td><code>.stam-list-search</code></td><td><code>.stam-list-search-input</code></td><td><code>.stam-list-search-icon</code></td><td>ID · 제목 · 담당자 검색</td><td><span class="pill ok">기준</span></td></tr>
+        <tr><td>WBS</td><td><code>.wbs-search-wrap</code></td><td><code>.wbs-search-input</code></td><td>inline svg</td><td>작업명 검색</td><td><span class="pill bad">불일치</span></td></tr>
+        <tr><td>화면설계서</td><td><code>.ss-search</code></td><td><code>.ss-search-input</code></td><td>inline svg</td><td>화면 ID · 화면명 · 메뉴명 검색</td><td><span class="pill warn">근접</span></td></tr>
+        <tr><td>메뉴/화면 목록</td><td><code>.msl-search</code> + <code>.stam-board-search</code></td><td>자체</td><td>inline svg</td><td>화면 ID · 화면명 · 담당자 검색</td><td><span class="pill ok">패턴 일치</span></td></tr>
+        <tr><td>요구사항</td><td><code>.rq-search</code> + <code>.stam-board-search</code></td><td>자체</td><td>inline svg</td><td>요구사항 ID · 요구사항명 · 담당자 검색</td><td><span class="pill ok">패턴 일치</span></td></tr>
+        <tr><td>기능정의서</td><td><code>.fn-search</code> + <code>.stam-board-search</code></td><td>자체</td><td>inline svg</td><td>기능 ID · 기능명 · 담당자 검색</td><td><span class="pill ok">패턴 일치</span></td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* placeholder 는 "{도메인 ID} · {도메인 명} · 담당자 검색" 패턴 유지. WBS 만 패턴 미준수.</p>
+  </div>
+</div>
+
+<!-- ───────────────── 06. checkbox / active / selected 비교 ───────────────── -->
+<div class="audit-section">
+  <div class="audit-section-header">Section 06 · checkbox / row active / row selected 비교</div>
+  <div class="audit-section-body" style="overflow-x:auto">
+    <table class="cmp">
+      <thead>
+        <tr><th>화면</th><th>checkbox class</th><th>checked 스타일 출처</th><th>selected bg</th><th>left bar</th><th>active 상태 구현</th><th>drawer 연동</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Open Scenario</td><td><code>.stam-check</code></td><td>공통</td><td>rgba(84,81,232,.06) ✓</td><td>::before 3px ✓</td><td><code>.is-active</code> ✓</td><td>O</td></tr>
+        <tr><td>WBS</td><td><code>.wbs-chk</code></td><td>자체</td><td>자체</td><td>자체</td><td>없음</td><td>—</td></tr>
+        <tr><td>화면설계서</td><td><code>.ss-cb</code></td><td>자체</td><td>없음/암묵</td><td>없음</td><td>없음</td><td>O(drawer 존재)</td></tr>
+        <tr><td>메뉴/화면 목록</td><td><code>.msl-cb</code></td><td>자체(공통과 동일 픽셀)</td><td>rgba(84,81,232,.06) ✓</td><td>::before 3px ✓</td><td>없음</td><td>O(drawer 존재)</td></tr>
+        <tr><td>요구사항</td><td><code>.rq-cb</code></td><td>자체(공통과 동일 픽셀)</td><td>rgba(84,81,232,.06) ✓</td><td>::before 3px ✓</td><td>없음</td><td>O(drawer 존재)</td></tr>
+        <tr><td>기능정의서</td><td><code>.fn-cb</code></td><td>자체(공통과 동일 픽셀)</td><td>rgba(84,81,232,.06) ✓</td><td>::before 3px ✓</td><td>없음</td><td>O(drawer 존재)</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">
+      * Open Scenario 외 다섯 화면 모두 row click → drawer 가 있지만 <code>.is-active</code> bar 미적용. PR B/C/D/E/F 에서 동일 보정 필요.<br>
+      * MSL/RQ/FN 의 checkbox 스타일은 <code>.stam-check</code> 와 픽셀 동일 — 점진 통합 시 시각 회귀 위험 낮음.
+    </p>
+  </div>
+</div>
+
+<!-- ───────────────── 07. 공통 적용 난이도 ───────────────── -->
+<div class="audit-section">
+  <div class="audit-section-header">Section 07 · 공통 적용 난이도</div>
+  <div class="audit-section-body" style="overflow-x:auto">
+    <table class="cmp">
+      <thead>
+        <tr><th>화면</th><th>HTML class 변경 범위</th><th>CSS 중복 정리</th><th>JS 변경</th><th>회귀 위험</th><th>난이도</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>WBS</td><td>대(toolbar/search/filter/delete/table/row/cb 전부)</td><td>대(자체 시스템 폐기)</td><td>중(selected/delete 로직)</td><td><span class="bad">高</span> — 실삭제 동작 존재</td><td>★★★★★</td></tr>
+        <tr><td>화면설계서</td><td>중</td><td>중</td><td>중</td><td>중</td><td>★★★★</td></tr>
+        <tr><td>메뉴/화면 목록</td><td>소-중(cb/sel→is-selected 일원화)</td><td>소(중복 셀렉터 제거)</td><td>소</td><td>저-중</td><td>★★</td></tr>
+        <tr><td>요구사항</td><td>소-중</td><td>소</td><td>소</td><td>저-중</td><td>★★</td></tr>
+        <tr><td>기능정의서</td><td>소(이미 .is-selected 채택)</td><td>소</td><td>소(.is-active 추가)</td><td>저</td><td>★</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ───────────────── 08. 후속 PR 분리안 ───────────────── -->
+<div class="audit-section">
+  <div class="audit-section-header">Section 08 · 후속 PR 분리안</div>
+  <div class="audit-section-body">
+    <ul class="tight">
+      <li><strong>PR A — 삭제 버튼 공통화</strong>: 화면 5종의 <code>.{ns}-btn-del</code> → <code>.stam-delete-btn</code> + <code>.stam-delete-label</code>. <strong>WBS 의 실삭제 동작은 보존 또는 별도 보고 후 처리</strong>.</li>
+      <li><strong>PR B — 검색/필터 toolbar 공통화</strong>: <code>.stam-list-toolbar</code> · <code>.stam-list-search</code> · <code>.stam-filter-btn</code> 일관 적용. 필터 팝업 (<code>.stam-board-filter-panel</code> vs <code>.ss-filter-pop</code>) 통합은 PR B' 로 분리.</li>
+      <li><strong>PR C — WBS 목록 테이블 class mapping</strong>: <code>.wbs-table</code> → <code>.stam-select-table</code>, <code>.wbs-chk</code> → <code>.stam-check</code>, row state → <code>.is-active</code> / <code>.is-selected</code>. 위험도 高 — 단독 PR 권장.</li>
+      <li><strong>PR D — 화면설계서 목록 테이블 class mapping</strong>: <code>.ss-table</code>/<code>.ss-cb</code> 일원화 + drawer row 에 <code>.is-active</code>.</li>
+      <li><strong>PR E — 메뉴/화면목록 class mapping</strong>: <code>.msl-cb</code>→<code>.stam-check</code>, <code>.sel</code>→<code>.is-selected</code>, drawer row 에 <code>.is-active</code>.</li>
+      <li><strong>PR F — 요구사항/결함 목록 class mapping</strong>: <code>.rq-cb</code>→<code>.stam-check</code>, <code>.sel</code>→<code>.is-selected</code>, drawer row 에 <code>.is-active</code>. (결함 목록 파일은 현 시점 미존재 — 추가 시 동일 패턴 적용)</li>
+      <li><strong>PR G(옵션) — 기능정의서 .is-active 보강</strong>: 가장 작은 단위, smoke test 용도 선행 가능.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ───────────────── 09. 수정 금지 / 주의사항 ───────────────── -->
+<div class="audit-section">
+  <div class="audit-section-header">Section 09 · 수정 금지 / 주의사항</div>
+  <div class="audit-section-body">
+    <ul class="tight">
+      <li>이번 PR 에서 수정 금지: <code>stam.tokens.css</code> · <code>stam.components.css</code> · <code>stam.nav-data.js</code> · shell/topbar/sidebar 렌더러 · 모든 제품 화면(WBS, 화면설계서, 요구사항, 메뉴/화면목록, 기능정의서)</li>
+      <li>실제 데이터 삭제/저장/API 로직 변경 금지 — WBS 실삭제 동작 확인 시 후속 PR A 에서 별도 보고 후 진행</li>
+      <li>필터 팝업 공통화는 본 Audit 범위 밖 — 후속 PR B' 분리</li>
+      <li>checkbox 픽셀 동일 클래스(.msl-cb / .rq-cb / .fn-cb) 는 시각 회귀 가능성 낮으나, 클래스 명만 바뀌어도 JS 셀렉터 영향 — 항상 함께 수정</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ───────────────── 10. 최종 권장 적용 순서 ───────────────── -->
+<div class="audit-section">
+  <div class="audit-section-header">Section 10 · 최종 권장 적용 순서</div>
+  <div class="audit-section-body">
+    <ol class="tight">
+      <li>PR G — 기능정의서 <code>.is-active</code> 보강 (smoke / 가장 작은 단위)</li>
+      <li>PR E — 메뉴/화면목록 class mapping</li>
+      <li>PR F — 요구사항 class mapping</li>
+      <li>PR A — 삭제 버튼 공통화 (WBS 동작 보존 보고 선행)</li>
+      <li>PR B — 검색/필터 toolbar 공통화 (PR B' 필터 팝업은 분리)</li>
+      <li>PR D — 화면설계서 class mapping</li>
+      <li>PR C — WBS 목록 테이블 class mapping (회귀 위험 최대, 마지막)</li>
+    </ol>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 각 PR 별 Bare Preview 회귀 확인 → staging 캡처 → merge 순서 유지.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById('themeToggle');
+  b.addEventListener('click', function(){
+    var html = document.documentElement;
+    var d = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', d ? 'light' : 'dark');
+    b.textContent = d ? '다크 모드' : '라이트 모드';
+  });
+})();
+</script>
+</body>
+</html>
