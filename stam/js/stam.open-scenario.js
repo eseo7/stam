@@ -6,9 +6,8 @@
   var drawer = document.getElementById('os-dw-detail');
 
   function clearActiveRows() {
-    document.querySelectorAll('.os-row.is-active, .os-row.os-row-active').forEach(function (r) {
+    document.querySelectorAll('.os-row.is-active').forEach(function (r) {
       r.classList.remove('is-active');
-      r.classList.remove('os-row-active');
     });
   }
 
@@ -19,10 +18,7 @@
     clearActiveRows();
     if (scnId) {
       var row = document.querySelector('.os-row[data-scn-id="' + scnId + '"]');
-      if (row) {
-        row.classList.add('is-active');
-        row.classList.add('os-row-active');
-      }
+      if (row) row.classList.add('is-active');
     }
   }
 
