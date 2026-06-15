@@ -2906,10 +2906,15 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
   font-size: 12.5px; cursor: pointer; color: var(--t2); font-family: var(--font);
   transition: background 100ms;
 }
-.wbs-sel-opt:hover { background: var(--bg-sur3); }
-.wbs-sel-opt.on { background: var(--stam-soft); color: var(--stam); font-weight: 600; }
+/* PR #96: hover/selected 톤을 공통 select(fn-cs / ss-cs) 와 동일하게 정렬
+   · hover: bg-sur3(자주빛 톤) → bg-sur2(중립 톤) + 텍스트 t1
+   · selected font-weight: 600 → 700 */
+.wbs-sel-opt:hover { background: var(--bg-sur2); color: var(--t1); }
+.wbs-sel-opt.on { background: var(--stam-soft); color: var(--stam); font-weight: 700; }
+.wbs-sel-opt.on:hover { background: var(--stam-soft); color: var(--stam); }
 [data-theme="dark"] .wbs-sel-menu { background: var(--bg-sur2); }
 [data-theme="dark"] .wbs-sel      { background: var(--bg-sur2); }
+[data-theme="dark"] .wbs-sel-opt:hover { background: rgba(255,255,255,.06); color: var(--t1); }
 
 /* ============================================================
  * 26. Custom Dialog (Alert / Confirm)
