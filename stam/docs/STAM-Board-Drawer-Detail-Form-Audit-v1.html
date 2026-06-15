@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM Board Drawer / Detail Form Audit v1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--t1); margin: 0; padding: 32px; }
+    .doc-header { margin-bottom: 28px; }
+    .doc-header h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+    .doc-header p { font-size: 12px; color: var(--t3); margin: 0; }
+    .meta { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .meta .chip { font-size:11px; padding:3px 8px; border-radius:4px; background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .related { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:11px; }
+    .related a { color: var(--stam); text-decoration: none; padding: 4px 10px; border: 1px solid var(--bd); border-radius: 6px; background: var(--bg-sur); }
+    .related a:hover { background: var(--bg-sur2); }
+    .sec { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; margin-bottom: 22px; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+    .sec-h { padding: 12px 16px; border-bottom: 1px solid var(--bd); background: var(--bg-sur2); font-size: 11px; font-weight: 700; letter-spacing:.06em; text-transform: uppercase; color: var(--t3); }
+    .sec-b { padding: 16px; font-size: 12.5px; color: var(--t2); line-height: 1.75; }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--stam); background: rgba(84,81,232,.08); padding: 1px 5px; border-radius: 3px; }
+    table.t { width: 100%; border-collapse: collapse; font-size: 12px; }
+    table.t th, table.t td { padding: 8px 10px; border-bottom: 1px solid var(--bd); text-align: left; vertical-align: top; }
+    table.t thead th { background: var(--bg-sur2); color: var(--t3); text-transform: uppercase; font-size: 10px; letter-spacing: .06em; font-weight: 700; white-space: nowrap; }
+    table.matrix td { text-align:center; white-space:nowrap; } table.matrix td.scr { text-align:left; font-weight:600; color:var(--t1); }
+    ul.tight, ol.tight { margin: 6px 0; padding-left: 22px; } ul.tight li, ol.tight li { margin: 3px 0; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; line-height:1.5; white-space:nowrap; }
+    .pill.ok { background:#dcfce7; color:#166534; }
+    .pill.bad { background:#fee2e2; color:#991b1b; }
+    .pill.warn { background:#fef3c7; color:#92400e; }
+    .pill.info { background:#dbeafe; color:#1e40af; }
+    .pill.neutral { background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .yes{color:#16a34a;font-weight:700} .no{color:#dc2626;font-weight:700} .part{color:#b45309;font-weight:700}
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid2 .col { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; }
+    .grid2 h4 { margin: 0 0 6px; font-size: 12px; font-weight: 700; }
+    .col.do h4 { color: #16a34a; } .col.dont h4 { color: #dc2626; }
+    .verdict-box { border:1px solid var(--bd); border-left:4px solid var(--stam); border-radius:8px; padding:14px 16px; background:var(--bg-sur2); }
+    .verdict-box .big { font-size:15px; font-weight:700; color:var(--t1); margin:0 0 4px; }
+    .theme-toggle { position: fixed; top: 16px; right: 16px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--bg-sur); color: var(--t2); font-size: 11px; cursor: pointer; }
+    @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } body { padding:16px; } table.t { font-size:11px; } }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">다크 모드</button>
+
+<div class="doc-header">
+  <h1>STAM Board Drawer / Detail Form Audit <span class="pill ok">v1</span></h1>
+  <p>게시판 6개 화면의 상세/등록/수정 Drawer 구조를 조사하고 공통화 가능성을 판정한 Audit 문서. <strong>조사 전용 — 제품 코드 미수정.</strong></p>
+  <div class="meta">
+    <span class="chip">조사일: 2026-06-15</span>
+    <span class="chip">대상: 6개 화면</span>
+    <span class="chip">기준: Board List 트랙(#105~#114) 후속</span>
+    <span class="chip">성격: Drawer Audit (코드 미수정)</span>
+  </div>
+  <div class="related">
+    <span style="color:var(--t3);align-self:center">Related:</span>
+    <a href="STAM-Board-List-Template-Contract-v1.html">Board List Contract v1</a>
+    <a href="STAM-New-Board-List-Screen-Template-v1.html">New Board List Template v1</a>
+    <a href="STAM-Common-Form-Controls-Preview.html">Form Controls Preview v1</a>
+    <a href="STAM-Drawer-Token-Mapping-v1.html">Drawer Token Mapping v1</a>
+    <a href="STAM-Docs-Index.html">Docs Index</a>
+  </div>
+</div>
+
+<!-- ── 1. Summary ── -->
+<div class="sec">
+  <div class="sec-h">Section 1 · Summary</div>
+  <div class="sec-b">
+    <div class="verdict-box">
+      <p class="big">최종 판정: <span class="pill warn">일부 공통화 가능</span> &nbsp;(Drawer shell / header / footer / form-field 레이어 우선, 전면 공통 Drawer 계약 일괄 적용은 보류)</p>
+      <p style="margin:0;color:var(--t2)">6개 화면 모두 <code>.stam-drawer</code> · <code>.stam-drawer-scrim</code> · <code>.stam-label/.stam-input</code> · <code>.stam-btn</code> 을 <strong>부분 병행</strong>하나, 실제 Drawer 골격·헤더·푸터·필드는 화면 전용 namespace(<code>.fn-* / .os-* / .msl-* / .rq-* / .ss-* / .wbs-*</code>) 비중이 70~90% 로 높다. <strong>Drawer 패턴이 2종</strong>(멀티 drawer instance vs 단일 drawer + mode 전환)으로 갈리고, 화면설계서는 JS 전체 렌더라 전면 공통 계약 일괄 적용은 위험하다. 단 <strong>shell/header/footer/form-field 레이어</strong>는 공통 계약화 여지가 크다.</p>
+    </div>
+    <p style="margin-top:10px"><strong>공통화 우선순위:</strong></p>
+    <ol class="tight">
+      <li><strong>Form field 레이어</strong> — 이미 <a href="STAM-Common-Form-Controls-Preview.html">Form Controls</a>(<code>.stam-label/.stam-input/.stam-textarea</code>) 일부 사용 중. required 표기·grid 까지 수렴 (최저 위험).</li>
+      <li><strong>Drawer shell + scrim + open/close</strong> — <code>.stam-drawer</code> 병행 기반 표준화. open/close 메커니즘 2종 통일이 핵심.</li>
+      <li><strong>Drawer header / footer 레이아웃</strong> — badge·title·meta·close / 좌측메타·우측액션 구조가 화면별로 유사.</li>
+      <li><strong>탭 컴포넌트</strong> — detail drawer 탭 패턴 공통화(선택).</li>
+      <li><strong>멀티 drawer 3종(fn/msl/rq)</strong> 우선 적용 후보(정적·쌍둥이 다수), <strong>ss/wbs</strong> 는 특수 구조 별도 검토.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ── 2. Drawer 구조 매트릭스 ── -->
+<div class="sec">
+  <div class="sec-h">Section 2 · 화면별 Drawer 구조 매트릭스</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t matrix">
+      <thead><tr>
+        <th style="text-align:left">화면</th><th>상세</th><th>등록</th><th>수정</th><th>전환 방식</th><th>open/close</th><th>콘텐츠</th><th>탭</th><th>전용 class</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="scr">기능정의서</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td>멀티 drawer (data-fn-open)</td><td><code>.open</code> + #fn-scrim</td><td>정적 HTML</td><td>3 (detail)</td><td>~85% .fn-*</td></tr>
+        <tr><td class="scr">Open Scenario</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td>읽기전용 상세만</td><td><code>.open</code> + #os-scrim</td><td>정적 HTML</td><td>6 (detail·placeholder)</td><td>~90% .os-*</td></tr>
+        <tr><td class="scr">메뉴/화면목록</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td>멀티 drawer (data-msl-open)</td><td><code>.open</code> + #msl-scrim</td><td>정적 HTML</td><td>3 (detail)</td><td>~70% .msl-*</td></tr>
+        <tr><td class="scr">요구사항</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td>멀티 drawer (data-rq-open)</td><td><code>.open</code> + #rq-scrim</td><td>정적 HTML</td><td>4 (detail)</td><td>~75% .rq-*</td></tr>
+        <tr><td class="scr">화면설계서</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td>단일 drawer + <code>S.dwMode</code></td><td><code>.open</code> + #ss-dw-scrim</td><td class="part">JS 전체 렌더</td><td>동적</td><td>~70% .ss-*</td></tr>
+        <tr><td class="scr">WBS</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td>단일 drawer + <code>data-mode</code></td><td class="part"><code>data-open</code> attr + overlay</td><td>정적 + CSS visibility</td><td>없음 (inline 섹션)</td><td>~85% .wbs-*</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* Drawer 패턴 2종: <strong>A) 멀티 drawer instance</strong>(fn/os/msl/rq — register/detail/edit 각각 별도 <code>&lt;div class="xx-drawer stam-drawer"&gt;</code>) vs <strong>B) 단일 drawer + mode 전환</strong>(ss=JS 렌더, wbs=CSS visibility). open/close 도 <code>.open</code> class(5개) vs <code>data-open</code> attr(wbs)로 갈림.</p>
+  </div>
+</div>
+
+<!-- ── 3. 상세 Drawer 비교 ── -->
+<div class="sec">
+  <div class="sec-h">Section 3 · 상세(Detail) Drawer 비교</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>항목</th><th>fn / msl / rq (멀티)</th><th>Open Scenario</th><th>화면설계서</th><th>WBS</th></tr></thead>
+      <tbody>
+        <tr><td>header</td><td>badge(<code>.xx-*-badge</code>) + title(<code>.xx-dw-htitle</code>) + meta chips + close(<code>.xx-dw-close</code>)</td><td>id/phase/scope badge + title + meta</td><td>mode badge(<code>.is-detail</code>) + id/ver + title + status chips</td><td>mode badge + id(<code>#wbs-dw-wid</code>) + title + breadcrumb + meta</td></tr>
+        <tr><td>탭</td><td>detail 만 탭 (fn 3 / msl 3 / rq 4)</td><td>6탭 (대부분 placeholder)</td><td>동적 탭(<code>setTab</code>)</td><td>탭 없음 — 댓글/이력 inline 섹션</td></tr>
+        <tr><td>변경이력</td><td><code>.xx-chg-list</code> (rq 는 검토이력 추가)</td><td>댓글/이력 탭(placeholder)</td><td>변경 이력 섹션(렌더)</td><td><code>.wbs-drawer-sec</code> "변경이력" inline + 댓글</td></tr>
+        <tr><td>footer</td><td>좌: 날짜 / 우: 전체보기·수정(or 등록)</td><td>닫기·이슈·체크 업데이트</td><td>타임스탬프·승인상태 + 수정·검토요청</td><td>mode별 footer slot (수정·전체보기)</td></tr>
+        <tr><td>콘텐츠</td><td>정적 HTML</td><td>정적 HTML(읽기전용)</td><td class="part">JS 전체 렌더</td><td>정적 + CSS visibility</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 공통 골격(badge + title + meta + close / 탭 / footer 좌측메타+우측액션)은 화면 전반에 유사하나 class 는 모두 화면 전용. Open Scenario 는 등록/수정 없는 읽기전용이라 footer 액션이 다름.</p>
+  </div>
+</div>
+
+<!-- ── 4. 등록/수정 Drawer 비교 ── -->
+<div class="sec">
+  <div class="sec-h">Section 4 · 등록/수정(Register/Edit) Drawer 비교</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>항목</th><th>fn / msl / rq (멀티)</th><th>화면설계서</th><th>WBS</th><th>Open Scenario</th></tr></thead>
+      <tbody>
+        <tr><td>구조</td><td>register/edit <strong>별도 drawer</strong> instance</td><td>단일 drawer mode(<code>renderRegister/renderEdit</code>)</td><td>단일 drawer <code>data-mode="create/edit"</code> + CSS visibility</td><td class="no">없음 (등록=alert placeholder)</td></tr>
+        <tr><td>상세→수정</td><td><code>data-xx-open="edit"</code> 버튼 → 다른 drawer open</td><td><code>openEdit()</code> → <code>showDw('edit')</code> 재렌더</td><td>수정 버튼 → <code>setMode('edit')</code></td><td>—</td></tr>
+        <tr><td>필드 label/input</td><td><code>.xx-flbl.stam-label</code> / <code>.xx-inp.stam-input</code> · <code>.stam-select</code> · <code>.stam-textarea</code></td><td><code>.ss-flbl</code> + <code>.stam-*</code> 혼용</td><td><code>.wbs-drawer-form-label/-input/-select/-textarea</code> (전용)</td><td>—</td></tr>
+        <tr><td>required</td><td><code>&lt;span class="xx-req-mark"&gt;*&lt;/span&gt;</code> (색 #991B1B)</td><td><code>.req</code> span</td><td><code>.req</code> span (var(--fail))</td><td>—</td></tr>
+        <tr><td>필드 그리드</td><td>2-col <code>.xx-fgrid</code> + <code>.full</code> span</td><td>렌더 폼</td><td><code>.wbs-drawer-form-*</code> 정적 폼</td><td>—</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* fn/msl/rq 는 <strong>필드 레이어에서 이미 <code>.stam-label/.stam-input/.stam-textarea/.stam-select</code> 를 병행</strong>한다(공통화 진입점). required 는 화면별 <code>.xx-req-mark</code> vs <code>.req</code> 로 표기만 다르고 패턴은 동일. WBS 폼은 <code>.wbs-drawer-form-*</code> 전용 — 공통 form-controls 미사용.</p>
+  </div>
+</div>
+
+<!-- ── 5. 공통화 가능한 영역 ── -->
+<div class="sec">
+  <div class="sec-h">Section 5 · 공통화 가능한 영역</div>
+  <div class="sec-b">
+    <table class="t">
+      <thead><tr><th>영역</th><th>현황</th><th>공통화 난이도</th></tr></thead>
+      <tbody>
+        <tr><td>Form field (label/input/textarea/select/required/grid)</td><td>fn/msl/rq 이미 <code>.stam-*</code> 병행 · ss 혼용 · wbs 전용</td><td class="yes">낮음 — Form Controls 계약으로 수렴</td></tr>
+        <tr><td>Drawer shell (root + scrim + open/close)</td><td><code>.stam-drawer</code>/<code>.stam-drawer-scrim</code> 5개 화면 병행, wbs 만 <code>data-open</code></td><td class="part">중 — open/close 메커니즘 통일 필요</td></tr>
+        <tr><td>Drawer header (badge·title·meta·close)</td><td>구조 유사, class 전부 전용</td><td class="part">중</td></tr>
+        <tr><td>Drawer footer (좌측 메타 + 우측 액션 버튼)</td><td>구조 유사, <code>.stam-btn</code> 병행</td><td class="part">중</td></tr>
+        <tr><td>탭 컴포넌트 (detail)</td><td>fn/os/msl/rq/ss 탭 보유(class 전용), wbs inline</td><td class="part">중 — 탭 수/내용 화면별 상이</td></tr>
+        <tr><td>상태 chip</td><td>의미·색이 화면 도메인별로 다름</td><td class="no">높음 — 시각 토큰만 공통, 구조는 화면별</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 6. 화면별 특수 구조 ── -->
+<div class="sec">
+  <div class="sec-h">Section 6 · 화면별 특수 구조 (현행 유지/별도 검토)</div>
+  <div class="sec-b">
+    <ul class="tight">
+      <li><strong>화면설계서</strong> — 단일 drawer + <code>S.dwMode</code> 기반 <strong>JS 전체 렌더</strong>(renderDetail/Register/Edit/ReviewReq), 별도 <strong>full editor view</strong>(<code>#ss-editor-view</code>). 골격이 JS 문자열 생성이라 공통 마크업 템플릿 적용이 어렵다. (Board List 에서도 "특수 구조 현행 유지"로 분류된 화면)</li>
+      <li><strong>WBS</strong> — 단일 drawer + <code>data-mode</code> CSS visibility, <strong>전체보기 inline 패널</strong>(<code>#wbs-fv-inline</code>), 댓글/변경이력 inline 섹션(탭 없음), 폼 전용 class(<code>.wbs-drawer-form-*</code>). open/close 가 <code>data-open</code> attr 로 유일하게 다름.</li>
+      <li><strong>Open Scenario</strong> — 등록/수정 drawer 없음(읽기전용 상세 + 6탭 placeholder). 등록/수정 추가 시 공통 계약 따르도록 권장.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 7. 위험 요소 ── -->
+<div class="sec">
+  <div class="sec-h">Section 7 · 위험 요소</div>
+  <div class="sec-b">
+    <table class="t">
+      <thead><tr><th>요소</th><th>내용</th><th>영향</th></tr></thead>
+      <tbody>
+        <tr><td>Drawer 패턴 2종</td><td>멀티 drawer instance(fn/os/msl/rq) vs 단일 drawer+mode(ss/wbs)</td><td class="no">높음 — 단일 공통 골격으로 통합 시 한쪽은 대규모 재구성</td></tr>
+        <tr><td>open/close 메커니즘 분기</td><td><code>.open</code> class(5) vs <code>data-open</code> attr(wbs)</td><td class="part">중 — 표준화 시 wbs JS/CSS 변경 동반</td></tr>
+        <tr><td>JS 전체 렌더(화면설계서)</td><td>골격이 innerHTML 문자열 생성</td><td class="no">높음 — 공통 마크업 템플릿 직접 적용 불가</td></tr>
+        <tr><td>화면 전용 class 비중 70~90%</td><td>header/footer/탭/필드 대부분 <code>.xx-*</code></td><td class="part">중 — 일괄 전환 시 회귀 표면 큼, 화면별 분리 PR 필요</td></tr>
+        <tr><td>도메인 상태 chip 상이</td><td>화면별 상태 의미/색 다름</td><td class="part">중 — 구조 공통화해도 chip 은 화면별 유지</td></tr>
+        <tr><td>저장/삭제/API 연결</td><td>등록/수정 저장 동작은 화면별 데이터 계층</td><td class="part">중 — 본 Audit 범위 밖, 공통화는 UI 한정</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 8. 권장 표준 Drawer 계약 초안 ── -->
+<div class="sec">
+  <div class="sec-h">Section 8 · 권장 표준 Drawer 계약 초안 (Draft)</div>
+  <div class="sec-b">
+    <p>전면 일괄 적용이 아닌 <strong>레이어별 점진 수렴</strong> 기준 초안. (확정 계약은 후속 PR 에서 문서화)</p>
+    <ul class="tight">
+      <li><strong>Shell:</strong> 루트 <code>.stam-drawer</code> + scrim <code>.stam-drawer-scrim</code>, open 상태는 <code>.open</code>(class) 로 통일 권장(wbs <code>data-open</code> 은 특수 예외로 검토).</li>
+      <li><strong>Header:</strong> <code>.stam-drawer-head</code> (badge / title / meta(chip) / close 버튼) 표준 슬롯.</li>
+      <li><strong>Body:</strong> 섹션/탭은 화면별 자유, 단 폼은 Form Controls 계약(<code>.stam-form-field</code> · <code>.stam-label</code> · <code>.stam-input/.stam-textarea/.stam-select</code> · required) 사용.</li>
+      <li><strong>Footer:</strong> <code>.stam-drawer-foot</code> (좌측 메타 + 우측 액션), 버튼은 <code>.stam-btn</code> 계열.</li>
+      <li><strong>전환:</strong> 멀티 drawer / 단일 drawer+mode 둘 다 허용하되, 상세→수정 트리거는 <code>data-*-open="edit"</code> 또는 <code>setMode('edit')</code> 로 명시.</li>
+      <li><strong>Escape/close:</strong> custom-select 우선 닫기 → drawer 닫기 패턴 유지(이미 fn/msl/rq/ss/os 유사).</li>
+    </ul>
+    <p style="margin-top:6px;color:var(--t3);font-size:11px">* 이 초안은 판정 근거용 스케치이며, 실제 계약은 별도 Contract 문서(후속)에서 확정한다. Drawer 토큰은 <a href="STAM-Drawer-Token-Mapping-v1.html">Drawer Token Mapping v1</a> 와 연계.</p>
+  </div>
+</div>
+
+<!-- ── 9. 다음 작업 제안 ── -->
+<div class="sec">
+  <div class="sec-h">Section 9 · 다음 작업 제안</div>
+  <div class="sec-b">
+    <ol class="tight">
+      <li><strong>Form field 수렴(우선)</strong> — fn/msl/rq drawer 필드를 Form Controls 계약으로 정리(이미 부분 적용). 최저 위험.</li>
+      <li><strong>표준 Drawer Shell/Header/Footer 계약 문서화</strong> — 본 초안(Section 8)을 정식 Contract 로 확정.</li>
+      <li><strong>멀티 drawer 3종(fn/msl/rq) 우선 적용</strong> — 정적·쌍둥이 다수라 공통 shell/header/footer 적용 후보. 화면별 분리 PR.</li>
+      <li><strong>화면설계서 / WBS 는 특수 구조 별도 검토</strong> — Board List 와 동일하게 구조 검토 후 판정(직접 적용 / 부분 / 현행 유지).</li>
+      <li><strong>Open Scenario 등록/수정</strong> 추가 시 공통 Drawer 계약 따르도록.</li>
+    </ol>
+    <p style="margin-top:6px;color:var(--t3);font-size:11px">* 각 적용 PR 은 docs-only / code PR 분리, Playwright smoke + staging deploy 확인(Board List 트랙과 동일 절차).</p>
+  </div>
+</div>
+
+<!-- ── 10. QA / 검증 기록 ── -->
+<div class="sec">
+  <div class="sec-h">Section 10 · QA / 검증 기록</div>
+  <div class="sec-b">
+    <p><strong>검증 방법:</strong> 6개 화면 HTML/JS/CSS 정적 분석(병렬 조사) — drawer id/class, open/close 메커니즘, header/footer/필드/required/chip/탭/이력 영역, 화면 전용 vs 공통 class 비중.</p>
+    <ul class="tight">
+      <li>상세 drawer: 6/6 존재. 등록·수정: fn/msl/rq/ss/wbs 존재, Open Scenario 미존재(읽기전용).</li>
+      <li>open/close: <code>.open</code> class 5개 + <code>data-open</code> attr 1개(wbs). scrim/overlay 6/6 존재. Escape close 6/6 존재.</li>
+      <li>필드 공통 class(<code>.stam-label/.stam-input</code>) 병행: fn/msl/rq ✓, ss 혼용, wbs 전용, os 폼 없음.</li>
+      <li>전용 class 비중 70~90% — Board List 대비 공통화 진척 낮음.</li>
+      <li>본 작업은 <strong>제품 코드 미수정</strong>(docs-only). 신규 Audit 문서만 생성.</li>
+    </ul>
+    <p style="margin-top:6px;color:var(--t3);font-size:11px">* 본 문서는 Playwright 로 status 200 · 콘솔 오류 0 · 내부 링크 resolve 를 확인한다(생성 PR 검증).</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById('themeToggle');
+  b.addEventListener('click', function(){
+    var html = document.documentElement;
+    var d = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', d ? 'light' : 'dark');
+    b.textContent = d ? '다크 모드' : '라이트 모드';
+  });
+})();
+</script>
+</body>
+</html>
