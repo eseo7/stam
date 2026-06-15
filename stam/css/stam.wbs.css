@@ -2876,45 +2876,14 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
 /* ============================================================
  * 25. Custom SelectBox
  * ============================================================ */
+/* PR #100: .wbs-sel-* 전용 custom select 스타일 제거 — 공통 .stam-cs-* (stam.custom-select.css) 사용.
+   유지:
+   · .wbs-selectbox  → position:relative 만 (root 컨테이너 레이아웃)
+   · .wbs-sel-menu   → z-index:200 만 (portal 마운트 시 .wbs-form-sec 내 절대좌표 + 다른 UI 위 표시).
+                       padding/max-height 등 시각 속성은 공통과 동일하지만 portal 위에 표시되려면
+                       z-index 만 별도 유지. */
 .wbs-selectbox { position: relative; }
-.wbs-sel {
-  height: 38px; width: 100%; border: 1px solid var(--bd); border-radius: var(--r-md);
-  padding: 0 11px; font-size: 12.5px; color: var(--t1); background: var(--bg-sur);
-  display: flex; align-items: center; gap: 7px; cursor: pointer; user-select: none;
-  transition: border-color 120ms, box-shadow 120ms; box-sizing: border-box; font-family: var(--font);
-}
-.wbs-sel:hover { border-color: var(--bd-s); }
-.wbs-sel.open { border-color: var(--stam); box-shadow: 0 0 0 2px var(--stam-soft); }
-.wbs-sel.placeholder { color: var(--t3); }
-.wbs-sel-sp {
-  flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis;
-  white-space: nowrap; font-family: var(--font);
-}
-.wbs-sel-ck {
-  color: var(--t3); flex-shrink: 0; display: flex; align-items: center;
-  transition: transform 180ms ease;
-}
-.wbs-sel.open .wbs-sel-ck { transform: rotate(180deg); }
-.wbs-sel-menu {
-  position: absolute; z-index: 200;
-  background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px;
-  box-shadow: 0 6px 14px rgba(0,0,0,.12), 0 0 1px rgba(0,0,0,.08);
-  padding: 5px; max-height: 200px; overflow-y: auto; box-sizing: border-box;
-}
-.wbs-sel-opt {
-  display: flex; align-items: center; gap: 7px; padding: 7px 9px; border-radius: 7px;
-  font-size: 12.5px; cursor: pointer; color: var(--t2); font-family: var(--font);
-  transition: background 100ms;
-}
-/* PR #96: hover/selected 톤을 공통 select(fn-cs / ss-cs) 와 동일하게 정렬
-   · hover: bg-sur3(자주빛 톤) → bg-sur2(중립 톤) + 텍스트 t1
-   · selected font-weight: 600 → 700 */
-.wbs-sel-opt:hover { background: var(--bg-sur2); color: var(--t1); }
-.wbs-sel-opt.on { background: var(--stam-soft); color: var(--stam); font-weight: 700; }
-.wbs-sel-opt.on:hover { background: var(--stam-soft); color: var(--stam); }
-[data-theme="dark"] .wbs-sel-menu { background: var(--bg-sur2); }
-[data-theme="dark"] .wbs-sel      { background: var(--bg-sur2); }
-[data-theme="dark"] .wbs-sel-opt:hover { background: rgba(255,255,255,.06); color: var(--t1); }
+.wbs-sel-menu  { z-index: 200; padding: 5px; max-height: 200px; }
 
 /* ============================================================
  * 26. Custom Dialog (Alert / Confirm)
