@@ -258,19 +258,22 @@
       다른 화면의 .stam-table-row 에 영향 없음
    ═══════════════════════════════════════ */
 
-/* 선택된 행 배경 (MSL 기준: rgba(84,81,232,.06)) */
+/* 선택된 행 배경 (MSL 기준: rgba(84,81,232,.06))
+   .is-active (row click) 도 동일 배경 적용 */
+.stam-select-table tbody tr.stam-table-row.is-active td,
 .stam-select-table tbody tr.stam-table-row.is-selected td,
 .stam-select-table tbody tr.stam-table-row.sel td,
 .stam-select-table tbody tr.stam-table-row.selected td {
   background: rgba(84, 81, 232, .06);
 }
 
-/* 선택된 행 좌측 active bar
+/* 좌측 active bar — .is-active / .is-selected 공통
    ::before 방식: border-radius 지원, MSL과 동일한 구현
    td에 position:relative 가 있어야 동작 */
-.stam-select-table tbody tr.stam-table-row.is-selected td:first-child::before,
-.stam-select-table tbody tr.stam-table-row.sel td:first-child::before,
-.stam-select-table tbody tr.stam-table-row.selected td:first-child::before {
+.stam-select-table tbody tr.stam-table-row.is-active > td:first-child::before,
+.stam-select-table tbody tr.stam-table-row.is-selected > td:first-child::before,
+.stam-select-table tbody tr.stam-table-row.sel > td:first-child::before,
+.stam-select-table tbody tr.stam-table-row.selected > td:first-child::before {
   content: "";
   position: absolute;
   left: 0;
@@ -281,19 +284,20 @@
   border-radius: 0 2px 2px 0;
 }
 
-/* hover (미선택 행만) */
-.stam-select-table tbody tr.stam-table-row:not(.is-selected):not(.sel):not(.selected):hover td {
+/* hover (미선택 · 미활성 행만) */
+.stam-select-table tbody tr.stam-table-row:not(.is-active):not(.is-selected):not(.sel):not(.selected):hover td {
   background: rgba(84, 81, 232, .025);
 }
 
 /* 다크 모드 */
+[data-theme="dark"] .stam-select-table tbody tr.stam-table-row.is-active td,
 [data-theme="dark"] .stam-select-table tbody tr.stam-table-row.is-selected td,
 [data-theme="dark"] .stam-select-table tbody tr.stam-table-row.sel td,
 [data-theme="dark"] .stam-select-table tbody tr.stam-table-row.selected td {
   background: rgba(139, 127, 248, .08);
 }
 
-[data-theme="dark"] .stam-select-table tbody tr.stam-table-row:not(.is-selected):not(.sel):not(.selected):hover td {
+[data-theme="dark"] .stam-select-table tbody tr.stam-table-row:not(.is-active):not(.is-selected):not(.sel):not(.selected):hover td {
   background: rgba(84, 81, 232, .05);
 }
 
@@ -301,18 +305,21 @@
    9. 하위 호환 — .stam-select-table 없는 기존 사용
       (.stam-table-row 만 있는 페이지의 선택 스타일 유지)
    ═══════════════════════════════════════ */
+.stam-table-row.is-active td,
 .stam-table-row.is-selected td,
 .stam-table-row.sel td,
 .stam-table-row.selected td {
   background: rgba(84, 81, 232, .06);
 }
 
+.stam-table-row.is-active td:first-child,
 .stam-table-row.is-selected td:first-child,
 .stam-table-row.sel td:first-child,
 .stam-table-row.selected td:first-child {
   position: relative;
 }
 
+.stam-table-row.is-active td:first-child::before,
 .stam-table-row.is-selected td:first-child::before,
 .stam-table-row.sel td:first-child::before,
 .stam-table-row.selected td:first-child::before {
@@ -326,12 +333,13 @@
   border-radius: 0 2px 2px 0;
 }
 
+[data-theme="dark"] .stam-table-row.is-active td,
 [data-theme="dark"] .stam-table-row.is-selected td,
 [data-theme="dark"] .stam-table-row.sel td,
 [data-theme="dark"] .stam-table-row.selected td {
   background: rgba(139, 127, 248, .08);
 }
 
-.stam-table-row:not(.is-selected):not(.sel):not(.selected):hover td {
+.stam-table-row:not(.is-active):not(.is-selected):not(.sel):not(.selected):hover td {
   cursor: pointer;
 }

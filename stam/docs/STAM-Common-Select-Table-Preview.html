@@ -199,6 +199,63 @@
   </div>
 </div>
 
+<!-- ── 섹션 2-1: 행 상태 — normal · active · selected · active+selected ── -->
+<div class="preview-section">
+  <div class="preview-section-header">2-1. 행 상태 예시 — .is-active (row click) / .is-selected (checkbox)</div>
+  <div style="overflow-x:auto">
+    <table class="stam-select-table">
+      <thead>
+        <tr>
+          <th class="stam-check-cell"><input class="stam-check" type="checkbox" disabled></th>
+          <th>상태</th>
+          <th>ID</th>
+          <th>시나리오명</th>
+          <th>담당자</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- normal row -->
+        <tr class="stam-table-row">
+          <td class="stam-check-cell"><input class="stam-check" type="checkbox"></td>
+          <td>normal</td>
+          <td><code style="font-size:10.5px;font-family:var(--mono,monospace);color:var(--stam)">SCN-N1</code></td>
+          <td>기본 행</td>
+          <td>—</td>
+          <td>checkbox unchecked · bar 없음</td>
+        </tr>
+        <!-- active row: row click 상태, checkbox unchecked + left bar 표시 -->
+        <tr class="stam-table-row is-active">
+          <td class="stam-check-cell"><input class="stam-check" type="checkbox"></td>
+          <td>active</td>
+          <td><code style="font-size:10.5px;font-family:var(--mono,monospace);color:var(--stam)">SCN-A1</code></td>
+          <td>행 클릭 → Drawer 열림</td>
+          <td>—</td>
+          <td>checkbox unchecked + left bar</td>
+        </tr>
+        <!-- selected row: checkbox click 상태, checkbox checked + left bar 표시 -->
+        <tr class="stam-table-row is-selected">
+          <td class="stam-check-cell"><input class="stam-check" type="checkbox" checked></td>
+          <td>selected</td>
+          <td><code style="font-size:10.5px;font-family:var(--mono,monospace);color:var(--stam)">SCN-S1</code></td>
+          <td>checkbox 선택</td>
+          <td>—</td>
+          <td>checkbox checked + left bar · 삭제 count 포함</td>
+        </tr>
+        <!-- active + selected: 둘 다 적용 -->
+        <tr class="stam-table-row is-active is-selected">
+          <td class="stam-check-cell"><input class="stam-check" type="checkbox" checked></td>
+          <td>active + selected</td>
+          <td><code style="font-size:10.5px;font-family:var(--mono,monospace);color:var(--stam)">SCN-AS1</code></td>
+          <td>선택된 행 클릭</td>
+          <td>—</td>
+          <td>checkbox checked + left bar · 삭제 count 포함</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 <!-- ── 섹션 3: 단독 컴포넌트 확인 ── -->
 <div class="preview-section">
   <div class="preview-section-header">3. 단독 컴포넌트 — .stam-check / .stam-filter-btn / .stam-delete-btn</div>
