@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="../../css/stam.buttons.css">
   <link rel="stylesheet" href="../../css/stam.board-toolbar.css">
   <link rel="stylesheet" href="../../css/stam.board-filter.css">
+  <link rel="stylesheet" href="../../css/stam.board-layout.css">
   <link rel="stylesheet" href="../../css/stam.functional-specification.css">
 </head>
 <body>
@@ -49,18 +50,18 @@
       <section class="fn-page">
 
         <!-- ── Page header ── -->
-        <div class="fn-page-hdr">
-          <div class="fn-page-hdr-l">
-            <div class="fn-page-hdr-title">기능정의서</div>
-            <div class="fn-page-hdr-desc">화면별 기능을 정의하고 요구사항·화면설계서와 연결하여 개발 기준을 명세합니다.</div>
+        <div class="fn-page-hdr stam-board-header">
+          <div class="fn-page-hdr-l stam-board-title-wrap">
+            <div class="fn-page-hdr-title stam-board-title">기능정의서</div>
+            <div class="fn-page-hdr-desc stam-board-desc">화면별 기능을 정의하고 요구사항·화면설계서와 연결하여 개발 기준을 명세합니다.</div>
           </div>
-          <div class="fn-page-hdr-r">
-            <button class="fn-btn fn-btn-out stam-btn stam-btn-outline" type="button">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <div class="fn-page-hdr-r stam-board-actions">
+            <button class="fn-btn fn-btn-out stam-btn stam-btn-outline stam-board-action-btn is-secondary" type="button">
+              <svg class="stam-board-action-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               내보내기
             </button>
-            <button class="fn-btn fn-btn-pri stam-btn stam-btn-primary" id="fn-reg-btn" type="button">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <button class="fn-btn fn-btn-pri stam-btn stam-btn-primary stam-board-action-btn is-primary" id="fn-reg-btn" type="button">
+              <svg class="stam-board-action-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               기능 등록
             </button>
           </div>
@@ -286,15 +287,15 @@
               </tbody>
             </table>
           </div>
-          <div class="fn-tbl-foot">
-            <span>총 5건 중 5건 표시</span>
-            <div class="fn-pg">
-              <button class="fn-pgb" type="button" aria-label="이전 페이지">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          <div class="fn-tbl-foot stam-board-footer">
+            <span class="stam-board-count">총 <b>5</b>건 중 <b>5</b>건 표시</span>
+            <div class="fn-pg stam-board-pagination">
+              <button class="fn-pgb stam-page-btn" type="button" aria-label="이전 페이지" disabled>
+                <svg class="stam-board-action-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
               </button>
-              <button class="fn-pgb on" type="button">1</button>
-              <button class="fn-pgb" type="button" aria-label="다음 페이지">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+              <button class="fn-pgb on stam-page-btn is-current" type="button">1</button>
+              <button class="fn-pgb stam-page-btn" type="button" aria-label="다음 페이지" disabled>
+                <svg class="stam-board-action-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
               </button>
             </div>
           </div>
