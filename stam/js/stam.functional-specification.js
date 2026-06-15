@@ -12,44 +12,44 @@
     var activeIdx = -1;
 
     var wrap = document.createElement('div');
-    wrap.className = 'fn-cs';
+    wrap.className = 'fn-cs stam-cs';
 
     var trigger = document.createElement('button');
     trigger.type = 'button';
-    trigger.className = 'fn-cs-trigger';
+    trigger.className = 'fn-cs-trigger stam-cs-trigger';
     trigger.setAttribute('aria-haspopup', 'listbox');
     trigger.setAttribute('aria-expanded', 'false');
     trigger.setAttribute('aria-controls', uid + '-list');
 
     var valSpan = document.createElement('span');
-    valSpan.className = 'fn-cs-val';
+    valSpan.className = 'fn-cs-val stam-cs-value';
 
     var caret = document.createElement('span');
-    caret.className = 'fn-cs-caret';
+    caret.className = 'fn-cs-caret stam-cs-icon';
     caret.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
 
     trigger.appendChild(valSpan);
     trigger.appendChild(caret);
 
     var panel = document.createElement('div');
-    panel.className = 'fn-cs-panel';
+    panel.className = 'fn-cs-panel stam-cs-menu';
     panel.id = uid + '-list';
     panel.setAttribute('role', 'listbox');
 
     Array.prototype.forEach.call(native.options, function (o, i) {
       var od = document.createElement('div');
-      od.className = 'fn-cs-opt';
+      od.className = 'fn-cs-opt stam-cs-opt';
       od.id = uid + '-opt-' + i;
       od.setAttribute('role', 'option');
       od.setAttribute('data-idx', i);
       od.setAttribute('aria-selected', 'false');
       if (o.value === '') od.classList.add('is-placeholder');
       var ck = document.createElement('span');
-      ck.className = 'fn-cs-check';
+      ck.className = 'fn-cs-check stam-cs-check';
       ck.setAttribute('aria-hidden', 'true');
       ck.innerHTML = FN_CHECK_SVG;
       var tx = document.createElement('span');
-      tx.className = 'fn-cs-otext';
+      tx.className = 'fn-cs-otext stam-cs-otext';
       tx.textContent = o.textContent;
       od.appendChild(ck);
       od.appendChild(tx);
@@ -93,6 +93,7 @@
 
     function applyFlip() {
       wrap.classList.remove('cs-up');
+      wrap.classList.remove('is-up');
       var container = wrap.closest('.fn-dw-body');
       if (!container) return;
       var ph = panel.offsetHeight || 200;
@@ -100,12 +101,16 @@
       var cRect = container.getBoundingClientRect();
       var below = cRect.bottom - tRect.bottom;
       var above = tRect.top - cRect.top;
-      if (below < ph + 8 && above > below) wrap.classList.add('cs-up');
+      if (below < ph + 8 && above > below) {
+        wrap.classList.add('cs-up');
+        wrap.classList.add('is-up');
+      }
     }
 
     function openPanel() {
       closeAllFnCustomSelects();
       wrap.classList.add('open');
+      wrap.classList.add('is-open');
       trigger.setAttribute('aria-expanded', 'true');
       applyFlip();
       setActive(native.selectedIndex >= 0 ? native.selectedIndex : 0);
@@ -172,6 +177,8 @@
   function closeFnCustomSelect(wrap) {
     wrap.classList.remove('open');
     wrap.classList.remove('cs-up');
+    wrap.classList.remove('is-open');
+    wrap.classList.remove('is-up');
     var t = wrap.querySelector('.fn-cs-trigger');
     if (t) { t.setAttribute('aria-expanded', 'false'); t.removeAttribute('aria-activedescendant'); }
   }
