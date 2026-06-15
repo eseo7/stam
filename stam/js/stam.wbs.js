@@ -973,22 +973,68 @@
   /* ─── 14. Custom SelectBox ──────────────────────────────── */
   function initSelectBoxes() {
     var chkIc='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>';
-    var chevIc='<svg class="wbs-sel-ck" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
-    function buildMenu(opts,cur){return opts.map(function(o){return'<div class="wbs-sel-opt'+(o===cur?' on':'')+'" data-sel-opt="'+o+'">'+(o===cur?chkIc:'<span style="width:13px;flex-shrink:0"></span>')+'<span>'+o+'</span></div>';}).join('');}
+    var chevIc='<svg class="wbs-sel-ck stam-cs-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+    function buildMenu(opts,cur){
+      return opts.map(function(o){
+        var isSel = o === cur;
+        return '<div class="wbs-sel-opt stam-cs-opt'+(isSel?' on is-sel':'')+'" data-sel-opt="'+o+'" role="option" aria-selected="'+(isSel?'true':'false')+'">'+
+          '<span class="wbs-sel-check stam-cs-check">'+chkIc+'</span>'+
+          '<span class="stam-cs-otext">'+o+'</span>'+
+        '</div>';
+      }).join('');
+    }
     /* .wbs-form-sec 내 absolute 포지셔닝: Drawer 스크롤 시 필드와 함께 이동 */
     var _selPortal=null;
     var _activeSel=null,_activeSelBtn=null,_activeSelSec=null;
-    function closeSel(){if(_activeSelBtn)_activeSelBtn.classList.remove('open');if(_selPortal&&_selPortal.parentNode)_selPortal.parentNode.removeChild(_selPortal);if(_activeSelSec)_activeSelSec.classList.remove('popover-open');_selPortal=null;_activeSel=null;_activeSelBtn=null;_activeSelSec=null;}
-    function openSel(box,btn){if(window._wbsCloseDp)window._wbsCloseDp();_activeSel=box;_activeSelBtn=btn;btn.classList.add('open');var opts=(box.getAttribute('data-sel-opts')||'').split('|').filter(Boolean);var sec=box.closest('.wbs-form-sec')||box.closest('.wbs-fv-body')||document.body;_activeSelSec=sec;sec.classList.add('popover-open');var br=btn.getBoundingClientRect(),sr=sec.getBoundingClientRect();var top=br.bottom-sr.top+sec.scrollTop+5;var left=br.left-sr.left;var w=br.width;_selPortal=document.createElement('div');_selPortal.className='wbs-sel-menu';_selPortal.style.cssText='top:'+top+'px;left:'+left+'px;width:'+w+'px;';_selPortal.innerHTML=buildMenu(opts,box.getAttribute('data-sel-val')||'');sec.appendChild(_selPortal);}
+    function closeSel(){
+      if(_activeSelBtn){_activeSelBtn.classList.remove('open');_activeSelBtn.classList.remove('is-open');}
+      if(_activeSel){_activeSel.classList.remove('is-open');}
+      if(_selPortal&&_selPortal.parentNode)_selPortal.parentNode.removeChild(_selPortal);
+      if(_activeSelSec)_activeSelSec.classList.remove('popover-open');
+      _selPortal=null;_activeSel=null;_activeSelBtn=null;_activeSelSec=null;
+    }
+    function openSel(box,btn){
+      if(window._wbsCloseDp)window._wbsCloseDp();
+      _activeSel=box;_activeSelBtn=btn;
+      btn.classList.add('open');
+      box.classList.add('is-open');
+      var opts=(box.getAttribute('data-sel-opts')||'').split('|').filter(Boolean);
+      var sec=box.closest('.wbs-form-sec')||box.closest('.wbs-fv-body')||document.body;
+      _activeSelSec=sec;sec.classList.add('popover-open');
+      var br=btn.getBoundingClientRect(),sr=sec.getBoundingClientRect();
+      var top=br.bottom-sr.top+sec.scrollTop+5;var left=br.left-sr.left;var w=br.width;
+      _selPortal=document.createElement('div');
+      _selPortal.className='wbs-sel-menu stam-cs-menu';
+      _selPortal.setAttribute('role','listbox');
+      /* 공통 .stam-cs-menu 는 display:none + right:0 — WBS portal 마운트이므로 inline 으로 override */
+      _selPortal.style.cssText='top:'+top+'px;left:'+left+'px;width:'+w+'px;right:auto;display:block;';
+      _selPortal.innerHTML=buildMenu(opts,box.getAttribute('data-sel-val')||'');
+      sec.appendChild(_selPortal);
+    }
     window._wbsCloseSel=closeSel;
-    function initOneSel(el){var val=el.getAttribute('data-sel-val')||'',ph=el.getAttribute('data-sel-placeholder')||'\u2014 \uc120\ud0dd \u2014';var disp=normalizeStageLabel(val);el.innerHTML='<button type="button" class="wbs-sel'+(val?'':' placeholder')+'" data-sel-toggle><span class="wbs-sel-sp">'+(disp||ph)+'</span>'+chevIc+'</button>';}
+    function initOneSel(el){
+      var val=el.getAttribute('data-sel-val')||'',ph=el.getAttribute('data-sel-placeholder')||'\u2014 \uc120\ud0dd \u2014';
+      var disp=normalizeStageLabel(val);
+      el.classList.add('stam-cs');
+      el.innerHTML='<button type="button" class="wbs-sel stam-cs-trigger'+(val?'':' placeholder')+'" data-sel-toggle aria-haspopup="listbox" aria-expanded="false">'+
+        '<span class="wbs-sel-sp stam-cs-value'+(val?'':' is-placeholder')+'">'+(disp||ph)+'</span>'+
+        chevIc+
+      '</button>';
+    }
     document.querySelectorAll('[data-wbs-sel]').forEach(initOneSel);
     document.addEventListener('click',function(e){
       var tog=e.target.closest?e.target.closest('[data-sel-toggle]'):null;
       if(tog){var box=tog.closest('[data-wbs-sel]');if(!box)return;if(_activeSel===box){closeSel();return;}closeSel();openSel(box,tog);return;}
       if(_activeSel&&_selPortal.contains(e.target)){
         var opt=e.target.closest('[data-sel-opt]');
-        if(opt){var val=opt.getAttribute('data-sel-opt');_activeSel.setAttribute('data-sel-val',val);var sp=_activeSel.querySelector('.wbs-sel-sp');if(sp)sp.textContent=val;if(_activeSelBtn)_activeSelBtn.classList.remove('placeholder','open');closeSel();}
+        if(opt){
+          var val=opt.getAttribute('data-sel-opt');
+          _activeSel.setAttribute('data-sel-val',val);
+          var sp=_activeSel.querySelector('.wbs-sel-sp');
+          if(sp){sp.textContent=val;sp.classList.remove('is-placeholder');}
+          if(_activeSelBtn){_activeSelBtn.classList.remove('placeholder','open','is-open');}
+          closeSel();
+        }
         return;
       }
       if(_activeSel&&!(e.target.closest?e.target.closest('[data-wbs-sel]'):null))closeSel();
