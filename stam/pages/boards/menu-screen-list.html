@@ -125,9 +125,9 @@
                 필터
                 <span class="stam-board-filter-count" id="msl-filter-count" style="display:none">0</span>
               </button>
-              <button class="msl-btn msl-btn-del stam-btn stam-btn-danger stam-board-delete" id="msl-del-btn" type="button" disabled>
+              <button class="msl-btn msl-btn-del stam-btn stam-btn-danger stam-board-delete stam-delete-btn" id="msl-del-btn" type="button" disabled>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                <span class="msl-del-lbl">삭제</span>
+                <span class="msl-del-lbl stam-delete-label">삭제</span>
               </button>
             </div>
           </div>
@@ -148,7 +148,7 @@
         <!-- ── Table ── -->
         <div class="msl-tbl-outer">
           <div class="msl-tbl-scroll">
-            <table class="msl-table">
+            <table class="msl-table stam-select-table" data-stam-board-list>
               <colgroup>
                 <col style="width:40px">
                 <col style="min-width:200px">
@@ -163,7 +163,7 @@
               </colgroup>
               <thead>
                 <tr>
-                  <th class="msl-ch"><input type="checkbox" class="msl-cb" id="msl-cb-all"></th>
+                  <th class="msl-ch stam-check-cell"><input type="checkbox" class="msl-cb stam-check" id="msl-cb-all" data-stam-check-all></th>
                   <th>화면 ID / 화면명</th>
                   <th>LV1</th>
                   <th>LV2</th>
@@ -179,7 +179,7 @@
 
                 <!-- SCR-001 -->
                 <tr class="msl-data-row stam-table-row">
-                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td class="msl-ch stam-check-cell"><input type="checkbox" class="msl-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="msl-id-cell">
                       <span class="msl-scr-id">SCR-001</span>
@@ -203,7 +203,7 @@
 
                 <!-- SCR-002 -->
                 <tr class="msl-data-row stam-table-row">
-                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td class="msl-ch stam-check-cell"><input type="checkbox" class="msl-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="msl-id-cell">
                       <span class="msl-scr-id">SCR-002</span>
@@ -222,7 +222,7 @@
 
                 <!-- SCR-003 -->
                 <tr class="msl-data-row stam-table-row">
-                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td class="msl-ch stam-check-cell"><input type="checkbox" class="msl-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="msl-id-cell">
                       <span class="msl-scr-id">SCR-003</span>
@@ -241,7 +241,7 @@
 
                 <!-- SCR-004 -->
                 <tr class="msl-data-row stam-table-row">
-                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td class="msl-ch stam-check-cell"><input type="checkbox" class="msl-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="msl-id-cell">
                       <span class="msl-scr-id">SCR-004</span>
@@ -260,7 +260,7 @@
 
                 <!-- SCR-005 -->
                 <tr class="msl-data-row stam-table-row">
-                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td class="msl-ch stam-check-cell"><input type="checkbox" class="msl-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="msl-id-cell">
                       <span class="msl-scr-id">SCR-005</span>
@@ -279,7 +279,7 @@
 
                 <!-- SCR-006 -->
                 <tr class="msl-data-row stam-table-row">
-                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td class="msl-ch stam-check-cell"><input type="checkbox" class="msl-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="msl-id-cell">
                       <span class="msl-scr-id">SCR-006</span>
@@ -298,7 +298,7 @@
 
                 <!-- SCR-007 -->
                 <tr class="msl-data-row stam-table-row">
-                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td class="msl-ch stam-check-cell"><input type="checkbox" class="msl-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="msl-id-cell">
                       <span class="msl-scr-id">SCR-007</span>
@@ -317,7 +317,7 @@
 
                 <!-- SCR-008 -->
                 <tr class="msl-data-row stam-table-row">
-                  <td class="msl-ch"><input type="checkbox" class="msl-cb" onclick="event.stopPropagation()"></td>
+                  <td class="msl-ch stam-check-cell"><input type="checkbox" class="msl-cb stam-check" onclick="event.stopPropagation()"></td>
                   <td>
                     <div class="msl-id-cell">
                       <span class="msl-scr-id">SCR-008</span>
@@ -751,6 +751,7 @@
 <script src="../../js/stam.topbar-render.js"></script>
 <script src="../../js/stam.project-context-render.js"></script>
 <script src="../../js/stam.board-filter.js"></script>
+<script src="../../js/stam.board-list.js"></script>
 <script src="../../js/stam.menu-screen-list.js"></script>
 </body>
 </html>
