@@ -576,33 +576,33 @@
     var activeIdx = -1;
 
     var wrap = document.createElement('div');
-    wrap.className = 'ss-cs';
+    wrap.className = 'ss-cs stam-cs';
 
     var trigger = document.createElement('button');
     trigger.type = 'button';
-    trigger.className = 'ss-cs-trigger';
+    trigger.className = 'ss-cs-trigger stam-cs-trigger';
     trigger.setAttribute('aria-haspopup', 'listbox');
     trigger.setAttribute('aria-expanded', 'false');
     trigger.setAttribute('aria-controls', uid + '-list');
 
     var valSpan = document.createElement('span');
-    valSpan.className = 'ss-cs-val';
+    valSpan.className = 'ss-cs-val stam-cs-value';
 
     var caret = document.createElement('span');
-    caret.className = 'ss-cs-caret';
+    caret.className = 'ss-cs-caret stam-cs-icon';
     caret.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
 
     trigger.appendChild(valSpan);
     trigger.appendChild(caret);
 
     var panel = document.createElement('div');
-    panel.className = 'ss-cs-panel';
+    panel.className = 'ss-cs-panel stam-cs-menu';
     panel.id = uid + '-list';
     panel.setAttribute('role', 'listbox');
 
     Array.prototype.forEach.call(native.options, function (o, i) {
       var od = document.createElement('div');
-      od.className = 'ss-cs-opt';
+      od.className = 'ss-cs-opt stam-cs-opt';
       od.id = uid + '-opt-' + i;
       od.setAttribute('role', 'option');
       od.setAttribute('data-idx', i);
@@ -611,11 +611,11 @@
       /* WBS와 동일: 모든 option에 check 슬롯(고정폭) → 텍스트 시작 정렬 일치.
          실제 selected(is-sel)일 때만 CSS로 check 표시. */
       var ck = document.createElement('span');
-      ck.className = 'ss-cs-check';
+      ck.className = 'ss-cs-check stam-cs-check';
       ck.setAttribute('aria-hidden', 'true');
       ck.innerHTML = CS_CHECK_SVG;
       var tx = document.createElement('span');
-      tx.className = 'ss-cs-otext';
+      tx.className = 'ss-cs-otext stam-cs-otext';
       tx.textContent = o.textContent;
       od.appendChild(ck);
       od.appendChild(tx);
@@ -662,6 +662,7 @@
        아래 공간이 부족하고 위가 더 넓으면 위로 펼친다(.cs-up). */
     function applyFlip() {
       wrap.classList.remove('cs-up');
+      wrap.classList.remove('is-up');
       var container = document.getElementById('ss-dw-body');
       if (!container) return;
       var ph = panel.offsetHeight;
@@ -669,12 +670,16 @@
       var cRect = container.getBoundingClientRect();
       var below = cRect.bottom - tRect.bottom;
       var above = tRect.top - cRect.top;
-      if (below < ph + 8 && above > below) wrap.classList.add('cs-up');
+      if (below < ph + 8 && above > below) {
+        wrap.classList.add('cs-up');
+        wrap.classList.add('is-up');
+      }
     }
 
     function openPanel() {
       closeAllCustomSelects();
       wrap.classList.add('open');
+      wrap.classList.add('is-open');
       trigger.setAttribute('aria-expanded', 'true');
       applyFlip();
       setActive(native.selectedIndex >= 0 ? native.selectedIndex : 0);
@@ -741,6 +746,8 @@
   function closeCustomSelect(wrap) {
     wrap.classList.remove('open');
     wrap.classList.remove('cs-up');
+    wrap.classList.remove('is-open');
+    wrap.classList.remove('is-up');
     var t = wrap.querySelector('.ss-cs-trigger');
     if (t) {
       t.setAttribute('aria-expanded', 'false');
