@@ -353,20 +353,20 @@
       <div class="msl-scrim stam-drawer-scrim" id="msl-scrim"></div>
 
       <!-- ── Register Drawer ── -->
-      <div class="msl-drawer stam-drawer" id="msl-dw-register" role="dialog" aria-label="화면 등록">
-        <div class="msl-dw-head">
+      <div class="msl-drawer stam-drawer" id="msl-dw-register" role="dialog" aria-modal="true" aria-label="화면 등록">
+        <div class="msl-dw-head stam-drawer-head">
           <div class="msl-dw-hrow1">
             <span class="msl-scr-badge">NEW</span>
             <button class="msl-dw-close" aria-label="닫기">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
-          <div class="msl-dw-htitle">새 화면 등록</div>
+          <div class="msl-dw-htitle stam-drawer-title">새 화면 등록</div>
           <div class="msl-dw-hmeta">
             <span class="msl-chip msl-chip-draft">작성중</span>
           </div>
         </div>
-        <div class="msl-dw-body">
+        <div class="msl-dw-body stam-drawer-body">
 
           <!-- Section 1: 기본 정보 -->
           <div class="msl-fs">
@@ -374,26 +374,26 @@
               <span class="msl-fs-num">1</span>
               <span class="msl-fs-title">기본 정보</span>
             </div>
-            <div class="msl-fgrid">
-              <div class="msl-ffield">
-                <label class="msl-flbl stam-label">화면 ID <span class="msl-req-mark">*</span></label>
+            <div class="msl-fgrid stam-form-grid">
+              <div class="msl-ffield stam-form-field">
+                <label class="msl-flbl stam-label">화면 ID <span class="req">*</span></label>
                 <input class="msl-inp ro stam-input" type="text" value="SCR-자동" readonly>
                 <div class="msl-helper">등록 시 자동 부여됩니다.</div>
               </div>
-              <div class="msl-ffield">
-                <label class="msl-flbl stam-label">FO/BO <span class="msl-req-mark">*</span></label>
+              <div class="msl-ffield stam-form-field">
+                <label class="msl-flbl stam-label">FO/BO <span class="req">*</span></label>
                 <select class="msl-inp stam-select">
                   <option value="">선택</option>
                   <option>FO</option>
                   <option>BO</option>
                 </select>
               </div>
-              <div class="msl-ffield full">
-                <label class="msl-flbl stam-label">화면명 <span class="msl-req-mark">*</span></label>
+              <div class="msl-ffield full stam-form-field full-span">
+                <label class="msl-flbl stam-label">화면명 <span class="req">*</span></label>
                 <input class="msl-inp stam-input" type="text" placeholder="화면명을 입력하세요">
               </div>
-              <div class="msl-ffield">
-                <label class="msl-flbl stam-label">화면유형 <span class="msl-req-mark">*</span></label>
+              <div class="msl-ffield stam-form-field">
+                <label class="msl-flbl stam-label">화면유형 <span class="req">*</span></label>
                 <select class="msl-inp stam-select">
                   <option value="">선택</option>
                   <option>목록</option>
@@ -406,7 +406,7 @@
                   <option>대시보드</option>
                 </select>
               </div>
-              <div class="msl-ffield">
+              <div class="msl-ffield stam-form-field">
                 <label class="msl-flbl stam-label">상태</label>
                 <select class="msl-inp stam-select">
                   <option>작성중</option>
@@ -424,8 +424,8 @@
               <span class="msl-fs-num">2</span>
               <span class="msl-fs-title">메뉴 계층</span>
             </div>
-            <div class="msl-fgrid">
-              <div class="msl-ffield">
+            <div class="msl-fgrid stam-form-grid">
+              <div class="msl-ffield stam-form-field">
                 <label class="msl-flbl stam-label">LV1</label>
                 <select class="msl-inp stam-select">
                   <option value="">선택</option>
@@ -439,15 +439,15 @@
                   <option>인증</option>
                 </select>
               </div>
-              <div class="msl-ffield">
+              <div class="msl-ffield stam-form-field">
                 <label class="msl-flbl stam-label">LV2</label>
                 <input class="msl-inp stam-input" type="text" placeholder="LV2 메뉴명">
               </div>
-              <div class="msl-ffield">
+              <div class="msl-ffield stam-form-field">
                 <label class="msl-flbl stam-label">LV3</label>
                 <input class="msl-inp stam-input" type="text" placeholder="LV3 메뉴명">
               </div>
-              <div class="msl-ffield">
+              <div class="msl-ffield stam-form-field">
                 <label class="msl-flbl stam-label">담당자</label>
                 <input class="msl-inp stam-input" type="text" placeholder="담당자 이름">
               </div>
@@ -460,8 +460,8 @@
               <span class="msl-fs-num">3</span>
               <span class="msl-fs-title">연결 정보</span>
             </div>
-            <div class="msl-fgrid">
-              <div class="msl-ffield full">
+            <div class="msl-fgrid stam-form-grid">
+              <div class="msl-ffield full stam-form-field full-span">
                 <label class="msl-flbl stam-label">연결 요구사항</label>
                 <div class="msl-linked-chips">
                   <span class="msl-link-chip">REQ-001</span>
@@ -471,7 +471,7 @@
                   요구사항 연결 추가
                 </button>
               </div>
-              <div class="msl-ffield full">
+              <div class="msl-ffield full stam-form-field full-span">
                 <label class="msl-flbl stam-label">연결 화면설계서</label>
                 <div class="msl-empty-link">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
@@ -491,13 +491,13 @@
               <span class="msl-fs-num">4</span>
               <span class="msl-fs-title">비고</span>
             </div>
-            <div class="msl-ffield">
+            <div class="msl-ffield stam-form-field">
               <textarea class="msl-inp stam-textarea" placeholder="비고 또는 추가 설명" rows="3"></textarea>
             </div>
           </div>
 
         </div>
-        <div class="msl-dw-foot">
+        <div class="msl-dw-foot stam-drawer-foot">
           <div class="msl-dw-foot-l">
             <button class="msl-btn stam-btn stam-btn-secondary" type="button" data-msl-close>취소</button>
             <button class="msl-btn stam-btn stam-btn-secondary" type="button">임시저장</button>
@@ -510,15 +510,15 @@
       </div><!-- /#msl-dw-register -->
 
       <!-- ── Detail Drawer ── -->
-      <div class="msl-drawer stam-drawer" id="msl-dw-detail" role="dialog" aria-label="화면 상세">
-        <div class="msl-dw-head">
+      <div class="msl-drawer stam-drawer" id="msl-dw-detail" role="dialog" aria-modal="true" aria-label="화면 상세">
+        <div class="msl-dw-head stam-drawer-head">
           <div class="msl-dw-hrow1">
             <span class="msl-scr-badge">SCR-001</span>
             <button class="msl-dw-close" aria-label="닫기">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
-          <div class="msl-dw-htitle">요구사항 목록</div>
+          <div class="msl-dw-htitle stam-drawer-title">요구사항 목록</div>
           <div class="msl-dw-hmeta">
             <span class="msl-chip msl-chip-done">확정</span>
             <span class="msl-chip msl-chip-type-list">목록</span>
@@ -530,7 +530,7 @@
           <button class="msl-dw-tab" type="button">연결 정보</button>
           <button class="msl-dw-tab" type="button">변경 이력</button>
         </div>
-        <div class="msl-dw-body">
+        <div class="msl-dw-body stam-drawer-body">
 
           <!-- Tab 0: 기본 정보 -->
           <div class="msl-tab-panel">
@@ -592,7 +592,7 @@
           </div>
 
         </div>
-        <div class="msl-dw-foot">
+        <div class="msl-dw-foot stam-drawer-foot">
           <div class="msl-dw-foot-l">
             <span class="msl-dw-foot-date">최종 수정: 2026-06-10</span>
           </div>
@@ -604,20 +604,20 @@
       </div><!-- /#msl-dw-detail -->
 
       <!-- ── Edit Drawer ── -->
-      <div class="msl-drawer stam-drawer" id="msl-dw-edit" role="dialog" aria-label="화면 수정">
-        <div class="msl-dw-head">
+      <div class="msl-drawer stam-drawer" id="msl-dw-edit" role="dialog" aria-modal="true" aria-label="화면 수정">
+        <div class="msl-dw-head stam-drawer-head">
           <div class="msl-dw-hrow1">
             <span class="msl-scr-badge">SCR-001</span>
             <button class="msl-dw-close" aria-label="닫기">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
-          <div class="msl-dw-htitle">화면 수정</div>
+          <div class="msl-dw-htitle stam-drawer-title">화면 수정</div>
           <div class="msl-dw-hmeta">
             <span class="msl-chip msl-chip-done">확정</span>
           </div>
         </div>
-        <div class="msl-dw-body">
+        <div class="msl-dw-body stam-drawer-body">
 
           <div class="msl-edit-sum">
             <svg class="msl-edit-sum-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -630,24 +630,24 @@
               <span class="msl-fs-num">1</span>
               <span class="msl-fs-title">기본 정보</span>
             </div>
-            <div class="msl-fgrid">
-              <div class="msl-ffield">
+            <div class="msl-fgrid stam-form-grid">
+              <div class="msl-ffield stam-form-field">
                 <label class="msl-flbl stam-label">화면 ID</label>
                 <input class="msl-inp ro stam-input" type="text" value="SCR-001" readonly>
               </div>
-              <div class="msl-ffield">
-                <label class="msl-flbl stam-label">FO/BO <span class="msl-req-mark">*</span></label>
+              <div class="msl-ffield stam-form-field">
+                <label class="msl-flbl stam-label">FO/BO <span class="req">*</span></label>
                 <select class="msl-inp stam-select">
                   <option selected>FO</option>
                   <option>BO</option>
                 </select>
               </div>
-              <div class="msl-ffield full">
-                <label class="msl-flbl stam-label">화면명 <span class="msl-req-mark">*</span></label>
+              <div class="msl-ffield full stam-form-field full-span">
+                <label class="msl-flbl stam-label">화면명 <span class="req">*</span></label>
                 <input class="msl-inp stam-input" type="text" value="요구사항 목록">
               </div>
-              <div class="msl-ffield">
-                <label class="msl-flbl stam-label">화면유형 <span class="msl-req-mark">*</span></label>
+              <div class="msl-ffield stam-form-field">
+                <label class="msl-flbl stam-label">화면유형 <span class="req">*</span></label>
                 <select class="msl-inp stam-select">
                   <option selected>목록</option>
                   <option>등록</option>
@@ -659,7 +659,7 @@
                   <option>대시보드</option>
                 </select>
               </div>
-              <div class="msl-ffield">
+              <div class="msl-ffield stam-form-field">
                 <label class="msl-flbl stam-label">상태</label>
                 <select class="msl-inp stam-select">
                   <option>작성중</option>
@@ -677,8 +677,8 @@
               <span class="msl-fs-num">2</span>
               <span class="msl-fs-title">메뉴 계층</span>
             </div>
-            <div class="msl-fgrid">
-              <div class="msl-ffield">
+            <div class="msl-fgrid stam-form-grid">
+              <div class="msl-ffield stam-form-field">
                 <label class="msl-flbl stam-label">LV1</label>
                 <select class="msl-inp stam-select">
                   <option>서비스 루트</option>
@@ -691,15 +691,15 @@
                   <option>인증</option>
                 </select>
               </div>
-              <div class="msl-ffield">
+              <div class="msl-ffield stam-form-field">
                 <label class="msl-flbl stam-label">LV2</label>
                 <input class="msl-inp stam-input" type="text" value="요구사항정의서">
               </div>
-              <div class="msl-ffield">
+              <div class="msl-ffield stam-form-field">
                 <label class="msl-flbl stam-label">LV3</label>
                 <input class="msl-inp stam-input" type="text" placeholder="LV3 메뉴명">
               </div>
-              <div class="msl-ffield">
+              <div class="msl-ffield stam-form-field">
                 <label class="msl-flbl stam-label">담당자</label>
                 <input class="msl-inp stam-input" type="text" value="김민준">
               </div>
@@ -712,8 +712,8 @@
               <span class="msl-fs-num">3</span>
               <span class="msl-fs-title">연결 정보</span>
             </div>
-            <div class="msl-fgrid">
-              <div class="msl-ffield full">
+            <div class="msl-fgrid stam-form-grid">
+              <div class="msl-ffield full stam-form-field full-span">
                 <label class="msl-flbl stam-label">연결 요구사항</label>
                 <div class="msl-linked-chips">
                   <span class="msl-link-chip">REQ-001</span>
@@ -728,7 +728,7 @@
           </div>
 
         </div>
-        <div class="msl-dw-foot">
+        <div class="msl-dw-foot stam-drawer-foot">
           <div class="msl-dw-foot-l">
             <button class="msl-btn stam-btn stam-btn-secondary" type="button" data-msl-close>취소</button>
             <button class="msl-btn stam-btn stam-btn-secondary" type="button">임시저장</button>
