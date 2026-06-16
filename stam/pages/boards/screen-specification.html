@@ -96,83 +96,20 @@
             <input type="text" id="ss-srch" placeholder="화면 ID · 화면명 · 메뉴명 검색" autocomplete="off">
           </div>
           <div class="ss-toolbar-sep"></div>
-          <div class="ss-filter-wrap">
-            <button class="ss-filter-btn" id="ss-filter-btn" type="button">
+          <div class="ss-filter-wrap" style="position:relative">
+            <button class="stam-board-filter-trigger" id="ss-filter-btn" type="button" aria-expanded="false">
               <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M4 8h8M6 12h4"/></svg>
               필터
-              <span class="ss-filter-cnt" id="ss-filter-cnt" style="display:none"></span>
+              <span class="stam-board-filter-count" id="ss-filter-cnt" style="display:none"></span>
             </button>
-            <div class="ss-filter-pop" id="ss-fpop">
-              <div class="ss-filter-pop-hdr">
-                <div class="ss-filter-pop-hdr-l">
-                  <svg class="ss-filter-pop-icon" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M4 8h8M6 12h4"/></svg>
-                  <span class="ss-filter-pop-ttl">필터</span>
-                </div>
-                <button class="ss-fpop-reset" type="button" data-ss-filter-action="reset">초기화</button>
+            <!-- 필터 패널 — stam.board-filter.js가 head/grid/chip/footer DOM을 생성 -->
+            <div class="stam-board-filter-panel" id="ss-fpop" hidden>
+              <div class="stam-board-filter-grid">
+                <!-- JS(STAM.boardFilter.init)가 groups config 기준으로 섹션/chip을 렌더링 -->
               </div>
-              <div class="ss-filter-pop-body">
-                <div>
-                  <div class="ss-filter-pop-sec-lbl">작성 상태</div>
-                  <div class="ss-filter-pop-opts" id="ss-f-wst">
-                    <button class="ss-fopt on" type="button" data-val="">전체</button>
-                    <button class="ss-fopt" type="button" data-val="writing"><span class="ss-fopt-dot" style="background:#64748B"></span>작성중</button>
-                    <button class="ss-fopt" type="button" data-val="complete"><span class="ss-fopt-dot" style="background:var(--brand)"></span>작성완료</button>
-                  </div>
-                </div>
-                <div>
-                  <div class="ss-filter-pop-sec-lbl">검토 상태</div>
-                  <div class="ss-filter-pop-opts" id="ss-f-rst">
-                    <button class="ss-fopt on" type="button" data-val="">전체</button>
-                    <button class="ss-fopt" type="button" data-val="none"><span class="ss-fopt-dot" style="background:#94A3B8"></span>미요청</button>
-                    <button class="ss-fopt" type="button" data-val="pending"><span class="ss-fopt-dot" style="background:#F59E0B"></span>검토 대기</button>
-                    <button class="ss-fopt" type="button" data-val="done"><span class="ss-fopt-dot" style="background:#00BF40"></span>검토 완료</button>
-                  </div>
-                </div>
-                <div>
-                  <div class="ss-filter-pop-sec-lbl">승인 상태</div>
-                  <div class="ss-filter-pop-opts" id="ss-f-ast">
-                    <button class="ss-fopt on" type="button" data-val="">전체</button>
-                    <button class="ss-fopt" type="button" data-val="none"><span class="ss-fopt-dot" style="background:#94A3B8"></span>미승인</button>
-                    <button class="ss-fopt" type="button" data-val="approved"><span class="ss-fopt-dot" style="background:#00BF40"></span>승인 완료</button>
-                    <button class="ss-fopt" type="button" data-val="rejected"><span class="ss-fopt-dot" style="background:#991B1B"></span>반려됨</button>
-                  </div>
-                </div>
-                <div>
-                  <div class="ss-filter-pop-sec-lbl">화면 유형</div>
-                  <div class="ss-filter-pop-opts" id="ss-f-type">
-                    <button class="ss-fopt on" type="button" data-val="">전체</button>
-                    <button class="ss-fopt" type="button" data-val="list">목록 화면</button>
-                    <button class="ss-fopt" type="button" data-val="detail">상세 화면</button>
-                    <button class="ss-fopt" type="button" data-val="form">폼 화면</button>
-                    <button class="ss-fopt" type="button" data-val="popup">팝업</button>
-                    <button class="ss-fopt" type="button" data-val="admin">관리 화면</button>
-                  </div>
-                </div>
-                <div>
-                  <div class="ss-filter-pop-sec-lbl">메뉴 그룹</div>
-                  <div class="ss-filter-pop-opts" id="ss-f-grp">
-                    <button class="ss-fopt on" type="button" data-val="">전체</button>
-                    <button class="ss-fopt" type="button" data-val="G-01">대시보드</button>
-                    <button class="ss-fopt" type="button" data-val="G-02">회원</button>
-                    <button class="ss-fopt" type="button" data-val="G-03">산출물 관리</button>
-                    <button class="ss-fopt" type="button" data-val="G-04">검토 관리</button>
-                    <button class="ss-fopt" type="button" data-val="G-05">내보내기 / 설정</button>
-                  </div>
-                </div>
-                <div>
-                  <div class="ss-filter-pop-sec-lbl">이미지 / 주석</div>
-                  <div class="ss-filter-pop-opts" id="ss-f-img">
-                    <button class="ss-fopt on" type="button" data-val="">전체</button>
-                    <button class="ss-fopt" type="button" data-val="has">이미지 있음</button>
-                    <button class="ss-fopt" type="button" data-val="no">이미지 없음</button>
-                    <button class="ss-fopt" type="button" data-val="ann">주석 있음</button>
-                  </div>
-                </div>
-              </div>
-              <div class="ss-filter-pop-foot">
-                <span class="ss-filter-pop-info" id="ss-fpop-info">조건 0개 · 결과 15건</span>
-                <button class="ss-btn ss-btn-ghost" type="button" data-ss-filter-action="reset">전체 해제</button>
-                <button class="ss-fpop-apply" type="button" data-ss-filter-action="apply">적용</button>
+              <div class="stam-board-filter-actions">
+                <button class="sbf-clear-btn" id="ss-filter-reset" type="button">전체 해제</button>
+                <button class="sbf-apply-btn" id="ss-filter-apply" type="button">적용</button>
               </div>
             </div>
           </div>

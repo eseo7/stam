@@ -243,69 +243,21 @@
     return Object.keys(S.F).filter(function (k) { return S.F[k] !== ''; }).length;
   }
 
-  function updateFilterBtn() {
-    var cnt = getFilterCount();
-    var btn = document.getElementById('ss-filter-btn');
-    var badge = document.getElementById('ss-filter-cnt');
-    if (!btn) return;
-    btn.classList.toggle('active', cnt > 0);
-    if (badge) {
-      if (cnt > 0) {
-        badge.style.display = 'inline-flex';
-        badge.textContent = cnt;
-      } else {
-        badge.style.display = 'none';
-      }
-    }
-  }
-
+  /* updateFilterInfo: 패널 내 foot-info 텍스트 업데이트 (초기 렌더 시 호출) */
   function updateFilterInfo() {
-    var cnt = getFilterCount();
+    var cnt   = getFilterCount();
     var total = 0;
     MENUS.forEach(function (grp) {
       var screens = grp.screens;
       if (cnt > 0) screens = filterScreens(screens);
       total += screens.length;
     });
-    var el = document.getElementById('ss-fpop-info');
+    /* STAM.boardFilter.init()이 생성한 sbf-foot-info 요소를 찾아 업데이트 */
+    var el = document.querySelector('#ss-fpop .sbf-foot-info');
     if (el) el.textContent = '조건 ' + cnt + '개 · 결과 ' + total + '건';
   }
-
-  function toggleFilter(e) {
-    if (e) e.stopPropagation();
-    updateFilterInfo();
-    var fpop = document.getElementById('ss-fpop');
-    if (fpop) fpop.classList.toggle('open');
-  }
-
-  function closeFilter() {
-    var fpop = document.getElementById('ss-fpop');
-    if (fpop) fpop.classList.remove('open');
-  }
-
-  function resetFilter() {
-    S.F = { wst: '', rst: '', ast: '', type: '', grpId: '', img: '' };
-    document.querySelectorAll('.ss-filter-pop-opts .ss-fopt').forEach(function (btn) {
-      btn.classList.toggle('on', btn.getAttribute('data-val') === '');
-    });
-    updateFilterBtn();
-    updateFilterInfo();
-    renderTable();
-  }
-
-  function applyFilter() {
-    var groups = ['ss-f-wst', 'ss-f-rst', 'ss-f-ast', 'ss-f-type', 'ss-f-grp', 'ss-f-img'];
-    var keys = ['wst', 'rst', 'ast', 'type', 'grpId', 'img'];
-    groups.forEach(function (gid, i) {
-      var grpEl = document.getElementById(gid);
-      var sel = grpEl ? grpEl.querySelector('.ss-fopt.on') : null;
-      S.F[keys[i]] = sel ? sel.getAttribute('data-val') : '';
-    });
-    updateFilterBtn();
-    updateFilterInfo();
-    renderTable();
-    closeFilter();
-  }
+  /* toggleFilter/closeFilter/updateFilterBtn/resetFilter/applyFilter:
+     STAM.boardFilter.init()의 공통 핸들러로 대체됨 → initFilter() 참조 */
 
   /* ── Selection ── */
   function toggleAll(cb) {
@@ -2311,32 +2263,85 @@
   }
 
   function initFilter() {
-    var filterBtn = document.getElementById('ss-filter-btn');
-    if (filterBtn) filterBtn.addEventListener('click', toggleFilter);
-
-    document.querySelectorAll('.ss-filter-pop-opts').forEach(function (grp) {
-      grp.addEventListener('click', function (e) {
-        var btn = e.target.closest('.ss-fopt');
-        if (!btn) return;
-        grp.querySelectorAll('.ss-fopt').forEach(function (b) { b.classList.remove('on'); });
-        btn.classList.add('on');
-        updateFilterInfo();
-      });
-    });
-
-    var fpop = document.getElementById('ss-fpop');
-    if (fpop) {
-      fpop.addEventListener('click', function (e) {
-        var action = e.target.closest('[data-ss-filter-action]');
-        if (!action) return;
-        var act = action.getAttribute('data-ss-filter-action');
-        if (act === 'reset') resetFilter();
-        else if (act === 'apply') applyFilter();
-      });
-    }
-
-    document.addEventListener('click', function (e) {
-      if (!e.target.closest('.ss-filter-wrap')) closeFilter();
+    if (!window.STAM || !window.STAM.boardFilter) return;
+    window.STAM.boardFilter.init({
+      trigger: '#ss-filter-btn',
+      panel:   '#ss-fpop',
+      reset:   '#ss-filter-reset',
+      apply:   '#ss-filter-apply',
+      groups: [
+        { key: 'wst', label: '작성 상태', type: 'radio', options: [
+          { value: '', label: '전체' },
+          { value: 'writing',  label: '작성중',   dot: 'd-write' },
+          { value: 'complete', label: '작성완료',  dot: 'd-brand' }
+        ]},
+        { key: 'rst', label: '검토 상태', type: 'radio', options: [
+          { value: '', label: '전체' },
+          { value: 'none',    label: '미요청',    dot: 'd-wait' },
+          { value: 'pending', label: '검토 대기', dot: 'd-warn' },
+          { value: 'done',    label: '검토 완료', dot: 'd-done' }
+        ]},
+        { key: 'ast', label: '승인 상태', type: 'radio', options: [
+          { value: '', label: '전체' },
+          { value: 'none',     label: '미승인',    dot: 'd-wait' },
+          { value: 'approved', label: '승인 완료', dot: 'd-done' },
+          { value: 'rejected', label: '반려됨',    dot: 'd-fatal' }
+        ]},
+        { key: 'type', label: '화면 유형', type: 'radio', options: [
+          { value: '', label: '전체' },
+          { value: 'list',   label: '목록 화면' },
+          { value: 'detail', label: '상세 화면' },
+          { value: 'form',   label: '폼 화면' },
+          { value: 'popup',  label: '팝업' },
+          { value: 'admin',  label: '관리 화면' }
+        ]},
+        { key: 'grp', label: '메뉴 그룹', type: 'radio', options: [
+          { value: '', label: '전체' },
+          { value: 'G-01', label: '대시보드' },
+          { value: 'G-02', label: '회원' },
+          { value: 'G-03', label: '산출물 관리' },
+          { value: 'G-04', label: '검토 관리' },
+          { value: 'G-05', label: '내보내기 / 설정' }
+        ]},
+        { key: 'img', label: '이미지 / 주석', type: 'radio', options: [
+          { value: '', label: '전체' },
+          { value: 'has', label: '이미지 있음' },
+          { value: 'no',  label: '이미지 없음' },
+          { value: 'ann', label: '주석 있음' }
+        ]}
+      ],
+      onChange: function (values) {
+        /* 패널 열린 상태에서 결과 미리보기 foot-info 업데이트 */
+        var tmpF = {
+          wst:   values.wst   ? values.wst[0]   || '' : '',
+          rst:   values.rst   ? values.rst[0]   || '' : '',
+          ast:   values.ast   ? values.ast[0]   || '' : '',
+          type:  values.type  ? values.type[0]  || '' : '',
+          grpId: values.grp   ? values.grp[0]   || '' : '',
+          img:   values.img   ? values.img[0]   || '' : ''
+        };
+        var prevF = S.F;
+        S.F = tmpF;
+        var total = 0;
+        MENUS.forEach(function (g) { total += filterScreens(g.screens).length; });
+        S.F = prevF;
+        var cnt = Object.keys(tmpF).filter(function (k) { return tmpF[k] !== ''; }).length;
+        var el = document.querySelector('#ss-fpop .sbf-foot-info');
+        if (el) el.textContent = '조건 ' + cnt + '개 · 결과 ' + total + '건';
+      },
+      onApply: function (values) {
+        S.F.wst   = values.wst   ? values.wst[0]   || '' : '';
+        S.F.rst   = values.rst   ? values.rst[0]   || '' : '';
+        S.F.ast   = values.ast   ? values.ast[0]   || '' : '';
+        S.F.type  = values.type  ? values.type[0]  || '' : '';
+        S.F.grpId = values.grp   ? values.grp[0]   || '' : '';
+        S.F.img   = values.img   ? values.img[0]   || '' : '';
+        renderTable();
+      },
+      onReset: function () {
+        S.F = { wst: '', rst: '', ast: '', type: '', grpId: '', img: '' };
+        renderTable();
+      }
     });
   }
 
@@ -2466,7 +2471,7 @@
   function initAll() {
     renderStrip();
     renderTable();
-    updateFilterBtn();
+    /* updateFilterBtn 제거: STAM.boardFilter.init()이 배지 상태를 관리 */
     updateFilterInfo();
     updateSelBar();
   }

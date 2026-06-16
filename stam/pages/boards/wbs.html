@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="../../css/stam.buttons.css">
   <link rel="stylesheet" href="../../css/stam.board-layout.css">
   <link rel="stylesheet" href="../../css/stam.custom-select.css">
+  <link rel="stylesheet" href="../../css/stam.board-filter.css">
   <link rel="stylesheet" href="../../css/stam.wbs.css">
   <style>
     /* Drawer footer: .stam-btn md sizing/variants win over legacy JS hook classes */
@@ -298,12 +299,12 @@
               </svg>
               <input type="text" class="wbs-search-input" placeholder="작업명 검색" autocomplete="off">
             </div>
-            <button class="wbs-filter-open-btn" id="wbs-filter-open-btn" type="button" title="필터 패널 열기">
-              <svg class="wbs-filter-open-icon" viewBox="0 0 16 16" fill="none">
+            <button class="wbs-filter-open-btn stam-board-filter-trigger" id="wbs-filter-open-btn" type="button" title="필터 패널 열기" aria-expanded="false" aria-controls="wbs-filter-panel">
+              <svg class="wbs-filter-open-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
               </svg>
               필터
-              <span class="wbs-filter-count-badge" id="wbs-filter-count-badge">0</span>
+              <span class="wbs-filter-count-badge stam-board-filter-count" id="wbs-filter-count-badge">0</span>
             </button>
             <div class="wbs-filter-divider"></div>
             <button class="wbs-btn wbs-btn-delete stam-btn stam-btn-danger" id="wbs-delete-btn" type="button" disabled aria-label="선택 항목 삭제">삭제</button>
@@ -317,96 +318,17 @@
             <button class="wbs-toggle-btn wbs-toggle-risk" id="wbs-risk-btn" type="button" title="지연·리스크·이슈 작업만 보기">리스크</button>
           </div>
 
-          <!-- ====== 섹션형 필터 패널 ====== -->
-          <div class="wbs-filter-panel" id="wbs-filter-panel" data-open="false" role="dialog" aria-label="필터 패널">
-
-            <div class="wbs-fp-head">
-              <svg class="wbs-fp-head-icon" viewBox="0 0 16 16" fill="none">
-                <path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
-              </svg>
-              <span class="wbs-fp-head-title">필터</span>
-              <button class="wbs-fp-head-reset" id="wbs-fp-reset-top" type="button">초기화</button>
+          <!-- ====== 공통 필터 패널 (stam.board-filter.js 로 렌더링) ====== -->
+          <div class="stam-board-filter-panel" id="wbs-filter-panel" hidden role="dialog" aria-label="필터 패널">
+            <div class="stam-board-filter-grid">
+              <!-- JS가 groups 데이터 기준으로 섹션/chip을 렌더링 -->
             </div>
-
-            <div class="wbs-fp-body">
-
-              <div class="wbs-fp-sec">
-                <div class="wbs-fp-sec-title">진행상태</div>
-                <div class="wbs-fp-chips">
-                  <button class="wbs-fp-chip" type="button" data-fp-group="status" data-fp-val="wait"><span class="wbs-fp-dot d-wait"></span>대기</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="status" data-fp-val="prog"><span class="wbs-fp-dot d-prog"></span>진행중</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="status" data-fp-val="review"><span class="wbs-fp-dot d-warn"></span>검토중</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="status" data-fp-val="done"><span class="wbs-fp-dot d-done"></span>완료</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="status" data-fp-val="hold"><span class="wbs-fp-dot d-hold"></span>보류</button>
-                </div>
-              </div>
-
-              <div class="wbs-fp-sec">
-                <div class="wbs-fp-sec-title">기간판정</div>
-                <div class="wbs-fp-chips">
-                  <button class="wbs-fp-chip" type="button" data-fp-group="period" data-fp-val="notstarted">미착수</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="period" data-fp-val="normal"><span class="wbs-fp-dot d-done"></span>정상</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="period" data-fp-val="inprog"><span class="wbs-fp-dot d-prog"></span>진행중</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="period" data-fp-val="delayrisk"><span class="wbs-fp-dot d-warn"></span>지연위험</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="period" data-fp-val="overdue"><span class="wbs-fp-dot d-delay"></span>기간초과</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="period" data-fp-val="early"><span class="wbs-fp-dot d-done"></span>조기완료</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="period" data-fp-val="checkdate">날짜확인</button>
-                </div>
-              </div>
-
-              <div class="wbs-fp-sec">
-                <div class="wbs-fp-sec-title">우선순위</div>
-                <div class="wbs-fp-chips">
-                  <button class="wbs-fp-chip" type="button" data-fp-group="prio" data-fp-val="high"><span class="wbs-fp-dot d-high"></span>높음</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="prio" data-fp-val="mid"><span class="wbs-fp-dot d-mid"></span>보통</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="prio" data-fp-val="low"><span class="wbs-fp-dot d-low"></span>낮음</button>
-                </div>
-              </div>
-
-              <div class="wbs-fp-sec">
-                <div class="wbs-fp-sec-title">기능그룹</div>
-                <div class="wbs-fp-chips">
-                  <button class="wbs-fp-chip" type="button" data-fp-group="group" data-fp-val="signup">회원가입</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="group" data-fp-val="mypage">마이페이지</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="group" data-fp-val="product">상품</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="group" data-fp-val="order">주문/결제</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="group" data-fp-val="admin">관리자</button>
-                </div>
-              </div>
-
-              <div class="wbs-fp-sec">
-                <div class="wbs-fp-sec-title">담당자</div>
-                <div class="wbs-fp-chips">
-                  <button class="wbs-fp-chip" type="button" data-fp-group="assignee" data-fp-val="lee"><span class="wbs-fp-chip-av">이</span>이서연</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="assignee" data-fp-val="kim"><span class="wbs-fp-chip-av">김</span>김기획</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="assignee" data-fp-val="park"><span class="wbs-fp-chip-av">박</span>박PM</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="assignee" data-fp-val="choi"><span class="wbs-fp-chip-av">최</span>최개발</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="assignee" data-fp-val="jung"><span class="wbs-fp-chip-av">정</span>정디자인</button>
-                </div>
-              </div>
-
-              <div class="wbs-fp-sec">
-                <div class="wbs-fp-sec-title">승인상태</div>
-                <div class="wbs-fp-chips">
-                  <button class="wbs-fp-chip" type="button" data-fp-group="approval" data-fp-val="none">미요청</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="approval" data-fp-val="pending"><span class="wbs-fp-dot d-wait"></span>검토 대기</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="approval" data-fp-val="reviewing"><span class="wbs-fp-dot d-prog"></span>고객검토 중</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="approval" data-fp-val="approved"><span class="wbs-fp-dot d-done"></span>승인 완료</button>
-                  <button class="wbs-fp-chip" type="button" data-fp-group="approval" data-fp-val="rejected"><span class="wbs-fp-dot d-delay"></span>반려됨</button>
-                </div>
-              </div>
-
-            </div><!-- /.wbs-fp-body -->
-
-            <div class="wbs-fp-foot">
-              <span class="wbs-fp-foot-info" id="wbs-fp-foot-info">조건 0개 · 결과 17건</span>
-              <button class="wbs-fp-clear" id="wbs-fp-clear" type="button">전체 해제</button>
-              <button class="wbs-fp-apply" id="wbs-fp-apply" type="button">적용</button>
+            <div class="stam-board-filter-actions">
+              <button class="sbf-clear-btn" id="wbs-fp-clear" type="button">전체 해제</button>
+              <button class="sbf-apply-btn" id="wbs-fp-apply" type="button">적용</button>
             </div>
-
-          </div><!-- /.wbs-filter-panel -->
+          </div><!-- /.stam-board-filter-panel -->
         </div><!-- /.wbs-filter-wrap -->
-        <div class="wbs-fp-backdrop" id="wbs-fp-backdrop"></div>
 
         </div><!-- /.wbs-board-head -->
 
@@ -1900,6 +1822,7 @@
 <script src="../../js/stam.nav-render.js"></script>
 <script src="../../js/stam.topbar-render.js"></script>
 <script src="../../js/stam.project-context-render.js"></script>
+<script src="../../js/stam.board-filter.js"></script>
 <script src="../../js/stam.wbs.js"></script>
 
   <!-- ===== WBS 공통 Dialog (Alert / Confirm) ===== -->
