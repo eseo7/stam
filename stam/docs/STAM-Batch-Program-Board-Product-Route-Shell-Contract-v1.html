@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM Batch Program Board Product Route / Shell Contract v1</title>
+  <!-- 로컬 S-Core Dream 자체서빙만 사용 — 외부 폰트/CDN 없음 -->
+  <link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <style>
+    body { font-family: var(--font); background: var(--bg); color: var(--t1); margin: 0; padding: 32px; }
+    .doc-header { margin-bottom: 28px; }
+    .doc-header h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+    .doc-header p { font-size: 12px; color: var(--t3); margin: 0; line-height: 1.7; }
+    .meta { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .meta .chip { font-size:11px; padding:3px 8px; border-radius:4px; background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .related { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:11px; }
+    .related a { color: var(--stam); text-decoration: none; padding: 4px 10px; border: 1px solid var(--bd); border-radius: 6px; background: var(--bg-sur); }
+    .related a:hover { background: var(--bg-sur2); }
+    .sec { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; margin-bottom: 22px; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+    .sec-h { padding: 12px 16px; border-bottom: 1px solid var(--bd); background: var(--bg-sur2); font-size: 11px; font-weight: 700; letter-spacing:.06em; text-transform: uppercase; color: var(--t3); }
+    .sec-b { padding: 16px; font-size: 12.5px; color: var(--t2); line-height: 1.75; }
+    .sec-b p:first-child { margin-top: 0; }
+    .sec-b p:last-child { margin-bottom: 0; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; color: var(--stam); background: rgba(84,81,232,.08); padding: 1px 5px; border-radius: 3px; }
+    table.t { width: 100%; border-collapse: collapse; font-size: 12px; }
+    table.t th, table.t td { padding: 8px 10px; border-bottom: 1px solid var(--bd); text-align: left; vertical-align: top; }
+    table.t thead th { background: var(--bg-sur2); color: var(--t3); text-transform: uppercase; font-size: 10px; letter-spacing: .06em; font-weight: 700; white-space: nowrap; }
+    ul.tight, ol.tight { margin: 6px 0; padding-left: 22px; } ul.tight li, ol.tight li { margin: 3px 0; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; line-height:1.5; }
+    .pill.ok { background:#dcfce7; color:#166534; }
+    .pill.bad { background:#fee2e2; color:#991b1b; }
+    .pill.warn { background:#fef3c7; color:#92400e; }
+    .pill.info { background:#dbeafe; color:#1e40af; }
+    .pill.muted { background:var(--bg-sur2); color:var(--t3); border:1px solid var(--bd); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid2 .col { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; }
+    .grid2 h4 { margin: 0 0 6px; font-size: 12px; font-weight: 700; }
+    .col.do h4 { color: #16a34a; }
+    .col.dont h4 { color: #dc2626; }
+    .note { background: var(--bg-sur2); border: 1px solid var(--bd); border-left: 3px solid var(--stam); border-radius: 6px; padding: 10px 12px; font-size: 11.5px; color: var(--t2); line-height: 1.7; margin-top: 10px; }
+    .warn-box { background: rgba(220,38,38,.06); border: 1px solid #fecaca; border-left: 3px solid #dc2626; border-radius: 6px; padding: 12px 14px; font-size: 11.5px; color: var(--t1); line-height: 1.7; margin-top: 10px; }
+    .warn-box strong { color: #dc2626; }
+    .rec { background: rgba(22,163,74,.06); border: 1px solid #bbf7d0; border-left: 3px solid #16a34a; border-radius: 6px; padding: 10px 12px; font-size: 11.5px; color: var(--t1); line-height: 1.7; margin-top: 10px; }
+    .rec strong { color: #16a34a; }
+    .status-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:8px; }
+    .status-row { display:flex; justify-content:space-between; align-items:center; gap:10px; border:1px solid var(--bd); border-radius:8px; padding:8px 12px; background:var(--bg-sur2); font-size:11.5px; }
+    .status-row .sk { color:var(--t3); font-weight:600; }
+    .gate-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px; }
+    .gate-card { border:1px solid var(--bd); border-radius:8px; padding:10px 12px; background:var(--bg-sur2); display:flex; align-items:center; gap:8px; }
+    .gate-card .gbox { width:14px; height:14px; border:1.5px solid var(--bd); border-radius:3px; flex-shrink:0; }
+    .gate-card .gt { font-size:11.5px; font-weight:600; color:var(--t1); }
+    .theme-toggle { position: fixed; top: 16px; right: 16px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--bg-sur); color: var(--t2); font-size: 11px; cursor: pointer; z-index: 10; }
+    @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } body { padding: 18px; } }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">다크 모드</button>
+
+<div class="doc-header">
+  <h1>STAM Batch Program Board Product Route / Shell Contract <span class="pill ok">v1</span> <span class="pill info">docs-only</span></h1>
+  <p><strong>"배치프로그램 관리"</strong> 게시판을 실제 제품 화면으로 구현하기 전, <strong>제품 라우팅 · 좌측 메뉴 · Shell · Drawer 계약</strong>을 문서로 먼저 확정하는 사전 계약서.<br>
+  본 문서는 계약(Contract) 단계이며, 실제 라우팅·메뉴·page·JS/CSS·API/DB/스케줄러는 생성하지 않는다.</p>
+  <div class="meta">
+    <span class="chip">단계: Pre-Implementation Contract</span>
+    <span class="chip">범위: Docs Only</span>
+    <span class="chip">버전: v1</span>
+  </div>
+  <div class="related">
+    <span style="color:var(--t3);align-self:center">Related:</span>
+    <a href="STAM-Batch-Program-Board-Definition-v1.html">Batch Program Board Definition v1</a>
+    <a href="STAM-Batch-Program-Board-Preview-v1.html">Batch Program Board Preview v1</a>
+    <a href="STAM-Batch-Program-Board-Implementation-Checklist-v1.html">Implementation Checklist v1</a>
+    <a href="STAM-Docs-Index.html">Docs Index</a>
+  </div>
+</div>
+
+<!-- ── 01. 문서 상태 ── -->
+<div class="sec">
+  <div class="sec-h">Section 01 · 문서 상태</div>
+  <div class="sec-b">
+    <div class="status-grid">
+      <div class="status-row"><span class="sk">Status</span><span class="pill info">Pre-Implementation Contract</span></div>
+      <div class="status-row"><span class="sk">Scope</span><span class="pill info">Docs Only</span></div>
+      <div class="status-row"><span class="sk">Product Route</span><span class="pill bad">Not Created</span></div>
+      <div class="status-row"><span class="sk">Left Navigation</span><span class="pill bad">Not Updated</span></div>
+      <div class="status-row"><span class="sk">Page File</span><span class="pill bad">Not Created</span></div>
+      <div class="status-row"><span class="sk">JS / CSS</span><span class="pill bad">Not Created</span></div>
+      <div class="status-row"><span class="sk">API / DB / Scheduler</span><span class="pill bad">Not Created</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 02. 계약 목적 ── -->
+<div class="sec">
+  <div class="sec-h">Section 02 · 계약 목적</div>
+  <div class="sec-b">
+    <ul class="tight">
+      <li>배치프로그램 관리 게시판이 <strong>실제 제품 메뉴와 화면에 들어가기 전</strong> 결정해야 할 라우팅·Shell·Drawer 기준을 확정한다.</li>
+      <li>다음 구현 PR 에서 <strong>파일 위치 / 라우팅 / 메뉴 배치 / Shell 구조가 흔들리지 않도록</strong> 사전 계약으로 고정한다.</li>
+      <li>Definition(무엇을) · Preview(어떻게 보일지) · Checklist(무엇을 결정할지) 이후, 본 문서는 <strong>"제품 어디에 · 어떤 구조로 붙일지"</strong>를 담당한다.</li>
+    </ul>
+    <div class="warn-box">
+      <strong>이번 PR 구현 금지선:</strong> 본 PR 은 docs-only 다. 실제 제품 메뉴 추가 · 라우팅 추가 · <code>pages/**</code>·<code>js/**</code>·<code>css/**</code> 생성 · <code>nav-data.js</code>/<code>shell.js</code>/<code>topbar.js</code> 수정 · <code>firebase.json</code>/<code>.firebaserc</code>/<code>workflows</code> 변경 · API/DB/Firestore/Storage/스케줄러/배치 실행 로직은 <strong>일절 하지 않는다</strong>. 본 문서의 route/메뉴 값은 모두 <strong>후보</strong>이며 확정·구현은 후속 PR + Gate 승인 후 진행한다.
+    </div>
+  </div>
+</div>
+
+<!-- ── 03. 메뉴 배치 후보 ── -->
+<div class="sec">
+  <div class="sec-h">Section 03 · 메뉴 배치 후보</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>후보</th><th>위치</th><th>장점</th><th>단점 / 리스크</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>A</strong></td><td>시스템 관리 하위</td>
+          <td>운영/관리자 성격과 일치, 권한 통제 자연스러움</td>
+          <td>설계 산출물 흐름(요구사항·기능정의서·API)과 분리되어 추적성 약화</td>
+        </tr>
+        <tr>
+          <td><strong>B</strong></td><td>산출물 관리 하위</td>
+          <td>기능정의서·API 정의서·WBS 와 같은 산출물 흐름에 자연 편입, 연결 산출물 추적 강점</td>
+          <td>"실행 대상"이라는 운영 성격이 산출물 그룹에서 다소 희석</td>
+        </tr>
+        <tr>
+          <td><strong>C</strong></td><td>운영 관리 하위</td>
+          <td>실행주기·장애 대응 등 운영 관점과 일치</td>
+          <td>설계 단계 산출물 추적과 멀어짐, 설계기 사용자 접근성 저하</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="rec">
+      <strong>1차 권장안: 후보 B (산출물 관리 하위)</strong> — Definition/Preview 의 IA 후보(기능정의서 → API 정의서 → 배치프로그램 관리 → WBS)와 일치하고, 연결 산출물(요구사항·기능정의서·API) 추적성이 가장 강하다. 운영 관점(C)은 추후 운영 대시보드에서 별도 진입점으로 보완 가능.
+    </div>
+  </div>
+</div>
+
+<!-- ── 04. route 후보 ── -->
+<div class="sec">
+  <div class="sec-h">Section 04 · route 후보</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>route 후보</th><th>의미</th><th>리스크</th></tr></thead>
+      <tbody>
+        <tr><td><code>/pages/admin/batch-program-board.html</code></td><td>관리자 영역 화면</td><td>산출물 흐름과 경로 분리, 추적성 약화 (메뉴 후보 A 와 짝)</td></tr>
+        <tr><td><code>/pages/system/batch-program-board.html</code></td><td>시스템 관리 영역</td><td>설계 산출물과 경로 의미 불일치</td></tr>
+        <tr><td><code>/pages/operations/batch-program-board.html</code></td><td>운영 관리 영역</td><td>설계기 사용자 경로 접근성 저하 (메뉴 후보 C 와 짝)</td></tr>
+        <tr><td><code>/pages/boards/batch-program-board.html</code> <span class="pill info">추가 후보</span></td><td>기존 게시판(boards) 그룹과 동일 경로 — 요구사항·기능정의서·메뉴화면목록과 같은 디렉터리</td><td>기존 board 화면들과 일관, 추적성·구조 일치</td></tr>
+      </tbody>
+    </table>
+    <div class="rec">
+      <strong>1차 권장 route: <code>/pages/boards/batch-program-board.html</code></strong> — 기존 게시판 화면(<code>stam/pages/boards/</code>)과 동일 디렉터리로 두어 Board List Template·Controller·Drawer 계약을 그대로 재사용하고 구조 일관성을 확보한다. (메뉴 후보 B 와 가장 잘 맞음)
+    </div>
+    <div class="warn-box"><strong>이번 PR 에서는 실제 파일 생성 금지.</strong> 위 route 는 모두 후보이며, 어떤 경로에도 실제 <code>.html</code>/<code>.js</code>/<code>.css</code> 파일을 만들지 않는다.</div>
+  </div>
+</div>
+
+<!-- ── 05. Shell 계약 ── -->
+<div class="sec">
+  <div class="sec-h">Section 05 · Shell 계약</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>요소</th><th>계약</th></tr></thead>
+      <tbody>
+        <tr><td>STAM App Shell</td><td>사용 — 기존 게시판과 동일한 App Shell 레이아웃 채택</td></tr>
+        <tr><td>Topbar</td><td>사용 — 공통 Topbar 그대로, 검색/테마/알림 영역 임의 변경 없음</td></tr>
+        <tr><td>Left Navigation</td><td>산출물 관리 그룹(후보 B)에 항목 노출. 노출 방식은 기존 nav 항목과 동일 패턴</td></tr>
+        <tr><td>목록 카드 영역</td><td>본문 메인에 Board List(toolbar + 선택형 테이블) 배치</td></tr>
+        <tr><td>Drawer 영역</td><td>우측 슬라이드 Drawer (Drawer Shell Contract) — 상세/등록/수정</td></tr>
+        <tr><td>브라우저 스크롤 원칙</td><td>본문 목록 영역만 스크롤, Shell/Topbar/Left Nav 고정. Drawer body 내부 독립 스크롤</td></tr>
+      </tbody>
+    </table>
+    <div class="warn-box"><strong>제품 화면 구현 시 기존 Shell/Topbar/Sidebar 렌더러(<code>stam.shell.js</code>·<code>stam.topbar.js</code>·<code>stam.nav-data.js</code>)를 임의 수정하지 않는다.</strong> 신규 게시판은 기존 Shell 을 "사용"할 뿐, Shell 자체를 변경하지 않는다.</div>
+  </div>
+</div>
+
+<!-- ── 06. Board / List 계약 ── -->
+<div class="sec">
+  <div class="sec-h">Section 06 · Board / List 계약</div>
+  <div class="sec-b">
+    <ul class="tight">
+      <li><strong>목록 우선 구조</strong> — 진입 시 목록(List)이 기본. 상세는 Drawer 로 오버레이.</li>
+      <li><strong>검색 / 필터 / 상태 chip</strong> — toolbar 에 검색 input + 필터 버튼, 상태 chip 으로 빠른 필터.</li>
+      <li><strong>등록 버튼</strong> — toolbar 우측 또는 헤더에 "등록" (등록 Drawer open).</li>
+      <li><strong>행 클릭 → 상세 Drawer</strong> — row click = <code>.is-active</code> → 상세 Drawer open (Board List Controller 계약).</li>
+      <li><strong>수정</strong> — 상세 Drawer 내부 "수정" 진입 또는 별도 수정 Drawer (mode 전환).</li>
+      <li><strong>위험 액션</strong> — 삭제·(향후)실행 등은 <strong>기본 숨김 또는 비활성</strong>. 운영반영 상태 삭제는 폐기 전환 우선.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 07. Drawer 계약 ── -->
+<div class="sec">
+  <div class="sec-h">Section 07 · Drawer 계약</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>Drawer / 영역</th><th>계약</th></tr></thead>
+      <tbody>
+        <tr><td>등록 Drawer</td><td>create mode — 필수/선택 필드 (Form Field Contract), custom select</td></tr>
+        <tr><td>수정 Drawer</td><td>edit mode — 등록과 동일 Form, 값 prefilled</td></tr>
+        <tr><td>상세 Drawer</td><td>detail mode — 읽기 표시 + "수정" 진입</td></tr>
+        <tr><td>실행 이력 영역</td><td>상세 Drawer 내 영역 — MVP 에서는 <strong>Skeleton</strong>(표시 자리)만, 실데이터 없음</td></tr>
+        <tr><td>관련 산출물 영역</td><td>연결 산출물(요구사항·기능정의서·API …) 링크/칩 표시</td></tr>
+        <tr><td>변경 이력 영역</td><td>변경 이력 표시 영역 (후보)</td></tr>
+        <tr><td>댓글 / @멘션</td><td><span class="pill muted">후속 확장</span> — MVP 제외</td></tr>
+      </tbody>
+    </table>
+    <div class="note">모든 Drawer 는 Board Drawer Shell Contract(root/scrim/head/body/foot · Escape · <code>aria-modal</code>)와 Form Field Contract 를 그대로 따른다.</div>
+  </div>
+</div>
+
+<!-- ── 08. MVP 포함/제외 범위 ── -->
+<div class="sec">
+  <div class="sec-h">Section 08 · MVP 포함 / 제외 범위</div>
+  <div class="sec-b">
+    <div class="grid2">
+      <div class="col do">
+        <h4>✅ MVP 포함</h4>
+        <ul class="tight">
+          <li>목록 (List)</li>
+          <li>등록 (Create Drawer)</li>
+          <li>수정 (Edit Drawer)</li>
+          <li>상세 (Detail Drawer)</li>
+          <li>상태 표시 (상태 chip)</li>
+          <li>실행 이력 표시 영역 <strong>Skeleton</strong></li>
+        </ul>
+      </div>
+      <div class="col dont">
+        <h4>❌ MVP 제외</h4>
+        <ul class="tight">
+          <li>실제 배치 실행</li>
+          <li>수동 실행 버튼 활성화</li>
+          <li>스케줄러 연동</li>
+          <li>API 호출</li>
+          <li>DB 저장</li>
+          <li>로그 수집</li>
+          <li>알림 발송</li>
+        </ul>
+      </div>
+    </div>
+    <div class="warn-box"><strong>실행/중지/스케줄러/API/DB 는 MVP 에서 명시적으로 제외</strong>한다. 실행 이력은 표시 자리(Skeleton)만 두고 실데이터 연동은 후속 단계(API/DB 설계 이후).</div>
+  </div>
+</div>
+
+<!-- ── 09. 구현 진입 Gate ── -->
+<div class="sec">
+  <div class="sec-h">Section 09 · 구현 진입 Gate</div>
+  <div class="sec-b">
+    <p>아래 8개 Gate 가 모두 확정되어야 실제 구현(page skeleton) PR 로 진입한다.</p>
+    <div class="gate-grid">
+      <div class="gate-card"><span class="gbox"></span><span class="gt">메뉴 위치 확정</span></div>
+      <div class="gate-card"><span class="gbox"></span><span class="gt">route 확정</span></div>
+      <div class="gate-card"><span class="gbox"></span><span class="gt">Shell 계약 확정</span></div>
+      <div class="gate-card"><span class="gbox"></span><span class="gt">Drawer 계약 확정</span></div>
+      <div class="gate-card"><span class="gbox"></span><span class="gt">목록 컬럼 확정</span></div>
+      <div class="gate-card"><span class="gbox"></span><span class="gt">MVP 제외 범위 확정</span></div>
+      <div class="gate-card"><span class="gbox"></span><span class="gt">권한 정책 1차 확정</span></div>
+      <div class="gate-card"><span class="gbox"></span><span class="gt">실제 실행 기능 보류 여부 확정</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 10. 후속 PR 제안 ── -->
+<div class="sec">
+  <div class="sec-h">Section 10 · 후속 PR 제안</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>PR</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td><strong>PR #125</strong></td><td>Product page skeleton — docs/code split 결정</td></tr>
+        <tr><td><strong>PR #126</strong></td><td>Batch Program Board list skeleton</td></tr>
+        <tr><td><strong>PR #127</strong></td><td>Batch Program Drawer Form skeleton</td></tr>
+        <tr><td><strong>PR #128</strong></td><td>Detail Drawer + Execution History preview</td></tr>
+        <tr><td><strong>PR #129 이후</strong></td><td>API / DB / Scheduler 설계 문서</td></tr>
+      </tbody>
+    </table>
+    <div class="note">각 후속 PR 은 Section 09 Gate 승인 이후 순차 진행. 본 문서는 그 진입 기준을 고정한다.</div>
+  </div>
+</div>
+
+<!-- ── 11. Related Links ── -->
+<div class="sec">
+  <div class="sec-h">Section 11 · Related Links</div>
+  <div class="sec-b">
+    <ul class="tight">
+      <li><a href="STAM-Batch-Program-Board-Definition-v1.html">Batch Program Board Definition v1</a> — 목적·필드·상태값·연결 산출물 정의</li>
+      <li><a href="STAM-Batch-Program-Board-Preview-v1.html">Batch Program Board Preview v1</a> — 목록/상세/등록/수정 정적 Preview</li>
+      <li><a href="STAM-Batch-Program-Board-Implementation-Checklist-v1.html">Implementation Checklist v1</a> — 구현 전 의사결정 체크리스트</li>
+      <li><a href="STAM-Docs-Index.html">Docs Index</a></li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById('themeToggle');
+  b.addEventListener('click', function(){
+    var html = document.documentElement;
+    var d = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', d ? 'light' : 'dark');
+    b.textContent = d ? '다크 모드' : '라이트 모드';
+  });
+})();
+</script>
+</body>
+</html>
