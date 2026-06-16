@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM Batch Program Board Preview v1</title>
+  <!-- 로컬 S-Core Dream 자체서빙만 사용 — 외부 폰트/CDN 없음 -->
+  <link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <style>
+    body { font-family: var(--font); background: var(--bg); color: var(--t1); margin: 0; padding: 32px; }
+    .doc-header { margin-bottom: 28px; }
+    .doc-header h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+    .doc-header p { font-size: 12px; color: var(--t3); margin: 0; line-height: 1.7; }
+    .meta { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .meta .chip { font-size:11px; padding:3px 8px; border-radius:4px; background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .related { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:11px; }
+    .related a { color: var(--stam); text-decoration: none; padding: 4px 10px; border: 1px solid var(--bd); border-radius: 6px; background: var(--bg-sur); }
+    .related a:hover { background: var(--bg-sur2); }
+    .sec { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; margin-bottom: 22px; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+    .sec-h { padding: 12px 16px; border-bottom: 1px solid var(--bd); background: var(--bg-sur2); font-size: 11px; font-weight: 700; letter-spacing:.06em; text-transform: uppercase; color: var(--t3); }
+    .sec-b { padding: 16px; font-size: 12.5px; color: var(--t2); line-height: 1.75; }
+    .sec-b p:first-child { margin-top: 0; }
+    .sec-b p:last-child { margin-bottom: 0; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; color: var(--stam); background: rgba(84,81,232,.08); padding: 1px 5px; border-radius: 3px; }
+    table.t { width: 100%; border-collapse: collapse; font-size: 12px; }
+    table.t th, table.t td { padding: 8px 10px; border-bottom: 1px solid var(--bd); text-align: left; vertical-align: top; }
+    table.t thead th { background: var(--bg-sur2); color: var(--t3); text-transform: uppercase; font-size: 10px; letter-spacing: .06em; font-weight: 700; white-space: nowrap; }
+    ul.tight, ol.tight { margin: 6px 0; padding-left: 22px; } ul.tight li, ol.tight li { margin: 3px 0; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; line-height:1.5; }
+    .pill.ok { background:#dcfce7; color:#166534; }
+    .pill.bad { background:#fee2e2; color:#991b1b; }
+    .pill.warn { background:#fef3c7; color:#92400e; }
+    .pill.info { background:#dbeafe; color:#1e40af; }
+    .pill.muted { background:var(--bg-sur2); color:var(--t3); border:1px solid var(--bd); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid2 .col { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; }
+    .grid2 h4 { margin: 0 0 6px; font-size: 12px; font-weight: 700; }
+    .col.do h4 { color: #16a34a; }
+    .col.dont h4 { color: #dc2626; }
+    .note { background: var(--bg-sur2); border: 1px solid var(--bd); border-left: 3px solid var(--stam); border-radius: 6px; padding: 10px 12px; font-size: 11.5px; color: var(--t2); line-height: 1.7; margin-top: 10px; }
+    .theme-toggle { position: fixed; top: 16px; right: 16px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--bg-sur); color: var(--t2); font-size: 11px; cursor: pointer; z-index: 10; }
+    /* ── Preview mock primitives (제품 코드 아님, 시각 표현 전용) ── */
+    .pv { background: var(--bg); border: 1px dashed var(--bd); border-radius: 10px; padding: 14px; }
+    .pv-label { font-size: 10px; font-weight: 700; letter-spacing:.05em; text-transform: uppercase; color: var(--t3); margin-bottom: 8px; }
+    .mock-board-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+    .mock-board-head h3 { margin:0 0 3px; font-size:15px; font-weight:700; color:var(--t1); }
+    .mock-board-head .desc { font-size:11px; color:var(--t3); margin:0; }
+    .mock-toolbar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+    .mock-search { display:flex; align-items:center; gap:6px; flex:1; min-width:180px; border:1px solid var(--bd); border-radius:8px; padding:6px 10px; background:var(--bg-sur); color:var(--t3); font-size:11px; }
+    .mock-btn { font-size:11px; font-weight:600; padding:6px 12px; border-radius:8px; border:1px solid var(--bd); background:var(--bg-sur); color:var(--t2); cursor:default; }
+    .mock-btn.primary { background:var(--stam); border-color:var(--stam); color:#fff; }
+    .mock-btn.danger { color:#dc2626; border-color:#fecaca; }
+    .mock-filter-row { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+    .mock-table { width:100%; border-collapse:collapse; font-size:11px; }
+    .mock-table th, .mock-table td { padding:6px 8px; border-bottom:1px solid var(--bd); text-align:left; white-space:nowrap; }
+    .mock-table thead th { background:var(--bg-sur2); color:var(--t3); font-size:9.5px; text-transform:uppercase; letter-spacing:.04em; }
+    .mock-table tr.is-active td { background:rgba(84,81,232,.07); box-shadow: inset 3px 0 0 var(--stam); }
+    .mock-table tr.is-selected td { background:rgba(84,81,232,.04); }
+    .mock-table .ck { width:14px; height:14px; border:1px solid var(--bd); border-radius:3px; display:inline-block; vertical-align:middle; }
+    .mock-table .ck.on { background:var(--stam); border-color:var(--stam); }
+    .mock-drawer { border:1px solid var(--bd); border-radius:10px; background:var(--bg-sur); overflow:hidden; max-width:420px; }
+    .mock-drawer .dw-head { padding:12px 14px; border-bottom:1px solid var(--bd); display:flex; justify-content:space-between; align-items:center; }
+    .mock-drawer .dw-head h4 { margin:0; font-size:13px; font-weight:700; }
+    .mock-drawer .dw-body { padding:12px 14px; max-height:none; }
+    .mock-drawer .dw-foot { padding:10px 14px; border-top:1px solid var(--bd); display:flex; gap:8px; justify-content:flex-end; background:var(--bg-sur2); }
+    .dw-group { margin-bottom:12px; }
+    .dw-group .gh { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--stam); margin-bottom:4px; }
+    .dw-row { display:flex; justify-content:space-between; gap:10px; font-size:11px; padding:2px 0; }
+    .dw-row .k { color:var(--t3); }
+    .dw-row .v { color:var(--t1); text-align:right; }
+    .mock-field { margin-bottom:10px; }
+    .mock-field label { display:block; font-size:11px; font-weight:600; color:var(--t2); margin-bottom:4px; }
+    .mock-field label .req { color:#dc2626; }
+    .mock-field label .opt { color:var(--t3); font-weight:400; font-size:10px; }
+    .mock-input { width:100%; box-sizing:border-box; border:1px solid var(--bd); border-radius:8px; padding:7px 10px; font-size:11px; background:var(--bg-sur); color:var(--t2); }
+    .mock-input.sel::after { content:"▾"; float:right; color:var(--t3); }
+    .mock-err { color:#dc2626; font-size:10px; margin-top:3px; }
+    .mock-help { color:var(--t3); font-size:10px; margin-top:3px; }
+    .form-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .chips { display:flex; gap:8px; flex-wrap:wrap; }
+    .conn-map { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+    .conn-card { border:1px solid var(--bd); border-radius:8px; padding:10px 12px; background:var(--bg-sur2); }
+    .conn-card .cc-t { font-size:12px; font-weight:700; color:var(--t1); margin-bottom:3px; }
+    .conn-card .cc-d { font-size:10.5px; color:var(--t3); line-height:1.5; }
+    .ia-flow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .ia-node { border:1px solid var(--bd); border-radius:8px; padding:8px 12px; font-size:11px; background:var(--bg-sur2); color:var(--t2); }
+    .ia-node.here { border-color:var(--stam); background:rgba(84,81,232,.08); color:var(--stam); font-weight:700; }
+    .ia-arrow { color:var(--t3); font-size:13px; }
+    @media (max-width: 720px) { .grid2, .form-grid2 { grid-template-columns: 1fr; } body { padding: 18px; } }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">다크 모드</button>
+
+<div class="doc-header">
+  <h1>STAM Batch Program Board Preview <span class="pill ok">v1</span> <span class="pill info">docs-only · Preview</span></h1>
+  <p><strong>"배치프로그램 관리"</strong> 게시판의 목록/상세/등록/수정 화면 구조를 정적 Preview 로 시각화한 문서.<br>
+  실제 제품 화면·메뉴·라우팅·DB/API·스케줄러를 만들지 않으며, 향후 구현 기준이 될 <strong>화면 구조와 UX 흐름</strong>만 정리한다.</p>
+  <div class="meta">
+    <span class="chip">단계: Preview</span>
+    <span class="chip">범위: docs-only</span>
+    <span class="chip">버전: v1</span>
+    <span class="chip">제품 화면 미생성</span>
+  </div>
+  <div class="related">
+    <span style="color:var(--t3);align-self:center">Related:</span>
+    <a href="STAM-Batch-Program-Board-Definition-v1.html">Batch Program Board Definition v1</a>
+    <a href="STAM-Board-List-Template-Contract-v1.html">Board List Template Contract v1</a>
+    <a href="STAM-Board-Drawer-Shell-Contract-v1.html">Board Drawer Shell Contract v1</a>
+    <a href="STAM-Board-Form-Field-Contract-v1.html">Board Form Field Contract v1</a>
+    <a href="STAM-Custom-Select-Contract-v1.html">Custom Select Contract v1</a>
+    <a href="STAM-Docs-Index.html">Docs Index</a>
+  </div>
+</div>
+
+<!-- ── 01. Summary ── -->
+<div class="sec">
+  <div class="sec-h">Section 01 · Summary</div>
+  <div class="sec-b">
+    <ul class="tight">
+      <li><strong>목적</strong> — 배치프로그램 관리 게시판의 목록·상세·등록·수정 화면이 어떤 구조와 흐름을 가질지 정적 Preview 로 합의한다.</li>
+      <li><strong>Definition 문서와의 관계</strong> — <a href="STAM-Batch-Program-Board-Definition-v1.html">Batch Program Board Definition v1</a> 에서 정의한 목적·컬럼·필드·상태값·연결 산출물을 <strong>화면 형태</strong>로 구체화한 후속 문서다. Definition = "무엇을", Preview = "어떻게 보일지".</li>
+      <li><strong>본 문서는 구현이 아니다</strong> — 아래 모든 화면은 <code>.pv</code> 점선 박스 안의 <strong>정적 mock</strong> 이며, 실제 제품 화면·App Shell·라우팅·데이터 로직과 무관하다. 구현은 별도 PR(page 생성 단계)에서 진행한다.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 02. IA / 위치 Preview ── -->
+<div class="sec">
+  <div class="sec-h">Section 02 · IA / 위치 Preview</div>
+  <div class="sec-b">
+    <p>설계 산출물 흐름 안에서 배치프로그램 관리의 위치(후보).</p>
+    <div class="pv">
+      <div class="pv-label">IA Flow (후보)</div>
+      <div class="ia-flow">
+        <span class="ia-node">기능정의서</span>
+        <span class="ia-arrow">→</span>
+        <span class="ia-node">API 정의서</span>
+        <span class="ia-arrow">→</span>
+        <span class="ia-node here">배치프로그램 관리</span>
+        <span class="ia-arrow">→</span>
+        <span class="ia-node">WBS</span>
+      </div>
+    </div>
+    <div class="note">
+      <strong>중요:</strong> 위 위치는 시각적 <strong>후보</strong>일 뿐이며, 본 PR 에서는 <code>stam.nav-data.js</code> 와 실제 좌측 메뉴를 <strong>수정하지 않는다</strong>. 메뉴 등록은 향후 nav-data 연결 단계에서 확정한다.
+    </div>
+  </div>
+</div>
+
+<!-- ── 03. 목록 화면 Preview ── -->
+<div class="sec">
+  <div class="sec-h">Section 03 · 목록 화면 Preview (Board List Template 구조)</div>
+  <div class="sec-b">
+    <div class="pv">
+      <div class="pv-label">Board List — Mock</div>
+      <div class="mock-board-head">
+        <div>
+          <h3>배치프로그램 관리</h3>
+          <p class="desc">정산·집계·연계·마감 배치 프로그램의 정의·실행주기·선후행·운영 기준을 관리합니다.</p>
+        </div>
+        <button class="mock-btn primary">+ 등록</button>
+      </div>
+      <div class="mock-toolbar">
+        <span class="mock-search">🔍 배치 ID · 배치명 · 담당자 검색</span>
+        <button class="mock-btn">⛁ 필터</button>
+        <button class="mock-btn danger">삭제 (1)</button>
+      </div>
+      <div class="mock-filter-row">
+        <span class="pill muted">상태: 전체</span>
+        <span class="pill info">설계중</span>
+        <span class="pill info">개발중</span>
+        <span class="pill warn">테스트중</span>
+        <span class="pill ok">운영반영</span>
+        <span class="pill warn">보류</span>
+        <span class="pill bad">폐기</span>
+      </div>
+      <table class="mock-table">
+        <thead>
+          <tr>
+            <th><span class="ck"></span></th>
+            <th>배치 ID</th><th>배치명</th><th>업무영역</th><th>실행주기</th><th>실행시간</th><th>상태</th><th>담당자</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="is-active">
+            <td><span class="ck"></span></td>
+            <td>BAT-0001</td><td>일일 정산 마감</td><td>정산</td><td>일</td><td>02:00</td><td><span class="pill ok">운영반영</span></td><td>김운영</td>
+          </tr>
+          <tr class="is-selected">
+            <td><span class="ck on"></span></td>
+            <td>BAT-0002</td><td>월 집계 통계</td><td>집계</td><td>월</td><td>03:30</td><td><span class="pill warn">테스트중</span></td><td>박배치</td>
+          </tr>
+          <tr>
+            <td><span class="ck"></span></td>
+            <td>BAT-0003</td><td>외부 연계 수신</td><td>연계</td><td>수시</td><td>—</td><td><span class="pill info">개발중</span></td><td>이연계</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <strong>checkbox 선택 vs row active 구분</strong> — checkbox(<code>.is-selected</code>)는 <strong>bulk 삭제 대상</strong>(다중 선택, 삭제 카운트 증가), row click(<code>.is-active</code>)은 <strong>상세 Drawer 대상</strong>(단일, 좌측 bar 강조). 두 동작은 서로 섞이지 않는다 (Board List Template Contract 준수). 위 mock 에서 BAT-0001 = active(좌측 bar), BAT-0002 = selected(checkbox on).
+    </div>
+  </div>
+</div>
+
+<!-- ── 04. 목록 컬럼 mock ── -->
+<div class="sec">
+  <div class="sec-h">Section 04 · 목록 컬럼 mock (10종)</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>#</th><th>컬럼</th><th>예시값</th><th>역할</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>배치 ID</td><td><code>BAT-0001</code></td><td>고유키 · 정렬 기본</td></tr>
+        <tr><td>2</td><td>배치명</td><td>일일 정산 마감</td><td>검색 대상</td></tr>
+        <tr><td>3</td><td>업무영역</td><td>정산</td><td>필터 대상</td></tr>
+        <tr><td>4</td><td>실행주기</td><td>일</td><td>필터 대상</td></tr>
+        <tr><td>5</td><td>실행시간</td><td><code>02:00</code></td><td>—</td></tr>
+        <tr><td>6</td><td>선행 배치</td><td>BAT-0000</td><td>의존성</td></tr>
+        <tr><td>7</td><td>후행 배치</td><td>BAT-0005</td><td>의존성</td></tr>
+        <tr><td>8</td><td>담당자</td><td>김운영</td><td>검색 대상</td></tr>
+        <tr><td>9</td><td>상태</td><td><span class="pill ok">운영반영</span></td><td>상태 chip · 필터 대상</td></tr>
+        <tr><td>10</td><td>최종 수정일</td><td>2026-06-16</td><td>정렬 보조</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 목록은 핵심 컬럼만 노출하고, 선행/후행 등 일부는 상세 Drawer 에서 전체 확인하는 방식도 후보.</p>
+  </div>
+</div>
+
+<!-- ── 05. 상세 Drawer Preview ── -->
+<div class="sec">
+  <div class="sec-h">Section 05 · 상세 Drawer Preview (Drawer Shell Contract 기준)</div>
+  <div class="sec-b">
+    <div class="pv">
+      <div class="pv-label">Detail Drawer — Mock</div>
+      <div class="mock-drawer">
+        <div class="dw-head"><h4>BAT-0001 · 일일 정산 마감</h4><span class="pill ok">운영반영</span></div>
+        <div class="dw-body">
+          <div class="dw-group"><div class="gh">기본 정보</div>
+            <div class="dw-row"><span class="k">업무영역</span><span class="v">정산</span></div>
+            <div class="dw-row"><span class="k">담당자</span><span class="v">김운영</span></div>
+          </div>
+          <div class="dw-group"><div class="gh">실행 정보</div>
+            <div class="dw-row"><span class="k">실행주기 / 시간</span><span class="v">일 / 02:00</span></div>
+            <div class="dw-row"><span class="k">실행 윈도우</span><span class="v">02:00 ~ 03:00</span></div>
+          </div>
+          <div class="dw-group"><div class="gh">기술 정보</div>
+            <div class="dw-row"><span class="k">실행 방식</span><span class="v">스케줄러</span></div>
+            <div class="dw-row"><span class="k">잡명</span><span class="v">settle_daily_close</span></div>
+          </div>
+          <div class="dw-group"><div class="gh">데이터 입출력</div>
+            <div class="dw-row"><span class="k">입력 소스</span><span class="v">TB_TRADE</span></div>
+            <div class="dw-row"><span class="k">출력 대상</span><span class="v">TB_SETTLE_DAY</span></div>
+          </div>
+          <div class="dw-group"><div class="gh">선후행 관계</div>
+            <div class="dw-row"><span class="k">선행 배치</span><span class="v">BAT-0000</span></div>
+            <div class="dw-row"><span class="k">후행 배치</span><span class="v">BAT-0005</span></div>
+          </div>
+          <div class="dw-group"><div class="gh">운영 / 장애 대응</div>
+            <div class="dw-row"><span class="k">실패 처리</span><span class="v">재시도 3회 · 알림</span></div>
+            <div class="dw-row"><span class="k">에스컬레이션</span><span class="v">운영팀 → PL</span></div>
+          </div>
+          <div class="dw-group"><div class="gh">테스트 / 검증</div>
+            <div class="dw-row"><span class="k">재처리 시나리오</span><span class="v">검증 완료</span></div>
+          </div>
+          <div class="dw-group"><div class="gh">연결 산출물</div>
+            <div class="chips">
+              <span class="pill muted">요구사항</span><span class="pill muted">기능정의서</span>
+              <span class="pill muted">API</span><span class="pill muted">테스트</span>
+            </div>
+          </div>
+          <div class="dw-group"><div class="gh">변경이력 / 메모 (후보)</div>
+            <div class="dw-row"><span class="k">2026-06-10 박배치</span><span class="v">실행시간 03:00→02:00</span></div>
+          </div>
+        </div>
+        <div class="dw-foot"><button class="mock-btn">닫기</button><button class="mock-btn primary">수정</button></div>
+      </div>
+    </div>
+    <div class="note">Drawer 외곽(root/scrim/head/body/foot)·open·close·Escape·<code>aria-modal</code> 는 <a href="STAM-Board-Drawer-Shell-Contract-v1.html">Board Drawer Shell Contract v1</a> 를 그대로 따른다. 위 8개 그룹 + 변경이력/메모 영역은 향후 구현 후보다.</div>
+  </div>
+</div>
+
+<!-- ── 06. 등록/수정 Form Preview ── -->
+<div class="sec">
+  <div class="sec-h">Section 06 · 등록 / 수정 Form Preview (Form Field Contract 기준)</div>
+  <div class="sec-b">
+    <div class="pv">
+      <div class="pv-label">Create / Edit Form — Mock</div>
+      <div class="form-grid2">
+        <div class="mock-field">
+          <label>배치 ID <span class="req">*</span></label>
+          <div class="mock-input">BAT-0004</div>
+          <div class="mock-help">형식: BAT-####</div>
+        </div>
+        <div class="mock-field">
+          <label>배치명 <span class="req">*</span></label>
+          <div class="mock-input">주간 통계 집계</div>
+        </div>
+        <div class="mock-field">
+          <label>업무영역 <span class="req">*</span></label>
+          <div class="mock-input sel">집계</div>
+        </div>
+        <div class="mock-field">
+          <label>실행주기 <span class="req">*</span></label>
+          <div class="mock-input sel">주</div>
+        </div>
+        <div class="mock-field">
+          <label>실행시간 <span class="opt">(선택)</span></label>
+          <div class="mock-input">03:30</div>
+        </div>
+        <div class="mock-field">
+          <label>상태 <span class="req">*</span></label>
+          <div class="mock-input sel">설계중</div>
+        </div>
+        <div class="mock-field">
+          <label>담당자 <span class="req">*</span></label>
+          <div class="mock-input sel">박배치</div>
+        </div>
+        <div class="mock-field">
+          <label>실행 윈도우 종료 <span class="opt">(선택)</span></label>
+          <div class="mock-input" style="border-color:#fecaca;background:rgba(220,38,38,.04)">04:30</div>
+          <div class="mock-err">시작 시간 이후여야 합니다.</div>
+        </div>
+      </div>
+      <div class="mock-field" style="margin-top:10px">
+        <label>설명 / 비고 <span class="opt">(선택)</span></label>
+        <div class="mock-input" style="min-height:48px">정산 마감 후 집계되는 주간 통계 배치.</div>
+      </div>
+    </div>
+    <table class="t" style="margin-top:12px">
+      <thead><tr><th>요소</th><th>적용 후보</th></tr></thead>
+      <tbody>
+        <tr><td>required / optional</td><td><code>.stam-label .req</code> (필수 *) / <code>.opt</code> (선택)</td></tr>
+        <tr><td>custom select</td><td>업무영역 · 실행주기 · 상태 · 담당자 (<code>.stam-cs-*</code>)</td></tr>
+        <tr><td>textarea</td><td>설명 / 비고 / 파라미터 (<code>.stam-textarea</code>, <code>.full-span</code>)</td></tr>
+        <tr><td>date / time</td><td>실행시간 · 실행 윈도우 시작/종료 (time), 운영반영일 (date)</td></tr>
+        <tr><td>validation 메시지</td><td><code>.stam-field-error</code> (예: 윈도우 종료 &lt; 시작) / <code>.stam-field-help</code></td></tr>
+      </tbody>
+    </table>
+    <div class="note">필드 구조·라벨·입력·grid·상태(error/success/disabled/readonly)는 <a href="STAM-Board-Form-Field-Contract-v1.html">Board Form Field Contract v1</a> 기준. 등록/수정은 같은 Form 을 mode 만 달리 사용한다.</div>
+  </div>
+</div>
+
+<!-- ── 07. 상태값 Preview ── -->
+<div class="sec">
+  <div class="sec-h">Section 07 · 상태값 Preview (상태 chip)</div>
+  <div class="sec-b">
+    <div class="pv">
+      <div class="pv-label">Status Chips</div>
+      <div class="chips">
+        <span class="pill info">설계중</span>
+        <span class="pill info">개발중</span>
+        <span class="pill warn">테스트중</span>
+        <span class="pill ok">운영반영</span>
+        <span class="pill warn">보류</span>
+        <span class="pill bad">폐기</span>
+      </div>
+    </div>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* chip 색상은 Preview 시각화용. 실제 구현 시 공통 상태 chip 규칙·토큰으로 확정한다. 상태 전이는 Definition Section 06 참조.</p>
+  </div>
+</div>
+
+<!-- ── 08. 연결 산출물 Preview ── -->
+<div class="sec">
+  <div class="sec-h">Section 08 · 연결 산출물 Preview (연결 맵)</div>
+  <div class="sec-b">
+    <div class="pv">
+      <div class="pv-label">Batch ↔ Artifact Map</div>
+      <div class="conn-map">
+        <div class="conn-card"><div class="cc-t">요구사항</div><div class="cc-d">배치성 요건 추적 출발점</div></div>
+        <div class="conn-card"><div class="cc-t">기능정의서</div><div class="cc-d">기능 ID ↔ 배치 ID 매핑</div></div>
+        <div class="conn-card"><div class="cc-t">API 정의서</div><div class="cc-d">연계 API · 인터페이스</div></div>
+        <div class="conn-card"><div class="cc-t">WBS</div><div class="cc-d">개발/테스트 일정·담당</div></div>
+        <div class="conn-card"><div class="cc-t">테스트 케이스</div><div class="cc-d">단위·재처리 검증</div></div>
+        <div class="conn-card"><div class="cc-t">결함</div><div class="cc-d">테스트/운영 결함 추적</div></div>
+        <div class="conn-card"><div class="cc-t">오픈 시나리오</div><div class="cc-d">오픈 D-day 수행 순서</div></div>
+        <div class="conn-card"><div class="cc-t">회의록</div><div class="cc-d">설계·운영 의사결정 근거</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 09. 운영 / 장애 대응 Preview ── -->
+<div class="sec">
+  <div class="sec-h">Section 09 · 운영 / 장애 대응 Preview</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>항목</th><th>Preview 내용 (후보)</th></tr></thead>
+      <tbody>
+        <tr><td>실패 시 처리</td><td>실패 즉시 알림 발송 · 후행 배치 보류 · 실패 상태 기록</td></tr>
+        <tr><td>재처리 방법</td><td>자동 재시도(횟수/간격) → 초과 시 수동 재처리 절차</td></tr>
+        <tr><td>알림 대상</td><td>1차 운영팀 → 미해결 시 PL 에스컬레이션</td></tr>
+        <tr><td>로그 위치</td><td>잡 로그 경로 · 처리 건수 · 시작/종료 시각 기록 위치</td></tr>
+        <tr><td>운영반영 후 수정 제한 (후보)</td><td><code>운영반영</code> 상태에서 실행정보·선후행 변경 시 사유 입력/승인 절차 고려</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 10. 구현 전 체크리스트 ── -->
+<div class="sec">
+  <div class="sec-h">Section 10 · 구현 전 체크리스트 (page 생성 전 결정사항)</div>
+  <div class="sec-b">
+    <table class="t">
+      <thead><tr><th>결정 항목</th><th>상태</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>nav-data 추가 여부 / 위치</td><td><span class="pill warn">미정</span></td><td>기능정의서·API·WBS 사이 후보 (Section 02)</td></tr>
+        <tr><td>상태값 확정</td><td><span class="pill warn">후보</span></td><td>6종 (설계중~폐기) 확정 필요</td></tr>
+        <tr><td>필수 필드 확정</td><td><span class="pill warn">후보</span></td><td>배치 ID·배치명·업무영역·실행주기·상태·담당자 등</td></tr>
+        <tr><td>연결 산출물 범위 확정</td><td><span class="pill warn">후보</span></td><td>8종 중 1차 연결 대상 선정</td></tr>
+        <tr><td>권한 / 삭제 정책 확정</td><td><span class="pill warn">후보</span></td><td>운영반영 잠금 · 폐기 전환 · 변경이력 (Definition Section 09)</td></tr>
+      </tbody>
+    </table>
+    <div class="note">위 항목이 확정되어야 실제 page 생성 단계로 진입한다. 확정은 별도 결정/승인 문서 또는 후속 PR 에서 진행한다.</div>
+  </div>
+</div>
+
+<!-- ── 11. 제외 범위 ── -->
+<div class="sec">
+  <div class="sec-h">Section 11 · 제외 범위 (본 PR)</div>
+  <div class="sec-b">
+    <div class="grid2">
+      <div class="col dont">
+        <h4>❌ 이번 PR 에서 하지 않음</h4>
+        <ul class="tight">
+          <li>실제 제품 화면(page) 생성</li>
+          <li>실제 좌측 메뉴 추가 (nav-data 수정)</li>
+          <li>실제 제품 라우팅 추가</li>
+          <li>DB / API / 저장 로직</li>
+          <li>배치 실행 / 중지 기능</li>
+          <li>스케줄러 기능</li>
+        </ul>
+      </div>
+      <div class="col do">
+        <h4>✅ 이번 PR 에서 함</h4>
+        <ul class="tight">
+          <li>목록/상세/등록/수정 정적 Preview 시각화</li>
+          <li>IA 위치·상태 chip·연결 맵·운영 대응 Preview</li>
+          <li>구현 전 체크리스트 정리</li>
+          <li>Docs Index 링크 등록 + Definition related link</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById('themeToggle');
+  b.addEventListener('click', function(){
+    var html = document.documentElement;
+    var d = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', d ? 'light' : 'dark');
+    b.textContent = d ? '다크 모드' : '라이트 모드';
+  });
+})();
+</script>
+</body>
+</html>
