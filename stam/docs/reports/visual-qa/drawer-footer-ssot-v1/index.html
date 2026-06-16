@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QA Report — Drawer Footer SSOT v1</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 900px; margin: 0 auto; padding: 32px 24px; color: #1e293b; background: #f8fafc; }
+    h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .meta { font-size: 12px; color: #64748b; margin-bottom: 32px; }
+    h2 { font-size: 14px; font-weight: 700; margin: 28px 0 10px; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 24px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+    th { background: #f1f5f9; text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+    tr:last-child td { border-bottom: 0; }
+    .pass { color: #047857; font-weight: 700; }
+    .warn { color: #b45309; font-weight: 700; }
+    .tag { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 10.5px; font-weight: 700; }
+    .tag-css { background: rgba(59,130,246,.1); color: #1d4ed8; }
+    .tag-html { background: rgba(139,92,246,.1); color: #6d28d9; }
+    code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; background: #f1f5f9; padding: 1px 5px; border-radius: 3px; }
+    .section-intro { font-size: 12.5px; color: #475569; margin: -6px 0 12px; }
+    .summary-row { display: flex; gap: 16px; margin-bottom: 28px; }
+    .summary-card { flex: 1; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; }
+    .summary-card .num { font-size: 24px; font-weight: 700; color: #4338ca; }
+    .summary-card .lbl { font-size: 11px; color: #64748b; margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+<h1>QA Report — Drawer Footer SSOT v1</h1>
+<div class="meta">PR: refactor/drawer-footer-ssot-v1 &nbsp;|&nbsp; 작성: 2026-06-16 &nbsp;|&nbsp; 대상: 요구사항정의서 · 메뉴구조/화면목록 · 기능정의서</div>
+
+<div class="summary-row">
+  <div class="summary-card"><div class="num">7</div><div class="lbl">변경 파일</div></div>
+  <div class="summary-card"><div class="num">9</div><div class="lbl">드로어 푸터 수정</div></div>
+  <div class="summary-card"><div class="num">0</div><div class="lbl">금지 파일 변경</div></div>
+  <div class="summary-card"><div class="num">0</div><div class="lbl">JS 파일 변경</div></div>
+</div>
+
+<h2>CSS 변경 — stam.drawer.css</h2>
+<p class="section-intro">공통 SSOT 규칙 추가</p>
+<table>
+  <tr><th>추가 규칙</th><th>목적</th><th>결과</th></tr>
+  <tr>
+    <td><code>.stam-drawer-foot .stam-btn</code></td>
+    <td>버튼 공통 height 32px / padding / font-size</td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td><code>.stam-dw-foot-meta</code></td>
+    <td>좌측 메타 슬롯 — flex:1, 11px, var(--t3)</td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td><code>.stam-dw-foot-actions</code></td>
+    <td>우측 액션 슬롯 — flex row, gap:8px</td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+</table>
+
+<h2>CSS 변경 — 게시판별 CSS 중복 제거</h2>
+<table>
+  <tr><th>파일</th><th>제거된 규칙</th><th>결과</th></tr>
+  <tr>
+    <td><span class="tag tag-css">requirements</span></td>
+    <td><code>.rq-dw-foot</code> · <code>.rq-dw-foot-l</code> · <code>.rq-dw-foot-r</code> · <code>.rq-dw-foot .rq-btn</code> 버튼 sizing</td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-css">menu-screen-list</span></td>
+    <td><code>.msl-dw-foot</code> · <code>.msl-dw-foot-l</code> · <code>.msl-dw-foot-date</code> · <code>.msl-dw-foot-r</code> · <code>.msl-dw-foot .msl-btn</code> 버튼 sizing</td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-css">functional-specification</span></td>
+    <td><code>.fn-dw-foot</code> · <code>.fn-dw-foot-l</code> · <code>.fn-dw-foot-r</code> · <code>.fn-dw-foot .fn-btn</code> 버튼 sizing</td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+</table>
+
+<h2>HTML 변경 — requirements.html</h2>
+<table>
+  <tr><th>드로어</th><th>변경 항목</th><th>이전 → 이후</th><th>결과</th></tr>
+  <tr>
+    <td>등록</td>
+    <td>컨테이너 class</td>
+    <td><code>rq-dw-foot stam-drawer-foot</code> → <code>stam-drawer-foot</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>등록</td>
+    <td>전체 보기 버튼 variant</td>
+    <td><code>rq-btn-out stam-btn-outline</code> → <code>rq-btn-ghost stam-btn-ghost</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>상세</td>
+    <td>컨테이너 class</td>
+    <td><code>rq-dw-foot stam-drawer-foot</code> → <code>stam-drawer-foot</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>상세</td>
+    <td>좌측 슬롯 class</td>
+    <td><code>rq-dw-foot-l</code> → <code>stam-dw-foot-meta</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>상세</td>
+    <td>우측 슬롯 class</td>
+    <td><code>rq-dw-foot-r</code> → <code>stam-dw-foot-actions</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>상세</td>
+    <td>전체 보기 버튼 variant</td>
+    <td><code>rq-btn-out stam-btn-outline</code> → <code>rq-btn-ghost stam-btn-ghost</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>수정</td>
+    <td>컨테이너 class</td>
+    <td><code>rq-dw-foot stam-drawer-foot</code> → <code>stam-drawer-foot</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>수정</td>
+    <td>전체 보기 버튼 variant</td>
+    <td><code>rq-btn-out stam-btn-outline</code> → <code>rq-btn-ghost stam-btn-ghost</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+</table>
+
+<h2>HTML 변경 — menu-screen-list.html</h2>
+<table>
+  <tr><th>드로어</th><th>변경 항목</th><th>이전 → 이후</th><th>결과</th></tr>
+  <tr>
+    <td>등록</td>
+    <td>컨테이너 class + 레이아웃</td>
+    <td><code>msl-dw-foot stam-drawer-foot</code> (left/right 분리) → <code>stam-drawer-foot</code> (flat + spacer)</td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>등록</td>
+    <td>취소 버튼 variant</td>
+    <td><code>stam-btn-secondary</code> → <code>msl-btn-ghost stam-btn-ghost</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>등록</td>
+    <td>임시저장 버튼 variant</td>
+    <td><code>stam-btn-secondary</code> → <code>msl-btn-out stam-btn-outline</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>상세</td>
+    <td>컨테이너 class</td>
+    <td><code>msl-dw-foot stam-drawer-foot</code> → <code>stam-drawer-foot</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>상세</td>
+    <td>좌측 슬롯 class</td>
+    <td><code>msl-dw-foot-l</code> → <code>stam-dw-foot-meta</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>상세</td>
+    <td>날짜 span class</td>
+    <td><code>msl-dw-foot-date</code> → (제거, 부모 스타일 상속)</td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>상세</td>
+    <td>우측 슬롯 class</td>
+    <td><code>msl-dw-foot-r</code> → <code>stam-dw-foot-actions</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>수정</td>
+    <td>컨테이너 class + 레이아웃</td>
+    <td><code>msl-dw-foot stam-drawer-foot</code> (left/right 분리) → <code>stam-drawer-foot</code> (flat + spacer)</td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>수정</td>
+    <td>취소 버튼 variant</td>
+    <td><code>stam-btn-secondary</code> → <code>msl-btn-ghost stam-btn-ghost</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>수정</td>
+    <td>임시저장 버튼 variant</td>
+    <td><code>stam-btn-secondary</code> → <code>msl-btn-out stam-btn-outline</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+</table>
+
+<h2>HTML 변경 — functional-specification.html</h2>
+<table>
+  <tr><th>드로어</th><th>변경 항목</th><th>이전 → 이후</th><th>결과</th></tr>
+  <tr>
+    <td>등록</td>
+    <td>컨테이너 class</td>
+    <td><code>fn-dw-foot stam-drawer-foot</code> → <code>stam-drawer-foot</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>등록</td>
+    <td>버튼 variant</td>
+    <td>이미 ghost / outline / primary 정상 ✅ — class만 정리</td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>상세</td>
+    <td>컨테이너 class</td>
+    <td><code>fn-dw-foot stam-drawer-foot</code> → <code>stam-drawer-foot</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>상세</td>
+    <td>좌측 슬롯 class</td>
+    <td><code>fn-dw-foot-l</code> → <code>stam-dw-foot-meta</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>상세</td>
+    <td>우측 슬롯 class</td>
+    <td><code>fn-dw-foot-r</code> → <code>stam-dw-foot-actions</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>수정</td>
+    <td>컨테이너 class</td>
+    <td><code>fn-dw-foot stam-drawer-foot</code> → <code>stam-drawer-foot</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td>수정</td>
+    <td>버튼 variant</td>
+    <td>이미 ghost / outline / primary 정상 ✅ — class만 정리</td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+</table>
+
+<h2>금지 파일 변경 확인</h2>
+<table>
+  <tr><th>파일</th><th>변경 여부</th><th>결과</th></tr>
+  <tr><td><code>stam/pages/boards/wbs.html</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam/js/stam.wbs.js</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam/css/stam.wbs.css</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam/js/stam.requirements.js</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam/js/stam.menu-screen-list.js</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam/js/stam.functional-specification.js</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam/js/stam.shell.js</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>firebase.json</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>.github/workflows/*</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+</table>
+
+<h2>JS 셀렉터 보존 확인</h2>
+<table>
+  <tr><th>셀렉터</th><th>보존 여부</th><th>결과</th></tr>
+  <tr><td><code>[data-rq-open]</code> · <code>[data-rq-close]</code> · <code>.rq-dw-close</code></td><td>HTML 변경 없음 — 보존됨</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>[data-msl-open]</code> · <code>[data-msl-close]</code> · <code>.msl-dw-close</code></td><td>HTML 변경 없음 — 보존됨</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>[data-fn-open]</code> · <code>[data-fn-close]</code> · <code>.fn-dw-close</code></td><td>HTML 변경 없음 — 보존됨</td><td><span class="pass">PASS</span></td></tr>
+</table>
+
+<h2>내보내기 버튼 보존 확인</h2>
+<table>
+  <tr><th>항목</th><th>결과</th></tr>
+  <tr>
+    <td>requirements.html 헤더 내보내기 버튼 (<code>rq-btn-out stam-btn-outline</code>) — 드로어 푸터 바깥, 미수정</td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+</table>
+
+<h2>최종 판정</h2>
+<table>
+  <tr><th>항목</th><th>판정</th></tr>
+  <tr><td>CSS SSOT 통일 (3게시판 × 4규칙 제거)</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>HTML 컨테이너 class 통일 (9개 드로어 푸터)</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>버튼 variant 표준 준수</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>금지 파일 무변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>JS 셀렉터 보존</td><td><span class="pass">PASS</span></td></tr>
+</table>
+
+</body>
+</html>
