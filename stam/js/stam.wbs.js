@@ -823,81 +823,9 @@
     });
   }
 
-  /* ─── 9. 섹션형 필터 패널 ──────────────────────────────── */
-  function initFilterPanel() {
-    var openBtn    = document.getElementById('wbs-filter-open-btn');
-    var panel      = document.getElementById('wbs-filter-panel');
-    var backdrop   = document.getElementById('wbs-fp-backdrop');
-    var resetTop   = document.getElementById('wbs-fp-reset-top');
-    var clearBtn   = document.getElementById('wbs-fp-clear');
-    var applyBtn   = document.getElementById('wbs-fp-apply');
-    var countBadge = document.getElementById('wbs-filter-count-badge');
-    var footInfo   = document.getElementById('wbs-fp-foot-info');
-    if (!openBtn || !panel) return;
-
-    function openPanel() {
-      panel.setAttribute('data-open', 'true');
-      openBtn.classList.add('active');
-      if (backdrop) backdrop.classList.add('visible');
-    }
-    function closePanel() {
-      panel.setAttribute('data-open', 'false');
-      if (backdrop) backdrop.classList.remove('visible');
-      var count = panel.querySelectorAll('.wbs-fp-chip.active').length;
-      openBtn.classList.toggle('active', count > 0);
-    }
-
-    openBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      panel.getAttribute('data-open') === 'true' ? closePanel() : openPanel();
-    });
-
-    /* backdrop \uc2a4\ud06c\ub864 \uac04\uc12d \ub300\uc2e0 document \uc218\uc900 \uc678\ubd80\ud074\ub9ad \uac10\uc9c0 */
-    document.addEventListener('click', function (e) {
-      if (panel.getAttribute('data-open') !== 'true') return;
-      if (!panel.contains(e.target) && !openBtn.contains(e.target)) {
-        closePanel();
-      }
-    });
-
-    panel.querySelectorAll('.wbs-fp-chip').forEach(function (chip) {
-      chip.addEventListener('click', function () {
-        chip.classList.toggle('active');
-        updateCount();
-      });
-    });
-
-    var mockRes = [17, 15, 13, 11, 9, 7, 6, 4, 3];
-    function updateCount() {
-      var count = panel.querySelectorAll('.wbs-fp-chip.active').length;
-      if (countBadge) {
-        countBadge.textContent = String(count);
-        countBadge.classList.toggle('visible', count > 0);
-      }
-      if (footInfo) {
-        footInfo.textContent = '조건 ' + count + '개 · 결과 ' + mockRes[Math.min(count, mockRes.length - 1)] + '건';
-      }
-      if (panel.getAttribute('data-open') !== 'true') {
-        openBtn.classList.toggle('active', count > 0);
-      }
-    }
-
-    function resetAll() {
-      panel.querySelectorAll('.wbs-fp-chip.active').forEach(function (c) { c.classList.remove('active'); });
-      updateCount();
-    }
-
-    if (resetTop) resetTop.addEventListener('click', resetAll);
-    if (clearBtn) clearBtn.addEventListener('click', resetAll);
-    if (applyBtn) applyBtn.addEventListener('click', closePanel);
-
-    var filterReset = document.querySelector('.wbs-filter-reset');
-    if (filterReset) filterReset.addEventListener('click', resetAll);
-
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && panel.getAttribute('data-open') === 'true') closePanel();
-    });
-  }
+  /* ─── 9. 필터 패널 — STAM.boardFilter.init() 로 대체됨 ──── */
+  /* initFilterPanel() 제거: wbs-fp-chip/wbs-fp-sec 등 구 전용 클래스를
+     사용하던 dead code. STAM.boardFilter.init() 호출(하단)로 대체. */
 
 
   /* ─── 11. 테마 토글 버튼 aria-label 동적 갱신 ─────────────── */

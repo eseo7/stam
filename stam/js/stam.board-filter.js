@@ -7,13 +7,20 @@
    * window.STAM.boardFilter.init(opts)
    *
    * opts:
-   *   root    - 쿼리 기준 요소 (기본 document)
-   *   trigger - 필터 버튼 선택자
-   *   panel   - 필터 패널 선택자 (hidden 속성으로 초기 숨김)
-   *   reset   - 초기화 버튼 선택자 (footer)
-   *   apply   - 적용 버튼 선택자
-   *   groups  - 필터 그룹 배열 [{ key, label, options: [string | {label, value}] }]
-   *   onApply - 적용 콜백 function(values) — values: { [key]: [val, ...] }
+   *   root     - 쿼리 기준 요소 (기본 document)
+   *   trigger  - 필터 버튼 선택자
+   *   panel    - 필터 패널 선택자 (hidden 속성으로 초기 숨김)
+   *   reset    - 푸터 초기화 버튼 선택자
+   *   apply    - 푸터 적용 버튼 선택자
+   *   groups   - 필터 그룹 배열
+   *              [{ key, label, type?, options: [string | {label, value, dot?, avatar?}] }]
+   *              type: 'radio' → 그룹 내 단일선택, 첫 번째 옵션(value='')이 기본 활성
+   *   onChange - 칩 상태 변경 시 콜백 function(values)
+   *   onApply  - 적용 버튼 클릭 시 콜백 function(values)
+   *   onReset  - 초기화 버튼 클릭 시 콜백 function()
+   *
+   * values 형식: { [group.key]: [val, ...] }
+   * radio 그룹에서 value='' 칩(전체)은 values에 포함되지 않음
    */
   window.STAM.boardFilter = {
     init: function (opts) {
@@ -29,7 +36,7 @@
       if (triggerEl.getAttribute('data-sbf-init') === '1') return null;
       triggerEl.setAttribute('data-sbf-init', '1');
 
-      /* ── 헤더 생성 (WBS wbs-fp-head 기준) ── */
+      /* ── 헤더 생성 ── */
       var headEl = document.createElement('div');
       headEl.className = 'sbf-head';
 
@@ -59,6 +66,8 @@
       if (gridEl) {
         gridEl.innerHTML = '';
         (opts.groups || []).forEach(function (group) {
+          var isRadio = group.type === 'radio';
+
           var sec = document.createElement('div');
           sec.className = 'sbf-sec';
 
@@ -71,15 +80,26 @@
 
           (group.options || []).forEach(function (opt) {
             var label  = typeof opt === 'string' ? opt : opt.label;
-            var value  = typeof opt === 'string' ? opt : (opt.value || opt.label);
+            var value  = typeof opt === 'string' ? opt : (opt.value !== undefined ? opt.value : opt.label);
             var dot    = typeof opt === 'object' ? opt.dot    : null;
             var avatar = typeof opt === 'object' ? opt.avatar : null;
+
             var chip = document.createElement('button');
             chip.type = 'button';
             chip.className = 'sbf-chip';
             chip.dataset.sbfGroup = group.key;
             chip.dataset.sbfVal   = value;
             chip.setAttribute('aria-pressed', 'false');
+
+            /* radio 그룹: data-sbf-radio 마킹 + 전체(value='') 기본 활성 */
+            if (isRadio) {
+              chip.dataset.sbfRadio = group.key;
+              if (value === '') {
+                chip.classList.add('active');
+                chip.setAttribute('aria-pressed', 'true');
+              }
+            }
+
             if (dot) {
               var dotEl = document.createElement('span');
               dotEl.className = 'sbf-dot ' + dot;
@@ -90,8 +110,7 @@
               avEl.textContent = avatar;
               chip.appendChild(avEl);
             }
-            var textNode = document.createTextNode(label);
-            chip.appendChild(textNode);
+            chip.appendChild(document.createTextNode(label));
             chipsEl.appendChild(chip);
           });
 
@@ -101,7 +120,7 @@
         });
       }
 
-      /* ── 푸터에 조건 수 정보 삽입 (WBS wbs-fp-foot-info 기준) ── */
+      /* ── 푸터 foot-info 삽입 ── */
       var actionsEl = panelEl.querySelector('.stam-board-filter-actions');
       var footInfo  = null;
       if (actionsEl) {
@@ -111,19 +130,31 @@
         actionsEl.insertBefore(footInfo, actionsEl.firstChild);
       }
 
-      /* ── count badge (trigger 내부 badge 요소) ── */
+      /* ── count badge (trigger 내부) ── */
       var badge = triggerEl.querySelector(
         '[id$="-filter-count"], .stam-board-filter-count'
       );
 
+      /* radio 그룹의 전체(value='') 칩은 조건 수에서 제외 */
       function getActiveChips() {
-        return panelEl.querySelectorAll('.sbf-chip.active');
+        return Array.from(panelEl.querySelectorAll('.sbf-chip.active')).filter(function (c) {
+          return c.dataset.sbfVal !== '';
+        });
+      }
+
+      function getValues() {
+        var values = {};
+        getActiveChips().forEach(function (c) {
+          var g = c.dataset.sbfGroup;
+          if (!values[g]) values[g] = [];
+          values[g].push(c.dataset.sbfVal);
+        });
+        return values;
       }
 
       function updateCount() {
         var count = getActiveChips().length;
 
-        /* trigger 배지 */
         if (badge) {
           badge.textContent = String(count);
           if (count > 0) {
@@ -135,12 +166,14 @@
           }
         }
 
-        /* trigger 버튼 active 상태 */
         triggerEl.classList.toggle('active', count > 0);
 
-        /* 푸터 정보 */
         if (footInfo) {
           footInfo.textContent = '조건 ' + count + '개';
+        }
+
+        if (typeof opts.onChange === 'function') {
+          opts.onChange(getValues());
         }
       }
 
@@ -150,7 +183,6 @@
       function openPanel() {
         if (_closeTimer) { clearTimeout(_closeTimer); _closeTimer = null; }
         panelEl.hidden = false;
-        /* 두 번 rAF → hidden 제거 후 layout 반영 후 transition 시작 */
         requestAnimationFrame(function () {
           requestAnimationFrame(function () {
             panelEl.classList.add('is-open');
@@ -174,52 +206,64 @@
         panelEl.classList.contains('is-open') ? closePanel() : openPanel();
       });
 
-      /* ── chip 클릭 (toggle) ── */
+      /* ── chip 클릭 ── */
       panelEl.addEventListener('click', function (e) {
         var chip = e.target.closest('.sbf-chip');
         if (!chip) return;
-        var nowActive = !chip.classList.contains('active');
-        chip.classList.toggle('active');
-        chip.setAttribute('aria-pressed', nowActive ? 'true' : 'false');
+
+        if (chip.dataset.sbfRadio) {
+          /* radio 모드: 같은 그룹의 다른 칩 해제 후 선택 */
+          var groupKey = chip.dataset.sbfRadio;
+          panelEl.querySelectorAll('[data-sbf-radio="' + groupKey + '"]').forEach(function (c) {
+            c.classList.remove('active');
+            c.setAttribute('aria-pressed', 'false');
+          });
+          chip.classList.add('active');
+          chip.setAttribute('aria-pressed', 'true');
+        } else {
+          /* multi-select 모드: toggle */
+          var nowActive = !chip.classList.contains('active');
+          chip.classList.toggle('active');
+          chip.setAttribute('aria-pressed', nowActive ? 'true' : 'false');
+        }
         updateCount();
       });
 
-      /* ── 공통 reset 로직 ── */
+      /* ── 초기화 (공통) ── */
       function doReset() {
-        getActiveChips().forEach(function (c) {
+        /* 모든 칩 비활성화 */
+        panelEl.querySelectorAll('.sbf-chip.active').forEach(function (c) {
           c.classList.remove('active');
           c.setAttribute('aria-pressed', 'false');
         });
+        /* radio 그룹: 전체(value='') 칩 복원 */
+        panelEl.querySelectorAll('[data-sbf-radio]').forEach(function (c) {
+          if (c.dataset.sbfVal === '') {
+            c.classList.add('active');
+            c.setAttribute('aria-pressed', 'true');
+          }
+        });
         updateCount();
+        if (typeof opts.onReset === 'function') {
+          opts.onReset();
+        }
       }
 
-      /* 헤더 초기화 버튼 */
       headReset.addEventListener('click', doReset);
 
-      /* 푸터 초기화 버튼 */
       var resetEl = opts.reset
         ? root.querySelector(opts.reset)
         : panelEl.querySelector('[id$="-filter-reset"]');
-
-      if (resetEl) {
-        resetEl.addEventListener('click', doReset);
-      }
+      if (resetEl) resetEl.addEventListener('click', doReset);
 
       /* ── 적용 ── */
       var applyEl = opts.apply
         ? root.querySelector(opts.apply)
         : panelEl.querySelector('[id$="-filter-apply"]');
-
       if (applyEl) {
         applyEl.addEventListener('click', function () {
           if (typeof opts.onApply === 'function') {
-            var values = {};
-            getActiveChips().forEach(function (c) {
-              var g = c.dataset.sbfGroup;
-              if (!values[g]) values[g] = [];
-              values[g].push(c.dataset.sbfVal);
-            });
-            opts.onApply(values);
+            opts.onApply(getValues());
           }
           closePanel();
         });
@@ -243,18 +287,10 @@
 
       /* 공개 API */
       return {
-        open:  openPanel,
-        close: closePanel,
-        reset: doReset,
-        getValues: function () {
-          var values = {};
-          getActiveChips().forEach(function (c) {
-            var g = c.dataset.sbfGroup;
-            if (!values[g]) values[g] = [];
-            values[g].push(c.dataset.sbfVal);
-          });
-          return values;
-        }
+        open:      openPanel,
+        close:     closePanel,
+        reset:     doReset,
+        getValues: getValues
       };
     }
   };

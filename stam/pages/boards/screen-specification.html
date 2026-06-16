@@ -102,77 +102,14 @@
               필터
               <span class="stam-board-filter-count" id="ss-filter-cnt" style="display:none"></span>
             </button>
+            <!-- 필터 패널 — stam.board-filter.js가 head/grid/chip/footer DOM을 생성 -->
             <div class="stam-board-filter-panel" id="ss-fpop" hidden>
-              <div class="sbf-head">
-                <svg class="sbf-head-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                </svg>
-                <span class="sbf-head-title">필터</span>
-                <button class="sbf-head-reset" type="button" data-ss-filter-action="reset">초기화</button>
-              </div>
               <div class="stam-board-filter-grid">
-                <div class="sbf-sec">
-                  <div class="sbf-sec-title">작성 상태</div>
-                  <div class="sbf-chips" id="ss-f-wst">
-                    <button class="sbf-chip active" type="button" data-val="" aria-pressed="true">전체</button>
-                    <button class="sbf-chip" type="button" data-val="writing" aria-pressed="false"><span class="sbf-dot" style="background:#64748B"></span>작성중</button>
-                    <button class="sbf-chip" type="button" data-val="complete" aria-pressed="false"><span class="sbf-dot" style="background:var(--stam)"></span>작성완료</button>
-                  </div>
-                </div>
-                <div class="sbf-sec">
-                  <div class="sbf-sec-title">검토 상태</div>
-                  <div class="sbf-chips" id="ss-f-rst">
-                    <button class="sbf-chip active" type="button" data-val="" aria-pressed="true">전체</button>
-                    <button class="sbf-chip" type="button" data-val="none" aria-pressed="false"><span class="sbf-dot" style="background:#94A3B8"></span>미요청</button>
-                    <button class="sbf-chip" type="button" data-val="pending" aria-pressed="false"><span class="sbf-dot" style="background:#F59E0B"></span>검토 대기</button>
-                    <button class="sbf-chip" type="button" data-val="done" aria-pressed="false"><span class="sbf-dot" style="background:#00BF40"></span>검토 완료</button>
-                  </div>
-                </div>
-                <div class="sbf-sec">
-                  <div class="sbf-sec-title">승인 상태</div>
-                  <div class="sbf-chips" id="ss-f-ast">
-                    <button class="sbf-chip active" type="button" data-val="" aria-pressed="true">전체</button>
-                    <button class="sbf-chip" type="button" data-val="none" aria-pressed="false"><span class="sbf-dot" style="background:#94A3B8"></span>미승인</button>
-                    <button class="sbf-chip" type="button" data-val="approved" aria-pressed="false"><span class="sbf-dot" style="background:#00BF40"></span>승인 완료</button>
-                    <button class="sbf-chip" type="button" data-val="rejected" aria-pressed="false"><span class="sbf-dot" style="background:#991B1B"></span>반려됨</button>
-                  </div>
-                </div>
-                <div class="sbf-sec">
-                  <div class="sbf-sec-title">화면 유형</div>
-                  <div class="sbf-chips" id="ss-f-type">
-                    <button class="sbf-chip active" type="button" data-val="" aria-pressed="true">전체</button>
-                    <button class="sbf-chip" type="button" data-val="list" aria-pressed="false">목록 화면</button>
-                    <button class="sbf-chip" type="button" data-val="detail" aria-pressed="false">상세 화면</button>
-                    <button class="sbf-chip" type="button" data-val="form" aria-pressed="false">폼 화면</button>
-                    <button class="sbf-chip" type="button" data-val="popup" aria-pressed="false">팝업</button>
-                    <button class="sbf-chip" type="button" data-val="admin" aria-pressed="false">관리 화면</button>
-                  </div>
-                </div>
-                <div class="sbf-sec">
-                  <div class="sbf-sec-title">메뉴 그룹</div>
-                  <div class="sbf-chips" id="ss-f-grp">
-                    <button class="sbf-chip active" type="button" data-val="" aria-pressed="true">전체</button>
-                    <button class="sbf-chip" type="button" data-val="G-01" aria-pressed="false">대시보드</button>
-                    <button class="sbf-chip" type="button" data-val="G-02" aria-pressed="false">회원</button>
-                    <button class="sbf-chip" type="button" data-val="G-03" aria-pressed="false">산출물 관리</button>
-                    <button class="sbf-chip" type="button" data-val="G-04" aria-pressed="false">검토 관리</button>
-                    <button class="sbf-chip" type="button" data-val="G-05" aria-pressed="false">내보내기 / 설정</button>
-                  </div>
-                </div>
-                <div class="sbf-sec">
-                  <div class="sbf-sec-title">이미지 / 주석</div>
-                  <div class="sbf-chips" id="ss-f-img">
-                    <button class="sbf-chip active" type="button" data-val="" aria-pressed="true">전체</button>
-                    <button class="sbf-chip" type="button" data-val="has" aria-pressed="false">이미지 있음</button>
-                    <button class="sbf-chip" type="button" data-val="no" aria-pressed="false">이미지 없음</button>
-                    <button class="sbf-chip" type="button" data-val="ann" aria-pressed="false">주석 있음</button>
-                  </div>
-                </div>
+                <!-- JS(STAM.boardFilter.init)가 groups config 기준으로 섹션/chip을 렌더링 -->
               </div>
               <div class="stam-board-filter-actions">
-                <span class="sbf-foot-info" id="ss-fpop-info">조건 0개 · 결과 15건</span>
-                <button class="sbf-clear-btn" type="button" data-ss-filter-action="reset">전체 해제</button>
-                <button class="sbf-apply-btn" type="button" data-ss-filter-action="apply">적용</button>
+                <button class="sbf-clear-btn" id="ss-filter-reset" type="button">전체 해제</button>
+                <button class="sbf-apply-btn" id="ss-filter-apply" type="button">적용</button>
               </div>
             </div>
           </div>
