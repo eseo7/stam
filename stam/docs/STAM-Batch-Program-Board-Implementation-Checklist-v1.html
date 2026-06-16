@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM Batch Program Board Implementation Checklist v1</title>
+  <!-- 로컬 S-Core Dream 자체서빙만 사용 — 외부 폰트/CDN 없음 -->
+  <link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <style>
+    body { font-family: var(--font); background: var(--bg); color: var(--t1); margin: 0; padding: 32px; }
+    .doc-header { margin-bottom: 28px; }
+    .doc-header h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+    .doc-header p { font-size: 12px; color: var(--t3); margin: 0; line-height: 1.7; }
+    .meta { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .meta .chip { font-size:11px; padding:3px 8px; border-radius:4px; background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .related { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:11px; }
+    .related a { color: var(--stam); text-decoration: none; padding: 4px 10px; border: 1px solid var(--bd); border-radius: 6px; background: var(--bg-sur); }
+    .related a:hover { background: var(--bg-sur2); }
+    .sec { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; margin-bottom: 22px; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+    .sec-h { padding: 12px 16px; border-bottom: 1px solid var(--bd); background: var(--bg-sur2); font-size: 11px; font-weight: 700; letter-spacing:.06em; text-transform: uppercase; color: var(--t3); }
+    .sec-b { padding: 16px; font-size: 12.5px; color: var(--t2); line-height: 1.75; }
+    .sec-b p:first-child { margin-top: 0; }
+    .sec-b p:last-child { margin-bottom: 0; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; color: var(--stam); background: rgba(84,81,232,.08); padding: 1px 5px; border-radius: 3px; }
+    table.t { width: 100%; border-collapse: collapse; font-size: 12px; }
+    table.t th, table.t td { padding: 8px 10px; border-bottom: 1px solid var(--bd); text-align: left; vertical-align: top; }
+    table.t thead th { background: var(--bg-sur2); color: var(--t3); text-transform: uppercase; font-size: 10px; letter-spacing: .06em; font-weight: 700; white-space: nowrap; }
+    ul.tight, ol.tight { margin: 6px 0; padding-left: 22px; } ul.tight li, ol.tight li { margin: 3px 0; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; line-height:1.5; }
+    .pill.ok { background:#dcfce7; color:#166534; }
+    .pill.bad { background:#fee2e2; color:#991b1b; }
+    .pill.warn { background:#fef3c7; color:#92400e; }
+    .pill.info { background:#dbeafe; color:#1e40af; }
+    .pill.muted { background:var(--bg-sur2); color:var(--t3); border:1px solid var(--bd); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid2 .col { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; }
+    .grid2 h4 { margin: 0 0 6px; font-size: 12px; font-weight: 700; }
+    .col.do h4 { color: #16a34a; }
+    .col.dont h4 { color: #dc2626; }
+    .note { background: var(--bg-sur2); border: 1px solid var(--bd); border-left: 3px solid var(--stam); border-radius: 6px; padding: 10px 12px; font-size: 11.5px; color: var(--t2); line-height: 1.7; margin-top: 10px; }
+    .theme-toggle { position: fixed; top: 16px; right: 16px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--bg-sur); color: var(--t2); font-size: 11px; cursor: pointer; z-index: 10; }
+    /* checklist box */
+    .ck-item { display:flex; gap:8px; align-items:flex-start; padding:5px 0; font-size:12px; }
+    .ck-box { flex-shrink:0; width:14px; height:14px; border:1.5px solid var(--bd); border-radius:3px; margin-top:2px; }
+    .gate-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px; }
+    .gate-card { border:1px solid var(--bd); border-radius:8px; padding:10px 12px; background:var(--bg-sur2); display:flex; align-items:center; gap:8px; }
+    .gate-card .gbox { width:14px; height:14px; border:1.5px solid var(--bd); border-radius:3px; flex-shrink:0; }
+    .gate-card .gt { font-size:11.5px; font-weight:600; color:var(--t1); }
+    @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } body { padding: 18px; } }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">다크 모드</button>
+
+<div class="doc-header">
+  <h1>STAM Batch Program Board Implementation Checklist <span class="pill ok">v1</span> <span class="pill info">docs-only</span></h1>
+  <p><strong>"배치프로그램 관리"</strong> 게시판을 실제 page 로 만들기 전에 확정해야 할 의사결정 항목을 정리한 <strong>구현 전 체크리스트</strong>.<br>
+  본 문서는 <strong>구현 지시서가 아니라 의사결정 체크리스트</strong>이며, 실제 화면·메뉴·라우팅·DB/API·스케줄러는 만들지 않는다.</p>
+  <div class="meta">
+    <span class="chip">단계: Pre-Implementation Checklist</span>
+    <span class="chip">범위: docs-only</span>
+    <span class="chip">버전: v1</span>
+    <span class="chip">제품 화면 미생성</span>
+  </div>
+  <div class="related">
+    <span style="color:var(--t3);align-self:center">Related:</span>
+    <a href="STAM-Batch-Program-Board-Definition-v1.html">Batch Program Board Definition v1</a>
+    <a href="STAM-Batch-Program-Board-Preview-v1.html">Batch Program Board Preview v1</a>
+    <a href="STAM-Board-List-Template-Contract-v1.html">Board List Template Contract v1</a>
+    <a href="STAM-Board-Drawer-Shell-Contract-v1.html">Board Drawer Shell Contract v1</a>
+    <a href="STAM-Board-Form-Field-Contract-v1.html">Board Form Field Contract v1</a>
+    <a href="STAM-Custom-Select-Contract-v1.html">Custom Select Contract v1</a>
+    <a href="STAM-Docs-Index.html">Docs Index</a>
+  </div>
+</div>
+
+<!-- ── 01. Summary ── -->
+<div class="sec">
+  <div class="sec-h">Section 01 · Summary</div>
+  <div class="sec-b">
+    <ul class="tight">
+      <li><strong>위치</strong> — <a href="STAM-Batch-Program-Board-Definition-v1.html">Definition v1</a>(무엇을) → <a href="STAM-Batch-Program-Board-Preview-v1.html">Preview v1</a>(어떻게 보일지) 이후, <strong>실제 구현 직전</strong> 단계의 확정 문서다.</li>
+      <li><strong>성격</strong> — 본 문서는 <strong>구현 지시서가 아니다</strong>. 어떤 항목을 먼저 결정/승인해야 page 생성으로 넘어갈 수 있는지 정리한 <strong>의사결정 체크리스트</strong>다.</li>
+      <li><strong>출력</strong> — 각 항목은 미정/후보/확정 상태를 가지며, 모든 핵심 항목이 승인(Section 11 Gate)되어야 실제 page 생성 PR 로 진입한다.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── 02. 구현 여부 판단 ── -->
+<div class="sec">
+  <div class="sec-h">Section 02 · 구현 여부 판단</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>판단 항목</th><th>선택지</th><th>현재</th></tr></thead>
+      <tbody>
+        <tr><td>지금 바로 page 생성</td><td>예 / 아니오</td><td><span class="pill warn">미정</span></td></tr>
+        <tr><td>Preview 만 유지</td><td>예 / 아니오</td><td><span class="pill warn">미정</span></td></tr>
+        <tr><td>API 정의서 / 프로그램 목록정의서와 묶어 구현</td><td>독립 / 묶음</td><td><span class="pill warn">미정</span></td></tr>
+        <tr><td>1차 MVP 포함 여부</td><td>포함 / 후순위</td><td><span class="pill warn">미정</span></td></tr>
+      </tbody>
+    </table>
+    <div class="note">이 결정에 따라 후속 섹션(IA/필드/연결 산출물)의 확정 범위가 달라진다. 묶음 구현 시 API 정의서 게시판과 컬럼·연결 정합화 선행 필요.</div>
+  </div>
+</div>
+
+<!-- ── 03. IA / 메뉴 확정 체크 ── -->
+<div class="sec">
+  <div class="sec-h">Section 03 · IA / 메뉴 확정 체크</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <p>위치 후보: 기능정의서 → API 정의서 → <strong>배치프로그램 관리</strong> → WBS</p>
+    <table class="t">
+      <thead><tr><th>체크 항목</th><th>확정값 후보</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>실제 nav-data 추가 여부</td><td>추가 / 보류</td><td><span class="pill warn">미정</span></td></tr>
+        <tr><td>사이드바 노출명</td><td>"배치프로그램 관리"</td><td><span class="pill info">후보</span></td></tr>
+        <tr><td>URL 후보</td><td><code>/boards/batch-programs</code></td><td><span class="pill info">후보</span></td></tr>
+        <tr><td>문서 링크 ↔ 제품 메뉴 분리 여부</td><td>분리(docs는 Docs Index, 제품은 nav-data)</td><td><span class="pill info">후보</span></td></tr>
+      </tbody>
+    </table>
+    <div class="note"><strong>중요:</strong> 본 PR 에서는 <code>stam.nav-data.js</code> 및 좌측 메뉴를 수정하지 않는다. nav-data 추가는 Section 11 Gate 승인 후 별도 PR.</div>
+  </div>
+</div>
+
+<!-- ── 04. 목록 컬럼 확정 체크 ── -->
+<div class="sec">
+  <div class="sec-h">Section 04 · 목록 컬럼 확정 체크</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>컬럼</th><th>기본 표시</th><th>필터 대상</th><th>정렬 대상</th></tr></thead>
+      <tbody>
+        <tr><td>배치 ID</td><td>표시</td><td>—</td><td>✓ (기본)</td></tr>
+        <tr><td>배치명</td><td>표시</td><td>검색</td><td>✓</td></tr>
+        <tr><td>업무영역</td><td>표시</td><td>✓</td><td>✓</td></tr>
+        <tr><td>실행주기</td><td>표시</td><td>✓</td><td>✓</td></tr>
+        <tr><td>실행시간</td><td>표시</td><td>—</td><td>✓</td></tr>
+        <tr><td>선행 배치</td><td>숨김(상세) 후보</td><td>—</td><td>—</td></tr>
+        <tr><td>후행 배치</td><td>숨김(상세) 후보</td><td>—</td><td>—</td></tr>
+        <tr><td>담당자</td><td>표시</td><td>검색</td><td>✓</td></tr>
+        <tr><td>상태</td><td>표시</td><td>✓</td><td>✓</td></tr>
+        <tr><td>최종 수정일</td><td>표시</td><td>—</td><td>✓</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 위 표시/필터/정렬 값은 <strong>후보</strong>이며, 확정은 Section 11 Gate(필드 승인) 대상.</p>
+  </div>
+</div>
+
+<!-- ── 05. 등록/수정 필드 확정 체크 ── -->
+<div class="sec">
+  <div class="sec-h">Section 05 · 등록 / 수정 필드 확정 체크</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>필드</th><th>필수/선택</th><th>입력 타입 후보</th></tr></thead>
+      <tbody>
+        <tr><td>배치 ID</td><td><span class="pill bad">필수</span></td><td>text (형식 BAT-####)</td></tr>
+        <tr><td>배치명</td><td><span class="pill bad">필수</span></td><td>text</td></tr>
+        <tr><td>업무영역</td><td><span class="pill bad">필수</span></td><td>custom select</td></tr>
+        <tr><td>실행주기</td><td><span class="pill bad">필수</span></td><td>custom select</td></tr>
+        <tr><td>상태</td><td><span class="pill bad">필수</span></td><td>custom select</td></tr>
+        <tr><td>담당자</td><td><span class="pill bad">필수</span></td><td>custom select</td></tr>
+        <tr><td>실행시간 / 윈도우</td><td><span class="pill muted">선택</span></td><td>time</td></tr>
+        <tr><td>운영반영일</td><td><span class="pill muted">선택</span></td><td>date</td></tr>
+        <tr><td>선행 / 후행 배치</td><td><span class="pill muted">선택</span></td><td>custom select (배치 참조)</td></tr>
+        <tr><td>설명 / 비고 / 파라미터</td><td><span class="pill muted">선택</span></td><td>textarea (full-span)</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;font-size:11.5px"><strong>validation 메시지 후보:</strong> 배치 ID 형식 오류 · 윈도우 종료&lt;시작 · 선행=자기 자신 금지 · 필수 누락. (<code>.stam-field-error</code>)</p>
+  </div>
+</div>
+
+<!-- ── 06. 상태값 확정 체크 ── -->
+<div class="sec">
+  <div class="sec-h">Section 06 · 상태값 확정 체크</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <p>상태값 6종: <span class="pill info">설계중</span> <span class="pill info">개발중</span> <span class="pill warn">테스트중</span> <span class="pill ok">운영반영</span> <span class="pill warn">보류</span> <span class="pill bad">폐기</span></p>
+    <table class="t">
+      <thead><tr><th>현재 상태</th><th>전이 허용 후보</th></tr></thead>
+      <tbody>
+        <tr><td>설계중</td><td>개발중 / 보류</td></tr>
+        <tr><td>개발중</td><td>테스트중 / 보류</td></tr>
+        <tr><td>테스트중</td><td>운영반영 / 개발중(반려)</td></tr>
+        <tr><td>운영반영</td><td>보류 / 폐기</td></tr>
+        <tr><td>보류</td><td>설계중 / 개발중 / 폐기</td></tr>
+        <tr><td>폐기</td><td>(종료)</td></tr>
+      </tbody>
+    </table>
+    <div class="ck-item"><span class="ck-box"></span><span><strong>운영반영 후 수정 제한 여부</strong> — 실행정보·선후행 변경 시 사유 입력/승인 필요 여부 확정 (<span class="pill warn">미정</span>)</span></div>
+  </div>
+</div>
+
+<!-- ── 07. 연결 산출물 확정 체크 ── -->
+<div class="sec">
+  <div class="sec-h">Section 07 · 연결 산출물 확정 체크</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>산출물</th><th>1차 연결 후보</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>요구사항</td><td><span class="pill ok">1차</span></td><td>요건 추적 출발점</td></tr>
+        <tr><td>기능정의서</td><td><span class="pill ok">1차</span></td><td>기능 ID ↔ 배치 ID</td></tr>
+        <tr><td>API 정의서</td><td><span class="pill ok">1차</span></td><td>연계 API</td></tr>
+        <tr><td>WBS</td><td><span class="pill warn">후순위</span></td><td>일정·담당</td></tr>
+        <tr><td>테스트 케이스</td><td><span class="pill warn">후순위</span></td><td>재처리 검증</td></tr>
+        <tr><td>결함</td><td><span class="pill warn">후순위</span></td><td>결함 추적</td></tr>
+        <tr><td>오픈 시나리오</td><td><span class="pill warn">후순위</span></td><td>오픈 수행 순서</td></tr>
+        <tr><td>회의록</td><td><span class="pill warn">후순위</span></td><td>의사결정 근거</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">* 1차/후순위 구분은 후보. 확정은 Section 11 Gate(연결 산출물 승인) 대상.</p>
+  </div>
+</div>
+
+<!-- ── 08. 권한 / 삭제 정책 체크 ── -->
+<div class="sec">
+  <div class="sec-h">Section 08 · 권한 / 삭제 정책 체크</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>정책 항목</th><th>후보값</th></tr></thead>
+      <tbody>
+        <tr><td>등록 가능 역할</td><td>배치 설계 담당자 · PL 이상</td></tr>
+        <tr><td>수정 가능 역할</td><td>담당자 · PL 이상</td></tr>
+        <tr><td>삭제 가능 역할</td><td>PL 이상 (제한적)</td></tr>
+        <tr><td>운영반영 상태 삭제 제한</td><td>물리 삭제 금지 → <code>폐기</code> 전환 (이력 보존)</td></tr>
+        <tr><td>변경이력 필수 여부</td><td>실행주기·선후행·실패처리 변경 시 필수 (후보)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 09. Board 표준 적용 체크 ── -->
+<div class="sec">
+  <div class="sec-h">Section 09 · Board 표준 적용 체크</div>
+  <div class="sec-b">
+    <div class="ck-item"><span class="ck-box"></span><span><strong>Board List Template</strong> 적용 — toolbar·검색·필터·삭제·선택형 테이블</span></div>
+    <div class="ck-item"><span class="ck-box"></span><span><strong>STAMBoardList Controller</strong> 적용 — <code>window.STAMBoardList.init()</code></span></div>
+    <div class="ck-item"><span class="ck-box"></span><span><strong>Drawer Shell Contract</strong> 적용 — root/scrim/head/body/foot · detail/create/edit · Escape · <code>aria-modal</code></span></div>
+    <div class="ck-item"><span class="ck-box"></span><span><strong>Form Field Contract</strong> 적용 — <code>.stam-form-field</code> / <code>.stam-label</code> / <code>.stam-input</code> / <code>.stam-form-grid</code></span></div>
+    <div class="ck-item"><span class="ck-box"></span><span><strong>Custom Select Contract</strong> 적용 — <code>.stam-cs-*</code> (업무영역·실행주기·상태·담당자)</span></div>
+    <div class="ck-item"><span class="ck-box"></span><span><strong>row active / checkbox selected 계약</strong> 적용 — <code>.is-active</code>(drawer) ↔ <code>.is-selected</code>(bulk) 분리</span></div>
+    <div class="ck-item"><span class="ck-box"></span><span><strong>삭제 카운트 계약</strong> 적용 — <code>삭제 (N)</code> 레이블, <code>.stam-delete-label</code></span></div>
+    <div class="note">신규 게시판이므로 위 공통 계약을 그대로 채택하고 화면별 UI 를 새로 만들지 않는다 (Preview Section 03·05·06 참조).</div>
+  </div>
+</div>
+
+<!-- ── 10. 구현 범위 분리 ── -->
+<div class="sec">
+  <div class="sec-h">Section 10 · 구현 범위 분리 (단계)</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>차수</th><th>범위</th><th>STAM prototype 대상</th></tr></thead>
+      <tbody>
+        <tr><td>1차</td><td>정적 page + mock data</td><td><span class="pill ok">가능</span></td></tr>
+        <tr><td>2차</td><td>local data / JS state</td><td><span class="pill ok">가능</span></td></tr>
+        <tr><td>3차</td><td>실제 저장 / API</td><td><span class="pill muted">프로토타입 범위 외</span></td></tr>
+        <tr><td>4차</td><td>배치 실행 / 중지 / 스케줄러 연동</td><td><span class="pill bad">제외</span></td></tr>
+      </tbody>
+    </table>
+    <div class="note"><strong>이번 STAM prototype 범위에서 배치 실행/중지/스케줄러 기능은 명시적으로 제외한다.</strong> 1~2차(정적 + local state)까지가 prototype 후보 범위.</div>
+  </div>
+</div>
+
+<!-- ── 11. 실제 구현 전 승인 Gate ── -->
+<div class="sec">
+  <div class="sec-h">Section 11 · 실제 구현 전 승인 Gate</div>
+  <div class="sec-b">
+    <p>아래 8개 Gate 가 모두 승인되어야 실제 page 생성 PR 로 진입한다.</p>
+    <div class="gate-grid">
+      <div class="gate-card"><span class="gbox"></span><span class="gt">IA 승인</span></div>
+      <div class="gate-card"><span class="gbox"></span><span class="gt">필드 승인</span></div>
+      <div class="gate-card"><span class="gbox"></span><span class="gt">상태값 승인</span></div>
+      <div class="gate-card"><span class="gbox"></span><span class="gt">권한 승인</span></div>
+      <div class="gate-card"><span class="gbox"></span><span class="gt">연결 산출물 승인</span></div>
+      <div class="gate-card"><span class="gbox"></span><span class="gt">삭제 정책 승인</span></div>
+      <div class="gate-card"><span class="gbox"></span><span class="gt">화면 생성 승인</span></div>
+      <div class="gate-card"><span class="gbox"></span><span class="gt">nav-data 수정 승인</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 12. 제외 범위 ── -->
+<div class="sec">
+  <div class="sec-h">Section 12 · 제외 범위 (본 PR)</div>
+  <div class="sec-b">
+    <div class="grid2">
+      <div class="col dont">
+        <h4>❌ 이번 PR 에서 하지 않음</h4>
+        <ul class="tight">
+          <li>실제 제품 page 생성</li>
+          <li>실제 좌측 메뉴 추가 (nav-data 수정)</li>
+          <li>실제 제품 라우팅 추가</li>
+          <li>DB / API / 저장 로직</li>
+          <li>배치 실행 / 중지 기능</li>
+          <li>스케줄러 기능</li>
+        </ul>
+      </div>
+      <div class="col do">
+        <h4>✅ 이번 PR 에서 함</h4>
+        <ul class="tight">
+          <li>구현 전 의사결정 체크리스트 정리</li>
+          <li>IA·필드·상태값·연결·권한·삭제 확정 체크</li>
+          <li>Board 표준 적용 체크 · 구현 범위 분리</li>
+          <li>승인 Gate 정의 · Docs Index/Definition/Preview 링크</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById('themeToggle');
+  b.addEventListener('click', function(){
+    var html = document.documentElement;
+    var d = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', d ? 'light' : 'dark');
+    b.textContent = d ? '다크 모드' : '라이트 모드';
+  });
+})();
+</script>
+</body>
+</html>
