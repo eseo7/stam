@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PR #127 Visual QA Report — boardFilter SSOT</title>
+<style>
+  :root {
+    --brand: #5451e8;
+    --pass: #16a34a;
+    --fail: #dc2626;
+    --warn: #d97706;
+    --bg: #f8fafc;
+    --card: #fff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --muted: #64748b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         background: var(--bg); color: var(--text); line-height: 1.6; }
+  header { background: var(--brand); color: #fff; padding: 24px 32px; }
+  header h1 { font-size: 1.4rem; font-weight: 700; }
+  header p  { font-size: 0.9rem; opacity: .8; margin-top: 4px; }
+  main { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+  section { margin-bottom: 40px; }
+  h2 { font-size: 1.1rem; font-weight: 700; border-left: 4px solid var(--brand);
+       padding-left: 10px; margin-bottom: 16px; }
+  h3 { font-size: .95rem; font-weight: 600; color: var(--muted); margin: 20px 0 10px; }
+
+  /* Summary table */
+  .summary-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .summary-table th { background: #f1f5f9; text-align: left; padding: 8px 12px;
+                      border: 1px solid var(--border); font-weight: 600; }
+  .summary-table td { padding: 8px 12px; border: 1px solid var(--border); }
+  .summary-table code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px;
+                        font-size: .85rem; }
+
+  /* Badge */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px;
+           font-size: .78rem; font-weight: 700; }
+  .badge.pass { background: #dcfce7; color: var(--pass); }
+  .badge.info { background: #dbeafe; color: #1d4ed8; }
+
+  /* Evidence cards */
+  .ev-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+             gap: 16px; }
+  .ev-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+             padding: 16px; }
+  .ev-card .num { font-size: 2rem; font-weight: 800; color: var(--brand); }
+  .ev-card .label { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+  .ev-card .note  { font-size: .8rem; color: var(--muted); margin-top: 8px;
+                    border-top: 1px solid var(--border); padding-top: 8px; }
+
+  /* Screenshot grid */
+  .vp-section { background: var(--card); border: 1px solid var(--border);
+                border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+  .vp-label { font-size: .8rem; font-weight: 700; color: var(--brand);
+              text-transform: uppercase; letter-spacing: .05em; margin-bottom: 16px; }
+  .scr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+              gap: 16px; }
+  .scr-item { }
+  .scr-item .caption { font-size: .8rem; color: var(--muted); margin-bottom: 6px;
+                       font-weight: 600; }
+  .scr-item img { width: 100%; border: 1px solid var(--border); border-radius: 6px;
+                  display: block; cursor: zoom-in; }
+  .scr-item img:hover { box-shadow: 0 4px 20px rgba(0,0,0,.15); }
+
+  /* Code change table */
+  .change-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  .change-table th { background: #f1f5f9; padding: 8px 12px; border: 1px solid var(--border);
+                     text-align: left; font-weight: 600; }
+  .change-table td { padding: 8px 12px; border: 1px solid var(--border);
+                     vertical-align: top; }
+  .change-table .removed { color: var(--fail); }
+  .change-table .added   { color: var(--pass); }
+  .change-table code     { font-size: .82rem; background: #f1f5f9; padding: 1px 4px;
+                           border-radius: 3px; }
+
+  /* Hold banner */
+  .hold-banner { background: #fffbeb; border: 2px solid #f59e0b; border-radius: 8px;
+                 padding: 16px 20px; display: flex; align-items: flex-start; gap: 12px; }
+  .hold-banner .icon { font-size: 1.4rem; flex-shrink: 0; }
+  .hold-banner p { font-size: .9rem; }
+  .hold-banner strong { color: #92400e; }
+
+  footer { text-align: center; color: var(--muted); font-size: .8rem;
+           padding: 32px 0; border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>PR #127 — Visual QA Report</h1>
+  <p>refactor(ui): promote board filter to common component &nbsp;|&nbsp; Branch: <code style="opacity:.9">refactor/common-board-filter-component</code></p>
+</header>
+
+<main>
+
+  <!-- Merge Hold Banner -->
+  <div class="hold-banner" style="margin-bottom:32px">
+    <span class="icon">⚠️</span>
+    <p><strong>Merge 보류:</strong> 이 PR은 리뷰용 QA artifact이며 사용자가 HTML 비교 리포트와 스크린샷을 확인한 뒤 merge 여부를 결정합니다. QA artifact(<code>.qa/pr127/</code>) 의 main 포함 여부도 merge 전에 결정합니다.</p>
+  </div>
+
+  <!-- Artifact Map -->
+  <section>
+    <h2>Artifact 경로</h2>
+    <table class="summary-table">
+      <thead><tr><th>구분</th><th>경로</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>QA HTML 리포트</td><td><code>.qa/pr127/index.html</code></td><td>이 파일</td></tr>
+        <tr><td>1366px 스크린샷</td><td><code>.qa/pr127/1366/*.png</code></td><td>5개 화면</td></tr>
+        <tr><td>1920px 스크린샷</td><td><code>.qa/pr127/1920/*.png</code></td><td>5개 화면</td></tr>
+        <tr><td>공통 CSS</td><td><code>stam/css/stam.board-filter.css</code></td><td>dot 클래스 3종 추가</td></tr>
+        <tr><td>공통 JS</td><td><code>stam/js/stam.board-filter.js</code></td><td>radio 모드 · onChange · onReset 추가</td></tr>
+        <tr><td>공통 DOM 생성 함수</td><td><code>STAM.boardFilter.init()</code></td><td>5개 화면 모두 호출</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- SSOT Evidence -->
+  <section>
+    <h2>SSOT 증거 <span class="badge pass">PASS</span></h2>
+    <div class="ev-grid">
+      <div class="ev-card">
+        <div class="num">5</div>
+        <div class="label">화면 모두 <code>STAM.boardFilter.init()</code> 호출</div>
+        <div class="note">WBS · 화면정의서 · 메뉴-화면목록 · 기능명세서 · 요구사항</div>
+      </div>
+      <div class="ev-card">
+        <div class="num">113</div>
+        <div class="label">런타임 chip 수 (<code>data-sbf-group</code> 보유)</div>
+        <div class="note">Playwright 실행 후 DOM 검사 기준. 정적 선언 시 이 속성은 존재 불가.</div>
+      </div>
+      <div class="ev-card">
+        <div class="num">0</div>
+        <div class="label">구형 <code>data-val</code> 정적 chip (legacy)</div>
+        <div class="note">5개 HTML 파일 정적 분석 결과. 모든 chip이 JS 렌더러에 의해 생성됨.</div>
+      </div>
+      <div class="ev-card">
+        <div class="num">0</div>
+        <div class="label">화면 전용 필터 함수 잔존</div>
+        <div class="note">구 <code>initFilterPanel()</code>(wbs) · <code>initFilter()</code> 등 6개 함수 모두 제거됨.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Code Change Summary -->
+  <section>
+    <h2>코드 변경 요약</h2>
+    <table class="change-table">
+      <thead><tr><th>파일</th><th>유형</th><th>제거</th><th>추가</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>stam/js/stam.board-filter.js</code></td>
+          <td>공통 JS</td>
+          <td class="removed">—</td>
+          <td class="added"><code>type:'radio'</code> 그룹 모드, <code>onChange</code>/<code>onReset</code> 콜백, <code>data-sbf-radio</code> 렌더링, 전체(value='') chip 배지 제외</td>
+        </tr>
+        <tr>
+          <td><code>stam/css/stam.board-filter.css</code></td>
+          <td>공통 CSS</td>
+          <td class="removed">—</td>
+          <td class="added">dot 클래스 3종: <code>.d-write</code> <code>.d-brand</code> <code>.d-fatal</code></td>
+        </tr>
+        <tr>
+          <td><code>stam/js/stam.wbs.js</code></td>
+          <td>화면 JS</td>
+          <td class="removed"><code>initFilterPanel()</code> (~880자, 구 <code>wbs-fp-chip</code> dead code)</td>
+          <td class="added"><code>STAM.boardFilter.init()</code> 호출</td>
+        </tr>
+        <tr>
+          <td><code>stam/pages/boards/screen-specification.html</code></td>
+          <td>화면 HTML</td>
+          <td class="removed">정적 filter DOM: sbf-head + 6 sbf-sec + 27 chip + sbf-foot-info</td>
+          <td class="added">마운트 포인트만 존재 (<code>#ss-fpop</code>)</td>
+        </tr>
+        <tr>
+          <td><code>stam/js/stam.screen-specification.js</code></td>
+          <td>화면 JS</td>
+          <td class="removed">6개 함수: <code>initFilter()</code> <code>toggleFilter()</code> <code>closeFilter()</code> <code>updateFilterBtn()</code> <code>resetFilter()</code> <code>applyFilter()</code></td>
+          <td class="added"><code>STAM.boardFilter.init()</code> 호출 (radio 6그룹)</td>
+        </tr>
+        <tr>
+          <td><code>stam/css/stam.screen-specification.css</code></td>
+          <td>화면 CSS</td>
+          <td class="removed">구 <code>.ss-filter-btn</code> <code>.ss-filter-pop</code> <code>.ss-fopt</code> 전용 CSS</td>
+          <td class="added">공통 클래스 위임 주석만 잔존</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top:10px;font-size:.82rem;color:var(--muted);">
+      금지 파일(stam.nav-data.js · stam.shell.js · stam.topbar.js · Firebase · DB/API 등)은 이 PR에서 수정되지 않았습니다.
+    </p>
+  </section>
+
+  <!-- Screenshots -->
+  <section>
+    <h2>필터 패널 오픈 상태 스크린샷</h2>
+
+    <div class="vp-section">
+      <div class="vp-label">1366px viewport</div>
+      <div class="scr-grid">
+        <div class="scr-item">
+          <div class="caption">WBS</div>
+          <img src="1366/wbs-panel.png" alt="WBS 필터 패널 1366px" loading="lazy">
+        </div>
+        <div class="scr-item">
+          <div class="caption">화면정의서 (screen-specification)</div>
+          <img src="1366/screen-spec-panel.png" alt="화면정의서 필터 패널 1366px" loading="lazy">
+        </div>
+        <div class="scr-item">
+          <div class="caption">메뉴-화면목록 (menu-screen-list)</div>
+          <img src="1366/msl-panel.png" alt="메뉴화면목록 필터 패널 1366px" loading="lazy">
+        </div>
+        <div class="scr-item">
+          <div class="caption">기능명세서 (functional-specification)</div>
+          <img src="1366/fn-panel.png" alt="기능명세서 필터 패널 1366px" loading="lazy">
+        </div>
+        <div class="scr-item">
+          <div class="caption">요구사항 (requirements)</div>
+          <img src="1366/rq-panel.png" alt="요구사항 필터 패널 1366px" loading="lazy">
+        </div>
+      </div>
+    </div>
+
+    <div class="vp-section">
+      <div class="vp-label">1920px viewport</div>
+      <div class="scr-grid">
+        <div class="scr-item">
+          <div class="caption">WBS</div>
+          <img src="1920/wbs-panel.png" alt="WBS 필터 패널 1920px" loading="lazy">
+        </div>
+        <div class="scr-item">
+          <div class="caption">화면정의서 (screen-specification)</div>
+          <img src="1920/screen-spec-panel.png" alt="화면정의서 필터 패널 1920px" loading="lazy">
+        </div>
+        <div class="scr-item">
+          <div class="caption">메뉴-화면목록 (menu-screen-list)</div>
+          <img src="1920/msl-panel.png" alt="메뉴화면목록 필터 패널 1920px" loading="lazy">
+        </div>
+        <div class="scr-item">
+          <div class="caption">기능명세서 (functional-specification)</div>
+          <img src="1920/fn-panel.png" alt="기능명세서 필터 패널 1920px" loading="lazy">
+        </div>
+        <div class="scr-item">
+          <div class="caption">요구사항 (requirements)</div>
+          <img src="1920/rq-panel.png" alt="요구사항 필터 패널 1920px" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Commit List -->
+  <section>
+    <h2>커밋 목록</h2>
+    <table class="summary-table">
+      <thead><tr><th>커밋</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td><code>2283de1</code></td><td>refactor(ui): promote wbs filter to common component</td></tr>
+        <tr><td><code>267e04f</code></td><td>refactor(ui): convert all 5 screens to STAM.boardFilter.init() SSOT</td></tr>
+        <tr><td><code>9436f5e</code></td><td>chore(qa): add pr127 filter panel screenshots (5 screens × 2 viewports)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>
+  PR #127 QA Report &nbsp;·&nbsp; 리뷰용 artifact — merge 전 main 포함 여부를 결정합니다
+</footer>
+
+</body>
+</html>
