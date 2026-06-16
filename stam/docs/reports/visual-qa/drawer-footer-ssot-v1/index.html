@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QA Report — Drawer Footer SSOT v1</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 1000px; margin: 0 auto; padding: 32px 24px; color: #1e293b; background: #f8fafc; }
+    h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .meta { font-size: 12px; color: #64748b; margin-bottom: 28px; line-height: 1.7; }
+    h2 { font-size: 14px; font-weight: 700; margin: 28px 0 10px; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+    h3 { font-size: 12.5px; font-weight: 700; margin: 16px 0 8px; color: #475569; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+    th { background: #f1f5f9; text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; line-height: 1.5; }
+    tr:last-child td { border-bottom: 0; }
+    .pass { color: #047857; font-weight: 700; }
+    .na { color: #94a3b8; font-weight: 600; }
+    code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; background: #f1f5f9; padding: 1px 5px; border-radius: 3px; }
+    .summary-row { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+    .summary-card { flex: 1; min-width: 110px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; }
+    .summary-card .num { font-size: 24px; font-weight: 700; color: #4338ca; }
+    .summary-card .num.green { color: #047857; }
+    .summary-card .lbl { font-size: 11px; color: #64748b; margin-top: 2px; }
+    .note { font-size: 12px; color: #475569; background: #f1f5f9; border-left: 3px solid #4338ca; padding: 8px 12px; border-radius: 0 6px 6px 0; margin-bottom: 16px; }
+    .ss-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+    .ss-item { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; }
+    .ss-item img { width: 100%; display: block; border-bottom: 1px solid #e2e8f0; }
+    .ss-label { padding: 6px 10px; font-size: 11px; color: #64748b; font-weight: 600; }
+    .ss-status { padding: 0 10px 6px; font-size: 11px; }
+    .checklist { list-style: none; padding: 0; margin: 0 0 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+    .checklist li { padding: 8px 14px; border-bottom: 1px solid #f1f5f9; font-size: 12.5px; display: flex; align-items: flex-start; gap: 10px; }
+    .checklist li:last-child { border-bottom: 0; }
+    .ok { color: #047857; flex-shrink: 0; margin-top: 1px; }
+  </style>
+</head>
+<body>
+
+<h1>QA Report — Drawer Footer SSOT v1</h1>
+<div class="meta">
+  PR #129 · 브랜치: <code>refactor/drawer-footer-ssot-v1</code><br>
+  캡처 일시: 2026-06-16 · Playwright 1.56.1 + Chromium 141 · python3 http.server<br>
+  대상: 요구사항정의서 · 메뉴구조/화면목록 · 기능정의서
+</div>
+
+<div class="summary-row">
+  <div class="summary-card"><div class="num">8</div><div class="lbl">변경 파일</div></div>
+  <div class="summary-card"><div class="num">9</div><div class="lbl">드로어 푸터 수정</div></div>
+  <div class="summary-card"><div class="num green">20</div><div class="lbl">스크린샷 캡처</div></div>
+  <div class="summary-card"><div class="num green">0</div><div class="lbl">콘솔 오류</div></div>
+  <div class="summary-card"><div class="num green">0</div><div class="lbl">금지 파일 변경</div></div>
+  <div class="summary-card"><div class="num green">0</div><div class="lbl">JS 변경</div></div>
+</div>
+
+<!-- ── 1. 콘솔 오류 ── -->
+<h2>1. 콘솔 오류 확인</h2>
+<ul class="checklist">
+  <li><span class="ok">✓</span>요구사항정의서 — 1366px / 1920px 각 3개 drawer 오픈 후 console.error 0건</li>
+  <li><span class="ok">✓</span>메뉴구조/화면목록 — 1366px / 1920px 각 3개 drawer 오픈 후 console.error 0건</li>
+  <li><span class="ok">✓</span>기능정의서 — 1366px / 1920px 각 3개 drawer 오픈 후 console.error 0건</li>
+  <li><span class="ok">✓</span>제거된 CSS class(.rq-dw-foot 등)는 JS에서 미참조 — 바인딩 오류 없음</li>
+  <li><span class="ok">✓</span>JS 파일 전체 미변경 — data-rq-open/close, data-msl-open/close, data-fn-open/close 보존</li>
+</ul>
+
+<!-- ── 2. 요구사항정의서 ── -->
+<h2>2. 요구사항정의서 Drawer Footer</h2>
+
+<div class="ss-grid">
+  <div class="ss-item">
+    <img src="screenshots/rq-register-1366.png" alt="rq-register 1366px">
+    <div class="ss-label">등록 · 1366px</div>
+    <div class="ss-status"><span class="pass">PASS</span> — 취소(ghost) / 임시저장(outline) / 전체보기(ghost) / spacer / 등록(primary)</div>
+  </div>
+  <div class="ss-item">
+    <img src="screenshots/rq-detail-1366.png" alt="rq-detail 1366px">
+    <div class="ss-label">상세 · 1366px</div>
+    <div class="ss-status"><span class="pass">PASS</span> — meta(날짜) flex:1 / 전체보기(ghost) / 수정(primary)</div>
+  </div>
+  <div class="ss-item">
+    <img src="screenshots/rq-edit-1366.png" alt="rq-edit 1366px">
+    <div class="ss-label">수정 · 1366px</div>
+    <div class="ss-status"><span class="pass">PASS</span> — 취소(ghost) / 임시저장(outline) / 전체보기(ghost) / spacer / 저장(primary)</div>
+  </div>
+</div>
+<div class="ss-grid">
+  <div class="ss-item">
+    <img src="screenshots/rq-register-1920.png" alt="rq-register 1920px">
+    <div class="ss-label">등록 · 1920px</div>
+    <div class="ss-status"><span class="pass">PASS</span> — 레이아웃 동일, drawer 폭 860px SSOT 적용</div>
+  </div>
+</div>
+
+<!-- ── 3. 메뉴구조/화면목록 ── -->
+<h2>3. 메뉴구조/화면목록 Drawer Footer</h2>
+
+<div class="ss-grid">
+  <div class="ss-item">
+    <img src="screenshots/msl-register-1366.png" alt="msl-register 1366px">
+    <div class="ss-label">등록 · 1366px</div>
+    <div class="ss-status"><span class="pass">PASS</span> — 취소(ghost) / 임시저장(outline) / 전체보기(ghost) / spacer / 등록(primary)</div>
+  </div>
+  <div class="ss-item">
+    <img src="screenshots/msl-detail-1366.png" alt="msl-detail 1366px">
+    <div class="ss-label">상세 · 1366px</div>
+    <div class="ss-status"><span class="pass">PASS</span> — meta(날짜) flex:1 / 전체보기(ghost) / 수정(primary)</div>
+  </div>
+  <div class="ss-item">
+    <img src="screenshots/msl-edit-1366.png" alt="msl-edit 1366px">
+    <div class="ss-label">수정 · 1366px</div>
+    <div class="ss-status"><span class="pass">PASS</span> — 취소(ghost) / 임시저장(outline) / 전체보기(ghost) / spacer / 저장(primary)</div>
+  </div>
+</div>
+
+<!-- ── 4. 기능정의서 ── -->
+<h2>4. 기능정의서 Drawer Footer</h2>
+
+<div class="ss-grid">
+  <div class="ss-item">
+    <img src="screenshots/fn-register-1366.png" alt="fn-register 1366px">
+    <div class="ss-label">등록 · 1366px</div>
+    <div class="ss-status"><span class="pass">PASS</span> — 취소(ghost) / 임시저장(outline) / spacer / 등록(primary)</div>
+  </div>
+  <div class="ss-item">
+    <img src="screenshots/fn-detail-1366.png" alt="fn-detail 1366px">
+    <div class="ss-label">상세 · 1366px</div>
+    <div class="ss-status"><span class="pass">PASS</span> — meta(날짜) flex:1 / 수정(primary)</div>
+  </div>
+  <div class="ss-item">
+    <img src="screenshots/fn-edit-1366.png" alt="fn-edit 1366px">
+    <div class="ss-label">수정 · 1366px</div>
+    <div class="ss-status"><span class="pass">PASS</span> — 취소(ghost) / 임시저장(outline) / spacer / 저장(primary)</div>
+  </div>
+</div>
+
+<!-- ── 5. 다크 모드 ── -->
+<h2>5. 다크 모드</h2>
+<div class="ss-grid">
+  <div class="ss-item">
+    <img src="screenshots/dark-mode-1366.png" alt="dark mode 1366px">
+    <div class="ss-label">다크 모드 · 1366px (요구사항 등록 대표)</div>
+    <div class="ss-status"><span class="pass">PASS</span> — --bg-sur2 다크 토큰 적용, ghost 버튼 색상 정상</div>
+  </div>
+  <div class="ss-item">
+    <img src="screenshots/dark-mode-1920.png" alt="dark mode 1920px">
+    <div class="ss-label">다크 모드 · 1920px</div>
+    <div class="ss-status"><span class="pass">PASS</span></div>
+  </div>
+</div>
+
+<!-- ── 6. CSS 변경 ── -->
+<h2>6. CSS 변경 검수</h2>
+<table>
+  <tr><th>파일</th><th>추가 / 제거 규칙</th><th>결과</th></tr>
+  <tr><td><code>stam.drawer.css</code></td><td><code>.stam-drawer-foot .stam-btn</code> / <code>.stam-dw-foot-meta</code> / <code>.stam-dw-foot-actions</code> / <code>.stam-dw-foot-spacer</code> 추가</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam.requirements.css</code></td><td><code>.rq-dw-foot</code> / <code>.rq-dw-foot-l</code> / <code>.rq-dw-foot-r</code> / <code>.rq-dw-foot .rq-btn</code> 제거</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam.menu-screen-list.css</code></td><td><code>.msl-dw-foot</code> / <code>.msl-dw-foot-l</code> / <code>.msl-dw-foot-date</code> / <code>.msl-dw-foot-r</code> / <code>.msl-dw-foot .msl-btn</code> 제거</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam.functional-specification.css</code></td><td><code>.fn-dw-foot</code> / <code>.fn-dw-foot-l</code> / <code>.fn-dw-foot-r</code> / <code>.fn-dw-foot .fn-btn</code> 제거</td><td><span class="pass">PASS</span></td></tr>
+</table>
+
+<!-- ── 7. inline spacer ── -->
+<h2>7. inline spacer 제거</h2>
+<table>
+  <tr><th>파일</th><th>위치</th><th>이전</th><th>이후</th><th>결과</th></tr>
+  <tr><td>requirements.html</td><td>등록 / 수정 footer (2곳)</td><td><code>style="flex:1"</code></td><td><code>class="stam-dw-foot-spacer"</code></td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>menu-screen-list.html</td><td>등록 / 수정 footer (2곳)</td><td><code>style="flex:1"</code></td><td><code>class="stam-dw-foot-spacer"</code></td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>functional-specification.html</td><td>등록 / 수정 footer (2곳)</td><td><code>style="flex:1"</code></td><td><code>class="stam-dw-foot-spacer"</code></td><td><span class="pass">PASS</span></td></tr>
+</table>
+
+<!-- ── 8. 금지 파일 확인 ── -->
+<h2>8. 금지 파일 / JS 셀렉터 확인</h2>
+<table>
+  <tr><th>파일</th><th>변경 여부</th><th>결과</th></tr>
+  <tr><td><code>stam/pages/boards/wbs.html</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam/js/stam.wbs.js</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam/css/stam.wbs.css</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam/js/stam.requirements.js</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam/js/stam.menu-screen-list.js</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam/js/stam.functional-specification.js</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam/js/stam.shell.js</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>firebase.json</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>.github/workflows/*</code></td><td>미변경</td><td><span class="pass">PASS</span></td></tr>
+</table>
+<table>
+  <tr><th>JS 셀렉터</th><th>보존 여부</th><th>결과</th></tr>
+  <tr><td><code>[data-rq-open]</code> · <code>[data-rq-close]</code> · <code>.rq-dw-close</code></td><td>보존</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>[data-msl-open]</code> · <code>[data-msl-close]</code> · <code>.msl-dw-close</code></td><td>보존</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>[data-fn-open]</code> · <code>[data-fn-close]</code> · <code>.fn-dw-close</code></td><td>보존</td><td><span class="pass">PASS</span></td></tr>
+</table>
+
+<!-- ── 9. 최종 판정 ── -->
+<h2>9. 최종 판정</h2>
+<table>
+  <tr><th>항목</th><th>판정</th></tr>
+  <tr><td>요구사항정의서 drawer footer 3개 (등록/상세/수정)</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>메뉴구조/화면목록 drawer footer 3개</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>기능정의서 drawer footer 3개</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>1366px viewport 확인</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>1920px viewport 확인</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>라이트 모드</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>다크 모드 (대표 1장 × 2 viewport)</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>콘솔 오류</td><td><span class="pass">0건 PASS</span></td></tr>
+  <tr><td>버튼 variant 표준 준수</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>inline spacer → .stam-dw-foot-spacer (6곳)</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>CSS PR 번호 주석 제거</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>금지 파일 무변경 / JS 셀렉터 보존</td><td><span class="pass">PASS</span></td></tr>
+</table>
+
+</body>
+</html>
