@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STAM Batch Program Board Definition v1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/stam.tokens.css">
+  <link rel="stylesheet" href="../css/stam.components.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--t1); margin: 0; padding: 32px; }
+    .doc-header { margin-bottom: 28px; }
+    .doc-header h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+    .doc-header p { font-size: 12px; color: var(--t3); margin: 0; line-height: 1.7; }
+    .meta { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .meta .chip { font-size:11px; padding:3px 8px; border-radius:4px; background:var(--bg-sur2); color:var(--t2); border:1px solid var(--bd); }
+    .related { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:11px; }
+    .related a { color: var(--stam); text-decoration: none; padding: 4px 10px; border: 1px solid var(--bd); border-radius: 6px; background: var(--bg-sur); }
+    .related a:hover { background: var(--bg-sur2); }
+    .sec { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; margin-bottom: 22px; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+    .sec-h { padding: 12px 16px; border-bottom: 1px solid var(--bd); background: var(--bg-sur2); font-size: 11px; font-weight: 700; letter-spacing:.06em; text-transform: uppercase; color: var(--t3); }
+    .sec-b { padding: 16px; font-size: 12.5px; color: var(--t2); line-height: 1.75; }
+    .sec-b p:first-child { margin-top: 0; }
+    .sec-b p:last-child { margin-bottom: 0; }
+    code, pre code { font-family: 'JetBrains Mono', monospace; }
+    code { font-size: 11px; color: var(--stam); background: rgba(84,81,232,.08); padding: 1px 5px; border-radius: 3px; }
+    pre { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font-size: 11.5px; line-height: 1.55; color: var(--t1); }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+    table.t { width: 100%; border-collapse: collapse; font-size: 12px; }
+    table.t th, table.t td { padding: 8px 10px; border-bottom: 1px solid var(--bd); text-align: left; vertical-align: top; }
+    table.t thead th { background: var(--bg-sur2); color: var(--t3); text-transform: uppercase; font-size: 10px; letter-spacing: .06em; font-weight: 700; white-space: nowrap; }
+    ul.tight, ol.tight { margin: 6px 0; padding-left: 22px; } ul.tight li, ol.tight li { margin: 3px 0; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; line-height:1.5; }
+    .pill.ok { background:#dcfce7; color:#166534; }
+    .pill.bad { background:#fee2e2; color:#991b1b; }
+    .pill.warn { background:#fef3c7; color:#92400e; }
+    .pill.info { background:#dbeafe; color:#1e40af; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid2 .col { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 8px; padding: 12px 14px; }
+    .grid2 h4 { margin: 0 0 6px; font-size: 12px; font-weight: 700; }
+    .col.do h4 { color: #16a34a; }
+    .col.dont h4 { color: #dc2626; }
+    .note { background: var(--bg-sur2); border: 1px solid var(--bd); border-left: 3px solid var(--stam); border-radius: 6px; padding: 10px 12px; font-size: 11.5px; color: var(--t2); line-height: 1.7; margin-top: 10px; }
+    .theme-toggle { position: fixed; top: 16px; right: 16px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--bg-sur); color: var(--t2); font-size: 11px; cursor: pointer; z-index: 10; }
+    @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } body { padding: 18px; } }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">다크 모드</button>
+
+<div class="doc-header">
+  <h1>STAM Batch Program Board Definition <span class="pill ok">v1</span> <span class="pill info">docs-only</span></h1>
+  <p>STAM 에 향후 추가할 <strong>"배치프로그램 관리"</strong> 게시판의 목적·필드·상태값·연결 산출물·목록/상세/등록/수정 구조를 정의하는 기준 문서.<br>
+  본 문서는 <strong>정의(Definition) 단계</strong>이며, 실제 화면·메뉴·라우팅·DB/API·스케줄러 실행 기능은 생성하지 않는다.</p>
+  <div class="meta">
+    <span class="chip">단계: Definition</span>
+    <span class="chip">범위: docs-only</span>
+    <span class="chip">버전: v1</span>
+    <span class="chip">화면/메뉴/라우팅 미생성</span>
+  </div>
+  <div class="related">
+    <span style="color:var(--t3);align-self:center">Related:</span>
+    <a href="STAM-Board-List-Template-Contract-v1.html">Board List Template Contract v1</a>
+    <a href="STAM-New-Board-List-Screen-Template-v1.html">New Board List Screen Template v1</a>
+    <a href="STAM-Board-Drawer-Shell-Contract-v1.html">Board Drawer Shell Contract v1</a>
+    <a href="STAM-Board-Form-Field-Contract-v1.html">Board Form Field Contract v1</a>
+    <a href="STAM-Custom-Select-Contract-v1.html">Custom Select Contract v1</a>
+    <a href="STAM-Docs-Index.html">Docs Index</a>
+  </div>
+</div>
+
+<!-- ── 01. Summary ── -->
+<div class="sec">
+  <div class="sec-h">Section 01 · Summary</div>
+  <div class="sec-b">
+    <p><strong>배치프로그램 관리 게시판이 필요한 이유</strong></p>
+    <ul class="tight">
+      <li>SI 프로젝트에서 배치(Batch) 프로그램은 정산·집계·연계·마감·통계 등 <strong>업무 핵심 흐름</strong>을 담당하지만, 요구사항·기능정의서·API 정의서·테스트 산출물에 흩어져 일관된 목록으로 관리되지 않는다.</li>
+      <li>배치는 <strong>실행주기·실행시간·선후행 관계·실패 처리·재처리 기준</strong>이라는 온라인 기능과 다른 고유 속성을 가지며, 이를 별도 게시판으로 표준화해야 설계 누락과 오픈 사고를 줄일 수 있다.</li>
+      <li>운영 이관(인수인계)·오픈 점검 시 "어떤 배치가 언제 어떤 순서로 돌고, 실패하면 어떻게 복구하는가"를 단일 화면에서 확인할 수 있어야 한다.</li>
+    </ul>
+    <p style="margin-top:12px"><strong>SI 프로젝트에서 배치가 다른 산출물과 연결되는 지점</strong></p>
+    <table class="t">
+      <thead><tr><th>연결 산출물</th><th>배치와의 연결 지점</th></tr></thead>
+      <tbody>
+        <tr><td>요구사항</td><td>배치성 요구사항(정산·집계·마감 등)이 배치 프로그램으로 구체화되는 추적 출발점</td></tr>
+        <tr><td>기능정의서</td><td>배치 기능 단위(기능 ID)와 배치 프로그램(배치 ID)의 매핑</td></tr>
+        <tr><td>API 정의서</td><td>배치가 호출/제공하는 내부·외부 연계 API, 데이터 입출력 인터페이스</td></tr>
+        <tr><td>테스트 케이스 / 결함</td><td>배치 단위 테스트·재처리 시나리오 검증, 발견 결함 추적</td></tr>
+        <tr><td>오픈 시나리오</td><td>오픈 D-day 배치 수행 순서·점검 항목·롤백 기준</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 02. 게시판 목적 ── -->
+<div class="sec">
+  <div class="sec-h">Section 02 · 게시판 목적</div>
+  <div class="sec-b">
+    <ol class="tight">
+      <li><strong>배치 프로그램 목록 관리</strong> — 프로젝트 내 모든 배치를 ID·업무영역·담당자·상태로 단일 목록에서 추적.</li>
+      <li><strong>실행주기 / 선후행 / 실패처리 / 재처리 기준 관리</strong> — 스케줄(주기·시각), 선행·후행 의존성, 실패 시 알림·재시도·수동 재처리 정책을 명시.</li>
+      <li><strong>운영 이관 및 오픈 점검 기준 확보</strong> — 운영 이관 체크리스트, 오픈 시나리오 연동 점검, 장애 대응 절차의 단일 기준 제공.</li>
+    </ol>
+    <div class="note">
+      본 게시판은 배치의 <strong>"정의·관리"</strong>를 목적으로 한다. 배치의 <strong>실제 실행/중지/스케줄링</strong>(스케줄러 연동, 잡 트리거)은 본 게시판의 범위가 아니며 Section 11(제외 범위)에 명시한다.
+    </div>
+  </div>
+</div>
+
+<!-- ── 03. 메뉴 / IA 후보 위치 ── -->
+<div class="sec">
+  <div class="sec-h">Section 03 · 메뉴 / IA 후보 위치</div>
+  <div class="sec-b">
+    <p>배치프로그램 관리는 설계 산출물 그룹 내, 기능정의서·API 정의서와 인접한 위치가 자연스럽다. <strong>후보 순서</strong>는 다음과 같다.</p>
+    <ul class="tight">
+      <li>기능정의서</li>
+      <li>API 정의서</li>
+      <li><strong>배치프로그램 관리</strong> ← 신규 후보</li>
+      <li>WBS</li>
+    </ul>
+    <div class="note">
+      <strong>중요:</strong> 본 PR 에서는 <code>stam.nav-data.js</code> 나 실제 좌측 메뉴를 <strong>수정하지 않는다</strong>. 위 위치는 향후 nav-data 연결 단계(Section 10)에서 결정할 <strong>후보</strong>일 뿐이며, 이 문서는 IA 배치를 확정하지 않는다.
+    </div>
+  </div>
+</div>
+
+<!-- ── 04. 목록 컬럼 후보 ── -->
+<div class="sec">
+  <div class="sec-h">Section 04 · 목록 컬럼 후보</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <p>Board List Template 기준의 선택형 테이블(<code>.stam-select-table</code>) 컬럼 후보. checkbox cell 은 표준 그대로 사용.</p>
+    <table class="t">
+      <thead><tr><th>#</th><th>컬럼</th><th>설명</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>배치 ID</td><td>배치 식별자 (예: <code>BAT-0001</code>)</td><td>고유키 · 정렬 기본</td></tr>
+        <tr><td>2</td><td>배치명</td><td>배치 프로그램 명칭</td><td>검색 대상</td></tr>
+        <tr><td>3</td><td>업무영역</td><td>정산 / 집계 / 연계 / 마감 등 도메인</td><td>필터 대상</td></tr>
+        <tr><td>4</td><td>실행주기</td><td>일 / 주 / 월 / 분기 / 수시</td><td>필터 대상</td></tr>
+        <tr><td>5</td><td>실행시간</td><td>예약 실행 시각 (예: <code>02:00</code>)</td><td>—</td></tr>
+        <tr><td>6</td><td>선행 배치</td><td>본 배치 이전에 완료되어야 하는 배치</td><td>의존성</td></tr>
+        <tr><td>7</td><td>후행 배치</td><td>본 배치 완료 후 실행되는 배치</td><td>의존성</td></tr>
+        <tr><td>8</td><td>담당자</td><td>배치 설계/운영 담당자</td><td>검색 대상</td></tr>
+        <tr><td>9</td><td>상태</td><td>설계중 / 개발중 / 테스트중 / 운영반영 / 보류 / 폐기</td><td>상태 chip · 필터 대상</td></tr>
+        <tr><td>10</td><td>최종 수정일</td><td>마지막 변경 일시</td><td>정렬 보조</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">
+      * 검색 placeholder 후보: <code>배치 ID · 배치명 · 담당자 검색</code> (Board List Template Contract Section 03 패턴 준수).
+    </p>
+  </div>
+</div>
+
+<!-- ── 05. 상세 필드 후보 ── -->
+<div class="sec">
+  <div class="sec-h">Section 05 · 상세 필드 후보 (Drawer / Detail)</div>
+  <div class="sec-b">
+    <p>상세/등록/수정 Drawer 는 아래 8개 필드 그룹으로 구성한다. 각 그룹은 <code>.stam-form-grid</code> + <code>.stam-form-field</code> 로 배치한다.</p>
+    <table class="t">
+      <thead><tr><th>그룹</th><th>주요 필드 후보</th></tr></thead>
+      <tbody>
+        <tr><td><strong>기본 정보</strong></td><td>배치 ID · 배치명 · 업무영역 · 담당자 · 상태 · 설명</td></tr>
+        <tr><td><strong>실행 정보</strong></td><td>실행주기 · 실행시간 · 실행 윈도우(시작/종료) · 타임아웃 · 활성 여부</td></tr>
+        <tr><td><strong>기술 정보</strong></td><td>실행 방식(스케줄러/수동/이벤트) · 프로그램 경로/잡명 · 파라미터 · 실행 환경(서버/큐)</td></tr>
+        <tr><td><strong>데이터 입출력</strong></td><td>입력 소스(테이블/파일/API) · 출력 대상 · 처리 건수 기준 · 연계 인터페이스 ID</td></tr>
+        <tr><td><strong>선후행 관계</strong></td><td>선행 배치 · 후행 배치 · 의존 조건(완료/성공) · 동시 실행 제한</td></tr>
+        <tr><td><strong>운영 / 장애 대응</strong></td><td>실패 처리 정책 · 재시도 횟수/간격 · 수동 재처리 기준 · 알림 채널 · 에스컬레이션</td></tr>
+        <tr><td><strong>테스트 / 검증</strong></td><td>테스트 케이스 링크 · 검증 기준 · 재처리 시나리오 검증 여부 · 결함 연결</td></tr>
+        <tr><td><strong>연결 산출물</strong></td><td>요구사항 · 기능정의서 · API 정의서 · WBS · 테스트 케이스 · 결함 · 오픈 시나리오 · 회의록</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 06. 상태값 후보 ── -->
+<div class="sec">
+  <div class="sec-h">Section 06 · 상태값 후보</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>상태</th><th>의미</th><th>다음 전이 후보</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill info">설계중</span></td><td>배치 정의·요건 작성 단계</td><td>개발중 / 보류</td></tr>
+        <tr><td><span class="pill info">개발중</span></td><td>배치 프로그램 구현 단계</td><td>테스트중 / 보류</td></tr>
+        <tr><td><span class="pill warn">테스트중</span></td><td>단위/통합/재처리 시나리오 검증 단계</td><td>운영반영 / 개발중(반려)</td></tr>
+        <tr><td><span class="pill ok">운영반영</span></td><td>운영 환경 반영·이관 완료</td><td>보류 / 폐기</td></tr>
+        <tr><td><span class="pill warn">보류</span></td><td>일시 중단 (요건/일정 변경)</td><td>설계중 / 개발중 / 폐기</td></tr>
+        <tr><td><span class="pill bad">폐기</span></td><td>더 이상 사용하지 않음</td><td>(종료)</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">
+      * 상태 chip 색상/스타일은 향후 화면 구현 시 공통 상태 chip 규칙을 따른다. 본 문서는 <strong>상태값 집합과 의미</strong>만 정의한다.
+    </p>
+  </div>
+</div>
+
+<!-- ── 07. 연결 산출물 ── -->
+<div class="sec">
+  <div class="sec-h">Section 07 · 연결 산출물</div>
+  <div class="sec-b" style="overflow-x:auto">
+    <p>배치프로그램 관리는 다음 산출물과 추적 관계(trace link)를 가진다.</p>
+    <table class="t">
+      <thead><tr><th>산출물</th><th>연결 방향 / 목적</th></tr></thead>
+      <tbody>
+        <tr><td>요구사항</td><td>배치성 요구사항 → 배치 프로그램 (요건 추적)</td></tr>
+        <tr><td>기능정의서</td><td>배치 기능 단위(기능 ID) ↔ 배치 ID 매핑</td></tr>
+        <tr><td>API 정의서</td><td>배치가 사용/제공하는 연계 API·인터페이스</td></tr>
+        <tr><td>WBS</td><td>배치 개발/테스트 작업 일정·담당 연결</td></tr>
+        <tr><td>테스트 케이스</td><td>배치 단위·재처리 검증 케이스</td></tr>
+        <tr><td>결함</td><td>배치 테스트/운영 중 발견 결함 추적</td></tr>
+        <tr><td>오픈 시나리오</td><td>오픈 D-day 배치 수행 순서·점검 항목</td></tr>
+        <tr><td>회의록</td><td>배치 설계·운영 의사결정 근거</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── 08. Drawer / Form 구조 ── -->
+<div class="sec">
+  <div class="sec-h">Section 08 · Drawer / Form 구조 (적용할 공통 계약)</div>
+  <div class="sec-b">
+    <p>배치프로그램 관리 화면은 신규 게시판이므로, 화면별 UI 를 새로 만들지 않고 기존 공통 계약을 그대로 채택한다.</p>
+    <table class="t">
+      <thead><tr><th>적용 계약</th><th>역할 / 기준 문서</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Board List Template</strong></td><td>목록 toolbar·검색·필터·삭제·선택형 테이블 구조 — <a href="STAM-Board-List-Template-Contract-v1.html">Board List Template Contract v1</a> / <a href="STAM-New-Board-List-Screen-Template-v1.html">New Board List Screen Template v1</a></td></tr>
+        <tr><td><strong>STAMBoardList Controller</strong></td><td>row click→<code>.is-active</code> / checkbox→<code>.is-selected</code> / 삭제 카운트 / header check-all — <code>window.STAMBoardList.init()</code> 적용 대상</td></tr>
+        <tr><td><strong>Board Drawer Shell Contract</strong></td><td>drawer root/scrim/head/body/foot · detail/create/edit mode · open·close·Escape·접근성(<code>aria-modal</code>) — <a href="STAM-Board-Drawer-Shell-Contract-v1.html">Board Drawer Shell Contract v1</a></td></tr>
+        <tr><td><strong>Board Form Field Contract</strong></td><td><code>.stam-form-field</code> / <code>.stam-label</code>(<code>.req</code>) / <code>.stam-input</code> / <code>.stam-textarea</code> / <code>.stam-form-grid</code>(<code>.full-span</code>) — <a href="STAM-Board-Form-Field-Contract-v1.html">Board Form Field Contract v1</a></td></tr>
+        <tr><td><strong>Custom Select Contract</strong></td><td>업무영역·실행주기·상태·담당자 등 select 는 공통 <code>.stam-cs-*</code> 사용 — <a href="STAM-Custom-Select-Contract-v1.html">Custom Select Contract v1</a></td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      Drawer 는 <strong>상세(detail)</strong>, <strong>등록(create)</strong>, <strong>수정(edit)</strong> 3개 모드를 가지며, 모두 Board Drawer Shell Contract 의 동일한 외곽 구조를 공유한다. 상세 필드 그룹은 Section 05 의 8개 그룹을 따른다.
+    </div>
+  </div>
+</div>
+
+<!-- ── 09. 권한 / 운영 고려사항 ── -->
+<div class="sec">
+  <div class="sec-h">Section 09 · 권한 / 운영 고려사항</div>
+  <div class="sec-b">
+    <ul class="tight">
+      <li><strong>등록/수정 권한</strong> — 배치 설계 담당자·PL 이상에게 부여. 일반 열람자는 읽기 전용.</li>
+      <li><strong>삭제 제한</strong> — <code>운영반영</code> 이력이 있는 배치는 물리 삭제 대신 <code>폐기</code> 상태 전환을 원칙으로 한다(이력 보존).</li>
+      <li><strong>운영반영 상태 잠금 여부</strong> — <code>운영반영</code> 상태에서는 실행 정보·선후행 등 핵심 필드 변경 시 사유 입력 또는 별도 승인 절차를 고려(변경 통제).</li>
+      <li><strong>변경이력 필요성</strong> — 실행주기·선후행·실패처리 정책은 오픈/장애와 직결되므로 변경이력(누가·언제·무엇을) 기록이 필요하다.</li>
+    </ul>
+    <div class="note">
+      위 항목은 <strong>정책 후보</strong>이며, 실제 권한/잠금/이력 로직은 화면·백엔드 구현 단계에서 STAM 공통 권한·이력 정책 문서와 정합화하여 확정한다. 본 PR 에서는 정의만 한다.
+    </div>
+  </div>
+</div>
+
+<!-- ── 10. 향후 구현 단계 ── -->
+<div class="sec">
+  <div class="sec-h">Section 10 · 향후 구현 단계</div>
+  <div class="sec-b">
+    <ol class="tight">
+      <li><strong>Definition 문서화</strong> ← <span class="pill ok">본 PR (현재)</span></li>
+      <li>Preview 문서화 — 목록/상세/등록/수정 정적 시안(Applied Preview)</li>
+      <li>실제 page 생성 — <code>stam/pages/boards/</code> 하위 화면 + 공통 계약 적용</li>
+      <li>nav-data 연결 — <code>stam.nav-data.js</code> 좌측 메뉴 등록 (Section 03 위치 확정)</li>
+      <li>테스트 / 검증 — Board List·Drawer·Form 회귀, staging 배포 검증</li>
+    </ol>
+    <p style="margin-top:8px;color:var(--t3);font-size:11px">
+      * 각 단계는 별도 PR 로 분리하며, 본 PR 은 1단계(Definition)만 수행한다.
+    </p>
+  </div>
+</div>
+
+<!-- ── 11. 제외 범위 ── -->
+<div class="sec">
+  <div class="sec-h">Section 11 · 제외 범위 (본 PR)</div>
+  <div class="sec-b">
+    <div class="grid2">
+      <div class="col dont">
+        <h4>❌ 이번 PR 에서 하지 않음</h4>
+        <ul class="tight">
+          <li>실제 화면(page) 생성</li>
+          <li>실제 좌측 메뉴 추가 (nav-data 수정)</li>
+          <li>DB / API / 저장 로직</li>
+          <li>스케줄러 실행 기능</li>
+          <li>배치 실행 / 중지 기능</li>
+        </ul>
+      </div>
+      <div class="col do">
+        <h4>✅ 이번 PR 에서 함</h4>
+        <ul class="tight">
+          <li>배치프로그램 관리 게시판 정의(Definition) 문서화</li>
+          <li>목적·컬럼·필드·상태값·연결 산출물 정의</li>
+          <li>적용할 공통 계약(List/Drawer/Form/Select) 명시</li>
+          <li>Docs Index 링크 등록</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById('themeToggle');
+  b.addEventListener('click', function(){
+    var html = document.documentElement;
+    var d = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', d ? 'light' : 'dark');
+    b.textContent = d ? '다크 모드' : '라이트 모드';
+  });
+})();
+</script>
+</body>
+</html>
