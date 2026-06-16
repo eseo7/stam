@@ -70,15 +70,28 @@
           chipsEl.className = 'sbf-chips';
 
           (group.options || []).forEach(function (opt) {
-            var label = typeof opt === 'string' ? opt : opt.label;
-            var value = typeof opt === 'string' ? opt : (opt.value || opt.label);
+            var label  = typeof opt === 'string' ? opt : opt.label;
+            var value  = typeof opt === 'string' ? opt : (opt.value || opt.label);
+            var dot    = typeof opt === 'object' ? opt.dot    : null;
+            var avatar = typeof opt === 'object' ? opt.avatar : null;
             var chip = document.createElement('button');
             chip.type = 'button';
             chip.className = 'sbf-chip';
-            chip.textContent = label;
             chip.dataset.sbfGroup = group.key;
             chip.dataset.sbfVal   = value;
             chip.setAttribute('aria-pressed', 'false');
+            if (dot) {
+              var dotEl = document.createElement('span');
+              dotEl.className = 'sbf-dot ' + dot;
+              chip.appendChild(dotEl);
+            } else if (avatar) {
+              var avEl = document.createElement('span');
+              avEl.className = 'sbf-chip-av';
+              avEl.textContent = avatar;
+              chip.appendChild(avEl);
+            }
+            var textNode = document.createTextNode(label);
+            chip.appendChild(textNode);
             chipsEl.appendChild(chip);
           });
 

@@ -1126,7 +1126,61 @@
     initToggleButtons();
     initDrawer();         /* row click → drawer (체크박스 셀 제외) */
     initFullView();
-    initFilterPanel();
+    /* ── 공통 필터 컴포넌트 (WBS groups config 전달) ── */
+    if (window.STAM && window.STAM.boardFilter) {
+      window.STAM.boardFilter.init({
+        root:    document,
+        trigger: '#wbs-filter-open-btn',
+        panel:   '#wbs-filter-panel',
+        reset:   '#wbs-fp-clear',
+        apply:   '#wbs-fp-apply',
+        groups: [
+          { key: 'status', label: '진행상태', options: [
+            { value: 'wait',   label: '대기',   dot: 'd-wait' },
+            { value: 'prog',   label: '진행중', dot: 'd-prog' },
+            { value: 'review', label: '검토중', dot: 'd-warn' },
+            { value: 'done',   label: '완료',   dot: 'd-done' },
+            { value: 'hold',   label: '보류',   dot: 'd-hold' }
+          ]},
+          { key: 'period', label: '기간판정', options: [
+            { value: 'notstarted', label: '미착수' },
+            { value: 'normal',     label: '정상',    dot: 'd-done' },
+            { value: 'inprog',     label: '진행중',  dot: 'd-prog' },
+            { value: 'delayrisk',  label: '지연위험', dot: 'd-warn' },
+            { value: 'overdue',    label: '기간초과', dot: 'd-delay' },
+            { value: 'early',      label: '조기완료', dot: 'd-done' },
+            { value: 'checkdate',  label: '날짜확인' }
+          ]},
+          { key: 'prio', label: '우선순위', options: [
+            { value: 'high', label: '높음', dot: 'd-high' },
+            { value: 'mid',  label: '보통', dot: 'd-mid' },
+            { value: 'low',  label: '낮음', dot: 'd-low' }
+          ]},
+          { key: 'group', label: '기능그룹', options: [
+            { value: 'signup',  label: '회원가입' },
+            { value: 'mypage',  label: '마이페이지' },
+            { value: 'product', label: '상품' },
+            { value: 'order',   label: '주문/결제' },
+            { value: 'admin',   label: '관리자' }
+          ]},
+          { key: 'assignee', label: '담당자', options: [
+            { value: 'lee',  label: '이서연',   avatar: '이' },
+            { value: 'kim',  label: '김기획',   avatar: '김' },
+            { value: 'park', label: '박PM',     avatar: '박' },
+            { value: 'choi', label: '최개발',   avatar: '최' },
+            { value: 'jung', label: '정디자인', avatar: '정' }
+          ]},
+          { key: 'approval', label: '승인상태', options: [
+            { value: 'none',      label: '미요청' },
+            { value: 'pending',   label: '검토 대기',   dot: 'd-wait' },
+            { value: 'reviewing', label: '고객검토 중', dot: 'd-prog' },
+            { value: 'approved',  label: '승인 완료',   dot: 'd-done' },
+            { value: 'rejected',  label: '반려됨',      dot: 'd-delay' }
+          ]}
+        ],
+        onApply: function () { /* WBS 필터 — UI mock; 실제 필터링 미구현 */ }
+      });
+    }
     initFormToggles();    /* 등록/수정 폼 토글 버튼 */
     initDialog();         /* 커스텀 Alert/Confirm */
     initDatePickers();    /* 커스텀 DatePicker */

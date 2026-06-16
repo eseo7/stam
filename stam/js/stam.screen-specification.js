@@ -253,8 +253,10 @@
       if (cnt > 0) {
         badge.style.display = 'inline-flex';
         badge.textContent = cnt;
+        badge.classList.add('visible');
       } else {
         badge.style.display = 'none';
+        badge.classList.remove('visible');
       }
     }
   }
@@ -275,18 +277,39 @@
     if (e) e.stopPropagation();
     updateFilterInfo();
     var fpop = document.getElementById('ss-fpop');
-    if (fpop) fpop.classList.toggle('open');
+    var btn  = document.getElementById('ss-filter-btn');
+    if (!fpop) return;
+    if (fpop.hidden || !fpop.classList.contains('is-open')) {
+      fpop.hidden = false;
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          fpop.classList.add('is-open');
+          if (btn) btn.classList.add('is-open');
+        });
+      });
+    } else {
+      fpop.classList.remove('is-open');
+      if (btn) btn.classList.remove('is-open');
+      setTimeout(function () { fpop.hidden = true; }, 200);
+    }
   }
 
   function closeFilter() {
     var fpop = document.getElementById('ss-fpop');
-    if (fpop) fpop.classList.remove('open');
+    var btn  = document.getElementById('ss-filter-btn');
+    if (fpop) {
+      fpop.classList.remove('is-open');
+      setTimeout(function () { fpop.hidden = true; }, 200);
+    }
+    if (btn) btn.classList.remove('is-open');
   }
 
   function resetFilter() {
     S.F = { wst: '', rst: '', ast: '', type: '', grpId: '', img: '' };
-    document.querySelectorAll('.ss-filter-pop-opts .ss-fopt').forEach(function (btn) {
-      btn.classList.toggle('on', btn.getAttribute('data-val') === '');
+    document.querySelectorAll('.sbf-chips .sbf-chip').forEach(function (btn) {
+      var isAll = btn.getAttribute('data-val') === '';
+      btn.classList.toggle('active', isAll);
+      btn.setAttribute('aria-pressed', isAll ? 'true' : 'false');
     });
     updateFilterBtn();
     updateFilterInfo();
@@ -298,7 +321,7 @@
     var keys = ['wst', 'rst', 'ast', 'type', 'grpId', 'img'];
     groups.forEach(function (gid, i) {
       var grpEl = document.getElementById(gid);
-      var sel = grpEl ? grpEl.querySelector('.ss-fopt.on') : null;
+      var sel = grpEl ? grpEl.querySelector('.sbf-chip.active') : null;
       S.F[keys[i]] = sel ? sel.getAttribute('data-val') : '';
     });
     updateFilterBtn();
@@ -2314,12 +2337,17 @@
     var filterBtn = document.getElementById('ss-filter-btn');
     if (filterBtn) filterBtn.addEventListener('click', toggleFilter);
 
-    document.querySelectorAll('.ss-filter-pop-opts').forEach(function (grp) {
+    /* radio-select chips: 그룹 내 하나만 active */
+    document.querySelectorAll('.sbf-chips[id^="ss-f-"]').forEach(function (grp) {
       grp.addEventListener('click', function (e) {
-        var btn = e.target.closest('.ss-fopt');
+        var btn = e.target.closest('.sbf-chip');
         if (!btn) return;
-        grp.querySelectorAll('.ss-fopt').forEach(function (b) { b.classList.remove('on'); });
-        btn.classList.add('on');
+        grp.querySelectorAll('.sbf-chip').forEach(function (b) {
+          b.classList.remove('active');
+          b.setAttribute('aria-pressed', 'false');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
         updateFilterInfo();
       });
     });

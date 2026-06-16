@@ -220,7 +220,58 @@
 }
 
 /* ══════════════════════════════════════════════
- * 8. 액션 영역 (푸터) — WBS wbs-fp-foot 기준
+ * 7-1. Chip dot indicator — WBS wbs-fp-dot 기준
+ * ══════════════════════════════════════════════ */
+.sbf-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sbf-dot.d-wait   { background: var(--skip,   #94a3b8); }
+.sbf-dot.d-prog   { background: var(--info,   #3b82f6); }
+.sbf-dot.d-review { background: var(--warn,   #f59e0b); }
+.sbf-dot.d-done   { background: var(--pass,   #22c55e); }
+.sbf-dot.d-delay  { background: var(--fail,   #ef4444); }
+.sbf-dot.d-hold   { background: var(--purple, #8b5cf6); }
+.sbf-dot.d-warn   { background: var(--warn,   #f59e0b); }
+.sbf-dot.d-high   { background: var(--prio-high, #ef4444); }
+.sbf-dot.d-mid    { background: var(--prio-mid,  #f59e0b); }
+.sbf-dot.d-low    { background: rgba(84,81,232,.35); }
+
+/* ══════════════════════════════════════════════
+ * 7-2. Chip avatar — WBS wbs-fp-chip-av 기준
+ * ══════════════════════════════════════════════ */
+.sbf-chip-av {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--bg-sur3);
+  color: var(--t2);
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.sbf-chip.active .sbf-chip-av {
+  background: rgba(84,81,232,.18);
+  color: var(--stam);
+}
+[data-theme="dark"] .sbf-chip.active .sbf-chip-av {
+  background: rgba(84,81,232,.28);
+  color: #a5a3f5;
+}
+
+/* ══════════════════════════════════════════════
+ * 7-3. WBS context — z-index override
+ * ══════════════════════════════════════════════ */
+.wbs-filter-wrap .stam-board-filter-panel { z-index: 80; }
+
+
  * ══════════════════════════════════════════════ */
 .stam-board-filter-actions {
   display: flex;
