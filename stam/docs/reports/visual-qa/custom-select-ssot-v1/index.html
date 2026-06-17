@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QA Report — Custom Select SSOT v1</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 1100px; margin: 0 auto; padding: 32px 24px; color: #1e293b; background: #f8fafc; }
+    h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .meta { font-size: 12px; color: #64748b; margin-bottom: 28px; line-height: 1.7; }
+    h2 { font-size: 14px; font-weight: 700; margin: 28px 0 10px; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+    th { background: #f1f5f9; text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; line-height: 1.5; }
+    tr:last-child td { border-bottom: 0; }
+    .pass { color: #047857; font-weight: 700; }
+    .fail { color: #b91c1c; font-weight: 700; }
+    .add { color: #b45309; font-weight: 700; }
+    code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; background: #f1f5f9; padding: 1px 5px; border-radius: 3px; }
+    pre { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; background: #0f172a; color: #e2e8f0; padding: 12px 14px; border-radius: 8px; overflow-x: auto; line-height: 1.55; }
+    .summary-row { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+    .summary-card { flex: 1; min-width: 120px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; }
+    .summary-card .num { font-size: 24px; font-weight: 700; color: #4338ca; }
+    .summary-card .num.green { color: #047857; }
+    .summary-card .lbl { font-size: 11px; color: #64748b; margin-top: 2px; }
+    .note { font-size: 12px; color: #475569; background: #eef2ff; border-left: 3px solid #4338ca; padding: 10px 14px; border-radius: 0 6px 6px 0; margin-bottom: 20px; line-height: 1.6; }
+    .ss-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+    .ss-item { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; }
+    .ss-item img { width: 100%; display: block; border-bottom: 1px solid #e2e8f0; }
+    .ss-label { padding: 6px 10px; font-size: 11px; color: #64748b; font-weight: 600; }
+    .ss-status { padding: 0 10px 6px; font-size: 11px; }
+  </style>
+</head>
+<body>
+
+<h1>QA Report — Custom Select SSOT v1</h1>
+<div class="meta">
+  PR: <code>refactor/custom-select-ssot-v1</code> · base merge commit <code>52a1a39</code><br>
+  캡처: 2026-06-17 · Playwright + Chromium 1194 · python3 http.server · viewports 1366 / 1920<br>
+  대상: 요구사항정의서(rq) · 메뉴구조/화면목록(msl) · 기능정의서(fn) — 등록 / 수정 drawer
+</div>
+
+<div class="note">
+  <strong>범위</strong> — 3개 게시판이 각자 복사해서 보유하던 Custom Select JS 로직(약 190줄 × 3)을 신규 공통 모듈
+  <code>stam/js/stam.custom-select.js</code> 로 단일화했습니다. 각 board JS는 prefix·selector·CSS class·flip container 만
+  config 로 전달하고 init/closeAll 만 호출합니다. 신규 동작·기능 추가 없음. 저장값/native select dispatch/CSS 토큰 모두 보존.
+</div>
+
+<div class="summary-row">
+  <div class="summary-card"><div class="num">1</div><div class="lbl">신규 공통 JS</div></div>
+  <div class="summary-card"><div class="num">3</div><div class="lbl">board JS 슬림화</div></div>
+  <div class="summary-card"><div class="num">3</div><div class="lbl">HTML script include 추가</div></div>
+  <div class="summary-card"><div class="num green">20</div><div class="lbl">screenshots</div></div>
+  <div class="summary-card"><div class="num green">0</div><div class="lbl">console errors</div></div>
+  <div class="summary-card"><div class="num green">~570→0</div><div class="lbl">중복 줄 제거</div></div>
+</div>
+
+<h2>1. 변경 파일</h2>
+<table>
+  <tr><th>구분</th><th>파일</th><th>변경</th></tr>
+  <tr><td>신규 공통 JS</td><td><code>stam/js/stam.custom-select.js</code></td><td>+222 — STAM.customSelect.init / closeAll</td></tr>
+  <tr><td>제품 JS</td><td><code>stam/js/stam.requirements.js</code></td><td>buildRq* / closeRq* 제거 → init(cfg) 호출</td></tr>
+  <tr><td>제품 JS</td><td><code>stam/js/stam.menu-screen-list.js</code></td><td>buildMsl* / closeMsl* 제거 → init(cfg) 호출</td></tr>
+  <tr><td>제품 JS</td><td><code>stam/js/stam.functional-specification.js</code></td><td>buildFn* / closeFn* 제거 → init(cfg) 호출</td></tr>
+  <tr><td>HTML</td><td><code>stam/pages/boards/requirements.html</code></td><td>&lt;script src="stam.custom-select.js"&gt; 추가 (board JS 앞)</td></tr>
+  <tr><td>HTML</td><td><code>stam/pages/boards/menu-screen-list.html</code></td><td>동일</td></tr>
+  <tr><td>HTML</td><td><code>stam/pages/boards/functional-specification.html</code></td><td>동일</td></tr>
+</table>
+
+<h2>2. 제거한 중복 함수</h2>
+<table>
+  <tr><th>역할</th><th>rq (이전)</th><th>msl (이전)</th><th>fn (이전)</th><th>SSOT</th></tr>
+  <tr><td>build</td><td><code>buildRqCustomSelect</code></td><td><code>buildMslCustomSelect</code></td><td><code>buildFnCustomSelect</code></td><td><code>STAM.customSelect.init</code> 내부 build</td></tr>
+  <tr><td>close single</td><td><code>closeRqCustomSelect</code></td><td><code>closeMslCustomSelect</code></td><td><code>closeFnCustomSelect</code></td><td>내부 closeWrap</td></tr>
+  <tr><td>close all</td><td><code>closeAllRqCustomSelects</code></td><td><code>closeAllMslCustomSelects</code></td><td><code>closeAllFnCustomSelects</code></td><td><code>STAM.customSelect.closeAll</code></td></tr>
+  <tr><td>enhance drawer</td><td><code>enhanceRqDrawerSelects</code></td><td><code>enhanceMslDrawerSelects</code></td><td><code>enhanceFnDrawerSelects</code></td><td><code>STAM.customSelect.init(drawer,cfg)</code> 호출 wrapper</td></tr>
+</table>
+
+<h2>3. 공통 모듈 API</h2>
+<pre>window.STAM.customSelect = {
+  init(root, config),       // root 안의 cfg.selectSelector 매칭 native &lt;select&gt; 를 custom select 로 enhance
+  closeAll(root, config)    // root 안의 cfg.openSelector 매칭 wrapper 닫기
+};
+
+// config (board별 다르게 주입)
+{
+  selectSelector, nativeMarkerAttr, uidPrefix,
+  wrapClass, triggerClass, valClass, caretClass,
+  panelClass, optClass, checkClass, otextClass, nativeClass,
+  flipContainer,
+  openClass,   // 예: 'open' (rq/msl) | 'open is-open' (fn)
+  upClass,     // 예: 'cs-up' (rq/msl) | 'cs-up is-up' (fn)
+  openSelector // 예: '.rq-cs.open'
+}</pre>
+
+<h2>4. 3개 게시판 config 차이 (config 만 다름, 로직 SSOT)</h2>
+<table>
+  <tr><th>항목</th><th>rq</th><th>msl</th><th>fn</th></tr>
+  <tr><td>selectSelector</td><td><code>select.rq-inp</code></td><td><code>select.msl-inp</code></td><td><code>select.fn-sel</code></td></tr>
+  <tr><td>nativeMarkerAttr</td><td><code>data-rq-cs</code></td><td><code>data-msl-cs</code></td><td><code>data-fn-cs</code></td></tr>
+  <tr><td>wrapClass</td><td><code>rq-cs</code></td><td><code>msl-cs</code></td><td><code>fn-cs stam-cs</code></td></tr>
+  <tr><td>triggerClass</td><td><code>rq-cs-trigger</code></td><td><code>msl-cs-trigger</code></td><td><code>fn-cs-trigger stam-cs-trigger</code></td></tr>
+  <tr><td>panelClass</td><td><code>rq-cs-panel</code></td><td><code>msl-cs-panel</code></td><td><code>fn-cs-panel stam-cs-menu</code></td></tr>
+  <tr><td>optClass</td><td><code>rq-cs-opt</code></td><td><code>msl-cs-opt</code></td><td><code>fn-cs-opt stam-cs-opt</code></td></tr>
+  <tr><td>flipContainer</td><td><code>.rq-dw-body</code></td><td><code>.msl-dw-body</code></td><td><code>.fn-dw-body</code></td></tr>
+  <tr><td>openClass</td><td><code>open</code></td><td><code>open</code></td><td><code>open is-open</code></td></tr>
+  <tr><td>upClass</td><td><code>cs-up</code></td><td><code>cs-up</code></td><td><code>cs-up is-up</code></td></tr>
+</table>
+
+<h2>5. 동작 QA (Playwright 자동화 결과)</h2>
+<table>
+  <tr><th>case</th><th>rq</th><th>msl</th><th>fn</th></tr>
+  <tr><td>등록 drawer custom select 열림 (트리거 클릭)</td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>등록 drawer option 선택 → label 반영 / 패널 닫힘</td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>수정 drawer custom select 열림</td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>외부 클릭 시 닫힘</td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>ESC 닫힘</td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>중복 init 보호 (data-*-cs 마커 + 토글 동작 정상)</td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>console error</td><td><span class="pass">0</span></td><td><span class="pass">0</span></td><td><span class="pass">0</span></td></tr>
+</table>
+
+<h2>6. 등록 drawer — Select OPEN (1366px)</h2>
+<div class="ss-grid">
+  <div class="ss-item"><img src="screenshots/rq-register-select-open-1366.png" alt="rq register open"><div class="ss-label">rq · 등록 · open</div><div class="ss-status"><span class="pass">PASS</span></div></div>
+  <div class="ss-item"><img src="screenshots/msl-register-select-open-1366.png" alt="msl register open"><div class="ss-label">msl · 등록 · open</div><div class="ss-status"><span class="pass">PASS</span></div></div>
+  <div class="ss-item"><img src="screenshots/fn-register-select-open-1366.png" alt="fn register open"><div class="ss-label">fn · 등록 · open</div><div class="ss-status"><span class="pass">PASS</span></div></div>
+</div>
+
+<h2>7. 등록 drawer — Select SELECTED (1366px)</h2>
+<div class="ss-grid">
+  <div class="ss-item"><img src="screenshots/rq-register-select-selected-1366.png" alt="rq selected"><div class="ss-label">rq · 등록 · 선택 후</div><div class="ss-status"><span class="pass">PASS</span></div></div>
+  <div class="ss-item"><img src="screenshots/msl-register-select-selected-1366.png" alt="msl selected"><div class="ss-label">msl · 등록 · 선택 후</div><div class="ss-status"><span class="pass">PASS</span></div></div>
+  <div class="ss-item"><img src="screenshots/fn-register-select-selected-1366.png" alt="fn selected"><div class="ss-label">fn · 등록 · 선택 후</div><div class="ss-status"><span class="pass">PASS</span></div></div>
+</div>
+
+<h2>8. 수정 drawer — Select OPEN (1366px)</h2>
+<div class="ss-grid">
+  <div class="ss-item"><img src="screenshots/rq-edit-select-open-1366.png" alt="rq edit open"><div class="ss-label">rq · 수정 · open</div><div class="ss-status"><span class="pass">PASS</span></div></div>
+  <div class="ss-item"><img src="screenshots/msl-edit-select-open-1366.png" alt="msl edit open"><div class="ss-label">msl · 수정 · open</div><div class="ss-status"><span class="pass">PASS</span></div></div>
+  <div class="ss-item"><img src="screenshots/fn-edit-select-open-1366.png" alt="fn edit open"><div class="ss-label">fn · 수정 · open</div><div class="ss-status"><span class="pass">PASS</span></div></div>
+</div>
+
+<h2>9. 1920px viewport (등록 OPEN)</h2>
+<div class="ss-grid">
+  <div class="ss-item"><img src="screenshots/rq-register-select-open-1920.png" alt="rq 1920"><div class="ss-label">rq · 등록 · open · 1920</div><div class="ss-status"><span class="pass">PASS</span></div></div>
+  <div class="ss-item"><img src="screenshots/msl-register-select-open-1920.png" alt="msl 1920"><div class="ss-label">msl · 등록 · open · 1920</div><div class="ss-status"><span class="pass">PASS</span></div></div>
+  <div class="ss-item"><img src="screenshots/fn-register-select-open-1920.png" alt="fn 1920"><div class="ss-label">fn · 등록 · open · 1920</div><div class="ss-status"><span class="pass">PASS</span></div></div>
+</div>
+
+<h2>10. Dark mode</h2>
+<div class="ss-grid">
+  <div class="ss-item"><img src="screenshots/dark-rq-register-1366.png" alt="dark rq"><div class="ss-label">dark · rq · 등록 · 1366</div><div class="ss-status"><span class="pass">PASS</span></div></div>
+  <div class="ss-item"><img src="screenshots/dark-fn-register-1920.png" alt="dark fn"><div class="ss-label">dark · fn · 등록 · 1920</div><div class="ss-status"><span class="pass">PASS</span></div></div>
+</div>
+
+<h2>11. 금지 파일 / 제약 준수</h2>
+<table>
+  <tr><th>항목</th><th>결과</th></tr>
+  <tr><td><code>stam/pages/boards/wbs.html</code> / <code>stam.wbs.js</code> / <code>stam.wbs.css</code> 미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam/pages/boards/screen-specification.html</code> / <code>stam.screen-specification.js</code> / <code>.css</code> 미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam.board-filter.js</code> / <code>stam.board-filter.css</code> 미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>stam.nav-data.js</code> / <code>stam.shell.js</code> / <code>stam.topbar-render.js</code> 미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td><code>firebase.json</code> / <code>.github/workflows/*</code> 미변경</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>Board Factory 신규 구현 없음</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>Drawer Footer 재수정 없음 (CSS / HTML drawer-foot 영역 미변경)</td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>save/delete/API/localStorage/Firestore 로직 변경 없음</td><td><span class="pass">PASS</span></td></tr>
+</table>
+
+</body>
+</html>
