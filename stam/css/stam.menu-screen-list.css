@@ -8,12 +8,16 @@ body:has(.msl-page) .po-main { overflow-x:hidden }
 /* ── Buttons ── */
 .msl-btn { display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:6px 13px;border-radius:var(--r-md);font-size:12px;font-weight:600;border:1px solid var(--bd-s);background:var(--bg-sur);color:var(--t2);cursor:pointer;transition:all 120ms;white-space:nowrap;line-height:1.3;font-family:inherit }
 .msl-btn:hover { background:var(--bg-sur2);color:var(--t1) }
-.msl-btn.msl-btn-pri { background:var(--stam);color:#fff;border-color:var(--stam) }
-.msl-btn.msl-btn-pri:hover { background:var(--stam-h);border-color:var(--stam-h) }
+/* Primary — routed through shared --btn-primary-bg tokens (light/dark aligned) */
+.msl-btn.msl-btn-pri { background:var(--btn-primary-bg);color:var(--btn-primary-text);border-color:var(--btn-primary-bg) }
+.msl-btn.msl-btn-pri:hover { background:var(--btn-primary-bg-hover);border-color:var(--btn-primary-bg-hover) }
+/* Ghost — alias intentionally uses --t3 (muted) vs common --btn-ghost-text (--t1). Deferred to Button Alias Removal v3. */
 .msl-btn.msl-btn-ghost { background:transparent;border-color:transparent;color:var(--t3) }
 .msl-btn.msl-btn-ghost:hover { background:var(--bg-sur2);border-color:var(--bd);color:var(--t2) }
+/* Outline — alias intentionally uses brand-purple hover accent (--stam). Kept by design; deferred. */
 .msl-btn.msl-btn-out { background:transparent;border-color:var(--bd-s);color:var(--t2) }
 .msl-btn.msl-btn-out:hover { border-color:var(--stam);color:var(--stam) }
+/* Del — alias is outline-danger pattern (vs common solid .stam-btn-danger); hardcoded hover color retained, deferred. */
 .msl-btn.msl-btn-del { background:transparent;border-color:var(--bd-s);color:var(--t3) }
 .msl-btn.msl-btn-del:not([disabled]):hover { border-color:#DC2626;color:#DC2626 }
 .msl-btn[disabled] { opacity:.45;cursor:not-allowed;pointer-events:none }

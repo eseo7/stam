@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QA Report — Button Token Alignment v2</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 1100px; margin: 0 auto; padding: 32px 24px; color: #1e293b; background: #f8fafc; }
+    h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .meta { font-size: 12px; color: #64748b; margin-bottom: 28px; line-height: 1.7; }
+    h2 { font-size: 14px; font-weight: 700; margin: 28px 0 10px; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+    th { background: #f1f5f9; text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; line-height: 1.5; }
+    tr:last-child td { border-bottom: 0; }
+    .pass { color: #047857; font-weight: 700; }
+    .fail { color: #b91c1c; font-weight: 700; }
+    .add { color: #b45309; font-weight: 700; }
+    .hold { color: #6d28d9; font-weight: 700; }
+    code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; background: #f1f5f9; padding: 1px 5px; border-radius: 3px; }
+    .note { font-size: 12px; color: #475569; background: #eef2ff; border-left: 3px solid #4338ca; padding: 10px 14px; border-radius: 0 6px 6px 0; margin-bottom: 20px; line-height: 1.6; }
+    .warn { font-size: 12px; color: #92400e; background: #fef3c7; border-left: 3px solid #d97706; padding: 10px 14px; border-radius: 0 6px 6px 0; margin-bottom: 20px; line-height: 1.6; }
+  </style>
+</head>
+<body>
+
+<h1>QA Report — Button Token Alignment v2</h1>
+<div class="meta">
+  PR: <code>refactor/button-token-alignment-v2</code> · base <code>aa7cd90</code> · follow-up to PR #133 audit<br>
+  대상: 요구사항정의서 (rq) · 메뉴구조/화면목록 (msl) · 기능정의서 (fn) · <code>stam.tokens.css</code><br>
+  성격: <strong>token alignment</strong> — alias 클래스는 보존하면서 토큰 값/참조만 정렬.
+</div>
+
+<div class="note">
+  <strong>PR #133 감사 요약</strong> — Primary 버튼은 light 에서는 <code>--stam</code>=<code>--btn-primary-bg</code>=#5451E8 으로 일치하나
+  dark 에서 <code>--stam</code>=#8B7FF8 vs <code>--btn-primary-bg</code>=#5451E8 으로 어긋났습니다. Ghost 는 alias 가 <code>--t3</code>,
+  공통은 <code>--btn-ghost-text</code>(=<code>--t1</code>). Outline hover 는 alias 가 brand-purple 강조, 공통은 neutral. Del 은 alias 가
+  outline-danger 패턴, 공통은 solid red. 본 PR 은 <strong>Primary 다크 토큰 mismatch</strong> 만 해결하고, 나머지 의도된 차이는
+  주석으로 명시한 채 보존합니다. alias 클래스 자체는 제거하지 않습니다.
+</div>
+
+<div class="warn">
+  <strong>Screenshots / Dark mode / Console errors</strong> — 본 환경에 headless 브라우저가 없어 실제 캡처·런타임 검증을
+  수행하지 못했습니다. 권장 캡처 파일명은 <code>./screenshots/README.md</code> 참고. light/dark QA 는
+  <strong>검증 보류 (local)</strong> 로 표기합니다.
+</div>
+
+<h2>1. 변경 파일</h2>
+<table>
+  <tr><th>구분</th><th>파일</th><th>변경</th></tr>
+  <tr><td>CSS (토큰)</td><td><code>stam/css/stam.tokens.css</code></td><td class="add">dark <code>--btn-primary-bg/-hover/-active</code> 정렬</td></tr>
+  <tr><td>CSS (게시판)</td><td><code>stam/css/stam.requirements.css</code></td><td class="add"><code>.rq-btn-pri</code> 토큰 라우팅 + 주석</td></tr>
+  <tr><td>CSS (게시판)</td><td><code>stam/css/stam.menu-screen-list.css</code></td><td class="add"><code>.msl-btn-pri</code> 토큰 라우팅 + 주석</td></tr>
+  <tr><td>CSS (게시판)</td><td><code>stam/css/stam.functional-specification.css</code></td><td class="add"><code>.fn-btn-pri</code> 토큰 라우팅 + 주석</td></tr>
+  <tr><td>HTML</td><td>—</td><td class="hold">변경 없음</td></tr>
+  <tr><td>JS</td><td>—</td><td class="hold">변경 없음 (전 디렉토리 금지)</td></tr>
+  <tr><td>QA</td><td><code>stam/docs/reports/visual-qa/button-token-alignment-v2/index.html</code></td><td class="add">신규</td></tr>
+  <tr><td>QA</td><td><code>stam/docs/reports/visual-qa/button-token-alignment-v2/screenshots/README.md</code></td><td class="add">신규</td></tr>
+</table>
+
+<h2>2. 토큰 정렬 결과 (pre / post)</h2>
+
+<h3 style="font-size:13px;margin-top:18px;">Primary</h3>
+<table>
+  <tr><th>모드</th><th>토큰</th><th>pre</th><th>post</th><th>비고</th></tr>
+  <tr><td>Light</td><td><code>--btn-primary-bg</code></td><td>#5451E8</td><td>#5451E8</td><td class="pass">변경 없음 (이미 일치)</td></tr>
+  <tr><td>Light</td><td><code>--stam</code> (alias 가 참조하던 값)</td><td>#5451E8</td><td>#5451E8</td><td class="pass">동일</td></tr>
+  <tr><td>Dark</td><td><code>--btn-primary-bg</code></td><td>#5451E8</td><td><strong>#8B7FF8</strong></td><td class="add">alias 와 일치하도록 brand-purple 로 정렬</td></tr>
+  <tr><td>Dark</td><td><code>--btn-primary-bg-hover</code></td><td>#6B68EE</td><td><strong>#a49bf9</strong></td><td class="add"><code>--stam-h</code> dark 값과 동일</td></tr>
+  <tr><td>Dark</td><td><code>--btn-primary-bg-active</code></td><td>#4340C8</td><td><strong>#6B68EE</strong></td><td class="add">기존 hover 값 재활용 (한 단계 어둡게)</td></tr>
+  <tr><td colspan="5"><strong>Alias 라우팅</strong>: <code>.rq-btn-pri</code> / <code>.msl-btn-pri</code> / <code>.fn-btn-pri</code> bg/border 가 <code>var(--stam)</code> 대신 <code>var(--btn-primary-bg)</code> 를, hover 가 <code>var(--stam-h)</code> 대신 <code>var(--btn-primary-bg-hover)</code> 를 사용하도록 변경. light/dark 양쪽에서 공통 <code>.stam-btn-primary</code> 와 동일한 token 을 참조함.</td></tr>
+</table>
+
+<h3 style="font-size:13px;margin-top:18px;">Ghost</h3>
+<table>
+  <tr><th>모드</th><th>alias 토큰</th><th>공통 토큰</th><th>정렬 결과</th><th>비고</th></tr>
+  <tr><td>Light</td><td><code>--t3</code> (#64748B)</td><td><code>--btn-ghost-text</code>=<code>--t1</code> (#0F172A)</td><td class="hold">의도된 차이 — 미정렬</td><td>alias 는 muted 톤, common 은 strong 톤. 사용처별 의도 차이 존재.</td></tr>
+  <tr><td>Dark</td><td><code>--t3</code> rgba(200,204,220,.61)</td><td><code>--btn-ghost-text</code>=<code>--t1</code> #F0F1F5</td><td class="hold">의도된 차이 — 미정렬</td><td>주석으로 명시 후 후속 PR 결정.</td></tr>
+</table>
+
+<h3 style="font-size:13px;margin-top:18px;">Outline</h3>
+<table>
+  <tr><th>모드</th><th>alias 토큰</th><th>공통 토큰</th><th>정렬 결과</th><th>비고</th></tr>
+  <tr><td>Light</td><td>border <code>--bd-s</code>, hover <code>--stam</code> (brand)</td><td>border <code>--btn-secondary-border</code>, hover <code>--btn-secondary-bg-hover</code> (neutral)</td><td class="hold">의도된 차이 — 미정렬</td><td>alias 의 brand-purple hover 강조는 게시판 고유 동작. 주석 추가.</td></tr>
+  <tr><td>Dark</td><td>동일 패턴</td><td>동일 패턴</td><td class="hold">의도된 차이 — 미정렬</td><td>—</td></tr>
+</table>
+
+<h3 style="font-size:13px;margin-top:18px;">Danger (Del)</h3>
+<table>
+  <tr><th>모드</th><th>alias 토큰</th><th>공통 토큰</th><th>정렬 결과</th><th>비고</th></tr>
+  <tr><td>Light</td><td>transparent + border <code>--bd-s</code>, hover <code>#DC2626</code></td><td>solid <code>--btn-danger-bg</code> (#DC2626)</td><td class="hold">의도된 차이 — 미정렬</td><td>alias 는 outline-danger 패턴. 시각 패턴 자체가 다르므로 토큰 라우팅도 보류.</td></tr>
+  <tr><td>Dark</td><td>동일 (#DC2626 hardcoded)</td><td>solid <code>--btn-danger-bg</code> (#EF4444)</td><td class="hold">의도된 차이 — 미정렬</td><td>alias 측 hardcoded 색을 <code>var(--btn-danger-bg)</code> 로 교체 시 dark 에서 색이 밝아져 시각 회귀 위험. 보류.</td></tr>
+</table>
+
+<h2>3. 유지한 alias (제거 0건)</h2>
+<table>
+  <tr><th>alias</th><th>유지 사유</th></tr>
+  <tr><td><code>.rq-btn / .msl-btn / .fn-btn</code> base</td><td>공통 <code>.stam-btn</code> 과 padding/font-size 가 다름 (size SSOT 별도 PR)</td></tr>
+  <tr><td><code>.rq-btn-pri / .msl-btn-pri / .fn-btn-pri</code></td><td>토큰은 정렬 완료. HTML 양쪽 클래스 병존 유지 (alias 제거는 v3).</td></tr>
+  <tr><td><code>.rq-btn-ghost / .msl-btn-ghost / .fn-btn-ghost</code></td><td>color 토큰 의도된 차이 (<code>--t3</code> vs <code>--btn-ghost-text</code>)</td></tr>
+  <tr><td><code>.rq-btn-out / .msl-btn-out / .fn-btn-out</code></td><td>hover brand-purple 강조 — alias 고유 디자인</td></tr>
+  <tr><td><code>.rq-btn-del / .msl-btn-del / .fn-btn-del</code></td><td>outline-danger 패턴 — 공통 solid 와 시각 패턴 다름</td></tr>
+</table>
+
+<h2>4. 의도적 차이 유지 (intentionally different)</h2>
+<table>
+  <tr><th>역할</th><th>의도</th></tr>
+  <tr><td>Ghost color</td><td>게시판 내 secondary action 은 더 muted 한 <code>--t3</code> 사용 (디자인 선택)</td></tr>
+  <tr><td>Outline hover</td><td>게시판의 outline 버튼은 hover 시 brand-purple 강조로 "filter / export" 상호작용을 알리는 의도</td></tr>
+  <tr><td>Del 패턴</td><td>게시판은 outline-danger (덜 공격적), 일반 공통은 solid danger</td></tr>
+</table>
+
+<h2>5. 후속 보류 항목 (Deferred)</h2>
+<table>
+  <tr><th>항목</th><th>사유</th><th>후속 PR 제안</th></tr>
+  <tr><td>Button Alias Removal v3</td><td>토큰 정렬 후 의도된 차이가 있는 ghost/outline/del 까지 단일 SSOT 로 통합할지 결정 필요</td><td>v3 — 디자인 결정 후 alias CSS 및 HTML 클래스 제거</td></tr>
+  <tr><td>Chip SSOT v2</td><td>공통 <code>.stam-chip</code>/<code>.stam-status-*</code>/<code>.stam-priority-*</code> 미존재</td><td>Chip SSOT v2 — 공통 chip CSS 신규 + 3개 게시판 마이그레이션</td></tr>
+  <tr><td>Button base size SSOT</td><td><code>.stam-btn</code> (8px×14px / 13px) vs alias (6px×13px / 12px) padding·font 다름</td><td>Button size SSOT 결정 PR</td></tr>
+  <tr><td>Del hover token 라우팅</td><td>dark 에서 <code>--btn-danger-bg</code> = #EF4444 로 alias hardcoded #DC2626 보다 밝아짐 → 시각 회귀 가능성. v3 에서 디자인 결정.</td><td>Button Alias Removal v3 에 포함</td></tr>
+</table>
+
+<h2>6. Light / Dark QA</h2>
+<table>
+  <tr><th>화면</th><th>light</th><th>dark</th><th>비고</th></tr>
+  <tr><td>요구사항정의서 목록 (Primary/Outline/Del)</td><td class="hold">검증 보류 (local)</td><td class="hold">검증 보류 (local)</td><td>headless 브라우저 미설치</td></tr>
+  <tr><td>메뉴구조/화면목록 목록</td><td class="hold">검증 보류 (local)</td><td class="hold">검증 보류 (local)</td><td>—</td></tr>
+  <tr><td>기능정의서 목록</td><td class="hold">검증 보류 (local)</td><td class="hold">검증 보류 (local)</td><td>—</td></tr>
+  <tr><td>요구사항 등록 drawer footer</td><td class="hold">검증 보류 (local)</td><td class="hold">검증 보류 (local)</td><td>—</td></tr>
+  <tr><td>요구사항 상세 drawer footer</td><td class="hold">검증 보류 (local)</td><td class="hold">검증 보류 (local)</td><td>—</td></tr>
+  <tr><td>요구사항 수정 drawer footer</td><td class="hold">검증 보류 (local)</td><td class="hold">검증 보류 (local)</td><td>—</td></tr>
+</table>
+
+<p style="font-size:12px;color:#475569">
+  <strong>이론적 결과</strong>: light 에서는 모든 값이 변경 전과 동일하므로 시각 회귀 없음. dark 에서는 모든 Primary 버튼
+  (alias / common / wbs / screen-spec / open-scenario 포함) 이 brand-purple (#8B7FF8) 로 통일됨. Ghost/Outline/Del 은 의도된 차이 유지.
+</p>
+
+<h2>7. Screenshots</h2>
+<p style="font-size:12px;color:#475569">
+  본 PR 환경에 headless 브라우저가 없어 실제 캡처는 수행하지 못했습니다. 권장 캡처 파일명 목록은
+  <a href="./screenshots/README.md"><code>./screenshots/README.md</code></a> 참고.
+</p>
+
+<h2>8. Console errors</h2>
+<p style="font-size:12px;color:#475569">
+  검증 보류 (local). 본 PR 은 JS 무수정 · CSS token 값과 var 참조만 변경 → 신규 console error 가 도입될 가능성은 없음.
+</p>
+
+<h2>9. 금지 파일 변경 확인</h2>
+<table>
+  <tr><th>대상</th><th>결과</th></tr>
+  <tr><td><code>stam/js/**</code></td><td class="pass">변경 없음</td></tr>
+  <tr><td><code>stam/pages/boards/wbs.html</code> / <code>stam/css/stam.wbs.css</code></td><td class="pass">변경 없음</td></tr>
+  <tr><td><code>stam/pages/boards/screen-specification.html</code> 및 관련</td><td class="pass">변경 없음</td></tr>
+  <tr><td><code>stam/js/stam.board-filter.js</code> / <code>stam/css/stam.board-filter.css</code></td><td class="pass">변경 없음</td></tr>
+  <tr><td><code>stam/js/stam.nav-data.js / stam.shell.js / stam.topbar-render.js</code></td><td class="pass">변경 없음</td></tr>
+  <tr><td><code>firebase.json</code> / <code>.github/workflows/*</code></td><td class="pass">변경 없음</td></tr>
+  <tr><td>Drawer Footer 구조 / Custom Select JS / Board Factory / Chip SSOT</td><td class="pass">미착수</td></tr>
+  <tr><td>save / delete / API / localStorage / Firestore</td><td class="pass">변경 없음</td></tr>
+  <tr><td>alias 클래스 (CSS·HTML)</td><td class="pass">제거 0건</td></tr>
+</table>
+
+<p style="font-size:12px;color:#64748b;margin-top:32px;text-align:center">
+  <strong>금지 파일 변경 없음</strong> · token alignment only · alias 제거 및 chip SSOT 는 후속 PR
+</p>
+
+</body>
+</html>
