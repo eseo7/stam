@@ -107,17 +107,31 @@
   <tr><td>upClass</td><td><code>cs-up</code></td><td><code>cs-up</code></td><td><code>cs-up is-up</code></td></tr>
 </table>
 
-<h2>5. 동작 QA (Playwright 자동화 결과)</h2>
+<h2>5. 동작 QA (Playwright — real user-flow)</h2>
+<div class="note">
+  본 QA 는 <strong>강제 init 호출 없이</strong> 실제 사용자 흐름으로 검증합니다.
+  등록은 <code>#rq-reg-btn</code> / <code>#msl-reg-btn</code> / <code>#fn-reg-btn</code> 클릭 → board JS <code>openDrawer()</code> →
+  내부 <code>STAM.customSelect.init(drawer, cfg)</code> 호출. 수정은 <code>[data-rq-open="edit"]</code> / msl / fn 동일.
+  custom select trigger 도 실제 DOM <code>.click()</code> 으로 호출하여 board JS 의 click handler 가 동작합니다.
+</div>
 <table>
-  <tr><th>case</th><th>rq</th><th>msl</th><th>fn</th></tr>
-  <tr><td>등록 drawer custom select 열림 (트리거 클릭)</td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td></tr>
-  <tr><td>등록 drawer option 선택 → label 반영 / 패널 닫힘</td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td></tr>
-  <tr><td>수정 drawer custom select 열림</td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td></tr>
-  <tr><td>외부 클릭 시 닫힘</td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td></tr>
-  <tr><td>ESC 닫힘</td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td></tr>
-  <tr><td>중복 init 보호 (data-*-cs 마커 + 토글 동작 정상)</td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td></tr>
+  <tr><th>case</th><th>rq (1366 / 1920)</th><th>msl (1366 / 1920)</th><th>fn (1366 / 1920)</th></tr>
+  <tr><td>등록 drawer open (real button) → trigger click → openCount</td><td><span class="pass">1 / 1</span></td><td><span class="pass">1 / 1</span></td><td><span class="pass">1 / 1</span></td></tr>
+  <tr><td>등록 option click → label 반영 + 패널 닫힘 (openCount=0)</td><td><span class="pass">PASS</span> (label='기능')</td><td><span class="pass">PASS</span> (label='FO')</td><td><span class="pass">PASS</span> (label='조회')</td></tr>
+  <tr><td>외부 클릭 닫힘 (before=1 → after=0)</td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>ESC 닫힘 (before=1 → after=0)</td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td><td><span class="pass">PASS</span></td></tr>
+  <tr><td>수정 drawer open (real button) → trigger click → openCount</td><td><span class="pass">1 / 1</span></td><td><span class="pass">1 / 1</span></td><td><span class="pass">1 / 1</span></td></tr>
+  <tr><td><strong>중복 init / 재오픈 가드</strong> — close → re-open → trigger click → openCount</td><td><span class="pass">1 / 1</span></td><td><span class="pass">1 / 1</span></td><td><span class="pass">1 / 1</span></td></tr>
+  <tr><td>재오픈 시 drawer 내 trigger 개수 (native select N=4)</td><td><span class="pass">4 / 4</span></td><td><span class="pass">4 / 4</span></td><td><span class="pass">4 / 4</span></td></tr>
+  <tr><td>재오픈 시 drawer 내 .{prefix}-cs wrap 개수 (중복 wrap 없음)</td><td><span class="pass">4 / 4</span></td><td><span class="pass">4 / 4</span></td><td><span class="pass">4 / 4</span></td></tr>
   <tr><td>console error</td><td><span class="pass">0</span></td><td><span class="pass">0</span></td><td><span class="pass">0</span></td></tr>
 </table>
+<div class="note">
+  <strong>중복 init 보호 근거</strong> — drawer 를 닫았다가 재오픈하면 board JS 는 <code>STAM.customSelect.init</code> 을 다시 호출하지만,
+  공통 모듈은 native select 의 <code>cfg.nativeMarkerAttr</code> (예: <code>data-rq-cs="1"</code>) 를 확인하여 이미 enhance 된 native 는
+  build 를 skip 합니다. 결과: 재오픈 시 wrap 개수가 native select 개수와 동일 (각 게시판 drawer 내 native N=4 → wrap=4),
+  trigger 도 4개 (중복 바인딩 없음). trigger click 시 열린 select 개수 = 1 (정확히 하나만 열림).
+</div>
 
 <h2>6. 등록 drawer — Select OPEN (1366px)</h2>
 <div class="ss-grid">
