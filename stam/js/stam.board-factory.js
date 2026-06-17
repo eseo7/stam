@@ -667,7 +667,9 @@
       '<div class="bf-dw-title stam-drawer-title">' + esc(isEdit ? record[this.config.nameKey || 'name'] : (dw.registerTitle || '새 항목 등록')) + '</div>' +
       '</div>';
 
-    var body = '<div class="bf-dw-body stam-drawer-body">' + sections.map(function (sec, si) {
+    var body = '<div class="bf-dw-body stam-drawer-body">' +
+      '<div class="bf-form-err" data-bf-form-err role="alert" hidden></div>' +
+      sections.map(function (sec, si) {
       var fields = (sec.fields || []).map(function (f) { return self.fieldHtml(f, record, idValue); }).join('');
       return '<div class="bf-fs"><div class="bf-fs-hdr"><span class="bf-fs-num">' + (si + 1) + '</span><span class="bf-fs-title">' + esc(sec.title) + '</span></div>' +
         '<div class="bf-fgrid stam-form-grid">' + fields + '</div></div>';
@@ -713,13 +715,65 @@
       control = '<input class="stam-input" data-bf-field="' + esc(f.key) + '" value="' + esc(val) + '" placeholder="' + esc(f.placeholder || '') + '">';
     }
 
-    return '<div class="bf-ffield stam-form-field' + full + '">' +
-      '<label class="bf-flbl stam-label">' + labelHtml + '</label>' + control + '</div>';
+    var isRequired = f.required && f.type !== 'readonly' && f.key !== (this.config.idKey || 'id');
+    return '<div class="bf-ffield stam-form-field' + full + '" data-bf-field-wrap="' + esc(f.key) + '"' +
+      (isRequired ? ' data-bf-required="1"' : '') + '>' +
+      '<label class="bf-flbl stam-label">' + labelHtml + '</label>' + control +
+      '<div class="bf-field-err" data-bf-field-err hidden></div>' +
+      '</div>';
+  };
+
+  /* ── required validation (register/edit submit 전 차단) ──────── */
+  BoardInstance.prototype.validateRequired = function (drawer) {
+    var dw = this.config.drawer || {};
+    var idKey = this.config.idKey || 'id';
+    var required = [];
+    (dw.sections || []).forEach(function (sec) {
+      (sec.fields || []).forEach(function (f) {
+        if (f.required && f.type !== 'readonly' && f.key !== idKey) required.push(f);
+      });
+    });
+
+    // 이전 invalid 상태 초기화
+    drawer.querySelectorAll('[data-bf-field-wrap].is-invalid').forEach(function (w) { w.classList.remove('is-invalid'); });
+    drawer.querySelectorAll('[data-bf-field-err]').forEach(function (e) { e.hidden = true; e.textContent = ''; });
+    var banner = drawer.querySelector('[data-bf-form-err]');
+    if (banner) { banner.hidden = true; banner.textContent = ''; }
+
+    var invalids = [];
+    required.forEach(function (f) {
+      var control = drawer.querySelector('[data-bf-field="' + f.key + '"]');
+      if (!control) return;
+      var v = (control.value || '').trim();
+      if (v === '') {
+        var wrap = drawer.querySelector('[data-bf-field-wrap="' + f.key + '"]');
+        if (wrap) {
+          wrap.classList.add('is-invalid');
+          var err = wrap.querySelector('[data-bf-field-err]');
+          if (err) { err.textContent = (f.label || '필수 항목') + '을(를) 입력하세요.'; err.hidden = false; }
+        }
+        invalids.push({ field: f, control: control, wrap: wrap });
+      }
+    });
+
+    if (invalids.length) {
+      if (banner) {
+        banner.textContent = '필수 항목 ' + invalids.length + '개를 확인하세요 — ' +
+          invalids.map(function (x) { return x.field.label; }).join(', ');
+        banner.hidden = false;
+      }
+      var first = invalids[0];
+      var focusEl = first.wrap ? first.wrap.querySelector('.bf-cs-trigger') : null;
+      (focusEl || first.control).focus();
+    }
+    return invalids.length === 0;
   };
 
   BoardInstance.prototype.handleSubmit = function (mode) {
     var self = this;
     var drawer = this.drawerEl(mode);
+    // required 미충족 시 create/update 호출하지 않고 차단
+    if (!this.validateRequired(drawer)) return false;
     var record = {};
     drawer.querySelectorAll('[data-bf-field]').forEach(function (input) {
       var key = input.getAttribute('data-bf-field');
