@@ -40,10 +40,38 @@
 </div>
 
 <div class="warn">
-  <strong>Screenshots / Dark mode / Console errors</strong> — 본 환경에 headless 브라우저가 없어 실제 캡처·런타임 검증을
-  수행하지 못했습니다. 권장 캡처 파일명은 <code>./screenshots/README.md</code> 참고. light/dark QA 는
-  <strong>검증 보류 (local)</strong> 로 표기합니다.
+  <strong>Browser QA 시도 결과 (follow-up)</strong> — 본 환경에는 chromium/chrome/firefox 시스템 바이너리가 없으며,
+  <code>npx playwright install chromium</code> 도 네트워크 egress 제한(<code>cdn.playwright.dev</code> 403 Host not in allowlist)으로
+  설치 실패했습니다. 따라서 실제 헤드리스 캡처 / console 수집은 본 PR 환경에서 수행 불가합니다.
+  light/dark QA · console errors 는 <strong>수동 QA 요청 (browser unavailable)</strong> 로 표기하며,
+  점검 대상 / 토큰 변경 결과는 아래 "Impact Scope" 표를 그대로 사용하면 됩니다.
 </div>
+
+<h2>0. Impact Scope — token 변경이 닿는 모든 사용처</h2>
+<p style="font-size:12px;color:#475569;margin-top:-4px">
+  <code>stam.tokens.css</code> 의 dark <code>--btn-primary-bg / -hover / -active</code> 값과
+  3개 게시판(<code>.rq/.msl/.fn-btn-pri</code>)의 var 참조만 바뀌었습니다. 아래 표는 동일 토큰 / 클래스를
+  사용하는 모든 파일을 분류한 것으로, dark mode 시각 QA 가 필요한 화면을 한눈에 보여줍니다.
+</p>
+<table>
+  <tr><th>구분</th><th>파일</th><th>사용 class / token</th><th>이번 token 변경 영향</th><th>QA 필요 여부</th></tr>
+  <tr><td>shell-common (CSS)</td><td><code>stam/css/stam.buttons.css</code></td><td><code>.stam-btn-primary</code> → <code>--btn-primary-bg/-hover/-active/-disabled</code></td><td class="add">dark 색상 변경 (#5451E8→#8B7FF8 외)</td><td>필요 (공통 primary 표시 모든 페이지)</td></tr>
+  <tr><td>shell-common (CSS)</td><td><code>stam/css/stam.components.css</code></td><td><code>.stam-btn--primary</code> → 동일 4개 토큰</td><td class="add">동일</td><td>필요 (drawer footer 포함)</td></tr>
+  <tr><td>board (CSS, 본 PR 수정)</td><td><code>stam/css/stam.requirements.css</code></td><td><code>.rq-btn-pri</code> → <code>--btn-primary-bg/-hover</code></td><td class="add">var 라우팅 교체 + dark 색 변경</td><td>필요 (요구사항 목록/드로어 footer)</td></tr>
+  <tr><td>board (CSS, 본 PR 수정)</td><td><code>stam/css/stam.menu-screen-list.css</code></td><td><code>.msl-btn-pri</code> 동일</td><td class="add">동일</td><td>필요 (메뉴/화면목록)</td></tr>
+  <tr><td>board (CSS, 본 PR 수정)</td><td><code>stam/css/stam.functional-specification.css</code></td><td><code>.fn-btn-pri</code> 동일</td><td class="add">동일</td><td>필요 (기능정의서)</td></tr>
+  <tr><td>board (HTML, 금지 — 미변경)</td><td><code>stam/pages/boards/wbs.html</code></td><td>page-scoped <code>--btn-primary-bg/-hover</code> 참조 + <code>.stam-btn--primary.wbs-btn-primary</code></td><td class="add">dark 색 변경 (동일 토큰 사용)</td><td>필요 (드로어 footer 저장/등록)</td></tr>
+  <tr><td>board (HTML+JS, 금지 — 미변경)</td><td><code>stam/pages/boards/screen-specification.html</code> · <code>stam/js/stam.screen-specification.js</code></td><td>page-scoped <code>--btn-primary-bg/-hover</code> + <code>.stam-btn--primary.ss-dw-btn-primary</code></td><td class="add">dark 색 변경</td><td>필요 (목록 / detail / register / edit drawer footer)</td></tr>
+  <tr><td>board (HTML)</td><td><code>stam/pages/boards/open-scenario.html</code></td><td><code>.stam-btn--primary</code> 또는 <code>.stam-btn-primary</code> 직접 사용</td><td class="add">dark 색 변경</td><td>필요</td></tr>
+  <tr><td>filter (CSS)</td><td><code>stam/css/stam.board-filter.css</code></td><td><code>.stam-board-filter-actions .stam-btn-primary</code> 셀렉터 (override 없음 — 토큰 그대로)</td><td class="add">dark 색 변경</td><td>필요 (filter actions primary 버튼 노출 시)</td></tr>
+  <tr><td>docs-preview</td><td><code>stam/docs/STAM-Buttons-Guide.html</code> · <code>STAM-Form-Controls-Guide.html</code> · <code>STAM-Button-CSS-QA-Result-Preview-v1.html</code></td><td><code>.stam-btn--primary</code> / <code>.stam-btn-primary</code> 표본</td><td class="hold">표본 색상 변경 가능 (문서)</td><td>선택 (문서 미리보기)</td></tr>
+  <tr><td>docs (token 기준 문서)</td><td><code>STAM-Token-Inventory-v1.html</code> · <code>STAM-Button-Token-Mapping-v1.html</code> · <code>STAM-CSS-Token-Readiness-Check.html</code></td><td>토큰 이름 / 표 기재만</td><td class="pass">실제 렌더 영향 없음</td><td>불필요</td></tr>
+</table>
+<p style="font-size:12px;color:#475569">
+  <strong>요약</strong> — 실제 렌더 영향을 받는 페이지: 3개 본 PR 대상 게시판(rq/msl/fn) + 금지 영역 게시판 2종(wbs, screen-spec) + open-scenario + filter actions 가 포함된 화면.
+  light 에서는 모두 색이 동일하므로 시각 회귀 없음. <strong>dark 에서는 wbs / screen-spec / open-scenario 까지 함께 #8B7FF8 로 통일됩니다</strong> —
+  본 PR 의도(공통/alias 토큰 정렬)와 정합합니다.
+</p>
 
 <h2>1. 변경 파일</h2>
 <table>
@@ -120,14 +148,31 @@
 </table>
 
 <h2>6. Light / Dark QA</h2>
+<p style="font-size:12px;color:#475569;margin-top:-4px">
+  follow-up 시도: 시스템 chromium/chrome/firefox 부재 + <code>cdn.playwright.dev</code> 네트워크 차단으로
+  brower download 403. 이론적 결과만 기록하고 모든 행을 <strong>수동 QA 요청</strong> 으로 갱신합니다 (이전 "검증 보류 (local)" 과 구분).
+</p>
 <table>
   <tr><th>화면</th><th>light</th><th>dark</th><th>비고</th></tr>
-  <tr><td>요구사항정의서 목록 (Primary/Outline/Del)</td><td class="hold">검증 보류 (local)</td><td class="hold">검증 보류 (local)</td><td>headless 브라우저 미설치</td></tr>
-  <tr><td>메뉴구조/화면목록 목록</td><td class="hold">검증 보류 (local)</td><td class="hold">검증 보류 (local)</td><td>—</td></tr>
-  <tr><td>기능정의서 목록</td><td class="hold">검증 보류 (local)</td><td class="hold">검증 보류 (local)</td><td>—</td></tr>
-  <tr><td>요구사항 등록 drawer footer</td><td class="hold">검증 보류 (local)</td><td class="hold">검증 보류 (local)</td><td>—</td></tr>
-  <tr><td>요구사항 상세 drawer footer</td><td class="hold">검증 보류 (local)</td><td class="hold">검증 보류 (local)</td><td>—</td></tr>
-  <tr><td>요구사항 수정 drawer footer</td><td class="hold">검증 보류 (local)</td><td class="hold">검증 보류 (local)</td><td>—</td></tr>
+  <tr><td>요구사항정의서 목록 (Primary/Outline/Del)</td><td class="hold">수동 QA 요청</td><td class="hold">수동 QA 요청</td><td>theoretical PASS — light 무변경, dark Primary=#8B7FF8</td></tr>
+  <tr><td>메뉴구조/화면목록 목록</td><td class="hold">수동 QA 요청</td><td class="hold">수동 QA 요청</td><td>동일</td></tr>
+  <tr><td>기능정의서 목록</td><td class="hold">수동 QA 요청</td><td class="hold">수동 QA 요청</td><td>동일</td></tr>
+  <tr><td>요구사항 등록 drawer footer</td><td class="hold">수동 QA 요청</td><td class="hold">수동 QA 요청</td><td>—</td></tr>
+  <tr><td>요구사항 상세 drawer footer</td><td class="hold">수동 QA 요청</td><td class="hold">수동 QA 요청</td><td>—</td></tr>
+  <tr><td>요구사항 수정 drawer footer</td><td class="hold">수동 QA 요청</td><td class="hold">수동 QA 요청</td><td>—</td></tr>
+  <tr><td>wbs 드로어 footer (저장/등록) — 영향만</td><td class="hold">수동 QA 요청</td><td class="hold">수동 QA 요청</td><td>금지 파일이라 본 PR 미변경, 단 dark 색은 동일하게 #8B7FF8 로 통일됨</td></tr>
+  <tr><td>screen-specification 드로어 footer (등록/저장/검토요청) — 영향만</td><td class="hold">수동 QA 요청</td><td class="hold">수동 QA 요청</td><td>동일</td></tr>
+  <tr><td>open-scenario primary 버튼 — 영향만</td><td class="hold">수동 QA 요청</td><td class="hold">수동 QA 요청</td><td>동일</td></tr>
+</table>
+
+<h2>6-1. Merge 가능 여부 판단</h2>
+<table>
+  <tr><th>항목</th><th>판단</th></tr>
+  <tr><td>코드 자체 변경 범위</td><td class="pass">CSS 4개 파일, token + var 참조만. 금지 파일 0건. alias 제거 0건.</td></tr>
+  <tr><td>Light mode 회귀</td><td class="pass">이론적 0 — 값 동일. (단, 수동 confirm 권장)</td></tr>
+  <tr><td>Dark mode 회귀</td><td class="hold">Primary가 #5451E8→#8B7FF8 로 더 연해짐 — 이는 의도(alias 와 정렬). 단 wbs/screen-spec/open-scenario까지 자동 적용되므로 디자인 confirm 필요.</td></tr>
+  <tr><td>JS / Console</td><td class="pass">JS 무변경 — 신규 console error 발생 가능성 없음 (런타임 미확인).</td></tr>
+  <tr><td>최종 권고</td><td class="hold"><strong>HOLD</strong> 유지 — 수동 QA(dark mode 1366 캡처 3 game판 + wbs/screen-spec footer) 후 디자인 OK 떨어지면 ready 전환.</td></tr>
 </table>
 
 <p style="font-size:12px;color:#475569">
@@ -137,13 +182,19 @@
 
 <h2>7. Screenshots</h2>
 <p style="font-size:12px;color:#475569">
-  본 PR 환경에 headless 브라우저가 없어 실제 캡처는 수행하지 못했습니다. 권장 캡처 파일명 목록은
+  <strong>수동 QA 요청</strong>. follow-up 에서 <code>npx playwright install chromium</code> 시도 →
+  <code>cdn.playwright.dev</code> egress 차단(403)으로 실패. 시스템 chromium/chrome/firefox 도 부재.
+  현재 <code>./screenshots/</code> 디렉토리에 실제 PNG 0건. 권장 캡처 파일명 목록은
   <a href="./screenshots/README.md"><code>./screenshots/README.md</code></a> 참고.
+  본 follow-up 의 추가 권장(영향 화면): <code>wbs-drawer-footer-1366-dark.png</code>,
+  <code>screen-spec-drawer-footer-1366-dark.png</code>, <code>open-scenario-list-1366-dark.png</code>.
 </p>
 
 <h2>8. Console errors</h2>
 <p style="font-size:12px;color:#475569">
-  검증 보류 (local). 본 PR 은 JS 무수정 · CSS token 값과 var 참조만 변경 → 신규 console error 가 도입될 가능성은 없음.
+  <strong>수동 QA 요청</strong>. follow-up 에서 <code>page.on('console')</code> / <code>page.on('pageerror')</code> 자동 수집 시도했으나
+  브라우저 미가용으로 런타임 미실행. 본 PR 은 JS 무수정 · CSS token 값과 var 참조만 변경 →
+  신규 console error 가 도입될 코드 경로는 없음. 단 런타임 confirm 은 수동 필요.
 </p>
 
 <h2>9. 금지 파일 변경 확인</h2>
