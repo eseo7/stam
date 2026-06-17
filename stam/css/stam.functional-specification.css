@@ -17,12 +17,16 @@ body:has(.fn-page) .po-main { overflow-x: hidden; }
   font-family:inherit;
 }
 .fn-btn:hover { background:var(--bg-sur2);color:var(--t1) }
-.fn-btn.fn-btn-pri { background:var(--stam);color:#fff;border-color:var(--stam) }
-.fn-btn.fn-btn-pri:hover { background:var(--stam-h);border-color:var(--stam-h);color:#fff }
+/* Primary — routed through shared --btn-primary-bg tokens (light/dark aligned) */
+.fn-btn.fn-btn-pri { background:var(--btn-primary-bg);color:var(--btn-primary-text);border-color:var(--btn-primary-bg) }
+.fn-btn.fn-btn-pri:hover { background:var(--btn-primary-bg-hover);border-color:var(--btn-primary-bg-hover);color:var(--btn-primary-text) }
+/* Ghost — alias intentionally uses --t3 (muted) vs common --btn-ghost-text (--t1). Deferred to Button Alias Removal v3. */
 .fn-btn.fn-btn-ghost { background:transparent;border-color:transparent;color:var(--t3) }
 .fn-btn.fn-btn-ghost:hover { background:var(--bg-sur2);border-color:var(--bd);color:var(--t2) }
+/* Outline — alias intentionally uses brand-purple hover accent (--stam). Kept by design; deferred. */
 .fn-btn.fn-btn-out { background:transparent;border-color:var(--bd-s);color:var(--t2) }
 .fn-btn.fn-btn-out:hover { border-color:var(--stam);color:var(--stam) }
+/* Del — alias is outline-danger pattern (vs common solid .stam-btn-danger); hardcoded hover color retained, deferred. */
 .fn-btn.fn-btn-del { background:transparent;border-color:var(--bd-s);color:var(--t3) }
 .fn-btn.fn-btn-del:not([disabled]):hover { border-color:#DC2626;color:#DC2626 }
 .fn-btn[disabled] { opacity:.45;cursor:not-allowed;pointer-events:none }
