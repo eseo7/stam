@@ -51,6 +51,19 @@
     var day = String(d.getDate()).padStart(2, '0');
     return d.getFullYear() + '-' + m + '-' + day;
   }
+  // 한글 받침 유무로 목적격 조사(을/를) 선택. 비한글 끝글자는 '를' 처리.
+  function josEulReul(word) {
+    if (!word) return '를';
+    var c = word.charCodeAt(word.length - 1);
+    if (c < 0xAC00 || c > 0xD7A3) return '를';
+    return (c - 0xAC00) % 28 !== 0 ? '을' : '를';
+  }
+  // 필드 타입별 required 안내 문구 (select=선택 / 그 외=입력)
+  function requiredMessage(f) {
+    var label = f.label || '필수 항목';
+    var verb = f.type === 'select' ? '선택' : '입력';
+    return label + josEulReul(label) + ' ' + verb + '하세요.';
+  }
 
   /* ── built-in column renderers ──────────────────────────────────
    * 각 renderer: (row, col, ctx) → HTML string
@@ -750,7 +763,7 @@
         if (wrap) {
           wrap.classList.add('is-invalid');
           var err = wrap.querySelector('[data-bf-field-err]');
-          if (err) { err.textContent = (f.label || '필수 항목') + '을(를) 입력하세요.'; err.hidden = false; }
+          if (err) { err.textContent = requiredMessage(f); err.hidden = false; }
         }
         invalids.push({ field: f, control: control, wrap: wrap });
       }

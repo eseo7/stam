@@ -188,6 +188,58 @@ STAM.boardFactory.mount(rootEl, config);
   `.is-invalid`, ② 필드 하단 `.bf-field-err`, ③ drawer 상단 `.bf-form-err` 배너를 남기고
   첫 invalid 컨트롤(custom select면 trigger)에 focus한다. (`alert` 미사용 — 화면 표시 유지)
 
+## 8-2. UI 밀도 보정 라운드 (사용자 1차 브라우저 QA 대응)
+
+### 1차 브라우저 QA 결과 (사용자)
+> "화면은 뜨지만" **간격 / 버튼 크기 / width / table 밀도 / summary·toolbar 균형**이
+> 기존 STAM 게시판 톤과 맞지 않음 → **시각 QA FAIL.** (기능/DOM은 정상)
+
+### 이번 보정 항목 (CSS 우선, HTML/JS 최소)
+모든 값은 **기존 기능정의서 `stam.functional-specification.css`의 실제 수치에 정렬**했다.
+
+| 영역 | 보정 내용 |
+| --- | --- |
+| layout density | `.bf-page`를 fn-page와 동일하게 `max-width: var(--content-max)` 중앙 정렬 + `padding 20px 24px 64px` → 1920px에서 과확장 방지, 본문 빈 느낌 해소. preview 배너를 `.bf-page` 안으로 이동(폭 정렬) + slim화(padding 8px 12px) |
+| summary strip | flex→hairline grid(gap 1px·`--bd` 배경), cell `padding 11px 15px`, label `9.5px UPPERCASE`, num `20px`, dot `6px`, `.on` 하단 강조바(과강조 완화) |
+| toolbar | 검색창 `width 280px`·`padding 6px 11px`·input 12px(과길이 해소), sep `height 22px`, 삭제버튼을 fn-btn-del 톤(서브틀+빨강 hover, 필터 트리거와 동일 높이) |
+| header buttons | 공통 SSOT(`stam-board-action-btn` + `stam-btn` variant) 유지 — primary/outline 동일 사이즈·정렬 |
+| table | `min-width 900px`, thead `9.5px UPPERCASE`, row `height 36px`·td `12.5px`, checkbox col `40px`, chip `height 20px`, relation chip `height 20px`, avatar `22px(둥근 사각)`, `상세` 버튼 compact화 |
+| footer/pagination | 공통 `stam-board-footer/count/pagination/page-btn`(board-layout.css SSOT) 유지 |
+| drawer | footer SSOT 유지, input/select/custom-select trigger **높이 38px 통일**, 필드 간격 fn 톤(`gap 12px 20px`, field `gap 5px`) |
+| 반응형 | summary 7→4(≤1180)→2(≤820)→1(≤480)열, ≤820 toolbar wrap·search 100%·form 1열, `.po-main` overflow-x hidden |
+
+### 추가 컴포넌트 보정 (사용자 2차 지적)
+1. **select 중복 표시 FIX** — custom-select 적용 후 native `<select>`가 함께 보이던 문제.
+   원인: 본 preview의 `nativeClass`(`bf-cs-native`)를 숨기는 CSS 규칙 부재(기존 화면은
+   각자 `*-cs-native`로 숨김). 해결: `stam.board-factory.css`에 `.bf-cs-native{display:none}`
+   추가. `stam.custom-select.js`는 미수정. (검증: native 수 == trigger 수, wrapper당 trigger 1개)
+2. **validation 문구 자연화** — 필드 타입별 분기:
+   - select → `{label}을/를 선택하세요.` (예: `기능유형을 선택하세요.`, `우선순위를 선택하세요.`)
+   - input/textarea → `{label}을/를 입력하세요.` (예: `기능명을 입력하세요.`)
+   - 한글 받침 유무로 목적격 조사(을/를) 자동 선택(`josEulReul`).
+3. **validation spacing** — 오류 배너 `padding 8px 12px`/`margin-bottom 14px`, 필드 오류
+   `margin-top 4px`/`11px`로 축소. 빨간 border·메시지는 유지하되 레이아웃을 과하게 밀지 않음.
+
+### 보정 라운드 검증 결과
+| 항목 | 결과 |
+| --- | --- |
+| `node --check` (factory/configs) | PASS |
+| jsdom DOM 스모크(기존 45항목) | PASS / console.error 0 |
+| select 중복 없음(native=trigger 1:1, bf-cs-native 부여) | PASS (7항목 보조 테스트) |
+| validation 문구(select=선택/input=입력, 을/를) | PASS |
+| required create/update 차단 유지 | PASS |
+| CSS 중괄호 균형 / var() 토큰 전부 resolve | PASS (130/130, missing 0) |
+| forbidden 파일 변경 | 없음 |
+| 기존 boards/공통 CSS·JS 변경 | 없음 (`board-filter.js`·`custom-select.js` 미수정) |
+
+### 1920 / 1366 / 모바일 — ⚠️ 라이브 픽셀 확인 PENDING
+- 보정 수치는 **기존 fn 화면의 실제 값에 정렬**했고 반응형 분기를 코드로 명시했으나,
+  이 환경은 **실제 브라우저 바이너리를 받을 수 없어**(chromium 다운로드가 네트워크 정책으로
+  실패, 재확인 완료) **픽셀 단위 시각/반응형 확인은 여전히 미수행**이다.
+- 따라서 본 PR은 **Draft 유지**, 라이브 브라우저 시각 QA 완료 전 Ready로 전환하지 않는다.
+- merge 전 실제 Chrome/Edge에서 §6-3 + 위 보정 항목(1920/1366/모바일·light/dark·콘솔 0)을
+  1회 확인 권장.
+
 ## 9. 다음 PR 후보 (PR #137~)
 
 - 라이브 브라우저 시각 QA 결과 반영(스크린샷 첨부)
