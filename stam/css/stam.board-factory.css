@@ -128,10 +128,15 @@ body:has(.bf-page) .po-main { overflow-x: hidden; }
 }
 .bf-table .stam-check-cell { width: 40px; }
 
-/* id / name cell (한 줄, 기존 fn-id-cell 톤) */
-.bf-id-cell { display: flex; align-items: center; gap: 6px; }
-.bf-id { font-size: 11px; font-weight: 700; color: var(--stam); flex-shrink: 0; letter-spacing: .01em; }
-.bf-name { font-size: 12.5px; font-weight: 600; color: var(--t1); }
+/* id / name cell (한 줄 inline, 기존 fn-id-cell 톤)
+ * ID는 고정폭 nowrap, 기능명은 남은 폭에서 한 줄 + 넘치면 ellipsis. */
+.bf-id-cell { display: flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; }
+.bf-id { flex: 0 0 auto; font-size: 11px; font-weight: 700; color: var(--stam); letter-spacing: .01em; }
+.bf-name {
+  min-width: 0; flex: 1 1 auto; max-width: 260px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 12.5px; font-weight: 600; color: var(--t1);
+}
 
 .bf-text { color: var(--t2); }
 .bf-date { font-size: 11.5px; color: var(--t3); }

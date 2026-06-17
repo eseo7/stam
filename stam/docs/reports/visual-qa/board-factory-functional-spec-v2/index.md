@@ -240,6 +240,21 @@ STAM.boardFactory.mount(rootEl, config);
 - merge 전 실제 Chrome/Edge에서 §6-3 + 위 보정 항목(1920/1366/모바일·light/dark·콘솔 0)을
   1회 확인 권장.
 
+## 8-3. idName 컬럼 한 줄 표시 보정 (사용자 3차 지적)
+
+- **증상**: `기능 ID / 기능명` 컬럼이 2줄로 표시(`FN-007` / `요구사항 삭제`). 기능명에
+  공백(`요구사항 삭제`)이 있어 `white-space` 미지정 시 공백에서 줄바꿈된 것이 원인.
+- **해결(CSS 단독, renderer 구조 유지)**:
+  - `.bf-id-cell` → `display:flex; align-items:center; gap:8px; min-width:0; white-space:nowrap`
+  - `.bf-id` → `flex:0 0 auto` (고정폭·nowrap)
+  - `.bf-name` → `flex:1 1 auto; min-width:0; max-width:260px; overflow:hidden;
+    text-overflow:ellipsis; white-space:nowrap` (한 줄 + 긴 이름 말줄임)
+  - row height는 단일 라인 유지(과증가 없음).
+- **검증(jsdom)**: 7개 행 모두 `.bf-id-cell` 안에 `.bf-id`×1 + `.bf-name`×1, 두 span이
+  동일 셀(부모)에 위치(세로 분리 아님). `FN-007` = `요구사항 삭제` 동일 셀 확인.
+  select 중복·validation 문구 **회귀 없음**(보조 테스트 11항목 PASS).
+- 라이브 픽셀(ellipsis 실제 표시·1366/1920/좁은 폭)은 §8-2와 동일하게 **PENDING**.
+
 ## 9. 다음 PR 후보 (PR #137~)
 
 - 라이브 브라우저 시각 QA 결과 반영(스크린샷 첨부)
