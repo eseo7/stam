@@ -326,6 +326,22 @@ STAM.boardFactory.mount(rootEl, config);
   idName 한 줄, required 차단 **모두 유지**. CSS 133/133 균형, 토큰 전부 resolve.
 - 브라우저 픽셀(실제 외곽선·높이 정렬)은 chromium 미가용으로 **PENDING** — merge 전 1회 확인 권장.
 
+## 8-7. Drawer title top spacing final (+10px)
+
+사용자 로컬 브라우저 최종 지적: 제목이 아직 상단에 약간 붙어 보임 → top만 +10px.
+
+- **보정(CSS 단독)**: `.bf-dw-head` padding-top `22px → 32px` (left/right/bottom·body/form/
+  footer padding·필드 38px·footer stroke·삭제 height·active bar·아이콘 전부 유지). 등록/상세/
+  수정 모두 동일 `.bf-dw-head` → 한 번에 적용. JS/config/HTML 변경 없음.
+
+| 항목 | DOM/CSS 검증 | 라이브 픽셀 |
+| --- | --- | --- |
+| 등록/상세/수정 제목 top 32px | padding-top 32px 적용 | PENDING |
+| 기존 보정(footer stroke·삭제 height·active bar·아이콘·validation·idName) 회귀 | jsdom 45 PASS·`console.error` 0 | — |
+| 기존 기능정의서 diff | 0 | — |
+
+- 브라우저 픽셀(실제 여백)은 chromium 미가용으로 **PENDING** — merge 전 Chrome/Edge 1회 확인 권장.
+
 ## 9. 다음 PR 후보 (PR #137~)
 
 - 라이브 브라우저 시각 QA 결과 반영(스크린샷 첨부)
