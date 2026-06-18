@@ -369,6 +369,37 @@ STAM.boardFactory.mount(rootEl, config);
   select 중복 해소, validation 문구, idName 한 줄, required 차단 **모두 유지**. CSS 134/134 균형.
 - 브라우저 픽셀(실제 숨김·정상 chip 유지)은 chromium 미가용으로 **PENDING** — merge 전 1회 확인 권장.
 
+## 8-9. Drawer title clipping fix + header chip-only 숨김
+
+§8-8에서 `.bf-dw-head > .bf-dw-hrow1 { display:none }`로 **row 전체**를 숨긴 것이
+title layout을 밀어/잘리게 만든 원인이었다. row는 유지하고 **배지+chip만** 숨기도록 원복.
+
+- **원복**: `.bf-dw-hrow1` 전체 `display:none` **제거**.
+- **chip-only 숨김(권장 selector)**:
+  ```css
+  .bf-dw-head > .bf-dw-hrow1 .bf-dw-badge,
+  .bf-dw-head > .bf-dw-hrow1 .bf-chip { display: none; }
+  ```
+  → 제목 위 배지(`.bf-dw-badge`)·상태 chip(`.bf-chip`)만 미노출. **row·닫기(X)·title layout 유지**.
+- **전역 chip 숨김 아님**: header 첫 row(`.bf-dw-head > .bf-dw-hrow1`) 한정 →
+  본문 infoGrid/relation card/table/detail 의 `.bf-chip`/`.bf-rel-chip`은 정상 노출.
+- **title clipping 방지**: `.bf-dw-head` padding-top은 사용자가 이전에 OK 확인한 **32px 유지**
+  (32px가 원인이 아니라 row 제거가 원인이었음). 제목 전체가 정상 노출.
+- 닫기(X)는 그대로 유지 + footer `취소`·스크림·ESC 동작 유지.
+
+| 항목 | DOM/CSS 검증 | 라이브 픽셀 |
+| --- | --- | --- |
+| `.bf-dw-hrow1` 전체 display:none 원복 | 규칙 제거 확인 | — |
+| header 배지+chip만 숨김 | scoped selector 적용 | PENDING |
+| 등록/상세/수정 title 정상 노출(잘림 없음) | row/padding 유지 | PENDING |
+| 본문/table/relation/status chip 정상 | selector가 header 첫 row만 한정 | PENDING |
+| light/dark 동일 | display:none, 테마 무관 | PENDING |
+
+- **회귀(jsdom 45 PASS·`console.error` 0)**: footer stroke, 필터/삭제 height, 삭제 hover,
+  active bar, 내보내기/기능등록 icon, drawer padding, footer/action icon, select 중복 해소,
+  validation 문구, idName 한 줄, required 차단 **모두 유지**. CSS 134/134 균형, 기존 기능정의서 diff 0.
+- 브라우저 픽셀(title 정상 노출·chip 숨김)은 chromium 미가용으로 **PENDING** — merge 전 1회 확인 권장.
+
 ## 9. 다음 PR 후보 (PR #137~)
 
 - 라이브 브라우저 시각 QA 결과 반영(스크린샷 첨부)
