@@ -25,9 +25,10 @@
 | --- | --- | --- |
 | `stam/pages/boards-v2/menu-screen-list.html` | 신규 | v2 preview route. PR #136 `boards-v2/functional-specification.html` 구조 그대로, mount 대상 config만 `menuScreenListV2`로 교체. |
 | `stam/js/stam.board-configs.js` | 수정(append) | `STAM.boardConfigs.menuScreenListV2` 추가. 기존 `functionalSpecificationV2` 블록 변경 없음. |
+| `stam/css/stam.board-factory.css` | 수정(공통 레이어 보정) | drawer footer button variant 공통 stroke 기준 보정. `.bf-drawer .stam-drawer-foot` scope 내부에서만 ghost/outline/secondary 에 `border: 1px solid var(--btn-secondary-border)` 적용. 자세한 내용은 §12. |
 | `stam/docs/reports/visual-qa/board-factory-menu-screen-list-v2/index.md` | 신규 | 본 QA 문서. |
 
-CSS(`stam.board-factory.css`) / Engine(`stam.board-factory.js`)은 **수정하지 않았다**. 기존 v1.2 엔진에서 모두 표현 가능한 범위로만 config를 구성.
+**Engine(`stam.board-factory.js`) 변경 없음.** CSS 변경분은 **메뉴구조 v2 개별 화면 보정이 아니라 Board Factory 공통 레이어 보정**이며, 기능정의서 v2 / 메뉴구조 v2 / 후속 보드 전반에 동일하게 적용된다. 기능정의서 v2(`boards-v2/functional-specification.html`) 와 메뉴구조 v2(`boards-v2/menu-screen-list.html`) 는 동일한 `stam.board-factory.css` / `stam.board-factory.js` / `stam.board-configs.js` 를 공유하므로, 개별 화면 selector / class / patch CSS 는 추가하지 않는다.
 
 ## 4. static / in-memory 범위
 
@@ -109,15 +110,17 @@ required: FO/BO, 화면명, 화면유형.
 
 ### 8-1. 정적 / 단위
 
-- `git diff --name-only origin/main` — 변경 파일 3개:
+- `git diff --name-only origin/main` — 변경 파일 4개:
   - `stam/docs/reports/visual-qa/board-factory-menu-screen-list-v2/index.md`
   - `stam/js/stam.board-configs.js`
+  - `stam/css/stam.board-factory.css` *(공통 레이어 보정 — §12)*
   - `stam/pages/boards-v2/menu-screen-list.html`
-- `node --check stam/js/stam.board-configs.js` — **PASS** (예정 / 본 작업에서 실행).
-- `node --check stam/js/stam.board-factory.js` — **PASS** (PR #136 이후 변경 없음).
+- `node --check stam/js/stam.board-configs.js` — **PASS**.
+- `node --check stam/js/stam.board-factory.js` — **PASS** (PR #136 이후 엔진 변경 없음).
+- CSS 중괄호 균형 — **134/134**.
 - 기존 메뉴구조/화면목록 3종(html/js/css) diff = **0**.
 - 기존 기능정의서 3종 diff = **0**.
-- `stam.board-factory.js` 변경 없음.
+- `stam.board-factory.js` 변경 없음(엔진 untouched).
 - 공통 모듈(`stam.board-filter.js`, `stam.custom-select.js`, `stam.nav-data.js`, `stam.shell.js`, `stam.topbar-render.js`) 변경 없음.
 - `firebase.json` / `.github/workflows/*` / package/config/build 파일 변경 없음.
 
@@ -205,25 +208,27 @@ required: FO/BO, 화면명, 화면유형.
 
 **개별 화면 보정 아님. Board Factory 공통 레이어 보정.** 변경 파일은 `stam.board-factory.css` 만. menu-screen-list 전용 selector / class / config 추가 없음. `stam.board-factory.js`, `stam.board-configs.js`, 신규 route HTML 모두 미변경.
 
-### 12-5. 메뉴구조 v2 drawer 확인 (PENDING — 사용자 브라우저 QA 필요)
+### 12-5. 메뉴구조 v2 drawer 확인
 
-- [ ] 등록 drawer footer
-  - [ ] `취소` (ghost) — stroke 보임
-  - [ ] `임시저장` (outline + icon) — stroke 보임
-  - [ ] `전체 보기` (ghost) — stroke 보임
-  - [ ] `등록` (primary) — filled purple 유지
-- [ ] 상세 drawer footer
-  - [ ] `전체 보기` (ghost) — stroke 보임
-  - [ ] `수정` (primary + icon) — filled purple 유지
-- [ ] 수정 drawer footer
-  - [ ] `취소` / `임시저장` / `전체 보기` stroke 보임
-  - [ ] `저장` (primary) filled 유지
+사용자 로컬 브라우저 QA 결과:
 
-### 12-6. 기능정의서 v2 회귀 확인 (PENDING — 사용자 브라우저 QA 필요)
+- [x] 등록 drawer footer — **stroke 정상 표시 확인 완료**
+  - [x] `취소` (ghost) — stroke 보임
+  - [x] `임시저장` (outline + icon) — stroke 보임
+  - [x] `전체 보기` (ghost) — stroke 보임
+  - [x] `등록` (primary) — filled purple 유지
+- [ ] 상세 drawer footer — PENDING (사용자 브라우저 QA)
+  - ghost / primary 공통 기준 동일 selector 적용
+- [ ] 수정 drawer footer — PENDING (사용자 브라우저 QA)
+  - ghost / outline / primary 공통 기준 동일 selector 적용
 
-- [ ] `/stam/pages/boards-v2/functional-specification.html` 등록/상세/수정 drawer footer stroke 유지(PR #136 기준 회귀 없음)
-- [ ] primary button filled 유지
-- [ ] toolbar 버튼 height / icon 회귀 없음
+### 12-6. 기능정의서 v2 회귀 확인
+
+- 기능정의서 v2(`boards-v2/functional-specification.html`) 와 메뉴구조 v2(`boards-v2/menu-screen-list.html`) 는 **동일한** `stam.board-factory.css` / `stam.board-factory.js` 를 공유. 본 보정은 공통 selector(`.bf-drawer .stam-drawer-foot .stam-btn-*`) 에 적용되므로, 기능정의서 v2 footer 에도 동일 기준이 자동 적용된다.
+- PR #136 ghost-only 규칙은 본 회차에서 outline/secondary 추가 + `border` shorthand 강화로 **동등 또는 더 강한 stroke** 가 되며, 기존 fn-spec 시각 기준은 동일하거나 향상.
+- [ ] `/stam/pages/boards-v2/functional-specification.html` 등록/상세/수정 drawer footer stroke 회귀 확인 — PENDING (사용자 브라우저 QA)
+- [ ] primary filled 유지 — 본 블록은 primary 미관여, 회귀 가능성 없음
+- [ ] toolbar 버튼 height / icon — 본 블록 scope 가 `.bf-drawer .stam-drawer-foot` 한정, toolbar 영향 없음
 
 ### 12-7. 공통화 재발 방지 체크리스트 (Adoption Checklist 보강)
 
