@@ -3,7 +3,7 @@
 > 브랜치 `feat/board-field-schema-v1` · PR `feat(board-factory): define field schema presets`
 > base = main `244ef72` (PR #143 Board Factory Page Contract v1 merge 후).
 > "게시판 찍어내기"(Board Builder)를 위한 **공통 field schema 기준 + 3개 v2 화면 inventory**.
-> **Draft 전용** — 사용자 브라우저 QA 전 Ready / merge / deploy 금지. 본 PR 은 화면 동작을 바꾸지 않는다.
+> **✅ 사용자 브라우저 QA PASS (2026-06-18) → Ready / squash merge / staging live channel deploy 진행.** 본 PR 은 field schema 정의 / 문서 / 주석 중심이며 **화면 동작 변경 없음**(스키마 모듈 미로드). 자세한 QA 결과는 §11-A.
 
 ---
 
@@ -221,6 +221,23 @@ STAM.boardFieldSchema.defineField({ key:'docUrl', label:'문서 URL', type:'url'
 - 3개 v2 config 의 모든 컬럼/드로워 필드가 schema type 으로 매핑(uncovered 0) — 정적 확인.
 - `boards-v2/index.html` route 유지(미변경) / 3개 v2 화면 표시·checkbox·filter·drawer 유지(엔진·config 값 무변경).
 - 기존 v1 영향 0 / nav-data 변경 0 / API·Firestore·localStorage 변경 0.
+
+## 11-A. 사용자 브라우저 QA 결과 — PASS (2026-06-18)
+
+> 본 PR 은 field schema **정의 / 문서 / 주석 중심**이며 화면 동작을 바꾸지 않는다(스키마 모듈은 어떤 v2 페이지에도 로드되지 않음). 따라서 "3개 v2 화면이 기존과 동일하게 동작" 이 PASS 기준이다. 사용자 로컬 브라우저 확인 결과 전 항목 PASS.
+
+- [x] PR #144 QA — **PASS**
+- [x] `boards-v2/index.html` (Preview Index) — **PASS**
+- [x] 요구사항 v2 — 기존과 동일 **PASS**
+- [x] 메뉴구조 v2 — 기존과 동일 **PASS**
+- [x] 기능정의서 v2 — 기존과 동일 **PASS**
+- [x] checkbox alignment 유지 — **PASS**
+- [x] filter popup — **PASS**
+- [x] drawer open — **PASS**
+- [x] console error — **0**
+- [ ] narrow / mobile (≤820, ≤480) — **DEFERRED** (본 PR 범위 밖, 화면 변경 없음)
+
+→ §11 정적 검증 + 본 §11-A 사용자 QA PASS → **Ready 전환 → squash merge → staging live channel deploy** 진행.
 
 ## 12. 비영향 / 미변경
 
