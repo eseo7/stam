@@ -355,4 +355,348 @@
     dataSource: dataSource,
     referenceSource: referenceSource
   };
+
+  /* ──────────────────────────────────────────────────────────────
+   * 메뉴구조 / 화면목록 v2 preview
+   * 기존 boards/menu-screen-list.html 의 컬럼/드로워/필터를
+   * Board Factory config 로 재현. static/in-memory.
+   * 기존 화면은 변경하지 않는다.
+   * ──────────────────────────────────────────────────────────── */
+
+  var MSL_REQUIREMENTS = {
+    'REQ-001': { label: '요구사항 목록 조회' },
+    'REQ-002': { label: '메뉴 구조 관리' },
+    'REQ-003': { label: 'WBS 관리' },
+    'REQ-004': { label: '프로젝트 목록' },
+    'REQ-005': { label: '사용자/권한 관리' }
+  };
+  var MSL_DESIGNS = {
+    'SCR-001': { label: '요구사항 목록 — 화면설계서' },
+    'SCR-002': { label: '요구사항 등록 — 화면설계서' },
+    'SCR-003': { label: 'WBS 목록 — 화면설계서' },
+    'SCR-004': { label: '프로젝트 목록 — 화면설계서' }
+  };
+  var MSL_USERS = {
+    'user-001': { label: '김민준' },
+    'user-002': { label: '이수빈' },
+    'user-003': { label: '박지호' },
+    'user-004': { label: '최서연' }
+  };
+
+  var MSL_SEED = [
+    { id: 'MSL-001', name: '요구사항 목록',  lv1: '산출물 관리', lv2: '요구사항정의서', lv3: '',
+      screenType: 'list', fob: 'FO', status: 'done',    ownerId: 'user-001',
+      reqIds: ['REQ-001','REQ-002'], designIds: ['SCR-001'], updatedAt: '2026-06-10',
+      note: '요구사항 목록 조회 화면. 검색·필터·정렬 지원.' },
+    { id: 'MSL-002', name: '요구사항 등록',  lv1: '산출물 관리', lv2: '요구사항정의서', lv3: '',
+      screenType: 'register', fob: 'FO', status: 'done', ownerId: 'user-001',
+      reqIds: ['REQ-001'], designIds: ['SCR-002'], updatedAt: '2026-06-10',
+      note: '요구사항 신규 등록 폼.' },
+    { id: 'MSL-003', name: 'WBS 목록',       lv1: '산출물 관리', lv2: 'WBS 작업',       lv3: '',
+      screenType: 'list', fob: 'FO', status: 'review', ownerId: 'user-002',
+      reqIds: ['REQ-003'], designIds: [], updatedAt: '2026-06-09',
+      note: 'WBS 작업 목록 화면. 설계서 미작성.' },
+    { id: 'MSL-004', name: '화면설계서 목록', lv1: '산출물 관리', lv2: '화면설계서',     lv3: '',
+      screenType: 'list', fob: 'FO', status: 'done', ownerId: 'user-002',
+      reqIds: ['REQ-002'], designIds: ['SCR-003'], updatedAt: '2026-06-10',
+      note: '화면설계서 산출물 목록.' },
+    { id: 'MSL-005', name: '로그인',         lv1: '인증',         lv2: '',              lv3: '',
+      screenType: 'list', fob: 'FO', status: 'draft', ownerId: 'user-003',
+      reqIds: [], designIds: [], updatedAt: '2026-06-08',
+      note: '인증 진입 화면. 연결 산출물 없음.' },
+    { id: 'MSL-006', name: '프로젝트 목록',   lv1: '서비스 루트', lv2: '',              lv3: '',
+      screenType: 'list', fob: 'FO', status: 'done', ownerId: 'user-004',
+      reqIds: ['REQ-004'], designIds: ['SCR-004'], updatedAt: '2026-06-07',
+      note: '내 프로젝트 진입 후 메인 목록.' },
+    { id: 'MSL-007', name: '메뉴/화면 목록',  lv1: '산출물 관리', lv2: '메뉴구조/화면목록', lv3: '',
+      screenType: 'list', fob: 'FO', status: 'review', ownerId: 'user-001',
+      reqIds: ['REQ-002'], designIds: [], updatedAt: '2026-06-09',
+      note: '본 화면. 설계서 미작성 상태.' },
+    { id: 'MSL-008', name: '사용자 관리',     lv1: '관리/설정',   lv2: '멤버 관리',      lv3: '',
+      screenType: 'list', fob: 'BO', status: 'hold', ownerId: 'user-003',
+      reqIds: [], designIds: [], updatedAt: '2026-06-08',
+      note: '관리자용 사용자 관리. 보류 처리.' },
+    { id: 'MSL-009', name: '대시보드',         lv1: '대시보드',   lv2: '',              lv3: '',
+      screenType: 'dashboard', fob: 'FO', status: 'done', ownerId: 'user-004',
+      reqIds: ['REQ-004'], designIds: ['SCR-004'], updatedAt: '2026-06-07',
+      note: '프로젝트 진입 대시보드.' },
+    { id: 'MSL-010', name: '권한 설정',        lv1: '관리/설정', lv2: '멤버 관리',      lv3: '권한',
+      screenType: 'setting', fob: 'BO', status: 'draft', ownerId: 'user-003',
+      reqIds: ['REQ-005'], designIds: [], updatedAt: '2026-06-06',
+      note: '역할별 권한 설정. 설계서 작성 전.' }
+  ];
+
+  var MSL_VOCAB = {
+    status: {
+      draft:  { label: '작성중', tone: 'neutral' },
+      review: { label: '검토중', tone: 'warn' },
+      done:   { label: '확정',   tone: 'pass' },
+      hold:   { label: '보류',   tone: 'fail' }
+    },
+    screenType: {
+      list:      { label: '목록',     tone: 'brand' },
+      register:  { label: '등록',     tone: 'brand' },
+      detail:    { label: '상세',     tone: 'brand' },
+      edit:      { label: '수정',     tone: 'brand' },
+      popup:     { label: '팝업',     tone: 'brand' },
+      drawer:    { label: 'Drawer',   tone: 'brand' },
+      setting:   { label: '설정',     tone: 'brand' },
+      dashboard: { label: '대시보드', tone: 'brand' }
+    },
+    fob: {
+      FO: { label: 'FO', tone: 'info' },
+      BO: { label: 'BO', tone: 'high' }
+    },
+    lv1: {
+      '서비스 루트':  { label: '서비스 루트',  tone: 'neutral' },
+      '대시보드':     { label: '대시보드',     tone: 'neutral' },
+      '산출물 관리':  { label: '산출물 관리',  tone: 'neutral' },
+      '관리/설정':    { label: '관리/설정',    tone: 'neutral' },
+      '인증':         { label: '인증',         tone: 'neutral' }
+    }
+  };
+
+  function mslVocabOptions(key) {
+    var v = MSL_VOCAB[key];
+    return Object.keys(v).map(function (code) { return { label: v[code].label, value: code }; });
+  }
+  function mslRefOptions(map) {
+    return Object.keys(map).map(function (id) { return { label: map[id].label, value: id }; });
+  }
+
+  var MSL_FILTER_FIELD = {
+    status: 'status',
+    screenType: 'screenType',
+    fob: 'fob',
+    lv1: 'lv1',
+    owner: 'ownerId'
+  };
+
+  var mslRows = MSL_SEED.map(function (r) { return JSON.parse(JSON.stringify(r)); });
+  var mslSeq = MSL_SEED.length;
+
+  function mslMatchKeyword(row, kw) {
+    if (!kw) return true;
+    var q = kw.toLowerCase();
+    var owner = (MSL_USERS[row.ownerId] && MSL_USERS[row.ownerId].label) || '';
+    return [row.id, row.name, owner, row.lv1, row.lv2, row.lv3].some(function (s) {
+      return String(s || '').toLowerCase().indexOf(q) !== -1;
+    });
+  }
+  function mslMatchFilters(row, filters) {
+    return Object.keys(filters || {}).every(function (key) {
+      var sel = filters[key];
+      if (!sel || !sel.length) return true;
+      var field = MSL_FILTER_FIELD[key] || key;
+      var val = row[field];
+      if (Array.isArray(val)) return val.some(function (x) { return sel.indexOf(x) !== -1; });
+      return sel.indexOf(val) !== -1;
+    });
+  }
+  function mslApplyQuery(query) {
+    var out = mslRows.filter(function (r) {
+      return mslMatchKeyword(r, query.keyword) && mslMatchFilters(r, query.filters);
+    });
+    var sort = query.sort || { key: 'updatedAt', direction: 'desc' };
+    out.sort(function (a, b) {
+      var av = a[sort.key], bv = b[sort.key];
+      if (av === bv) return 0;
+      var cmp = av > bv ? 1 : -1;
+      return sort.direction === 'desc' ? -cmp : cmp;
+    });
+    return out;
+  }
+
+  var mslDataSource = {
+    mode: 'static',
+    nextId: function () {
+      return 'MSL-' + String(mslSeq + 1).padStart(3, '0');
+    },
+    list: function (query) {
+      var filtered = mslApplyQuery(query);
+      var page = query.page || 1;
+      var size = query.pageSize || 20;
+      var start = (page - 1) * size;
+      return { rows: filtered.slice(start, start + size), total: filtered.length };
+    },
+    get: function (id) {
+      var found = mslRows.filter(function (r) { return r.id === id; })[0];
+      return found ? JSON.parse(JSON.stringify(found)) : null;
+    },
+    summary: function (query) {
+      var filtered = mslApplyQuery(query);
+      var foSet = 0, boSet = 0, reqSet = {}, scrSet = {};
+      var m = { total: filtered.length, draft: 0, review: 0, done: 0, hold: 0, linkedReq: 0, linkedScr: 0 };
+      filtered.forEach(function (r) {
+        if (r.status === 'draft')  m.draft++;
+        if (r.status === 'review') m.review++;
+        if (r.status === 'done')   m.done++;
+        if (r.status === 'hold')   m.hold++;
+        if (r.fob === 'FO') foSet++;
+        if (r.fob === 'BO') boSet++;
+        (r.reqIds || []).forEach(function (x) { reqSet[x] = true; });
+        (r.designIds || []).forEach(function (x) { scrSet[x] = true; });
+      });
+      m.linkedReq = Object.keys(reqSet).length;
+      m.linkedScr = Object.keys(scrSet).length;
+      m.fo = foSet; m.bo = boSet;
+      return { metrics: m, facets: {} };
+    },
+    create: function (record) {
+      mslRows.unshift(JSON.parse(JSON.stringify(record)));
+      var m = /^MSL-(\d+)$/.exec(record.id || '');
+      if (m) mslSeq = Math.max(mslSeq, parseInt(m[1], 10));
+      return record;
+    },
+    update: function (id, patch) {
+      var idx = -1;
+      mslRows.forEach(function (r, i) { if (r.id === id) idx = i; });
+      if (idx === -1) return null;
+      var merged = Object.assign({}, mslRows[idx], patch, { id: id });
+      mslRows[idx] = merged;
+      return merged;
+    },
+    remove: function (id) {
+      mslRows = mslRows.filter(function (r) { return r.id !== id; });
+      return true;
+    }
+  };
+
+  var MSL_REF_MAPS = { users: MSL_USERS, requirements: MSL_REQUIREMENTS, designs: MSL_DESIGNS };
+
+  var mslReferenceSource = {
+    listOptions: function (referenceType, query) {
+      var map = MSL_REF_MAPS[referenceType] || {};
+      var kw = (query && query.keyword || '').toLowerCase();
+      var options = Object.keys(map)
+        .filter(function (id) { return !kw || map[id].label.toLowerCase().indexOf(kw) !== -1 || id.toLowerCase().indexOf(kw) !== -1; })
+        .map(function (id) { return { label: map[id].label, value: id }; });
+      return { options: options, total: options.length, cursor: null };
+    },
+    resolve: function (referenceType, ids) {
+      var map = MSL_REF_MAPS[referenceType] || {};
+      var byId = {}, missingIds = [];
+      (ids || []).forEach(function (id) {
+        if (map[id]) byId[id] = { id: id, label: map[id].label };
+        else missingIds.push(id);
+      });
+      return { byId: byId, missingIds: missingIds };
+    }
+  };
+
+  function mslOwnerCell(row, ctx) {
+    var rec = (ctx.refCache.users || {})[row.ownerId];
+    var name = rec ? rec.label : row.ownerId;
+    var safe = String(name).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return '<span class="bf-user"><span class="bf-ava" style="background:var(--stam)">' + safe.charAt(0) + '</span><span class="bf-user-name">' + safe + '</span></span>';
+  }
+
+  window.STAM.boardConfigs.menuScreenListV2 = {
+    boardId: 'menu-screen-list-v2',
+    title: '메뉴구조/화면목록 v2',
+    description: 'Board Factory 기반 메뉴구조/화면목록 Preview · 화면 ID/명을 메뉴 계층(LV1/LV2/LV3)·요구사항·화면설계서와 연결합니다.',
+    searchPlaceholder: '화면 ID · 화면명 · 메뉴 · 담당자 검색',
+    idKey: 'id',
+    nameKey: 'name',
+    pageSize: 20,
+    defaultSort: { key: 'updatedAt', direction: 'desc' },
+    vocab: MSL_VOCAB,
+
+    actions: {
+      header: [
+        { label: '내보내기', variant: 'outline', icon: 'export' },
+        { label: '화면 등록', variant: 'primary', action: 'register', icon: 'plus' }
+      ]
+    },
+
+    summary: {
+      cells: [
+        { key: 'total',     label: '전체',          dot: 'var(--stam)', sub: '전체 화면' },
+        { key: 'draft',     label: '작성중',        dot: '#64748B', sub: '초안 · 작성중' },
+        { key: 'review',    label: '검토중',        dot: '#B45309', sub: '검토 요청' },
+        { key: 'done',      label: '확정',          dot: '#047857', sub: '확정 완료' },
+        { key: 'hold',      label: '보류',          dot: '#991B1B', sub: '보류 처리' },
+        { key: 'linkedReq', label: '연결 요구사항', dot: '#3B82F6', sub: '연결된 요구사항' },
+        { key: 'linkedScr', label: '연결 화면설계서', dot: '#8B5CF6', sub: '연결된 설계서' }
+      ]
+    },
+
+    columns: [
+      { type: 'checkbox' },
+      { type: 'idName', label: '화면 ID / 화면명', idField: 'id', nameField: 'name', minWidth: '220px' },
+      { type: 'text', label: 'LV1', field: 'lv1', width: 110 },
+      { type: 'text', label: 'LV2', field: 'lv2', width: 130 },
+      { type: 'chip', label: '화면유형', field: 'screenType', vocabKey: 'screenType', width: 84 },
+      { type: 'chip', label: 'FO/BO', field: 'fob', vocabKey: 'fob', width: 70 },
+      { type: 'relationChip', label: '연결 요구사항', field: 'reqIds', refType: 'requirements', width: 120 },
+      { type: 'relationChip', label: '연결 화면설계서', field: 'designIds', refType: 'designs', width: 130 },
+      { type: 'statusChip', label: '상태', field: 'status', width: 84 },
+      { type: 'user', label: '담당자', field: 'ownerId', refType: 'users', width: 110 },
+      { type: 'date', label: '최종 수정일', field: 'updatedAt', width: 100 },
+      { type: 'actionButtons', label: '', width: 70, buttons: [{ action: 'detail', label: '상세' }] }
+    ],
+
+    filters: [
+      { key: 'status',     label: '상태',     options: mslVocabOptions('status') },
+      { key: 'screenType', label: '화면유형', options: mslVocabOptions('screenType') },
+      { key: 'fob',        label: 'FO/BO',    options: mslVocabOptions('fob') },
+      { key: 'lv1',        label: 'LV1',      options: mslVocabOptions('lv1') },
+      { key: 'owner',      label: '담당자',   options: mslRefOptions(MSL_USERS) }
+    ],
+
+    drawer: {
+      registerTitle: '새 화면 등록',
+      sections: [
+        { title: '기본 정보', fields: [
+          { key: 'id', type: 'readonly', label: '화면 ID' },
+          { key: 'fob', type: 'select', label: 'FO/BO', required: true, placeholder: 'FO/BO 선택', options: mslVocabOptions('fob') },
+          { key: 'name', type: 'text', label: '화면명', required: true, full: true, placeholder: '화면명을 입력하세요' },
+          { key: 'screenType', type: 'select', label: '화면유형', required: true, placeholder: '화면유형 선택', options: mslVocabOptions('screenType') },
+          { key: 'status', type: 'select', label: '상태', default: 'draft', options: mslVocabOptions('status') },
+          { key: 'ownerId', type: 'select', label: '담당자', full: true, placeholder: '담당자 선택', options: mslRefOptions(MSL_USERS) }
+        ] },
+        { title: '메뉴 계층', fields: [
+          { key: 'lv1', type: 'select', label: 'LV1', placeholder: 'LV1 선택', options: mslVocabOptions('lv1') },
+          { key: 'lv2', type: 'text', label: 'LV2', placeholder: 'LV2 메뉴명' },
+          { key: 'lv3', type: 'text', label: 'LV3', placeholder: 'LV3 메뉴명' }
+        ] },
+        { title: '연결 정보', fields: [
+          { key: 'reqIds', type: 'select', label: '연결 요구사항', full: true, asArray: true, placeholder: '요구사항 선택', options: mslRefOptions(MSL_REQUIREMENTS) },
+          { key: 'designIds', type: 'select', label: '연결 화면설계서', full: true, asArray: true, placeholder: '화면설계서 선택', options: mslRefOptions(MSL_DESIGNS) }
+        ] },
+        { title: '비고', fields: [
+          { key: 'note', type: 'textarea', label: '비고', full: true, minHeight: '72px', placeholder: '비고 또는 추가 설명' }
+        ] }
+      ]
+    },
+
+    detail: {
+      tabs: [
+        { label: '기본 정보', sections: [
+          { type: 'infoGrid', title: '기본 정보', fields: [
+            { label: '화면 ID', render: function (row) { return '<span style="font-weight:700;color:var(--stam)">' + row.id + '</span>'; } },
+            { label: '화면유형', key: 'screenType', vocabKey: 'screenType' },
+            { label: 'LV1', key: 'lv1' },
+            { label: 'LV2', key: 'lv2' },
+            { label: 'FO/BO', key: 'fob', vocabKey: 'fob' },
+            { label: '상태', key: 'status', vocabKey: 'status' },
+            { label: '담당자', render: mslOwnerCell },
+            { label: '최종 수정일', key: 'updatedAt' }
+          ] },
+          { type: 'relationCards', title: '연결 정보', groups: [
+            { label: '요구사항', field: 'reqIds', refType: 'requirements' },
+            { label: '화면설계서', field: 'designIds', refType: 'designs' }
+          ] }
+        ] },
+        { label: '비고', sections: [
+          { type: 'textBlock', title: '비고', blocks: [
+            { label: '비고', key: 'note' }
+          ] }
+        ] }
+      ]
+    },
+
+    dataSource: mslDataSource,
+    referenceSource: mslReferenceSource
+  };
 }());
