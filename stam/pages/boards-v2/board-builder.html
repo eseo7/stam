@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Board Builder Admin Preview — STAM</title>
+  <link rel="icon" href="../../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+  <link rel="stylesheet" href="../../css/stam.tokens.css">
+  <!-- chip tone(.bf-chip--*) 재사용 목적으로만 link (board-factory.css 수정 없음). -->
+  <link rel="stylesheet" href="../../css/stam.board-factory.css">
+  <!--
+    Board Builder Admin Preview v1 — standalone preview (PR: board builder admin preview)
+    · App Shell / Left Menu / nav-data 에 붙지 않는 독립 preview 페이지.
+    · 색/폰트는 stam.tokens.css + 자체서빙 S-Core Dream 만 사용 (외부 CDN 0).
+    · 입력 → Board Factory config 생성 → localStorage 저장 → 화면 내 preview.
+    · Firestore / API 호출 없음. 실제 게시판 생성/저장 아님.
+    · 스타일은 별도 CSS 파일 신설 대신 본 파일 inline <style> 로 한정(bb- prefix).
+  -->
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: var(--font); background: var(--bg-base); color: var(--t1);
+      -webkit-font-smoothing: antialiased; min-height: 100vh;
+    }
+    .bb-wrap { max-width: 1160px; margin: 0 auto; padding: 40px 24px 72px; }
+
+    /* header */
+    .bb-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .bb-title { font-size: 22px; font-weight: 800; letter-spacing: -.02em; margin: 0 0 6px; color: var(--t1); }
+    .bb-sub { font-size: 13px; color: var(--t2); line-height: 1.6; margin: 0; max-width: 640px; }
+    .bb-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; }
+    .bb-sc {
+      display: inline-flex; align-items: center; height: 22px; padding: 0 10px; border-radius: 99px;
+      font-size: 11px; font-weight: 700; white-space: nowrap;
+      background: var(--stam-soft); color: var(--stam); border: 1px solid rgba(84,81,232,.20);
+    }
+    .bb-sc--local { background: var(--bg-sur2); color: var(--t2); border-color: var(--bd); }
+    .bb-sc--nodb { background: var(--fail-bg); color: var(--fail); border-color: var(--fail); }
+    .bb-theme {
+      flex-shrink: 0; font-family: var(--font); font-size: 12px; font-weight: 600;
+      color: var(--t2); background: var(--bg-sur); border: 1px solid var(--bd-s);
+      border-radius: var(--r-md); padding: 7px 12px; cursor: pointer;
+      transition: border-color 120ms, color 120ms;
+    }
+    .bb-theme:hover { border-color: var(--stam); color: var(--stam); }
+
+    /* layout */
+    .bb-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 16px; margin: 22px 0 0; }
+    @media (max-width: 980px) { .bb-cols { grid-template-columns: 1fr; } }
+    .bb-panel {
+      background: var(--bg-sur); border: 1px solid var(--bd); border-radius: var(--r-lg);
+      padding: 18px 18px 20px; box-shadow: 0 1px 3px rgba(15,23,42,.04);
+    }
+    .bb-panel + .bb-panel { }
+    .bb-panel-h {
+      font-size: 12px; font-weight: 700; color: var(--t1); margin: 0 0 12px;
+      letter-spacing: .01em; padding-bottom: 8px; border-bottom: 1px solid var(--bd);
+    }
+    .bb-panel-h:not(:first-child) { margin-top: 22px; }
+
+    /* form */
+    .bb-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
+    .bb-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .bb-field.bb-full { grid-column: 1 / -1; }
+    .bb-lbl { font-size: 11.5px; font-weight: 600; color: var(--t2); }
+    .bb-input, .bb-select, .bb-textarea {
+      font-family: var(--font); font-size: 12.5px; color: var(--t1);
+      background: var(--bg-base); border: 1px solid var(--bd-s); border-radius: var(--r-md);
+      padding: 8px 10px; width: 100%; min-width: 0; transition: border-color 120ms, box-shadow 120ms;
+    }
+    .bb-textarea { resize: vertical; min-height: 60px; line-height: 1.6; }
+    .bb-input:focus, .bb-select:focus, .bb-textarea:focus {
+      outline: 0; border-color: var(--stam); box-shadow: 0 0 0 2px var(--stam-soft);
+    }
+    .bb-input[readonly] { background: var(--bg-sur2); color: var(--t3); }
+    .bb-slug-row { display: flex; gap: 6px; }
+    .bb-slug-row .bb-input { flex: 1 1 auto; }
+
+    /* default field checkboxes */
+    .bb-defaults { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px 10px; }
+    @media (max-width: 520px) { .bb-defaults { grid-template-columns: 1fr; } }
+    .bb-fchk {
+      display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+      border: 1px solid var(--bd); border-radius: var(--r-md); background: var(--bg-base); cursor: pointer;
+    }
+    .bb-fchk:hover { border-color: var(--bd-s); }
+    .bb-fchk input { accent-color: var(--stam); width: 14px; height: 14px; flex-shrink: 0; }
+    .bb-fchk-label { font-size: 12.5px; color: var(--t1); font-weight: 600; }
+    .bb-fchk-type { margin-left: auto; font-size: 10px; color: var(--t3); font-family: var(--mono); }
+
+    /* custom field add */
+    .bb-cf-add { display: grid; grid-template-columns: 1.1fr 1fr 1fr 1.2fr auto; gap: 8px; align-items: end; }
+    @media (max-width: 720px) { .bb-cf-add { grid-template-columns: 1fr 1fr; } }
+    .bb-cflist { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .bb-cfrow {
+      display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+      border: 1px solid var(--bd); border-radius: var(--r-md); background: var(--bg-base); font-size: 12px;
+    }
+    .bb-cfrow-name { font-weight: 700; color: var(--t1); }
+    .bb-cfrow-key { color: var(--t3); font-family: var(--mono); font-size: 11px; }
+    .bb-cfrow-opts { color: var(--t3); font-size: 11px; }
+    .bb-cfrow-del {
+      margin-left: auto; border: 1px solid var(--bd-s); background: var(--bg-sur); color: var(--t3);
+      border-radius: var(--r-sm); width: 22px; height: 22px; cursor: pointer; line-height: 1;
+    }
+    .bb-cfrow-del:hover { border-color: var(--fail); color: var(--fail); }
+    .bb-chip { display: inline-flex; align-items: center; height: 19px; padding: 0 8px; border-radius: 99px; font-size: 10.5px; font-weight: 700; }
+    .bb-chip--type { background: var(--stam-soft); color: var(--stam); border: 1px solid rgba(84,81,232,.20); font-family: var(--mono); }
+
+    /* buttons */
+    .bb-actions { display: flex; align-items: center; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+    .bb-btn {
+      font-family: var(--font); font-size: 12.5px; font-weight: 700; cursor: pointer;
+      border-radius: var(--r-md); padding: 9px 16px; border: 1px solid var(--bd-s);
+      background: var(--bg-sur); color: var(--t1); transition: border-color 120ms, background 120ms, color 120ms;
+    }
+    .bb-btn--primary { background: var(--stam); border-color: var(--stam); color: #fff; }
+    .bb-btn--primary:hover { background: var(--stam-h); border-color: var(--stam-h); }
+    .bb-btn--ghost:hover { border-color: var(--stam); color: var(--stam); }
+    .bb-copy-status { font-size: 11.5px; color: var(--t2); }
+
+    /* preview */
+    .bb-preview { display: flex; flex-direction: column; gap: 14px; }
+    .bb-empty { font-size: 12.5px; color: var(--t3); padding: 18px; text-align: center; border: 1px dashed var(--bd); border-radius: var(--r-md); }
+    .bb-summary { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--bd); border: 1px solid var(--bd); border-radius: var(--r-md); overflow: hidden; }
+    @media (max-width: 560px) { .bb-summary { grid-template-columns: repeat(2, 1fr); } }
+    .bb-sum-cell { background: var(--bg-sur); padding: 10px 12px; min-width: 0; }
+    .bb-sum-k { font-size: 10px; color: var(--t3); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+    .bb-sum-v { font-size: 15px; font-weight: 700; color: var(--t1); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bb-notice {
+      font-size: 11.5px; color: var(--t2); line-height: 1.6; padding: 9px 12px;
+      border: 1px solid var(--bd); border-left: 3px solid var(--fail); border-radius: var(--r-md); background: var(--fail-bg);
+    }
+    .bb-notice code { font-family: var(--mono); font-size: 11px; color: var(--t2); }
+    .bb-pgroup { }
+    .bb-pgroup-h { font-size: 11px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 7px; }
+    .bb-taglist { display: flex; flex-wrap: wrap; gap: 6px; }
+    .bb-tag {
+      display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--t1);
+      background: var(--bg-base); border: 1px solid var(--bd); border-radius: var(--r-sm); padding: 4px 8px;
+    }
+    .bb-tag em { font-style: normal; color: var(--t3); font-family: var(--mono); font-size: 10px; }
+    .bb-tag .bb-req { color: var(--fail); }
+    .bb-ptable-wrap { overflow-x: auto; border: 1px solid var(--bd); border-radius: var(--r-md); }
+    .bb-ptable { width: 100%; border-collapse: collapse; min-width: 560px; }
+    .bb-ptable th { text-align: left; font-size: 10px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .05em; padding: 8px 10px; background: var(--bg-sur2); white-space: nowrap; }
+    .bb-ptable td { padding: 8px 10px; font-size: 12px; color: var(--t2); border-top: 1px solid var(--bd); white-space: nowrap; }
+    .bb-th-chk, .bb-td-chk { width: 34px; text-align: center; }
+    .bb-id { font-size: 11px; font-weight: 700; color: var(--stam); }
+    .bb-name { font-weight: 600; color: var(--t1); }
+    .bb-user { color: var(--t2); }
+    .bb-link { color: var(--stam); }
+    .bb-rowbtn { border: 1px solid var(--bd-s); background: var(--bg-sur); border-radius: var(--r-sm); padding: 2px 9px; font-size: 11px; color: var(--t3); }
+    .bb-json {
+      width: 100%; font-family: var(--mono); font-size: 11.5px; line-height: 1.55; color: var(--t1);
+      background: var(--bg-base); border: 1px solid var(--bd); border-radius: var(--r-md); padding: 10px 12px; resize: vertical;
+    }
+
+    .bb-foot { margin: 26px 0 0; padding-top: 16px; border-top: 1px solid var(--bd); font-size: 12px; color: var(--t3); }
+    .bb-foot a { color: var(--stam); text-decoration: none; font-weight: 700; }
+    .bb-foot a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <main class="bb-wrap" id="bb-app">
+    <header class="bb-head">
+      <div>
+        <h1 class="bb-title">Board Builder Admin Preview</h1>
+        <p class="bb-sub">입력값을 기반으로 Board Factory 게시판 config를 생성하고 미리 확인합니다.</p>
+        <div class="bb-chips">
+          <span class="bb-sc bb-sc--preview">Preview</span>
+          <span class="bb-sc bb-sc--local">Local</span>
+          <span class="bb-sc bb-sc--nodb">No DB</span>
+        </div>
+      </div>
+      <button type="button" class="bb-theme" data-theme-toggle
+        onclick="if(window.STAM&amp;&amp;window.STAM.toggleTheme)window.STAM.toggleTheme()">☾ 다크모드</button>
+    </header>
+
+    <div class="bb-cols">
+      <!-- 입력 패널 -->
+      <section class="bb-panel">
+        <h2 class="bb-panel-h">1 · 게시판 정보</h2>
+        <div class="bb-form-grid">
+          <div class="bb-field">
+            <label class="bb-lbl" for="bb-category">카테고리</label>
+            <select class="bb-select" id="bb-category" data-bb="category">
+              <option>산출물 관리</option>
+              <option>관리/설정</option>
+              <option>프로젝트 관리</option>
+            </select>
+          </div>
+          <div class="bb-field">
+            <label class="bb-lbl" for="bb-title">게시판명</label>
+            <input class="bb-input" id="bb-title" data-bb="title" type="text" placeholder="예) 테스트 시나리오" autocomplete="off">
+          </div>
+          <div class="bb-field">
+            <label class="bb-lbl" for="bb-slug">게시판 코드</label>
+            <div class="bb-slug-row">
+              <input class="bb-input" id="bb-slug" data-bb="slug" type="text" placeholder="예) test-scenario" autocomplete="off">
+              <button type="button" class="bb-btn bb-btn--ghost" data-bb-action="auto-slug" title="게시판명에서 코드 자동 생성">자동</button>
+            </div>
+          </div>
+          <div class="bb-field bb-full">
+            <label class="bb-lbl" for="bb-desc">설명</label>
+            <textarea class="bb-textarea" id="bb-desc" data-bb="description" placeholder="이 게시판의 목적/내용을 입력하세요"></textarea>
+          </div>
+          <div class="bb-field bb-full">
+            <label class="bb-lbl">기본 템플릿</label>
+            <input class="bb-input" type="text" value="목록 + 필터 + 등록 Drawer + 상세 Drawer + 수정 Drawer" readonly>
+          </div>
+        </div>
+
+        <h2 class="bb-panel-h">2 · 기본 필드 선택</h2>
+        <div class="bb-defaults" data-bb-defaults></div>
+
+        <h2 class="bb-panel-h">3 · 커스텀 필드 추가</h2>
+        <div class="bb-cf-add">
+          <div class="bb-field">
+            <label class="bb-lbl">필드명</label>
+            <input class="bb-input" data-bb-cf="name" type="text" placeholder="예) 심각도" autocomplete="off">
+          </div>
+          <div class="bb-field">
+            <label class="bb-lbl">필드 key</label>
+            <input class="bb-input" data-bb-cf="key" type="text" placeholder="예) severity" autocomplete="off">
+          </div>
+          <div class="bb-field">
+            <label class="bb-lbl">타입</label>
+            <select class="bb-select" data-bb-cf="type"></select>
+          </div>
+          <div class="bb-field">
+            <label class="bb-lbl">옵션(쉼표)</label>
+            <input class="bb-input" data-bb-cf="options" type="text" placeholder="예) 치명,보통,경미" autocomplete="off">
+          </div>
+          <button type="button" class="bb-btn bb-btn--ghost" data-bb-cf-add>+ 추가</button>
+        </div>
+        <div class="bb-cflist" data-bb-cflist></div>
+
+        <div class="bb-actions">
+          <button type="button" class="bb-btn bb-btn--primary" data-bb-action="generate">Preview 생성</button>
+          <button type="button" class="bb-btn bb-btn--ghost" data-bb-action="reset">Reset</button>
+          <button type="button" class="bb-btn bb-btn--ghost" data-bb-action="copy">Copy JSON</button>
+          <span class="bb-copy-status" data-bb-copy-status aria-live="polite"></span>
+        </div>
+      </section>
+
+      <!-- 생성 결과 Preview -->
+      <section class="bb-panel bb-panel--preview">
+        <h2 class="bb-panel-h">생성 결과 Preview</h2>
+        <div class="bb-preview" data-bb-preview></div>
+      </section>
+    </div>
+
+    <footer class="bb-foot">
+      <a href="./index.html">← Board Factory v2 Preview Index</a>
+      <span> · Board Builder Admin Preview v1 · localStorage preview (DB 미저장) · 기존 Left Menu / nav-data 미연결</span>
+    </footer>
+  </main>
+
+  <script src="../../js/stam.theme.js"></script>
+  <script src="../../js/stam.board-field-schema.js"></script>
+  <script src="../../js/stam.board-builder-preview.js"></script>
+  <script>
+    (function () {
+      if (window.STAM && window.STAM.boardBuilderPreview) {
+        window.STAM.boardBuilderPreview.init(document.getElementById('bb-app'));
+      }
+    }());
+  </script>
+</body>
+</html>
