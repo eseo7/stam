@@ -273,8 +273,8 @@
           '</div>' +
           '<div class="bf-toolbar-sep"></div>' +
           '<button class="bf-filter-btn stam-board-filter-trigger" data-bf-filter-trigger type="button" aria-expanded="false" aria-controls="bf-filter-panel">' +
-            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M4 8h8M6 12h4"/></svg>' +
-            '필터<span class="bf-filter-cnt stam-board-filter-count" data-bf-filter-count style="display:none">0</span>' +
+            '<span class="stam-icon stam-icon-filter" aria-hidden="true"></span>' +
+            '<span class="bf-filter-label">필터</span><span class="bf-filter-cnt stam-board-filter-count" data-bf-filter-count style="display:none">0</span>' +
           '</button>' +
           '<button class="bf-del-btn stam-btn stam-btn-danger" data-bf-delete type="button" disabled>' +
             '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>' +

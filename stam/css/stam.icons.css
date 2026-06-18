@@ -1,0 +1,77 @@
+/*
+ * STAM Icon Asset System v1
+ * -----------------------------------------------------------
+ * 모든 STAM 아이콘은 stam/assets/icons/ 하위 SVG 파일로 관리한다.
+ * 색상은 currentColor 를 따르며, CSS mask 방식으로 호출한다.
+ *
+ * 사용:
+ *   <span class="stam-icon stam-icon-filter" aria-hidden="true"></span>
+ *
+ * 사이즈 오버라이드:
+ *   .my-scope .stam-icon { --stam-icon-size: 18px; }
+ *
+ * 본 PR(#141) 적용 범위:
+ *   - Board Factory v2 filter button 아이콘만 실제 전환.
+ *   - 나머지 SVG asset 은 인벤토리/베이스라인. 실제 화면 적용은 후속 PR.
+ * -----------------------------------------------------------
+ */
+
+.stam-icon {
+  display: inline-block;
+  width: var(--stam-icon-size, 16px);
+  height: var(--stam-icon-size, 16px);
+  min-width: var(--stam-icon-size, 16px);
+  flex: 0 0 var(--stam-icon-size, 16px);
+  background-color: currentColor;
+  -webkit-mask-position: center;
+          mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+          mask-size: contain;
+}
+
+/* UI */
+.stam-icon-filter        { -webkit-mask-image: url("../assets/icons/ui/filter.svg");        mask-image: url("../assets/icons/ui/filter.svg"); }
+.stam-icon-search        { -webkit-mask-image: url("../assets/icons/ui/search.svg");        mask-image: url("../assets/icons/ui/search.svg"); }
+.stam-icon-close         { -webkit-mask-image: url("../assets/icons/ui/close.svg");         mask-image: url("../assets/icons/ui/close.svg"); }
+.stam-icon-chevron-down  { -webkit-mask-image: url("../assets/icons/ui/chevron-down.svg");  mask-image: url("../assets/icons/ui/chevron-down.svg"); }
+.stam-icon-refresh       { -webkit-mask-image: url("../assets/icons/ui/refresh.svg");       mask-image: url("../assets/icons/ui/refresh.svg"); }
+.stam-icon-more          { -webkit-mask-image: url("../assets/icons/ui/more.svg");          mask-image: url("../assets/icons/ui/more.svg"); }
+.stam-icon-view          { -webkit-mask-image: url("../assets/icons/ui/view.svg");          mask-image: url("../assets/icons/ui/view.svg"); }
+
+/* Actions */
+.stam-icon-plus          { -webkit-mask-image: url("../assets/icons/actions/plus.svg");     mask-image: url("../assets/icons/actions/plus.svg"); }
+.stam-icon-edit          { -webkit-mask-image: url("../assets/icons/actions/edit.svg");     mask-image: url("../assets/icons/actions/edit.svg"); }
+.stam-icon-trash         { -webkit-mask-image: url("../assets/icons/actions/trash.svg");    mask-image: url("../assets/icons/actions/trash.svg"); }
+.stam-icon-save          { -webkit-mask-image: url("../assets/icons/actions/save.svg");     mask-image: url("../assets/icons/actions/save.svg"); }
+.stam-icon-download      { -webkit-mask-image: url("../assets/icons/actions/download.svg"); mask-image: url("../assets/icons/actions/download.svg"); }
+.stam-icon-upload        { -webkit-mask-image: url("../assets/icons/actions/upload.svg");   mask-image: url("../assets/icons/actions/upload.svg"); }
+.stam-icon-copy          { -webkit-mask-image: url("../assets/icons/actions/copy.svg");     mask-image: url("../assets/icons/actions/copy.svg"); }
+.stam-icon-export        { -webkit-mask-image: url("../assets/icons/actions/export.svg");   mask-image: url("../assets/icons/actions/export.svg"); }
+
+/* Navigation */
+.stam-icon-dashboard       { -webkit-mask-image: url("../assets/icons/navigation/dashboard.svg");      mask-image: url("../assets/icons/navigation/dashboard.svg"); }
+.stam-icon-requirements    { -webkit-mask-image: url("../assets/icons/navigation/requirements.svg");   mask-image: url("../assets/icons/navigation/requirements.svg"); }
+.stam-icon-screens         { -webkit-mask-image: url("../assets/icons/navigation/screens.svg");        mask-image: url("../assets/icons/navigation/screens.svg"); }
+.stam-icon-wbs             { -webkit-mask-image: url("../assets/icons/navigation/wbs.svg");            mask-image: url("../assets/icons/navigation/wbs.svg"); }
+.stam-icon-function-spec   { -webkit-mask-image: url("../assets/icons/navigation/function-spec.svg");  mask-image: url("../assets/icons/navigation/function-spec.svg"); }
+.stam-icon-table           { -webkit-mask-image: url("../assets/icons/navigation/table.svg");          mask-image: url("../assets/icons/navigation/table.svg"); }
+.stam-icon-server          { -webkit-mask-image: url("../assets/icons/navigation/server.svg");         mask-image: url("../assets/icons/navigation/server.svg"); }
+.stam-icon-settings        { -webkit-mask-image: url("../assets/icons/navigation/settings.svg");       mask-image: url("../assets/icons/navigation/settings.svg"); }
+
+/* Status */
+.stam-icon-check         { -webkit-mask-image: url("../assets/icons/status/check.svg");     mask-image: url("../assets/icons/status/check.svg"); }
+.stam-icon-warning       { -webkit-mask-image: url("../assets/icons/status/warning.svg");   mask-image: url("../assets/icons/status/warning.svg"); }
+.stam-icon-error         { -webkit-mask-image: url("../assets/icons/status/error.svg");     mask-image: url("../assets/icons/status/error.svg"); }
+.stam-icon-info          { -webkit-mask-image: url("../assets/icons/status/info.svg");      mask-image: url("../assets/icons/status/info.svg"); }
+.stam-icon-lock          { -webkit-mask-image: url("../assets/icons/status/lock.svg");      mask-image: url("../assets/icons/status/lock.svg"); }
+
+/* ── Board Factory filter button — 본 PR 첫 적용 지점 ────────────
+ * inline SVG 가 제거되고 <span class="stam-icon stam-icon-filter"></span>
+ * 로 교체됨(stam.board-factory.js). 사이즈는 18px, 텍스트 간격 6px.
+ * stam.board-filter.css 의 `.stam-board-filter-trigger svg { 13px }`
+ * 규칙은 svg 대상이므로 본 span 비매치.
+ */
+.bf-filter-btn .stam-icon-filter { --stam-icon-size: 18px; }
+.bf-filter-btn                   { gap: 6px; }
