@@ -159,3 +159,96 @@ required: FO/BO, 화면명, 화면유형.
 
 - **요구사항정의서 v2 preview** — 컬럼 / 필터 / 드로워가 기능정의서와 유사하나, `priority` vocab(`보통/중간`) 정규화 선결 필요.
 - 변경 이력 / 임시저장 / 전체 보기 slot 본구현은 별도 후속 PR.
+
+---
+
+## 12. Drawer footer button stroke — Board Factory 공통 레이어 보정 (회차 1)
+
+### 12-1. 문제 성격
+
+사용자 브라우저 QA 에서 PR #138 메뉴구조/화면목록 v2 의 drawer footer 버튼 stroke 가 누락/약함으로 확인. 이는 **메뉴구조 v2 개별 화면 문제가 아니라**, PR #136 기능정의서 v2 에서 확정된 UI 기준이 Board Factory **공통 레이어에 불완전하게 승격**된 결과로 판단한다. (ghost variant 만 보정되어 있고 outline / secondary 가 누락 + border shorthand 가 아닌 `border-color` 만 지정되어 일부 케이스에서 stroke 가 약하게 보이거나 hover/focus 시 사라지는 가능성.)
+
+### 12-2. 원인 (공통 레이어 관점)
+
+- `.stam-btn` 기본은 `border: 1px solid transparent`. 따라서 variant 별로 `border-color` 만 지정해도 width/style 은 살아 있다.
+- **문제 1**: 이전 공통 규칙이 `.stam-btn-ghost` 만 다뤘다. `.stam-btn-outline` / `.stam-btn-secondary` 는 `stam.buttons.css` 의 전역 규칙에 의존했고, footer scope 에서 강조되지 않았다.
+- **문제 2**: `border-color` 만 지정한 케이스는 다른 selector 가 `border` shorthand 로 덮을 때 width/style 이 0/none 으로 떨어질 위험이 있다(우선순위 충돌 케이스).
+- **문제 3**: hover/focus 상태에서 stroke 가 사라지지 않도록 명시 보정이 필요했다(PR #136 에서는 ghost hover 만 처리됨).
+
+### 12-3. 보정 위치 / selector
+
+**위치**: `stam/css/stam.board-factory.css` 내 공통 footer 블록.
+**scope**: `.bf-drawer .stam-drawer-foot` 내부만. 전역 `.stam-btn*` / toolbar / 다른 컴포넌트에는 영향 없음.
+
+```css
+.bf-drawer .stam-drawer-foot .stam-btn-ghost,
+.bf-drawer .stam-drawer-foot .stam-btn-outline,
+.bf-drawer .stam-drawer-foot .stam-btn-secondary {
+  border: 1px solid var(--btn-secondary-border);
+}
+.bf-drawer .stam-drawer-foot .stam-btn-ghost:hover,
+.bf-drawer .stam-drawer-foot .stam-btn-outline:hover,
+.bf-drawer .stam-drawer-foot .stam-btn-secondary:hover,
+.bf-drawer .stam-drawer-foot .stam-btn-ghost:focus-visible,
+.bf-drawer .stam-drawer-foot .stam-btn-outline:focus-visible,
+.bf-drawer .stam-drawer-foot .stam-btn-secondary:focus-visible {
+  border-color: var(--btn-secondary-border);
+}
+```
+
+- `border` shorthand 로 width(1px) / style(solid) / color(token) 동시 고정 → 다른 규칙이 `border` 로 덮어도 자체 specificity 가 보장.
+- ghost / outline / secondary 3종 동시 커버.
+- `.stam-btn-primary` 는 이 블록에서 다루지 않는다 → filled purple 유지, secondary 처럼 보이지 않는다.
+- 후속 보드(요구사항 v2 등)는 별도 보정 없이 동일 stroke 가 자동 적용된다.
+
+### 12-4. 보정 성격
+
+**개별 화면 보정 아님. Board Factory 공통 레이어 보정.** 변경 파일은 `stam.board-factory.css` 만. menu-screen-list 전용 selector / class / config 추가 없음. `stam.board-factory.js`, `stam.board-configs.js`, 신규 route HTML 모두 미변경.
+
+### 12-5. 메뉴구조 v2 drawer 확인 (PENDING — 사용자 브라우저 QA 필요)
+
+- [ ] 등록 drawer footer
+  - [ ] `취소` (ghost) — stroke 보임
+  - [ ] `임시저장` (outline + icon) — stroke 보임
+  - [ ] `전체 보기` (ghost) — stroke 보임
+  - [ ] `등록` (primary) — filled purple 유지
+- [ ] 상세 drawer footer
+  - [ ] `전체 보기` (ghost) — stroke 보임
+  - [ ] `수정` (primary + icon) — filled purple 유지
+- [ ] 수정 drawer footer
+  - [ ] `취소` / `임시저장` / `전체 보기` stroke 보임
+  - [ ] `저장` (primary) filled 유지
+
+### 12-6. 기능정의서 v2 회귀 확인 (PENDING — 사용자 브라우저 QA 필요)
+
+- [ ] `/stam/pages/boards-v2/functional-specification.html` 등록/상세/수정 drawer footer stroke 유지(PR #136 기준 회귀 없음)
+- [ ] primary button filled 유지
+- [ ] toolbar 버튼 height / icon 회귀 없음
+
+### 12-7. 공통화 재발 방지 체크리스트 (Adoption Checklist 보강)
+
+- drawer footer 에 신규 variant(`secondary` 등) 가 사용되면 위 공통 블록에 selector 만 추가하면 끝.
+- 신규 보드는 `boardFactory.mount` 만으로 동일 stroke 기준이 적용된다 → 개별 화면 patch CSS 금지.
+- 다음 보드(요구사항 v2) 에서는 footer stroke QA 가 회귀로 보고되어선 안 된다.
+
+### 12-8. 동시 회귀 확인 항목 (메뉴구조 v2, PENDING)
+
+ghost/outline/secondary stroke 외에 PR #136 에서 확정된 아래 기준이 메뉴구조 v2 에서도 깨지지 않는지 사용자 브라우저 확인 필요.
+
+- [ ] drawer title clipping 없음
+- [ ] header meta chip-only hidden 동작 유지
+- [ ] drawer padding / drawer footer layout 정상
+- [ ] footer button icon 정상
+- [ ] toolbar 검색/필터/삭제/등록/내보내기 height / icon 정상
+- [ ] row selected active bar 정상
+- [ ] delete hover 정상
+- [ ] custom select 중복 없음 (`bf-cs-native` hidden)
+- [ ] status / type / FO/BO / relation chip 정상
+- [ ] light / dark 회귀 없음
+- [ ] 1366 / 1920 가로 깨짐 없음
+
+### 12-9. light / dark / 1366 / 1920 검증
+
+- light mode — PENDING (사용자 브라우저 QA)
+- dark mode — PENDING (사용자 브라우저 QA)
+- 1366 / 1920 — PENDING (사용자 브라우저 QA)

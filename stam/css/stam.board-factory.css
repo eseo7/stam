@@ -262,13 +262,21 @@ body:has(.bf-page) .po-main { overflow-x: hidden; }
 .bf-dw-tab.on { color: var(--stam); border-bottom-color: var(--stam); }
 .bf-dw-tab:hover:not(.on) { color: var(--t1); }
 
-/* drawer footer 버튼 stroke 통일 — ghost(취소/전체 보기)도 외곽선이 보이게.
- * outline 버튼과 동일 토큰(--btn-secondary-border)으로 라이트/다크 일관.
- * primary(등록/저장/수정)·outline(임시저장)은 기존 variant/색/아이콘 유지. */
-.bf-drawer .stam-drawer-foot .stam-btn-ghost {
-  border-color: var(--btn-secondary-border);
+/* drawer footer 버튼 stroke — 공통 variant 기준 (PR #136 fn-spec 기준 승격).
+ * ghost / outline / secondary 모두 동일 토큰(--btn-secondary-border)으로 1px solid stroke 유지.
+ * hover/focus 에서도 stroke 가 사라지지 않는다(border shorthand 로 width/style 동시 고정).
+ * primary 는 fill 유지(이 블록에서 다루지 않는다). 후속 보드(menu/요구사항 등)도 별도 보정 없이 자동 적용. */
+.bf-drawer .stam-drawer-foot .stam-btn-ghost,
+.bf-drawer .stam-drawer-foot .stam-btn-outline,
+.bf-drawer .stam-drawer-foot .stam-btn-secondary {
+  border: 1px solid var(--btn-secondary-border);
 }
-.bf-drawer .stam-drawer-foot .stam-btn-ghost:hover {
+.bf-drawer .stam-drawer-foot .stam-btn-ghost:hover,
+.bf-drawer .stam-drawer-foot .stam-btn-outline:hover,
+.bf-drawer .stam-drawer-foot .stam-btn-secondary:hover,
+.bf-drawer .stam-drawer-foot .stam-btn-ghost:focus-visible,
+.bf-drawer .stam-drawer-foot .stam-btn-outline:focus-visible,
+.bf-drawer .stam-drawer-foot .stam-btn-secondary:focus-visible {
   border-color: var(--btn-secondary-border);
 }
 
