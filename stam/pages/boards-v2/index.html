@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Board Factory v2 Preview Index — STAM</title>
+  <link rel="icon" href="../../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+  <link rel="stylesheet" href="../../css/stam.tokens.css">
+  <!--
+    Board Factory v2 Preview Index — 독립 QA 허브 (PR #142 QA 편의용)
+    · 기존 App Shell / Left Menu / nav-data 에 붙지 않는 standalone 페이지.
+    · 색/폰트는 stam.tokens.css + 자체서빙 S-Core Dream 만 사용 (외부 CDN 0).
+    · light/dark 는 공통 stam.theme.js 가 localStorage(stam.theme) 기준으로 복원.
+    · 스타일은 별도 CSS 파일 신설 대신 본 파일 inline <style> 로 한정.
+  -->
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg-base);
+      color: var(--t1);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+    .bfx-wrap { max-width: 880px; margin: 0 auto; padding: 48px 24px 72px; }
+
+    .bfx-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .bfx-title { font-size: 22px; font-weight: 800; letter-spacing: -.02em; margin: 0 0 6px; color: var(--t1); }
+    .bfx-sub { font-size: 13px; color: var(--t2); line-height: 1.6; margin: 0; max-width: 620px; }
+    .bfx-theme-btn {
+      flex-shrink: 0; font-family: var(--font); font-size: 12px; font-weight: 600;
+      color: var(--t2); background: var(--bg-sur); border: 1px solid var(--bd-s);
+      border-radius: var(--r-md); padding: 7px 12px; cursor: pointer;
+      transition: border-color 120ms, color 120ms;
+    }
+    .bfx-theme-btn:hover { border-color: var(--stam); color: var(--stam); }
+
+    .bfx-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 0; }
+    .bfx-chip {
+      display: inline-flex; align-items: center; height: 22px; padding: 0 10px;
+      border-radius: 99px; font-size: 11px; font-weight: 700; white-space: nowrap;
+      background: var(--stam-soft); color: var(--stam); border: 1px solid rgba(84,81,232,.20);
+    }
+
+    .bfx-note {
+      margin: 22px 0 0; padding: 12px 14px;
+      border: 1px solid var(--bd); border-left: 3px solid var(--stam);
+      border-radius: var(--r-md); background: var(--stam-soft);
+      color: var(--t2); font-size: 12px; line-height: 1.7;
+    }
+
+    .bfx-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 24px 0 0; }
+    @media (min-width: 680px) { .bfx-grid { grid-template-columns: repeat(3, 1fr); } }
+    .bfx-card {
+      display: flex; flex-direction: column; gap: 7px; padding: 18px; text-decoration: none;
+      border: 1px solid var(--bd); border-radius: var(--r-lg);
+      background: var(--bg-sur); box-shadow: 0 1px 3px rgba(15,23,42,.04);
+      transition: border-color 120ms, box-shadow 120ms, transform 120ms;
+    }
+    .bfx-card:hover { border-color: var(--stam); box-shadow: 0 4px 14px rgba(84,81,232,.14); transform: translateY(-1px); }
+    .bfx-card:focus-visible { outline: 2px solid var(--stam); outline-offset: 2px; }
+    .bfx-card-no { font-size: 11px; font-weight: 700; color: var(--stam); letter-spacing: .04em; }
+    .bfx-card-title { font-size: 15px; font-weight: 700; color: var(--t1); margin: 0; }
+    .bfx-card-route { font-size: 11px; font-family: var(--mono, monospace); color: var(--t3); word-break: break-all; }
+    .bfx-card-desc { font-size: 12px; color: var(--t2); line-height: 1.6; margin: 2px 0 0; }
+    .bfx-card-go { margin-top: auto; padding-top: 4px; font-size: 12px; font-weight: 700; color: var(--stam); }
+
+    .bfx-foot { margin: 28px 0 0; padding-top: 18px; border-top: 1px solid var(--bd); }
+    .bfx-foot ul { margin: 0; padding-left: 18px; }
+    .bfx-foot li { font-size: 12px; color: var(--t3); line-height: 1.8; }
+  </style>
+</head>
+<body>
+  <main class="bfx-wrap">
+    <div class="bfx-head">
+      <div>
+        <h1 class="bfx-title">Board Factory v2 Preview Index</h1>
+        <p class="bfx-sub">Board Factory 기반 v2 preview 화면 QA 진입점입니다. 기존 제품 Left Menu 를 교체하지 않는 독립 preview index 로, 아래 카드에서 v2 화면을 열어 checkbox 정렬 등 QA 를 진행합니다.</p>
+      </div>
+      <button type="button" class="bfx-theme-btn" data-theme-toggle onclick="if(window.STAM&amp;&amp;window.STAM.toggleTheme)window.STAM.toggleTheme()">☾ 다크모드</button>
+    </div>
+
+    <div class="bfx-chips">
+      <span class="bfx-chip">Preview</span>
+      <span class="bfx-chip">Board Factory</span>
+      <span class="bfx-chip">QA</span>
+    </div>
+
+    <div class="bfx-note">
+      이 페이지는 로컬/스테이징 QA 편의를 위한 preview index 입니다.<br>
+      기존 Left Menu / nav-data 는 아직 변경하지 않습니다.<br>
+      v2 route 안정화 후 기존 제품 메뉴 연결 여부를 별도 PR 에서 결정합니다.
+    </div>
+
+    <nav class="bfx-grid" aria-label="Board Factory v2 preview 화면">
+      <a class="bfx-card" href="./requirements.html">
+        <span class="bfx-card-no">01</span>
+        <h2 class="bfx-card-title">요구사항 v2</h2>
+        <span class="bfx-card-route">./requirements.html</span>
+        <p class="bfx-card-desc">requirementsV2 config / 공통 icon asset / checkbox alignment 확인</p>
+        <span class="bfx-card-go">열기 →</span>
+      </a>
+      <a class="bfx-card" href="./menu-screen-list.html">
+        <span class="bfx-card-no">02</span>
+        <h2 class="bfx-card-title">메뉴/화면목록 v2</h2>
+        <span class="bfx-card-route">./menu-screen-list.html</span>
+        <p class="bfx-card-desc">menuScreenListV2 config / 공통 filter / checkbox alignment 확인</p>
+        <span class="bfx-card-go">열기 →</span>
+      </a>
+      <a class="bfx-card" href="./functional-specification.html">
+        <span class="bfx-card-no">03</span>
+        <h2 class="bfx-card-title">기능정의서 v2</h2>
+        <span class="bfx-card-route">./functional-specification.html</span>
+        <p class="bfx-card-desc">functionalSpecificationV2 config / 공통 filter / checkbox alignment 확인</p>
+        <span class="bfx-card-go">열기 →</span>
+      </a>
+    </nav>
+
+    <div class="bfx-foot">
+      <ul>
+        <li>독립 preview index — 기존 App Shell / Left Menu 대체가 아닙니다.</li>
+        <li>nav-data / shell / topbar 변경 없음. 기존 제품 route 유지.</li>
+        <li>PR #142 Board Factory table checkbox column alignment 공통 보정 QA 진입점.</li>
+      </ul>
+    </div>
+  </main>
+
+  <script src="../../js/stam.theme.js"></script>
+</body>
+</html>
