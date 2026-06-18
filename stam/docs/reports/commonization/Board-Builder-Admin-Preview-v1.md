@@ -29,12 +29,12 @@
 | | 게시판 코드 | text + `자동` slug 보조 (예: test-scenario) |
 | | 설명 | textarea |
 | | 기본 템플릿 | 고정 표기 (목록 + 필터 + 등록/상세/수정 Drawer) |
-| 필드 구성 | 단일 ordered list (추천 초기 필드 포함) | 각 row: 필드명 · key · type · 목록표시 · 필수 · 옵션(쉼표) · 이동/중간삽입/삭제 |
+| 필드 구성 | 단일 ordered list (card UI, 추천 초기 필드 포함) | 각 card: ⋮⋮ 드래그 핸들 · 순서 · 필드명 · key · type · 옵션 · 목록/필터/드로워/필수 토글 · 위·아래/삽입/삭제 |
 
-- **기본/커스텀 구분 없이 하나의 정렬 목록**이다. 추천 초기 필드(id·제목·상태·담당자·우선순위·최종수정일)도 수정/삭제/순서변경/중간삽입 가능하다(회차 2, §12).
-- 필드 타입은 **Field Schema v1**(`STAM.boardFieldSchema`)의 type 11종을 사용한다.
-- 옵션은 1차에서 comma-separated string 으로 입력받아 배열로 변환한다.
-- `목록표시`(visibleInTable) 토글은 type 기본값보다 우선 적용되어 생성 컬럼에 반영된다.
+- **기본/커스텀 구분 없이 하나의 card 정렬 목록**이다. 추천 초기 필드도 수정/삭제/순서변경/중간삽입 가능하다(회차 2~3, §12~13).
+- 순서 변경은 **Drag & Drop**(핸들 ⋮⋮)이 기본, 위/아래 버튼은 보조(회차 3, §13).
+- 필드 타입은 **Field Schema v1**(`STAM.boardFieldSchema`)의 type 11종을 사용한다. 옵션은 comma-separated string → 배열.
+- `목록표시 / 필터표시 / 드로워표시 / 필수`는 per-field 토글이며 **type 기본값보다 우선** 적용되어 생성 columns/filters/drawer 에 반영된다. `필수`는 checkbox 가 source of truth(§13-3).
 
 ## 4. 생성 config 구조
 
@@ -155,3 +155,41 @@ PR #145 Draft 안에서 사용자 QA 피드백을 반영한 수정. **Board Buil
 - `node --check` 4개 JS PASS · board-builder.html inline CSS 중괄호 BALANCED · `buildConfig` 재검증(순서 보존 / `visibleInTable:false` 컬럼 제외) PASS.
 - 변경 파일: `board-builder.html` / `stam.board-builder-preview.js` (+ 본 문서). 그 외 diff 0.
 - 1920 / 1366 레이아웃 · 단일 필드 목록 조작 · localStorage 복원 · Reset · Copy JSON 은 **사용자 재QA(PENDING)**. narrow/mobile DEFERRED.
+
+## 13. 회차 3 — UX 전면 정리 (Drag&Drop · 필수 동기화 수정 · Preview 탭화)
+
+사용자가 회차 2 UI 를 "불편/불쾌"로 평가 → 핵심 UX 재정리. **Board Builder 화면 전용**, 기존 v2 3화면/엔진/`index.html` diff 0.
+
+### 13-1. 필드 구성 row → card UI 재설계
+
+- 좁은 2줄 row → **여유 있는 card**. 상단: ⋮⋮ 드래그 핸들 · 순서 · 필드명 · key · type · (시스템/이름 chip). 하단: 옵션(full width) · 목록/필터/드로워/필수 토글 · 위·아래/삽입/삭제.
+- 입력칸 높이·간격 확대, 1366 좌측 패널(380~440px)에서도 조작 가능.
+
+### 13-2. Drag & Drop 순서 변경 (vanilla, 외부 라이브러리 0)
+
+- 드래그 핸들(`⋮⋮`, `draggable`)에서 `dragstart` → `els.fields` 위임으로 `dragover`(insert indicator: `.drop-before`/`.drop-after`) → `drop`(포인터 위치로 before/after 계산, `fields` splice 이동) → `dragend`(상태 정리). 드래그 중 row `.is-dragging`.
+- 첫↔마지막, 마지막→중간, 신규 필드 중간 삽입 후 이동 모두 `fields` 배열 순서 변경 → **즉시 화면 + (생성 후) Preview + localStorage 반영**. 위/아래 버튼은 보조로 유지.
+
+### 13-3. `필수` 동기화 오류 수정 (source of truth = checkbox)
+
+- `required` checkbox 가 단일 출처. 체크 → `field.required=true` + drawer marker `*` + JSON `true`. 해제 → `false` + marker 제거 + JSON `false`.
+- **시스템/필수 고정 필드**(예: `id`)는 checkbox `disabled` + `🔒 시스템 필드` 사유 표시, 사용자가 변경 불가.
+- readonly 자동 필드(id)는 drawer 입력 필수가 아니므로 marker 미표시(`required && control!=='readonly'`).
+- **생성 후 live 반영**: 필드 편집/토글/드래그/추가/삭제 시 우측 Preview 가 즉시 재생성되어 marker·순서·JSON 이 항상 현재 상태와 일치(과거 stale preview 로 인한 "필수처럼 보임" 문제 제거). 정적 단위테스트로 required true/false ↔ drawer/JSON 일치 확인.
+
+### 13-4. 우측 Preview 정보 구조 (탭)
+
+- 상단 summary card 유지 + **탭 4개**: `화면 Preview`(sample table + 안내) · `필드 / 컬럼` · `필터 / 드로워` · `JSON`.
+- JSON 은 JSON 탭에 배치(+ Copy JSON 버튼 인접), 화면 전체를 압도하지 않음. 생성 전 친절한 empty state.
+
+### 13-5. 버튼/행동 흐름
+
+- `Preview 생성` primary 강조, `Reset` 우측 분리 + danger hover(실수 클릭 방지), `Copy JSON` 은 JSON 탭 내부.
+- 필드 삭제는 `삭제` 텍스트 버튼(아이콘 군과 분리, danger hover) — 너무 쉽게 눌리지 않게. 시스템 필드는 삭제 disabled.
+
+### 13-6. 검증 (회차 3)
+
+- `node --check` 4개 JS PASS · board-builder.html inline CSS 중괄호 BALANCED.
+- `buildConfig` 단위테스트: required 체크/해제 ↔ drawer.required·JSON 일치, 시스템 readonly 필드 marker 미표시, `visibleInTable/Filter/Drawer` 토글 반영, 필드 순서 보존 — **PASS**.
+- 변경 파일: `board-builder.html` / `stam.board-builder-preview.js` (+ 본 문서). 기존 v2 3화면 / v1 / `index.html` / nav-data / 엔진·icons / API·Firestore·fetch **diff 0**.
+- Drag&Drop · 탭 · live 반영 · 1920/1366 · light/dark 는 **사용자 재QA(PENDING)**. narrow/mobile DEFERRED.

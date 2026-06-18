@@ -78,35 +78,54 @@
     .bb-slug-row { display: flex; gap: 6px; }
     .bb-slug-row .bb-input { flex: 1 1 auto; }
 
-    /* 필드 구성 — 단일 ordered list (각 row 2줄: 메인 = 필드명/key/type, 보조 = 표시/필수/옵션/이동) */
+    /* 필드 구성 — 단일 ordered list (card UI). Drag&Drop(핸들) + 위/아래 보조 이동 */
     .bb-panel-hint { font-weight: 600; color: var(--t3); font-size: 10.5px; }
-    .bb-fields { display: flex; flex-direction: column; gap: 8px; }
-    .bb-frow { border: 1px solid var(--bd); border-radius: var(--r-md); background: var(--bg-base); padding: 8px 10px; }
-    .bb-frow-main { display: grid; grid-template-columns: 18px minmax(0,1fr) minmax(0,0.85fr) minmax(0,1fr) auto; gap: 6px; align-items: center; }
-    .bb-frow-main .bb-input, .bb-frow-main .bb-select { padding: 6px 8px; font-size: 12px; }
-    .bb-frow-idx { font-size: 10px; font-weight: 700; color: var(--t3); text-align: center; }
-    .bb-frow-role { font-size: 9.5px; font-weight: 700; color: var(--stam); background: var(--stam-soft); border: 1px solid rgba(84,81,232,.20); border-radius: 99px; padding: 1px 6px; white-space: nowrap; }
-    .bb-frow-sub { display: flex; align-items: center; gap: 8px; margin-top: 7px; flex-wrap: wrap; }
-    .bb-frow-chk { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--t2); white-space: nowrap; cursor: pointer; }
-    .bb-frow-chk input { accent-color: var(--stam); }
-    .bb-frow-opts { flex: 1 1 140px; min-width: 110px; padding: 6px 8px; font-size: 11.5px; }
-    .bb-frow-moves { display: inline-flex; gap: 4px; margin-left: auto; }
-    .bb-iconbtn { width: 26px; height: 26px; border: 1px solid var(--bd-s); background: var(--bg-sur); color: var(--t2); border-radius: var(--r-sm); cursor: pointer; font-size: 13px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
-    .bb-iconbtn:hover { border-color: var(--stam); color: var(--stam); }
-    .bb-iconbtn:disabled { opacity: .4; cursor: not-allowed; }
-    .bb-iconbtn--del:hover { border-color: var(--fail); color: var(--fail); }
-    .bb-addfield { margin-top: 10px; }
+    .bb-fields { display: flex; flex-direction: column; gap: 10px; }
+    .bb-fcard { border: 1px solid var(--bd); border-radius: var(--r-md); background: var(--bg-base); padding: 10px 12px; transition: border-color 120ms, box-shadow 120ms, opacity 120ms; }
+    .bb-fcard.is-dragging { opacity: .5; border-color: var(--stam); }
+    .bb-fcard.drop-before { box-shadow: inset 0 3px 0 var(--stam); }
+    .bb-fcard.drop-after { box-shadow: inset 0 -3px 0 var(--stam); }
+    .bb-fcard-top { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .bb-fcard-top .bb-input, .bb-fcard-top .bb-select { width: auto; min-width: 0; padding: 7px 8px; font-size: 12px; }
+    .bb-f-label { flex: 2 1 130px; }
+    .bb-f-key { flex: 1 1 80px; }
+    .bb-f-type { flex: 1 1 104px; }
+    .bb-drag { flex: 0 0 auto; cursor: grab; color: var(--t3); font-size: 14px; line-height: 1; letter-spacing: -3px; user-select: none; padding: 0 2px; }
+    .bb-drag:active { cursor: grabbing; }
+    .bb-fcard-no { flex: 0 0 auto; font-size: 10px; font-weight: 700; color: var(--t3); width: 16px; text-align: center; }
+    .bb-fchip { flex: 0 0 auto; font-size: 9.5px; font-weight: 700; color: var(--t2); background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 99px; padding: 1px 6px; white-space: nowrap; }
+    .bb-fchip--sys { color: var(--stam); background: var(--stam-soft); border-color: rgba(84,81,232,.20); }
+    .bb-fcard-bottom { display: flex; align-items: center; gap: 10px; margin-top: 9px; flex-wrap: wrap; }
+    .bb-f-opts { flex: 1 1 100%; width: auto; padding: 7px 8px; font-size: 11.5px; }
+    .bb-fvis { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .bb-fvis-chk { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--t2); white-space: nowrap; cursor: pointer; }
+    .bb-fvis-chk input { accent-color: var(--stam); }
+    .bb-freq { font-weight: 700; color: var(--t1); }
+    .bb-freq.is-locked { color: var(--t3); cursor: not-allowed; }
+    .bb-lockreason { font-size: 10px; color: var(--t3); white-space: nowrap; }
+    .bb-fcard-actions { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; }
+    .bb-iconbtn { width: 28px; height: 28px; border: 1px solid var(--bd-s); background: var(--bg-sur); color: var(--t2); border-radius: var(--r-sm); cursor: pointer; font-size: 13px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+    .bb-iconbtn:hover:not(:disabled) { border-color: var(--stam); color: var(--stam); }
+    .bb-iconbtn:disabled { opacity: .35; cursor: not-allowed; }
+    .bb-delbtn { border: 1px solid var(--bd-s); background: var(--bg-sur); color: var(--t3); border-radius: var(--r-sm); padding: 5px 10px; font-size: 11px; font-family: var(--font); cursor: pointer; }
+    .bb-delbtn:hover:not(:disabled) { border-color: var(--fail); color: var(--fail); background: var(--fail-bg); }
+    .bb-delbtn:disabled { opacity: .35; cursor: not-allowed; }
+    .bb-addfield { margin-top: 12px; }
 
     /* buttons */
-    .bb-actions { display: flex; align-items: center; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+    .bb-actions { display: flex; align-items: center; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
     .bb-btn {
       font-family: var(--font); font-size: 12.5px; font-weight: 700; cursor: pointer;
       border-radius: var(--r-md); padding: 9px 16px; border: 1px solid var(--bd-s);
       background: var(--bg-sur); color: var(--t1); transition: border-color 120ms, background 120ms, color 120ms;
     }
-    .bb-btn--primary { background: var(--stam); border-color: var(--stam); color: #fff; }
+    .bb-btn--primary { background: var(--stam); border-color: var(--stam); color: #fff; padding: 10px 22px; }
     .bb-btn--primary:hover { background: var(--stam-h); border-color: var(--stam-h); }
     .bb-btn--ghost:hover { border-color: var(--stam); color: var(--stam); }
+    .bb-btn--sm { padding: 6px 12px; font-size: 11.5px; }
+    /* Reset = 위험/보조 액션: 우측 분리 배치 + danger hover (실수 클릭 방지) */
+    .bb-btn--reset { color: var(--t3); margin-left: auto; }
+    .bb-btn--reset:hover { border-color: var(--fail); color: var(--fail); background: var(--fail-bg); }
     .bb-copy-status { font-size: 11.5px; color: var(--t2); }
 
     /* preview */
@@ -145,6 +164,17 @@
       width: 100%; min-height: 360px; font-family: var(--mono); font-size: 11.5px; line-height: 1.55; color: var(--t1);
       background: var(--bg-base); border: 1px solid var(--bd); border-radius: var(--r-md); padding: 10px 12px; resize: vertical;
     }
+
+    /* preview tabs (화면 Preview / 필드·컬럼 / 필터·드로워 / JSON) */
+    .bb-empty--lg { padding: 40px 18px; font-size: 13px; line-height: 1.7; }
+    .bb-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--bd); flex-wrap: wrap; }
+    .bb-tab { font-family: var(--font); font-size: 12px; font-weight: 700; color: var(--t3); background: transparent; border: 0; border-bottom: 2px solid transparent; padding: 9px 12px; cursor: pointer; }
+    .bb-tab:hover { color: var(--t1); }
+    .bb-tab.is-active { color: var(--stam); border-bottom-color: var(--stam); }
+    .bb-tabpanels { padding-top: 12px; }
+    .bb-tabpanel { display: flex; flex-direction: column; gap: 14px; }
+    .bb-tabpanel[hidden] { display: none; }
+    .bb-json-bar { display: flex; align-items: center; gap: 10px; }
 
     .bb-foot { margin: 26px 0 0; padding-top: 16px; border-top: 1px solid var(--bd); font-size: 12px; color: var(--t3); }
     .bb-foot a { color: var(--stam); text-decoration: none; font-weight: 700; }
@@ -201,15 +231,13 @@
           </div>
         </div>
 
-        <h2 class="bb-panel-h">2 · 필드 구성 <span class="bb-panel-hint">— 순서 · 목록표시 · 필수 · 옵션 편집 / 이동 · 중간 삽입 · 삭제</span></h2>
+        <h2 class="bb-panel-h">2 · 필드 구성 <span class="bb-panel-hint">— ⋮⋮ 드래그로 순서 변경 / 목록·필터·드로워·필수 토글 · 옵션 편집 / 중간 삽입 · 삭제</span></h2>
         <div class="bb-fields" data-bb-fields></div>
         <button type="button" class="bb-btn bb-btn--ghost bb-addfield" data-bb-action="add-field">＋ 필드 추가</button>
 
         <div class="bb-actions">
           <button type="button" class="bb-btn bb-btn--primary" data-bb-action="generate">Preview 생성</button>
-          <button type="button" class="bb-btn bb-btn--ghost" data-bb-action="reset">Reset</button>
-          <button type="button" class="bb-btn bb-btn--ghost" data-bb-action="copy">Copy JSON</button>
-          <span class="bb-copy-status" data-bb-copy-status aria-live="polite"></span>
+          <button type="button" class="bb-btn bb-btn--reset" data-bb-action="reset" title="입력·미리보기·localStorage 초기화">Reset</button>
         </div>
       </section>
 
