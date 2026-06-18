@@ -29,6 +29,28 @@
  *   renderTable / renderTableFooter).
  * 정의: docs/reports/commonization/Board-Factory-Page-Contract-v1.md
  */
+
+/*
+ * ── Board Field Schema v1 — config 필드 ↔ field type 매핑 ─────────
+ * 본 파일의 columns / filters / drawer 필드는 공통 field schema(12 type)로
+ * 분류된다. type 정의/기본값/엔진 매핑은 stam.board-field-schema.js
+ * (STAM.boardFieldSchema), 화면별 field inventory 는 Board-Field-Schema-v1.md.
+ * 본 매핑은 '게시판 찍어내기' 기반 정리용 주석이며, 아래 config 의 값/구조와
+ * 엔진 렌더 경로는 변경하지 않는다(화면 동작 유지). schema 모듈은 v2 페이지에
+ * 로드되지 않고 후속 Registry/Builder 단계에서 소비된다.
+ *
+ *   schema type   config 사용 예 (engine 컬럼 / 드로워 control)
+ *   text          id · name · source · requester · lv2 · lv3 · api   (idName/text · input)
+ *   textarea      desc · acceptance · rule · exception · note         (목록 비표시 · textarea)
+ *   select        type(유형) · screenType · fob · lv1                 (chip/typeChip · select)
+ *   date          updatedAt                                           (date · —)
+ *   user          ownerId                                             (user · select·ref users)
+ *   relation      reqIds · designIds · wbsIds · functionIds · screenIds (relationChip · select 다중·ref)
+ *   status        status                                              (statusChip · select)
+ *   priority      priority                                            (priorityChip · select)
+ *   (미사용 예약)  multiSelect · boolean · number · url                후속 보드용
+ * 3개 config 의 모든 컬럼/드로워 필드가 위 type 으로 100% 매핑됨(uncovered 0).
+ */
 (function () {
   'use strict';
 
