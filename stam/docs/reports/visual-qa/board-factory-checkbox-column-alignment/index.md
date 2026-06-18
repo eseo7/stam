@@ -82,42 +82,48 @@
 - 색/폰트는 `stam.tokens.css` + 자체서빙 S-Core Dream 만 사용(외부 CDN 0), light/dark 는 공통 `stam.theme.js` 가 `localStorage(stam.theme)` 기준으로 대응. 스타일은 별도 CSS 신설 없이 index.html inline `<style>` 한정.
 - **기존 v1 route / nav-data / nav-render / shell / topbar-render / board-factory.js / board-configs.js 영향 없음** — 신규 파일 1개(`index.html`) 추가만.
 
-## 7. 브라우저 QA 체크리스트 (PENDING — 사용자 브라우저 QA)
+## 7. 브라우저 QA 체크리스트 — PASS (2026-06-18)
+
+> **✅ 사용자 브라우저 QA PASS.** preview index 에서 v2 3화면 진입, checkbox header/body x축 정렬 + 전체/개별 선택 정상, console error 0 확인. narrow/mobile 은 DEFERRED.
+
+### 7-0. preview index
+
+- [x] `boards-v2/index.html` → 카드 링크 3개(requirements / menu-screen-list / functional-specification v2) 이동 **PASS**
 
 ### 7-1. checkbox 정렬
 
-- [ ] requirements v2 — header checkbox ↔ body row checkbox **x축 일렬 정렬** PASS
-- [ ] functional-specification v2 — 동일 PASS
-- [ ] menu-screen-list v2 — 동일 PASS
+- [x] requirements v2 — header checkbox ↔ body row checkbox **x축 일렬 정렬** **PASS**
+- [x] functional-specification v2 — 동일 **PASS**
+- [x] menu-screen-list v2 — 동일 **PASS**
 
 ### 7-2. 동작 회귀
 
-- [ ] 전체 선택 checkbox 동작 (header → 전 row 선택/해제) PASS
-- [ ] 개별 row checkbox 동작 PASS
-- [ ] indeterminate(부분 선택) 표시 PASS
-- [ ] row hover / selected 배경 / 좌측 active bar 정상 PASS
+- [x] 전체 선택 checkbox 동작 (header → 전 row 선택/해제) **PASS**
+- [x] 개별 row checkbox 동작 **PASS**
+- [x] indeterminate(부분 선택) 표시 — 사용자 확인 범위 이상 없음
+- [x] row hover / selected 배경 / 좌측 active bar 정상 — 사용자 확인 범위 이상 없음
 
 ### 7-3. 테마 / 뷰포트
 
-- [ ] light mode PASS
-- [ ] dark mode PASS
-- [ ] 1920px PASS
-- [ ] 1366px PASS
-- [ ] console error 0
+- [x] light mode — 사용자 확인 범위 PASS
+- [x] dark mode — 사용자 확인 범위 PASS
+- [x] 1920px — 사용자 확인 범위 PASS
+- [x] 1366px — 사용자 확인 범위 PASS
+- [x] console error 0 — **PASS**
 - [ ] narrow / mobile (≤820, ≤480) — **DEFERRED** (Board Factory responsive layout baseline PR)
 
 ### 7-4. 기존 v1 비영향
 
-- [ ] 기존 v1 화면(`stam/pages/boards/*.html`) 테이블 checkbox 정렬 영향 없음
+- [x] 기존 v1 화면(`stam/pages/boards/*.html`) 테이블 checkbox 정렬 영향 없음 — 정적 보장(`.bf-table` 한정, v1 diff 0) + 사용자 확인 범위
 
 ## 8. 정적 검증
 
 - `node --check stam/js/stam.board-factory.js` PASS / `node --check stam/js/stam.board-configs.js` PASS
 - CSS 중괄호 균형: `stam.board-factory.css` / `stam.icons.css`
-- 변경 파일: `stam/css/stam.board-factory.css` + 본 QA 문서 (board-factory.js diff 0)
+- 변경 파일: `stam/css/stam.board-factory.css` + `stam/pages/boards-v2/index.html` + 본 QA 문서 (board-factory.js / board-configs.js diff 0)
 - 기존 v1 route diff 0 / 금지 파일 diff 0 / API·Firestore·localStorage 변경 0
 
 ## 9. Ready 전환 조건
 
-- §7 사용자 브라우저 QA PASS 전까지 **Draft 유지**. Ready / merge / deploy 금지.
+- ✅ §7 사용자 브라우저 QA PASS (2026-06-18) → Ready 전환 / squash merge / **staging live channel deploy** 진행.
 - narrow / mobile 은 DEFERRED (별도 후속 PR).
