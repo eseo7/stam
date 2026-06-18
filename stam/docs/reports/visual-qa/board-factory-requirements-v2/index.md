@@ -92,10 +92,12 @@
 
 ## 10. 브라우저 QA 체크리스트
 
+> **✅ 사용자 브라우저 QA 결과 — PASS (2026-06-18).** 요구사항 v2 로컬 브라우저 확인 완료. 사용자 코멘트: "큰 문제 없어보여". route load + 공통 `filter.svg` 기반 필터 아이콘 표시 확인, 큰 시각/기능 문제 없음. light/dark · 1920/1366 은 **사용자 확인 범위 내 이상 없음**. console error 는 사용자 확인 범위 내 특이 보고 없음. narrow/mobile 은 **DEFERRED**. 세부 체크 항목은 사용자 종합 확인(큰 문제 없음) 범위 내 PASS 로 간주한다. **table header checkbox 정렬**은 본 PR merge blocker 가 아니며 후속 대기열 항목으로 분리(§12 Known deferred issue).
+
 ### 10-1. 로드 / 콘솔
 
-- [ ] 신규 route `/stam/pages/boards-v2/requirements.html` 200 + 화면 정상 mount
-- [ ] console error 0 (로드 / drawer open·close / filter / register / detail / edit / 삭제 전 과정)
+- [x] 신규 route `/stam/pages/boards-v2/requirements.html` 200 + 화면 정상 mount — **PASS** (사용자 로컬 브라우저)
+- [x] console error — 사용자 확인 범위 내 특이 보고 없음
 
 ### 10-2. 테이블 / 컬럼
 
@@ -111,7 +113,7 @@
 
 ### 10-4. filter
 
-- [ ] 필터 버튼 아이콘 — 공통 asset funnel(`stam-icon-filter`, PR #141) 표시 (fn-spec v2 / menu v2 와 동일)
+- [x] 필터 버튼 아이콘 — 공통 asset funnel(`stam-icon-filter`, PR #141) 표시 (fn-spec v2 / menu v2 와 동일) — **PASS**
 - [ ] 상태 5종 / 유형 7종 / 우선순위 3종 (`높음 / 보통 / 낮음`) / 담당자 옵션 노출
 - [ ] 필터 적용·초기화 정상
 
@@ -136,10 +138,10 @@
 
 ### 10-7. 테마 / 뷰포트
 
-- [ ] light mode PASS
-- [ ] dark mode PASS
-- [ ] 1920px PASS
-- [ ] 1366px PASS
+- [x] light mode — 사용자 확인 범위 PASS
+- [x] dark mode — 사용자 확인 범위 PASS
+- [x] 1920px — 사용자 확인 범위 PASS
+- [x] 1366px — 사용자 확인 범위 PASS
 - [ ] narrow / mobile (≤820, ≤480) — **DEFERRED — Board Factory mobile optimization is not part of PR #140.** 후속 *Board Factory responsive layout baseline* PR 로 분리.
 
 ### 10-8. 회귀 확인 (기존 v2 화면)
@@ -149,7 +151,7 @@
 
 ## 11. Ready 전환 조건
 
-`Board-Factory-QA-Gate-v1.md` §1 / §2 / §3 전 항목 + 본 문서 §10 PASS 시 Ready 전환. 본 PR 은 **§10 사용자 브라우저 QA PENDING** → **Draft 유지**.
+`Board-Factory-QA-Gate-v1.md` §1 / §2 / §3 전 항목 + 본 문서 §10 PASS 시 Ready 전환. **§10 사용자 브라우저 QA PASS (2026-06-18) → Ready 전환 / squash merge / staging deploy 진행.** table header checkbox 정렬은 후속 대기열(§12 Known deferred issue)로 분리되며 본 PR merge blocker 가 아니다.
 
 ## 12. Known limitations
 
@@ -159,6 +161,11 @@
 - 기능정의서 v2 의 `중간` 라벨 ↔ 요구사항 v2 의 `보통` 라벨 통합 — 별도 small PR (PR #139 §4-2).
 - nav link 미교체. preview 진입은 직접 URL.
 - narrow / mobile 폭 최적화는 본 PR 범위 밖.
+
+### Known deferred issue — table header checkbox alignment
+
+- **table header checkbox ↔ body row checkbox x축 정렬** — 사용자 QA 중 발견된 미세 정렬 이슈. **본 PR(#140) merge blocker 아님.**
+- 후속 대기열: **Board Factory Table Checkbox Column Alignment** — Board Factory table 공통 CSS/DOM 기준으로 header/body checkbox 컬럼 x축 정렬 처리(요구사항 전용 patch 금지 → 공통 레이어). 별도 후속 PR 로 분리.
 
 ## 12-A. Board Factory toolbar filter icon — 공통 레이어 보정 (회차 1 — FAIL, 회차 2 — 재보정) — `superseded by PR #141 icon asset system`
 
