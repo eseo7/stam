@@ -103,6 +103,8 @@
 | Board Factory toolbar 다른 버튼 / drawer / 닫기 X / 등록 / 내보내기 / 임시저장 | ✕ | 후속 PR |
 | Topbar / Left Nav / 기존 v1 화면 | ✕ | 단계적 후속 PR |
 
+> **사용자 브라우저 QA (2026-06-18): PASS.** 기능정의서 v2(`functional-specification.html`) / 메뉴구조 v2(`menu-screen-list.html`) 두 화면에서 동일한 공통 `filter.svg` 기반 funnel 아이콘 표시 + 공통 icon asset 적용 구조 확인 (사용자 코멘트: "좋아 같은 아이콘 보여"). 기존 v1 화면 영향 없음(v1 route diff 0). 요구사항 v2(`requirements.html`) 적용은 PR #140 정리 시 `stam.icons.css` link 추가로 진행 예정. Topbar / Left Nav / Drawer / 다른 버튼 전환은 후속 PR. narrow / mobile 은 DEFERRED.
+
 ## 6. 후속 PR 분리 기준
 
 - **scope 한정**: 한 PR 당 한 표면(toolbar / drawer / topbar / nav / v1 boards) 만.

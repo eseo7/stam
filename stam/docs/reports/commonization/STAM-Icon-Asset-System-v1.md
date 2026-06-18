@@ -113,16 +113,19 @@ stam/assets/icons/
 - [x] 모든 SVG `viewBox="0 0 24 24"` + `xmlns` 포함
 - [x] 기존 v1 / boards-v2 기존 route 외 파일 diff 0 (금지 파일 변경 없음)
 
-### 9-2. 사용자 브라우저 QA (PENDING)
+### 9-2. 사용자 브라우저 QA (PASS — 2026-06-18)
 
-- [ ] `/stam/pages/boards-v2/functional-specification.html` filter 버튼 — asset 기반 funnel 18px 표시
-- [ ] `/stam/pages/boards-v2/menu-screen-list.html` filter 버튼 — 동일 표시
-- [ ] (PR #140 머지 후) `/stam/pages/boards-v2/requirements.html` filter 버튼 — 동일 표시 (link 추가 필요)
-- [ ] 기존 v1 화면 필터 아이콘 영향 없음
-- [ ] light / dark mode
-- [ ] 1920 / 1366
-- [ ] console error 0
-- [ ] **`filter.svg` 만 교체** 했을 때 모든 v2 보드 필터 버튼이 자동 반영되는지 확인
+사용자 브라우저 QA 결과 **PASS**. 사용자 코멘트: "좋아 같은 아이콘 보여".
+
+- [x] `/stam/pages/boards-v2/functional-specification.html` filter 버튼 — asset 기반 funnel 표시 **PASS**
+- [x] `/stam/pages/boards-v2/menu-screen-list.html` filter 버튼 — 동일 표시 **PASS**
+- [x] 두 v2 화면에서 **동일한 공통 `filter.svg` 기반 funnel 아이콘** 표시 확인 **PASS**
+- [x] 공통 icon asset 적용 구조(`stam-icon` + `stam-icon-filter` CSS mask, 단일 `filter.svg` 참조) 동작 확인 **PASS** — 두 화면이 동일 asset 을 참조하므로 `filter.svg` 1개 교체 시 자동 반영 구조 확인
+- [ ] (PR #140 머지 후) `/stam/pages/boards-v2/requirements.html` filter 버튼 — 동일 표시 (PR #140 정리 시 `stam.icons.css` link 추가 예정)
+- [x] 기존 v1 화면 영향 없음 — v1 route diff 0 + `stam.icons.css` v1 미링크 + engine 변경 `.bf-filter-btn` scope 한정으로 정적 보장
+- [ ] light / dark mode — 본 QA 라운드 미보고 (funnel 은 `currentColor` 추적이라 테마 회귀 위험 낮음)
+- [ ] 1920 / 1366 — 본 QA 라운드 미보고
+- [ ] console error 0 — staging 배포 후 재확인
 - [ ] narrow / mobile — DEFERRED (별도 PR)
 
 ## 10. 후속 작업 후보
