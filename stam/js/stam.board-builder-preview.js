@@ -1,10 +1,12 @@
 /*
  * STAM Board Builder Admin Preview v1 — 입력 기반 게시판 config preview (preview)
  *
- * 사용자가 카테고리 / 게시판명 / 게시판 코드 / 설명 + 필드(기본 + 커스텀)를
+ * 사용자가 카테고리 / 게시판명 / 게시판 코드 / 설명 + 단일 '필드 구성' 정렬 목록을
  * 입력하면, Field Schema v1(STAM.boardFieldSchema)을 이용해 Board Factory 형식의
  * config(columns / filters / drawer)를 '생성하고' 화면에서 즉시 preview 한다.
  *
+ *  - 필드 구성: 기본/커스텀 구분 없이 하나의 ordered list. 추천 초기 필드도
+ *    수정 / 삭제 / 순서 변경 / 중간 삽입 가능.
  *  - DB 없음: localStorage / in-memory 만 사용한다.
  *    · stam.boardBuilder.previewConfig — 생성된 config
  *    · stam.boardBuilder.formState     — 입력 폼 상태(새로고침 복원)
@@ -25,21 +27,21 @@
   var LS_CONFIG = 'stam.boardBuilder.previewConfig';
   var LS_FORM = 'stam.boardBuilder.formState';
 
-  /* 기본 제공 필드 프리셋 (체크박스). role: id/name 은 idName 컬럼 구성에 사용. */
-  var DEFAULT_FIELD_PRESETS = [
-    { key: 'id',        label: 'ID',        type: 'text',     role: 'id',   on: true },
-    { key: 'title',     label: '제목',      type: 'text',     role: 'name', required: true, on: true },
-    { key: 'status',    label: '상태',      type: 'status',   on: true,  options: ['작성중', '검토요청', '검토완료', '승인완료', '보류'],
+  /* 추천 초기 필드 (단일 정렬 목록의 seed). 모두 수정/삭제/이동/삽입 가능.
+   * role: id/name 은 idName 컬럼 구성에 사용. visibleInTable: 목록 표시 여부. */
+  var RECOMMENDED_FIELDS = [
+    { key: 'id',        label: 'ID',        type: 'text',     role: 'id',      required: false, visibleInTable: true, options: [], tone: null },
+    { key: 'title',     label: '제목',      type: 'text',     role: 'name',    required: true,  visibleInTable: true, options: [], tone: null },
+    { key: 'status',    label: '상태',      type: 'status',   role: null,      required: false, visibleInTable: true,
+      options: ['작성중', '검토요청', '검토완료', '승인완료', '보류'],
       tone: { '작성중': 'neutral', '검토요청': 'warn', '검토완료': 'info', '승인완료': 'pass', '보류': 'fail' } },
-    { key: 'ownerId',   label: '담당자',    type: 'user',     on: true },
-    { key: 'priority',  label: '우선순위',  type: 'priority', on: false, options: ['높음', '보통', '낮음'],
-      tone: { '높음': 'high', '보통': 'mid', '낮음': 'low' } },
-    { key: 'type',      label: '유형',      type: 'select',   on: false, options: ['일반', '기능', '화면'] },
-    { key: 'updatedAt', label: '최종수정일', type: 'date',    role: 'updated', on: true },
-    { key: 'desc',      label: '설명',      type: 'textarea', on: false }
+    { key: 'ownerId',   label: '담당자',    type: 'user',     role: null,      required: false, visibleInTable: true, options: [], tone: null },
+    { key: 'priority',  label: '우선순위',  type: 'priority', role: null,      required: false, visibleInTable: true,
+      options: ['높음', '보통', '낮음'], tone: { '높음': 'high', '보통': 'mid', '낮음': 'low' } },
+    { key: 'updatedAt', label: '최종수정일', type: 'date',    role: 'updated', required: false, visibleInTable: true, options: [], tone: null }
   ];
 
-  /* 커스텀 필드에서 고를 수 있는 type (task 명세 11종). */
+  /* 필드 type 선택지 (task 명세 11종). 모든 필드 row 의 type 드롭다운에 사용. */
   var BUILDER_FIELD_TYPES = ['text', 'textarea', 'select', 'date', 'user', 'status', 'priority', 'relation', 'boolean', 'number', 'url'];
 
   var SAMPLE_USERS = ['김민준', '이수빈', '박지호'];
@@ -56,6 +58,7 @@
     if (!s) return [];
     return String(s).split(',').map(function (x) { return x.trim(); }).filter(Boolean);
   }
+  function clone(v) { return JSON.parse(JSON.stringify(v)); }
   function slugify(s) {
     return String(s || '').trim().toLowerCase()
       .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -76,9 +79,24 @@
   function lsRemove(key) {
     try { window.localStorage.removeItem(key); } catch (e) {}
   }
+  /* 저장/입력 필드를 안전한 shape 로 정규화 */
+  function normField(f, i) {
+    f = f || {};
+    var type = BUILDER_FIELD_TYPES.indexOf(f.type) !== -1 ? f.type : 'text';
+    return {
+      key: f.key || ('field' + (i + 1)),
+      label: f.label !== undefined ? f.label : '',
+      type: type,
+      role: f.role || null,
+      required: !!f.required,
+      visibleInTable: f.visibleInTable !== false,
+      options: Array.isArray(f.options) ? f.options.slice() : csvToArray(f.options),
+      tone: f.tone || null
+    };
+  }
 
   /* ── config 생성 (pure: DOM 비의존, 테스트 가능) ───────────────────
-   * form = { category, title, slug, description, fields:[{key,label,type,options[],tone?,role?,required?}] }
+   * form = { category, title, slug, description, fields:[{key,label,type,options[],tone?,role?,required?,visibleInTable?}] }
    * Field Schema v1(defineField/engineMapping)로 정규화해 columns/filters/drawer 파생. */
   function buildConfig(form) {
     form = form || {};
@@ -97,6 +115,8 @@
         tone: f.tone || null,
         required: !!f.required
       };
+      // 사용자 '목록 표시' 토글을 type 기본값보다 우선 적용
+      if (typeof f.visibleInTable === 'boolean') spec.visibleInTable = f.visibleInTable;
       var nf = FS ? FS.defineField(spec) : spec;
       if (f.role) nf.role = f.role;
       return nf;
@@ -220,107 +240,97 @@
       title: q(root, '[data-bb="title"]'),
       slug: q(root, '[data-bb="slug"]'),
       description: q(root, '[data-bb="description"]'),
-      defaults: q(root, '[data-bb-defaults]'),
-      cfName: q(root, '[data-bb-cf="name"]'),
-      cfKey: q(root, '[data-bb-cf="key"]'),
-      cfType: q(root, '[data-bb-cf="type"]'),
-      cfOptions: q(root, '[data-bb-cf="options"]'),
-      cfList: q(root, '[data-bb-cflist]'),
+      fields: q(root, '[data-bb-fields]'),
       preview: q(root, '[data-bb-preview]'),
       copyStatus: q(root, '[data-bb-copy-status]')
     };
-    if (!els.defaults) return null; // 페이지 골격 없음 → no-op
+    if (!els.fields) return null; // 페이지 골격 없음 → no-op
 
-    /* 기본 필드 체크박스 렌더 */
-    els.defaults.innerHTML = DEFAULT_FIELD_PRESETS.map(function (p) {
-      var meta = (window.STAM.boardFieldSchema && window.STAM.boardFieldSchema.types[p.type]) || {};
-      return '<label class="bb-fchk">' +
-        '<input type="checkbox" data-bb-default value="' + esc(p.key) + '"' + (p.on ? ' checked' : '') + '>' +
-        '<span class="bb-fchk-label">' + esc(p.label) + '</span>' +
-        '<span class="bb-fchk-type">' + esc(p.type) + '</span>' +
-        '</label>';
-    }).join('');
+    var fields = clone(RECOMMENDED_FIELDS); // 단일 정렬 목록 (source of truth)
 
-    /* 커스텀 필드 type 옵션 렌더 */
-    if (els.cfType) {
-      els.cfType.innerHTML = BUILDER_FIELD_TYPES.map(function (t) {
+    /* ── 필드 구성 목록 렌더 ───────────────────────────────────── */
+    function typeOptions(sel) {
+      return BUILDER_FIELD_TYPES.map(function (t) {
         var meta = (window.STAM.boardFieldSchema && window.STAM.boardFieldSchema.types[t]) || {};
-        return '<option value="' + esc(t) + '">' + esc(t) + (meta.label ? ' · ' + esc(meta.label) : '') + '</option>';
+        return '<option value="' + esc(t) + '"' + (t === sel ? ' selected' : '') + '>' + esc(t) + (meta.label ? ' · ' + esc(meta.label) : '') + '</option>';
+      }).join('');
+    }
+    function roleBadge(role) {
+      if (role === 'id') return '<span class="bb-frow-role">ID</span>';
+      if (role === 'name') return '<span class="bb-frow-role">명</span>';
+      if (role === 'updated') return '<span class="bb-frow-role">수정일</span>';
+      return '';
+    }
+    function renderFields() {
+      if (!fields.length) { els.fields.innerHTML = '<div class="bb-empty">필드가 없습니다. <b>＋ 필드 추가</b>로 추가하세요.</div>'; return; }
+      els.fields.innerHTML = fields.map(function (f, i) {
+        return '<div class="bb-frow" data-bb-fi="' + i + '">' +
+          '<div class="bb-frow-main">' +
+            '<span class="bb-frow-idx">' + (i + 1) + '</span>' +
+            '<input class="bb-input" data-bb-fp="label" value="' + esc(f.label) + '" placeholder="필드명" aria-label="필드명">' +
+            '<input class="bb-input" data-bb-fp="key" value="' + esc(f.key) + '" placeholder="key" aria-label="필드 key">' +
+            '<select class="bb-select" data-bb-fp="type" aria-label="타입">' + typeOptions(f.type) + '</select>' +
+            roleBadge(f.role) +
+          '</div>' +
+          '<div class="bb-frow-sub">' +
+            '<label class="bb-frow-chk"><input type="checkbox" data-bb-fp="visibleInTable"' + (f.visibleInTable ? ' checked' : '') + '> 목록</label>' +
+            '<label class="bb-frow-chk"><input type="checkbox" data-bb-fp="required"' + (f.required ? ' checked' : '') + '> 필수</label>' +
+            '<input class="bb-input bb-frow-opts" data-bb-fp="options" value="' + esc((f.options || []).join(', ')) + '" placeholder="옵션(쉼표) — select/status/priority" aria-label="옵션">' +
+            '<span class="bb-frow-moves">' +
+              '<button type="button" class="bb-iconbtn" data-bb-fmove="up" title="위로" aria-label="위로"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
+              '<button type="button" class="bb-iconbtn" data-bb-fmove="down" title="아래로" aria-label="아래로"' + (i === fields.length - 1 ? ' disabled' : '') + '>↓</button>' +
+              '<button type="button" class="bb-iconbtn" data-bb-finsert title="아래에 삽입" aria-label="아래에 삽입">＋</button>' +
+              '<button type="button" class="bb-iconbtn bb-iconbtn--del" data-bb-fdel title="삭제" aria-label="삭제">✕</button>' +
+            '</span>' +
+          '</div>' +
+        '</div>';
       }).join('');
     }
 
-    var customFields = []; // { name, key, type, options:[] }
-
-    function renderCustomList() {
-      if (!els.cfList) return;
-      if (!customFields.length) { els.cfList.innerHTML = '<div class="bb-empty">추가된 커스텀 필드가 없습니다.</div>'; return; }
-      els.cfList.innerHTML = customFields.map(function (f, i) {
-        return '<div class="bb-cfrow">' +
-          '<span class="bb-cfrow-name">' + esc(f.name) + '</span>' +
-          '<span class="bb-cfrow-key">' + esc(f.key) + '</span>' +
-          '<span class="bb-chip bb-chip--type">' + esc(f.type) + '</span>' +
-          (f.options.length ? '<span class="bb-cfrow-opts">' + esc(f.options.join(', ')) + '</span>' : '') +
-          '<button type="button" class="bb-cfrow-del" data-bb-cf-del="' + i + '" aria-label="삭제">✕</button>' +
-          '</div>';
-      }).join('');
+    function blankField() {
+      return { key: 'field' + (fields.length + 1), label: '새 필드', type: 'text', role: null, required: false, visibleInTable: true, options: [], tone: null };
     }
+    function updateFieldFromInput(inp) {
+      var row = inp.closest('[data-bb-fi]');
+      if (!row) return;
+      var i = parseInt(row.getAttribute('data-bb-fi'), 10);
+      var prop = inp.getAttribute('data-bb-fp');
+      if (!fields[i] || !prop) return;
+      if (prop === 'visibleInTable' || prop === 'required') fields[i][prop] = inp.checked;
+      else if (prop === 'options') fields[i].options = csvToArray(inp.value);
+      else fields[i][prop] = inp.value; // label / key / type
+    }
+    function moveField(i, dir) {
+      var j = dir === 'up' ? i - 1 : i + 1;
+      if (j < 0 || j >= fields.length) return;
+      var tmp = fields[i]; fields[i] = fields[j]; fields[j] = tmp;
+      renderFields(); saveForm();
+    }
+    function insertField(i) { fields.splice(i + 1, 0, blankField()); renderFields(); saveForm(); }
+    function deleteField(i) { fields.splice(i, 1); renderFields(); saveForm(); }
+    function addField() { fields.push(blankField()); renderFields(); saveForm(); }
 
+    /* ── form state ────────────────────────────────────────────── */
     function collectForm() {
-      var checkedKeys = qa(root, '[data-bb-default]').filter(function (c) { return c.checked; })
-        .map(function (c) { return c.getAttribute('value'); });
-      var fields = [];
-      DEFAULT_FIELD_PRESETS.forEach(function (p) {
-        if (checkedKeys.indexOf(p.key) === -1) return;
-        fields.push({ key: p.key, label: p.label, type: p.type, options: p.options || [], tone: p.tone || null, role: p.role || null, required: !!p.required });
-      });
-      customFields.forEach(function (f) {
-        fields.push({ key: f.key, label: f.name, type: f.type, options: f.options, tone: null, role: null, required: false });
-      });
       return {
         category: els.category ? els.category.value : '',
         title: els.title ? els.title.value.trim() : '',
         slug: els.slug ? els.slug.value.trim() : '',
         description: els.description ? els.description.value.trim() : '',
-        defaults: checkedKeys,
-        customFields: customFields.slice(),
-        fields: fields
+        fields: fields.map(function (f, i) { return normField(f, i); })
       };
     }
-
     function saveForm() { lsSet(LS_FORM, collectForm()); }
-
     function restoreForm() {
       var s = lsGet(LS_FORM);
-      if (!s) { renderCustomList(); return; }
-      if (els.category && s.category) els.category.value = s.category;
-      if (els.title) els.title.value = s.title || '';
-      if (els.slug) els.slug.value = s.slug || '';
-      if (els.description) els.description.value = s.description || '';
-      if (s.defaults) {
-        qa(root, '[data-bb-default]').forEach(function (c) {
-          c.checked = s.defaults.indexOf(c.getAttribute('value')) !== -1;
-        });
+      if (s) {
+        if (els.category && s.category) els.category.value = s.category;
+        if (els.title) els.title.value = s.title || '';
+        if (els.slug) els.slug.value = s.slug || '';
+        if (els.description) els.description.value = s.description || '';
+        if (s.fields && s.fields.length) fields = s.fields.map(function (f, i) { return normField(f, i); });
       }
-      customFields = (s.customFields || []).map(function (f) {
-        return { name: f.name, key: f.key, type: f.type, options: f.options || [] };
-      });
-      renderCustomList();
-    }
-
-    function addCustomField() {
-      var name = els.cfName ? els.cfName.value.trim() : '';
-      var key = els.cfKey ? els.cfKey.value.trim() : '';
-      var type = els.cfType ? els.cfType.value : 'text';
-      var options = els.cfOptions ? csvToArray(els.cfOptions.value) : [];
-      if (!name) { if (els.cfName) els.cfName.focus(); return; }
-      if (!key) key = slugToCamel(name) || ('field' + (customFields.length + 1));
-      if (BUILDER_FIELD_TYPES.indexOf(type) === -1) type = 'text';
-      customFields.push({ name: name, key: key, type: type, options: options });
-      if (els.cfName) els.cfName.value = '';
-      if (els.cfKey) els.cfKey.value = '';
-      if (els.cfOptions) els.cfOptions.value = '';
-      renderCustomList();
-      saveForm();
+      renderFields();
     }
 
     function generate() {
@@ -330,7 +340,6 @@
       lsSet(LS_FORM, form);
       renderPreview(config);
     }
-
     function reset() {
       lsRemove(LS_CONFIG);
       lsRemove(LS_FORM);
@@ -338,15 +347,12 @@
       if (els.title) els.title.value = '';
       if (els.slug) els.slug.value = '';
       if (els.description) els.description.value = '';
-      qa(root, '[data-bb-default]').forEach(function (c) {
-        var p = DEFAULT_FIELD_PRESETS.filter(function (x) { return x.key === c.getAttribute('value'); })[0];
-        c.checked = !!(p && p.on);
-      });
-      customFields = [];
-      renderCustomList();
-      if (els.preview) els.preview.innerHTML = '<div class="bb-empty">아직 생성된 config 가 없습니다. 입력 후 <b>Preview 생성</b>을 누르세요.</div>';
+      fields = clone(RECOMMENDED_FIELDS);
+      renderFields();
+      if (els.preview) els.preview.innerHTML = emptyPreview();
       if (els.copyStatus) els.copyStatus.textContent = '';
     }
+    function emptyPreview() { return '<div class="bb-empty">아직 생성된 config 가 없습니다. 입력 후 <b>Preview 생성</b>을 누르세요.</div>'; }
 
     function copyJson() {
       var config = lsGet(LS_CONFIG);
@@ -435,7 +441,7 @@
       var notice = '<div class="bb-notice">이 config 는 아직 DB 에 저장되지 않았습니다. (localStorage preview · key <code>' + esc(LS_CONFIG) + '</code>)</div>';
 
       var json = '<div class="bb-pgroup"><div class="bb-pgroup-h">generated config (JSON)</div>' +
-        '<textarea class="bb-json" data-bb-json readonly rows="14">' + esc(JSON.stringify(config, null, 2)) + '</textarea></div>';
+        '<textarea class="bb-json" data-bb-json readonly rows="20">' + esc(JSON.stringify(config, null, 2)) + '</textarea></div>';
 
       els.preview.innerHTML = summary + notice + colsList + filtersList + drawerList + table + json;
     }
@@ -451,30 +457,39 @@
         if (a === 'generate') generate();
         else if (a === 'reset') reset();
         else if (a === 'copy') copyJson();
+        else if (a === 'add-field') addField();
         else if (a === 'auto-slug') { if (els.slug && els.title) { els.slug.value = slugify(els.title.value); saveForm(); } }
         return;
       }
-      var del = e.target.closest('[data-bb-cf-del]');
-      if (del) { customFields.splice(parseInt(del.getAttribute('data-bb-cf-del'), 10), 1); renderCustomList(); saveForm(); return; }
-      var addBtn = e.target.closest('[data-bb-cf-add]');
-      if (addBtn) { addCustomField(); return; }
+      var mv = e.target.closest('[data-bb-fmove]');
+      if (mv) { moveField(fieldIndex(mv), mv.getAttribute('data-bb-fmove')); return; }
+      var ins = e.target.closest('[data-bb-finsert]');
+      if (ins) { insertField(fieldIndex(ins)); return; }
+      var del = e.target.closest('[data-bb-fdel]');
+      if (del) { deleteField(fieldIndex(del)); return; }
     });
+    function fieldIndex(elm) {
+      var row = elm.closest('[data-bb-fi]');
+      return row ? parseInt(row.getAttribute('data-bb-fi'), 10) : -1;
+    }
     root.addEventListener('input', function (e) {
-      if (e.target.closest('[data-bb], [data-bb-default]')) saveForm();
+      if (e.target.closest('[data-bb-fp]')) { updateFieldFromInput(e.target); saveForm(); return; }
+      if (e.target.closest('[data-bb]')) saveForm();
     });
     root.addEventListener('change', function (e) {
-      if (e.target.closest('[data-bb], [data-bb-default]')) saveForm();
+      if (e.target.closest('[data-bb-fp]')) { updateFieldFromInput(e.target); saveForm(); return; }
+      if (e.target.closest('[data-bb]')) saveForm();
     });
 
     /* ── boot: 복원 ────────────────────────────────────────────── */
     restoreForm();
     var saved = lsGet(LS_CONFIG);
     if (saved) renderPreview(saved);
-    else if (els.preview) els.preview.innerHTML = '<div class="bb-empty">아직 생성된 config 가 없습니다. 입력 후 <b>Preview 생성</b>을 누르세요.</div>';
+    else if (els.preview) els.preview.innerHTML = emptyPreview();
 
     return {
       generate: generate, reset: reset, collectForm: collectForm,
-      addCustomField: addCustomField
+      addField: addField, getFields: function () { return fields.slice(); }
     };
   }
 
@@ -486,7 +501,7 @@
     slugify: slugify,
     slugToCamel: slugToCamel,
     keys: { config: LS_CONFIG, form: LS_FORM },
-    defaultFieldPresets: DEFAULT_FIELD_PRESETS,
+    recommendedFields: RECOMMENDED_FIELDS,
     builderFieldTypes: BUILDER_FIELD_TYPES
   };
 }());

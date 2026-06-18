@@ -29,11 +29,12 @@
 | | 게시판 코드 | text + `자동` slug 보조 (예: test-scenario) |
 | | 설명 | textarea |
 | | 기본 템플릿 | 고정 표기 (목록 + 필터 + 등록/상세/수정 Drawer) |
-| 기본 필드 | ID · 제목 · 상태 · 담당자 · 우선순위 · 유형 · 최종수정일 · 설명 | 체크박스 (기본 일부 선택) |
-| 커스텀 필드 | 필드명 · 필드 key · 필드 타입 · 옵션(쉼표) | type: text/textarea/select/date/user/status/priority/relation/boolean/number/url |
+| 필드 구성 | 단일 ordered list (추천 초기 필드 포함) | 각 row: 필드명 · key · type · 목록표시 · 필수 · 옵션(쉼표) · 이동/중간삽입/삭제 |
 
-- 필드 타입은 **Field Schema v1**(`STAM.boardFieldSchema`)의 type 을 사용한다.
+- **기본/커스텀 구분 없이 하나의 정렬 목록**이다. 추천 초기 필드(id·제목·상태·담당자·우선순위·최종수정일)도 수정/삭제/순서변경/중간삽입 가능하다(회차 2, §12).
+- 필드 타입은 **Field Schema v1**(`STAM.boardFieldSchema`)의 type 11종을 사용한다.
 - 옵션은 1차에서 comma-separated string 으로 입력받아 배열로 변환한다.
+- `목록표시`(visibleInTable) 토글은 type 기본값보다 우선 적용되어 생성 컬럼에 반영된다.
 
 ## 4. 생성 config 구조
 
@@ -113,7 +114,8 @@
 - [ ] `index.html` Board Builder 카드 표시 + 이동
 - [ ] `board-builder.html` route load (console error 0)
 - [ ] 카테고리/게시판명/코드/설명 입력 · `자동` slug
-- [ ] 기본 필드 체크 / 커스텀 필드 추가·삭제
+- [ ] 필드 구성 단일 목록 — 추천 필드 편집 / 추가 / 중간 삽입 / 위·아래 이동 / 삭제 / 목록표시·필수·옵션 토글
+- [ ] 우측 Preview 영역 확대 — 1920 / 1366 레이아웃, JSON·table 가독성
 - [ ] `Preview 생성` → 요약/컬럼/필터/드로워/sample table/JSON 표시
 - [ ] localStorage 저장 → 새로고침 복원 (formState + previewConfig)
 - [ ] `Reset` (입력/미리보기/localStorage 초기화)
@@ -128,3 +130,28 @@
 - `boards/**`(v1) / `nav-data` / `nav-render` / `shell` / `topbar-render` diff 0.
 - 기존 boards-v2 3화면(requirements/menu-screen-list/functional-specification) diff 0.
 - App Shell / Left Menu / nav-data 미연결. Firestore/API/firebase/workflows/package/config/build 미변경.
+
+## 12. 회차 2 — 사용자 QA 피드백 반영 (필드 구성 단일화 + 우측 Preview 확대)
+
+PR #145 Draft 안에서 사용자 QA 피드백을 반영한 수정. **Board Builder 화면에만 적용**되며 기존 v2 3화면/엔진에는 영향 없음(`board-factory.js`/`.css`/`board-configs.js` diff 0 유지).
+
+### 12-1. 필드 입력 단일화 — `필드 구성` ordered list
+
+- 기존 "기본 필드 체크박스 + 커스텀 필드 추가" **2단 구조 제거** → **단일 정렬 목록**으로 통합.
+- 추천 초기 필드(id·제목·상태·담당자·우선순위·최종수정일)도 일반 row 와 동일하게 **수정 / 삭제 / 위·아래 이동 / 중간 삽입** 가능.
+- 각 row 는 2줄: **메인**(필드명 / key / type) + **보조**(목록표시 · 필수 · 옵션 · 이동/삽입/삭제 버튼). role(id/명/수정일) 배지 표시.
+- 상태 모델은 단일 `fields[]` 배열(source of truth). 텍스트 입력은 focus 유지를 위해 re-render 없이 state 갱신, 구조 변경(이동/삽입/삭제)만 re-render.
+- `목록표시`(visibleInTable) 토글은 `buildConfig` 에서 type 기본값보다 우선 적용 → 생성 컬럼에 반영.
+
+### 12-2. 우측 생성 결과 Preview 확대
+
+- `.bb-wrap` max-width `1160px → 1640px`.
+- `.bb-cols`: `minmax(380px,440px) minmax(0,1fr)` + `gap 24px` + `align-items:start` → **좌측 입력 고정(380~440), 우측 Preview 확장**. stack 분기 `980px → 1180px`.
+- JSON textarea `rows 14 → 20` + `min-height 360px`, table preview `min-width 560 → 640` + 가로 스크롤 유지. 좌측 입력 최소 사용성(≥380px) 유지.
+- 권장 비율 충족: 1920 기준 좌측 440 / 우측 ~1176, 1366 기준 좌측 440 / 우측 ~854.
+
+### 12-3. 검증 (회차 2)
+
+- `node --check` 4개 JS PASS · board-builder.html inline CSS 중괄호 BALANCED · `buildConfig` 재검증(순서 보존 / `visibleInTable:false` 컬럼 제외) PASS.
+- 변경 파일: `board-builder.html` / `stam.board-builder-preview.js` (+ 본 문서). 그 외 diff 0.
+- 1920 / 1366 레이아웃 · 단일 필드 목록 조작 · localStorage 복원 · Reset · Copy JSON 은 **사용자 재QA(PENDING)**. narrow/mobile DEFERRED.

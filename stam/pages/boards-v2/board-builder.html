@@ -24,7 +24,7 @@
       font-family: var(--font); background: var(--bg-base); color: var(--t1);
       -webkit-font-smoothing: antialiased; min-height: 100vh;
     }
-    .bb-wrap { max-width: 1160px; margin: 0 auto; padding: 40px 24px 72px; }
+    .bb-wrap { max-width: 1640px; margin: 0 auto; padding: 40px 24px 72px; }
 
     /* header */
     .bb-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
@@ -46,9 +46,9 @@
     }
     .bb-theme:hover { border-color: var(--stam); color: var(--stam); }
 
-    /* layout */
-    .bb-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 16px; margin: 22px 0 0; }
-    @media (max-width: 980px) { .bb-cols { grid-template-columns: 1fr; } }
+    /* layout — 좌측 입력 고정폭(380~440) / 우측 Preview 확장. 1920·1366 안정, ≤1180 stack */
+    .bb-cols { display: grid; grid-template-columns: minmax(380px, 440px) minmax(0, 1fr); gap: 24px; margin: 22px 0 0; align-items: start; }
+    @media (max-width: 1180px) { .bb-cols { grid-template-columns: 1fr; } }
     .bb-panel {
       background: var(--bg-sur); border: 1px solid var(--bd); border-radius: var(--r-lg);
       padding: 18px 18px 20px; box-shadow: 0 1px 3px rgba(15,23,42,.04);
@@ -78,36 +78,24 @@
     .bb-slug-row { display: flex; gap: 6px; }
     .bb-slug-row .bb-input { flex: 1 1 auto; }
 
-    /* default field checkboxes */
-    .bb-defaults { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px 10px; }
-    @media (max-width: 520px) { .bb-defaults { grid-template-columns: 1fr; } }
-    .bb-fchk {
-      display: flex; align-items: center; gap: 8px; padding: 7px 10px;
-      border: 1px solid var(--bd); border-radius: var(--r-md); background: var(--bg-base); cursor: pointer;
-    }
-    .bb-fchk:hover { border-color: var(--bd-s); }
-    .bb-fchk input { accent-color: var(--stam); width: 14px; height: 14px; flex-shrink: 0; }
-    .bb-fchk-label { font-size: 12.5px; color: var(--t1); font-weight: 600; }
-    .bb-fchk-type { margin-left: auto; font-size: 10px; color: var(--t3); font-family: var(--mono); }
-
-    /* custom field add */
-    .bb-cf-add { display: grid; grid-template-columns: 1.1fr 1fr 1fr 1.2fr auto; gap: 8px; align-items: end; }
-    @media (max-width: 720px) { .bb-cf-add { grid-template-columns: 1fr 1fr; } }
-    .bb-cflist { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
-    .bb-cfrow {
-      display: flex; align-items: center; gap: 8px; padding: 7px 10px;
-      border: 1px solid var(--bd); border-radius: var(--r-md); background: var(--bg-base); font-size: 12px;
-    }
-    .bb-cfrow-name { font-weight: 700; color: var(--t1); }
-    .bb-cfrow-key { color: var(--t3); font-family: var(--mono); font-size: 11px; }
-    .bb-cfrow-opts { color: var(--t3); font-size: 11px; }
-    .bb-cfrow-del {
-      margin-left: auto; border: 1px solid var(--bd-s); background: var(--bg-sur); color: var(--t3);
-      border-radius: var(--r-sm); width: 22px; height: 22px; cursor: pointer; line-height: 1;
-    }
-    .bb-cfrow-del:hover { border-color: var(--fail); color: var(--fail); }
-    .bb-chip { display: inline-flex; align-items: center; height: 19px; padding: 0 8px; border-radius: 99px; font-size: 10.5px; font-weight: 700; }
-    .bb-chip--type { background: var(--stam-soft); color: var(--stam); border: 1px solid rgba(84,81,232,.20); font-family: var(--mono); }
+    /* 필드 구성 — 단일 ordered list (각 row 2줄: 메인 = 필드명/key/type, 보조 = 표시/필수/옵션/이동) */
+    .bb-panel-hint { font-weight: 600; color: var(--t3); font-size: 10.5px; }
+    .bb-fields { display: flex; flex-direction: column; gap: 8px; }
+    .bb-frow { border: 1px solid var(--bd); border-radius: var(--r-md); background: var(--bg-base); padding: 8px 10px; }
+    .bb-frow-main { display: grid; grid-template-columns: 18px minmax(0,1fr) minmax(0,0.85fr) minmax(0,1fr) auto; gap: 6px; align-items: center; }
+    .bb-frow-main .bb-input, .bb-frow-main .bb-select { padding: 6px 8px; font-size: 12px; }
+    .bb-frow-idx { font-size: 10px; font-weight: 700; color: var(--t3); text-align: center; }
+    .bb-frow-role { font-size: 9.5px; font-weight: 700; color: var(--stam); background: var(--stam-soft); border: 1px solid rgba(84,81,232,.20); border-radius: 99px; padding: 1px 6px; white-space: nowrap; }
+    .bb-frow-sub { display: flex; align-items: center; gap: 8px; margin-top: 7px; flex-wrap: wrap; }
+    .bb-frow-chk { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--t2); white-space: nowrap; cursor: pointer; }
+    .bb-frow-chk input { accent-color: var(--stam); }
+    .bb-frow-opts { flex: 1 1 140px; min-width: 110px; padding: 6px 8px; font-size: 11.5px; }
+    .bb-frow-moves { display: inline-flex; gap: 4px; margin-left: auto; }
+    .bb-iconbtn { width: 26px; height: 26px; border: 1px solid var(--bd-s); background: var(--bg-sur); color: var(--t2); border-radius: var(--r-sm); cursor: pointer; font-size: 13px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+    .bb-iconbtn:hover { border-color: var(--stam); color: var(--stam); }
+    .bb-iconbtn:disabled { opacity: .4; cursor: not-allowed; }
+    .bb-iconbtn--del:hover { border-color: var(--fail); color: var(--fail); }
+    .bb-addfield { margin-top: 10px; }
 
     /* buttons */
     .bb-actions { display: flex; align-items: center; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
@@ -144,7 +132,7 @@
     .bb-tag em { font-style: normal; color: var(--t3); font-family: var(--mono); font-size: 10px; }
     .bb-tag .bb-req { color: var(--fail); }
     .bb-ptable-wrap { overflow-x: auto; border: 1px solid var(--bd); border-radius: var(--r-md); }
-    .bb-ptable { width: 100%; border-collapse: collapse; min-width: 560px; }
+    .bb-ptable { width: 100%; border-collapse: collapse; min-width: 640px; }
     .bb-ptable th { text-align: left; font-size: 10px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .05em; padding: 8px 10px; background: var(--bg-sur2); white-space: nowrap; }
     .bb-ptable td { padding: 8px 10px; font-size: 12px; color: var(--t2); border-top: 1px solid var(--bd); white-space: nowrap; }
     .bb-th-chk, .bb-td-chk { width: 34px; text-align: center; }
@@ -154,7 +142,7 @@
     .bb-link { color: var(--stam); }
     .bb-rowbtn { border: 1px solid var(--bd-s); background: var(--bg-sur); border-radius: var(--r-sm); padding: 2px 9px; font-size: 11px; color: var(--t3); }
     .bb-json {
-      width: 100%; font-family: var(--mono); font-size: 11.5px; line-height: 1.55; color: var(--t1);
+      width: 100%; min-height: 360px; font-family: var(--mono); font-size: 11.5px; line-height: 1.55; color: var(--t1);
       background: var(--bg-base); border: 1px solid var(--bd); border-radius: var(--r-md); padding: 10px 12px; resize: vertical;
     }
 
@@ -213,30 +201,9 @@
           </div>
         </div>
 
-        <h2 class="bb-panel-h">2 · 기본 필드 선택</h2>
-        <div class="bb-defaults" data-bb-defaults></div>
-
-        <h2 class="bb-panel-h">3 · 커스텀 필드 추가</h2>
-        <div class="bb-cf-add">
-          <div class="bb-field">
-            <label class="bb-lbl">필드명</label>
-            <input class="bb-input" data-bb-cf="name" type="text" placeholder="예) 심각도" autocomplete="off">
-          </div>
-          <div class="bb-field">
-            <label class="bb-lbl">필드 key</label>
-            <input class="bb-input" data-bb-cf="key" type="text" placeholder="예) severity" autocomplete="off">
-          </div>
-          <div class="bb-field">
-            <label class="bb-lbl">타입</label>
-            <select class="bb-select" data-bb-cf="type"></select>
-          </div>
-          <div class="bb-field">
-            <label class="bb-lbl">옵션(쉼표)</label>
-            <input class="bb-input" data-bb-cf="options" type="text" placeholder="예) 치명,보통,경미" autocomplete="off">
-          </div>
-          <button type="button" class="bb-btn bb-btn--ghost" data-bb-cf-add>+ 추가</button>
-        </div>
-        <div class="bb-cflist" data-bb-cflist></div>
+        <h2 class="bb-panel-h">2 · 필드 구성 <span class="bb-panel-hint">— 순서 · 목록표시 · 필수 · 옵션 편집 / 이동 · 중간 삽입 · 삭제</span></h2>
+        <div class="bb-fields" data-bb-fields></div>
+        <button type="button" class="bb-btn bb-btn--ghost bb-addfield" data-bb-action="add-field">＋ 필드 추가</button>
 
         <div class="bb-actions">
           <button type="button" class="bb-btn bb-btn--primary" data-bb-action="generate">Preview 생성</button>
