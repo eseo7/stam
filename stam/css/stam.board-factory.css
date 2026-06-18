@@ -10,6 +10,19 @@
  * 기존 공통/제품 CSS는 수정하지 않는다.
  */
 
+/* ── Board Factory Page Contract v1 — 본문 5개 section anchor ──────
+ * 구조/DOM/CSS 는 공통(.bf- scope), 값만 config. 3개 v2 화면(requirements /
+ * menu-screen-list / functional-specification)이 같은 anchor 로 렌더된다.
+ *   1) Page Header   .bf-page-header   (레이아웃은 공통 .stam-board-header)
+ *   2) Summary Strip .bf-summary       (.bf-ss-strip / .bf-ss-cell 본 파일 정의)
+ *   3) Toolbar       .bf-toolbar       (.bf-search / .bf-del-btn 본 파일 정의)
+ *   4) Table Body    .bf-table         (.bf-tbl-outer 카드 + 밀도 보정 본 파일)
+ *   5) Table Footer  .bf-table-footer  (레이아웃은 공통 .stam-board-footer)
+ * .bf-page-header / .bf-table-footer 는 구조 anchor 로만 두고, 시각 규칙은
+ * 기존대로 공통 .stam-board-header / .stam-board-footer 가 담당한다(중복 정의 0).
+ * 정의: docs/reports/commonization/Board-Factory-Page-Contract-v1.md
+ */
+
 /* ── page wrapper (기존 fn-page 톤: 본문 max-width 중앙 정렬) ──── */
 .bf-page {
   padding: 20px 24px 64px;
@@ -38,7 +51,7 @@ body:has(.bf-page) .po-main { overflow-x: hidden; }
 
 .bf-board { display: block; }
 
-/* ── summary strip (기존 fn-sstrip 밀도) ──────────────────────── */
+/* ── (2) Summary Strip — .bf-summary (기존 fn-sstrip 밀도) ─────── */
 .bf-summary { margin: 0 0 8px; }
 .bf-ss-strip {
   display: grid;
@@ -72,7 +85,7 @@ body:has(.bf-page) .po-main { overflow-x: hidden; }
 .bf-ss-num { font-size: 20px; font-weight: 700; line-height: 1.1; letter-spacing: -.03em; color: var(--t1); }
 .bf-ss-sub { font-size: 10px; color: var(--t3); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* ── toolbar (기존 fn-toolbar 밀도) ──────────────────────────── */
+/* ── (3) Toolbar — .bf-toolbar (기존 fn-toolbar 밀도) ─────────── */
 .bf-toolbar { margin-bottom: 8px; }
 .bf-search {
   display: flex; align-items: center; gap: 7px;
@@ -113,7 +126,8 @@ body:has(.bf-page) .po-main { overflow-x: hidden; }
 }
 .bf-del-btn[disabled] { opacity: .5; cursor: not-allowed; }
 
-/* ── table card (기존 fn-tbl 밀도) ───────────────────────────── */
+/* ── (4) Table Body — .bf-table / .bf-tbl-outer 카드 (기존 fn-tbl 밀도)
+ *      (5) Table Footer 는 .bf-table-footer(=공통 .stam-board-footer)가 담당 ── */
 .bf-tbl-outer {
   border: 1px solid var(--bd);
   border-radius: var(--r-lg);
