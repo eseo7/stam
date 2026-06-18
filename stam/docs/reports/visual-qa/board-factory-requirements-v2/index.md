@@ -160,9 +160,9 @@
 - nav link 미교체. preview 진입은 직접 URL.
 - narrow / mobile 폭 최적화는 본 PR 범위 밖.
 
-## 12-A. Board Factory toolbar filter icon — 공통 레이어 보정 (회차 1 — FAIL, 회차 2 — 재보정)
+## 12-A. Board Factory toolbar filter icon — 공통 레이어 보정 (회차 1 — FAIL, 회차 2 — 재보정) — `superseded by PR #141 icon asset system`
 
-> **[SUPERSEDED — 2026-06-18]** 본 절의 inline funnel SVG 보정(회차 1 `15fee88` / 회차 2 `702d727`)은 PR #141 *Common Icon Asset System* (merge `7b81ebc`) 도입으로 **폐기**되었다. toolbar filter 아이콘은 이제 `stam.board-factory.js` 가 emit 하는 `<span class="stam-icon stam-icon-filter">` + `stam.icons.css` CSS mask(단일 `filter.svg`)로 렌더된다. **본 PR(rebase 후)은 board-factory.js / board-factory.css 를 수정하지 않는다.** 아래 내용은 결정 이력 기록용으로만 보존한다 — 현행 filter 아이콘 QA 는 §10-4 / §10-1 을 따른다.
+> **[SUPERSEDED — 2026-06-18] `superseded by PR #141 icon asset system`.** 본 절의 inline filter SVG / `bf-filter-icon` 보정 시도(회차 1 `15fee88` / 회차 2 `702d727`)는 PR #141 *Common Icon Asset System* (merge `7b81ebc`) 도입으로 **폐기**되었다. toolbar filter 아이콘은 이제 `stam.board-factory.js` 가 emit 하는 `<span class="stam-icon stam-icon-filter">` + `stam.icons.css` CSS mask(단일 `filter.svg`)로 렌더된다. **본 PR(rebase 후)은 board-factory.js / board-factory.css 를 수정하지 않는다.** 아래 내용은 결정 이력 기록용으로만 보존한다 — 현행 filter 아이콘 QA 는 §10-4 / §10-1 을 따른다.
 
 ### 회차 1 (`15fee88`) — 사용자 시각 QA FAIL
 
