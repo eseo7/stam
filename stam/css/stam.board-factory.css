@@ -92,16 +92,19 @@ body:has(.bf-page) .po-main { overflow-x: hidden; }
 .bf-toolbar-sep { width: 1px; height: 22px; background: var(--bd); flex-shrink: 0; }
 .bf-filter-cnt { margin-left: 2px; }
 
-/* 삭제 버튼 — 기존 fn-btn-del 톤(서브틀, 빨강 hover) */
+/* 삭제 버튼 — 기존 fn-btn-del 톤(서브틀, 빨강 hover)
+ * 마크업이 .stam-btn 도 함께 가져 height:32px 가 상속되므로, 필터 트리거와
+ * 동일하게 콘텐츠 높이(padding 기반)로 맞추기 위해 height/min-height 를 무효화. */
 .bf-del-btn {
   display: inline-flex; align-items: center; gap: 5px;
+  height: auto; min-height: 0; box-sizing: border-box;
   padding: 5px 12px; border-radius: var(--r-md);
   font-family: var(--font), inherit; font-size: 12px; font-weight: 600;
   border: 1px solid var(--bd-s); background: var(--bg-sur); color: var(--t3);
   cursor: pointer; white-space: nowrap; line-height: 1.3; flex-shrink: 0;
   transition: background 120ms, color 120ms, border-color 120ms;
 }
-.bf-del-btn svg { width: 12px; height: 12px; }
+.bf-del-btn svg { width: 13px; height: 13px; }
 /* danger hover — 토큰 기반(라이트/다크 자동). 기존 STAM danger 톤. */
 .bf-del-btn:not([disabled]):hover {
   border-color: var(--btn-danger-bg);
@@ -253,6 +256,16 @@ body:has(.bf-page) .po-main { overflow-x: hidden; }
 }
 .bf-dw-tab.on { color: var(--stam); border-bottom-color: var(--stam); }
 .bf-dw-tab:hover:not(.on) { color: var(--t1); }
+
+/* drawer footer 버튼 stroke 통일 — ghost(취소/전체 보기)도 외곽선이 보이게.
+ * outline 버튼과 동일 토큰(--btn-secondary-border)으로 라이트/다크 일관.
+ * primary(등록/저장/수정)·outline(임시저장)은 기존 variant/색/아이콘 유지. */
+.bf-drawer .stam-drawer-foot .stam-btn-ghost {
+  border-color: var(--btn-secondary-border);
+}
+.bf-drawer .stam-drawer-foot .stam-btn-ghost:hover {
+  border-color: var(--btn-secondary-border);
+}
 
 /* ── drawer form sections (기존 fn-fs / fn-fgrid 밀도) ────────── */
 .bf-fs { margin-bottom: 20px; }

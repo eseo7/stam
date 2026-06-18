@@ -295,6 +295,37 @@ STAM.boardFactory.mount(rootEl, config);
 
 - 브라우저 픽셀(실제 여백 시각)은 환경상 chromium 미가용으로 **PENDING** — merge 전 Chrome/Edge 1회 확인 권장.
 
+## 8-6. Drawer footer 버튼 stroke 통일 + Toolbar 삭제 버튼 height 보정
+
+사용자 로컬 브라우저 QA: ① footer의 `취소`·`전체 보기`(ghost)가 외곽선이 없어 텍스트처럼
+보임, ② toolbar `삭제` 버튼이 `필터` 버튼보다 높이가 커 보임. **CSS 단독** 보정.
+
+### 1) footer 버튼 stroke 통일
+- `.bf-drawer .stam-drawer-foot .stam-btn-ghost { border-color: var(--btn-secondary-border) }`
+  (hover 포함) → ghost(취소/전체 보기)도 outline(임시저장)과 **동일 토큰의 외곽선**.
+- primary(등록/저장/수정)·outline(임시저장)은 기존 variant/색/아이콘 **그대로 유지**.
+- 토큰 기반(`--btn-secondary-border`) → 라이트/다크 자동, footer height/density 불변.
+
+### 2) toolbar 삭제 버튼 height = 필터 버튼
+- **원인**: 삭제 버튼 마크업이 `.stam-btn`도 포함 → `.stam-btn { height:32px }`가 상속되어
+  콘텐츠 높이(~28px)인 `필터` 트리거보다 커 보였음.
+- **보정**: `.bf-del-btn { height:auto; min-height:0; box-sizing:border-box }`로 32px 무효화 →
+  `필터` 트리거와 동일하게 padding 기반 콘텐츠 높이. svg 12→13px(필터와 아이콘 크기 일치).
+  align-items center·삭제 hover 토큰·서브틀 톤은 유지.
+
+| 항목 | DOM/CSS 검증 | 라이브 픽셀 |
+| --- | --- | --- |
+| 등록 drawer footer stroke | ghost 규칙 적용 | PENDING |
+| 상세 drawer footer stroke | 동일 규칙(공통 selector) | PENDING |
+| 수정 drawer footer stroke | 동일 규칙(공통 selector) | PENDING |
+| 삭제 = 필터 height 일치 | height:auto 적용 | PENDING |
+| dark mode(stroke·height) | 토큰/공통 클래스 기반 | PENDING |
+
+- **회귀 검증(jsdom 45 PASS·`console.error` 0)**: title top 22px, 삭제 hover, active bar,
+  내보내기/기능등록 icon, drawer padding, footer/action icon, select 중복 해소, validation 문구,
+  idName 한 줄, required 차단 **모두 유지**. CSS 133/133 균형, 토큰 전부 resolve.
+- 브라우저 픽셀(실제 외곽선·높이 정렬)은 chromium 미가용으로 **PENDING** — merge 전 1회 확인 권장.
+
 ## 9. 다음 PR 후보 (PR #137~)
 
 - 라이브 브라우저 시각 QA 결과 반영(스크린샷 첨부)
