@@ -8,6 +8,27 @@
  * 연결 화면은 화면 이름 라벨이 아니라 screenId 로 저장하고,
  * 담당자는 이름 문자열이 아니라 userId 로 저장한다 (reference 기반).
  */
+
+/*
+ * ── Board Factory Page Contract v1 ──────────────────────────────
+ * 본 파일의 3개 config (functionalSpecificationV2 / menuScreenListV2 /
+ * requirementsV2)는 모두 동일한 Board Factory Page Contract 를 따른다.
+ * 구조(키)는 공통, 값만 화면별로 다르다 — 화면별 전용 patch 는 두지 않는다.
+ *
+ *   contract section   공통 config 키                          화면별 '값'
+ *   1) Page Header     title / description / actions.header    라벨 · 버튼 문구
+ *   2) Summary Strip   summary.cells[]                         cell 종류/라벨/key
+ *   3) Toolbar         searchPlaceholder / filters[]           placeholder · 필터군
+ *   4) Table Body      columns[] / vocab / dataSource          컬럼 · chip tone · 데이터
+ *   5) Table Footer    pageSize / (pagination)                 page 크기
+ *   (+ drawer / detail : 등록 · 상세 drawer contract)
+ *
+ * 엔진 렌더 함수(stam.board-factory.js)와 1:1 대응:
+ *   pageHeaderHtml / summaryStripHtml / toolbarHtml / tableBodyHtml /
+ *   tableFooterHtml (+ renderPageHeader / renderSummaryStrip /
+ *   renderTable / renderTableFooter).
+ * 정의: docs/reports/commonization/Board-Factory-Page-Contract-v1.md
+ */
 (function () {
   'use strict';
 
@@ -246,7 +267,13 @@
     return '<span class="bf-user"><span class="bf-ava" style="background:var(--stam)">' + safe.charAt(0) + '</span><span class="bf-user-name">' + safe + '</span></span>';
   }
 
-  /* ── config ────────────────────────────────────────────────── */
+  /* ── Page Contract config · 기능정의서 v2 ────────────────────────
+   * 1) Page Header  : title / description / actions.header (내보내기 · 기능 등록)
+   * 2) Summary Strip: summary.cells × 7 (전체/작성중/검토중/승인완료/보류/연결 요구사항/연결 화면)
+   * 3) Toolbar      : searchPlaceholder / filters × 5 (상태·기능유형·우선순위·연결 화면·담당자)
+   * 4) Table Body   : columns × 10 / vocab(status5 · type8 · priority3)
+   * 5) Table Footer : pageSize 20 / pagination 기본 on
+   * 구조는 공통 contract, 위 '값'만 본 화면 전용 (전용 patch 0). */
   window.STAM.boardConfigs.functionalSpecificationV2 = {
     boardId: 'functional-specification-v2',
     title: '기능정의서 v2',
@@ -591,6 +618,13 @@
     return '<span class="bf-user"><span class="bf-ava" style="background:var(--stam)">' + safe.charAt(0) + '</span><span class="bf-user-name">' + safe + '</span></span>';
   }
 
+  /* ── Page Contract config · 메뉴구조/화면목록 v2 ─────────────────
+   * 1) Page Header  : title / description / actions.header (내보내기 · 화면 등록)
+   * 2) Summary Strip: summary.cells × 7 (전체/작성중/검토중/확정/보류/연결 요구사항/연결 화면설계서)
+   * 3) Toolbar      : searchPlaceholder / filters × 5 (상태·화면유형·FO/BO·LV1·담당자)
+   * 4) Table Body   : columns × 12 / vocab(status4 · screenType8 · fob2 · lv1)
+   * 5) Table Footer : pageSize 20 / pagination 기본 on
+   * 구조는 공통 contract, 위 '값'만 본 화면 전용 (전용 patch 0). */
   window.STAM.boardConfigs.menuScreenListV2 = {
     boardId: 'menu-screen-list-v2',
     title: '메뉴구조/화면목록 v2',
@@ -953,6 +987,13 @@
     return '<span class="bf-user"><span class="bf-ava" style="background:var(--stam)">' + safe.charAt(0) + '</span><span class="bf-user-name">' + safe + '</span></span>';
   }
 
+  /* ── Page Contract config · 요구사항정의서 v2 ────────────────────
+   * 1) Page Header  : title / description / actions.header (내보내기 · 요구사항 등록)
+   * 2) Summary Strip: summary.cells × 7 (전체/검토중/승인완료/보류/높음 우선순위/연결 화면설계서/연결 WBS)
+   * 3) Toolbar      : searchPlaceholder / filters × 4 (상태·유형·우선순위·담당자)
+   * 4) Table Body   : columns × 10 / vocab(status5 · type7 · priority3)
+   * 5) Table Footer : pageSize 20 / pagination 기본 on
+   * 구조는 공통 contract, 위 '값'만 본 화면 전용 (전용 patch 0). */
   window.STAM.boardConfigs.requirementsV2 = {
     boardId: 'requirements-v2',
     title: '요구사항정의서 v2',

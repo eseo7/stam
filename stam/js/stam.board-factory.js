@@ -5,6 +5,17 @@
  * 첫 번째 공통 게시판 엔진. config + dataSource + referenceSource 를 받아
  * list-first 표준 골격(헤더 · summary · toolbar · table · drawer)을 렌더링한다.
  *
+ * ── Board Factory Page Contract v1 ──────────────────────────────
+ * 본문은 5개 공통 section 으로 구성된다. 구조/DOM/CSS 는 공통, 값만 config:
+ *   1) Page Header   (.bf-page-header)   ← config.title / description / actions.header
+ *   2) Summary Strip (.bf-summary)       ← config.summary.cells
+ *   3) Toolbar       (.bf-toolbar)       ← config.searchPlaceholder / filters
+ *   4) Table Body    (.bf-table)         ← config.columns / vocab / dataSource
+ *   5) Table Footer  (.bf-table-footer)  ← config.pageSize / pagination
+ * requirements v2 / menu-screen-list v2 / functional-specification v2 가
+ * 모두 동일 contract 로 렌더되며, 화면 차이는 config '값' 차이에서만 발생한다.
+ * (자세한 정의: docs/reports/commonization/Board-Factory-Page-Contract-v1.md)
+ *
  * 사용:
  *   STAM.boardFactory.mount(rootEl, config);
  *
@@ -249,22 +260,51 @@
     this.root.classList.add('bf-board');
     this.root.innerHTML = this.skeletonHtml();
     this.cacheEls();
-    this.bindStatic();
-    this.initFilter();
-    this.refresh();
+    this.renderPageHeader();   // (1) Page Header — actions
+    this.bindStatic();         // (3) Toolbar / (4) Table Body / drawer 이벤트 바인딩
+    this.initFilter();         // (3) Toolbar — 공통 filter (STAM.boardFilter)
+    this.refresh();            // (2) Summary / (4) Table Body / (5) Table Footer
   };
 
+  /* ── Page Contract: 본문 5개 section 골격 합성 (구조 공통 / 값은 config) ──
+   * 1) Page Header   pageHeaderHtml()    .bf-page-header
+   * 2) Summary Strip summaryStripHtml()  .bf-summary
+   * 3) Toolbar       toolbarHtml()        .bf-toolbar
+   * 4) Table Body    tableBodyHtml()      .bf-table        (.bf-tbl-outer 카드 내부)
+   * 5) Table Footer  tableFooterHtml()    .bf-table-footer (.bf-tbl-outer 카드 내부)
+   * drawer 골격(register/detail/edit)은 drawersHtml() 가 담당한다. */
   BoardInstance.prototype.skeletonHtml = function () {
+    return '' +
+      this.pageHeaderHtml() +
+      this.summaryStripHtml() +
+      this.toolbarHtml() +
+      this.tableSectionHtml() +
+      this.drawersHtml();
+  };
+
+  /* (1) Page Header — title / description / right actions(primary·secondary).
+   *     actions 버튼 자체는 renderPageHeader() 가 config.actions.header 로 채운다. */
+  BoardInstance.prototype.pageHeaderHtml = function () {
     var c = this.config;
     return '' +
-      '<div class="bf-header stam-board-header">' +
+      '<div class="bf-page-header stam-board-header">' +
         '<div class="bf-header-l stam-board-title-wrap">' +
           '<div class="bf-title stam-board-title">' + esc(c.title) + '</div>' +
           '<div class="bf-desc stam-board-desc">' + esc(c.description || '') + '</div>' +
         '</div>' +
         '<div class="bf-header-r stam-board-actions" data-bf-actions></div>' +
-      '</div>' +
-      '<div class="bf-summary" data-bf-summary></div>' +
+      '</div>';
+  };
+
+  /* (2) Summary Strip — renderSummaryStrip() 가 config.summary.cells 로 채운다. */
+  BoardInstance.prototype.summaryStripHtml = function () {
+    return '<div class="bf-summary" data-bf-summary></div>';
+  };
+
+  /* (3) Toolbar — search input / filter button / bulk delete (+ optional right). */
+  BoardInstance.prototype.toolbarHtml = function () {
+    var c = this.config;
+    return '' +
       '<div class="bf-toolbar stam-board-toolbar">' +
         '<div class="stam-board-toolbar-left"><div class="stam-board-toolbar-base">' +
           '<div class="bf-search stam-board-search">' +
@@ -289,20 +329,43 @@
             '<button class="sbf-apply-btn" data-bf-filter-apply type="button">적용</button>' +
           '</div>' +
         '</div>' +
-      '</div>' +
+      '</div>';
+  };
+
+  /* (4)+(5) Table card — Table Body + Table Footer 를 .bf-tbl-outer 카드로 감싼다.
+   *     footer 는 카드 테두리 안에 위치(시각 동일 유지)하되 별도 section 으로 분리한다. */
+  BoardInstance.prototype.tableSectionHtml = function () {
+    return '' +
       '<div class="bf-tbl-outer">' +
-        '<div class="bf-tbl-scroll"><table class="bf-table stam-select-table">' +
-          '<colgroup data-bf-colgroup></colgroup>' +
-          '<thead data-bf-thead></thead>' +
-          '<tbody data-bf-tbody></tbody>' +
-        '</table>' +
-        '<div class="bf-state" data-bf-state hidden></div>' +
-        '</div>' +
-        '<div class="bf-tbl-foot stam-board-footer">' +
-          '<span class="bf-count stam-board-count" data-bf-count></span>' +
-          '<div class="bf-pg stam-board-pagination" data-bf-pagination></div>' +
-        '</div>' +
-      '</div>' +
+        this.tableBodyHtml() +
+        this.tableFooterHtml() +
+      '</div>';
+  };
+
+  /* (4) Table Body — selectable checkbox 컬럼 / columns / row cells / empty state. */
+  BoardInstance.prototype.tableBodyHtml = function () {
+    return '' +
+      '<div class="bf-tbl-scroll"><table class="bf-table stam-select-table">' +
+        '<colgroup data-bf-colgroup></colgroup>' +
+        '<thead data-bf-thead></thead>' +
+        '<tbody data-bf-tbody></tbody>' +
+      '</table>' +
+      '<div class="bf-state" data-bf-state hidden></div>' +
+      '</div>';
+  };
+
+  /* (5) Table Footer — total/visible count + pagination. */
+  BoardInstance.prototype.tableFooterHtml = function () {
+    return '' +
+      '<div class="bf-table-footer stam-board-footer">' +
+        '<span class="bf-count stam-board-count" data-bf-count></span>' +
+        '<div class="bf-pg stam-board-pagination" data-bf-pagination></div>' +
+      '</div>';
+  };
+
+  /* drawer 골격 (register / detail / edit) — 5 section 외 공통 drawer. */
+  BoardInstance.prototype.drawersHtml = function () {
+    return '' +
       '<div class="bf-scrim stam-drawer-scrim" data-bf-scrim></div>' +
       '<div class="bf-drawer stam-drawer" data-bf-drawer="register" role="dialog" aria-modal="true" aria-label="등록"></div>' +
       '<div class="bf-drawer stam-drawer" data-bf-drawer="detail" role="dialog" aria-modal="true" aria-label="상세"></div>' +
@@ -325,11 +388,13 @@
     this.elDeleteLabel = r.querySelector('[data-bf-delete-label]');
   };
 
-  BoardInstance.prototype.bindStatic = function () {
+  /* ── render (1): Page Header — right actions (primary / secondary) ──
+   * config.actions.header 의 버튼을 우측 영역(data-bf-actions)에 렌더하고
+   * click 을 바인딩한다. title/description 정적 골격은 pageHeaderHtml() 담당. */
+  BoardInstance.prototype.renderPageHeader = function () {
     var self = this;
-
-    // header actions
     var actions = (this.config.actions && this.config.actions.header) || [];
+    this.elActions.innerHTML = '';
     actions.forEach(function (act) {
       var btn = el('<button class="stam-btn stam-board-action-btn ' +
         (act.variant === 'primary' ? 'stam-btn-primary is-primary' : 'stam-btn-outline is-secondary') +
@@ -342,8 +407,12 @@
       });
       self.elActions.appendChild(btn);
     });
+  };
 
-    // search (debounced, real filtering via dataSource)
+  BoardInstance.prototype.bindStatic = function () {
+    var self = this;
+
+    // (3) Toolbar — search (debounced, real filtering via dataSource)
     this.elSearch.addEventListener('input', function () {
       clearTimeout(self.searchTimer);
       self.searchTimer = setTimeout(function () {
@@ -353,13 +422,13 @@
       }, 180);
     });
 
-    // delete (in-memory)
+    // (3) Toolbar — bulk delete (in-memory)
     this.elDelete.addEventListener('click', function () {
       if (self.elDelete.disabled) return;
       self.deleteSelected();
     });
 
-    // table interactions (event delegation)
+    // (4) Table Body — row interactions (event delegation)
     this.elTbody.addEventListener('click', function (e) {
       var checkbox = e.target.closest('[data-bf-row-check]');
       if (checkbox) { self.toggleSelect(checkbox.getAttribute('data-bf-id'), checkbox.checked); return; }
@@ -446,7 +515,7 @@
       .then(function () {
         if (ds.summary) {
           return Promise.resolve(ds.summary(self.cloneQuery())).then(function (s) {
-            self.renderSummary(s || { metrics: {} });
+            self.renderSummaryStrip(s || { metrics: {} });
           });
         }
       })
@@ -482,8 +551,8 @@
     }));
   };
 
-  /* ── render: summary ────────────────────────────────────────── */
-  BoardInstance.prototype.renderSummary = function (summary) {
+  /* ── render (2): Summary Strip — config.summary.cells (label/value/sub/dot) ── */
+  BoardInstance.prototype.renderSummaryStrip = function (summary) {
     var cells = (this.config.summary && this.config.summary.cells) || [];
     if (!cells.length) { this.elSummary.hidden = true; return; }
     var metrics = summary.metrics || {};
@@ -500,7 +569,8 @@
     this.elSummary.innerHTML = html;
   };
 
-  /* ── render: table ──────────────────────────────────────────── */
+  /* ── render (4): Table Body — checkbox / columns / rows / empty state ──
+   * count + pagination(=Table Footer)은 renderTableFooter() 로 분리한다. */
   BoardInstance.prototype.renderTable = function (rows, total) {
     var self = this;
     var cols = this.config.columns || [];
@@ -532,13 +602,20 @@
       this.elTbody.innerHTML = rows.map(function (row) { return self.rowHtml(row, cols, ctx); }).join('');
     }
 
-    // count + pagination
+    // (5) Table Footer — total/visible count + pagination
+    this.renderTableFooter(rows, total);
+    this.syncSelectionUi();
+  };
+
+  /* ── render (5): Table Footer — total/visible count + pagination ──
+   * config.pageSize 로 페이지를 나누고, pagination !== false 일 때 페이지 버튼을 렌더한다. */
+  BoardInstance.prototype.renderTableFooter = function (rows, total) {
     var q = this.query;
     var start = (q.page - 1) * q.pageSize;
     var shown = Math.min(rows.length, q.pageSize);
     this.elCount.innerHTML = '총 <b>' + total + '</b>건 중 <b>' + (total === 0 ? 0 : (start + shown)) + '</b>건 표시';
+    if (this.config.pagination === false) { this.elPagination.innerHTML = ''; return; }
     this.renderPagination(total);
-    this.syncSelectionUi();
   };
 
   BoardInstance.prototype.rowHtml = function (row, cols, ctx) {
