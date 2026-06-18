@@ -230,6 +230,10 @@ body:has(.bf-page) .po-main { overflow-x: hidden; }
 /* ── drawer head / body / tabs (기존 STAM drawer padding 명시) ──
  * head top padding은 제목이 상단에 붙지 않도록 32px (left/right/bottom 유지). */
 .bf-dw-head { display: flex; flex-direction: column; gap: 8px; padding: 32px 24px 14px; }
+/* 제목 위 meta row(배지 + 상태 chip + 닫기) 숨김 — 제목 위에 chip이 보이지 않게.
+ * 등록/상세/수정 공통. 본문/table/relation/detail 의 정상 chip 은 영향 없음.
+ * 닫기는 footer '취소' · 스크림 클릭 · ESC 로 유지. (blanket chip 숨김 아님) */
+.bf-dw-head > .bf-dw-hrow1 { display: none; }
 .bf-dw-body { padding: 20px 24px 16px; }
 .bf-dw-hrow1 { display: flex; align-items: center; gap: 6px; }
 .bf-dw-badge {

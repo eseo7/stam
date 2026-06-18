@@ -342,6 +342,33 @@ STAM.boardFactory.mount(rootEl, config);
 
 - 브라우저 픽셀(실제 여백)은 chromium 미가용으로 **PENDING** — merge 전 Chrome/Edge 1회 확인 권장.
 
+## 8-8. Drawer header meta row 숨김 (제목 위 chip 미노출)
+
+사용자 DevTools 확인 결과, "유령 버튼 2개"는 버튼이 아니라 drawer header 최상단의
+**meta row**(`.bf-dw-head > .bf-dw-hrow1`)였다. 이 row는 배지(`.bf-dw-badge`,
+예 `FN-002`/`NEW`) + 상태 chip(`.bf-chip`, 예 `작성중`) + 닫기(`.bf-dw-close`)를 담고
+있고, 제목 위에 떠서 light/dark 모두에서 빈 버튼/chip처럼 보였다.
+
+- **보정(CSS 단독)**: `.bf-dw-head > .bf-dw-hrow1 { display: none; }`
+  - 등록/상세/수정 drawer 모두 동일 구조 → 한 번에 적용. 제목 위에 chip이 보이지 않음.
+  - **blanket 숨김 아님**: `.bf-chip`/`.bf-dw-badge` 전역 숨김이 아니라 **header 첫 row만**
+    한정. 본문 infoGrid/relation card/table의 status·type·priority·relation chip은 정상 유지.
+  - 닫기(X)는 row와 함께 숨겨지지만, **footer `취소` · 스크림 클릭 · ESC**로 닫기 유지.
+  - title top spacing 32px·body/footer padding·기타 보정 전부 그대로.
+
+| 항목 | DOM/CSS 검증 | 라이브 픽셀 |
+| --- | --- | --- |
+| 등록 drawer 제목 위 chip 숨김 | 규칙 적용(공통 selector) | PENDING |
+| 상세 drawer 제목 위 chip 숨김 | 동일 | PENDING |
+| 수정 drawer 제목 위 chip 숨김 | 동일 | PENDING |
+| 본문/table/relation/detail 정상 chip 유지 | selector가 header 첫 row만 한정 | PENDING |
+| light/dark 동일 | display:none, 테마 무관 | PENDING |
+
+- **회귀(jsdom 45 PASS·`console.error` 0)**: title 32px, footer stroke, 필터/삭제 height,
+  삭제 hover, active bar, 내보내기/기능등록 icon, drawer padding, footer/action icon,
+  select 중복 해소, validation 문구, idName 한 줄, required 차단 **모두 유지**. CSS 134/134 균형.
+- 브라우저 픽셀(실제 숨김·정상 chip 유지)은 chromium 미가용으로 **PENDING** — merge 전 1회 확인 권장.
+
 ## 9. 다음 PR 후보 (PR #137~)
 
 - 라이브 브라우저 시각 QA 결과 반영(스크린샷 첨부)
