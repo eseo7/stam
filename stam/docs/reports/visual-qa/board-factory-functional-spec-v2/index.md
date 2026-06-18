@@ -275,6 +275,26 @@ STAM.boardFactory.mount(rootEl, config);
 - **브라우저 픽셀 QA는 사용자 로컬 확인 필요**: 실제 hover 색·active bar 표시·아이콘 정렬·드로워 여백·
   다크 모드 시각은 환경상 chromium 미가용으로 **PENDING**. merge 전 Chrome/Edge 1회 확인 권장.
 
+## 8-5. Drawer title top spacing 보정
+
+사용자 로컬 브라우저 QA: 등록/상세/수정 drawer에서 **제목이 상단에 너무 붙어 보임**.
+
+- **보정(CSS 단독)**: `.bf-dw-head` top padding `16px → 22px` (left/right/bottom·body/footer
+  padding·필드 38px·active bar·footer 아이콘 등 기존 보정값 전부 유지). 등록/상세/수정 모두
+  동일 `.bf-dw-head` 사용 → 한 번에 적용. JS/저장/route 변경 없음.
+- dark mode: padding은 테마 무관 동일 적용.
+
+| 항목 | DOM/CSS 검증 | 라이브 픽셀 |
+| --- | --- | --- |
+| 등록 drawer 제목 상단 간격 | CSS padding-top 22px 적용 | PENDING |
+| 상세 drawer 제목 상단 간격 | 동일 클래스 적용 | PENDING |
+| 수정 drawer 제목 상단 간격 | 동일 클래스 적용 | PENDING |
+| light/dark 동일 | 테마 무관 padding | PENDING |
+| 필드 38px / footer 아이콘 / active bar 회귀 | jsdom 45 PASS·`console.error` 0 | — |
+| 기존 기능정의서 diff | 0 | — |
+
+- 브라우저 픽셀(실제 여백 시각)은 환경상 chromium 미가용으로 **PENDING** — merge 전 Chrome/Edge 1회 확인 권장.
+
 ## 9. 다음 PR 후보 (PR #137~)
 
 - 라이브 브라우저 시각 QA 결과 반영(스크린샷 첨부)
