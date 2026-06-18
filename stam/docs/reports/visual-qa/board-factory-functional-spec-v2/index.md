@@ -255,6 +255,26 @@ STAM.boardFactory.mount(rootEl, config);
   select 중복·validation 문구 **회귀 없음**(보조 테스트 11항목 PASS).
 - 라이브 픽셀(ellipsis 실제 표시·1366/1920/좁은 폭)은 §8-2와 동일하게 **PENDING**.
 
+## 8-4. UI 보정 라운드 2 (삭제 hover · active bar · 버튼 아이콘 · 드로워 padding)
+
+사용자 로컬 브라우저 QA 추가 지적(1~6) 대응. UI 보정만 수행, 저장/route 미변경.
+
+| # | 항목 | 보정 내용 | DOM/CSS 검증 | 라이브 픽셀 |
+| --- | --- | --- | --- | --- |
+| 1 | 삭제 버튼 hover | 하드코딩 `#DC2626` → **토큰** `var(--btn-danger-bg)` border·color + `var(--fail-bg)` 배경(라이트/다크 자동) | CSS 토큰 resolve | PENDING |
+| 2 | 행 클릭 active bar | 행 클릭→상세 시 해당 row `.is-active` 부여(좌측 bar는 `table-selection.css` 공통). 다른 행 클릭 시 이동, **drawer 전환(detail→edit) 시 유지**, 사용자 닫기(스크림/ESC/닫기·취소) 시 해제. refresh 후에도 `syncSelectionUi`가 재적용 | jsdom: 설정/이동/유지/해제 PASS | PENDING |
+| 3 | 상단 버튼 아이콘 | Board Factory **action config에 `icon`** 추가(`내보내기`=export, `기능 등록`=plus). factory가 `action.icon`을 icon registry로 렌더(하드코딩 X) | jsdom: svg 존재·currentColor PASS | PENDING |
+| 4 | 상세 드로워 padding/아이콘 | `.bf-dw-head 16/24/14`·`.bf-dw-body 20/24/16` 명시, 탭 음수마진 제거(overflow 방지). footer `수정`=edit(pencil) 아이콘 | jsdom: bf-dw-body·아이콘 PASS | PENDING |
+| 5 | 등록/수정 드로워 padding/아이콘 | 동일 padding, input/select/cs-trigger 38px 유지. footer `임시저장`=save·`등록`=plus·`저장`=save, `취소`/`전체 보기` 텍스트 전용 | jsdom: 아이콘·body PASS | PENDING |
+| 6 | dark mode | 아이콘 `currentColor`(variant 색 상속), 삭제 hover·active bar·padding 모두 토큰/공통 클래스 기반 → 다크 자동 | CSS 토큰 기반 확인 | PENDING |
+
+- **icon registry**: 최소 set만(`plus / export / save / edit`), `currentColor` 기반. 후속 공통화 재사용 구조.
+- **검증 합계**: `node --check` PASS, jsdom 메인 45 + 본 라운드 16 + 회귀 6 PASS, `console.error` 0,
+  CSS 131/131 균형·토큰 전부 resolve. 기존 기능정의서 diff **0**, 금지 파일 변경 **없음**
+  (`board-filter.js`·`custom-select.js`·`nav-data.js`·`shell.js`·`topbar-render.js` 미수정).
+- **브라우저 픽셀 QA는 사용자 로컬 확인 필요**: 실제 hover 색·active bar 표시·아이콘 정렬·드로워 여백·
+  다크 모드 시각은 환경상 chromium 미가용으로 **PENDING**. merge 전 Chrome/Edge 1회 확인 권장.
+
 ## 9. 다음 PR 후보 (PR #137~)
 
 - 라이브 브라우저 시각 QA 결과 반영(스크린샷 첨부)

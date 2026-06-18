@@ -102,7 +102,12 @@ body:has(.bf-page) .po-main { overflow-x: hidden; }
   transition: background 120ms, color 120ms, border-color 120ms;
 }
 .bf-del-btn svg { width: 12px; height: 12px; }
-.bf-del-btn:not([disabled]):hover { border-color: #DC2626; color: #DC2626; }
+/* danger hover — 토큰 기반(라이트/다크 자동). 기존 STAM danger 톤. */
+.bf-del-btn:not([disabled]):hover {
+  border-color: var(--btn-danger-bg);
+  color: var(--btn-danger-bg);
+  background: var(--fail-bg);
+}
 .bf-del-btn[disabled] { opacity: .5; cursor: not-allowed; }
 
 /* ── table card (기존 fn-tbl 밀도) ───────────────────────────── */
@@ -219,8 +224,9 @@ body:has(.bf-page) .po-main { overflow-x: hidden; }
  */
 .bf-cs-native { display: none !important; }
 
-/* ── drawer head / tabs ─────────────────────────────────────── */
-.bf-dw-head { display: flex; flex-direction: column; gap: 8px; }
+/* ── drawer head / body / tabs (기존 STAM drawer padding 명시) ── */
+.bf-dw-head { display: flex; flex-direction: column; gap: 8px; padding: 16px 24px 14px; }
+.bf-dw-body { padding: 20px 24px 16px; }
 .bf-dw-hrow1 { display: flex; align-items: center; gap: 6px; }
 .bf-dw-badge {
   display: inline-flex; align-items: center; height: 20px;
@@ -235,8 +241,8 @@ body:has(.bf-page) .po-main { overflow-x: hidden; }
 }
 .bf-dw-close:hover { background: var(--surf-hover); color: var(--t1); }
 .bf-dw-tabs {
-  display: flex; gap: 4px; margin: 0 calc(-1 * var(--stam-drawer-head-px, 24px)) 4px;
-  padding: 0 var(--stam-drawer-head-px, 24px);
+  display: flex; gap: 4px; margin: 0 0 4px;
+  padding: 0 24px;
   border-bottom: 1px solid var(--bd);
 }
 .bf-dw-tab {

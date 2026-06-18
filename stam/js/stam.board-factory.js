@@ -65,6 +65,28 @@
     return label + josEulReul(label) + ' ' + verb + '하세요.';
   }
 
+  /* ── icon registry (최소 set: plus / export / save / edit) ──────
+   * 모든 path 는 currentColor 사용 → 버튼 variant 색을 따른다.
+   * action.icon / footer 버튼에서 재사용. 과한 registry 확장은 지양.
+   */
+  var ICONS = {
+    plus:   '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+    export: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+    save:   '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/>',
+    edit:   '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>'
+  };
+  function iconSvg(name, opts) {
+    var inner = ICONS[name];
+    if (!inner) return '';
+    opts = opts || {};
+    var size = opts.size || 12;
+    var sw = name === 'plus' ? 2.5 : 2;
+    var cls = opts.cls ? ' class="' + opts.cls + '"' : '';
+    return '<svg' + cls + ' width="' + size + '" height="' + size + '" viewBox="0 0 24 24" ' +
+      'fill="none" stroke="currentColor" stroke-width="' + sw + '" stroke-linecap="round" ' +
+      'stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
+  }
+
   /* ── built-in column renderers ──────────────────────────────────
    * 각 renderer: (row, col, ctx) → HTML string
    * checkbox / actionButtons 는 행 템플릿에서 별도 처리한다.
@@ -214,6 +236,7 @@
     };
     this.refCache = {};
     this.selected = {};      // id → true
+    this.activeId = null;    // 현재 상세가 열린 행 id (좌측 active bar)
     this.lastRows = [];
     this.searchTimer = null;
   }
@@ -311,7 +334,8 @@
       var btn = el('<button class="stam-btn stam-board-action-btn ' +
         (act.variant === 'primary' ? 'stam-btn-primary is-primary' : 'stam-btn-outline is-secondary') +
         '" type="button"></button>');
-      btn.textContent = act.label;
+      btn.innerHTML = (act.icon ? iconSvg(act.icon, { cls: 'stam-board-action-icon' }) : '') +
+        '<span>' + esc(act.label) + '</span>';
       btn.addEventListener('click', function () {
         if (act.action === 'register') self.openRegister();
         else if (typeof act.onClick === 'function') act.onClick(self);
@@ -595,9 +619,11 @@
     var n = ids.length;
     this.elDelete.disabled = n === 0;
     this.elDeleteLabel.textContent = n === 0 ? '삭제' : '삭제(' + n + ')';
-    // reflect row .is-selected
+    // reflect row .is-selected / .is-active (좌측 bar는 table-selection.css 공통)
     this.elTbody.querySelectorAll('[data-bf-row]').forEach(function (row) {
-      row.classList.toggle('is-selected', !!this.selected[row.getAttribute('data-bf-id')]);
+      var rid = row.getAttribute('data-bf-id');
+      row.classList.toggle('is-selected', !!this.selected[rid]);
+      row.classList.toggle('is-active', this.activeId === rid);
     }.bind(this));
     var checkAll = this.elThead.querySelector('[data-bf-check-all]');
     if (checkAll) {
@@ -631,6 +657,18 @@
     if (window.STAM.customSelect) window.STAM.customSelect.closeAll(document, CS_CFG);
     this.elScrim.classList.remove('show');
     this.root.querySelectorAll('.bf-drawer.open').forEach(function (d) { d.classList.remove('open'); });
+    // 사용자 닫기(스크림/ESC/닫기·취소)일 때만 active row 해제. drawer 전환(silent)은 유지.
+    if (!silent) this.clearActiveRow();
+  };
+
+  /* ── active row (행 클릭 → 좌측 active bar) ─────────────────── */
+  BoardInstance.prototype.setActiveRow = function (id) {
+    this.activeId = id;
+    this.syncSelectionUi();
+  };
+  BoardInstance.prototype.clearActiveRow = function () {
+    this.activeId = null;
+    this.syncSelectionUi();
   };
 
   BoardInstance.prototype.switchTab = function (tab) {
@@ -688,15 +726,16 @@
         '<div class="bf-fgrid stam-form-grid">' + fields + '</div></div>';
     }).join('') + '</div>';
 
+    var submitIcon = isEdit ? iconSvg('save', { size: 11 }) : iconSvg('plus', { size: 11 });
     var foot = '<div class="stam-drawer-foot">' +
       '<div class="stam-dw-foot-left">' +
         '<button class="stam-btn stam-btn-ghost" type="button" data-bf-close>취소</button>' +
-        '<button class="stam-btn stam-btn-outline" type="button" data-bf-noop title="preview - 미저장">임시저장</button>' +
+        '<button class="stam-btn stam-btn-outline" type="button" data-bf-noop title="preview - 미저장">' + iconSvg('save', { size: 11 }) + '임시저장</button>' +
         '<button class="stam-btn stam-btn-ghost" type="button" data-bf-noop>전체 보기</button>' +
       '</div>' +
       '<div class="stam-dw-foot-spacer"></div>' +
       '<div class="stam-dw-foot-right">' +
-        '<button class="stam-btn stam-btn-primary" type="button" data-bf-submit="' + mode + '"' + (isEdit ? ' data-bf-id="' + esc(idValue) + '"' : '') + '>' + (isEdit ? '저장' : '등록') + '</button>' +
+        '<button class="stam-btn stam-btn-primary" type="button" data-bf-submit="' + mode + '"' + (isEdit ? ' data-bf-id="' + esc(idValue) + '"' : '') + '>' + submitIcon + (isEdit ? '저장' : '등록') + '</button>' +
       '</div>' +
     '</div>';
 
@@ -823,7 +862,8 @@
       return self.resolveRefs([record]).then(function () {
         var d = self.drawerEl('detail');
         d.innerHTML = self.detailDrawerHtml(record);
-        self.openDrawerEl('detail');
+        self.openDrawerEl('detail');     // closeDrawers(true) — active 유지
+        self.setActiveRow(id);           // 클릭 행에 좌측 active bar
       });
     });
   };
@@ -862,7 +902,7 @@
       '<div class="stam-dw-foot-spacer"></div>' +
       '<div class="stam-dw-foot-right">' +
         '<button class="stam-btn stam-btn-ghost" type="button" data-bf-noop>전체 보기</button>' +
-        '<button class="stam-btn stam-btn-primary" type="button" data-bf-open="edit" data-bf-id="' + esc(idValue) + '">수정</button>' +
+        '<button class="stam-btn stam-btn-primary" type="button" data-bf-open="edit" data-bf-id="' + esc(idValue) + '">' + iconSvg('edit', { size: 11 }) + '수정</button>' +
       '</div></div>';
 
     return head + tabBar + body + foot;

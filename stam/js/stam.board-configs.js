@@ -260,8 +260,8 @@
 
     actions: {
       header: [
-        { label: '내보내기', variant: 'outline' },
-        { label: '기능 등록', variant: 'primary', action: 'register' }
+        { label: '내보내기', variant: 'outline', icon: 'export' },
+        { label: '기능 등록', variant: 'primary', action: 'register', icon: 'plus' }
       ]
     },
 
