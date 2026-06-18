@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>기능정의서 v2 (Preview) — 파르나스 리뉴얼 구축 — STAM</title>
+  <link rel="icon" href="../../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+  <link rel="stylesheet" href="../../css/stam.tokens.css">
+  <link rel="stylesheet" href="../../css/stam.shell.css">
+  <link rel="stylesheet" href="../../css/stam.components.css">
+  <link rel="stylesheet" href="../../css/stam.project-overview.css">
+  <link rel="stylesheet" href="../../css/stam.form-controls.css">
+  <link rel="stylesheet" href="../../css/stam.drawer.css">
+  <link rel="stylesheet" href="../../css/stam.table-selection.css">
+  <link rel="stylesheet" href="../../css/stam.buttons.css">
+  <link rel="stylesheet" href="../../css/stam.board-toolbar.css">
+  <link rel="stylesheet" href="../../css/stam.board-filter.css">
+  <link rel="stylesheet" href="../../css/stam.board-layout.css">
+  <link rel="stylesheet" href="../../css/stam.custom-select.css">
+  <link rel="stylesheet" href="../../css/stam.board-factory.css">
+</head>
+<body>
+
+<div class="po-shell">
+
+  <header class="po-topbar stam-topbar" data-stam-topbar
+    data-tb-crumbs="내 프로젝트|파르나스 리뉴얼 구축|기능정의서 v2"
+    data-tb-client="파르나스호텔"
+    data-tb-search-placeholder="기능 ID · 기능명 검색"
+    data-tb-notif="true"></header>
+
+  <div class="po-body">
+
+    <nav class="po-sidebar" data-stam-left-nav aria-label="프로젝트 내비게이션"></nav>
+
+    <main class="po-main" id="po-main" data-screen-label="기능정의서 v2">
+
+      <section class="po-ctx" data-stam-project-context
+        data-pc-title="파르나스 리뉴얼 구축"
+        data-pc-client="파르나스호텔"
+        data-pc-stage="설계 단계"
+        data-pc-status="진행중"
+        data-pc-role="Project Admin / PM"
+        data-pc-date="기준일 2026-06-07"
+        data-pc-progress="42"
+        data-pc-risk="주의"
+        data-pc-risk-level="warn"
+        data-pc-updated="업데이트 오늘 10:42"></section>
+
+      <section class="bf-page">
+        <!-- Preview 안내: Board Factory v1.2 기반 미리보기 (static/in-memory) -->
+        <div class="bf-preview-note" role="note">
+          <strong>Board Factory v1.2 Preview</strong>
+          — 이 화면은 공통 게시판 엔진으로 렌더링된 기능정의서 v2 미리보기입니다.
+          데이터는 static/in-memory이며 새로고침 시 초기화됩니다. 기존 기능정의서는 그대로 유지됩니다.
+        </div>
+        <div id="stam-board-factory-root"></div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script src="../../js/stam.theme.js"></script>
+<script src="../../js/stam.nav-data.js"></script>
+<script src="../../js/stam.shell.js"></script>
+<script src="../../js/stam.nav-render.js"></script>
+<script src="../../js/stam.topbar-render.js"></script>
+<script src="../../js/stam.project-context-render.js"></script>
+<script src="../../js/stam.board-filter.js"></script>
+<script src="../../js/stam.custom-select.js"></script>
+<script src="../../js/stam.board-factory.js"></script>
+<script src="../../js/stam.board-configs.js"></script>
+<script>
+  (function () {
+    if (window.STAM && window.STAM.navRender) {
+      window.STAM.navRender.init('B5');
+    }
+    var root = document.getElementById('stam-board-factory-root');
+    var config = window.STAM && window.STAM.boardConfigs && window.STAM.boardConfigs.functionalSpecificationV2;
+    if (root && config && window.STAM.boardFactory) {
+      window.STAM.boardFactory.mount(root, config);
+    }
+  }());
+</script>
+
+</body>
+</html>
