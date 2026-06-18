@@ -70,6 +70,18 @@
 - 다른 컬럼(id/name / chip / date / actionButtons) 정렬 — 무변경(보정은 `.stam-check-cell` 한정).
 - `stam.table-selection.css` / `stam.icons.css` / `assets/icons/**` — 미수정.
 
+## 6-A. QA 진입점 — Board Factory v2 Preview Index
+
+사용자 QA 편의를 위해 **`stam/pages/boards-v2/index.html`** preview index 를 추가했다.
+
+- 이 index 는 **기존 Left Menu / nav-data 변경이 아니다** — App Shell 에 붙지 않는 독립 standalone QA 허브이며, 기존 제품 route 는 그대로 유지된다.
+- 이 index 에서 카드 3개로 v2 화면에 진입해 checkbox alignment QA 를 진행한다:
+  - 요구사항 v2 → `./requirements.html`
+  - 메뉴/화면목록 v2 → `./menu-screen-list.html`
+  - 기능정의서 v2 → `./functional-specification.html`
+- 색/폰트는 `stam.tokens.css` + 자체서빙 S-Core Dream 만 사용(외부 CDN 0), light/dark 는 공통 `stam.theme.js` 가 `localStorage(stam.theme)` 기준으로 대응. 스타일은 별도 CSS 신설 없이 index.html inline `<style>` 한정.
+- **기존 v1 route / nav-data / nav-render / shell / topbar-render / board-factory.js / board-configs.js 영향 없음** — 신규 파일 1개(`index.html`) 추가만.
+
 ## 7. 브라우저 QA 체크리스트 (PENDING — 사용자 브라우저 QA)
 
 ### 7-1. checkbox 정렬
