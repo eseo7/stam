@@ -210,25 +210,18 @@ required: FO/BO, 화면명, 화면유형.
 
 ### 12-5. 메뉴구조 v2 drawer 확인
 
-사용자 로컬 브라우저 QA 결과:
+사용자 로컬 브라우저 QA 결과 — **전 항목 PASS**:
 
-- [x] 등록 drawer footer — **stroke 정상 표시 확인 완료**
-  - [x] `취소` (ghost) — stroke 보임
-  - [x] `임시저장` (outline + icon) — stroke 보임
-  - [x] `전체 보기` (ghost) — stroke 보임
-  - [x] `등록` (primary) — filled purple 유지
-- [ ] 상세 drawer footer — PENDING (사용자 브라우저 QA)
-  - ghost / primary 공통 기준 동일 selector 적용
-- [ ] 수정 drawer footer — PENDING (사용자 브라우저 QA)
-  - ghost / outline / primary 공통 기준 동일 selector 적용
+- [x] 등록 drawer footer — `취소` (ghost) / `임시저장` (outline) / `전체 보기` (ghost) stroke 보임, `등록` (primary) filled purple 유지.
+- [x] 상세 drawer footer — `전체 보기` (ghost) stroke 보임, `수정` (primary) filled 유지.
+- [x] 수정 drawer footer — `취소` / `임시저장` / `전체 보기` stroke 보임, `저장` (primary) filled 유지.
 
 ### 12-6. 기능정의서 v2 회귀 확인
 
-- 기능정의서 v2(`boards-v2/functional-specification.html`) 와 메뉴구조 v2(`boards-v2/menu-screen-list.html`) 는 **동일한** `stam.board-factory.css` / `stam.board-factory.js` 를 공유. 본 보정은 공통 selector(`.bf-drawer .stam-drawer-foot .stam-btn-*`) 에 적용되므로, 기능정의서 v2 footer 에도 동일 기준이 자동 적용된다.
-- PR #136 ghost-only 규칙은 본 회차에서 outline/secondary 추가 + `border` shorthand 강화로 **동등 또는 더 강한 stroke** 가 되며, 기존 fn-spec 시각 기준은 동일하거나 향상.
-- [ ] `/stam/pages/boards-v2/functional-specification.html` 등록/상세/수정 drawer footer stroke 회귀 확인 — PENDING (사용자 브라우저 QA)
-- [ ] primary filled 유지 — 본 블록은 primary 미관여, 회귀 가능성 없음
-- [ ] toolbar 버튼 height / icon — 본 블록 scope 가 `.bf-drawer .stam-drawer-foot` 한정, toolbar 영향 없음
+- 기능정의서 v2(`boards-v2/functional-specification.html`) 와 메뉴구조 v2(`boards-v2/menu-screen-list.html`) 는 **동일한** `stam.board-factory.css` / `stam.board-factory.js` / `stam.board-configs.js` 를 공유. 본 보정은 공통 selector(`.bf-drawer .stam-drawer-foot .stam-btn-*`) 에 적용되므로, 기능정의서 v2 footer 에도 동일 기준이 자동 적용된다.
+- [x] `/stam/pages/boards-v2/functional-specification.html` 등록/상세/수정 drawer footer stroke — **회귀 없음** (사용자 브라우저 QA 확인 완료)
+- [x] primary filled 유지 — 본 블록은 primary 미관여, 회귀 없음
+- [x] toolbar 버튼 height / icon — 본 블록 scope 가 `.bf-drawer .stam-drawer-foot` 한정, toolbar 영향 없음 (사용자 확인 완료)
 
 ### 12-7. 공통화 재발 방지 체크리스트 (Adoption Checklist 보강)
 
@@ -236,24 +229,32 @@ required: FO/BO, 화면명, 화면유형.
 - 신규 보드는 `boardFactory.mount` 만으로 동일 stroke 기준이 적용된다 → 개별 화면 patch CSS 금지.
 - 다음 보드(요구사항 v2) 에서는 footer stroke QA 가 회귀로 보고되어선 안 된다.
 
-### 12-8. 동시 회귀 확인 항목 (메뉴구조 v2, PENDING)
+### 12-8. 동시 회귀 확인 항목 (메뉴구조 v2)
 
-ghost/outline/secondary stroke 외에 PR #136 에서 확정된 아래 기준이 메뉴구조 v2 에서도 깨지지 않는지 사용자 브라우저 확인 필요.
+ghost/outline/secondary stroke 외에 PR #136 에서 확정된 아래 기준 — 사용자 브라우저 QA **전 항목 PASS**.
 
-- [ ] drawer title clipping 없음
-- [ ] header meta chip-only hidden 동작 유지
-- [ ] drawer padding / drawer footer layout 정상
-- [ ] footer button icon 정상
-- [ ] toolbar 검색/필터/삭제/등록/내보내기 height / icon 정상
-- [ ] row selected active bar 정상
-- [ ] delete hover 정상
-- [ ] custom select 중복 없음 (`bf-cs-native` hidden)
-- [ ] status / type / FO/BO / relation chip 정상
-- [ ] light / dark 회귀 없음
-- [ ] 1366 / 1920 가로 깨짐 없음
+- [x] drawer title clipping 없음
+- [x] header meta chip-only hidden 동작 유지
+- [x] drawer padding / drawer footer layout 정상
+- [x] footer button icon 정상
+- [x] toolbar 검색/필터/삭제/등록/내보내기 height / icon 정상
+- [x] row selected active bar 정상
+- [x] delete hover 정상
+- [x] custom select 중복 없음 (`bf-cs-native` hidden)
+- [x] status / type / FO/BO / relation chip 정상
 
-### 12-9. light / dark / 1366 / 1920 검증
+### 12-9. 테마 / 뷰포트 검증
 
-- light mode — PENDING (사용자 브라우저 QA)
-- dark mode — PENDING (사용자 브라우저 QA)
-- 1366 / 1920 — PENDING (사용자 브라우저 QA)
+사용자 브라우저 QA 결과:
+
+- [x] light mode — **PASS**
+- [x] dark mode — **PASS**
+- [x] 1920px — **PASS**
+- [x] 1366px — **PASS**
+- [x] console error — **0**
+- [ ] narrow / mobile — **DEFERRED — Board Factory mobile optimization is not part of PR #138.** 후속 작업으로 분리.
+
+### 12-10. 후속 작업 후보
+
+- **Board Factory responsive layout baseline** (mobile/narrow viewport pass) — narrow/mobile 폭(≤820, ≤480) 에서 summary 응답형, toolbar wrap, search 100%, form 1열 등 PR #136 §6-3 / §8-3 잔여 항목을 공통 레이어 기준으로 정리. 본 PR #138 범위 밖.
+- 이번 보정으로 ghost/outline/secondary footer stroke 기준이 공통 레이어에 정착했으므로, 후속 보드(요구사항 v2 등)에서는 동일 footer stroke QA 가 회귀로 보고되어선 안 된다.
