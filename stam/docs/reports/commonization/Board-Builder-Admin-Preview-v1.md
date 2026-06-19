@@ -230,3 +230,38 @@ Drag & Drop 순서 변경 · 위/아래 이동 · 중간 삽입 · 삭제 · req
 ### 14-5. 남은 QA (PENDING)
 
 스크린샷(1920/1366 light·dark) · 브라우저 DnD/토글/복원/콘솔 0 은 **사용자 브라우저 QA**(본 환경 헤드리스 브라우저 미가용). narrow/mobile DEFERRED.
+
+## 15. 회차 5 — 레이아웃 스크롤 구조 보정 (body scroll 금지 · 고정 Shell · 좌측 내부 스크롤)
+
+> 회차 4 의 제품형 UX(문구/단계/카드/요약)는 **그대로 유지**하고, **스크롤/레이아웃 구조만** 정리한다. 디자인 재구성 아님. **Board Builder 화면 전용**, 엔진/기존 v1·v2 3화면/`index.html`/nav·shell·topbar **diff 0**, JS 로직·저장 키 불변, API/Firestore/fetch 0. head `7c04fb2` 기준. Draft 유지.
+
+### 15-1. 사용자 QA 피드백
+
+- 좌측 내용이 **페이지 전체 스크롤과 함께 위로 올라가고**, 우측 Preview 는 `position: sticky` 로 붙어 있어 **좌/우가 따로 노는** 느낌.
+- 기준: Topbar 고정 · 전체 Board Builder 화면을 viewport 안에 고정 · 좌우 2분할 Shell 고정 · 좌측 내용 영역만 내부 스크롤(스크롤바는 좌/우 divider 쪽) · 우측은 sticky 가 아니라 Shell 안 고정 패널 · 좌측 하단 액션바 고정 · body/page 전체 스크롤 금지.
+
+### 15-2. 보정 방향 (구조만)
+
+- **body/page 전체 스크롤 제거**: 본 페이지 scope 한정 `html, body { height: 100% }` + `body { overflow: hidden }` (inline `<style>` 한정 → 전역 영향 없음). `.bb-wrap` = `height: 100dvh` + `display: flex; flex-direction: column; overflow: hidden`.
+- **Topbar(헤더) 고정**: `.bb-head { flex: 0 0 auto }`. 나머지 영역은 Shell.
+- **고정 Shell**: `.bb-cols → .bb-shell` = `flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(420px,520px) minmax(0,1fr); grid-template-rows: minmax(0,1fr); overflow: hidden`. 행을 컨테이너 높이에 고정해 내부 패널 스크롤을 보장.
+- **좌측 내부 스크롤 + 하단 액션바 고정**: `.bb-panel--form`(flex column) 내부를 `.bb-form-scroll`(`flex:1; min-height:0; overflow-y:auto` — 기본 정보/템플릿/필드 구성) + `.bb-form-foot`(`flex:0 0 auto` — 초기화/JSON 복사/게시판 초안 보기) 로 분리. 필드 카드가 길어져도 페이지가 밀려 올라가지 않음.
+- **우측 sticky 제거 → 고정 패널화**: `.bb-panel--preview` 의 `position: sticky` 삭제. `.bb-preview`(flex column) 내부 요약(`.bb-rp-head`)·탭(`.bb-tabs`)은 고정, **탭 내용(`.bb-tabpanels`)만 `overflow-y: auto`** 로 우측 내부에서만 스크롤.
+- **divider + 스크롤바 위치**: 좌/우 경계는 `.bb-panel--form { border-right }`. 좌측 scrollbar 는 scroll 영역 오른쪽 경계(= divider 쪽)에 표시(webkit scrollbar 스타일 지정).
+- **footer 재배치**: 기존 `.bb-foot` 하단 링크는 헤더 우측 `← 목록` 링크로 이동(페이지 스크롤 유발 요소 제거).
+- **narrow(≤1180) 폴백**: 고정 Shell 해제 → 자연 스크롤 1-column 스택(narrow/mobile DEFERRED 유지).
+
+### 15-3. 검증 (회차 5)
+
+- `node --check` ×4 **PASS** · `buildConfig` 회귀 **13/13** · `init()` DOM smoke **PASS** (JS 미변경) · inline CSS 중괄호 **177/177 BALANCED**.
+- 스크롤 구조 CSS 정적 검증 **all PASS**: body overflow hidden · `.bb-wrap` 100dvh/flex/overflow hidden · `.bb-head` 고정 · `.bb-shell` grid+flex:1+min-height:0+rows minmax(0,1fr) · `.bb-form-scroll` overflow-y auto · `.bb-form-foot` 고정 · `.bb-preview`/`.bb-tabpanels` 내부 스크롤 · **position:sticky 미사용** (evidence `layout-scroll-structure.json`).
+- 변경 파일: `board-builder.html` (구조/CSS만) (+ 본 문서, + evidence). `stam.board-builder-preview.js` **로직 변경 0**(데이터 hook·이벤트 위임 그대로 → 기능 회귀 없음). 엔진/board-configs/field-schema/nav/v1/boards-v2 3화면/index.html **diff 0**.
+- 1366 / 1920: 고정 2분할 Shell·좌측 내부 스크롤·하단 액션바 고정·우측 비-sticky 고정 — CSS 구조상 충족. **실제 픽셀/스크롤 감각/가로 스크롤 0 은 사용자 브라우저 QA(PENDING)**(헤드리스 브라우저 미가용).
+
+### 15-4. 유지한 기능 (회귀 없음)
+
+Drag&Drop · 위/아래 · 중간 삽입 · 삭제 · required 동기화(↔drawer marker↔JSON) · 목록/필터/입력폼 토글 · Preview 즉시 반영 · JSON 복사(좌측 하단 + JSON 탭) · localStorage 저장/복원 · 초기화. 액션 버튼은 `.bb-form-foot` 로 이동했으나 `data-bb-action` hook + `#bb-app` 이벤트 위임 그대로 → 동작 동일. API/Firestore/fetch 0.
+
+### 15-5. 남은 QA (PENDING — 사용자 브라우저)
+
+1366 / 1920 시각 확인 · 콘솔 오류 0 · 실제 마우스 DnD 감각 · 클립보드 복사 · dark mode · 가로 스크롤 0.

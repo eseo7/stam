@@ -61,6 +61,18 @@ node --check stam/js/stam.board-builder-preview.js
 | `dnd-before.json` / `dnd-after.json` | 필드 순서 변경(`d` 맨 앞 이동) → 생성 columns 순서 반영 |
 | `visibility-toggle.json` | 목록 OFF / 입력폼 ON 필드가 columns 제외·drawer 포함 |
 | `console_errors.json` | 정적/스모크 범위 console error 0 |
+| `layout-scroll-structure.json` | (회차 5) Shell/스크롤 구조 CSS 정적 검증 — body overflow hidden · 고정 Shell · 좌측 내부 스크롤 · 우측 비-sticky 내부 스크롤 · position:sticky 미사용 **all PASS** |
+
+## 4-1. 회차 5 — 레이아웃 스크롤 구조 보정
+
+> 회차 4 UX 유지, 스크롤/레이아웃 구조만 정리. 상세: 본문 문서 §15.
+
+- body/page 전체 스크롤 제거(페이지 scope `body { overflow:hidden }`) · `.bb-wrap` 100dvh flex column.
+- Topbar(헤더) 고정 · 고정 Shell(`.bb-shell` grid + `grid-template-rows: minmax(0,1fr)`).
+- 좌측 내부 스크롤(`.bb-form-scroll`) + 하단 액션바 고정(`.bb-form-foot`) · 스크롤바는 divider 쪽.
+- 우측 `position: sticky` 제거 → Shell 안 고정 패널, 탭 내용(`.bb-tabpanels`)만 내부 스크롤.
+- JS 로직 변경 0(데이터 hook·이벤트 위임 유지) → 기능 회귀 없음. 검증: `layout-scroll-structure.json` all PASS.
+- 1366/1920 실제 픽셀·스크롤 감각·가로 스크롤 0 은 사용자 브라우저 QA(PENDING).
 
 ## 5. 남은 QA 항목 (사용자 브라우저 QA — PENDING)
 
