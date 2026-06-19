@@ -55,6 +55,9 @@
   var SAMPLE_USERS = ['김민준', '이수빈', '박지호'];
   var TEMPLATE_LABEL = '목록 + 필터 + 등록 Drawer + 상세 Drawer + 수정 Drawer';
 
+  /* 필드 카드 액션 아이콘 (inline SVG, 외부 asset 0) */
+  var SVG_TRASH = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+
   /* ── utils ───────────────────────────────────────────────────── */
   function esc(v) {
     if (v === null || v === undefined) return '';
@@ -235,65 +238,85 @@
       slug: q(root, '[data-bb="slug"]'),
       description: q(root, '[data-bb="description"]'),
       fields: q(root, '[data-bb-fields]'),
+      fieldCount: q(root, '[data-bb-fieldcount]'),
       preview: q(root, '[data-bb-preview]')
     };
     if (!els.fields) return null;
 
     var fields = clone(RECOMMENDED_FIELDS);
-    var hasGenerated = false;
     var activeTab = 'screen';
     var dragIndex = -1;
+    var advOpen = []; // 고급 설정이 열린 필드 key 목록 (구조 re-render 간 유지)
 
-    /* ── 필드 카드 렌더 ───────────────────────────────────────── */
+    /* ── 필드 카드 렌더 ───────────────────────────────────────────
+     * 기본 노출: 순서/드래그 · 필드명 · 입력 방식(type) · 필수 · 표시 위치(목록/필터/입력폼) · 옵션.
+     * 고급 설정(접힘): key · raw type · engine 매핑. key/raw type 은 첫 화면에 노출하지 않는다. */
     function typeOptions(sel) {
       return BUILDER_FIELD_TYPES.map(function (t) {
         var meta = (window.STAM.boardFieldSchema && window.STAM.boardFieldSchema.types[t]) || {};
-        return '<option value="' + esc(t) + '"' + (t === sel ? ' selected' : '') + '>' + esc(t) + (meta.label ? ' · ' + esc(meta.label) : '') + '</option>';
+        return '<option value="' + esc(t) + '"' + (t === sel ? ' selected' : '') + '>' + esc(meta.label || t) + '</option>';
       }).join('');
     }
-    function fieldChips(f) {
-      var out = '';
-      if (f.system) out += '<span class="bb-fchip bb-fchip--sys">시스템</span>';
-      if (f.role === 'name') out += '<span class="bb-fchip">이름</span>';
-      return out;
+    function reqControl(f) {
+      var disabled = f.system || f.lockRequired;
+      var reason = f.system ? '시스템 필드 — 변경 불가' : '필수 고정 — 변경 불가';
+      return '<label class="bb-chk bb-chk--req' + (f.required ? ' is-on' : '') + (disabled ? ' is-locked' : '') + '"' +
+        (disabled ? ' title="' + esc(reason) + '"' : '') + '>' +
+        '<input type="checkbox" data-bb-fp="required"' + (f.required ? ' checked' : '') + (disabled ? ' disabled' : '') + '> 필수</label>';
+    }
+    function useChk(f, prop, label) {
+      return '<label class="bb-chk"><input type="checkbox" data-bb-fp="' + prop + '"' + (f[prop] ? ' checked' : '') + '> ' + esc(label) + '</label>';
+    }
+    function advBody(f, lockInputs) {
+      var map = (window.STAM.boardFieldSchema && window.STAM.boardFieldSchema.engineMapping(f.type)) || {};
+      var mapTxt = 'column: ' + (map.column || '—') + ' · control: ' + (map.control || '—') + ' · filter: ' + String(map.filter);
+      return '<div class="bb-adv-row"><span class="bb-adv-k">필드 key</span>' +
+          '<input class="bb-input bb-adv-key" data-bb-fp="key" value="' + esc(f.key) + '" placeholder="key" aria-label="필드 key"' + (lockInputs ? ' disabled' : '') + '></div>' +
+        '<div class="bb-adv-row"><span class="bb-adv-k">raw type</span><code class="bb-adv-v">' + esc(f.type) + '</code></div>' +
+        '<div class="bb-adv-row"><span class="bb-adv-k">engine 매핑</span><code class="bb-adv-v">' + esc(mapTxt) + '</code></div>';
     }
     function renderFields() {
+      if (els.fieldCount) els.fieldCount.textContent = fields.length + '개 필드';
       if (!fields.length) { els.fields.innerHTML = '<div class="bb-empty">필드가 없습니다. <b>＋ 필드 추가</b>로 추가하세요.</div>'; return; }
       els.fields.innerHTML = fields.map(function (f, i) {
-        var reqDisabled = f.system || f.lockRequired;
-        var reqReason = f.system ? '시스템 필드' : '필수 고정';
         var lockInputs = f.system; // 시스템 필드는 key/type/삭제 잠금
-        var optHint = OPTION_TYPES.indexOf(f.type) !== -1;
-        return '<div class="bb-fcard" data-bb-fi="' + i + '">' +
-          '<div class="bb-fcard-top">' +
-            '<span class="bb-drag" draggable="true" data-bb-drag title="드래그하여 순서 변경" aria-label="순서 변경 핸들">⋮⋮</span>' +
-            '<span class="bb-fcard-no">' + (i + 1) + '</span>' +
-            '<input class="bb-input bb-f-label" data-bb-fp="label" value="' + esc(f.label) + '" placeholder="필드명" aria-label="필드명">' +
-            '<input class="bb-input bb-f-key" data-bb-fp="key" value="' + esc(f.key) + '" placeholder="key" aria-label="필드 key"' + (lockInputs ? ' disabled' : '') + '>' +
-            '<select class="bb-select bb-f-type" data-bb-fp="type" aria-label="타입"' + (lockInputs ? ' disabled' : '') + '>' + typeOptions(f.type) + '</select>' +
-            fieldChips(f) +
-          '</div>' +
-          '<div class="bb-fcard-bottom">' +
-            '<input class="bb-input bb-f-opts" data-bb-fp="options" value="' + esc((f.options || []).join(', ')) + '" placeholder="' + (optHint ? '옵션(쉼표) 예) 높음,보통,낮음' : '옵션 — select/status/priority 용') + '" aria-label="옵션">' +
-            '<div class="bb-fvis">' +
-              visChk(f, 'visibleInTable', '목록') +
-              visChk(f, 'visibleInFilter', '필터') +
-              visChk(f, 'visibleInDrawer', '드로워') +
-              '<label class="bb-fvis-chk bb-freq' + (reqDisabled ? ' is-locked' : '') + '"><input type="checkbox" data-bb-fp="required"' + (f.required ? ' checked' : '') + (reqDisabled ? ' disabled' : '') + '> 필수</label>' +
-              (reqDisabled ? '<span class="bb-lockreason" title="' + esc(reqReason) + '">🔒 ' + esc(reqReason) + '</span>' : '') +
+        var optType = OPTION_TYPES.indexOf(f.type) !== -1;
+        var advIsOpen = advOpen.indexOf(f.key) !== -1;
+        return '<div class="bb-fcard' + (f.system ? ' is-system' : '') + '" data-bb-fi="' + i + '">' +
+          '<div class="bb-fc-main">' +
+            '<div class="bb-fc-rail">' +
+              '<span class="bb-drag" draggable="true" data-bb-drag title="드래그하여 순서 변경" aria-label="순서 변경 핸들">⋮⋮</span>' +
+              '<span class="bb-fc-no">' + (i + 1) + '</span>' +
             '</div>' +
-            '<div class="bb-fcard-actions">' +
-              '<button type="button" class="bb-iconbtn" data-bb-fmove="up" title="위로" aria-label="위로"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
-              '<button type="button" class="bb-iconbtn" data-bb-fmove="down" title="아래로" aria-label="아래로"' + (i === fields.length - 1 ? ' disabled' : '') + '>↓</button>' +
-              '<button type="button" class="bb-iconbtn" data-bb-finsert title="아래에 필드 추가" aria-label="아래에 추가">＋</button>' +
-              '<button type="button" class="bb-delbtn" data-bb-fdel title="필드 삭제" aria-label="삭제"' + (lockInputs ? ' disabled' : '') + '>삭제</button>' +
+            '<div class="bb-fc-body">' +
+              '<div class="bb-fc-row1">' +
+                '<input class="bb-input bb-fc-name" data-bb-fp="label" value="' + esc(f.label) + '" placeholder="필드명" aria-label="필드명">' +
+                '<select class="bb-select bb-fc-type" data-bb-fp="type" aria-label="입력 방식"' + (lockInputs ? ' disabled' : '') + '>' + typeOptions(f.type) + '</select>' +
+                (f.system ? '<span class="bb-fc-lock" title="시스템 필드 — 잠금">🔒 시스템</span>' : (f.role === 'name' ? '<span class="bb-fchip">이름</span>' : '')) +
+              '</div>' +
+              '<div class="bb-fc-row2">' +
+                reqControl(f) +
+                '<span class="bb-fc-sep"></span>' +
+                '<span class="bb-fc-uselbl">표시</span>' +
+                useChk(f, 'visibleInTable', '목록') +
+                useChk(f, 'visibleInFilter', '필터') +
+                useChk(f, 'visibleInDrawer', '입력폼') +
+              '</div>' +
+              (optType ? '<div class="bb-fc-row3"><input class="bb-input bb-fc-opts" data-bb-fp="options" value="' + esc((f.options || []).join(', ')) + '" placeholder="옵션(쉼표로 구분) 예) 높음, 보통, 낮음" aria-label="선택 옵션"></div>' : '') +
+            '</div>' +
+            '<div class="bb-fc-actions">' +
+              '<button type="button" class="bb-iconbtn" data-bb-fmove="up" title="위로 이동" aria-label="위로 이동"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
+              '<button type="button" class="bb-iconbtn" data-bb-fmove="down" title="아래로 이동" aria-label="아래로 이동"' + (i === fields.length - 1 ? ' disabled' : '') + '>↓</button>' +
+              '<button type="button" class="bb-iconbtn" data-bb-finsert title="아래에 필드 추가" aria-label="아래에 필드 추가">＋</button>' +
+              '<button type="button" class="bb-iconbtn bb-iconbtn--del" data-bb-fdel title="필드 삭제" aria-label="필드 삭제"' + (lockInputs ? ' disabled' : '') + '>' + SVG_TRASH + '</button>' +
             '</div>' +
           '</div>' +
+          '<button type="button" class="bb-fc-adv-tog' + (advIsOpen ? ' is-open' : '') + '" data-bb-advtog aria-expanded="' + (advIsOpen ? 'true' : 'false') + '">' +
+            '<span class="bb-fc-adv-arr">▾</span> 고급 설정 보기 <span class="bb-fc-adv-meta">key · raw type · 매핑</span>' +
+          '</button>' +
+          '<div class="bb-fc-adv"' + (advIsOpen ? '' : ' hidden') + '>' + advBody(f, lockInputs) + '</div>' +
         '</div>';
       }).join('');
-    }
-    function visChk(f, prop, label) {
-      return '<label class="bb-fvis-chk"><input type="checkbox" data-bb-fp="' + prop + '"' + (f[prop] ? ' checked' : '') + '> ' + esc(label) + '</label>';
     }
 
     function blankField() {
@@ -388,13 +411,16 @@
       renderFields();
     }
 
-    function generate() { hasGenerated = true; refreshPreview(); saveForm(); }
+    /* 우측 미리보기는 항상 살아있다(빈 박스 없음): 현재 입력으로 즉시 config 를 만들어 표시한다.
+     * '게시판 초안 보기'는 화면 미리보기 탭으로 포커스 + 현재 구성 저장 역할. */
+    function generate() { activeTab = 'screen'; refreshPreview(); saveForm(); }
     function refreshPreview() {
-      if (!hasGenerated || !els.preview) return;
+      if (!els.preview) return;
       var config = buildConfig(collectForm());
       lsSet(LS_CONFIG, config);
       renderPreview(config);
     }
+    function renderLive() { if (els.preview) renderPreview(buildConfig(collectForm())); } // LS 기록 없이 렌더(부팅/초기화)
     function reset() {
       lsRemove(LS_CONFIG); lsRemove(LS_FORM);
       if (els.category) els.category.selectedIndex = 0;
@@ -402,17 +428,14 @@
       if (els.slug) els.slug.value = '';
       if (els.description) els.description.value = '';
       fields = clone(RECOMMENDED_FIELDS);
-      hasGenerated = false;
+      advOpen = [];
+      activeTab = 'screen';
       renderFields();
-      if (els.preview) els.preview.innerHTML = emptyPreview();
-    }
-    function emptyPreview() {
-      return '<div class="bb-empty bb-empty--lg">Preview 생성 전입니다.<br>왼쪽에서 필드 구성을 조정한 뒤 <b>Preview 생성</b>을 눌러주세요.</div>';
+      renderLive();
     }
 
     function copyJson() {
-      var config = lsGet(LS_CONFIG);
-      if (!config) { setCopyStatus('생성된 config 가 없습니다.'); return; }
+      var config = lsGet(LS_CONFIG) || buildConfig(collectForm()); // 항상 현재 구성 기준으로 복사 가능
       var json = JSON.stringify(config, null, 2);
       var done = function () { setCopyStatus('JSON 복사 완료 ✓'); };
       var fail = function () {
@@ -425,7 +448,7 @@
         else fail();
       } catch (e) { fail(); }
     }
-    function setCopyStatus(msg) { var c = root.querySelector('[data-bb-copy-status]'); if (c) c.textContent = msg; }
+    function setCopyStatus(msg) { qa(root, '[data-bb-copy-status]').forEach(function (c) { c.textContent = msg; }); }
 
     /* ── preview render (summary + tabs) ──────────────────────── */
     function chip(label, tone) { return '<span class="bf-chip bf-chip--' + esc(tone || 'neutral') + '">' + esc(label) + '</span>'; }
@@ -452,53 +475,71 @@
       if (!els.preview) return;
       var rows = sampleRows(config, 3);
       var visCols = config.columns.filter(function (c) { return c.type !== 'checkbox' && c.type !== 'actionButtons'; });
+      var listCount = config.fields.filter(function (f) { return f.visibleInTable; }).length;
+      var reqCount = config.fields.filter(function (f) { return f.required; }).length;
 
-      var summary = '<div class="bb-summary">' +
-        sumCell('게시판명', config.title || '—') + sumCell('코드', config.slug || '—') +
-        sumCell('필드', config.fields.length) + sumCell('컬럼', visCols.length) + sumCell('필터', config.filters.length) + '</div>';
+      // 현재 구성 요약 — 생성 전에도 무엇이 만들어질지 한눈에 보인다.
+      var head = '<div class="bb-rp-head">' +
+        '<div class="bb-rp-head-ttl">현재 구성 요약 · ' + esc(config.title || '게시판명 미입력') + (config.slug ? ' · ' + esc(config.slug) : '') + '</div>' +
+        '<div class="bb-stats">' +
+          statCell('총 필드', config.fields.length, 'var(--stam)') +
+          statCell('목록 표시', listCount, 'var(--info)') +
+          statCell('필수 항목', reqCount, 'var(--fail)') +
+          statCell('필터 필드', config.filters.length, 'var(--pass)') +
+        '</div></div>';
 
       var tabbar = '<div class="bb-tabs" role="tablist">' +
-        tabBtn('screen', '화면 Preview') + tabBtn('fields', '필드 / 컬럼') + tabBtn('filters', '필터 / 드로워') + tabBtn('json', 'JSON') + '</div>';
+        tabBtn('screen', '화면 미리보기') + tabBtn('fields', '필드 구성') + tabBtn('filters', '필터/입력화면') +
+        tabBtn('json', 'JSON', '개발자 참고용') + '</div>';
 
-      // screen
+      // 화면 미리보기 — 현재 구성 기준 예상 게시판 화면(board mock)
       var thead = '<tr>' + config.columns.map(function (c) {
         if (c.type === 'checkbox') return '<th class="bb-th-chk"><input type="checkbox" disabled></th>';
         if (c.type === 'actionButtons') return '<th></th>';
         return '<th>' + esc(c.label || c.field) + '</th>';
       }).join('') + '</tr>';
-      var tbody = rows.map(function (r) {
+      var tbody = rows.length ? rows.map(function (r) {
         return '<tr>' + config.columns.map(function (c) { return '<td' + (c.type === 'checkbox' ? ' class="bb-td-chk"' : '') + '>' + cellHtml(c, r, config) + '</td>'; }).join('') + '</tr>';
-      }).join('');
-      var screenPanel = panel('screen',
-        '<div class="bb-ptable-wrap"><table class="bb-ptable"><thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table></div>' +
-        '<div class="bb-notice">이 config 는 아직 DB 에 저장되지 않습니다. localStorage preview 입니다. (key <code>' + esc(LS_CONFIG) + '</code>)</div>');
+      }).join('') : '<tr><td colspan="' + config.columns.length + '" style="text-align:center;color:var(--t3);padding:18px;">필드를 추가하면 예상 목록이 표시됩니다.</td></tr>';
+      var filterChips = config.filters.length
+        ? config.filters.map(function (f) { return '<span class="bb-mk-chip">' + esc(f.label) + '</span>'; }).join('')
+        : '<span class="bb-empty">필터 지정 필드 없음</span>';
+      var boardMock = '<div class="bb-brd">' +
+        '<div class="bb-brd-top"><span class="bb-brd-top-ttl">' + esc(config.title || '새 게시판') + '</span><span class="bb-brd-top-badge">미리보기</span></div>' +
+        '<div class="bb-brd-hdr"><div class="bb-brd-hdr-ttl">' + esc(config.title || '새 게시판') + '</div>' +
+          '<div class="bb-brd-hdr-acts"><span class="bb-mk-sec">전체</span><span class="bb-mk-pri">＋ 글 작성</span></div></div>' +
+        '<div class="bb-brd-fbar"><span class="bb-mk-search">🔍 검색</span>' + filterChips + '</div>' +
+        '<div class="bb-brd-tblwrap"><table class="bb-ptable"><thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table></div></div>';
+      var screenPanel = panel('screen', boardMock +
+        '<div class="bb-notice">아직 DB 에 저장되지 않은 <b>localStorage 미리보기</b>입니다. 위 화면은 현재 구성 기준 예상 결과입니다. (key <code>' + esc(LS_CONFIG) + '</code>)</div>');
 
-      // fields / columns
+      // 필드 구성
       var fieldsPanel = panel('fields',
-        group('generated columns (' + visCols.length + ')', visCols.map(function (c) { return tag(c.label || c.field, c.type); }).join('') || emptyTag('표시할 컬럼 없음')) +
-        group('fields (' + config.fields.length + ')', config.fields.map(function (f) {
-          var vis = []; if (f.visibleInTable) vis.push('목록'); if (f.visibleInFilter) vis.push('필터'); if (f.visibleInDrawer) vis.push('드로워');
-          return tag(f.label || f.key, f.type + (vis.length ? ' · ' + vis.join('/') : ''), f.required);
+        group('목록 컬럼 (' + visCols.length + ')', visCols.map(function (c) { return tag(c.label || c.field, c.type); }).join('') || emptyTag('표시할 컬럼 없음')) +
+        group('전체 필드 (' + config.fields.length + ')', config.fields.map(function (f) {
+          var vis = []; if (f.visibleInTable) vis.push('목록'); if (f.visibleInFilter) vis.push('필터'); if (f.visibleInDrawer) vis.push('입력폼');
+          return tag(f.label || f.key, typeLabel(f.type) + (vis.length ? ' · ' + vis.join('/') : ''), f.required);
         }).join('')));
 
-      // filters / drawer
+      // 필터 / 입력화면(drawer)
       var filtersPanel = panel('filters',
-        group('generated filters (' + config.filters.length + ')', config.filters.map(function (f) { return tag(f.label, f.options.length ? f.options.length + ' opt' : ''); }).join('') || emptyTag('필터 대상 필드 없음')) +
-        group('drawer fields · create (' + config.drawer.create.length + ')', config.drawer.create.map(function (f) { return tag(f.label, f.type, f.required); }).join('') || emptyTag('드로워 필드 없음')));
+        group('필터 (' + config.filters.length + ')', config.filters.map(function (f) { return tag(f.label, f.options.length ? f.options.length + ' opt' : ''); }).join('') || emptyTag('필터 대상 필드 없음')) +
+        group('입력폼 필드 · 등록 (' + config.drawer.create.length + ')', config.drawer.create.map(function (f) { return tag(f.label, f.type, f.required); }).join('') || emptyTag('입력폼 필드 없음')));
 
-      // json
+      // JSON (개발자 참고용)
       var jsonPanel = panel('json',
-        '<div class="bb-json-bar"><button type="button" class="bb-btn bb-btn--ghost bb-btn--sm" data-bb-action="copy">Copy JSON</button><span class="bb-copy-status" data-bb-copy-status aria-live="polite"></span></div>' +
+        '<div class="bb-json-bar"><button type="button" class="bb-btn bb-btn--ghost bb-btn--sm" data-bb-action="copy">JSON 복사</button><span class="bb-copy-status" data-bb-copy-status aria-live="polite"></span></div>' +
         '<textarea class="bb-json" data-bb-json readonly rows="22">' + esc(JSON.stringify(config, null, 2)) + '</textarea>');
 
-      els.preview.innerHTML = summary + tabbar + '<div class="bb-tabpanels">' + screenPanel + fieldsPanel + filtersPanel + jsonPanel + '</div>';
+      els.preview.innerHTML = head + tabbar + '<div class="bb-tabpanels">' + screenPanel + fieldsPanel + filtersPanel + jsonPanel + '</div>';
       applyActiveTab();
     }
-    function tabBtn(id, label) { return '<button type="button" class="bb-tab" role="tab" data-bb-tab="' + id + '">' + esc(label) + '</button>'; }
+    function typeLabel(t) { var meta = (window.STAM.boardFieldSchema && window.STAM.boardFieldSchema.types[t]) || {}; return meta.label || t; }
+    function tabBtn(id, label, note) { return '<button type="button" class="bb-tab" role="tab" data-bb-tab="' + id + '">' + esc(label) + (note ? '<span class="bb-tab-note">' + esc(note) + '</span>' : '') + '</button>'; }
     function panel(id, inner) { return '<div class="bb-tabpanel" role="tabpanel" data-bb-panel="' + id + '">' + inner + '</div>'; }
     function group(h, inner) { return '<div class="bb-pgroup"><div class="bb-pgroup-h">' + esc(h) + '</div><div class="bb-taglist">' + inner + '</div></div>'; }
     function emptyTag(msg) { return '<span class="bb-empty">' + esc(msg) + '</span>'; }
-    function sumCell(label, value) { return '<div class="bb-sum-cell"><div class="bb-sum-k">' + esc(label) + '</div><div class="bb-sum-v">' + esc(value) + '</div></div>'; }
+    function statCell(label, value, color) { return '<div class="bb-stat"><div class="bb-stat-n" style="color:' + color + '">' + esc(value) + '</div><div class="bb-stat-l">' + esc(label) + '</div></div>'; }
     function applyActiveTab() {
       if (!els.preview) return;
       var tabs = qa(els.preview, '[data-bb-tab]'); if (tabs.length && !tabs.some(function (t) { return t.getAttribute('data-bb-tab') === activeTab; })) activeTab = 'screen';
@@ -521,24 +562,46 @@
         else if (a === 'auto-slug') { if (els.slug && els.title) { els.slug.value = slugify(els.title.value); saveForm(); refreshPreview(); } }
         return;
       }
+      // 고급 설정 접기/펼치기 — 전체 re-render 없이 해당 카드만 토글(열림 상태는 advOpen 으로 유지).
+      var advtog = e.target.closest('[data-bb-advtog]');
+      if (advtog) {
+        var advCard = advtog.closest('[data-bb-fi]'); if (!advCard) return;
+        var advIdx = parseInt(advCard.getAttribute('data-bb-fi'), 10);
+        var advKey = fields[advIdx] ? fields[advIdx].key : null;
+        var advEl = advCard.querySelector('.bb-fc-adv');
+        var willOpen = advEl.hasAttribute('hidden');
+        if (willOpen) { advEl.removeAttribute('hidden'); advtog.classList.add('is-open'); advtog.setAttribute('aria-expanded', 'true'); if (advKey && advOpen.indexOf(advKey) === -1) advOpen.push(advKey); }
+        else { advEl.setAttribute('hidden', ''); advtog.classList.remove('is-open'); advtog.setAttribute('aria-expanded', 'false'); advOpen = advOpen.filter(function (k) { return k !== advKey; }); }
+        return;
+      }
+      // 템플릿 카드 — 시작점 예시(presentational). 필드 reseed/저장 없음(기능 확장 방지).
+      var tpl = e.target.closest('[data-bb-tpl]');
+      if (tpl) { qa(root, '[data-bb-tpl]').forEach(function (c) { c.classList.toggle('is-sel', c === tpl); }); return; }
       var mv = e.target.closest('[data-bb-fmove]'); if (mv) { if (!mv.disabled) moveField(fieldIndex(mv), mv.getAttribute('data-bb-fmove')); return; }
       var ins = e.target.closest('[data-bb-finsert]'); if (ins) { insertField(fieldIndex(ins)); return; }
       var del = e.target.closest('[data-bb-fdel]'); if (del) { if (!del.disabled) deleteField(fieldIndex(del)); return; }
     });
+    // 입력 중에도 우측 미리보기는 즉시 반영(좌측 카드 re-render 없음 → 입력 포커스 유지).
     root.addEventListener('input', function (e) {
-      if (e.target.closest('[data-bb-fp]')) { updateFieldFromInput(e.target); saveForm(); return; }
-      if (e.target.closest('[data-bb]')) saveForm();
-    });
-    root.addEventListener('change', function (e) {
       if (e.target.closest('[data-bb-fp]')) { updateFieldFromInput(e.target); saveForm(); refreshPreview(); return; }
       if (e.target.closest('[data-bb]')) { saveForm(); refreshPreview(); }
     });
+    root.addEventListener('change', function (e) {
+      var fp = e.target.closest('[data-bb-fp]');
+      if (fp) {
+        updateFieldFromInput(e.target); saveForm();
+        if (fp.getAttribute('data-bb-fp') === 'type') renderFields(); // 옵션 행 / raw type 노출 갱신
+        refreshPreview();
+        return;
+      }
+      if (e.target.closest('[data-bb]')) { saveForm(); refreshPreview(); }
+    });
 
-    /* ── boot ──────────────────────────────────────────────────── */
+    /* ── boot ──────────────────────────────────────────────────────
+     * 우측은 항상 살아있는 미리보기(빈 박스 없음). formState 복원 후 현재 입력 기준으로 렌더.
+     * (LS_CONFIG 는 변경/생성 시 기록되어 copyJson·복원 캐시로 유지) */
     restoreForm();
-    var saved = lsGet(LS_CONFIG);
-    if (saved) { hasGenerated = true; renderPreview(saved); }
-    else if (els.preview) els.preview.innerHTML = emptyPreview();
+    renderLive();
 
     return { generate: generate, reset: reset, collectForm: collectForm, addField: addField, getFields: function () { return fields.slice(); } };
   }

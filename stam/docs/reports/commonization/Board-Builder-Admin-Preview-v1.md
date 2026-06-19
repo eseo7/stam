@@ -193,3 +193,40 @@ PR #145 Draft 안에서 사용자 QA 피드백을 반영한 수정. **Board Buil
 - `buildConfig` 단위테스트: required 체크/해제 ↔ drawer.required·JSON 일치, 시스템 readonly 필드 marker 미표시, `visibleInTable/Filter/Drawer` 토글 반영, 필드 순서 보존 — **PASS**.
 - 변경 파일: `board-builder.html` / `stam.board-builder-preview.js` (+ 본 문서). 기존 v2 3화면 / v1 / `index.html` / nav-data / 엔진·icons / API·Firestore·fetch **diff 0**.
 - Drag&Drop · 탭 · live 반영 · 1920/1366 · light/dark 는 **사용자 재QA(PENDING)**. narrow/mobile DEFERRED.
+
+## 14. 회차 4 — "게시판 만들기" 제품형 UX 보정 (Claude Design 시안 기준)
+
+회차 3 까지의 Board Builder 는 기능은 갖췄으나 **개발자용 config/schema editor** 처럼 보였다. 첨부 시안 `STAM-Board-Builder-UX-Concept-v1.html` 을 기준으로, 비개발자(PM/기획)가 이해할 수 있는 **"게시판 만들기" 화면**으로 UX/레이아웃/문구/카드 구조를 보정한다. **Board Builder 화면 전용** — 엔진/기존 v1·v2 3화면/`index.html`/nav·shell·topbar **diff 0**, `buildConfig` 로직·localStorage 키 불변, API/Firestore/fetch 0.
+
+### 14-1. 기존 문제 → 보정 방향
+
+- **문제**: key/type/raw config 가 필드 카드 첫 화면에 노출, 제목이 `Board Builder Admin Preview`, 우측은 생성 전 빈 박스, 버튼 문구가 개발자스러움(`Preview 생성`/`Reset`/`Copy JSON`).
+- **방향**: 단계형 입력(① 기본 정보 → ② 필드 구성 → ③ 초안 만들기) + 항상 살아있는 우측 미리보기 + 기술 용어는 "고급 설정"으로 접기.
+
+### 14-2. 적용 범위
+
+1. **페이지 제목/문구**: `게시판 만들기` + "필드와 화면 구성을 선택하면 게시판 초안을 생성할 수 있습니다." `Admin Preview / Local / No DB` 는 작은 보조 배지로만 유지.
+2. **좌측 단계형**: ① 게시판 기본 정보(카테고리·게시판명·게시판 코드·설명·기본 템플릿) ② 필드 구성(카드 리스트·필드 추가·드래그 힌트) ③ 게시판 초안 만들기(초기화·JSON 복사·게시판 초안 보기). 단계 번호 헤더(`bb-step`).
+3. **기본 정보**: 게시판 코드 = 자동 생성 느낌(낮은 위계 input) + `코드 자동 생성` 버튼(`white-space:nowrap` → 세로 깨짐 방지) + 안내 문구. 게시판명/카테고리/설명 넓게. **템플릿 카드형**(공지사항/자유 게시판/자료실/Q&A/요청·이슈/직접 구성) — 시작점 예시(presentational, 필드 reseed/저장 없음 → 기능 확장 0).
+4. **필드 카드 재정리**: 기본 노출 = 순서/드래그 핸들 · 필드명 · 입력 방식(type, 한글 라벨) · 필수(badge형 checkbox) · 표시 위치(목록/필터/입력폼) · 옵션(옵션 타입만). **고급 설정 접기** = `필드 key` · `raw type` · `engine 매핑`(column/control/filter). 시스템 필드는 `🔒 시스템` chip + 필수/key/삭제 잠금(부드럽게). 액션(위·아래/삽입/삭제)은 카드 우측 rail 에 과하지 않게.
+5. **우측 초기 상태**: 빈 박스 제거 → **항상 live**. 현재 구성 요약 stats(총 필드 / 목록 표시 / 필수 항목 / 필터 필드) + **현재 구성 기준 예상 게시판 화면**(board-mock: topbar·헤더·필터바·목록 table). 생성 전에도 "무엇이 만들어질지" 표시.
+6. **우측 탭**: `화면 미리보기 / 필드 구성 / 필터·입력화면 / JSON`. JSON 탭은 `개발자 참고용` 작게 표기.
+7. **버튼 문구**: `게시판 초안 보기`(primary 1개)·`초기화`·`JSON 복사`·`코드 자동 생성`·`고급 설정 보기`.
+8. **스타일 톤**: 업무용 SaaS — 밝은 회색 배경 + 흰 카드 + STAM 보라 포인트 + 여백. **공통 token/전역 CSS 미변경** — bb- prefix inline `<style>` 한정, 일부 local 변수는 `.bb-wrap` scope. 시안 CSS 대량 복사 없음.
+
+### 14-3. 유지한 기능 (회귀 금지)
+
+Drag & Drop 순서 변경 · 위/아래 이동 · 중간 삽입 · 삭제 · required 체크/해제 · **required ↔ drawer marker ↔ JSON 동기화** · 목록/필터/입력폼(드로워) 표시 토글 · 우측 즉시 반영 · JSON 복사 · localStorage 저장/복원 · 초기화. **API/Firestore/fetch 0**, localStorage 키(`previewConfig`/`formState`) 불변.
+
+> 우측 미리보기는 회차 3 의 "생성 후에만 표시" → **항상 live 렌더**로 변경(빈 박스 제거). `게시판 초안 보기`는 화면 미리보기 탭 포커스 + 현재 구성 저장 역할. `copyJson` 은 LS_CONFIG 부재 시 현재 입력으로 build 해 항상 복사 가능. 저장 구조(키)는 그대로.
+
+### 14-4. 검증 (회차 4)
+
+- `node --check` ×4 (board-builder-preview / field-schema / board-factory / board-configs) **PASS** · board-builder.html inline CSS 중괄호 BALANCED(163/163).
+- `buildConfig` 재검증 + `init()` DOM 스모크 **PASS** (required true/false 동기화, 필드 reorder → columns 순서, 목록/필터/입력폼 토글 반영, 옵션 전파, init/render/addField/generate/reset throw 0).
+- 변경 파일: `board-builder.html` / `stam.board-builder-preview.js` (+ 본 문서, + visual-qa evidence). 그 외 **diff 0**.
+- evidence: `docs/reports/visual-qa/board-builder-admin-preview-v1/` (required-true/false·dnd-before/after·visibility-toggle·console_errors).
+
+### 14-5. 남은 QA (PENDING)
+
+스크린샷(1920/1366 light·dark) · 브라우저 DnD/토글/복원/콘솔 0 은 **사용자 브라우저 QA**(본 환경 헤드리스 브라우저 미가용). narrow/mobile DEFERRED.
