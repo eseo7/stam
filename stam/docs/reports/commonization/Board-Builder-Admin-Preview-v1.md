@@ -265,3 +265,31 @@ Drag&Drop · 위/아래 · 중간 삽입 · 삭제 · required 동기화(↔draw
 ### 15-5. 남은 QA (PENDING — 사용자 브라우저)
 
 1366 / 1920 시각 확인 · 콘솔 오류 0 · 실제 마우스 DnD 감각 · 클립보드 복사 · dark mode · 가로 스크롤 0.
+
+## 16. 회차 6 — Preview / 테이블 scrollbar 톤 통일 (Board Builder scope token화)
+
+> CSS 시각 보정만. 회차 4·5 UX/구조는 유지. **Board Builder 화면 전용** · **JS 변경 0** · 엔진/기존 v1·v2 3화면/`index.html`/nav·shell·topbar **diff 0** · 공통 전역 CSS(`stam.tokens.css`/`stam.components.css`) 미생성·미수정 · API/Firestore/fetch 0. head `d9a951e` 기준. Draft 유지.
+
+### 16-1. 사용자 QA 피드백
+
+좌측 내부 스크롤바는 얇고 자연스러운데, **우측 Preview 안 테이블의 가로 스크롤**이 브라우저 기본처럼 **두껍고 어둡게** 보여 좌/우 디자인이 어긋남 → 우측 Preview/테이블 스크롤도 좌측과 같은 톤으로.
+
+### 16-2. 보정 방향 (Board Builder scope token화)
+
+- **scrollbar token 을 `.bb-wrap` scope 에만 정의**(전역 `:root` 미오염):
+  `--bb-scrollbar-size: 8px` · `--bb-scrollbar-track: var(--bg-sur2)` · `--bb-scrollbar-thumb: var(--bd-s)` · `--bb-scrollbar-thumb-hover: var(--bb-muted)`. (theme token 참조 → light/dark 자동 적응)
+- **`.bb-scrollbar` helper 를 Board Builder scope 에만 정의**(`scrollbar-width: thin` + `scrollbar-color` + `::-webkit-scrollbar*` track/thumb rounded 999px). 향후 공통화 시드.
+- **좌/우/테이블 동일 적용**: `.bb-form-scroll`(좌측) · `.bb-tabpanels`(우측 탭 내용) · `.bb-brd-tblwrap`(테이블 가로) · `.bb-json`(JSON textarea) · `.bb-adv-v`(고급 매핑) 를 helper 와 동일 grouped selector 로 묶어 같은 token 적용. **JS 렌더 요소는 클래스명으로 직접 타깃 → JS 미변경**.
+- **테이블 가로 스크롤**: `::-webkit-scrollbar { height: var(--bb-scrollbar-size) }` 로 얇게(8px), thumb 는 좌측과 동일 `--bb-scrollbar-thumb`, track 연한 배경, 모서리 rounded. `overflow-x: auto` 유지 → **테이블이 넓을 때만** 가로 스크롤(기능 제거 아님).
+- 기존 두꺼운 per-selector 규칙(`width:11px` + `3px solid` inset)은 제거하고 token helper 로 일원화.
+
+### 16-3. 향후 공통화 계획
+
+`/* TODO(v2 common): promote --bb-scrollbar-* / .bb-scrollbar → .stam-scrollbar */` 주석을 남김. STAM v2 공통 작업 때 `.bb-scrollbar` 개념을 `.stam-scrollbar`(공통 token/`stam.components.css`)로 승격 가능. **이번 PR 은 scope 한정 — 전역 공통 스크롤 시스템 미확장**.
+
+### 16-4. 검증 (회차 6)
+
+- `node --check` ×4 **PASS** · `buildConfig` 회귀 13/13 · DOM smoke **PASS** (JS 미변경) · inline CSS 중괄호 **177/177 BALANCED**.
+- scrollbar 톤 CSS 정적 검증 **all PASS**: token `.bb-wrap` scope 한정(:root 미오염) · 좌/우/테이블/json/adv 모두 동일 token thumb · 테이블 가로 height=token(얇게) · `overflow-x:auto` 유지 · 두꺼운 구 규칙 제거 · TODO 주석(evidence `scrollbar-tone.json`).
+- 변경 파일: `board-builder.html`(CSS만) (+ 본 문서, + evidence). `stam.board-builder-preview.js` **diff 0**. 엔진/board-configs/field-schema/nav/v1/boards-v2 3화면/index.html/shell/topbar **diff 0**. body/page 스크롤·좌측 내부 스크롤·우측 비-sticky 구조(회차 5) 회귀 없음.
+- 실제 픽셀(두께/색 대비)·dark mode scrollbar 는 사용자 브라우저 QA(PENDING, 헤드리스 미가용).

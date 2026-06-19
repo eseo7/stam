@@ -62,6 +62,7 @@ node --check stam/js/stam.board-builder-preview.js
 | `visibility-toggle.json` | 목록 OFF / 입력폼 ON 필드가 columns 제외·drawer 포함 |
 | `console_errors.json` | 정적/스모크 범위 console error 0 |
 | `layout-scroll-structure.json` | (회차 5) Shell/스크롤 구조 CSS 정적 검증 — body overflow hidden · 고정 Shell · 좌측 내부 스크롤 · 우측 비-sticky 내부 스크롤 · position:sticky 미사용 **all PASS** |
+| `scrollbar-tone.json` | (회차 6) scrollbar 톤 통일 CSS 정적 검증 — `--bb-scrollbar-*` token `.bb-wrap` scope 한정 · 좌/우/테이블/json/adv 동일 token · 테이블 가로 height=token(8px, 얇게) · overflow-x:auto 유지 · 두꺼운 구 규칙 제거 · TODO 주석 **all PASS** |
 
 ## 4-1. 회차 5 — 레이아웃 스크롤 구조 보정
 
@@ -73,6 +74,16 @@ node --check stam/js/stam.board-builder-preview.js
 - 우측 `position: sticky` 제거 → Shell 안 고정 패널, 탭 내용(`.bb-tabpanels`)만 내부 스크롤.
 - JS 로직 변경 0(데이터 hook·이벤트 위임 유지) → 기능 회귀 없음. 검증: `layout-scroll-structure.json` all PASS.
 - 1366/1920 실제 픽셀·스크롤 감각·가로 스크롤 0 은 사용자 브라우저 QA(PENDING).
+
+## 4-2. 회차 6 — Preview/테이블 scrollbar 톤 통일
+
+> CSS 시각 보정만(JS 변경 0). 상세: 본문 문서 §16.
+
+- scrollbar token 을 `.bb-wrap` scope 에만 추가(전역 `:root` 미오염): `--bb-scrollbar-size/track/thumb/thumb-hover`.
+- `.bb-scrollbar` helper 정의(Board Builder scope 한정) + 좌(`.bb-form-scroll`)/우(`.bb-tabpanels`)/테이블(`.bb-brd-tblwrap`)/`.bb-json`/`.bb-adv-v` 동일 token 적용.
+- 테이블 가로 스크롤 얇게(`height: 8px`) + 좌측과 동일 thumb 색 + 연한 track + rounded. `overflow-x:auto` 유지(넓을 때만 표시).
+- 두꺼운 구 규칙(11px/3px inset) 제거. `TODO(v2 common)` 주석으로 `.stam-scrollbar` 승격 예약(이번 PR 미확장).
+- 검증: `scrollbar-tone.json` all PASS. 실제 픽셀 두께/색 대비·dark mode 는 사용자 브라우저 QA(PENDING).
 
 ## 5. 남은 QA 항목 (사용자 브라우저 QA — PENDING)
 
