@@ -1,0 +1,34 @@
+/*
+ * STAM v2 — Common Scrollbar Helper (PR-B)
+ *
+ * Board Builder 안의 임시 `.bb-scrollbar` / `--bb-scrollbar-*` 구조를 공통으로 승격한 것.
+ *  - token 정의는 stam.tokens.css (`--stam-scrollbar-*`). 본 파일은 helper class 만 제공.
+ *  - 적용: 스크롤 컨테이너 element 에 `class="… stam-scrollbar"` 추가(세로/가로 모두 동일 톤).
+ *  - token 이 [data-theme="dark"] 에서 flip 되므로 light/dark 자동 대응.
+ *  - Firefox: scrollbar-width/-color · WebKit: ::-webkit-scrollbar*.
+ *
+ * 정의: docs/reports/commonization/STAM-v2-Common-Scrollbar-Foundation-v1.md
+ * (다음 단계: Board Builder inline CSS 분리 / 다른 화면의 opt-in 채택)
+ */
+.stam-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--stam-scrollbar-thumb) var(--stam-scrollbar-track);
+}
+.stam-scrollbar::-webkit-scrollbar {
+  width: var(--stam-scrollbar-size);
+  height: var(--stam-scrollbar-size);
+}
+.stam-scrollbar::-webkit-scrollbar-track {
+  background: var(--stam-scrollbar-track);
+  border-radius: 999px;
+}
+.stam-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--stam-scrollbar-thumb);
+  border-radius: 999px;
+}
+.stam-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--stam-scrollbar-thumb-hover);
+}
+.stam-scrollbar::-webkit-scrollbar-corner {
+  background: var(--stam-scrollbar-track);
+}
