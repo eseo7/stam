@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>게시판 만들기 — STAM Board Builder</title>
+  <link rel="icon" href="../../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+  <link rel="stylesheet" href="../../css/stam.tokens.css">
+  <!-- chip tone(.bf-chip--*) 재사용 목적으로만 link (board-factory.css 수정 없음). -->
+  <link rel="stylesheet" href="../../css/stam.board-factory.css">
+  <!--
+    Board Builder Admin Preview v1 — standalone preview (PR: board builder admin preview)
+    · 회차 4: "config/schema editor" 느낌 제거 → 비개발자용 "게시판 만들기" UX 로 보정.
+      단계형 좌측(① 기본 정보 → ② 필드 구성 → ③ 초안 만들기) + 항상 살아있는 우측 미리보기.
+      key / raw type / engine 매핑은 "고급 설정"으로 접어 기본 노출에서 제거.
+    · App Shell / Left Menu / nav-data 에 붙지 않는 독립 preview 페이지.
+    · 색/폰트는 stam.tokens.css + 자체서빙 S-Core Dream 만 사용 (외부 CDN 0).
+    · 입력 → Board Factory config 생성 → localStorage 저장 → 화면 내 preview.
+    · Firestore / API 호출 없음. 실제 게시판 생성/저장 아님.
+    · 스타일은 별도 CSS 파일 신설 대신 본 파일 inline <style> 로 한정(bb- prefix).
+      공통 token / 전역 CSS 미변경 — 일부 local 변수는 .bb-wrap scope 한정.
+  -->
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    /* 페이지 scope 한정: Board Builder standalone 페이지에서만 body/page 전체 스크롤 제거.
+       (본 파일 inline <style> 한정 → 전역 제품 스타일 영향 없음) */
+    html, body { height: 100%; }
+    body {
+      font-family: var(--font); background: var(--bg-base); color: var(--t1);
+      -webkit-font-smoothing: antialiased; font-size: 13px; line-height: 1.5; overflow: hidden;
+    }
+    /* local scope 변수 — 전역 token 아님(.bb-wrap 한정) */
+    .bb-wrap {
+      --bb-muted: #94A3B8; --bb-shell-gap: 18px;
+      /* scrollbar token — Board Builder scope 한정(전역 :root 미오염). 좌/우/테이블 동일 톤.
+         TODO(v2 common): promote --bb-scrollbar-* / .bb-scrollbar → .stam-scrollbar (공통 디자인 시스템). */
+      --bb-scrollbar-size: 8px;
+      --bb-scrollbar-track: var(--bg-sur2);
+      --bb-scrollbar-thumb: var(--bd-s);
+      --bb-scrollbar-thumb-hover: var(--bb-muted);
+      height: 100vh; height: 100dvh; max-width: 1640px; margin: 0 auto; padding: 14px 24px 0;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    /* ── scrollbar helper (Board Builder scope 한정) ───────────────────
+       좌측 패널 / 우측 Preview / 탭 내용 / 테이블 가로 스크롤을 모두 동일 token 톤으로 통일.
+       (.bb-tabpanels·.bb-brd-tblwrap 등 JS 렌더 요소는 클래스명으로 직접 타깃 → JS 변경 0)
+       TODO(v2 common): .bb-scrollbar 를 공통 .stam-scrollbar 로 승격(이번 PR 은 scope 한정). */
+    .bb-scrollbar,
+    .bb-form-scroll,
+    .bb-tabpanels,
+    .bb-brd-tblwrap,
+    .bb-json,
+    .bb-adv-v {
+      scrollbar-width: thin;
+      scrollbar-color: var(--bb-scrollbar-thumb) var(--bb-scrollbar-track);
+    }
+    .bb-scrollbar::-webkit-scrollbar,
+    .bb-form-scroll::-webkit-scrollbar,
+    .bb-tabpanels::-webkit-scrollbar,
+    .bb-brd-tblwrap::-webkit-scrollbar,
+    .bb-json::-webkit-scrollbar,
+    .bb-adv-v::-webkit-scrollbar { width: var(--bb-scrollbar-size); height: var(--bb-scrollbar-size); }
+    .bb-scrollbar::-webkit-scrollbar-track,
+    .bb-form-scroll::-webkit-scrollbar-track,
+    .bb-tabpanels::-webkit-scrollbar-track,
+    .bb-brd-tblwrap::-webkit-scrollbar-track,
+    .bb-json::-webkit-scrollbar-track,
+    .bb-adv-v::-webkit-scrollbar-track { background: var(--bb-scrollbar-track); border-radius: 999px; }
+    .bb-scrollbar::-webkit-scrollbar-thumb,
+    .bb-form-scroll::-webkit-scrollbar-thumb,
+    .bb-tabpanels::-webkit-scrollbar-thumb,
+    .bb-brd-tblwrap::-webkit-scrollbar-thumb,
+    .bb-json::-webkit-scrollbar-thumb,
+    .bb-adv-v::-webkit-scrollbar-thumb { background: var(--bb-scrollbar-thumb); border-radius: 999px; }
+    .bb-scrollbar::-webkit-scrollbar-thumb:hover,
+    .bb-form-scroll::-webkit-scrollbar-thumb:hover,
+    .bb-tabpanels::-webkit-scrollbar-thumb:hover,
+    .bb-brd-tblwrap::-webkit-scrollbar-thumb:hover,
+    .bb-json::-webkit-scrollbar-thumb:hover,
+    .bb-adv-v::-webkit-scrollbar-thumb:hover { background: var(--bb-scrollbar-thumb-hover); }
+    .bb-scrollbar::-webkit-scrollbar-corner,
+    .bb-brd-tblwrap::-webkit-scrollbar-corner { background: var(--bb-scrollbar-track); }
+
+    /* ── header (Shell 상단 고정 — 스크롤 안 됨) ── */
+    .bb-head { flex: 0 0 auto; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 14px; }
+    .bb-head-r { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .bb-back { font-size: 12px; font-weight: 700; color: var(--stam); text-decoration: none; padding: 7px 11px; border-radius: var(--r-md); border: 1px solid var(--bd-s); white-space: nowrap; background: var(--bg-sur); transition: border-color 120ms, background 120ms; }
+    .bb-back:hover { border-color: var(--stam); background: var(--stam-soft); }
+    .bb-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--stam); letter-spacing: .02em; margin: 0 0 8px; }
+    .bb-eyebrow .bb-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--stam); }
+    .bb-title { font-size: 23px; font-weight: 800; letter-spacing: -.022em; margin: 0 0 6px; color: var(--t1); }
+    .bb-sub { font-size: 13px; color: var(--t2); line-height: 1.6; margin: 0; max-width: 560px; }
+    .bb-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 11px 0 0; }
+    .bb-sc {
+      display: inline-flex; align-items: center; height: 19px; padding: 0 8px; border-radius: 99px;
+      font-size: 10px; font-weight: 700; white-space: nowrap;
+      background: var(--bg-sur2); color: var(--t3); border: 1px solid var(--bd);
+    }
+    .bb-sc--preview { background: var(--stam-soft); color: var(--stam); border-color: rgba(84,81,232,.20); }
+    .bb-theme {
+      flex-shrink: 0; font-family: var(--font); font-size: 12px; font-weight: 600;
+      color: var(--t2); background: var(--bg-sur); border: 1px solid var(--bd-s);
+      border-radius: var(--r-md); padding: 7px 12px; cursor: pointer;
+      transition: border-color 120ms, color 120ms;
+    }
+    .bb-theme:hover { border-color: var(--stam); color: var(--stam); }
+
+    /* ── Shell (viewport 고정 2분할) ──────────────────────────────────
+       body/page 스크롤 없이 좌/우 패널 내부만 스크롤. 우측은 position:sticky 미사용 —
+       Shell grid 안에서 고정 영역. 좌: 내부 scroll 영역 + 하단 액션바(고정).
+       1920·1366 2-col, ≤1180 은 고정 Shell 해제(자연 스크롤 폴백 — narrow DEFERRED). */
+    .bb-shell {
+      flex: 1 1 auto; min-height: 0; margin-bottom: var(--bb-shell-gap);
+      display: grid; grid-template-columns: minmax(420px, 520px) minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);   /* 행을 컨테이너 높이에 고정 → 내부 패널 스크롤 보장 */
+      background: var(--bg-sur); border: 1px solid var(--bd); border-radius: var(--r-lg);
+      box-shadow: 0 1px 3px rgba(15,23,42,.04); overflow: hidden;
+    }
+    .bb-panel { background: var(--bg-sur); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+    .bb-panel--form { border-right: 1px solid var(--bd); }   /* 좌/우 divider */
+    /* 좌측 내부 scroll 영역 — scrollbar 는 패널 오른쪽 경계(=divider) 쪽에 표시 (톤: .bb-scrollbar token) */
+    .bb-form-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 6px 20px 20px; }
+    /* 좌측 하단 고정 액션바 (③ 게시판 초안 만들기) */
+    .bb-form-foot { flex: 0 0 auto; border-top: 1px solid var(--bd); background: var(--bg-sur); padding: 12px 20px 13px; }
+    @media (max-width: 1180px) {
+      /* narrow/짧은 화면(DEFERRED): 고정 Shell 해제 → 자연 스크롤로 폴백 */
+      html, body { height: auto; }
+      body { overflow: auto; }
+      .bb-wrap { height: auto; overflow: visible; padding: 14px 16px 32px; }
+      .bb-shell { grid-template-columns: 1fr; grid-template-rows: auto; overflow: visible; margin-bottom: 0; height: auto; }
+      .bb-panel { overflow: visible; }
+      .bb-panel--form { border-right: 0; border-bottom: 1px solid var(--bd); }
+      .bb-form-scroll { overflow: visible; }
+    }
+
+    /* ── steps ── */
+    .bb-step { padding: 18px 0 0; }
+    .bb-step + .bb-step { border-top: 1px solid var(--bd); margin-top: 18px; }
+    .bb-step-hdr { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .bb-step-n { width: 23px; height: 23px; border-radius: 50%; background: var(--stam); color: #fff; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .bb-step-lbl { font-size: 14px; font-weight: 700; color: var(--t1); letter-spacing: -.015em; }
+    .bb-step-sub { font-size: 10.5px; color: var(--bb-muted); margin-left: auto; white-space: nowrap; }
+    .bb-step-body { padding-left: 33px; }
+
+    /* ── form ── */
+    .bb-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px 14px; }
+    .bb-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .bb-field.bb-full { grid-column: 1 / -1; }
+    .bb-lbl { font-size: 11.5px; font-weight: 600; color: var(--t2); }
+    .bb-lbl .bb-opt { font-size: 10px; font-weight: 600; color: var(--bb-muted); margin-left: 5px; }
+    .bb-input, .bb-select, .bb-textarea {
+      font-family: var(--font); font-size: 12.5px; color: var(--t1);
+      background: var(--bg-sur); border: 1px solid var(--bd-s); border-radius: var(--r-md);
+      padding: 9px 11px; width: 100%; min-width: 0; transition: border-color 120ms, box-shadow 120ms;
+    }
+    .bb-select { appearance: none; padding-right: 30px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center; }
+    .bb-textarea { resize: vertical; min-height: 62px; line-height: 1.6; }
+    .bb-input:focus, .bb-select:focus, .bb-textarea:focus {
+      outline: 0; border-color: var(--stam); box-shadow: 0 0 0 3px var(--stam-soft);
+    }
+    .bb-input[readonly] { background: var(--bg-sur2); color: var(--t3); }
+    .bb-hint { font-size: 10.5px; color: var(--bb-muted); line-height: 1.5; }
+    /* 게시판 코드 = 자동 생성 느낌(낮은 위계) */
+    .bb-slug-row { display: flex; gap: 7px; align-items: stretch; }
+    .bb-slug-row .bb-input { flex: 1 1 auto; background: var(--bg-sur2); color: var(--t2); font-size: 11.5px; }
+    .bb-slug-row .bb-autobtn { flex: 0 0 auto; white-space: nowrap; }
+
+    /* ── template cards ── */
+    .bb-tpl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    @media (max-width: 1320px) and (min-width: 1181px) { .bb-tpl-grid { grid-template-columns: repeat(2, 1fr); } }
+    .bb-tpl-card { padding: 10px 11px; border: 1.5px solid var(--bd); border-radius: var(--r-md); cursor: pointer; transition: border-color 120ms, background 120ms; background: var(--bg-sur); display: flex; flex-direction: column; gap: 3px; text-align: left; font-family: var(--font); }
+    .bb-tpl-card:hover { border-color: rgba(84,81,232,.30); background: var(--stam-soft); }
+    .bb-tpl-card.is-sel { border-color: var(--stam); background: rgba(84,81,232,.06); }
+    .bb-tpl-ico { width: 26px; height: 26px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 3px; background: var(--stam-soft); color: var(--stam); }
+    .bb-tpl-name { font-size: 11.5px; font-weight: 700; color: var(--t1); }
+    .bb-tpl-desc { font-size: 10px; color: var(--t3); line-height: 1.4; }
+    .bb-tpl-note { font-size: 10.5px; color: var(--bb-muted); margin-top: 8px; line-height: 1.5; }
+
+    /* ── field section ── */
+    .bb-fld-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .bb-fld-badge { display: inline-flex; align-items: center; height: 20px; padding: 0 9px; border-radius: 99px; font-size: 10.5px; font-weight: 700; background: var(--stam-soft); color: var(--stam); border: 1px solid rgba(84,81,232,.20); }
+    .bb-fld-hint { font-size: 10.5px; color: var(--bb-muted); margin-left: auto; text-align: right; line-height: 1.4; }
+    .bb-fields { display: flex; flex-direction: column; gap: 10px; }
+
+    /* field card — 기본 노출: 필드명/입력방식/필수/표시위치/옵션. key·raw type·매핑은 고급 설정. */
+    .bb-fcard { border: 1px solid var(--bd); border-radius: var(--r-lg); background: var(--bg-sur); box-shadow: 0 1px 2px rgba(15,23,42,.04); overflow: hidden; transition: border-color 120ms, box-shadow 120ms, opacity 120ms; }
+    .bb-fcard:hover { border-color: var(--bd-s); }
+    .bb-fcard.is-system { background: linear-gradient(0deg, var(--bg-sur), var(--bg-sur)); }
+    .bb-fcard.is-dragging { opacity: .5; border-color: var(--stam); }
+    .bb-fcard.drop-before { box-shadow: inset 0 3px 0 var(--stam); }
+    .bb-fcard.drop-after { box-shadow: inset 0 -3px 0 var(--stam); }
+    .bb-fc-main { display: flex; align-items: flex-start; gap: 9px; padding: 11px 12px 12px; }
+    .bb-fc-rail { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; padding-top: 3px; }
+    .bb-drag { cursor: grab; color: var(--bb-muted); font-size: 13px; line-height: 1; letter-spacing: -3px; user-select: none; }
+    .bb-drag:active { cursor: grabbing; }
+    .bb-fc-no { font-size: 10px; font-weight: 800; color: var(--t3); }
+    .bb-fc-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+    .bb-fc-row1 { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .bb-fc-name { flex: 1 1 130px; font-weight: 600; padding: 7px 9px; font-size: 12.5px; }
+    .bb-fc-type { flex: 0 1 132px; padding: 7px 9px; font-size: 11.5px; }
+    .bb-fc-lock { display: inline-flex; align-items: center; gap: 3px; font-size: 9.5px; font-weight: 700; color: var(--stam); background: var(--stam-soft); border: 1px solid rgba(84,81,232,.20); border-radius: 99px; padding: 2px 7px; white-space: nowrap; }
+    .bb-fchip { font-size: 9.5px; font-weight: 700; color: var(--t3); background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 99px; padding: 2px 7px; white-space: nowrap; }
+    .bb-fc-row2 { display: flex; align-items: center; gap: 8px 9px; flex-wrap: wrap; }
+    .bb-fc-uselbl { font-size: 10px; color: var(--bb-muted); font-weight: 600; }
+    .bb-fc-sep { width: 1px; height: 14px; background: var(--bd); }
+    .bb-chk { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--t2); white-space: nowrap; cursor: pointer; }
+    .bb-chk input { accent-color: var(--stam); margin: 0; }
+    /* 필수 = badge 형태 checkbox */
+    .bb-chk--req { font-weight: 700; padding: 2px 9px 2px 7px; border-radius: 99px; border: 1px solid var(--bd); background: var(--bg-sur2); color: var(--t3); }
+    .bb-chk--req.is-on { background: rgba(220,38,38,.07); color: var(--fail); border-color: rgba(220,38,38,.22); }
+    .bb-chk--req.is-locked { cursor: not-allowed; opacity: .8; }
+    .bb-fc-opts { padding: 7px 9px; font-size: 11.5px; }
+    .bb-fc-actions { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
+    .bb-iconbtn { width: 27px; height: 27px; border: 1px solid var(--bd-s); background: var(--bg-sur); color: var(--t3); border-radius: var(--r-sm); cursor: pointer; font-size: 12px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; transition: border-color 120ms, color 120ms, background 120ms; }
+    .bb-iconbtn:hover:not(:disabled) { border-color: var(--stam); color: var(--stam); }
+    .bb-iconbtn:disabled { opacity: .3; cursor: not-allowed; }
+    .bb-iconbtn--del:hover:not(:disabled) { border-color: var(--fail); color: var(--fail); background: var(--fail-bg); }
+    /* advanced */
+    .bb-fc-adv-tog { display: flex; align-items: center; gap: 6px; width: 100%; padding: 7px 12px; border: 0; border-top: 1px solid var(--bd); background: var(--bg-sur2); color: var(--t3); font-family: var(--font); font-size: 10.5px; font-weight: 700; cursor: pointer; transition: color 120ms, background 120ms; }
+    .bb-fc-adv-tog:hover { color: var(--t1); background: var(--bg-sur3); }
+    .bb-fc-adv-arr { transition: transform 150ms; display: inline-block; }
+    .bb-fc-adv-tog.is-open .bb-fc-adv-arr { transform: rotate(180deg); }
+    .bb-fc-adv-meta { margin-left: auto; font-weight: 600; color: var(--bb-muted); }
+    .bb-fc-adv { padding: 10px 12px 12px; background: var(--bg-sur2); border-top: 1px solid var(--bd); display: flex; flex-direction: column; gap: 8px; }
+    .bb-fc-adv[hidden] { display: none; }
+    .bb-adv-row { display: grid; grid-template-columns: 78px 1fr; align-items: center; gap: 9px; }
+    .bb-adv-k { font-size: 10.5px; color: var(--t3); font-weight: 600; }
+    .bb-adv-v { font-size: 10.5px; color: var(--t2); background: var(--bg-sur3); padding: 4px 8px; border-radius: var(--r-sm); border: 1px solid var(--bd); font-family: var(--mono); overflow-x: auto; white-space: nowrap; }
+    .bb-adv-key { font-size: 11.5px; padding: 6px 9px; font-family: var(--mono); }
+    .bb-addfield { margin-top: 12px; width: 100%; justify-content: center; border-style: dashed; border-color: rgba(84,81,232,.30); color: var(--stam); background: rgba(84,81,232,.03); }
+    .bb-addfield:hover { border-color: var(--stam); background: var(--stam-soft); }
+
+    /* ── buttons ── */
+    .bb-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .bb-actions-status { display: block; font-size: 11px; color: var(--t3); min-height: 14px; margin-top: 7px; }
+    .bb-btn {
+      font-family: var(--font); font-size: 12.5px; font-weight: 700; cursor: pointer;
+      border-radius: var(--r-md); padding: 9px 15px; border: 1px solid var(--bd-s);
+      background: var(--bg-sur); color: var(--t1); transition: border-color 120ms, background 120ms, color 120ms;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;
+    }
+    .bb-btn--primary { background: var(--stam); border-color: var(--stam); color: #fff; padding: 11px 20px; flex: 1 1 auto; }
+    .bb-btn--primary:hover { background: var(--stam-h); border-color: var(--stam-h); }
+    .bb-btn--ghost { color: var(--t2); }
+    .bb-btn--ghost:hover { border-color: var(--stam); color: var(--stam); }
+    .bb-btn--sm { padding: 6px 12px; font-size: 11.5px; }
+    .bb-btn--reset { color: var(--t3); }
+    .bb-btn--reset:hover { border-color: var(--fail); color: var(--fail); background: var(--fail-bg); }
+
+    /* ── preview (right, 항상 표시 · 고정 패널 · 내부만 스크롤) ── */
+    .bb-preview { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+    .bb-rp-head { flex: 0 0 auto; padding: 15px 20px 14px; background: var(--bg-sur); border-bottom: 1px solid var(--bd); }
+    .bb-rp-head-ttl { font-size: 11px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 11px; }
+    .bb-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    @media (max-width: 560px) { .bb-stats { grid-template-columns: repeat(2, 1fr); } }
+    .bb-stat { padding: 10px 12px; background: var(--bg-sur2); border-radius: var(--r-md); border: 1px solid var(--bd); }
+    .bb-stat-n { font-size: 22px; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; }
+    .bb-stat-l { font-size: 10px; color: var(--t3); font-weight: 600; margin-top: 2px; }
+
+    .bb-tabs { flex: 0 0 auto; display: flex; gap: 2px; padding: 0 14px; background: var(--bg-sur); border-bottom: 1px solid var(--bd); flex-wrap: wrap; }
+    .bb-tab { font-family: var(--font); font-size: 12px; font-weight: 700; color: var(--t3); background: transparent; border: 0; border-bottom: 2px solid transparent; padding: 10px 12px; cursor: pointer; white-space: nowrap; }
+    .bb-tab:hover { color: var(--t1); }
+    .bb-tab.is-active { color: var(--stam); border-bottom-color: var(--stam); }
+    .bb-tab-note { font-size: 9.5px; font-weight: 600; color: var(--bb-muted); margin-left: 4px; }
+
+    .bb-tabpanels { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 18px 20px 22px; }   /* scrollbar 톤: .bb-scrollbar token */
+    .bb-tabpanel { display: flex; flex-direction: column; gap: 14px; }
+    .bb-tabpanel[hidden] { display: none; }
+
+    /* board mock (현재 구성 기준 예상 게시판 화면) */
+    .bb-brd { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: var(--r-lg); overflow: hidden; box-shadow: 0 4px 14px rgba(15,23,42,.06); }
+    .bb-brd-top { background: var(--navy, #0D1235); padding: 9px 14px; display: flex; align-items: center; gap: 8px; }
+    .bb-brd-top-ttl { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.82); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bb-brd-top-badge { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: rgba(84,81,232,.28); color: #A9A1FB; letter-spacing: .04em; flex-shrink: 0; }
+    .bb-brd-hdr { padding: 13px 16px; border-bottom: 1px solid var(--bd); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .bb-brd-hdr-ttl { font-size: 15px; font-weight: 700; color: var(--t1); letter-spacing: -.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bb-brd-hdr-acts { display: flex; gap: 6px; flex-shrink: 0; }
+    .bb-mk-pri { padding: 6px 12px; border-radius: var(--r-md); background: var(--stam); color: #fff; font-size: 11px; font-weight: 700; }
+    .bb-mk-sec { padding: 6px 11px; border-radius: var(--r-md); background: var(--bg-sur2); color: var(--t2); border: 1px solid var(--bd); font-size: 11px; font-weight: 600; }
+    .bb-brd-fbar { padding: 9px 16px; border-bottom: 1px solid var(--bd); display: flex; align-items: center; gap: 7px; background: var(--bg-sur2); flex-wrap: wrap; }
+    .bb-mk-search { flex: 1 1 120px; min-width: 100px; height: 28px; padding: 0 10px; border: 1px solid var(--bd); border-radius: var(--r-md); background: var(--bg-sur); font-size: 11px; color: var(--bb-muted); display: inline-flex; align-items: center; gap: 6px; }
+    .bb-mk-chip { padding: 4px 10px; border-radius: 6px; font-size: 10.5px; font-weight: 600; border: 1px solid var(--stam); background: var(--stam-soft); color: var(--stam); white-space: nowrap; }
+    .bb-brd-tblwrap { overflow-x: auto; }
+    .bb-ptable { width: 100%; border-collapse: collapse; min-width: 560px; }
+    .bb-ptable th { text-align: left; font-size: 10px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .04em; padding: 8px 12px; background: var(--bg-sur2); white-space: nowrap; border-bottom: 1px solid var(--bd); }
+    .bb-ptable td { padding: 10px 12px; font-size: 12px; color: var(--t2); border-bottom: 1px solid var(--bd); white-space: nowrap; vertical-align: middle; }
+    .bb-ptable tbody tr:last-child td { border-bottom: 0; }
+    .bb-th-chk, .bb-td-chk { width: 34px; text-align: center; }
+    .bb-id { font-size: 11px; font-weight: 700; color: var(--stam); }
+    .bb-name { font-weight: 600; color: var(--t1); }
+    .bb-user { color: var(--t2); }
+    .bb-link { color: var(--stam); }
+    .bb-rowbtn { border: 1px solid var(--bd-s); background: var(--bg-sur); border-radius: var(--r-sm); padding: 2px 9px; font-size: 11px; color: var(--t3); }
+
+    .bb-notice {
+      font-size: 11px; color: var(--t3); line-height: 1.6; padding: 9px 12px;
+      border: 1px solid var(--bd); border-left: 3px solid var(--bd-s); border-radius: var(--r-md); background: var(--bg-sur2);
+    }
+    .bb-notice code { font-family: var(--mono); font-size: 10.5px; color: var(--t2); }
+
+    .bb-pgroup-h { font-size: 10.5px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+    .bb-taglist { display: flex; flex-wrap: wrap; gap: 6px; }
+    .bb-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--t1); background: var(--bg-sur); border: 1px solid var(--bd); border-radius: var(--r-sm); padding: 4px 9px; }
+    .bb-tag em { font-style: normal; color: var(--bb-muted); font-family: var(--mono); font-size: 10px; }
+    .bb-tag .bb-req { color: var(--fail); }
+    .bb-empty { font-size: 11.5px; color: var(--bb-muted); }
+
+    .bb-json-bar { display: flex; align-items: center; gap: 10px; }
+    .bb-copy-status { font-size: 11px; color: var(--t2); }
+    .bb-json {
+      width: 100%; min-height: 340px; font-family: var(--mono); font-size: 11.5px; line-height: 1.55; color: var(--t1);
+      background: var(--bg-base); border: 1px solid var(--bd); border-radius: var(--r-md); padding: 10px 12px; resize: vertical;
+    }
+
+  </style>
+</head>
+<body>
+  <main class="bb-wrap" id="bb-app">
+    <header class="bb-head">
+      <div>
+        <div class="bb-eyebrow"><span class="bb-dot"></span>BOARD FACTORY · 게시판 만들기</div>
+        <h1 class="bb-title">게시판 만들기</h1>
+        <p class="bb-sub">필드와 화면 구성을 선택하면 게시판 초안을 생성할 수 있습니다. 오른쪽에서 무엇이 만들어질지 바로 확인하세요.</p>
+        <div class="bb-chips">
+          <span class="bb-sc bb-sc--preview">Admin Preview</span>
+          <span class="bb-sc">Local</span>
+          <span class="bb-sc">No DB</span>
+        </div>
+      </div>
+      <div class="bb-head-r">
+        <a class="bb-back" href="./index.html" title="Board Factory v2 Preview Index">← 목록</a>
+        <button type="button" class="bb-theme" data-theme-toggle
+          onclick="if(window.STAM&amp;&amp;window.STAM.toggleTheme)window.STAM.toggleTheme()">☾ 다크모드</button>
+      </div>
+    </header>
+
+    <div class="bb-shell">
+      <!-- 좌측: 단계형 입력 (상단 헤더 고정 · 내부 스크롤 · 하단 액션바 고정) -->
+      <section class="bb-panel bb-panel--form">
+        <div class="bb-form-scroll">
+
+        <!-- STEP 1 -->
+        <div class="bb-step">
+          <div class="bb-step-hdr">
+            <span class="bb-step-n">1</span>
+            <span class="bb-step-lbl">게시판 기본 정보</span>
+            <span class="bb-step-sub">필수 항목</span>
+          </div>
+          <div class="bb-step-body">
+            <div class="bb-form-grid">
+              <div class="bb-field">
+                <label class="bb-lbl" for="bb-category">카테고리</label>
+                <select class="bb-select" id="bb-category" data-bb="category">
+                  <option>산출물 관리</option>
+                  <option>관리/설정</option>
+                  <option>프로젝트 관리</option>
+                </select>
+              </div>
+              <div class="bb-field">
+                <label class="bb-lbl" for="bb-title">게시판명</label>
+                <input class="bb-input" id="bb-title" data-bb="title" type="text" placeholder="예) 테스트 시나리오" autocomplete="off">
+              </div>
+              <div class="bb-field bb-full">
+                <label class="bb-lbl" for="bb-slug">게시판 코드 <span class="bb-opt">자동 생성</span></label>
+                <div class="bb-slug-row">
+                  <input class="bb-input" id="bb-slug" data-bb="slug" type="text" placeholder="예) test-scenario" autocomplete="off">
+                  <button type="button" class="bb-btn bb-btn--ghost bb-btn--sm bb-autobtn" data-bb-action="auto-slug" title="게시판명에서 코드 자동 생성">코드 자동 생성</button>
+                </div>
+                <div class="bb-hint">게시판명을 기반으로 생성됩니다. 직접 수정할 수도 있습니다.</div>
+              </div>
+              <div class="bb-field bb-full">
+                <label class="bb-lbl" for="bb-desc">설명 <span class="bb-opt">선택</span></label>
+                <textarea class="bb-textarea" id="bb-desc" data-bb="description" placeholder="이 게시판의 용도나 운영 방침을 입력하세요."></textarea>
+              </div>
+              <div class="bb-field bb-full">
+                <label class="bb-lbl">기본 템플릿</label>
+                <div class="bb-tpl-grid" data-bb-templates>
+                  <button type="button" class="bb-tpl-card is-sel" data-bb-tpl="notice">
+                    <span class="bb-tpl-ico">📋</span>
+                    <span class="bb-tpl-name">공지사항</span>
+                    <span class="bb-tpl-desc">제목·내용·첨부 기본</span>
+                  </button>
+                  <button type="button" class="bb-tpl-card" data-bb-tpl="free">
+                    <span class="bb-tpl-ico">💬</span>
+                    <span class="bb-tpl-name">자유 게시판</span>
+                    <span class="bb-tpl-desc">기본 게시판 구조</span>
+                  </button>
+                  <button type="button" class="bb-tpl-card" data-bb-tpl="archive">
+                    <span class="bb-tpl-ico">🗂️</span>
+                    <span class="bb-tpl-name">자료실</span>
+                    <span class="bb-tpl-desc">파일 첨부 중심</span>
+                  </button>
+                  <button type="button" class="bb-tpl-card" data-bb-tpl="qna">
+                    <span class="bb-tpl-ico">❓</span>
+                    <span class="bb-tpl-name">Q&amp;A</span>
+                    <span class="bb-tpl-desc">질문·답변 구조</span>
+                  </button>
+                  <button type="button" class="bb-tpl-card" data-bb-tpl="issue">
+                    <span class="bb-tpl-ico">🏷️</span>
+                    <span class="bb-tpl-name">요청/이슈</span>
+                    <span class="bb-tpl-desc">상태·우선순위 포함</span>
+                  </button>
+                  <button type="button" class="bb-tpl-card" data-bb-tpl="custom">
+                    <span class="bb-tpl-ico">＋</span>
+                    <span class="bb-tpl-name">직접 구성</span>
+                    <span class="bb-tpl-desc">필드 자유 편집</span>
+                  </button>
+                </div>
+                <div class="bb-tpl-note">템플릿은 시작점 예시입니다. 필드 구성은 아래에서 자유롭게 편집할 수 있습니다.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="bb-step">
+          <div class="bb-step-hdr">
+            <span class="bb-step-n">2</span>
+            <span class="bb-step-lbl">필드 구성</span>
+            <span class="bb-fld-badge" data-bb-fieldcount>0개 필드</span>
+          </div>
+          <div class="bb-step-body">
+            <div class="bb-fld-head">
+              <span class="bb-fld-hint">⋮⋮ 드래그로 순서 변경 · 목록/필터/입력폼 표시 토글 · 고급 설정에서 key·매핑</span>
+            </div>
+            <div class="bb-fields" data-bb-fields></div>
+            <button type="button" class="bb-btn bb-addfield" data-bb-action="add-field">＋ 필드 추가</button>
+          </div>
+        </div>
+
+        </div><!-- /bb-form-scroll -->
+
+        <!-- 좌측 하단 고정 액션바 (③ 게시판 초안 만들기) -->
+        <div class="bb-form-foot">
+          <div class="bb-actions">
+            <button type="button" class="bb-btn bb-btn--reset" data-bb-action="reset" title="입력·미리보기·localStorage 초기화">초기화</button>
+            <button type="button" class="bb-btn bb-btn--ghost" data-bb-action="copy">JSON 복사</button>
+            <button type="button" class="bb-btn bb-btn--primary" data-bb-action="generate">게시판 초안 보기</button>
+          </div>
+          <span class="bb-actions-status" data-bb-copy-status aria-live="polite"></span>
+        </div>
+
+      </section>
+
+      <!-- 우측: 항상 살아있는 미리보기 -->
+      <section class="bb-panel bb-panel--preview">
+        <div class="bb-preview" data-bb-preview></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="../../js/stam.theme.js"></script>
+  <script src="../../js/stam.board-field-schema.js"></script>
+  <script src="../../js/stam.board-builder-preview.js"></script>
+  <script>
+    (function () {
+      if (window.STAM && window.STAM.boardBuilderPreview) {
+        window.STAM.boardBuilderPreview.init(document.getElementById('bb-app'));
+      }
+    }());
+  </script>
+</body>
+</html>
