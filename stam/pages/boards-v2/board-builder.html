@@ -7,6 +7,8 @@
   <link rel="icon" href="../../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
   <link rel="stylesheet" href="../../css/stam.tokens.css">
+  <!-- 공통 scrollbar helper(.stam-scrollbar) + --stam-scrollbar-* token (PR-B 승격). -->
+  <link rel="stylesheet" href="../../css/stam.scrollbar.css">
   <!-- chip tone(.bf-chip--*) 재사용 목적으로만 link (board-factory.css 수정 없음). -->
   <link rel="stylesheet" href="../../css/stam.board-factory.css">
   <!--
@@ -34,55 +36,40 @@
     /* local scope 변수 — 전역 token 아님(.bb-wrap 한정) */
     .bb-wrap {
       --bb-muted: #94A3B8; --bb-shell-gap: 18px;
-      /* scrollbar token — Board Builder scope 한정(전역 :root 미오염). 좌/우/테이블 동일 톤.
-         TODO(v2 common): promote --bb-scrollbar-* / .bb-scrollbar → .stam-scrollbar (공통 디자인 시스템). */
-      --bb-scrollbar-size: 8px;
-      --bb-scrollbar-track: var(--bg-sur2);
-      --bb-scrollbar-thumb: var(--bd-s);
-      --bb-scrollbar-thumb-hover: var(--bb-muted);
       height: 100vh; height: 100dvh; max-width: 1640px; margin: 0 auto; padding: 14px 24px 0;
       display: flex; flex-direction: column; overflow: hidden;
     }
 
-    /* ── scrollbar helper (Board Builder scope 한정) ───────────────────
-       좌측 패널 / 우측 Preview / 탭 내용 / 테이블 가로 스크롤을 모두 동일 token 톤으로 통일.
-       (.bb-tabpanels·.bb-brd-tblwrap 등 JS 렌더 요소는 클래스명으로 직접 타깃 → JS 변경 0)
-       TODO(v2 common): .bb-scrollbar 를 공통 .stam-scrollbar 로 승격(이번 PR 은 scope 한정). */
-    .bb-scrollbar,
-    .bb-form-scroll,
+    /* ── scrollbar 톤 (PR-B 승격) ──────────────────────────────────────
+       공통 helper(`stam.scrollbar.css` `.stam-scrollbar`) + `--stam-scrollbar-*` token 사용.
+       · 좌측 `.bb-form-scroll` 은 element 에 `.stam-scrollbar` 직접 적용(helper 사용).
+       · JS 렌더 스크롤 영역(.bb-tabpanels/.bb-brd-tblwrap/.bb-json/.bb-adv-v)은 class 추가 시
+         JS 변경이 필요하므로, JS 변경 없이 공통 `--stam-scrollbar-*` token 으로 동일 톤 위임
+         (후속 PR 에서 `.stam-scrollbar` class 채택). bb scope 전용 `--bb-scrollbar-*` 는 제거됨. */
     .bb-tabpanels,
     .bb-brd-tblwrap,
     .bb-json,
     .bb-adv-v {
       scrollbar-width: thin;
-      scrollbar-color: var(--bb-scrollbar-thumb) var(--bb-scrollbar-track);
+      scrollbar-color: var(--stam-scrollbar-thumb) var(--stam-scrollbar-track);
     }
-    .bb-scrollbar::-webkit-scrollbar,
-    .bb-form-scroll::-webkit-scrollbar,
     .bb-tabpanels::-webkit-scrollbar,
     .bb-brd-tblwrap::-webkit-scrollbar,
     .bb-json::-webkit-scrollbar,
-    .bb-adv-v::-webkit-scrollbar { width: var(--bb-scrollbar-size); height: var(--bb-scrollbar-size); }
-    .bb-scrollbar::-webkit-scrollbar-track,
-    .bb-form-scroll::-webkit-scrollbar-track,
+    .bb-adv-v::-webkit-scrollbar { width: var(--stam-scrollbar-size); height: var(--stam-scrollbar-size); }
     .bb-tabpanels::-webkit-scrollbar-track,
     .bb-brd-tblwrap::-webkit-scrollbar-track,
     .bb-json::-webkit-scrollbar-track,
-    .bb-adv-v::-webkit-scrollbar-track { background: var(--bb-scrollbar-track); border-radius: 999px; }
-    .bb-scrollbar::-webkit-scrollbar-thumb,
-    .bb-form-scroll::-webkit-scrollbar-thumb,
+    .bb-adv-v::-webkit-scrollbar-track { background: var(--stam-scrollbar-track); border-radius: 999px; }
     .bb-tabpanels::-webkit-scrollbar-thumb,
     .bb-brd-tblwrap::-webkit-scrollbar-thumb,
     .bb-json::-webkit-scrollbar-thumb,
-    .bb-adv-v::-webkit-scrollbar-thumb { background: var(--bb-scrollbar-thumb); border-radius: 999px; }
-    .bb-scrollbar::-webkit-scrollbar-thumb:hover,
-    .bb-form-scroll::-webkit-scrollbar-thumb:hover,
+    .bb-adv-v::-webkit-scrollbar-thumb { background: var(--stam-scrollbar-thumb); border-radius: 999px; }
     .bb-tabpanels::-webkit-scrollbar-thumb:hover,
     .bb-brd-tblwrap::-webkit-scrollbar-thumb:hover,
     .bb-json::-webkit-scrollbar-thumb:hover,
-    .bb-adv-v::-webkit-scrollbar-thumb:hover { background: var(--bb-scrollbar-thumb-hover); }
-    .bb-scrollbar::-webkit-scrollbar-corner,
-    .bb-brd-tblwrap::-webkit-scrollbar-corner { background: var(--bb-scrollbar-track); }
+    .bb-adv-v::-webkit-scrollbar-thumb:hover { background: var(--stam-scrollbar-thumb-hover); }
+    .bb-brd-tblwrap::-webkit-scrollbar-corner { background: var(--stam-scrollbar-track); }
 
     /* ── header (Shell 상단 고정 — 스크롤 안 됨) ── */
     .bb-head { flex: 0 0 auto; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 14px; }
@@ -121,7 +108,7 @@
     }
     .bb-panel { background: var(--bg-sur); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
     .bb-panel--form { border-right: 1px solid var(--bd); }   /* 좌/우 divider */
-    /* 좌측 내부 scroll 영역 — scrollbar 는 패널 오른쪽 경계(=divider) 쪽에 표시 (톤: .bb-scrollbar token) */
+    /* 좌측 내부 scroll 영역 — scrollbar 는 패널 오른쪽 경계(=divider) 쪽에 표시 (톤: 공통 .stam-scrollbar, element class 적용) */
     .bb-form-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 6px 20px 20px; }
     /* 좌측 하단 고정 액션바 (③ 게시판 초안 만들기) */
     .bb-form-foot { flex: 0 0 auto; border-top: 1px solid var(--bd); background: var(--bg-sur); padding: 12px 20px 13px; }
@@ -268,7 +255,7 @@
     .bb-tab.is-active { color: var(--stam); border-bottom-color: var(--stam); }
     .bb-tab-note { font-size: 9.5px; font-weight: 600; color: var(--bb-muted); margin-left: 4px; }
 
-    .bb-tabpanels { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 18px 20px 22px; }   /* scrollbar 톤: .bb-scrollbar token */
+    .bb-tabpanels { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 18px 20px 22px; }   /* scrollbar 톤: 공통 --stam-scrollbar-* (위 그룹 규칙) */
     .bb-tabpanel { display: flex; flex-direction: column; gap: 14px; }
     .bb-tabpanel[hidden] { display: none; }
 
@@ -342,7 +329,7 @@
     <div class="bb-shell">
       <!-- 좌측: 단계형 입력 (상단 헤더 고정 · 내부 스크롤 · 하단 액션바 고정) -->
       <section class="bb-panel bb-panel--form">
-        <div class="bb-form-scroll">
+        <div class="bb-form-scroll stam-scrollbar">
 
         <!-- STEP 1 -->
         <div class="bb-step">
