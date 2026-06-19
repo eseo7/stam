@@ -40,36 +40,11 @@
       display: flex; flex-direction: column; overflow: hidden;
     }
 
-    /* ── scrollbar 톤 (PR-B 승격) ──────────────────────────────────────
-       공통 helper(`stam.scrollbar.css` `.stam-scrollbar`) + `--stam-scrollbar-*` token 사용.
-       · 좌측 `.bb-form-scroll` 은 element 에 `.stam-scrollbar` 직접 적용(helper 사용).
-       · JS 렌더 스크롤 영역(.bb-tabpanels/.bb-brd-tblwrap/.bb-json/.bb-adv-v)은 class 추가 시
-         JS 변경이 필요하므로, JS 변경 없이 공통 `--stam-scrollbar-*` token 으로 동일 톤 위임
-         (후속 PR 에서 `.stam-scrollbar` class 채택). bb scope 전용 `--bb-scrollbar-*` 는 제거됨. */
-    .bb-tabpanels,
-    .bb-brd-tblwrap,
-    .bb-json,
-    .bb-adv-v {
-      scrollbar-width: thin;
-      scrollbar-color: var(--stam-scrollbar-thumb) var(--stam-scrollbar-track);
-    }
-    .bb-tabpanels::-webkit-scrollbar,
-    .bb-brd-tblwrap::-webkit-scrollbar,
-    .bb-json::-webkit-scrollbar,
-    .bb-adv-v::-webkit-scrollbar { width: var(--stam-scrollbar-size); height: var(--stam-scrollbar-size); }
-    .bb-tabpanels::-webkit-scrollbar-track,
-    .bb-brd-tblwrap::-webkit-scrollbar-track,
-    .bb-json::-webkit-scrollbar-track,
-    .bb-adv-v::-webkit-scrollbar-track { background: var(--stam-scrollbar-track); border-radius: 999px; }
-    .bb-tabpanels::-webkit-scrollbar-thumb,
-    .bb-brd-tblwrap::-webkit-scrollbar-thumb,
-    .bb-json::-webkit-scrollbar-thumb,
-    .bb-adv-v::-webkit-scrollbar-thumb { background: var(--stam-scrollbar-thumb); border-radius: 999px; }
-    .bb-tabpanels::-webkit-scrollbar-thumb:hover,
-    .bb-brd-tblwrap::-webkit-scrollbar-thumb:hover,
-    .bb-json::-webkit-scrollbar-thumb:hover,
-    .bb-adv-v::-webkit-scrollbar-thumb:hover { background: var(--stam-scrollbar-thumb-hover); }
-    .bb-brd-tblwrap::-webkit-scrollbar-corner { background: var(--stam-scrollbar-track); }
+    /* ── scrollbar 톤 ─────────────────────────────────────────────────
+       공통 `stam.scrollbar.css` `.stam-scrollbar` helper + `--stam-scrollbar-*` token 으로 일원화.
+       좌측 `.bb-form-scroll`(static) 및 JS 렌더 스크롤 영역(.bb-tabpanels / .bb-brd-tblwrap /
+       .bb-json / .bb-adv-v)에 `.stam-scrollbar` class 를 직접 적용 → Board Builder 전용 scrollbar
+       규칙/토큰 없음(전부 공통 helper 담당). */
 
     /* ── header (Shell 상단 고정 — 스크롤 안 됨) ── */
     .bb-head { flex: 0 0 auto; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 14px; }
@@ -255,7 +230,7 @@
     .bb-tab.is-active { color: var(--stam); border-bottom-color: var(--stam); }
     .bb-tab-note { font-size: 9.5px; font-weight: 600; color: var(--bb-muted); margin-left: 4px; }
 
-    .bb-tabpanels { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 18px 20px 22px; }   /* scrollbar 톤: 공통 --stam-scrollbar-* (위 그룹 규칙) */
+    .bb-tabpanels { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 18px 20px 22px; }   /* scrollbar 톤: 공통 .stam-scrollbar (element class, JS 렌더) */
     .bb-tabpanel { display: flex; flex-direction: column; gap: 14px; }
     .bb-tabpanel[hidden] { display: none; }
 

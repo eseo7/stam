@@ -80,3 +80,14 @@ Board Builder(회차 6)에 임시로 둔 scope 한정 scrollbar 구조(`--bb-scr
 - `--bb-scrollbar-*` / `.bb-scrollbar` 코드 잔존 0(주석의 "제거됨" 표기 제외).
 - 기존 3개 게시판 diff 0 · `stam.js/**` diff 0 · nav-data/firebase/workflows diff 0 · API/Firestore/fetch 0.
 - **실제 브라우저 시각(좌/우/테이블 scrollbar light·dark)은 사용자 QA(PENDING)** — 헤드리스 브라우저 미가용.
+
+## 10. Follow-up — JS 렌더 영역에 `.stam-scrollbar` 직접 적용 (PR #147 추가 커밋)
+
+> PR #147 동일 브랜치 추가 커밋. scrollbar class 적용 정리만 — 새 PR 없음, Ready/merge/deploy 없음.
+
+- **초안 상태(§5):** 우측 JS 렌더 스크롤 영역(`.bb-tabpanels` / `.bb-brd-tblwrap` / `.bb-json` / `.bb-adv-v`)은 board-builder.html inline `<style>` 안에서 `.bb-*` selector 로 공통 `--stam-scrollbar-*` token 만 **위임**하고 있었다(JS 무변경 우선).
+- **follow-up:** `stam/js/stam.board-builder-preview.js` 의 **렌더 문자열에 `.stam-scrollbar` class 를 직접 추가**했다 — `class="bb-tabpanels stam-scrollbar"`, `class="bb-brd-tblwrap stam-scrollbar"`, `class="bb-json stam-scrollbar"`, `class="bb-adv-v stam-scrollbar"`(2곳). **class 추가만 — 이벤트/ data attribute / localStorage key / buildConfig / 탭·Preview 구조 로직 변경 0.**
+- **inline 위임 규칙 제거:** board-builder.html inline `<style>` 의 `.bb-tabpanels, .bb-brd-tblwrap, .bb-json, .bb-adv-v` scrollbar 전용 규칙(`scrollbar-width/-color` + `::-webkit-scrollbar*` track/thumb/hover/corner)을 **전부 삭제**. 이제 Board Builder 안에 scrollbar 전용 `.bb-*` 규칙/토큰이 **0**.
+- **결과:** scrollbar 시각 제어가 **`stam.scrollbar.css`(`.stam-scrollbar`) + `--stam-scrollbar-*` token 으로 완전히 이동**. 좌측 `.bb-form-scroll`(static) + 우측 4개 JS 렌더 영역 모두 공통 helper class 사용으로 일원화.
+- **남은 작업:** Board Builder **전체 inline CSS 분리는 여전히 PR-C 대상**(이번 작업은 scrollbar 한정).
+- **검증(추가 커밋):** `--bb-scrollbar-*` / `.bb-scrollbar` / `.bb-*::-webkit-scrollbar` 잔존 0 · JS 렌더 문자열 `.stam-scrollbar` 5곳 존재 · inline CSS 171/171 BALANCED · `node --check` ×4 PASS · `buildConfig` 13/13 · DOM smoke PASS · JS diff = class 문자열 추가 5건뿐(로직 0) · 기존 3개 게시판 diff 0 · `stam.tokens.css`/`stam.scrollbar.css` 추가 변경 0 · API/Firestore/fetch 0 · nav/firebase/workflow 0.

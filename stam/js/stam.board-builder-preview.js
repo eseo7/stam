@@ -272,8 +272,8 @@
       var mapTxt = 'column: ' + (map.column || '—') + ' · control: ' + (map.control || '—') + ' · filter: ' + String(map.filter);
       return '<div class="bb-adv-row"><span class="bb-adv-k">필드 key</span>' +
           '<input class="bb-input bb-adv-key" data-bb-fp="key" value="' + esc(f.key) + '" placeholder="key" aria-label="필드 key"' + (lockInputs ? ' disabled' : '') + '></div>' +
-        '<div class="bb-adv-row"><span class="bb-adv-k">raw type</span><code class="bb-adv-v">' + esc(f.type) + '</code></div>' +
-        '<div class="bb-adv-row"><span class="bb-adv-k">engine 매핑</span><code class="bb-adv-v">' + esc(mapTxt) + '</code></div>';
+        '<div class="bb-adv-row"><span class="bb-adv-k">raw type</span><code class="bb-adv-v stam-scrollbar">' + esc(f.type) + '</code></div>' +
+        '<div class="bb-adv-row"><span class="bb-adv-k">engine 매핑</span><code class="bb-adv-v stam-scrollbar">' + esc(mapTxt) + '</code></div>';
     }
     function renderFields() {
       if (els.fieldCount) els.fieldCount.textContent = fields.length + '개 필드';
@@ -509,7 +509,7 @@
         '<div class="bb-brd-hdr"><div class="bb-brd-hdr-ttl">' + esc(config.title || '새 게시판') + '</div>' +
           '<div class="bb-brd-hdr-acts"><span class="bb-mk-sec">전체</span><span class="bb-mk-pri">＋ 글 작성</span></div></div>' +
         '<div class="bb-brd-fbar"><span class="bb-mk-search">🔍 검색</span>' + filterChips + '</div>' +
-        '<div class="bb-brd-tblwrap"><table class="bb-ptable"><thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table></div></div>';
+        '<div class="bb-brd-tblwrap stam-scrollbar"><table class="bb-ptable"><thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table></div></div>';
       var screenPanel = panel('screen', boardMock +
         '<div class="bb-notice">아직 DB 에 저장되지 않은 <b>localStorage 미리보기</b>입니다. 위 화면은 현재 구성 기준 예상 결과입니다. (key <code>' + esc(LS_CONFIG) + '</code>)</div>');
 
@@ -529,9 +529,9 @@
       // JSON (개발자 참고용)
       var jsonPanel = panel('json',
         '<div class="bb-json-bar"><button type="button" class="bb-btn bb-btn--ghost bb-btn--sm" data-bb-action="copy">JSON 복사</button><span class="bb-copy-status" data-bb-copy-status aria-live="polite"></span></div>' +
-        '<textarea class="bb-json" data-bb-json readonly rows="22">' + esc(JSON.stringify(config, null, 2)) + '</textarea>');
+        '<textarea class="bb-json stam-scrollbar" data-bb-json readonly rows="22">' + esc(JSON.stringify(config, null, 2)) + '</textarea>');
 
-      els.preview.innerHTML = head + tabbar + '<div class="bb-tabpanels">' + screenPanel + fieldsPanel + filtersPanel + jsonPanel + '</div>';
+      els.preview.innerHTML = head + tabbar + '<div class="bb-tabpanels stam-scrollbar">' + screenPanel + fieldsPanel + filtersPanel + jsonPanel + '</div>';
       applyActiveTab();
     }
     function typeLabel(t) { var meta = (window.STAM.boardFieldSchema && window.STAM.boardFieldSchema.types[t]) || {}; return meta.label || t; }
