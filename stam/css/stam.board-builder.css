@@ -85,3 +85,72 @@
 .bb-tpl-name { font-size: 11.5px; font-weight: 700; color: var(--t1); }
 .bb-tpl-desc { font-size: 10px; color: var(--t3); line-height: 1.4; }
 .bb-tpl-note { font-size: 10.5px; color: var(--bb-muted); margin-top: 8px; line-height: 1.5; }
+
+/* ════════════════════════════════════════════════════════════════════
+   PR-C-2 — page base · .bb-wrap · header · shell layout · action bar · narrow fallback
+   (board-builder.html inline <style> 에서 이동). 본 파일은 board-builder.html 에서만 link →
+   page-scope 유지(전역 영향 없음). class/DOM/JS/시각 변화 없음. narrow @media 는 섹션 끝(override 순서 보존).
+   ════════════════════════════════════════════════════════════════════ */
+
+/* page base — Board Builder standalone 페이지 전용(board-builder.html 만 link → 전역 영향 없음). body/page 전체 스크롤 제거. */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font); background: var(--bg-base); color: var(--t1);
+  -webkit-font-smoothing: antialiased; font-size: 13px; line-height: 1.5; overflow: hidden;
+}
+
+/* local scope 변수 — 전역 token 아님(.bb-wrap 한정) */
+.bb-wrap {
+  --bb-muted: #94A3B8; --bb-shell-gap: 18px;
+  height: 100vh; height: 100dvh; max-width: 1640px; margin: 0 auto; padding: 14px 24px 0;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+/* ── header (Shell 상단 고정 — 스크롤 안 됨) ── */
+.bb-head { flex: 0 0 auto; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 14px; }
+.bb-head-r { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.bb-back { font-size: 12px; font-weight: 700; color: var(--stam); text-decoration: none; padding: 7px 11px; border-radius: var(--r-md); border: 1px solid var(--bd-s); white-space: nowrap; background: var(--bg-sur); transition: border-color 120ms, background 120ms; }
+.bb-back:hover { border-color: var(--stam); background: var(--stam-soft); }
+.bb-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--stam); letter-spacing: .02em; margin: 0 0 8px; }
+.bb-eyebrow .bb-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--stam); }
+.bb-title { font-size: 23px; font-weight: 800; letter-spacing: -.022em; margin: 0 0 6px; color: var(--t1); }
+.bb-sub { font-size: 13px; color: var(--t2); line-height: 1.6; margin: 0; max-width: 560px; }
+.bb-theme {
+  flex-shrink: 0; font-family: var(--font); font-size: 12px; font-weight: 600;
+  color: var(--t2); background: var(--bg-sur); border: 1px solid var(--bd-s);
+  border-radius: var(--r-md); padding: 7px 12px; cursor: pointer;
+  transition: border-color 120ms, color 120ms;
+}
+.bb-theme:hover { border-color: var(--stam); color: var(--stam); }
+
+/* ── Shell (viewport 고정 2분할) — body/page 스크롤 없이 좌/우 패널 내부만 스크롤. 우측 비-sticky 고정 영역 ── */
+.bb-shell {
+  flex: 1 1 auto; min-height: 0; margin-bottom: var(--bb-shell-gap);
+  display: grid; grid-template-columns: minmax(420px, 520px) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);   /* 행을 컨테이너 높이에 고정 → 내부 패널 스크롤 보장 */
+  background: var(--bg-sur); border: 1px solid var(--bd); border-radius: var(--r-lg);
+  box-shadow: 0 1px 3px rgba(15,23,42,.04); overflow: hidden;
+}
+.bb-panel { background: var(--bg-sur); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.bb-panel--form { border-right: 1px solid var(--bd); }   /* 좌/우 divider */
+/* 좌측 내부 scroll 영역 (scrollbar 톤: 공통 .stam-scrollbar element class) */
+.bb-form-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 6px 20px 20px; }
+/* 좌측 하단 고정 액션바 (③ 게시판 초안 만들기) */
+.bb-form-foot { flex: 0 0 auto; border-top: 1px solid var(--bd); background: var(--bg-sur); padding: 12px 20px 13px; }
+
+/* ── action bar (좌측 하단 컨테이너; 버튼 변형 .bb-btn* 는 위 buttons 섹션) ── */
+.bb-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.bb-actions-status { display: block; font-size: 11px; color: var(--t3); min-height: 14px; margin-top: 7px; }
+
+/* narrow/짧은 화면(DEFERRED): 고정 Shell 해제 → 자연 스크롤로 폴백 (override 순서상 섹션 끝) */
+@media (max-width: 1180px) {
+  html, body { height: auto; }
+  body { overflow: auto; }
+  .bb-wrap { height: auto; overflow: visible; padding: 14px 16px 32px; }
+  .bb-shell { grid-template-columns: 1fr; grid-template-rows: auto; overflow: visible; margin-bottom: 0; height: auto; }
+  .bb-panel { overflow: visible; }
+  .bb-panel--form { border-right: 0; border-bottom: 1px solid var(--bd); }
+  .bb-form-scroll { overflow: visible; }
+}
