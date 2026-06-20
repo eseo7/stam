@@ -330,6 +330,20 @@
   }
   function toneFor(field, value) { return (field && field.tone && field.tone[value]) ? field.tone[value] : 'neutral'; }
 
+  /* 옵션 chip 미리보기 — 옵션 입력값(쉼표 분리)을 chip 으로 표시(표시 전용, 저장 구조 무관).
+   * trim + 빈 값 제외 + 중복 제거 후 escape. 상태/우선순위는 기존 tone(toneFor) 재사용, 그 외 선택형은 중립.
+   * 옵션이 없으면 muted 안내(저장값 변경 아님 — preview 렌더만). */
+  function optionPreviewHtml(field) {
+    var raw = (field && field.options) || [];
+    var seen = {}, opts = [];
+    raw.forEach(function (o) { var v = String(o == null ? '' : o).trim(); if (v && !seen[v]) { seen[v] = 1; opts.push(v); } });
+    if (!opts.length) return '<span class="bb-option-empty">옵션 없음 — 쉼표로 입력하면 아래에 미리보기로 표시됩니다.</span>';
+    var toned = field.type === 'status' || field.type === 'priority';
+    return opts.map(function (o) {
+      return '<span class="bf-chip bf-chip--' + esc(toned ? toneFor(field, o) : 'neutral') + '">' + esc(o) + '</span>';
+    }).join('');
+  }
+
   /* ── DOM helpers ─────────────────────────────────────────────── */
   function q(root, sel) { return root.querySelector(sel); }
   function qa(root, sel) { return Array.prototype.slice.call(root.querySelectorAll(sel)); }
@@ -415,6 +429,7 @@
               (optType ? '<div class="bb-fc-row3">' +
                   '<input class="bb-input bb-fc-opts" data-bb-fp="options" value="' + esc((f.options || []).join(', ')) + '" placeholder="쉼표로 구분해 입력하세요. 예: 작성중, 검토요청, 완료" aria-label="선택 옵션">' +
                   '<div class="bb-fc-opt-hint">옵션은 미리보기 chip · 필터 값에 사용됩니다.</div>' +
+                  '<div class="bb-option-preview" data-bb-opt-preview>' + optionPreviewHtml(f) + '</div>' +
                 '</div>' : '') +
             '</div>' +
             '<div class="bb-fc-actions">' +
@@ -442,6 +457,14 @@
       if (prop === 'visibleInTable' || prop === 'visibleInFilter' || prop === 'visibleInDrawer' || prop === 'required') fields[i][prop] = inp.checked;
       else if (prop === 'options') fields[i].options = csvToArray(inp.value);
       else fields[i][prop] = inp.value;
+    }
+    /* 옵션 입력 중 해당 카드의 chip 미리보기만 갱신 — 카드 전체 re-render 없이(입력 포커스/커서 유지). */
+    function updateOptionPreview(inp) {
+      var row = inp.closest('[data-bb-fi]'); if (!row) return;
+      var i = parseInt(row.getAttribute('data-bb-fi'), 10);
+      if (!fields[i]) return;
+      var box = row.querySelector('[data-bb-opt-preview]');
+      if (box) box.innerHTML = optionPreviewHtml(fields[i]);
     }
     /* 고정(ID/제목) 영역 = 목록 선두의 pinned 연속 구간. 일반 필드는 이 index 위로 이동/삽입 불가. */
     function pinnedCount() { var n = 0; for (var i = 0; i < fields.length; i++) { if (!isPinned(fields[i])) break; n++; } return n; }
@@ -764,7 +787,12 @@
     });
     // 입력 중에도 우측 미리보기는 즉시 반영(좌측 카드 re-render 없음 → 입력 포커스 유지).
     root.addEventListener('input', function (e) {
-      if (e.target.closest('[data-bb-fp]')) { updateFieldFromInput(e.target); saveForm(); refreshPreview(); return; }
+      var fp = e.target.closest('[data-bb-fp]');
+      if (fp) {
+        updateFieldFromInput(e.target);
+        if (fp.getAttribute('data-bb-fp') === 'options') updateOptionPreview(e.target); // 옵션 chip 미리보기 즉시 갱신
+        saveForm(); refreshPreview(); return;
+      }
       if (e.target.closest('[data-bb]')) { saveForm(); refreshPreview(); }
     });
     root.addEventListener('change', function (e) {
