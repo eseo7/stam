@@ -341,3 +341,11 @@ body {
    고급 설정 안내문(.bb-adv-desc): 접힘 영역 상단 "연동용 · 보통 수정 불필요" 설명. 표시 전용 텍스트. */
 .bb-fc-opt-hint { margin-top: 4px; font-size: 10.5px; line-height: 1.45; color: var(--bb-muted); }
 .bb-adv-desc { margin: 0 0 2px; font-size: 10.5px; line-height: 1.5; color: var(--t3); }
+
+/* ── 옵션 chip 미리보기 — 쉼표 옵션을 chip 으로 즉시 표시 ──
+   chip 은 공통 .bf-chip(stam.board-factory.css) 재사용 — 신규 chip 스타일 없음.
+   .bb-option-preview: 입력 아래 chip wrap 영역(카드 폭 안에서 자동 줄바꿈). .bb-option-empty: 옵션 없음 muted 안내. */
+.bb-option-preview { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; min-width: 0; }
+/* 긴 단일 옵션이 카드 밖으로 넘치지 않도록: 짧은 값은 그대로(min-height 20px), 길면 chip 내부에서 줄바꿈. */
+.bb-option-preview .bf-chip { max-width: 100%; height: auto; min-height: 20px; white-space: normal; }
+.bb-option-empty { font-size: 10.5px; color: var(--bb-muted); }
