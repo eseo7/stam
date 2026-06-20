@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang='ko' data-theme='dark'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1.0'>
+<title>STAM Board Builder ↔ Screen Template Integration Blueprint v1</title>
+<link rel='icon' href='../assets/brand/stam/stam_favicon.ico' type='image/x-icon'>
+<link rel='stylesheet' href='../assets/fonts/s-core-dream/s-core-dream.css'>
+<link rel='stylesheet' href='../css/stam.tokens.css'>
+<link rel='stylesheet' href='../css/stam.shell.css'>
+<link rel='stylesheet' href='../css/stam.components.css'>
+<link rel='stylesheet' href='../css/stam.docs.css'>
+<style>
+:root{--bg:#07111f;--card:rgba(255,255,255,.055);--card2:rgba(255,255,255,.085);--line:rgba(148,163,184,.24);--text:#e5edf8;--muted:#93a4bb;--accent:#7dd3fc;--good:#86efac;--warn:#facc15;--bad:#fca5a5;--purple:#c4b5fd}
+[data-theme='light']{--bg:#f7f9fc;--card:#fff;--card2:#f0f5fb;--line:#d9e2ef;--text:#162033;--muted:#63738a;--accent:#0ea5e9;--good:#16a34a;--warn:#b45309;--bad:#dc2626;--purple:#7c3aed}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'S-Core Dream',system-ui,sans-serif;line-height:1.65}
+.top{position:sticky;top:0;z-index:20;display:flex;gap:12px;align-items:center;padding:12px 28px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px)}
+.top a{color:var(--text);text-decoration:none}
+.logo{font-weight:800;display:flex;align-items:center;gap:8px}
+.logo img{width:26px;height:26px}
+.sp{flex:1}
+.btn,.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 10px;font-size:11px;color:var(--muted);text-decoration:none}
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px;max-width:1580px;margin:0 auto;padding:28px}
+.toc{position:sticky;top:72px;align-self:start;border:1px solid var(--line);background:var(--card);border-radius:22px;padding:16px;max-height:calc(100vh - 100px);overflow-y:auto}
+.toc h2{margin:0 0 8px;font-size:13px}
+.toc a{display:block;padding:7px 10px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:11.5px}
+.toc a:hover{background:var(--card2);color:var(--text)}
+.hero,.sec{border:1px solid var(--line);background:var(--card);border-radius:26px;padding:24px;margin-bottom:18px}
+.hero{background:linear-gradient(135deg,var(--card2),var(--card))}
+h1{margin:0;font-size:33px;line-height:1.18;letter-spacing:-.04em}
+h2{margin:0;font-size:21px;letter-spacing:-.025em}
+h3{margin:0 0 6px;font-size:14px}
+.lead{max-width:980px;margin:14px 0 0;color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+.metric{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:15px}
+.metric b{display:block;font-size:28px}
+.metric span{display:block;margin-top:5px;font-size:12px;color:var(--muted)}
+.head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.no{display:inline-flex;width:34px;height:34px;align-items:center;justify-content:center;border-radius:12px;background:var(--card2);font-weight:900;color:var(--accent);font-size:13px;flex-shrink:0}
+.grid{display:grid;gap:12px}
+.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card,.note,.rule{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:15px}
+.card p,.note,.rule span{margin:0;color:var(--muted);font-size:12.5px}
+.card ul{margin:6px 0 0;padding-left:16px;color:var(--muted);font-size:12.5px}
+.card ul li{margin-bottom:3px}
+.card .lk{display:inline-block;margin-top:9px;font-size:11.5px;color:var(--good);text-decoration:none}
+.card .lk:hover{text-decoration:underline}
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rule b{display:block;font-size:13px;margin-bottom:4px}
+.table{overflow:auto;border:1px solid var(--line);border-radius:16px;-webkit-overflow-scrolling:touch}
+.table table{width:100%;border-collapse:collapse;min-width:620px}
+.table.wide table{min-width:1040px}
+.table.xwide table{min-width:1480px}
+.table th,.table td{border-bottom:1px solid var(--line);padding:9px 11px;text-align:left;font-size:11.5px;vertical-align:top}
+.table th{background:var(--card2);color:var(--muted);white-space:nowrap;position:sticky;top:0}
+.table td b{font-weight:800}
+.table tr:last-child td{border-bottom:none}
+.tid{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--accent);font-weight:800;white-space:nowrap}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;color:var(--purple)}
+.ok{color:var(--good);font-weight:800}
+.wn{color:var(--warn);font-weight:800}
+.bad{color:var(--bad);font-weight:800}
+.purple{color:var(--purple);font-weight:800}
+.muted{color:var(--muted)}
+.tag{display:inline-block;border:1px solid var(--line);background:var(--card2);border-radius:999px;padding:2px 9px;font-size:10.5px;font-weight:800;white-space:nowrap}
+.tag.g{color:var(--good)}.tag.w{color:var(--warn)}.tag.a{color:var(--accent)}.tag.p{color:var(--purple)}.tag.m{color:var(--muted)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--card2);border:1px solid var(--line);border-radius:7px;padding:1px 5px;font-size:.92em}
+.note.warnbox{border-color:color-mix(in srgb,var(--warn) 45%,var(--line))}
+.flow{display:grid;gap:10px;counter-reset:step}
+.flow-step{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);background:var(--card2);border-radius:14px;padding:12px 14px}
+.flow-step .n{display:inline-flex;width:26px;height:26px;flex-shrink:0;align-items:center;justify-content:center;border-radius:8px;background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent);font-weight:900;font-size:12px}
+.flow-step b{font-size:13px}
+.flow-step p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+.flow-step .who{display:inline-block;margin-left:6px;font-size:10px;font-weight:800;padding:1px 7px;border-radius:999px;border:1px solid var(--line)}
+.who.bb{color:var(--purple)}
+.who.st{color:var(--accent)}
+.who.usr{color:var(--good)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:12px}
+.kv dt{color:var(--accent);font-weight:800;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}
+.kv dd{margin:0;color:var(--muted)}
+.footer{padding:20px;color:var(--muted);font-size:12px;text-align:center}
+@media(max-width:980px){.shell{grid-template-columns:1fr;padding:18px}.toc{position:relative;top:auto;max-height:none}.metrics,.c2,.c3,.c4,.rules{grid-template-columns:1fr}.top{padding:10px 16px}h1{font-size:25px}.kv{grid-template-columns:1fr}.kv dt{margin-top:6px}}
+</style>
+</head>
+<body>
+<nav class='top'>
+<a class='logo' href='STAM-Docs-Index.html'><img src='../assets/brand/stam/stam_icon_primary_transparent.png' alt='STAM'><span>STAM</span></a>
+<span class='pill'>Board Builder ↔ Screen Template · Integration Blueprint v1</span>
+<span class='sp'></span>
+<a class='btn' href='STAM-Screen-Template-Top-10-Detail-Pack-v1.html'>Top 10 Detail</a>
+<a class='btn' href='../pages/boards-v2/board-builder.html'>Board Builder</a>
+<a class='btn' href='STAM-Docs-Index.html'>Docs Index</a>
+</nav>
+<div class='shell'>
+<aside class='toc'>
+<h2>목차</h2>
+<a href='#summary'>00 Executive Summary</a>
+<a href='#role'>01 Role Definition</a>
+<a href='#repo'>02 Repository Relationship</a>
+<a href='#output'>03 Board Builder Output Model</a>
+<a href='#fieldmap'>04 Field Type Mapping</a>
+<a href='#tplmap'>05 Template Mapping</a>
+<a href='#flow'>06 End-to-End User Flow</a>
+<a href='#draft'>07 Generated Draft Structure</a>
+<a href='#permission'>08 Permission / Action / Field Control</a>
+<a href='#constraint'>09 Preview / Local Constraint</a>
+<a href='#intrules'>10 Integration Rules</a>
+<a href='#mobile'>11 Mobile / Narrow Width Rules</a>
+<a href='#readiness'>12 Implementation Readiness</a>
+<a href='#roadmap'>13 Follow-up Roadmap</a>
+<a href='#linkpolicy'>14 Link Policy</a>
+<a href='#qa'>15 QA Checklist</a>
+</aside>
+<main>
+
+<section class='hero' id='summary'>
+<div class='chips'><span class='pill'>Integration Blueprint · P4</span><span class='pill'>Docs Only</span><span class='pill'>No Product File Change</span><span class='pill'>Board Builder ↔ Screen Template</span><span class='pill'>2026-06-20</span></div>
+<h1>Board Builder ↔ Screen Template<br>Integration Blueprint v1</h1>
+<p class='lead'>Board Builder(게시판 만들기)에서 정의한 <strong>게시판/필드 구조</strong>가 화면설계서 Screen Template 체계의 <strong>화면 초안 생성 흐름</strong>으로 어떻게 연결되는지를 정의한 연결 설계(blueprint) 문서다. 실제 제품 로직·저장·API를 구현하거나 수정하지 않고, 두 시스템 사이의 <strong>데이터 모델 · 필드 타입 · 화면 매핑 · 사용자 흐름 · 권한 기준</strong>을 문서로 정리한다. P1~P3(<a href='STAM-Screen-Template-System-Master-Guide-v1.html' style='color:var(--good)'>Master Guide</a> · <a href='STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html' style='color:var(--good)'>Priority 30</a> · <a href='STAM-Screen-Template-Top-10-Detail-Pack-v1.html' style='color:var(--good)'>Top 10 Detail Pack</a>)에서 정의한 템플릿 체계를 실제 Board Builder 출력과 잇는 P4 단계다. 기준 커밋은 <code>main 44148cb</code> (PR #172 merge)이다.</p>
+<div class='metrics'>
+<div class='metric'><b>12</b><span>Field Type 매핑</span></div>
+<div class='metric'><b>10</b><span>Template 연결 (7직접+3부분)</span></div>
+<div class='metric'><b>10</b><span>End-to-End 흐름 단계</span></div>
+<div class='metric'><b>0</b><span>제품 파일 변경</span></div>
+</div>
+</section>
+
+<section class='sec' id='role'>
+<div class='head'><span class='no'>01</span><h2>Role Definition — Board Builder vs Screen Template</h2></div>
+<div class='grid c2'>
+<div class='card'><h3 class='purple'>Board Builder (게시판 만들기)</h3><ul>
+<li>게시판 <strong>구조 정의</strong> (카테고리·게시판명·코드·설명·기본 템플릿)</li>
+<li><strong>필드 정의</strong> (라벨·타입·필수여부·옵션·정렬·표시 토글)</li>
+<li>목록/필터/입력폼 <strong>표시 여부</strong> 설정</li>
+<li>필드 타입/검증/권한 힌트 설정</li>
+<li>결과를 <strong>config(JSON) → localStorage → 미리보기</strong>로 출력</li>
+<li><span class='warn'>preview / local 기준</span> — 실제 Firestore 저장·배포 기능 아님</li>
+</ul><a class='lk' href='../pages/boards-v2/board-builder.html'>→ Board Builder (pages/boards-v2/board-builder.html)</a></div>
+<div class='card'><h3 style='color:var(--accent)'>Screen Template (화면설계서 템플릿)</h3><ul>
+<li>화면 <strong>유형 선택</strong> (목록·등록·수정·상세·검색·설정)</li>
+<li>선택한 유형의 <strong>화면 초안 생성</strong></li>
+<li>필드·액션·권한·상태·연결 화면을 <strong>화면설계서 산출물</strong>로 표현</li>
+<li>검토·승인·변경이력·내보내기 흐름과 연결</li>
+<li>선택 → 수정 원칙(Master Guide): 초안 생성 후 맥락에 맞게 보정</li>
+</ul><a class='lk' href='STAM-Screen-Template-System-Master-Guide-v1.html'>→ Master Guide</a></div>
+</div>
+<div class='note' style='margin-top:12px'><strong>핵심 분담:</strong> Board Builder는 <strong>"무엇을 담는 게시판인가(구조·필드)"</strong>를 정의하고, Screen Template은 <strong>"그 구조를 어떤 화면으로 보여줄 것인가(UX 산출물)"</strong>를 정의한다. Board Builder 출력이 Screen Template 초안의 입력이 되는 단방향 연결을 기준으로 한다.</div>
+</section>
+
+<section class='sec' id='repo'>
+<div class='head'><span class='no'>02</span><h2>Current Repository Relationship</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>구분</th><th>실제 repo 경로</th><th>역할</th><th>이번 작업</th></tr></thead>
+<tbody>
+<tr><td>Board Builder 제품</td><td><code>stam/pages/boards-v2/board-builder.html</code></td><td>게시판/필드 구조 정의 (preview/local)</td><td class='muted'>참조만</td></tr>
+<tr><td>화면설계서 제품</td><td><code>stam/pages/boards/screen-specification.html</code></td><td>화면설계서 산출물 제품 페이지</td><td class='muted'>참조만</td></tr>
+<tr><td>필드 스키마</td><td><code>stam/js/stam.board-field-schema.js</code></td><td>12종 field type 표준 정의 (정의/정규화/검증 전용)</td><td class='muted'>읽기만</td></tr>
+<tr><td>Master Guide (P1)</td><td><code>stam/docs/STAM-Screen-Template-System-Master-Guide-v1.html</code></td><td>템플릿 시스템 상위 기준</td><td class='ok'>링크</td></tr>
+<tr><td>Priority 30 (P2)</td><td><code>stam/docs/STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html</code></td><td>우선 템플릿 30종 Baseline</td><td class='ok'>링크</td></tr>
+<tr><td>Top 10 Detail Pack (P3)</td><td><code>stam/docs/STAM-Screen-Template-Top-10-Detail-Pack-v1.html</code></td><td>Top 10 상세 기준</td><td class='ok'>링크</td></tr>
+<tr><td>Docs Index</td><td><code>stam/docs/STAM-Docs-Index.html</code></td><td>문서 인덱스</td><td class='wn'>카드 1개 추가</td></tr>
+<tr><td>nav-data (SSOT)</td><td><code>stam/js/stam.nav-data.js</code></td><td>메뉴/IA 단일 출처</td><td class='bad'>수정 금지</td></tr>
+</tbody>
+</table>
+</div>
+<div class='note' style='margin-top:12px'><code>stam/js/stam.nav-data.js</code>는 IA/메뉴 SSOT이며 이번 작업에서 수정하지 않는다. 이 Blueprint는 <code>stam/docs/</code> 독립 문서로 유지하고 nav-data에 등록하지 않는다. 제품 파일(<code>pages/</code>, <code>js/</code>, <code>css/</code>)은 일절 수정하지 않는다.</div>
+</section>
+
+<section class='sec' id='output'>
+<div class='head'><span class='no'>03</span><h2>Board Builder Output Model</h2></div>
+<p class='lead' style='margin-bottom:14px'>Board Builder가 출력하는 구조를 문서상 모델로 정의한다. 실제 제품은 입력값을 Board Factory config(JSON)로 만들어 <code>localStorage</code>에 저장하고 화면 내 미리보기로 표시하며 <strong>JSON 복사</strong>를 제공한다(Firestore/API 호출 없음). 이 모델이 Screen Template 초안 생성의 입력 스키마가 된다.</p>
+<div class='grid c2'>
+<div class='card'><h3>Board (게시판 레벨)</h3>
+<dl class='kv'>
+<dt>category</dt><dd>카테고리 (산출물 관리 / 관리·설정 / 프로젝트 관리)</dd>
+<dt>title</dt><dd>게시판명</dd>
+<dt>slug</dt><dd>게시판 코드 (게시판명 기반 자동 생성, 수정 가능)</dd>
+<dt>description</dt><dd>설명 (선택)</dd>
+<dt>baseTemplate</dt><dd>기본 템플릿 (공지사항·자유·자료실·Q&amp;A·요청/이슈·직접구성)</dd>
+<dt>fields[]</dt><dd>필드 정의 배열 (아래 Field 레벨)</dd>
+</dl>
+</div>
+<div class='card'><h3>Field (필드 레벨 · 18속성)</h3>
+<dl class='kv'>
+<dt>key</dt><dd>필드 식별자 (고급 설정)</dd>
+<dt>label</dt><dd>필드 라벨</dd>
+<dt>type</dt><dd>필드 타입 (12종 중 1)</dd>
+<dt>required</dt><dd>필수 여부</dd>
+<dt>options</dt><dd>선택지 (select/status 등)</dd>
+<dt>visibleInTable</dt><dd>목록 표시</dd>
+<dt>visibleInDrawer</dt><dd>입력폼/상세 표시</dd>
+<dt>visibleInFilter</dt><dd>검색/필터 대상</dd>
+<dt>editable</dt><dd>편집 가능 (false=읽기전용)</dd>
+<dt>sortable</dt><dd>정렬 가능</dd>
+<dt>exportable</dt><dd>내보내기 포함</dd>
+<dt>align · width</dt><dd>정렬 · 컬럼 폭</dd>
+<dt>tone</dt><dd>chip tone (neutral/info/warn/pass/fail …)</dd>
+<dt>validation</dt><dd>검증 규칙</dd>
+<dt>permission</dt><dd>권한 힌트</dd>
+</dl>
+</div>
+</div>
+<div class='note' style='margin-top:12px'>속성 표준은 실제 <code>stam/js/stam.board-field-schema.js</code>의 <code>FIELD_DEFAULTS</code>(18속성)와 정합한다. 현재 엔진은 상세/입력을 모두 <strong>drawer</strong>로 처리하므로 <code>visibleInDrawer</code>가 상세·폼 표시를 함께 제어한다. 후속 단계에서 상세 전용/폼 전용 표시 분리가 필요하면 별도 속성으로 확장한다. 정렬 순서(Sort Order)는 필드 배열 순서로 표현된다.</div>
+</section>
+
+<section class='sec' id='fieldmap'>
+<div class='head'><span class='no'>04</span><h2>Field Type Mapping — 12종 화면 표현 매핑</h2><span class='pill'>schema 정합</span></div>
+<p class='lead' style='margin-bottom:14px'>Board Builder 12종 field type별로 목록·폼·상세·검색/필터·모바일·권한·내보내기 표현을 매핑한다. 엔진 컬럼 renderer / 입력 control / 필터 동작은 실제 <code>stam.board-field-schema.js</code> 기준이다.</p>
+<div class='table xwide'>
+<table>
+<thead><tr>
+<th>type</th><th>라벨</th><th>엔진(컬럼/컨트롤/필터)</th><th>목록 표시</th><th>등록/수정 폼</th><th>상세 표시</th><th>검색/필터</th><th>모바일</th><th>권한 / 내보내기</th>
+</tr></thead>
+<tbody>
+<tr><td class='tid'>text</td><td>짧은 텍스트</td><td class='mono'>text / input / —</td><td>텍스트 컬럼 (정렬)</td><td>단일행 input</td><td>라벨+값</td><td class='muted'>키워드 검색</td><td>카드 제목/부제 우선</td><td>필드 권한 · 기본 포함</td></tr>
+<tr><td class='tid'>textarea</td><td>긴 설명</td><td class='mono'>— / textarea / —</td><td class='muted'>목록 미표시</td><td>멀티라인 textarea</td><td>본문 블록</td><td class='muted'>키워드 검색</td><td>전체 너비 블록</td><td>본문 권한 · 줄바꿈 유지</td></tr>
+<tr><td class='tid'>select</td><td>단일 선택</td><td class='mono'>chip / select / checkbox</td><td>chip (tone)</td><td>드롭다운 단일</td><td>chip 표시</td><td>체크박스 다중</td><td>chip 유지</td><td>옵션 노출 권한 · 라벨 텍스트</td></tr>
+<tr><td class='tid'>multiSelect</td><td>복수 선택</td><td class='mono'>relationChip / select / checkbox</td><td>chip 묶음 (n+)</td><td>복수 선택(태그)</td><td>chip 목록</td><td>체크박스 다중</td><td>chip 줄바꿈/요약</td><td>옵션 권한 · 쉼표 구분</td></tr>
+<tr><td class='tid'>date</td><td>날짜</td><td class='mono'>date / input / range</td><td>날짜 컬럼 (정렬)</td><td>date picker</td><td>날짜 텍스트</td><td>기간(range) 필터</td><td>축약 날짜</td><td>필드 권한 · 로컬 날짜</td></tr>
+<tr><td class='tid'>user</td><td>담당자/검토자</td><td class='mono'>user / select / checkbox</td><td>사용자 칩/아바타</td><td>사용자 참조 선택</td><td>사용자 표시</td><td>체크박스 (사용자)</td><td>이름 우선</td><td>디렉터리 열람 권한 · 사용자명</td></tr>
+<tr><td class='tid'>relation</td><td>산출물 연결</td><td class='mono'>relationChip / select / checkbox</td><td>연결 chip (n)</td><td>산출물 참조(복수)</td><td>연결 목록 (링크)</td><td>체크박스</td><td>연결 요약</td><td>대상 산출물 열람 권한 · ID/제목</td></tr>
+<tr><td class='tid'>status</td><td>상태 chip</td><td class='mono'>statusChip / select / checkbox</td><td>상태 배지 (tone)</td><td>상태 선택(워크플로우)</td><td>배지 + 이력</td><td>체크박스 상태</td><td>배지 우선 노출</td><td>상태 변경 권한(역할별) · 라벨</td></tr>
+<tr><td class='tid'>priority</td><td>우선순위 chip</td><td class='mono'>priorityChip / select / checkbox</td><td>우선순위 배지</td><td>우선순위 선택</td><td>배지</td><td>체크박스</td><td>배지</td><td>필드 권한 · 라벨</td></tr>
+<tr><td class='tid'>boolean</td><td>예/아니오</td><td class='mono'>chip / select / checkbox</td><td>예/아니오 chip (중앙)</td><td>토글/선택</td><td>예/아니오</td><td>체크박스</td><td>chip</td><td>필드 권한 · 예/아니오</td></tr>
+<tr><td class='tid'>number</td><td>숫자</td><td class='mono'>text / input / range</td><td>우측정렬 숫자(정렬)</td><td>숫자 input</td><td>숫자 텍스트</td><td>범위(range) 필터</td><td>우측 정렬</td><td>필드 권한 · 숫자값</td></tr>
+<tr><td class='tid'>url</td><td>링크</td><td class='mono'>link / input / —</td><td>링크 (새 창)</td><td>URL input</td><td>클릭 링크</td><td class='muted'>키워드 (필터 비대상)</td><td>축약 링크</td><td>필드 권한 · URL 텍스트</td></tr>
+</tbody>
+</table>
+</div>
+<div class='note' style='margin-top:12px'>표는 좁은 화면에서 컨테이너 가로 스크롤(<code>overflow:auto</code>)로 처리한다. <strong>개념 타입 매핑:</strong> 작업 명세의 Long Text→<code>textarea</code>, Multi Select→<code>multiSelect</code>, Checkbox→<code>boolean</code>, Date Range→<code>date</code>(filter:range), Relation/Linked Artifact→<code>relation</code>, Computed/Readonly→<code>editable:false</code> 속성으로 표현한다. Department·Attachment/File은 현재 12종에 포함되지 않으며(부서는 <code>select</code>/<code>user</code> 변형, 첨부는 별도 컴포넌트) <strong>후속 단계</strong> 확장 대상이다.</div>
+</section>
+
+<section class='sec' id='tplmap'>
+<div class='head'><span class='no'>05</span><h2>Template Mapping — Top 10 ↔ Board Builder</h2></div>
+<p class='lead' style='margin-bottom:14px'>Top 10 Detail Pack 템플릿 기준으로 Board Builder 출력이 어디에 반영되는지, 무엇이 자동 생성 가능하고 무엇을 사용자가 보정해야 하는지 정리한다.</p>
+<div class='table xwide'>
+<table>
+<thead><tr>
+<th>연결</th><th>Template</th><th>Board Builder 입력값</th><th>Screen Template 반영 위치</th><th>자동 생성 가능</th><th>사용자 수정 필요</th><th>권한/상태/이력 연결</th>
+</tr></thead>
+<tbody>
+<tr><td class='ok'>직접</td><td class='tid'>T01 Basic Board List</td><td>visibleInTable 필드 + 정렬</td><td>목록 컬럼 세트</td><td>컬럼·기본정렬·상태배지</td><td>행 액션·문구·빈상태 카피</td><td>목록 조회/등록/삭제 권한</td></tr>
+<tr><td class='ok'>직접</td><td class='tid'>T02 Advanced Search List</td><td>visibleInFilter 필드 (checkbox/range)</td><td>검색 조건 패널</td><td>조건 필드·필터 타입</td><td>조건 그룹·프리셋·결과 카피</td><td>검색 범위/필드 노출 권한</td></tr>
+<tr><td class='ok'>직접</td><td class='tid'>T05 Wide Data Table</td><td>다수 visibleInTable 필드 + width/align</td><td>다컬럼 표 + 고정 컬럼</td><td>컬럼 세트·정렬·고정 후보</td><td>고정 컬럼 선택·포커스뷰</td><td>컬럼별 노출 권한</td></tr>
+<tr><td class='ok'>직접</td><td class='tid'>T11 Basic Create Form</td><td>visibleInDrawer + required + validation</td><td>등록 폼 필드 세트</td><td>필드·필수표시·기본값</td><td>도움말·임시저장·검토요청</td><td>작성/입력 권한</td></tr>
+<tr><td class='ok'>직접</td><td class='tid'>T12 Multi-section Edit Form</td><td>필드 그룹(섹션 가정) + editable</td><td>섹션별 폼 필드</td><td>기본정보 섹션 필드</td><td>섹션 분할·연결/권한 섹션</td><td>섹션별 편집 권한</td></tr>
+<tr><td class='ok'>직접</td><td class='tid'>T26 Board Settings</td><td>category·title·slug·표시 토글</td><td>게시판 설정 폼</td><td>게시판 기본·컬럼노출·정렬</td><td>권한 역할 매핑·고급 옵션</td><td>게시판 설정 권한(관리자)</td></tr>
+<tr><td class='ok'>직접</td><td class='tid'>T27 Custom Field Settings</td><td>fields[] 전체 (타입·옵션·정렬)</td><td>필드 정의 관리 화면</td><td>필드 목록·타입·옵션·순서</td><td>옵션값 세부·검증 규칙</td><td>필드 정의 권한(관리자)</td></tr>
+<tr><td class='wn'>부분</td><td class='tid'>T03 Grouped Work List</td><td>그룹 기준 필드 (select/relation)</td><td>그룹 헤더 + 항목 목록</td><td>그룹 기준 필드 후보</td><td>그룹 정의·집계·접힘 규칙</td><td>그룹별 열람/편집 권한</td></tr>
+<tr><td class='wn'>부분</td><td class='tid'>T07 Basic Detail View</td><td>visibleInDrawer 필드 (상세)</td><td>상세 메타/본문 영역</td><td>메타 필드·본문 배치</td><td>액션·이력·연결 산출물</td><td>열람/편집/검토 권한</td></tr>
+<tr><td class='wn'>부분</td><td class='tid'>T08 Approval Detail View</td><td>status 필드 + user(승인자)</td><td>상태 영역 + 결재선(외부)</td><td>상태 배지·대상 메타</td><td>결재선·승인/반려 액션</td><td>단계별 승인 권한</td></tr>
+</tbody>
+</table>
+</div>
+<div class='note' style='margin-top:12px'>직접 연결 7종(T01·T02·T05·T11·T12·T26·T27)은 Board Builder 출력만으로 초안 골격을 구성할 수 있다. 부분 연결 3종(T03·T07·T08)은 그룹 정의·결재선 등 Board Builder 범위 밖 정보가 필요해 일부만 자동 생성된다. 모든 자동 생성 결과는 <strong>초안</strong>이며 Master Guide의 "선택 → 수정" 원칙에 따라 사용자가 보정한다.</div>
+</section>
+
+<section class='sec' id='flow'>
+<div class='head'><span class='no'>06</span><h2>End-to-End User Flow</h2></div>
+<div class='flow'>
+<div class='flow-step'><span class='n'>1</span><div><b>Board Builder 진입<span class='who bb'>Board Builder</span></b><p>관리자가 게시판 만들기 화면 진입 (preview/local).</p></div></div>
+<div class='flow-step'><span class='n'>2</span><div><b>게시판 기본 정보 입력<span class='who bb'>Board Builder</span></b><p>카테고리·게시판명·코드(자동)·설명·기본 템플릿 선택.</p></div></div>
+<div class='flow-step'><span class='n'>3</span><div><b>필드 추가/수정/정렬<span class='who bb'>Board Builder</span></b><p>필드 추가, 드래그로 순서 변경, 목록/필터/입력폼 표시 토글.</p></div></div>
+<div class='flow-step'><span class='n'>4</span><div><b>필드 타입/옵션/필수 설정<span class='who bb'>Board Builder</span></b><p>12종 타입 선택, 옵션값·필수 여부·검증·권한 힌트 설정.</p></div></div>
+<div class='flow-step'><span class='n'>5</span><div><b>미리보기 확인 + config 출력<span class='who bb'>Board Builder</span></b><p>우측 실시간 미리보기 확인, JSON 복사 또는 localStorage 저장(로컬).</p></div></div>
+<div class='flow-step'><span class='n'>6</span><div><b>화면설계서 템플릿 선택<span class='who st'>Screen Template</span></b><p>목록/등록/수정/상세/검색/설정 등 화면 유형 선택 (Top 10 기준).</p></div></div>
+<div class='flow-step'><span class='n'>7</span><div><b>화면 초안 생성<span class='who st'>Screen Template</span></b><p>Board Builder config → 필드/컬럼/폼 초안 자동 구성 (섹션 04·05 매핑).</p></div></div>
+<div class='flow-step'><span class='n'>8</span><div><b>액션/권한/상태/문구 보정<span class='who usr'>사용자</span></b><p>행 액션·권한 규칙·상태 흐름·빈상태/오류 문구를 맥락에 맞게 수정.</p></div></div>
+<div class='flow-step'><span class='n'>9</span><div><b>화면설계서 미리보기<span class='who st'>Screen Template</span></b><p>생성된 화면설계서 초안 미리보기로 확인.</p></div></div>
+<div class='flow-step'><span class='n'>10</span><div><b>검토 요청 또는 내보내기<span class='who usr'>사용자</span></b><p>검토/승인 흐름 연결 또는 산출물 내보내기 (후속 제품 구현 범위).</p></div></div>
+</div>
+<div class='note' style='margin-top:12px'>5단계까지가 현재 Board Builder preview의 실제 동작 범위이고, 6단계 이후 화면설계서 초안 생성·미리보기·내보내기는 <strong>후속 제품 구현</strong> 대상이다. 이 Blueprint는 그 연결 기준을 제공할 뿐 구현을 지시하지 않는다.</div>
+</section>
+
+<section class='sec' id='draft'>
+<div class='head'><span class='no'>07</span><h2>Generated Draft Structure</h2></div>
+<p class='lead' style='margin-bottom:14px'>Board Builder 결과가 화면설계서 초안으로 변환될 때 생성되어야 할 구조다. 이 구조는 <a href='templates/STAM-Screen-Specification-Template-Baseline.html' style='color:var(--good)'>화면설계서 템플릿 기준(Baseline)</a>과 정합하도록 설계한다.</p>
+<div class='grid c3'>
+<div class='card'><h3>화면 식별</h3><ul>
+<li><b>Screen Title</b> — 게시판명 + 화면유형</li>
+<li><b>Screen Type</b> — 목록/등록/상세/검색/설정</li>
+<li><b>Route / Menu Reference</b> — nav-data 참조(SSOT, 수정 없음)</li>
+</ul></div>
+<div class='card'><h3>본문 구조</h3><ul>
+<li><b>Field Table</b> — 필드·타입·표시·필수</li>
+<li><b>Action List</b> — 화면별 기본 액션</li>
+<li><b>Related Artifacts</b> — relation 필드 기반 연결</li>
+</ul></div>
+<div class='card'><h3>규칙</h3><ul>
+<li><b>Permission Rules</b> — 화면/필드/액션 권한</li>
+<li><b>Status Rules</b> — 상태값·전이</li>
+<li><b>Validation Rules</b> — required/validation 기반</li>
+</ul></div>
+<div class='card'><h3>상태 화면</h3><ul>
+<li><b>Empty State</b> — 빈 상태 문구/액션</li>
+<li><b>Error State</b> — 오류 문구(404/403/네트워크)</li>
+</ul></div>
+<div class='card'><h3>대응/이력</h3><ul>
+<li><b>Mobile Notes</b> — 좁은 화면 기준</li>
+<li><b>Export Notes</b> — exportable 기반 내보내기</li>
+<li><b>Change History Notes</b> — 변경이력 연결</li>
+</ul></div>
+<div class='card'><h3>자동/수동 구분</h3><ul>
+<li><span class='ok'>자동</span> 필드표·기본 액션·검증·내보내기 후보</li>
+<li><span class='wn'>수동</span> 권한 세부·상태 전이·문구·연결 화면</li>
+</ul></div>
+</div>
+</section>
+
+<section class='sec' id='permission'>
+<div class='head'><span class='no'>08</span><h2>Permission / Action / Field Control</h2></div>
+<div class='grid c3'>
+<div class='card'><h3>화면 단위</h3><p>화면 진입 권한 (목록/설정 화면 등 화면 자체 접근 제어). 관리자 전용 화면(T26·T27)은 진입 단계에서 차단.</p></div>
+<div class='card'><h3>문서/레코드 단위</h3><p>레코드별 열람/편집/삭제 권한. 공개 범위(전체·프로젝트·본인)에 따라 행 노출 분기.</p></div>
+<div class='card'><h3>버튼/액션 단위</h3><p>등록·삭제·내보내기·승인/반려 등 액션 버튼 권한. 권한 없을 때 버튼 미노출.</p></div>
+<div class='card'><h3>필드 단위</h3><p>필드별 열람/편집 권한(<code>permission</code> 힌트). 역할별 필드 노출/마스킹.</p></div>
+<div class='card'><h3>컴포넌트 단위</h3><p>상태 배지·결재선·이력 등 컴포넌트 단위 노출 제어. 참조자에게 읽기 전용 제공.</p></div>
+<div class='card'><h3>상태별 / 역할별 분기</h3><p>상태별 수정 가능/불가(예: 승인완료 후 잠금). 담당자/검토자/승인자별 액션 분기(T08 결재선 기준).</p></div>
+</div>
+<div class='note' style='margin-top:12px'>권한 기준은 Board Builder의 <code>permission</code> 필드 힌트를 출발점으로 하되, 실제 권한 정책 화면(T25 Role/Permission Management)과 연결해 확정한다. D그룹 협업/검토/승인 공통 레이어는 <a href='STAM-Sitemap-IA-Overview-v1.html#layer' style='color:var(--good)'>STAM Sitemap & IA Overview (#layer)</a>를 참조한다.</div>
+</section>
+
+<section class='sec' id='constraint'>
+<div class='head'><span class='no'>09</span><h2>Preview / Local Constraint</h2></div>
+<div class='note warnbox'><strong>현재 제약을 명확히 한다.</strong></div>
+<div class='grid c2' style='margin-top:12px'>
+<div class='card'><h3>Board Builder는 preview / local</h3><p>입력 결과는 Board Factory config(JSON) → <code>localStorage</code> 기준 미리보기다. 실제 게시판 생성·저장이 아니다.</p></div>
+<div class='card'><h3>저장/배포 기능 아님</h3><p>Firestore 저장·API·fetch 호출이 없다. JSON 복사/localStorage 외 영속 저장은 후속 작업이다.</p></div>
+<div class='card'><h3>구현 지시가 아님</h3><p>이 문서는 연결 설계 기준이다. 화면설계서 초안 자동 생성 로직 구현을 지시하지 않는다.</p></div>
+<div class='card'><h3>후속은 별도 분리</h3><p>저장 방식·권한 적용·API·배포는 <strong>후속 제품 구현</strong>에서 별도 PR로 분리해 처리한다.</p></div>
+</div>
+</section>
+
+<section class='sec' id='intrules'>
+<div class='head'><span class='no'>10</span><h2>Integration Rules</h2></div>
+<div class='rules'>
+<div class='rule'><b class='ok'>실제 repo 경로 기준</b><span>연결 대상은 실제 존재하는 repo 경로로만 기술한다. 가상 경로/예상 파일명을 확정 경로처럼 쓰지 않는다.</span></div>
+<div class='rule'><b class='ok'>nav-data SSOT 기준</b><span>Route/Menu 참조는 <code>stam/js/stam.nav-data.js</code> SSOT를 따른다. 이 문서는 nav-data를 수정하지 않는다.</span></div>
+<div class='rule'><b class='wn'>임의 경로 생성 금지</b><span>후속 문서/제품 route를 임의로 만들지 않는다. 생성 후 연결한다.</span></div>
+<div class='rule'><b class='wn'>실제 존재 파일만 링크</b><span>모든 <code>&lt;a href&gt;</code>는 실재 파일만 가리킨다. Missing 문서는 텍스트로만 표기.</span></div>
+<div class='rule'><b style='color:var(--accent)'>docs-only 유지</b><span>제품 파일 수정 없이 docs 영역에서만 작업한다.</span></div>
+<div class='rule'><b style='color:var(--accent)'>화면설계서 제품 보정은 별도 PR</b><span>제품 페이지 보정/구현은 이 문서 범위가 아니며 별도 PR에서 처리한다.</span></div>
+</div>
+</section>
+
+<section class='sec' id='mobile'>
+<div class='head'><span class='no'>11</span><h2>Mobile / Narrow Width Rules</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>목록</h3><p>핵심 컬럼(상태·제목·날짜) 우선 노출, 부가 컬럼은 전체보기/카드 전환. <code>visibleInTable</code> 다수 필드는 모바일 우선순위 지정 필요.</p></div>
+<div class='card'><h3>상세 / 폼</h3><p>섹션 스택(1열). 긴 폼은 하단 액션바 고정. <code>visibleInDrawer</code> 필드 순서대로 세로 배치.</p></div>
+<div class='card'><h3>설정 화면</h3><p>설정 섹션은 카드/아코디언 전환 고려. 권한 매트릭스는 가로 스크롤 정책 명시.</p></div>
+<div class='card'><h3>Wide Data Table (T05)</h3><p>Focus View 또는 명확한 가로 스크롤 정책 필수. 핵심 컬럼 좌측 고정.</p></div>
+<div class='card'><h3>Drawer / Modal</h3><p>좁은 화면에서 전체 화면 전환 가능성 고려(화면 80% 이상 덮을 때 Full Screen).</p></div>
+<div class='card'><h3>chip / 배지</h3><p>status/priority/select chip은 모바일에서 줄바꿈/요약(n+) 처리. 배지 우선 노출.</p></div>
+</div>
+</section>
+
+<section class='sec' id='readiness'>
+<div class='head'><span class='no'>12</span><h2>Implementation Readiness Checklist</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>#</th><th>항목</th><th>기준</th><th>상태</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Board Builder output schema 확정</td><td><code>stam.board-field-schema.js</code> 18속성/12타입 기준 존재</td><td class='ok'>기준 존재</td></tr>
+<tr><td>2</td><td>Screen Template input schema 확정</td><td>Top 10 Detail Pack 필드/액션 기준 존재</td><td class='ok'>기준 존재</td></tr>
+<tr><td>3</td><td>Field type mapping 확정</td><td>12종 화면 표현 매핑(섹션 04)</td><td class='ok'>이 문서</td></tr>
+<tr><td>4</td><td>Permission mapping 확정</td><td>화면/레코드/액션/필드/컴포넌트 단위(섹션 08)</td><td class='wn'>기준 제시·세부 후속</td></tr>
+<tr><td>5</td><td>Preview data structure 확정</td><td>config(JSON)→localStorage 구조 존재</td><td class='ok'>기준 존재</td></tr>
+<tr><td>6</td><td>저장 방식 결정</td><td>Firestore/API/영속 저장 방식</td><td class='wn'>후속 단계</td></tr>
+<tr><td>7</td><td>Docs Index 연결</td><td>Blueprint 카드 추가</td><td class='ok'>이 PR</td></tr>
+<tr><td>8</td><td>QA 시나리오 정의</td><td>초안 생성→보정→미리보기 QA</td><td class='wn'>후속 단계</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class='sec' id='roadmap'>
+<div class='head'><span class='no'>13</span><h2>Follow-up Roadmap</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>우선순위</th><th>문서 / 작업</th><th>역할</th><th>상태</th></tr></thead>
+<tbody>
+<tr><td><span class='tag g'>P1</span></td><td><b><a href='STAM-Screen-Template-System-Master-Guide-v1.html' style='color:var(--good)'>STAM-Screen-Template-System-Master-Guide-v1.html</a></b></td><td>템플릿 시스템 상위 기준</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag g'>P2</span></td><td><b><a href='STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html' style='color:var(--good)'>STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html</a></b></td><td>우선 템플릿 30종 Baseline</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag g'>P3</span></td><td><b><a href='STAM-Screen-Template-Top-10-Detail-Pack-v1.html' style='color:var(--good)'>STAM-Screen-Template-Top-10-Detail-Pack-v1.html</a></b></td><td>Top 10 상세 기준</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag a'>P4</span></td><td><b><a href='STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html' style='color:var(--good)'>STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html</a></b></td><td>Board Builder ↔ Screen Template 연결 설계</td><td class='ok'>이번 문서</td></tr>
+<tr><td><span class='tag w'>P5</span></td><td>STAM-Screen-Template-Top-3-Drawer-Preview-v1.html</td><td>Top 3 Drawer/상세 연동 Preview</td><td class='wn'>후속 단계</td></tr>
+<tr><td><span class='tag w'>P6</span></td><td>Product Flow Prototype · Screen Template Selector 설계</td><td>초안 생성 흐름 프로토타입 / 선택기 설계</td><td class='wn'>후속 판단</td></tr>
+</tbody>
+</table>
+</div>
+<div class='note' style='margin-top:12px'>P5·P6은 아직 생성되지 않았다. 이 로드맵에서는 파일명/작업명을 텍스트로만 표기하며 <code>href</code>를 부여하지 않는다. P1~P4(이 문서)만 링크가 활성화되어 있다. 후속으로는 Top 3 Drawer Preview 또는 Product Flow Prototype / Screen Template Selector 중 하나를 우선 적용한다.</div>
+</section>
+
+<section class='sec' id='linkpolicy'>
+<div class='head'><span class='no'>14</span><h2>Link Policy</h2></div>
+<div class='rules'>
+<div class='rule'><b class='ok'>실제 존재 파일만 링크</b><span>이 문서 내 모든 <code>&lt;a href&gt;</code>는 <code>stam/</code> 하위에 실제로 존재하는 파일만 참조한다.</span></div>
+<div class='rule'><b class='ok'>Missing 문서는 링크 안 함</b><span>P5·P6 후속 문서는 파일명/작업명 텍스트로만 표기하고 <code>href</code>를 부여하지 않는다.</span></div>
+<div class='rule'><b class='wn'>임의 경로 금지</b><span>예상 파일명이나 가상 route를 확정 경로처럼 쓰지 않는다. 후속 문서 생성 후 연결한다.</span></div>
+<div class='rule'><b class='wn'>nav-data 연동 금지</b><span>이 문서는 <code>stam/js/stam.nav-data.js</code>에 등록하지 않는다. docs 영역 독립 문서로 유지한다.</span></div>
+</div>
+<div class='note' style='margin-top:12px'><strong>이 문서에서 활성 링크가 부여된 파일:</strong><br>
+• <a href='STAM-Docs-Index.html' style='color:var(--good)'>STAM-Docs-Index.html</a><br>
+• <a href='STAM-Screen-Template-System-Master-Guide-v1.html' style='color:var(--good)'>STAM-Screen-Template-System-Master-Guide-v1.html</a><br>
+• <a href='STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html' style='color:var(--good)'>STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html</a><br>
+• <a href='STAM-Screen-Template-Top-10-Detail-Pack-v1.html' style='color:var(--good)'>STAM-Screen-Template-Top-10-Detail-Pack-v1.html</a><br>
+• <a href='STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html' style='color:var(--good)'>STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html</a> (자기 자신)<br>
+• <a href='STAM-Sitemap-IA-Overview-v1.html' style='color:var(--good)'>STAM-Sitemap-IA-Overview-v1.html</a> (#layer 앵커 포함)<br>
+• <a href='templates/STAM-Screen-Specification-Template-Baseline.html' style='color:var(--good)'>templates/STAM-Screen-Specification-Template-Baseline.html</a><br>
+• <a href='templates/STAM-Screen-Specification-Sample-Screen-Spec-List.html' style='color:var(--good)'>templates/STAM-Screen-Specification-Sample-Screen-Spec-List.html</a><br>
+• <a href='../pages/boards/screen-specification.html' style='color:var(--good)'>../pages/boards/screen-specification.html</a><br>
+• <a href='../pages/boards-v2/board-builder.html' style='color:var(--good)'>../pages/boards-v2/board-builder.html</a>
+</div>
+</section>
+
+<section class='sec' id='qa'>
+<div class='head'><span class='no'>15</span><h2>QA Checklist</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>#</th><th>항목</th><th>기준</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>docs-only</td><td>변경 파일이 <code>stam/docs/**</code> 하위에만 존재</td><td class='ok'>확인</td></tr>
+<tr><td>2</td><td>제품 파일 무변경</td><td><code>pages/</code>, <code>js/</code>, <code>css/</code> 수정 없음</td><td class='ok'>확인</td></tr>
+<tr><td>3</td><td>nav-data 무변경</td><td><code>stam/js/stam.nav-data.js</code> 변경 없음</td><td class='ok'>확인</td></tr>
+<tr><td>4</td><td>깨진 링크 없음</td><td>모든 href가 실제 존재 파일</td><td class='ok'>확인</td></tr>
+<tr><td>5</td><td>HTML 태그 밸런스</td><td>div / section / a 열기=닫기</td><td class='ok'>확인</td></tr>
+<tr><td>6</td><td>가로 스크롤 처리</td><td>표 컨테이너 <code>overflow:auto</code>, 모바일 1열 전환</td><td class='ok'>확인</td></tr>
+<tr><td>7</td><td>외부 폰트 CDN 없음</td><td>S-Core Dream 자체 서빙만 사용</td><td class='ok'>확인</td></tr>
+<tr><td>8</td><td>iframe 없음</td><td>문서 내 <code>&lt;iframe&gt;</code> 미사용</td><td class='ok'>확인</td></tr>
+<tr><td>9</td><td>신규 JS 없음</td><td>기존 <code>stam.theme.js</code>만 참조, 신규 스크립트 없음</td><td class='ok'>확인</td></tr>
+<tr><td>10</td><td>Field Type Mapping 포함</td><td>12종 타입 × 7개 표현 차원 매핑 표</td><td class='ok'>확인</td></tr>
+<tr><td>11</td><td>Template Mapping 포함</td><td>Top 10 (직접7+부분3) 연결 표</td><td class='ok'>확인</td></tr>
+<tr><td>12</td><td>End-to-End Flow 포함</td><td>10단계 흐름</td><td class='ok'>확인</td></tr>
+<tr><td>13</td><td>Missing 문서 미링크</td><td>P5·P6 href 없음, 텍스트만</td><td class='ok'>확인</td></tr>
+<tr><td>14</td><td>범위 표현 기준</td><td>금지 표현 미사용, "1차 범위/우선 적용/후속 단계" 기준</td><td class='ok'>확인</td></tr>
+<tr><td>15</td><td>Docs Index 카드</td><td>섹션 04에 Blueprint 카드 1개 추가</td><td class='ok'>확인</td></tr>
+<tr><td>16</td><td>preview/local 명시</td><td>Board Builder preview/local 제약 명시</td><td class='ok'>확인</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<div class='footer'>STAM Board Builder ↔ Screen Template Integration Blueprint v1 · P4 · docs-only · 기준 main 44148cb · 2026-06-20</div>
+</main>
+</div>
+<script src='../js/stam.theme.js'></script>
+</body>
+</html>
