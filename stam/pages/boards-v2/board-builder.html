@@ -59,6 +59,18 @@
     .bb-fcard.is-dragging { opacity: .5; border-color: var(--stam); }
     .bb-fcard.drop-before { box-shadow: inset 0 3px 0 var(--stam); }
     .bb-fcard.drop-after { box-shadow: inset 0 -3px 0 var(--stam); }
+    /* 신규 필드 강조 — 카드별 ＋ / 필드 추가 시 stroke(primary)가 2회 깜빡인 뒤 원복. JS 가 약 1.4s 후 class 제거. light/dark 공통 token. */
+    .bb-fcard--new { animation: bb-fcard-flash 1.25s ease both; }
+    @keyframes bb-fcard-flash {
+      0%       { border-color: var(--bd); box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+      15%, 55% { border-color: var(--stam); box-shadow: 0 0 0 2px var(--stam-soft); }
+      35%, 75% { border-color: var(--bd); box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+      100%     { border-color: var(--bd); box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+    }
+    /* 모션 최소화 환경: 깜빡임 없이 진한 border 만 잠깐 노출(=JS class 유지 동안) 후 제거. */
+    @media (prefers-reduced-motion: reduce) {
+      .bb-fcard--new { animation: none; border-color: var(--stam); box-shadow: 0 0 0 2px var(--stam-soft); }
+    }
     .bb-fc-main { display: flex; align-items: flex-start; gap: 9px; padding: 9px 12px 10px; }
     .bb-fc-rail { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; padding-top: 3px; }
     .bb-drag { cursor: grab; color: var(--bb-muted); font-size: 13px; line-height: 1; letter-spacing: -3px; user-select: none; }
