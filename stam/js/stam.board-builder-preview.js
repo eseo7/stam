@@ -6,7 +6,7 @@
  * config(columns / filters / drawer)를 '생성하고' 화면에서 즉시 preview 한다.
  *
  *  - 필드 구성: 기본/커스텀 구분 없는 단일 ordered list (card UI). 추천 초기 필드도
- *    수정 / 삭제 / 순서 변경(Drag&Drop + 위·아래 보조) / 중간 삽입 가능.
+ *    수정 / 삭제 / 순서 변경(Drag&Drop) / 중간 삽입 가능.
  *  - 표시 토글(목록/필터/드로워) + 필수(required)는 per-field. required 는
  *    checkbox 가 source of truth → generated config / drawer marker / JSON 일치.
  *    시스템/필수 고정 필드는 checkbox disabled + 사유 표시.
@@ -305,8 +305,6 @@
               (optType ? '<div class="bb-fc-row3"><input class="bb-input bb-fc-opts" data-bb-fp="options" value="' + esc((f.options || []).join(', ')) + '" placeholder="옵션(쉼표로 구분) 예) 높음, 보통, 낮음" aria-label="선택 옵션"></div>' : '') +
             '</div>' +
             '<div class="bb-fc-actions">' +
-              '<button type="button" class="bb-iconbtn" data-bb-fmove="up" title="위로 이동" aria-label="위로 이동"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
-              '<button type="button" class="bb-iconbtn" data-bb-fmove="down" title="아래로 이동" aria-label="아래로 이동"' + (i === fields.length - 1 ? ' disabled' : '') + '>↓</button>' +
               '<button type="button" class="bb-iconbtn" data-bb-finsert title="아래에 필드 추가" aria-label="아래에 필드 추가">＋</button>' +
               '<button type="button" class="bb-iconbtn bb-iconbtn--del" data-bb-fdel title="필드 삭제" aria-label="필드 삭제"' + (lockInputs ? ' disabled' : '') + '>' + SVG_TRASH + '</button>' +
             '</div>' +
@@ -332,7 +330,6 @@
       else if (prop === 'options') fields[i].options = csvToArray(inp.value);
       else fields[i][prop] = inp.value;
     }
-    function moveField(i, dir) { var j = dir === 'up' ? i - 1 : i + 1; moveFieldTo(i, j); }
     function moveFieldTo(from, to) {
       if (from < 0 || from >= fields.length) return;
       to = Math.max(0, Math.min(fields.length - 1, to));
@@ -577,7 +574,6 @@
       // 템플릿 카드 — 시작점 예시(presentational). 필드 reseed/저장 없음(기능 확장 방지).
       var tpl = e.target.closest('[data-bb-tpl]');
       if (tpl) { qa(root, '[data-bb-tpl]').forEach(function (c) { c.classList.toggle('is-sel', c === tpl); }); return; }
-      var mv = e.target.closest('[data-bb-fmove]'); if (mv) { if (!mv.disabled) moveField(fieldIndex(mv), mv.getAttribute('data-bb-fmove')); return; }
       var ins = e.target.closest('[data-bb-finsert]'); if (ins) { insertField(fieldIndex(ins)); return; }
       var del = e.target.closest('[data-bb-fdel]'); if (del) { if (!del.disabled) deleteField(fieldIndex(del)); return; }
     });
