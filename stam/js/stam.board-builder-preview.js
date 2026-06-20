@@ -286,7 +286,7 @@
         return '<div class="bb-fcard' + (f.system ? ' is-system' : '') + '" data-bb-fi="' + i + '">' +
           '<div class="bb-fc-main">' +
             '<div class="bb-fc-rail">' +
-              '<span class="bb-drag" draggable="true" data-bb-drag title="드래그하여 순서 변경" aria-label="순서 변경 핸들">⋮⋮</span>' +
+              '<span class="bb-drag" draggable="true" data-bb-drag title="드래그해서 순서 변경" aria-label="드래그해서 순서 변경">⋮⋮</span>' +
               '<span class="bb-fc-no">' + (i + 1) + '</span>' +
             '</div>' +
             '<div class="bb-fc-body">' +
