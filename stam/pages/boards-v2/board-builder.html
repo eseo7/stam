@@ -22,12 +22,12 @@
     · 색/폰트는 stam.tokens.css + 자체서빙 S-Core Dream 만 사용 (외부 CDN 0).
     · 입력 → Board Factory config 생성 → localStorage 저장 → 화면 내 preview.
     · Firestore / API 호출 없음. 실제 게시판 생성/저장 아님.
-    · 컴포넌트·레이아웃 스타일(bb- prefix)은 board-builder.html 전용 `stam.board-builder.css` 로 분리(PR-C-1·C-2),
-      잔여(field-card / preview / table / JSON)만 inline <style>. 공통 token / 전역 CSS 미변경.
+    · 컴포넌트·레이아웃 스타일(bb- prefix)은 board-builder.html 전용 `stam.board-builder.css` 로 분리(PR-C-1·C-2·C-3A),
+      잔여(preview / table / JSON)만 inline <style>. 공통 token / 전역 CSS 미변경.
   -->
   <style>
     /* page base · .bb-wrap · header · shell · action bar · narrow fallback
-       → stam.board-builder.css (PR-C-2 분리). 잔여 inline = steps / field-card / preview / table / JSON. */
+       → stam.board-builder.css (PR-C-2 분리). 잔여 inline = steps / preview / table / JSON. */
 
     /* ── scrollbar 톤 ─────────────────────────────────────────────────
        공통 `stam.scrollbar.css` `.stam-scrollbar` helper + `--stam-scrollbar-*` token 으로 일원화.
@@ -46,66 +46,8 @@
 
     /* form controls · template cards · top chips → stam.board-builder.css (PR-C-1 분리) */
 
-    /* ── field section ── */
-    .bb-fld-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-    .bb-fld-badge { display: inline-flex; align-items: center; height: 20px; padding: 0 9px; border-radius: 99px; font-size: 10.5px; font-weight: 700; background: var(--stam-soft); color: var(--stam); border: 1px solid rgba(84,81,232,.20); }
-    .bb-fld-hint { font-size: 10.5px; color: var(--bb-muted); margin-left: auto; text-align: right; line-height: 1.4; }
-    .bb-fields { display: flex; flex-direction: column; gap: 10px; }
-
-    /* field card — 기본 노출: 필드명/입력방식/필수/표시위치/옵션. key·raw type·매핑은 고급 설정. */
-    .bb-fcard { border: 1px solid var(--bd); border-radius: var(--r-lg); background: var(--bg-sur); box-shadow: 0 1px 2px rgba(15,23,42,.04); overflow: hidden; transition: border-color 120ms, box-shadow 120ms, opacity 120ms; }
-    .bb-fcard:hover { border-color: var(--bd-s); }
-    .bb-fcard.is-system { background: linear-gradient(0deg, var(--bg-sur), var(--bg-sur)); }
-    .bb-fcard.is-dragging { opacity: .5; border-color: var(--stam); }
-    .bb-fcard.drop-before { box-shadow: inset 0 3px 0 var(--stam); }
-    .bb-fcard.drop-after { box-shadow: inset 0 -3px 0 var(--stam); }
-    /* 신규 필드 강조 — 카드별 ＋ / 필드 추가 시 stroke(primary)가 2회 깜빡인 뒤 원복. JS 가 약 1.4s 후 class 제거. light/dark 공통 token. */
-    .bb-fcard--new { animation: bb-fcard-flash 1.25s ease both; }
-    @keyframes bb-fcard-flash {
-      0%       { border-color: var(--bd); box-shadow: 0 1px 2px rgba(15,23,42,.04); }
-      15%, 55% { border-color: var(--stam); box-shadow: 0 0 0 2px var(--stam-soft); }
-      35%, 75% { border-color: var(--bd); box-shadow: 0 1px 2px rgba(15,23,42,.04); }
-      100%     { border-color: var(--bd); box-shadow: 0 1px 2px rgba(15,23,42,.04); }
-    }
-    /* 모션 최소화 환경: 깜빡임 없이 진한 border 만 잠깐 노출(=JS class 유지 동안) 후 제거. */
-    @media (prefers-reduced-motion: reduce) {
-      .bb-fcard--new { animation: none; border-color: var(--stam); box-shadow: 0 0 0 2px var(--stam-soft); }
-    }
-    .bb-fc-main { display: flex; align-items: flex-start; gap: 9px; padding: 9px 12px 10px; }
-    .bb-fc-rail { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; padding-top: 3px; }
-    .bb-drag { cursor: grab; color: var(--bb-muted); font-size: 13px; line-height: 1; letter-spacing: -3px; user-select: none; }
-    .bb-drag:active { cursor: grabbing; }
-    .bb-fc-no { font-size: 10px; font-weight: 800; color: var(--t3); }
-    .bb-fc-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
-    .bb-fc-row1 { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    .bb-fc-name { flex: 1 1 130px; font-weight: 600; padding: 6px 9px; font-size: 12.5px; }
-    .bb-fc-type { flex: 0 1 132px; padding: 6px 9px; font-size: 11.5px; }
-    .bb-fc-lock { display: inline-flex; align-items: center; gap: 3px; font-size: 9.5px; font-weight: 700; color: var(--stam); background: var(--stam-soft); border: 1px solid rgba(84,81,232,.20); border-radius: 99px; padding: 2px 7px; white-space: nowrap; }
-    .bb-fchip { font-size: 9.5px; font-weight: 700; color: var(--t3); background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 99px; padding: 2px 7px; white-space: nowrap; }
-    .bb-fc-row2 { display: flex; align-items: center; gap: 8px 9px; flex-wrap: wrap; }
-    .bb-fc-uselbl { font-size: 10px; color: var(--bb-muted); font-weight: 600; }
-    .bb-fc-sep { width: 1px; height: 14px; background: var(--bd); }
-    .bb-chk { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--t2); white-space: nowrap; cursor: pointer; }
-    .bb-chk input { accent-color: var(--stam); margin: 0; }
-    /* 필수 = badge 형태 checkbox */
-    .bb-chk--req { font-weight: 700; padding: 2px 9px 2px 7px; border-radius: 99px; border: 1px solid var(--bd); background: var(--bg-sur2); color: var(--t3); }
-    .bb-chk--req.is-on { background: rgba(220,38,38,.07); color: var(--fail); border-color: rgba(220,38,38,.22); }
-    .bb-chk--req.is-locked { cursor: not-allowed; opacity: .8; }
-    .bb-fc-opts { padding: 6px 9px; font-size: 11.5px; }
-    .bb-fc-actions { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
-    /* .bb-iconbtn* → stam.board-builder.css (PR-C-1) */
-    /* advanced */
-    .bb-fc-adv-tog { display: flex; align-items: center; gap: 6px; width: 100%; padding: 7px 12px; border: 0; border-top: 1px solid var(--bd); background: var(--bg-sur2); color: var(--t3); font-family: var(--font); font-size: 10.5px; font-weight: 700; cursor: pointer; transition: color 120ms, background 120ms; }
-    .bb-fc-adv-tog:hover { color: var(--t1); background: var(--bg-sur3); }
-    .bb-fc-adv-arr { transition: transform 150ms; display: inline-block; }
-    .bb-fc-adv-tog.is-open .bb-fc-adv-arr { transform: rotate(180deg); }
-    .bb-fc-adv-meta { margin-left: auto; font-weight: 600; color: var(--bb-muted); }
-    .bb-fc-adv { padding: 10px 12px 12px; background: var(--bg-sur2); border-top: 1px solid var(--bd); display: flex; flex-direction: column; gap: 8px; }
-    .bb-fc-adv[hidden] { display: none; }
-    .bb-adv-row { display: grid; grid-template-columns: 78px 1fr; align-items: center; gap: 9px; }
-    .bb-adv-k { font-size: 10.5px; color: var(--t3); font-weight: 600; }
-    .bb-adv-v { font-size: 10.5px; color: var(--t2); background: var(--bg-sur3); padding: 4px 8px; border-radius: var(--r-sm); border: 1px solid var(--bd); font-family: var(--mono); overflow-x: auto; white-space: nowrap; }
-    .bb-adv-key { font-size: 11.5px; padding: 6px 9px; font-family: var(--mono); }
+    /* field section · field-card(.bb-fld-* / .bb-fcard·--new / .bb-fc-* / .bb-drag / .bb-chk* / .bb-adv-*
+       · @keyframes bb-fcard-flash + prefers-reduced-motion) → stam.board-builder.css (PR-C-3A 분리). */
 
     /* action bar(.bb-actions / .bb-actions-status) → stam.board-builder.css (PR-C-2) */
 
