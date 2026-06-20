@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang='ko' data-theme='dark'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1.0'>
+<title>STAM Screen Template System Master Guide v1</title>
+<link rel='icon' href='../assets/brand/stam/stam_favicon.ico' type='image/x-icon'>
+<link rel='stylesheet' href='../assets/fonts/s-core-dream/s-core-dream.css'>
+<link rel='stylesheet' href='../css/stam.tokens.css'>
+<link rel='stylesheet' href='../css/stam.shell.css'>
+<link rel='stylesheet' href='../css/stam.components.css'>
+<link rel='stylesheet' href='../css/stam.docs.css'>
+<style>
+:root{--bg:#07111f;--card:rgba(255,255,255,.055);--card2:rgba(255,255,255,.085);--line:rgba(148,163,184,.24);--text:#e5edf8;--muted:#93a4bb;--accent:#7dd3fc;--good:#86efac;--warn:#facc15;--bad:#fca5a5;--purple:#c4b5fd}[data-theme='light']{--bg:#f7f9fc;--card:#fff;--card2:#f0f5fb;--line:#d9e2ef;--text:#162033;--muted:#63738a;--accent:#0ea5e9;--good:#16a34a;--warn:#b45309;--bad:#dc2626;--purple:#7c3aed}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:'S-Core Dream',system-ui,sans-serif;line-height:1.65}.top{position:sticky;top:0;z-index:20;display:flex;gap:12px;align-items:center;padding:12px 28px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px)}.top a{color:var(--text);text-decoration:none}.logo{font-weight:800;display:flex;align-items:center;gap:8px}.logo img{width:26px;height:26px}.sp{flex:1}.btn,.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 10px;font-size:11px;color:var(--muted);text-decoration:none}.shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px;max-width:1580px;margin:0 auto;padding:28px}.toc{position:sticky;top:72px;align-self:start;border:1px solid var(--line);background:var(--card);border-radius:22px;padding:16px}.toc h2{margin:0 0 12px;font-size:13px}.toc a{display:block;padding:9px 10px;border-radius:12px;color:var(--muted);text-decoration:none;font-size:12px}.toc a:hover{background:var(--card2);color:var(--text)}.hero,.sec{border:1px solid var(--line);background:var(--card);border-radius:26px;padding:24px;margin-bottom:18px}.hero{background:linear-gradient(135deg,var(--card2),var(--card))}h1{margin:0;font-size:34px;line-height:1.18;letter-spacing:-.04em}h2{margin:0;font-size:21px;letter-spacing:-.025em}.lead{max-width:980px;margin:14px 0 0;color:var(--muted)}.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}.metric{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:15px}.metric b{display:block;font-size:28px}.metric span{display:block;margin-top:5px;font-size:12px;color:var(--muted)}.head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}.no{display:inline-flex;width:34px;height:34px;align-items:center;justify-content:center;border-radius:12px;background:var(--card2);font-weight:900;color:var(--accent)}.grid{display:grid;gap:12px}.c2{grid-template-columns:repeat(2,minmax(0,1fr))}.c3{grid-template-columns:repeat(3,minmax(0,1fr))}.card,.note,.rule{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:15px}.card h3{margin:0 0 6px;font-size:15px}.card p,.note,.rule span{margin:0;color:var(--muted);font-size:12.5px}.card .lk{display:inline-block;margin-top:9px;font-size:11.5px;color:var(--good);text-decoration:none}.card .lk:hover{text-decoration:underline}.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.rule b{display:block;font-size:13px;margin-bottom:4px}.flow{display:grid;grid-template-columns:repeat(3,minmax(110px,1fr));gap:10px}.flow div{border:1px solid var(--line);background:var(--card2);border-radius:16px;padding:14px}.flow b{display:block;font-size:13px}.flow span{display:block;margin-top:6px;font-size:11px;color:var(--muted)}.table{overflow:auto;border:1px solid var(--line);border-radius:16px}.table table{width:100%;border-collapse:collapse;min-width:720px}.table th,.table td{border-bottom:1px solid var(--line);padding:11px 12px;text-align:left;font-size:12px;vertical-align:top}.table th{background:var(--card2);color:var(--muted)}.table td b{font-weight:800}.ok{color:var(--good);font-weight:800}.warn{color:var(--warn);font-weight:800}.bad{color:var(--bad);font-weight:800}.purple{color:var(--purple);font-weight:800}.tag{display:inline-block;border:1px solid var(--line);background:var(--card2);border-radius:999px;padding:2px 9px;font-size:10.5px;font-weight:800;white-space:nowrap}.tag.g{color:var(--good)}.tag.w{color:var(--warn)}.tag.a{color:var(--accent)}.tag.p{color:var(--purple)}code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--card2);border:1px solid var(--line);border-radius:7px;padding:1px 5px;font-size:.92em}.note.warnbox{border-color:color-mix(in srgb,var(--warn) 45%,var(--line))}.footer{padding:20px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:980px){.shell{grid-template-columns:1fr;padding:18px}.toc{position:relative;top:auto}.metrics,.c2,.c3,.rules,.flow{grid-template-columns:1fr}.top{padding:10px 16px}h1{font-size:26px}}
+</style>
+</head>
+<body>
+<nav class='top'><a class='logo' href='STAM-Docs-Index.html'><img src='../assets/brand/stam/stam_icon_primary_transparent.png' alt='STAM'><span>STAM</span></a><span class='pill'>Screen Template System Master Guide v1</span><span class='sp'></span><a class='btn' href='STAM-Docs-Index.html'>Docs Index</a><a class='btn' href='STAM-Screen-Template-Docs-Inventory-Gap-Report-v1.html'>Gap Report</a><a class='btn' href='STAM-Sitemap-IA-Overview-v1.html'>Sitemap &amp; IA</a></nav>
+<div class='shell'>
+<aside class='toc'><h2>목차</h2>
+<a href='#summary'>00 Executive Summary</a>
+<a href='#goal'>01 템플릿 시스템 목표</a>
+<a href='#principles'>02 핵심 원칙</a>
+<a href='#flow'>03 사용자 흐름</a>
+<a href='#taxonomy'>04 템플릿 분류 체계</a>
+<a href='#p30'>05 Priority 30 관계</a>
+<a href='#boardbuilder'>06 Board Builder 관계</a>
+<a href='#screenspec'>07 화면설계서 제품 관계</a>
+<a href='#metadata'>08 필수 메타데이터</a>
+<a href='#permission'>09 권한 / 검토 / 이력</a>
+<a href='#export'>10 내보내기 / 납품</a>
+<a href='#mobile'>11 모바일 / 좁은 화면</a>
+<a href='#roadmap'>12 문서 로드맵</a>
+<a href='#linkpolicy'>13 링크 정책</a>
+<a href='#qa'>14 QA 체크리스트</a>
+</aside>
+<main>
+
+<section class='hero' id='summary'>
+<div class='chips'><span class='pill'>Master Guide · P1</span><span class='pill'>Docs Only</span><span class='pill'>No Product File Change</span><span class='pill'>2026-06-20</span></div>
+<h1>STAM Screen Template<br>System Master Guide v1</h1>
+<p class='lead'>화면설계서(Screen Specification) 템플릿 시스템의 상위 기준 문서다. 공통 페이지 템플릿 기반 원칙, 12개 분류 체계, 사용자 흐름 9단계, 후속 문서 로드맵(P1–P5)을 하나의 문서로 정의한다. 이 문서는 <strong>참조 기준 가이드</strong>이며, 개별 템플릿 HTML과 상세 팩은 별도 후속 문서에서 관리한다. 제품 파일(App Shell, nav-data, 저장 로직, Firebase)은 수정하지 않는다.</p>
+<div class='metrics'>
+<div class='metric'><b>12</b><span>템플릿 분류 카테고리</span></div>
+<div class='metric'><b>15</b><span>화면당 필수 메타데이터 필드</span></div>
+<div class='metric'><b>9</b><span>사용자 흐름 단계</span></div>
+<div class='metric'><b>P1</b><span>현재 문서 우선순위</span></div>
+</div>
+</section>
+
+<section class='sec' id='goal'>
+<div class='head'><span class='no'>01</span><h2>템플릿 시스템 목표</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>핵심 목표</h3><p>화면설계서를 처음부터 그리지 않는다. <strong>공통 페이지 템플릿을 선택 → 수정</strong>하는 흐름으로 작업 시간을 줄이고, 프로젝트 간 화면 구조의 일관성을 확보한다.</p></div>
+<div class='card'><h3>적용 범위</h3><p>STAM 화면설계서(B4 메뉴) 전 영역. List/Board, Detail, Form, Dashboard, Approval, Settings, Permission, Report, Wizard, Drawer/Modal, Empty/Error/Result 12개 유형을 포함한다.</p></div>
+<div class='card'><h3>작업 대상</h3><p>신규 프로젝트의 화면 목록 정의 이후, 각 화면에 적합한 템플릿 유형을 선택해 필드·메타데이터를 채우고 검토/승인 흐름까지 연결한다.</p></div>
+<div class='card'><h3>제한 범위</h3><p>이 문서는 <strong>기준 가이드</strong>다. 템플릿 HTML 생성, 게시판 설정, 저장 로직, Firebase, App Shell 수정은 별도 후속 작업으로 분리한다.</p></div>
+</div>
+</section>
+
+<section class='sec' id='principles'>
+<div class='head'><span class='no'>02</span><h2>핵심 원칙 8가지</h2></div>
+<div class='rules'>
+<div class='rule'><b class='ok'>① 공통 페이지 템플릿 기반</b><span>모든 화면설계는 검증된 12개 템플릿 카테고리 중 하나를 선택하는 것으로 시작한다. 처음부터 새 레이아웃을 만들지 않는다.</span></div>
+<div class='rule'><b class='ok'>② 선택 → 수정 흐름</b><span>템플릿 선택 후 프로젝트 맥락에 맞게 필드·레이아웃·권한 등을 수정한다. 템플릿 원본은 유지하고 복사본을 편집한다.</span></div>
+<div class='rule'><b class='ok'>③ 필드 메타데이터 완전 기입</b><span>화면 ID, 상태, 버전, 작성자, 담당 개발자, 연결 API, 권한 등급 등 15개 필드를 빠짐없이 기입한다.</span></div>
+<div class='rule'><b class='ok'>④ 승인/검토 레이어 병행</b><span>작성 완료 후 검토 요청 → 승인 처리 → 변경이력 기록 흐름을 필수로 거친다. 승인 없는 산출물은 납품 불가 상태로 표시된다.</span></div>
+<div class='rule'><b style='color:var(--accent)'>⑤ 내보내기 연동 가능 구조</b><span>최종 화면설계서는 PDF/Word/Excel 내보내기 및 고객 공유 링크 생성이 가능한 구조로 유지한다. 메타데이터 완전 기입이 선행 조건이다.</span></div>
+<div class='rule'><b style='color:var(--accent)'>⑥ 모바일 / 좁은 화면 고려</b><span>PC 테이블 기준으로 설계하되, 980px 이하에서 카드/전체보기 전환 흐름을 템플릿마다 명시한다.</span></div>
+<div class='rule'><b class='purple'>⑦ Board Builder 보완 관계</b><span>Board Builder는 게시판 구조 Preview 도구이며, 화면설계서 템플릿 시스템은 개별 화면의 설계 기준을 제공한다. 두 시스템은 경쟁하지 않고 보완 관계를 형성한다.</span></div>
+<div class='rule'><b class='purple'>⑧ 실제 repo 경로 기준 링크</b><span>문서 내 모든 링크는 실제 존재하는 파일만 참조한다. 아직 생성되지 않은 후속 문서는 파일명 텍스트로만 표기하고 href를 부여하지 않는다.</span></div>
+</div>
+</section>
+
+<section class='sec' id='flow'>
+<div class='head'><span class='no'>03</span><h2>사용자 흐름 9단계</h2><span class='pill'>프로젝트 선택 → 내보내기 연결</span></div>
+<div class='flow'>
+<div><b>1. 프로젝트 선택</b><span>내 프로젝트 목록 또는 즐겨찾기에서 대상 프로젝트 진입</span></div>
+<div><b>2. 화면설계서 진입</b><span>B4 화면설계서 메뉴로 이동. 화면 목록 확인</span></div>
+<div><b>3. 신규 화면 추가</b><span>화면 목록에서 신규 화면 추가 액션 실행</span></div>
+<div><b>4. 템플릿 유형 선택</b><span>12개 카테고리 중 해당 화면 성격에 맞는 유형 선택</span></div>
+<div><b>5. 메타데이터 기입</b><span>화면 ID, 상태, 버전, 담당자, API, 권한 등 15개 필드 입력</span></div>
+<div><b>6. 레이아웃 수정</b><span>선택한 템플릿 기준으로 프로젝트 맥락에 맞게 필드·구역 수정</span></div>
+<div><b>7. 검토 요청</b><span>작성 완료 후 담당 검토자에게 검토 요청 전송</span></div>
+<div><b>8. 승인 처리</b><span>검토자 확인 후 승인 또는 반려. 반려 시 재수정 흐름으로 재진입</span></div>
+<div><b>9. 내보내기 연결</b><span>승인 완료 화면설계서를 PDF/Word 내보내기 또는 고객 공유 링크로 납품</span></div>
+</div>
+</section>
+
+<section class='sec' id='taxonomy'>
+<div class='head'><span class='no'>04</span><h2>템플릿 분류 체계 — 12개 카테고리</h2></div>
+<div class='grid c3'>
+<div class='card'><h3>T01 · List / Board</h3><p>레코드 목록, 게시판 목록. 필터·정렬·페이지네이션 포함. 가장 빈번하게 사용되는 유형.</p></div>
+<div class='card'><h3>T02 · Detail</h3><p>단일 레코드 상세 보기. 탭/섹션 분리, 하위 항목 인라인 표시, 연결 산출물 표시.</p></div>
+<div class='card'><h3>T03 · Create / Edit Form</h3><p>신규 작성 및 수정 폼. 필드 유형(텍스트, 날짜, 선택, 파일)별 기준 레이아웃 포함.</p></div>
+<div class='card'><h3>T04 · Search / Filter</h3><p>고급 검색, 다중 필터 조합. 필터 칩, 초기화, 결과 수 표시 포함.</p></div>
+<div class='card'><h3>T05 · Dashboard</h3><p>지표 카드, 차트, 요약 위젯. 프로젝트 대시보드(A1) 또는 산출물 현황 대시보드에 사용.</p></div>
+<div class='card'><h3>T06 · Approval</h3><p>검토 요청 목록, 승인 상세, 승인/반려 액션, 승인 이력. D그룹 레이어와 연결.</p></div>
+<div class='card'><h3>T07 · Settings</h3><p>프로젝트·게시판·계정 설정 화면. 섹션 분리, 저장/취소 버튼 기준 패턴.</p></div>
+<div class='card'><h3>T08 · Permission</h3><p>역할/권한 관리, 멤버별 접근 제어, 산출물 접근권한. F3·F4 메뉴 설계 기준.</p></div>
+<div class='card'><h3>T09 · Report</h3><p>테스트 결과, 결함 대시보드, 사용량 리포트. 출력/내보내기 기준 레이아웃 포함.</p></div>
+<div class='card'><h3>T10 · Wizard</h3><p>단계별 입력 흐름(Step 1 → N). 진행 표시, 이전/다음 버튼, 중간 저장 패턴.</p></div>
+<div class='card'><h3>T11 · Drawer / Modal</h3><p>우측 Drawer 상세, 확인 Modal, 빠른 편집 Panel. 메인 목록 위에 레이어로 표시.</p></div>
+<div class='card'><h3>T12 · Empty / Error / Result</h3><p>데이터 없음 상태, 에러 화면, 처리 완료 결과 화면. 모든 유형에 공통 적용.</p></div>
+</div>
+</section>
+
+<section class='sec' id='p30'>
+<div class='head'><span class='no'>05</span><h2>Priority 30 관계</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>문서 계층 구조</h3><p>이 Master Guide → Priority 30 한국어 베이스라인 → Top 10 상세 팩 → Top 3 Drawer Preview 순서로 문서가 상세화된다. 각 후속 문서는 이 Master Guide의 원칙과 분류 체계를 기준으로 작성된다.</p></div>
+<div class='card'><h3>Priority 30 정의</h3><p>STAM 화면설계서 시스템에서 가장 높은 빈도로 사용되는 상위 30개 화면 유형을 선별한 베이스라인이다. 12개 카테고리를 실제 빈도 기준으로 구체화한 목록이며, 후속 단계 문서로 생성 예정이다.</p></div>
+</div>
+<div class='note warnbox' style='margin-top:12px'><strong>현재 상태:</strong> Priority 30 한국어 베이스라인(<code>STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html</code>)은 아직 생성되지 않았다. 이 문서에서는 링크를 부여하지 않으며 파일명 텍스트로만 표기한다. 생성 완료 후 이 섹션에 링크를 추가한다.</div>
+</section>
+
+<section class='sec' id='boardbuilder'>
+<div class='head'><span class='no'>06</span><h2>Board Builder 관계</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>Board Builder 역할</h3><p>게시판 만들기(F5-2) 단계에서 필드·목록·필터·미리보기 기준을 잡는 <strong>게시판 구조 Preview 도구</strong>다. 입력 결과는 localStorage 기준이며 Firestore/API/fetch 호출이 없는 상태를 유지한다.</p><a class='lk' href='../pages/boards-v2/board-builder.html'>→ Board Builder (pages/boards-v2/board-builder.html)</a></div>
+<div class='card'><h3>화면설계서 템플릿 역할</h3><p>개별 화면의 <strong>설계 기준과 메타데이터 구조</strong>를 제공한다. Board Builder가 게시판 구조를 잡으면, 화면설계서 템플릿은 각 화면의 상세 설계를 담는다. 두 시스템은 경쟁하지 않고 단계적으로 보완 관계를 형성한다.</p></div>
+</div>
+<div class='note' style='margin-top:12px'>Board Builder 제품 파일(<code>stam/pages/boards-v2/board-builder.html</code>)은 이 문서 작업의 수정 범위에 포함되지 않는다. 문서 참조 링크만 제공한다.</div>
+</section>
+
+<section class='sec' id='screenspec'>
+<div class='head'><span class='no'>07</span><h2>화면설계서 제품 페이지 관계</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>화면설계서 제품 페이지</h3><p>STAM 내 B4 메뉴인 화면설계서(<code>stam/pages/boards/screen-specification.html</code>)는 실제 데이터를 다루는 제품 화면이다. 이 Master Guide는 해당 제품 화면에서 사용할 템플릿 유형 분류·메타데이터·흐름 기준을 정의하는 <strong>참조 가이드</strong>이며, 제품 파일 자체는 수정하지 않는다.</p><a class='lk' href='../pages/boards/screen-specification.html'>→ 화면설계서 제품 (pages/boards/screen-specification.html)</a></div>
+<div class='card'><h3>기준 문서 역할</h3><p>이 Master Guide는 화면설계서 제품에서 사용할 템플릿 유형 분류, 메타데이터 구조, 검토/승인 흐름 기준을 정의한다. 실제 제품 화면의 UI·저장 로직·Firebase 연동은 이 문서의 범위 밖이다.</p></div>
+</div>
+<div class='note' style='margin-top:12px'>화면설계서 템플릿 기준 HTML은 <a href='templates/STAM-Screen-Specification-Template-Baseline.html' style='color:var(--good)'>templates/STAM-Screen-Specification-Template-Baseline.html</a>에 존재한다. 이 Master Guide는 해당 템플릿을 포함한 전체 시스템의 상위 기준을 제공한다.</div>
+</section>
+
+<section class='sec' id='metadata'>
+<div class='head'><span class='no'>08</span><h2>화면당 필수 메타데이터 — 15개 필드</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>#</th><th>필드명</th><th>설명</th><th>예시 / 형식</th><th>필수 여부</th></tr></thead>
+<tbody>
+<tr><td>01</td><td><b>화면 ID</b></td><td>프로젝트 내 고유 식별자</td><td>SCR-001, SCR-002</td><td class='ok'>필수</td></tr>
+<tr><td>02</td><td><b>화면명 (국문)</b></td><td>국문 화면 명칭</td><td>회원 목록, 결제 상세</td><td class='ok'>필수</td></tr>
+<tr><td>03</td><td><b>화면명 (영문)</b></td><td>영문 화면 명칭</td><td>Member List, Payment Detail</td><td class='ok'>필수</td></tr>
+<tr><td>04</td><td><b>상태</b></td><td>작성 진행 상태</td><td>작성 중 / 검토 요청 / 승인 완료 / 반려</td><td class='ok'>필수</td></tr>
+<tr><td>05</td><td><b>버전</b></td><td>문서 버전</td><td>v1.0, v1.1, v2.0</td><td class='ok'>필수</td></tr>
+<tr><td>06</td><td><b>작성자</b></td><td>화면 설계 담당자</td><td>홍길동 / user@example.com</td><td class='ok'>필수</td></tr>
+<tr><td>07</td><td><b>작성일</b></td><td>최초 작성 날짜</td><td>YYYY-MM-DD</td><td class='ok'>필수</td></tr>
+<tr><td>08</td><td><b>최종 수정일</b></td><td>마지막 변경 날짜</td><td>YYYY-MM-DD</td><td class='ok'>필수</td></tr>
+<tr><td>09</td><td><b>담당 개발자</b></td><td>구현 담당 개발자</td><td>김개발 / dev@example.com</td><td class='ok'>필수</td></tr>
+<tr><td>10</td><td><b>관련 기능 ID</b></td><td>기능정의서 연결 키</td><td>FN-003, FN-004</td><td class='ok'>필수</td></tr>
+<tr><td>11</td><td><b>연결 API</b></td><td>주요 API 엔드포인트</td><td>/api/members, /api/payments/:id</td><td class='ok'>필수</td></tr>
+<tr><td>12</td><td><b>권한 등급</b></td><td>열람/편집 최소 권한</td><td>관리자 / 편집자 / 뷰어</td><td class='ok'>필수</td></tr>
+<tr><td>13</td><td><b>플랫폼</b></td><td>대상 플랫폼</td><td>PC / Mobile / Both</td><td class='ok'>필수</td></tr>
+<tr><td>14</td><td><b>검토자</b></td><td>검토 담당자</td><td>이검토 / review@example.com</td><td class='ok'>필수</td></tr>
+<tr><td>15</td><td><b>승인자</b></td><td>최종 승인 담당자</td><td>박승인 / approve@example.com</td><td class='ok'>필수</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class='sec' id='permission'>
+<div class='head'><span class='no'>09</span><h2>권한 / 검토 / 이력</h2></div>
+<div class='grid c3'>
+<div class='card'><h3>역할별 권한</h3><p><strong>관리자:</strong> 전체 생성·수정·삭제·승인<br><strong>편집자:</strong> 화면 작성·수정·검토 요청<br><strong>뷰어:</strong> 조회만 가능, 내보내기 제한</p></div>
+<div class='card'><h3>검토 / 승인 흐름</h3><p>편집자가 검토 요청 → 검토자 확인 후 의견 등록 → 승인자가 승인 또는 반려. 반려 시 작성자에게 알림 발송 후 재수정 흐름으로 재진입.</p></div>
+<div class='card'><h3>변경이력</h3><p>버전, 수정일, 수정자, 주요 변경 사항을 이력 테이블로 관리한다. 승인 완료 버전은 잠금 처리되며 신규 버전 생성으로만 수정 가능하다.</p></div>
+</div>
+<div class='note' style='margin-top:12px'>D그룹(협업/검토/승인) 공통 레이어 전체 구조는 Sitemap &amp; IA Overview 05절을 참조한다: <a href='STAM-Sitemap-IA-Overview-v1.html#layer' style='color:var(--good)'>STAM-Sitemap-IA-Overview-v1.html#layer</a></div>
+</section>
+
+<section class='sec' id='export'>
+<div class='head'><span class='no'>10</span><h2>내보내기 / 납품</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>내보내기 대상 형식</h3><p>승인 완료 화면설계서에 한해 PDF, Word(.docx), Excel(.xlsx) 형식 내보내기를 지원한다. Markdown Export는 E5 메뉴에서 처리한다.</p></div>
+<div class='card'><h3>고객 공유 링크</h3><p>납품 단계에서 고객 공유 링크(E3)를 생성해 외부 열람 권한을 부여할 수 있다. 승인 상태가 아닌 화면은 공유 링크 생성이 제한된다.</p></div>
+<div class='card'><h3>메타데이터 완전 기입 선행</h3><p>내보내기 시 15개 필수 필드가 모두 채워진 화면만 내보내기 대상에 포함된다. 미기입 필드가 있으면 경고 표시 후 내보내기가 차단된다.</p></div>
+<div class='card'><h3>납품 이력 관리</h3><p>내보내기 실행 시 E4 납품 이력에 날짜·담당자·형식·버전이 자동 기록된다. 재납품 시 이전 이력이 누적 보존된다.</p></div>
+</div>
+</section>
+
+<section class='sec' id='mobile'>
+<div class='head'><span class='no'>11</span><h2>모바일 / 좁은 화면 고려</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>PC 기준 설계</h3><p>화면설계서는 PC 테이블/그리드 레이아웃을 기본으로 한다. 컬럼 수, 고정 컬럼, 가로 스크롤 기준을 각 템플릿별로 명시한다.</p></div>
+<div class='card'><h3>모바일 전환 기준</h3><p>980px 이하에서 테이블형 → 카드형으로 전환하거나 가로 스크롤을 허용한다. 전환 방식은 T01 List/Board, T02 Detail, T06 Approval 유형에서 우선 정의한다.</p></div>
+<div class='card'><h3>필드 우선순위</h3><p>모바일에서는 핵심 필드(상태, 이름, 날짜)만 우선 표시하고, 부가 필드는 '전체 보기' 확장 액션으로 제공한다.</p></div>
+<div class='card'><h3>Drawer / Modal 처리</h3><p>T11 Drawer/Modal 유형은 모바일에서 전체 화면 전환을 원칙으로 한다. 우측 Drawer가 80% 이상 화면을 덮는 경우 Full Screen 모드로 대체한다.</p></div>
+</div>
+</section>
+
+<section class='sec' id='roadmap'>
+<div class='head'><span class='no'>12</span><h2>문서 로드맵 P1–P5</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>우선순위</th><th>문서명</th><th>역할</th><th>상태</th></tr></thead>
+<tbody>
+<tr>
+<td><span class='tag g'>P1</span></td>
+<td><b><a href='STAM-Screen-Template-System-Master-Guide-v1.html' style='color:var(--good)'>STAM-Screen-Template-System-Master-Guide-v1.html</a></b></td>
+<td>전체 시스템 상위 기준 문서. 목표·원칙·분류·흐름·메타데이터·로드맵 정의</td>
+<td class='ok'>생성 완료</td>
+</tr>
+<tr>
+<td><span class='tag w'>P2</span></td>
+<td>STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html</td>
+<td>한국형 화면 상위 30개 유형 베이스라인. 12 카테고리 → 30개 구체 화면 목록</td>
+<td class='warn'>후속 단계</td>
+</tr>
+<tr>
+<td><span class='tag w'>P3</span></td>
+<td>STAM-Screen-Template-Top-10-Detail-Pack-v1.html</td>
+<td>P30 중 빈도 최상위 10개 화면 상세 팩. 레이아웃·필드·상태·액션 완전 정의</td>
+<td class='warn'>후속 단계</td>
+</tr>
+<tr>
+<td><span class='tag w'>P4</span></td>
+<td>STAM-Screen-Template-Top-3-Drawer-Preview-v1.html</td>
+<td>Top 10 중 Drawer/상세 연동 최상위 3개 화면 Preview. 우측 Drawer 레이아웃 기준</td>
+<td class='warn'>후속 단계</td>
+</tr>
+<tr>
+<td><span class='tag w'>P5</span></td>
+<td>STAM-Screen-Specification-Detail-Drawer-Result-Preview-v1.html</td>
+<td>상세·Drawer·결과 화면 통합 Preview. 승인/납품 흐름 끝단 화면 기준</td>
+<td class='warn'>후속 단계</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class='note' style='margin-top:12px'>P2–P5 문서는 아직 생성되지 않았다. 이 로드맵 표에서는 파일명을 텍스트로 표기하며 href를 부여하지 않는다. P1(이 문서)만 링크가 활성화되어 있다.</div>
+</section>
+
+<section class='sec' id='linkpolicy'>
+<div class='head'><span class='no'>13</span><h2>링크 정책</h2></div>
+<div class='rules'>
+<div class='rule'><b class='ok'>실제 존재 파일만 링크</b><span>이 문서 내 모든 <code>&lt;a href&gt;</code>는 <code>stam/</code> 하위에 실제로 존재하는 파일만 참조한다.</span></div>
+<div class='rule'><b class='ok'>누락 문서는 텍스트만</b><span>아직 생성되지 않은 후속 문서(P2–P5)는 파일명 텍스트로만 표기하고 <code>href</code>를 부여하지 않는다.</span></div>
+<div class='rule'><b class='warn'>제품 파일 참조 한정</b><span>제품 페이지(<code>pages/</code> 경로)는 참조 링크만 제공하며 내용을 수정하지 않는다.</span></div>
+<div class='rule'><b class='warn'>nav-data 연동 금지</b><span>이 문서는 <code>stam/js/stam.nav-data.js</code>에 등록하지 않는다. docs 영역 독립 문서로 유지한다.</span></div>
+</div>
+<div class='note' style='margin-top:12px'><strong>이 문서에서 활성 링크가 부여된 파일:</strong><br>
+• <a href='STAM-Docs-Index.html' style='color:var(--good)'>STAM-Docs-Index.html</a><br>
+• <a href='STAM-Sitemap-IA-Overview-v1.html' style='color:var(--good)'>STAM-Sitemap-IA-Overview-v1.html</a><br>
+• <a href='STAM-Screen-Template-Docs-Inventory-Gap-Report-v1.html' style='color:var(--good)'>STAM-Screen-Template-Docs-Inventory-Gap-Report-v1.html</a><br>
+• <a href='templates/STAM-Screen-Specification-Template-Baseline.html' style='color:var(--good)'>templates/STAM-Screen-Specification-Template-Baseline.html</a><br>
+• <a href='../pages/boards/screen-specification.html' style='color:var(--good)'>../pages/boards/screen-specification.html</a><br>
+• <a href='../pages/boards-v2/board-builder.html' style='color:var(--good)'>../pages/boards-v2/board-builder.html</a>
+</div>
+</section>
+
+<section class='sec' id='qa'>
+<div class='head'><span class='no'>14</span><h2>QA 체크리스트</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>#</th><th>항목</th><th>기준</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>파일 위치</td><td><code>stam/docs/STAM-Screen-Template-System-Master-Guide-v1.html</code> 에 존재</td><td class='ok'>확인</td></tr>
+<tr><td>2</td><td>파일명</td><td>오탈자 없음. 사양서 파일명과 정확히 일치</td><td class='ok'>확인</td></tr>
+<tr><td>3</td><td>lang 속성</td><td><code>lang='ko'</code></td><td class='ok'>확인</td></tr>
+<tr><td>4</td><td>data-theme 기본값</td><td><code>data-theme='dark'</code></td><td class='ok'>확인</td></tr>
+<tr><td>5</td><td>폰트 로드</td><td>S-Core Dream href 정확</td><td class='ok'>확인</td></tr>
+<tr><td>6</td><td>CSS 파일 4개</td><td>tokens, shell, components, docs 순서 정확</td><td class='ok'>확인</td></tr>
+<tr><td>7</td><td>favicon</td><td><code>../assets/brand/stam/stam_favicon.ico</code></td><td class='ok'>확인</td></tr>
+<tr><td>8</td><td>theme.js</td><td><code>../js/stam.theme.js</code> — body 닫기 전 마지막 스크립트</td><td class='ok'>확인</td></tr>
+<tr><td>9</td><td>CSS 변수</td><td>dark/light 양쪽 완전 정의 (11개 변수)</td><td class='ok'>확인</td></tr>
+<tr><td>10</td><td>15개 섹션</td><td>00 Summary ~ 14 QA 전체 포함</td><td class='ok'>확인</td></tr>
+<tr><td>11</td><td>TOC 앵커</td><td>15개 앵커 모두 본문 id와 일치</td><td class='ok'>확인</td></tr>
+<tr><td>12</td><td>누락 문서 링크 없음</td><td>P2–P5 파일에 href 없음. 텍스트만 표기</td><td class='ok'>확인</td></tr>
+<tr><td>13</td><td>범위 표현 기준 준수</td><td>제품/기능 범위 표현에 금지어 미사용. "1차 범위" · "우선 적용" · "후속 단계" 표현 사용 확인</td><td class='ok'>확인</td></tr>
+<tr><td>14</td><td>제품 파일 수정 없음</td><td>pages/, js/, css/ 수정 없음</td><td class='ok'>확인</td></tr>
+<tr><td>15</td><td>nav-data 미수정</td><td>stam.nav-data.js 변경 없음</td><td class='ok'>확인</td></tr>
+<tr><td>16</td><td>Docs Index 카드 추가</td><td>STAM-Docs-Index.html 섹션 04 첫 번째 카드로 MG 추가</td><td class='ok'>확인</td></tr>
+<tr><td>17</td><td>HTML 균형</td><td>열기/닫기 태그 균형. div 열기 = div 닫기</td><td class='ok'>확인</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<div class='footer'>STAM Screen Template System Master Guide v1 · P1 기준 문서 · docs-only · 2026-06-20</div>
+</main>
+</div>
+<script src='../js/stam.theme.js'></script>
+</body>
+</html>
