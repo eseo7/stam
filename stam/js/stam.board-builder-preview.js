@@ -87,6 +87,10 @@
   }
   function lsRemove(key) { try { window.localStorage.removeItem(key); } catch (e) {} }
 
+  /* 순서 고정 필드 판정 — ID(role id·system) / 제목(role name). 우측 preview 의 idName 고정 컬럼과 일치.
+   * 고정 필드는 드래그 불가 + 항상 목록 상단 유지(일반 필드는 이 영역 위로 이동/삽입 불가). */
+  function isPinned(f) { return !!(f && (f.system || f.role === 'id' || f.role === 'name')); }
+
   /* 저장/입력 필드를 안전한 shape 로 정규화 (모든 표시/필수 플래그 보존) */
   function normField(f, i) {
     f = f || {};
@@ -281,12 +285,15 @@
       if (!fields.length) { els.fields.innerHTML = '<div class="bb-empty">필드가 없습니다. <b>＋ 필드 추가</b>로 추가하세요.</div>'; return; }
       els.fields.innerHTML = fields.map(function (f, i) {
         var lockInputs = f.system; // 시스템 필드는 key/type/삭제 잠금
+        var pinned = isPinned(f);  // 순서 고정(ID/제목) → 드래그 핸들 비활성
         var optType = OPTION_TYPES.indexOf(f.type) !== -1;
         var advIsOpen = advOpen.indexOf(f.key) !== -1;
         return '<div class="bb-fcard' + (f.system ? ' is-system' : '') + '" data-bb-fi="' + i + '">' +
           '<div class="bb-fc-main">' +
             '<div class="bb-fc-rail">' +
-              '<span class="bb-drag" draggable="true" data-bb-drag title="드래그해서 순서 변경" aria-label="드래그해서 순서 변경">⋮⋮</span>' +
+              (pinned
+                ? '<span class="bb-drag bb-drag--fixed" title="고정 필드" aria-label="고정 필드 — 순서 변경 불가">⋮⋮</span>'
+                : '<span class="bb-drag" draggable="true" data-bb-drag title="드래그해서 순서 변경" aria-label="드래그해서 순서 변경">⋮⋮</span>') +
               '<span class="bb-fc-no">' + (i + 1) + '</span>' +
             '</div>' +
             '<div class="bb-fc-body">' +
@@ -331,15 +338,19 @@
       else if (prop === 'options') fields[i].options = csvToArray(inp.value);
       else fields[i][prop] = inp.value;
     }
+    /* 고정(ID/제목) 영역 = 목록 선두의 pinned 연속 구간. 일반 필드는 이 index 위로 이동/삽입 불가. */
+    function pinnedCount() { var n = 0; for (var i = 0; i < fields.length; i++) { if (!isPinned(fields[i])) break; n++; } return n; }
+    function normalizeOrder() { var p = [], r = []; fields.forEach(function (f) { (isPinned(f) ? p : r).push(f); }); fields = p.concat(r); }
     function moveFieldTo(from, to) {
       if (from < 0 || from >= fields.length) return;
+      if (!isPinned(fields[from])) to = Math.max(pinnedCount(), to); // 일반 필드는 ID/제목 위로 이동 불가
       to = Math.max(0, Math.min(fields.length - 1, to));
       if (from === to) { renderFields(); return; }
       var item = fields.splice(from, 1)[0];
       fields.splice(to, 0, item);
       renderFields(); saveForm(); refreshPreview();
     }
-    function insertField(i) { var at = i + 1; fields.splice(at, 0, blankField()); renderFields(); saveForm(); refreshPreview(); focusNewField(at); }
+    function insertField(i) { var at = Math.max(i + 1, pinnedCount()); fields.splice(at, 0, blankField()); renderFields(); saveForm(); refreshPreview(); focusNewField(at); }
     function deleteField(i) { if (fields[i] && fields[i].system) return; fields.splice(i, 1); renderFields(); saveForm(); refreshPreview(); }
     function addField() { fields.push(blankField()); renderFields(); saveForm(); refreshPreview(); focusNewField(fields.length - 1); }
 
@@ -377,8 +388,16 @@
       var row = e.target.closest('.bb-fcard');
       clearDropMarks();
       if (row) {
-        var rect = row.getBoundingClientRect();
-        row.classList.add(e.clientY > rect.top + rect.height / 2 ? 'drop-after' : 'drop-before');
+        var idx = parseInt(row.getAttribute('data-bb-fi'), 10);
+        var pc = pinnedCount();
+        if (idx < pc) {
+          // 고정(ID/제목) 영역 위/사이 금지 → 고정 블록 바로 아래 경계만 표시
+          var lastPinned = els.fields.querySelector('.bb-fcard[data-bb-fi="' + (pc - 1) + '"]');
+          if (lastPinned) lastPinned.classList.add('drop-after');
+        } else {
+          var rect = row.getBoundingClientRect();
+          row.classList.add(e.clientY > rect.top + rect.height / 2 ? 'drop-after' : 'drop-before');
+        }
       }
     });
     els.fields.addEventListener('drop', function (e) {
@@ -422,6 +441,7 @@
         if (els.description) els.description.value = s.description || '';
         if (s.fields && s.fields.length) fields = s.fields.map(function (f, i) { return normField(f, i); });
       }
+      normalizeOrder(); // 잘못 섞인 저장 상태라도 ID/제목을 상단으로 복원(안전망)
       renderFields();
     }
 
