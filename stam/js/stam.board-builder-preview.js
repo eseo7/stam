@@ -54,6 +54,29 @@
 
   var SAMPLE_USERS = ['김민준', '이수빈', '박지호', '최유진', '정하윤'];
   var SAMPLE_ROW_COUNT = 9; // 우측 미리보기 표 샘플 row 수(하단 빈 공간 축소). 실제 저장 아님 — localStorage 미리보기.
+  var SAMPLE_FILES = ['요구사항정의서.pdf', '화면설계서_v1.xlsx', '회의록.docx', '테스트결과서.pdf', '운영매뉴얼.pptx']; // 미리보기용 파일명 샘플(실제 업로드 아님)
+
+  /* 미리보기 셀 표현 종류(표시 전용, 저장 구조 무관) — 필드 type + 이름 기준.
+   * 파일/첨부는 type 'text' 이지만 이름(파일/첨부/file/attach)으로 'file' 분류 → 📎 파일명 표시.
+   * 나머지는 type 매핑: 상태/우선순위/단일선택 chip · 사용자 · 날짜 · 숫자 · relation · url. */
+  function getFieldPreviewKind(field) {
+    if (!field) return 'text';
+    var label = field.label || '', key = field.key || '';
+    if ((field.type === 'text' || field.type === 'textarea') &&
+        (/파일|첨부/.test(label) || /file|attach/i.test(label) || /file|attach/i.test(key))) return 'file';
+    switch (field.type) {
+      case 'status': return 'status';
+      case 'priority': return 'priority';
+      case 'user': return 'user';
+      case 'date': return 'date';
+      case 'number': return 'number';
+      case 'boolean': return 'boolean';
+      case 'url': return 'url';
+      case 'multiSelect': case 'relation': return 'relation';
+      case 'select': return 'chip';
+      default: return 'text';
+    }
+  }
   var TEMPLATE_LABEL = '목록 + 필터 + 등록 Drawer + 상세 Drawer + 수정 Drawer';
 
   /* ── 기본 템플릿 → 실제 필드 세트 ───────────────────────────────────
@@ -72,7 +95,7 @@
   var TEMPLATE_FIELD_PRESETS = {
     notice: [tplIdField(), tplTitleField(),
       tplField('content', '내용', 'textarea', false, false, true),
-      tplField('attachment', '첨부', 'text', false, false, true),
+      tplField('attachment', '첨부', 'text', true, false, true),
       tplField('noticeType', '공지 여부', 'select', true, true, true, ['공지', '일반']),
       tplField('author', '작성자', 'user', true, false, false),
       tplField('createdAt', '작성일', 'date', true, true, false)],
@@ -82,7 +105,7 @@
       tplField('createdAt', '작성일', 'date', true, true, false),
       tplField('commentCount', '댓글 수', 'number', true, false, false)],
     archive: [tplIdField(), tplTitleField(),
-      tplField('file', '파일', 'text', false, false, true),
+      tplField('file', '파일', 'text', true, false, true),
       tplField('category', '분류', 'select', true, true, true, ['문서', '이미지', '기타']),
       tplField('description', '설명', 'textarea', false, false, true),
       tplField('author', '작성자', 'user', true, false, false),
@@ -262,6 +285,7 @@
 
   /* ── sample rows ─────────────────────────────────────────────── */
   function sampleValue(field, i, prefix) {
+    if (getFieldPreviewKind(field) === 'file') return SAMPLE_FILES[(i - 1) % SAMPLE_FILES.length];
     var opts = (field.options && field.options.length) ? field.options : null;
     switch (field.type) {
       case 'textarea': return field.label + ' 예시 내용 ' + i + '.';
@@ -581,21 +605,28 @@
 
     /* ── preview render (summary + tabs) ──────────────────────── */
     function chip(label, tone) { return '<span class="bf-chip bf-chip--' + esc(tone || 'neutral') + '">' + esc(label) + '</span>'; }
+    /* 미리보기 셀 값 렌더 — 필드 type/이름 기준(getFieldPreviewKind). 파일은 📎 파일명, 상태/우선순위/
+     * 단일선택은 chip(.bf-chip*), 사용자는 .bb-user, relation/url 재사용. 날짜·숫자·텍스트는 값 그대로(escape). */
+    function renderCellValue(field, value) {
+      if (!field) return esc(value);
+      switch (getFieldPreviewKind(field)) {
+        case 'file': return '<span class="bb-cell-file">📎 ' + esc(value) + '</span>';
+        case 'status': case 'priority': case 'chip':
+          if (typeof value === 'boolean') return chip(value ? '예' : '아니오', value ? 'pass' : 'neutral');
+          return chip(value, toneFor(field, value));
+        case 'boolean': return chip(value ? '예' : '아니오', value ? 'pass' : 'neutral');
+        case 'relation': return [].concat(value || []).map(function (v) { return '<span class="bf-chip bf-chip--brand">' + esc(v) + '</span>'; }).join(' ');
+        case 'user': return '<span class="bb-user">' + esc(value) + '</span>';
+        case 'url': return '<a class="bb-link" href="' + esc(value) + '" target="_blank" rel="noopener">' + esc(value) + '</a>';
+        default: return esc(value); // text / date / number → 값 그대로(escape). 날짜 형식·숫자 유지.
+      }
+    }
     function cellHtml(col, row, config) {
-      var field = (config.fields || []).filter(function (f) { return f.key === col.field; })[0];
       if (col.type === 'checkbox') return '<input type="checkbox" disabled>';
       if (col.type === 'actionButtons') return '<button type="button" class="bb-rowbtn" disabled>상세</button>';
       if (col.type === 'idName') return '<span class="bb-id">' + esc(row[col.idField]) + '</span> <span class="bb-name">' + esc(row[col.nameField]) + '</span>';
-      var val = row[col.field];
-      if (col.type === 'statusChip' || col.type === 'priorityChip' || col.type === 'chip' || col.type === 'typeChip') {
-        if (typeof val === 'boolean') return chip(val ? '예' : '아니오', val ? 'pass' : 'neutral');
-        return chip(val, toneFor(field, val));
-      }
-      if (col.type === 'relationChip') return [].concat(val || []).map(function (v) { return '<span class="bf-chip bf-chip--brand">' + esc(v) + '</span>'; }).join(' ');
-      if (col.type === 'user') return '<span class="bb-user">' + esc(val) + '</span>';
-      if (col.type === 'link') return '<a class="bb-link" href="' + esc(val) + '" target="_blank" rel="noopener">' + esc(val) + '</a>';
-      if (typeof val === 'boolean') return chip(val ? '예' : '아니오', val ? 'pass' : 'neutral');
-      return esc(val);
+      var field = (config.fields || []).filter(function (f) { return f.key === col.field; })[0];
+      return renderCellValue(field, row[col.field]);
     }
     function tag(label, em, req) {
       return '<span class="bb-tag">' + esc(label) + (em ? ' <em>' + esc(em) + '</em>' : '') + (req ? ' <b class="bb-req">*</b>' : '') + '</span>';
