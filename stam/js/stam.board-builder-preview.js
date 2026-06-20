@@ -56,6 +56,67 @@
   var SAMPLE_ROW_COUNT = 9; // 우측 미리보기 표 샘플 row 수(하단 빈 공간 축소). 실제 저장 아님 — localStorage 미리보기.
   var TEMPLATE_LABEL = '목록 + 필터 + 등록 Drawer + 상세 Drawer + 수정 Drawer';
 
+  /* ── 기본 템플릿 → 실제 필드 세트 ───────────────────────────────────
+   * 템플릿 카드 클릭 시 적용. ID/제목은 모든 preset 선두 고정(isPinned). field object 는
+   * RECOMMENDED_FIELDS 와 동일 shape. board config JSON 구조/저장 로직 변경 없음. */
+  var TEMPLATE_NAMES = { notice: '공지사항', free: '자유 게시판', archive: '자료실', qna: 'Q&A', issue: '요청/이슈', custom: '직접 구성' };
+  var TPL_STATUS_TONE = { '작성중': 'neutral', '검토요청': 'warn', '검토완료': 'info', '승인완료': 'pass', '보류': 'fail' };
+  var TPL_PRIORITY_TONE = { '높음': 'high', '보통': 'mid', '낮음': 'low' };
+  var TPL_QNA_TONE = { '접수': 'neutral', '답변대기': 'warn', '답변완료': 'pass' };
+  function tplIdField() { return { key: 'id', label: 'ID', type: 'text', role: 'id', system: true, lockRequired: true, required: false, visibleInTable: true, visibleInFilter: false, visibleInDrawer: true, options: [], tone: null }; }
+  function tplTitleField() { return { key: 'title', label: '제목', type: 'text', role: 'name', system: false, lockRequired: false, required: true, visibleInTable: true, visibleInFilter: false, visibleInDrawer: true, options: [], tone: null }; }
+  function tplField(key, label, type, vt, vf, vd, options, tone) {
+    return { key: key, label: label, type: type, role: null, system: false, lockRequired: false, required: false,
+      visibleInTable: !!vt, visibleInFilter: !!vf, visibleInDrawer: !!vd, options: options || [], tone: tone || null };
+  }
+  var TEMPLATE_FIELD_PRESETS = {
+    notice: [tplIdField(), tplTitleField(),
+      tplField('content', '내용', 'textarea', false, false, true),
+      tplField('attachment', '첨부', 'text', false, false, true),
+      tplField('noticeType', '공지 여부', 'select', true, true, true, ['공지', '일반']),
+      tplField('author', '작성자', 'user', true, false, false),
+      tplField('createdAt', '작성일', 'date', true, true, false)],
+    free: [tplIdField(), tplTitleField(),
+      tplField('content', '내용', 'textarea', false, false, true),
+      tplField('author', '작성자', 'user', true, false, false),
+      tplField('createdAt', '작성일', 'date', true, true, false),
+      tplField('commentCount', '댓글 수', 'number', true, false, false)],
+    archive: [tplIdField(), tplTitleField(),
+      tplField('file', '파일', 'text', false, false, true),
+      tplField('category', '분류', 'select', true, true, true, ['문서', '이미지', '기타']),
+      tplField('description', '설명', 'textarea', false, false, true),
+      tplField('author', '작성자', 'user', true, false, false),
+      tplField('createdAt', '작성일', 'date', true, true, false)],
+    qna: [tplIdField(), tplTitleField(),
+      tplField('question', '질문 내용', 'textarea', false, false, true),
+      tplField('answerStatus', '답변 상태', 'status', true, true, true, ['접수', '답변대기', '답변완료'], TPL_QNA_TONE),
+      tplField('answerer', '답변자', 'user', true, true, false),
+      tplField('author', '작성자', 'user', true, false, false),
+      tplField('createdAt', '작성일', 'date', true, true, false)],
+    issue: [tplIdField(), tplTitleField(),
+      tplField('status', '상태', 'status', true, true, true, ['작성중', '검토요청', '검토완료', '승인완료', '보류'], TPL_STATUS_TONE),
+      tplField('priority', '우선순위', 'priority', true, true, true, ['높음', '보통', '낮음'], TPL_PRIORITY_TONE),
+      tplField('assignee', '담당자', 'user', true, true, true),
+      tplField('requestedAt', '요청일', 'date', true, true, false),
+      tplField('dueAt', '완료예정일', 'date', true, true, true)],
+    custom: [tplIdField(), tplTitleField()]
+  };
+  /* 필드 구성이 "사용자 편집" 상태인지 판정용 시그니처(필드 수/key/label/type/옵션/표시·필수 기준). */
+  function fieldsSig(arr) {
+    return (arr || []).map(function (f) {
+      return [f.key, f.label, f.type, (f.options || []).join('~'),
+        f.required ? 1 : 0, f.visibleInTable ? 1 : 0, f.visibleInFilter ? 1 : 0, f.visibleInDrawer ? 1 : 0].join('|');
+    }).join('§');
+  }
+  var TEMPLATE_PRISTINE_SIGS = null;
+  function templatePristineSigs() {
+    if (TEMPLATE_PRISTINE_SIGS) return TEMPLATE_PRISTINE_SIGS;
+    TEMPLATE_PRISTINE_SIGS = {};
+    TEMPLATE_PRISTINE_SIGS[fieldsSig(RECOMMENDED_FIELDS)] = true;
+    Object.keys(TEMPLATE_FIELD_PRESETS).forEach(function (k) { TEMPLATE_PRISTINE_SIGS[fieldsSig(TEMPLATE_FIELD_PRESETS[k])] = true; });
+    return TEMPLATE_PRISTINE_SIGS;
+  }
+
   /* 필드 카드 액션 아이콘 (inline SVG, 외부 asset 0) */
   var SVG_TRASH = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
 
@@ -253,6 +314,8 @@
     var dragIndex = -1;
     var advOpen = []; // 고급 설정이 열린 필드 key 목록 (구조 re-render 간 유지)
     var newFieldTimer = null; // 신규 필드 강조(.bb-fcard--new) 해제 타이머
+    var currentTemplate = 'notice'; // 현재 선택된 기본 템플릿(.is-sel) — HTML 기본값 공지사항
+    var templateStatusTimer = null; // 템플릿 적용 상태 메시지 자동 제거 타이머
 
     /* ── 필드 카드 렌더 ───────────────────────────────────────────
      * 기본 노출: 순서/드래그 · 필드명 · 입력 방식(type) · 필수 · 표시 위치(목록/필터/입력폼) · 옵션.
@@ -465,8 +528,39 @@
       fields = clone(RECOMMENDED_FIELDS);
       advOpen = [];
       activeTab = 'screen';
+      currentTemplate = 'notice';
+      window.clearTimeout(templateStatusTimer);
+      syncTemplateSel();
       renderFields();
       renderLive();
+    }
+
+    /* ── 기본 템플릿 → 필드 세트 적용 ─────────────────────────────
+     * 현재 구성이 pristine(초기 RECOMMENDED / 어느 template preset)과 다르면(=사용자 편집) confirm.
+     * ID/제목은 모든 preset 선두 고정(normalizeOrder 보강). 적용 후 상태 메시지(2.6s 후 제거, alert 미사용). */
+    function isTemplateModified() { return !templatePristineSigs()[fieldsSig(fields)]; }
+    function syncTemplateSel() {
+      qa(root, '[data-bb-tpl]').forEach(function (c) { c.classList.toggle('is-sel', c.getAttribute('data-bb-tpl') === currentTemplate); });
+    }
+    function setTemplateStatus(msg) {
+      setCopyStatus(msg);
+      window.clearTimeout(templateStatusTimer);
+      templateStatusTimer = window.setTimeout(function () { setCopyStatus(''); }, 2600);
+    }
+    function applyTemplate(tplKey) {
+      var preset = TEMPLATE_FIELD_PRESETS[tplKey];
+      if (!preset) return;
+      if (isTemplateModified()) {
+        var msg = '현재 필드 구성이 변경되어 있습니다. ' + (TEMPLATE_NAMES[tplKey] || '선택한') + ' 템플릿을 적용하면 현재 필드 구성이 교체됩니다. 적용할까요?';
+        if (!(window.confirm && window.confirm(msg))) return; // 취소 → 기존 구성 유지(선택 UI 변화 없음)
+      }
+      fields = clone(preset);
+      normalizeOrder();   // ID/제목 선두 고정 보강
+      advOpen = [];
+      currentTemplate = tplKey;
+      syncTemplateSel();
+      renderFields(); saveForm(); refreshPreview();
+      setTemplateStatus((TEMPLATE_NAMES[tplKey] || '') + ' 템플릿이 적용되었습니다.');
     }
 
     function copyJson() {
@@ -611,7 +705,7 @@
       }
       // 템플릿 카드 — 시작점 예시(presentational). 필드 reseed/저장 없음(기능 확장 방지).
       var tpl = e.target.closest('[data-bb-tpl]');
-      if (tpl) { qa(root, '[data-bb-tpl]').forEach(function (c) { c.classList.toggle('is-sel', c === tpl); }); return; }
+      if (tpl) { applyTemplate(tpl.getAttribute('data-bb-tpl')); return; }
       var ins = e.target.closest('[data-bb-finsert]'); if (ins) { insertField(fieldIndex(ins)); return; }
       var del = e.target.closest('[data-bb-fdel]'); if (del) { if (!del.disabled) deleteField(fieldIndex(del)); return; }
     });
@@ -637,7 +731,7 @@
     restoreForm();
     renderLive();
 
-    return { generate: generate, reset: reset, collectForm: collectForm, addField: addField, getFields: function () { return fields.slice(); } };
+    return { generate: generate, reset: reset, collectForm: collectForm, addField: addField, applyTemplate: applyTemplate, getFields: function () { return fields.slice(); } };
   }
 
   window.STAM.boardBuilderPreview = {
@@ -649,6 +743,8 @@
     slugToCamel: slugToCamel,
     keys: { config: LS_CONFIG, form: LS_FORM },
     recommendedFields: RECOMMENDED_FIELDS,
-    builderFieldTypes: BUILDER_FIELD_TYPES
+    builderFieldTypes: BUILDER_FIELD_TYPES,
+    templatePresets: TEMPLATE_FIELD_PRESETS,
+    templateNames: TEMPLATE_NAMES
   };
 }());
