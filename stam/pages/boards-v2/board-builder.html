@@ -22,12 +22,12 @@
     · 색/폰트는 stam.tokens.css + 자체서빙 S-Core Dream 만 사용 (외부 CDN 0).
     · 입력 → Board Factory config 생성 → localStorage 저장 → 화면 내 preview.
     · Firestore / API 호출 없음. 실제 게시판 생성/저장 아님.
-    · 컴포넌트·레이아웃 스타일(bb- prefix)은 board-builder.html 전용 `stam.board-builder.css` 로 분리(PR-C-1·C-2·C-3A),
-      잔여(preview / table / JSON)만 inline <style>. 공통 token / 전역 CSS 미변경.
+    · 컴포넌트·레이아웃 스타일(bb- prefix)은 board-builder.html 전용 `stam.board-builder.css` 로 분리(PR-C-1·C-2·C-3A·C-3B),
+      잔여(table / JSON)만 inline <style>. 공통 token / 전역 CSS 미변경.
   -->
   <style>
     /* page base · .bb-wrap · header · shell · action bar · narrow fallback
-       → stam.board-builder.css (PR-C-2 분리). 잔여 inline = steps / preview / table / JSON. */
+       → stam.board-builder.css (PR-C-2 분리). 잔여 inline = steps / table / JSON. */
 
     /* ── scrollbar 톤 ─────────────────────────────────────────────────
        공통 `stam.scrollbar.css` `.stam-scrollbar` helper + `--stam-scrollbar-*` token 으로 일원화.
@@ -51,34 +51,8 @@
 
     /* action bar(.bb-actions / .bb-actions-status) → stam.board-builder.css (PR-C-2) */
 
-    /* ── preview (right, 항상 표시 · 고정 패널 · 내부만 스크롤) ── */
-    .bb-preview { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
-    .bb-rp-head { flex: 0 0 auto; padding: 15px 20px 14px; background: var(--bg-sur); border-bottom: 1px solid var(--bd); }
-    .bb-rp-head-ttl { font-size: 11px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 11px; }
-    .bb-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    @media (max-width: 560px) { .bb-stats { grid-template-columns: repeat(2, 1fr); } }
-    .bb-stat { padding: 10px 12px; background: var(--bg-sur2); border-radius: var(--r-md); border: 1px solid var(--bd); }
-    .bb-stat-n { font-size: 22px; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; }
-    .bb-stat-l { font-size: 10px; color: var(--t3); font-weight: 600; margin-top: 2px; }
-    /* .bb-tabs / .bb-tab* → stam.board-builder.css (PR-C-1) */
-    .bb-tabpanels { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 18px 20px 22px; }   /* scrollbar 톤: 공통 .stam-scrollbar (element class, JS 렌더) */
-    .bb-tabpanel { display: flex; flex-direction: column; gap: 14px; }
-    .bb-tabpanel[hidden] { display: none; }
-
-    /* board mock (현재 구성 기준 예상 게시판 화면) */
-    .bb-brd { background: var(--bg-sur); border: 1px solid var(--bd); border-radius: var(--r-lg); overflow: hidden; box-shadow: 0 4px 14px rgba(15,23,42,.06); }
-    .bb-brd-top { background: var(--navy, #0D1235); padding: 9px 14px; display: flex; align-items: center; gap: 8px; }
-    .bb-brd-top-ttl { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.82); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .bb-brd-top-badge { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: rgba(84,81,232,.28); color: #A9A1FB; letter-spacing: .04em; flex-shrink: 0; }
-    .bb-brd-hdr { padding: 13px 16px; border-bottom: 1px solid var(--bd); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .bb-brd-hdr-ttl { font-size: 15px; font-weight: 700; color: var(--t1); letter-spacing: -.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .bb-brd-hdr-acts { display: flex; gap: 6px; flex-shrink: 0; }
-    .bb-mk-pri { padding: 6px 12px; border-radius: var(--r-md); background: var(--stam); color: #fff; font-size: 11px; font-weight: 700; }
-    .bb-mk-sec { padding: 6px 11px; border-radius: var(--r-md); background: var(--bg-sur2); color: var(--t2); border: 1px solid var(--bd); font-size: 11px; font-weight: 600; }
-    .bb-brd-fbar { padding: 9px 16px; border-bottom: 1px solid var(--bd); display: flex; align-items: center; gap: 7px; background: var(--bg-sur2); flex-wrap: wrap; }
-    .bb-mk-search { flex: 1 1 120px; min-width: 100px; height: 28px; padding: 0 10px; border: 1px solid var(--bd); border-radius: var(--r-md); background: var(--bg-sur); font-size: 11px; color: var(--bb-muted); display: inline-flex; align-items: center; gap: 6px; }
-    .bb-mk-chip { padding: 4px 10px; border-radius: 6px; font-size: 10.5px; font-weight: 600; border: 1px solid var(--stam); background: var(--stam-soft); color: var(--stam); white-space: nowrap; }
-    .bb-brd-tblwrap { overflow-x: auto; }
+    /* right preview / board mock(.bb-preview / .bb-rp-* / .bb-stat*(+560 media) / .bb-tabpanel*
+       / .bb-brd* / .bb-mk-*) → stam.board-builder.css (PR-C-3B 분리). */
     .bb-ptable { width: 100%; border-collapse: collapse; min-width: 560px; }
     .bb-ptable th { text-align: left; font-size: 10px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .04em; padding: 8px 12px; background: var(--bg-sur2); white-space: nowrap; border-bottom: 1px solid var(--bd); }
     .bb-ptable td { padding: 10px 12px; font-size: 12px; color: var(--t2); border-bottom: 1px solid var(--bd); white-space: nowrap; vertical-align: middle; }
