@@ -247,6 +247,7 @@
     var activeTab = 'screen';
     var dragIndex = -1;
     var advOpen = []; // 고급 설정이 열린 필드 key 목록 (구조 re-render 간 유지)
+    var newFieldTimer = null; // 신규 필드 강조(.bb-fcard--new) 해제 타이머
 
     /* ── 필드 카드 렌더 ───────────────────────────────────────────
      * 기본 노출: 순서/드래그 · 필드명 · 입력 방식(type) · 필수 · 표시 위치(목록/필터/입력폼) · 옵션.
@@ -305,7 +306,7 @@
               (optType ? '<div class="bb-fc-row3"><input class="bb-input bb-fc-opts" data-bb-fp="options" value="' + esc((f.options || []).join(', ')) + '" placeholder="옵션(쉼표로 구분) 예) 높음, 보통, 낮음" aria-label="선택 옵션"></div>' : '') +
             '</div>' +
             '<div class="bb-fc-actions">' +
-              '<button type="button" class="bb-iconbtn" data-bb-finsert title="아래에 필드 추가" aria-label="아래에 필드 추가">＋</button>' +
+              '<button type="button" class="bb-iconbtn" data-bb-finsert title="이 필드 아래에 새 필드 추가" aria-label="이 필드 아래에 새 필드 추가">＋</button>' +
               '<button type="button" class="bb-iconbtn bb-iconbtn--del" data-bb-fdel title="필드 삭제" aria-label="필드 삭제"' + (lockInputs ? ' disabled' : '') + '>' + SVG_TRASH + '</button>' +
             '</div>' +
           '</div>' +
@@ -338,9 +339,25 @@
       fields.splice(to, 0, item);
       renderFields(); saveForm(); refreshPreview();
     }
-    function insertField(i) { fields.splice(i + 1, 0, blankField()); renderFields(); saveForm(); refreshPreview(); }
+    function insertField(i) { var at = i + 1; fields.splice(at, 0, blankField()); renderFields(); saveForm(); refreshPreview(); focusNewField(at); }
     function deleteField(i) { if (fields[i] && fields[i].system) return; fields.splice(i, 1); renderFields(); saveForm(); refreshPreview(); }
-    function addField() { fields.push(blankField()); renderFields(); saveForm(); refreshPreview(); }
+    function addField() { fields.push(blankField()); renderFields(); saveForm(); refreshPreview(); focusNewField(fields.length - 1); }
+
+    /* 새 필드 카드 피드백: 좌측 목록 내부 스크롤로 가시화 + name input focus + stroke 2회 깜빡임.
+     * 직전 강조(.bb-fcard--new)는 먼저 제거 → 연속 추가 시에도 방금 만든 카드 하나만 강조. */
+    function focusNewField(index) {
+      if (!els.fields) return;
+      qa(els.fields, '.bb-fcard--new').forEach(function (c) { c.classList.remove('bb-fcard--new'); });
+      var card = els.fields.querySelector('.bb-fcard[data-bb-fi="' + index + '"]');
+      if (!card) return;
+      card.classList.add('bb-fcard--new');
+      window.clearTimeout(newFieldTimer);
+      newFieldTimer = window.setTimeout(function () { card.classList.remove('bb-fcard--new'); }, 1400);
+      // 좌측 스크롤 컨테이너(.bb-form-scroll)만 스크롤 — body 전체 스크롤 유발 안 함(데스크톱 shell은 body overflow:hidden).
+      if (card.scrollIntoView) card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      var name = card.querySelector('.bb-fc-name');
+      if (name) { try { name.focus({ preventScroll: true }); } catch (e) { name.focus(); } if (name.select) name.select(); }
+    }
 
     /* ── drag & drop (vanilla HTML5, 외부 라이브러리 0) ─────────── */
     function clearDropMarks() { qa(els.fields, '.bb-fcard').forEach(function (c) { c.classList.remove('drop-before', 'drop-after'); }); }
