@@ -22,12 +22,12 @@
     · 색/폰트는 stam.tokens.css + 자체서빙 S-Core Dream 만 사용 (외부 CDN 0).
     · 입력 → Board Factory config 생성 → localStorage 저장 → 화면 내 preview.
     · Firestore / API 호출 없음. 실제 게시판 생성/저장 아님.
-    · 컴포넌트·레이아웃 스타일(bb- prefix)은 board-builder.html 전용 `stam.board-builder.css` 로 분리(PR-C-1·C-2·C-3A·C-3B),
-      잔여(table / JSON)만 inline <style>. 공통 token / 전역 CSS 미변경.
+    · 컴포넌트·레이아웃 스타일(bb- prefix)은 board-builder.html 전용 `stam.board-builder.css` 로 분리(PR-C-1·C-2·C-3A·C-3B·C-3C),
+      잔여(steps)만 inline <style>. 공통 token / 전역 CSS 미변경.
   -->
   <style>
     /* page base · .bb-wrap · header · shell · action bar · narrow fallback
-       → stam.board-builder.css (PR-C-2 분리). 잔여 inline = steps / table / JSON. */
+       → stam.board-builder.css (PR-C-2 분리). 잔여 inline = steps. */
 
     /* ── scrollbar 톤 ─────────────────────────────────────────────────
        공통 `stam.scrollbar.css` `.stam-scrollbar` helper + `--stam-scrollbar-*` token 으로 일원화.
@@ -53,36 +53,9 @@
 
     /* right preview / board mock(.bb-preview / .bb-rp-* / .bb-stat*(+560 media) / .bb-tabpanel*
        / .bb-brd* / .bb-mk-*) → stam.board-builder.css (PR-C-3B 분리). */
-    .bb-ptable { width: 100%; border-collapse: collapse; min-width: 560px; }
-    .bb-ptable th { text-align: left; font-size: 10px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .04em; padding: 8px 12px; background: var(--bg-sur2); white-space: nowrap; border-bottom: 1px solid var(--bd); }
-    .bb-ptable td { padding: 10px 12px; font-size: 12px; color: var(--t2); border-bottom: 1px solid var(--bd); white-space: nowrap; vertical-align: middle; }
-    .bb-ptable tbody tr:last-child td { border-bottom: 0; }
-    .bb-th-chk, .bb-td-chk { width: 34px; text-align: center; }
-    .bb-id { font-size: 11px; font-weight: 700; color: var(--stam); }
-    .bb-name { font-weight: 600; color: var(--t1); }
-    .bb-user { color: var(--t2); }
-    .bb-link { color: var(--stam); }
-    .bb-rowbtn { border: 1px solid var(--bd-s); background: var(--bg-sur); border-radius: var(--r-sm); padding: 2px 9px; font-size: 11px; color: var(--t3); }
-
-    .bb-notice {
-      font-size: 11px; color: var(--t3); line-height: 1.6; padding: 9px 12px;
-      border: 1px solid var(--bd); border-left: 3px solid var(--bd-s); border-radius: var(--r-md); background: var(--bg-sur2);
-    }
-    .bb-notice code { font-family: var(--mono); font-size: 10.5px; color: var(--t2); }
-
-    .bb-pgroup-h { font-size: 10.5px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
-    .bb-taglist { display: flex; flex-wrap: wrap; gap: 6px; }
-    .bb-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--t1); background: var(--bg-sur); border: 1px solid var(--bd); border-radius: var(--r-sm); padding: 4px 9px; }
-    .bb-tag em { font-style: normal; color: var(--bb-muted); font-family: var(--mono); font-size: 10px; }
-    .bb-tag .bb-req { color: var(--fail); }
-    .bb-empty { font-size: 11.5px; color: var(--bb-muted); }
-
-    .bb-json-bar { display: flex; align-items: center; gap: 10px; }
-    .bb-copy-status { font-size: 11px; color: var(--t2); }
-    .bb-json {
-      width: 100%; min-height: 340px; font-family: var(--mono); font-size: 11.5px; line-height: 1.55; color: var(--t1);
-      background: var(--bg-base); border: 1px solid var(--bd); border-radius: var(--r-md); padding: 10px 12px; resize: vertical;
-    }
+    /* table / JSON / notice·tag·meta(.bb-ptable* / .bb-th-chk / .bb-td-chk / .bb-id / .bb-name /
+       .bb-user / .bb-link / .bb-rowbtn / .bb-json* / .bb-copy-status / .bb-notice / .bb-pgroup-h /
+       .bb-taglist / .bb-tag* / .bb-empty) → stam.board-builder.css (PR-C-3C 분리). inline 잔여 = steps. */
 
   </style>
 </head>
