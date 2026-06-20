@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang='ko' data-theme='dark'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1.0'>
+<title>STAM Screen Template Docs Inventory & Gap Report v1</title>
+<link rel='icon' href='../assets/brand/stam/stam_favicon.ico' type='image/x-icon'>
+<link rel='stylesheet' href='../assets/fonts/s-core-dream/s-core-dream.css'>
+<link rel='stylesheet' href='../css/stam.tokens.css'>
+<link rel='stylesheet' href='../css/stam.shell.css'>
+<link rel='stylesheet' href='../css/stam.components.css'>
+<link rel='stylesheet' href='../css/stam.docs.css'>
+<style>
+:root{--bg:#07111f;--card:rgba(255,255,255,.055);--card2:rgba(255,255,255,.085);--line:rgba(148,163,184,.24);--text:#e5edf8;--muted:#93a4bb;--accent:#7dd3fc;--good:#86efac;--warn:#facc15;--bad:#fca5a5;--purple:#c4b5fd}[data-theme='light']{--bg:#f7f9fc;--card:#fff;--card2:#f0f5fb;--line:#d9e2ef;--text:#162033;--muted:#63738a;--accent:#0ea5e9;--good:#16a34a;--warn:#b45309;--bad:#dc2626;--purple:#7c3aed}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:'S-Core Dream',system-ui,sans-serif;line-height:1.65}.top{position:sticky;top:0;z-index:20;display:flex;gap:12px;align-items:center;padding:12px 28px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px)}.top a{color:var(--text);text-decoration:none}.logo{font-weight:800;display:flex;align-items:center;gap:8px}.logo img{width:26px;height:26px}.sp{flex:1}.btn,.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 10px;font-size:11px;color:var(--muted);text-decoration:none}.shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px;max-width:1580px;margin:0 auto;padding:28px}.toc{position:sticky;top:72px;align-self:start;border:1px solid var(--line);background:var(--card);border-radius:22px;padding:16px}.toc h2{margin:0 0 12px;font-size:13px}.toc a{display:block;padding:9px 10px;border-radius:12px;color:var(--muted);text-decoration:none;font-size:12px}.toc a:hover{background:var(--card2);color:var(--text)}.hero,.sec{border:1px solid var(--line);background:var(--card);border-radius:26px;padding:24px;margin-bottom:18px}.hero{background:linear-gradient(135deg,var(--card2),var(--card))}h1{margin:0;font-size:34px;line-height:1.18;letter-spacing:-.04em}h2{margin:0;font-size:21px;letter-spacing:-.025em}.lead{max-width:980px;margin:14px 0 0;color:var(--muted)}.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}.metric{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:15px}.metric b{display:block;font-size:28px}.metric span{display:block;margin-top:5px;font-size:12px;color:var(--muted)}.head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}.no{display:inline-flex;width:34px;height:34px;align-items:center;justify-content:center;border-radius:12px;background:var(--card2);font-weight:900;color:var(--accent)}.grid{display:grid;gap:12px}.c2{grid-template-columns:repeat(2,minmax(0,1fr))}.c3{grid-template-columns:repeat(3,minmax(0,1fr))}.card,.note,.rule{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:15px}.card h3{margin:0 0 6px;font-size:15px}.card p,.note,.rule span{margin:0;color:var(--muted);font-size:12.5px}.card .lk{display:inline-block;margin-top:9px;font-size:11.5px;color:var(--good);text-decoration:none}.card .lk:hover{text-decoration:underline}.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.rule b{display:block;font-size:13px;margin-bottom:4px}.table{overflow:auto;border:1px solid var(--line);border-radius:16px}.table table{width:100%;border-collapse:collapse;min-width:760px}.table.wide table{min-width:880px}.table th,.table td{border-bottom:1px solid var(--line);padding:11px 12px;text-align:left;font-size:12px;vertical-align:top}.table th{background:var(--card2);color:var(--muted);position:sticky;top:0}.table td b{font-weight:800}.fn{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;word-break:break-all}.fn a{color:var(--good);text-decoration:none}.fn a:hover{text-decoration:underline}.tag{display:inline-block;border:1px solid var(--line);background:var(--card2);border-radius:999px;padding:2px 9px;font-size:10.5px;font-weight:800;white-space:nowrap}.tag.g{color:var(--good)}.tag.w{color:var(--warn)}.tag.b{color:var(--bad)}.tag.p{color:var(--purple)}.tag.a{color:var(--accent)}.ok{color:var(--good);font-weight:800}.warn{color:var(--warn);font-weight:800}.bad{color:var(--bad);font-weight:800}.purple{color:var(--purple);font-weight:800}code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--card2);border:1px solid var(--line);border-radius:7px;padding:1px 5px;font-size:.92em}.note.warnbox{border-color:color-mix(in srgb,var(--warn) 45%,var(--line))}.footer{padding:20px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:980px){.shell{grid-template-columns:1fr;padding:18px}.toc{position:relative;top:auto}.metrics,.c2,.c3,.rules{grid-template-columns:1fr}.top{padding:10px 16px}h1{font-size:26px}}
+</style>
+</head>
+<body>
+<nav class='top'><a class='logo' href='STAM-Docs-Index.html'><img src='../assets/brand/stam/stam_icon_primary_transparent.png' alt='STAM'><span>STAM</span></a><span class='pill'>Screen Template Docs · Inventory & Gap Report v1</span><span class='sp'></span><a class='btn' href='STAM-Docs-Index.html'>Docs Index</a><a class='btn' href='STAM-Sitemap-IA-Overview-v1.html'>Sitemap & IA</a></nav>
+<div class='shell'>
+<aside class='toc'><h2>목차</h2><a href='#summary'>00 Executive Summary</a><a href='#inventory'>01 Current Inventory</a><a href='#missing'>02 Missing / Mismatch</a><a href='#class'>03 Classification</a><a href='#gap'>04 Gap Analysis</a><a href='#followup'>05 Follow-up Order</a><a href='#linkpolicy'>06 Link Policy</a><a href='#qa'>07 QA Checklist</a></aside>
+<main>
+
+<section class='hero' id='summary'>
+<div class='chips'><span class='pill'>Docs Inventory Only</span><span class='pill'>Analysis Report</span><span class='pill'>No Product File Change</span><span class='pill'>No New Template Created</span><span class='pill'>2026-06-20</span></div>
+<h1>STAM Screen Template Docs<br>Inventory & Gap Report v1</h1>
+<p class='lead'>이 문서는 후속 화면설계서(Screen Specification) 템플릿 문서를 새로 만들기 <strong>전에</strong>, 대화/기준상 언급된 문서가 실제 <code>stam/docs/</code> repo에 존재하는지 전수 조사한 결과다. 이번 작업은 <strong>조사·정리·Gap Report 생성까지</strong>만 수행하며, 누락 문서를 새로 생성하지 않는다. 보고서 안의 모든 링크는 <strong>실제 존재하는 파일만</strong> 가리키며, 존재하지 않는 파일은 링크하지 않고 파일명 텍스트로만 표기한다. 기준 커밋은 <code>main f1b43ff</code> (PR #168 merge) 이다.</p>
+<div class='metrics'>
+<div class='metric'><b>7</b><span>실제 존재 관련 문서</span></div>
+<div class='metric'><b>7</b><span>누락 / 경로 불일치</span></div>
+<div class='metric'><b>2 / 2</b><span>필수 확인 문서 존재</span></div>
+<div class='metric'><b>P1–P5</b><span>후속 생성 추천 단계</span></div>
+</div>
+<div class='note' style='margin-top:16px'><strong>결론 요약 —</strong> 대화/기준상 언급된 화면설계서 템플릿 문서 9건 중 <strong class='ok'>2건만 실재</strong>한다(<code>templates/</code> 하위 Baseline · Sample List). 나머지 <strong class='bad'>7건은 repo·링크 어디에도 없음</strong>(파일도, 참조 링크도 없음 → 경로 불일치가 아닌 실질적 누락). 단, 일부 누락 문서는 기존 문서가 <strong>부분 대체</strong>한다. 실재하는 관련 문서 7건은 모두 이미 Docs Index에 연결되어 있어, 현재 공백은 <strong>링크 누락이 아니라 콘텐츠(문서 자체) 부재</strong>다.</div>
+</section>
+
+<section class='sec' id='inventory'>
+<div class='head'><span class='no'>01</span><h2>Current Repository Inventory</h2><span class='pill'>실재 문서 7건</span></div>
+<p class='lead' style='margin-top:0'>실제 <code>stam/docs/</code> 에 존재하며 화면설계서 템플릿과 직접/인접 관련된 문서다. 파일명은 클릭 가능한 실재 링크다.</p>
+<div class='table wide'>
+<table>
+<thead><tr><th>#</th><th>파일 경로 (실재 링크)</th><th>문서 제목</th><th>문서 성격</th><th>사용 가능</th><th>Docs Index</th></tr></thead>
+<tbody>
+<tr><td><b>1</b></td><td class='fn'><a href='templates/STAM-Screen-Specification-Template-Baseline.html'>templates/STAM-Screen-Specification-Template-Baseline.html</a></td><td>Screen Specification Template Baseline</td><td><span class='tag a'>Core Template Baseline</span><br>화면설계서 기준본(16섹션) 템플릿</td><td><span class='tag g'>사용 가능</span></td><td><span class='tag g'>연결됨</span></td></tr>
+<tr><td><b>2</b></td><td class='fn'><a href='templates/STAM-Screen-Specification-Sample-Screen-Spec-List.html'>templates/STAM-Screen-Specification-Sample-Screen-Spec-List.html</a></td><td>STAM Screen Spec Sample — 화면설계서 목록</td><td><span class='tag a'>Template Catalog / List</span><br>기준본 템플릿으로 작성한 샘플 사양</td><td><span class='tag g'>사용 가능</span></td><td><span class='tag g'>연결됨</span></td></tr>
+<tr><td><b>3</b></td><td class='fn'><a href='STAM-Screen-Specification-Full-Stack-Module-Guide-v1.html'>STAM-Screen-Specification-Full-Stack-Module-Guide-v1.html</a></td><td>Screen Specification Full Stack Module Guide v1</td><td><span class='tag a'>Component Guide</span><br>화면설계서 Full Stack Scope 정의</td><td><span class='tag g'>사용 가능</span></td><td><span class='tag g'>연결됨</span></td></tr>
+<tr><td><b>4</b></td><td class='fn'><a href='STAM-Screen-Specification-Board-Content-Preview-v1.html'>STAM-Screen-Specification-Board-Content-Preview-v1.html</a></td><td>STAM · 화면설계서 — Content Body Preview</td><td><span class='tag a'>Drawer / Result Preview</span><br>목록·Hierarchy·Drawer 본문 Preview</td><td><span class='tag g'>사용 가능</span></td><td><span class='tag g'>연결됨</span></td></tr>
+<tr><td><b>5</b></td><td class='fn'><a href='STAM-New-Board-List-Screen-Template-v1.html'>STAM-New-Board-List-Screen-Template-v1.html</a></td><td>STAM New Board List Screen Template v1</td><td><span class='tag p'>Template Catalog / List</span><br>※ 게시판 목록 생성 템플릿(화면설계서 아님)</td><td><span class='tag g'>사용 가능</span></td><td><span class='tag g'>연결됨</span></td></tr>
+<tr><td><b>6</b></td><td class='fn'><a href='STAM-Board-List-Template-Contract-v1.html'>STAM-Board-List-Template-Contract-v1.html</a></td><td>STAM Board List Template Contract v1</td><td><span class='tag p'>Template Catalog / List</span><br>인접 — 게시판 목록 표준 계약</td><td><span class='tag g'>사용 가능</span></td><td><span class='tag g'>연결됨</span></td></tr>
+<tr><td><b>7</b></td><td class='fn'><a href='STAM-Common-UI-Control-Center.html'>STAM-Common-UI-Control-Center.html</a></td><td>STAM Common UI Control Center v1.0</td><td><span class='tag p'>Common Catalog</span><br>사실상 공통 UI 카탈로그 (대체)</td><td><span class='tag g'>사용 가능</span></td><td><span class='tag g'>연결됨</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class='note' style='margin-top:12px'>1~4번은 <strong>화면설계서(Screen Specification) 직접 관련</strong> 문서, 5~7번은 <strong>인접/대체</strong> 문서다. 5번은 이름에 “Screen Template”이 들어가지만 대상은 <strong>게시판 목록(board list)</strong>이며 화면설계서 템플릿이 아니다 → 후속 네이밍 혼동 주의(04 Gap Analysis 참조).</div>
+</section>
+
+<section class='sec' id='missing'>
+<div class='head'><span class='no'>02</span><h2>Mentioned but Missing / Path Mismatch</h2><span class='pill'>누락 7건</span></div>
+<p class='lead' style='margin-top:0'>대화/기준상 언급됐지만 실제 repo에 <strong>존재하지 않는</strong> 문서다. 임의 경로 생성 금지 원칙에 따라 <strong>링크하지 않고</strong> 예상 파일명만 표기한다. (파일·참조 링크 둘 다 없음 → “경로 불일치”가 아닌 실질적 “Missing”.)</p>
+<div class='table wide'>
+<table>
+<thead><tr><th>#</th><th>예상 파일명 (링크 없음)</th><th>누락 판단 근거</th><th>대체 가능 문서</th><th>후속 필요</th></tr></thead>
+<tbody>
+<tr><td><b>1</b></td><td class='fn'>STAM-Screen-Template-System-Master-Guide-v1.html</td><td>repo 파일 없음 · 본문/Index 참조 0건 · 개념 문구 검색 0건</td><td>부분: Full-Stack-Module-Guide + Template-Baseline</td><td><span class='tag g'>필요 · P1</span></td></tr>
+<tr><td><b>2</b></td><td class='fn'>STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html</td><td>repo 파일 없음 · 참조 0건 · 개념 문구 0건</td><td>없음 (한국어 30화면 기준 문서 전무)</td><td><span class='tag g'>필요 · P2</span></td></tr>
+<tr><td><b>3</b></td><td class='fn'>STAM-Screen-Template-Top-10-Detail-Pack-v1.html</td><td>repo 파일 없음 · 참조 0건 · 개념 문구 0건</td><td>없음 (Detail Pack 버킷 전무)</td><td><span class='tag g'>필요 · P3</span></td></tr>
+<tr><td><b>4</b></td><td class='fn'>STAM-Screen-Template-Top-3-Drawer-Preview-v1.html</td><td>repo 파일 없음 · 참조 0건 · 개념 문구 0건</td><td>부분: Board-Content-Preview (Drawer 포함)</td><td><span class='tag w'>결정 · P4</span></td></tr>
+<tr><td><b>5</b></td><td class='fn'>STAM-Screen-Specification-Detail-Drawer-Result-Preview-v1.html</td><td>repo 파일 없음 · 참조 0건</td><td>대체: Board-Content-Preview (목록/Hierarchy/Drawer)</td><td><span class='tag w'>중복 가능 · 보류</span></td></tr>
+<tr><td><b>6</b></td><td class='fn'>STAM-Object-Builder-Preview.html</td><td>repo 파일 없음 · 참조 0건 · “Object Builder” 개념 문서 전무</td><td>없음</td><td><span class='tag b'>보류 · P5</span></td></tr>
+<tr><td><b>7</b></td><td class='fn'>STAM-Common-Catalog-Preview.html</td><td>repo 파일 없음 · 참조 0건</td><td>대체: Common-UI-Control-Center (사실상 공통 카탈로그)</td><td><span class='tag b'>통합/보류 · P5</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class='note warnbox' style='margin-top:12px'><strong class='warn'>필수 확인 결과 —</strong> 작업지시상 “반드시 확인할 실제 존재 문서”인 <code>templates/STAM-Screen-Specification-Sample-Screen-Spec-List.html</code> 와 <code>templates/STAM-Screen-Specification-Template-Baseline.html</code> 는 <strong class='ok'>둘 다 실재 확인(2/2)</strong> 했으며, 위 누락 목록에는 포함되지 않는다. (언급 9건 = 실재 2 + 누락 7)</div>
+</section>
+
+<section class='sec' id='class'>
+<div class='head'><span class='no'>03</span><h2>Classification</h2><span class='pill'>9 buckets</span></div>
+<p class='lead' style='margin-top:0'>문서를 성격별로 분류한다. <span class='ok'>녹색</span>=실재, <span class='bad'>적색</span>=누락. 빈 버킷은 후속 생성 후보다.</p>
+<div class='grid c3'>
+<div class='card'><h3>Core Template Baseline</h3><p><span class='ok'>실재</span> Screen-Specification-Template-Baseline (templates/)<br><span class='bad'>누락</span> Screen-Template-System-Master-Guide</p></div>
+<div class='card'><h3>Template Catalog / List</h3><p><span class='ok'>실재</span> Sample-Screen-Spec-List · New-Board-List-Screen-Template · Board-List-Template-Contract<br><span class='bad'>누락</span> Priority-30-Korean-Baseline</p></div>
+<div class='card'><h3>Detail Pack</h3><p><span class='warn'>실재 0건 (빈 버킷)</span><br><span class='bad'>누락</span> Top-10-Detail-Pack</p></div>
+<div class='card'><h3>Drawer / Result Preview</h3><p><span class='ok'>실재</span> Screen-Specification-Board-Content-Preview<br><span class='bad'>누락</span> Top-3-Drawer-Preview · Detail-Drawer-Result-Preview</p></div>
+<div class='card'><h3>Object Builder</h3><p><span class='warn'>실재 0건 (개념 전무)</span><br><span class='bad'>누락</span> Object-Builder-Preview</p></div>
+<div class='card'><h3>Common Catalog</h3><p><span class='ok'>실재</span> Common-UI-Control-Center (사실상 대체)<br><span class='bad'>누락</span> Common-Catalog-Preview</p></div>
+<div class='card'><h3>Component Guide</h3><p><span class='ok'>실재</span> Screen-Specification-Full-Stack-Module-Guide · components/ 가이드(Drawer·Table·Form 등)</p></div>
+<div class='card'><h3>Reference / Legacy</h3><p>현재 기준 아님 · 이력/비교용(Docs Index “06 보존/참고” 그룹에서 관리). 본 보고서 기준 문서와 구분.</p></div>
+<div class='card'><h3>Product Page</h3><p><span class='tag w'>수정 금지</span> <code>pages/boards/screen-specification.html</code> 등 실제 제품 화면 — 본 작업 범위 외.</p></div>
+</div>
+</section>
+
+<section class='sec' id='gap'>
+<div class='head'><span class='no'>04</span><h2>Gap Analysis</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>문서 체계의 빈칸</h3><p><strong>Detail Pack</strong> 과 <strong>Object Builder</strong> 버킷은 실재 문서가 0건이다. 상위 통합 가이드(<strong>System Master Guide</strong>)도 부재하여, 현재는 Baseline·Sample·Full-Stack Guide가 부분적으로 그 역할을 나눠 갖고 있다.</p></div>
+<div class='card'><h3>문서명 기준 불일치</h3><p>“Screen Template” 명칭이 두 갈래로 혼재한다 — ① 화면설계서(Screen Specification) 계열, ② 게시판 목록(board list) 계열(<code>New-Board-List-Screen-Template</code>). 후속 파일명 확정 시 둘을 명확히 구분해야 중복/오인을 막는다.</p></div>
+<div class='card'><h3>Docs Index 링크 누락</h3><p>실재 관련 문서 7건은 <strong>모두 이미 연결</strong>되어 있다(03·04·S00·Quick Find 섹션). 따라서 현재 공백은 링크가 아닌 <strong>콘텐츠 부재</strong>다. 본 Gap Report 카드 1개만 “04 화면설계서 템플릿 / Screen Template” 섹션에 추가한다.</p></div>
+<div class='card'><h3>실제 파일 vs 대화 기준 차이</h3><p>대화 기준 9건 중 실재는 2건(22%)뿐이다. 누락 7건 중 3건은 기존 문서가 부분/전부 대체 가능하므로, 무조건 신규 생성보다 <strong>대체 가능 여부 우선 검토</strong>가 필요하다.</p></div>
+<div class='card'><h3>후속 작업 주의점</h3><p>① 파일명·경로를 <strong>먼저 확정</strong>한 뒤 생성한다. ② Drawer Preview·Common Catalog는 기존 문서와 <strong>중복 위험</strong>이 있으니 통합/대체부터 판단한다. ③ board-list 와 화면설계서 네이밍을 분리한다. ④ 모든 신규는 <strong>docs-only</strong> 로 가능해야 하며 제품 파일·nav-data를 건드리지 않는다.</p></div>
+<div class='card'><h3>현재 기준 vs 보존/참고</h3><p>본 보고서의 “실재 문서”는 <strong>현재 기준</strong> 문서다. Docs Index의 “06 보존/참고 전용” 그룹 문서(과거 QA·이력)는 기준 문서와 섞지 않는다.</p></div>
+</div>
+</section>
+
+<section class='sec' id='followup'>
+<div class='head'><span class='no'>05</span><h2>Recommended Follow-up Order</h2><span class='pill'>P1 → P5</span></div>
+<p class='lead' style='margin-top:0'>다음 작업자가 바로 후속 생성 프롬프트를 만들 수 있도록 우선순위와 판단 근거를 정리한다. 평가 관점: 화면설계서 기능 직접 필요 · Board Builder/템플릿 선택 연결 · Index 발견성 · 중복 위험 · docs-only 가능 여부.</p>
+<div class='table wide'>
+<table>
+<thead><tr><th>순위</th><th>후속 문서 (예상명)</th><th>판단</th><th>근거 / 비고</th></tr></thead>
+<tbody>
+<tr><td><span class='tag g'>P1</span></td><td class='fn'>STAM-Screen-Template-System-Master-Guide-v1.html</td><td><b class='ok'>생성</b></td><td>상위 통합 가이드 부재. 화면설계서 템플릿 체계의 진입점/SSOT 역할. 직접 필요·발견성 높음·중복 위험 낮음.</td></tr>
+<tr><td><span class='tag g'>P2</span></td><td class='fn'>STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html</td><td><b class='ok'>생성</b></td><td>대체 문서 전무. 한국어 우선 30화면 기준선 → 템플릿 선택/적용에 직접 연결.</td></tr>
+<tr><td><span class='tag g'>P3</span></td><td class='fn'>STAM-Screen-Template-Top-10-Detail-Pack-v1.html</td><td><b class='ok'>생성</b></td><td>Detail Pack 버킷이 비어 있음. Priority 30의 상위 10화면 상세팩 → P2 이후 자연스러운 후속.</td></tr>
+<tr><td><span class='tag w'>P4</span></td><td class='fn'>STAM-Screen-Template-Top-3-Drawer-Preview-v1.html</td><td><b class='warn'>생성 여부 결정</b></td><td>Board-Content-Preview가 Drawer를 일부 커버. 신규 Preview가 필요한지(중복 회피) 먼저 결정.</td></tr>
+<tr><td><span class='tag b'>P5</span></td><td class='fn'>STAM-Object-Builder-Preview.html · STAM-Common-Catalog-Preview.html</td><td><b class='bad'>보류 / 통합 판단</b></td><td>Object Builder는 개념 정의부터 필요. Common Catalog는 Common-UI-Control-Center로 흡수 검토. 둘 다 즉시 생성보다 보류/통합 권장.</td></tr>
+</tbody>
+</table>
+</div>
+<div class='note' style='margin-top:12px'><strong>참고 —</strong> 표의 예상 파일명은 <strong>확정 경로가 아니다.</strong> 실제 생성 전 파일명/경로를 먼저 확정하고, 본 보고서의 Link Policy(06)를 따른다. <code>Detail-Drawer-Result-Preview</code> 는 Board-Content-Preview와 중복 가능성이 커서 별도 순위 없이 보류한다.</div>
+</section>
+
+<section class='sec' id='linkpolicy'>
+<div class='head'><span class='no'>06</span><h2>Link Policy</h2></div>
+<div class='rules'>
+<div class='rule'><b class='ok'>실재 파일만 링크</b><span>본 보고서의 모든 <code>href</code> 는 <code>stam/docs/</code> 에 실제 존재하는 파일만 가리킨다(01 인벤토리 7건).</span></div>
+<div class='rule'><b class='warn'>없는 파일은 링크 금지</b><span>누락 문서(02)는 링크하지 않고 예상 파일명을 코드 텍스트로만 표기한다.</span></div>
+<div class='rule'><b class='bad'>임의 경로 생성 금지</b><span>가상의 route·예상 경로를 확정 링크처럼 쓰지 않는다.</span></div>
+<div class='rule'><b class='purple'>Index 추가도 실재 경로만</b><span>Docs Index 카드 추가 시 실제 파일 경로(본 Gap Report)만 사용한다.</span></div>
+<div class='rule'><b class='a'>생성 전 경로 확정</b><span>향후 문서 생성 전 파일명·경로를 먼저 확정한 뒤 링크를 만든다.</span></div>
+<div class='rule'><b>제품 파일 비연동</b><span>App Shell/Left Nav/nav-data/저장 로직에 연결하지 않는 docs-only 링크만 사용한다.</span></div>
+</div>
+</section>
+
+<section class='sec' id='qa'>
+<div class='head'><span class='no'>07</span><h2>QA Checklist</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>항목</th><th>기준</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td>docs-only</td><td>변경은 <code>stam/docs/**</code> 하위만</td><td class='ok'>충족</td></tr>
+<tr><td>제품 파일 무변경</td><td><code>pages/**</code> · <code>js/**</code> · <code>css/**</code> 미수정</td><td class='ok'>충족</td></tr>
+<tr><td>nav-data 무변경</td><td><code>stam/js/stam.nav-data.js</code> 미수정</td><td class='ok'>충족</td></tr>
+<tr><td>Firebase/Actions/저장</td><td>Firebase·Workflow·Firestore·API·fetch·localStorage 로직 미수정</td><td class='ok'>충족</td></tr>
+<tr><td>깨진 링크 없음</td><td>실재 파일만 링크 (인벤토리 7건 검증)</td><td class='ok'>충족</td></tr>
+<tr><td>누락 문서 미링크</td><td>Missing 7건은 텍스트만, 링크 없음</td><td class='ok'>충족</td></tr>
+<tr><td>누락 문서 미생성</td><td>새 템플릿/누락 문서 직접 생성 안 함</td><td class='ok'>충족</td></tr>
+<tr><td>HTML 태그 밸런스</td><td>open/close 태그 정합</td><td class='ok'>충족</td></tr>
+<tr><td>모바일/좁은 화면</td><td>표는 컨테이너 내부 스크롤(.table overflow) · 980px 이하 1열 전환 · 페이지 가로 스크롤 없음</td><td class='ok'>충족</td></tr>
+<tr><td>폰트/디자인</td><td>S-Core Dream 자체서빙 · 외부 CDN 없음 · 라이트/다크 대응 · iframe 없음</td><td class='ok'>충족</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<div class='footer'>STAM Screen Template Docs Inventory & Gap Report v1 · Generated as docs-only analysis report · 기준: main f1b43ff (PR #168 merge) · 누락 문서는 생성하지 않음 · merge/deploy는 사용자 승인 전 대기</div>
+</main></div>
+<script src='../js/stam.theme.js'></script>
+</body>
+</html>
