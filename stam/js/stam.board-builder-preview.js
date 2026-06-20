@@ -53,7 +53,7 @@
   var OPTION_TYPES = ['select', 'status', 'priority', 'multiSelect'];
 
   var SAMPLE_USERS = ['김민준', '이수빈', '박지호', '최유진', '정하윤'];
-  var SAMPLE_ROW_COUNT = 9; // 우측 미리보기 표 샘플 row 수(하단 빈 공간 축소). 실제 저장 아님 — localStorage 미리보기.
+  var SAMPLE_ROW_COUNT = 7; // 우측 미리보기 표 샘플 row 수(BOARD-001~007). 실제 저장 아님 — localStorage 미리보기.
   var SAMPLE_FILES = ['요구사항정의서.pdf', '화면설계서_v1.xlsx', '회의록.docx', '테스트결과서.pdf', '운영매뉴얼.pptx']; // 미리보기용 파일명 샘플(실제 업로드 아님)
 
   /* 미리보기 셀 표현 종류(표시 전용, 저장 구조 무관) — 필드 type + 이름 기준.
@@ -535,7 +535,11 @@
 
     /* 우측 미리보기는 항상 살아있다(빈 박스 없음): 현재 입력으로 즉시 config 를 만들어 표시한다.
      * '게시판 초안 보기'는 화면 미리보기 탭으로 포커스 + 현재 구성 저장 역할. */
-    function generate() { activeTab = 'screen'; refreshPreview(); saveForm(); }
+    function generate() {
+      activeTab = 'screen'; refreshPreview(); saveForm();
+      // 생성 결과 안내: 실제 DB 저장/배포가 아니라 localStorage 기반 미리보기 갱신임을 명확히(JSON 복사와 구분).
+      setTemplateStatus('게시판 초안 미리보기를 생성했습니다 — localStorage 기반 미리보기이며 실제 DB에는 저장되지 않습니다.', 5000);
+    }
     function refreshPreview() {
       if (!els.preview) return;
       var config = buildConfig(collectForm());
@@ -566,10 +570,10 @@
     function syncTemplateSel() {
       qa(root, '[data-bb-tpl]').forEach(function (c) { c.classList.toggle('is-sel', c.getAttribute('data-bb-tpl') === currentTemplate); });
     }
-    function setTemplateStatus(msg) {
+    function setTemplateStatus(msg, ms) {
       setCopyStatus(msg);
       window.clearTimeout(templateStatusTimer);
-      templateStatusTimer = window.setTimeout(function () { setCopyStatus(''); }, 2600);
+      templateStatusTimer = window.setTimeout(function () { setCopyStatus(''); }, ms || 2600);
     }
     function applyTemplate(tplKey) {
       var preset = TEMPLATE_FIELD_PRESETS[tplKey];
@@ -590,11 +594,12 @@
     function copyJson() {
       var config = lsGet(LS_CONFIG) || buildConfig(collectForm()); // 항상 현재 구성 기준으로 복사 가능
       var json = JSON.stringify(config, null, 2);
-      var done = function () { setCopyStatus('JSON 복사 완료 ✓'); };
+      // JSON 복사 = 클립보드 복사 안내(초안 보기 메시지와 구분). 진행 중이던 자동 제거 타이머는 정리.
+      var done = function () { window.clearTimeout(templateStatusTimer); setCopyStatus('JSON 복사 완료 ✓ — config JSON 을 클립보드에 복사했습니다.'); };
       var fail = function () {
         var ta = root.querySelector('[data-bb-json]');
         if (ta && ta.select) { ta.removeAttribute('readonly'); ta.select(); ta.setAttribute('readonly', 'readonly'); }
-        setCopyStatus('자동 복사 실패 — JSON 영역 선택 후 Ctrl/Cmd+C');
+        window.clearTimeout(templateStatusTimer); setCopyStatus('자동 복사 실패 — JSON 영역 선택 후 Ctrl/Cmd+C');
       };
       try {
         if (window.navigator && window.navigator.clipboard && window.navigator.clipboard.writeText) window.navigator.clipboard.writeText(json).then(done, fail);
