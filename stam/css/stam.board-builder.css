@@ -1,17 +1,32 @@
 /*
- * STAM v2 — Board Builder component styles (PR-C-1, inline 분리 phase 1)
+ * STAM v2 — Board Builder 전용 스타일 (bb-*) — board-builder.html inline CSS 분리 완료
  *
- * board-builder.html inline <style> 에서 비교적 안전한 컴포넌트 스타일을 분리:
- *   ① 버튼(.bb-btn* / .bb-iconbtn* / .bb-addfield)
- *   ② 입력폼(.bb-form-grid / .bb-field / .bb-lbl / .bb-input·select·textarea / .bb-slug-row*)
- *   ③ 탭(.bb-tabs / .bb-tab*)
- *   ④ 템플릿 카드 · 상단 chip(.bb-chips / .bb-sc* / .bb-tpl-*)
+ * board-builder.html 의 inline <style> 를 단계적으로 이 파일로 이동·일원화한 결과물.
+ * 분리 완료: PR-C-1 ~ PR-C-3D → board-builder.html inline <style> 0(태그 없음, markup 전용).
+ *   · PR-C-1  컴포넌트 — 버튼/입력폼/탭/템플릿 카드·상단 chip
+ *             (.bb-btn* / .bb-iconbtn* / .bb-addfield / .bb-form-grid / .bb-field / .bb-lbl /
+ *              .bb-input·select·textarea / .bb-slug-row* / .bb-tabs / .bb-tab* / .bb-chips / .bb-sc* / .bb-tpl-*)
+ *   · PR-C-2  page base / .bb-wrap / header / shell·panel / action bar / narrow @media(max-width:1180px)
+ *   · PR-C-3A field section · field-card
+ *             (.bb-fld-* / .bb-fields / .bb-fcard·--new / .bb-fc-* / .bb-drag / .bb-chk* / .bb-adv-* /
+ *              @keyframes bb-fcard-flash + prefers-reduced-motion)
+ *   · PR-C-3B right preview panel · board mock (.bb-preview / .bb-rp-* / .bb-stat* / .bb-tabpanel* / .bb-brd* / .bb-mk-*)
+ *   · PR-C-3C preview table / JSON / notice·tag·meta
+ *             (.bb-ptable* / .bb-th-chk / .bb-td-chk / .bb-id / .bb-name / .bb-user / .bb-link / .bb-rowbtn /
+ *              .bb-json* / .bb-copy-status / .bb-notice / .bb-pgroup-h / .bb-taglist / .bb-tag* / .bb-empty)
+ *   · PR-C-3D steps (.bb-step*) + board-builder.html inline <style> 블록 완전 제거(마감)
  *
- * class명 / DOM / JS / 시각 변화 없음. layout/shell/field-card/preview/table/scrollbar 는
- * 아직 inline 유지(PR-C-2 후보). 본 파일은 board-builder.html 에서만 link(전역 미적용).
- * board-factory.css 이후 · inline <style> 이전에 link → 기존 cascade 순서 보존.
+ * 기준(후속 작업자):
+ *   · Board Builder 전용 bb- 스타일은 이 파일에 추가한다. board-builder.html 에 inline <style> 를
+ *     다시 넣지 않는다(페이지는 markup 전용 유지).
+ *   · 공통 스타일은 별도 CSS 로 유지: stam.tokens.css(token) · stam.scrollbar.css(.stam-scrollbar helper) ·
+ *     stam.board-factory.css(chip tone). 공통 후보는 그쪽을 먼저 검토(전용 파일에 공통 스타일 금지).
+ *   · 본 파일은 board-builder.html 에서만 link(전역 미적용). board-factory.css 이후 link → cascade 순서 보존.
+ *     신규 규칙은 파일 끝(또는 해당 PR 섹션)에 append → cascade 중립.
+ *   · 기능/DOM/JS 와 무관한 스타일(위치) 파일. class명/DOM/JS/시각/선언값 변화 없는 리프트 리팩터링 결과.
  *
- * 정의: docs/reports/commonization/STAM-v2-Board-Builder-Inline-CSS-Phase1-v1.md
+ * 정의: docs/reports/commonization/STAM-v2-Board-Builder-Inline-CSS-Phase3-Completion-v1.md
+ *       (단계별: STAM-v2-Board-Builder-Inline-CSS-Phase1-v1.md / -Phase2-Layout-v1.md).
  * 토큰: stam.tokens.css (수정 없음). DESIGN.md / Theme Preset 작업 아님.
  */
 
