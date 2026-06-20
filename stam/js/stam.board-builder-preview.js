@@ -52,6 +52,21 @@
   var BUILDER_FIELD_TYPES = ['text', 'textarea', 'select', 'date', 'user', 'status', 'priority', 'relation', 'boolean', 'number', 'url'];
   var OPTION_TYPES = ['select', 'status', 'priority', 'multiSelect'];
 
+  /* 필드 타입 표시 라벨 — 기획자/비개발자가 바로 이해할 표현(표시 전용).
+   * 내부 type key/value 와 board config JSON 구조는 그대로 두고(타입 체계 변경 아님), Board Builder
+   * 화면에서만 라벨을 override. 공통 schema(types[t].label)는 다른 화면과 공유하므로 변경하지 않는다.
+   * 여기 없는 type(relation/boolean/multiSelect/url)은 schema label 로 fallback.
+   * '파일/첨부'는 별도 type 이 아니라 짧은 텍스트 + 이름(파일/첨부)으로 인식(getFieldPreviewKind). */
+  var BUILDER_TYPE_LABELS = {
+    text: '짧은 텍스트', textarea: '긴 텍스트', select: '선택값', status: '상태',
+    priority: '우선순위', user: '사용자', date: '날짜', number: '숫자'
+  };
+  function builderTypeLabel(t) {
+    if (BUILDER_TYPE_LABELS[t]) return BUILDER_TYPE_LABELS[t];
+    var meta = (window.STAM.boardFieldSchema && window.STAM.boardFieldSchema.types[t]) || {};
+    return meta.label || t;
+  }
+
   var SAMPLE_USERS = ['김민준', '이수빈', '박지호', '최유진', '정하윤'];
   var SAMPLE_ROW_COUNT = 7; // 우측 미리보기 표 샘플 row 수(BOARD-001~007). 실제 저장 아님 — localStorage 미리보기.
   var SAMPLE_FILES = ['요구사항정의서.pdf', '화면설계서_v1.xlsx', '회의록.docx', '테스트결과서.pdf', '운영매뉴얼.pptx']; // 미리보기용 파일명 샘플(실제 업로드 아님)
@@ -342,12 +357,11 @@
     var templateStatusTimer = null; // 템플릿 적용 상태 메시지 자동 제거 타이머
 
     /* ── 필드 카드 렌더 ───────────────────────────────────────────
-     * 기본 노출: 순서/드래그 · 필드명 · 입력 방식(type) · 필수 · 표시 위치(목록/필터/입력폼) · 옵션.
-     * 고급 설정(접힘): key · raw type · engine 매핑. key/raw type 은 첫 화면에 노출하지 않는다. */
+     * 기본 노출: 순서/드래그 · 필드명 · 입력 방식(type) · 표시 위치(목록 표시/필터 사용/입력폼 표시) · 필수 입력 · 옵션.
+     * 고급 설정(접힘·연동용): 필드 key · 타입 코드 · 내부 매핑. 일반적으로 수정 불필요 — 첫 화면에 노출하지 않는다. */
     function typeOptions(sel) {
       return BUILDER_FIELD_TYPES.map(function (t) {
-        var meta = (window.STAM.boardFieldSchema && window.STAM.boardFieldSchema.types[t]) || {};
-        return '<option value="' + esc(t) + '"' + (t === sel ? ' selected' : '') + '>' + esc(meta.label || t) + '</option>';
+        return '<option value="' + esc(t) + '"' + (t === sel ? ' selected' : '') + '>' + esc(builderTypeLabel(t)) + '</option>';
       }).join('');
     }
     function reqControl(f) {
@@ -355,7 +369,7 @@
       var reason = f.system ? '시스템 필드 — 변경 불가' : '필수 고정 — 변경 불가';
       return '<label class="bb-chk bb-chk--req' + (f.required ? ' is-on' : '') + (disabled ? ' is-locked' : '') + '"' +
         (disabled ? ' title="' + esc(reason) + '"' : '') + '>' +
-        '<input type="checkbox" data-bb-fp="required"' + (f.required ? ' checked' : '') + (disabled ? ' disabled' : '') + '> 필수</label>';
+        '<input type="checkbox" data-bb-fp="required"' + (f.required ? ' checked' : '') + (disabled ? ' disabled' : '') + '> 필수 입력</label>';
     }
     function useChk(f, prop, label) {
       return '<label class="bb-chk"><input type="checkbox" data-bb-fp="' + prop + '"' + (f[prop] ? ' checked' : '') + '> ' + esc(label) + '</label>';
@@ -363,10 +377,11 @@
     function advBody(f, lockInputs) {
       var map = (window.STAM.boardFieldSchema && window.STAM.boardFieldSchema.engineMapping(f.type)) || {};
       var mapTxt = 'column: ' + (map.column || '—') + ' · control: ' + (map.control || '—') + ' · filter: ' + String(map.filter);
-      return '<div class="bb-adv-row"><span class="bb-adv-k">필드 key</span>' +
+      return '<p class="bb-adv-desc">필드 key, 내부 매핑 등 연동용 설정입니다. 일반적으로 수정하지 않아도 됩니다.</p>' +
+        '<div class="bb-adv-row"><span class="bb-adv-k">필드 key</span>' +
           '<input class="bb-input bb-adv-key" data-bb-fp="key" value="' + esc(f.key) + '" placeholder="key" aria-label="필드 key"' + (lockInputs ? ' disabled' : '') + '></div>' +
-        '<div class="bb-adv-row"><span class="bb-adv-k">raw type</span><code class="bb-adv-v stam-scrollbar">' + esc(f.type) + '</code></div>' +
-        '<div class="bb-adv-row"><span class="bb-adv-k">engine 매핑</span><code class="bb-adv-v stam-scrollbar">' + esc(mapTxt) + '</code></div>';
+        '<div class="bb-adv-row"><span class="bb-adv-k">타입 코드</span><code class="bb-adv-v stam-scrollbar">' + esc(f.type) + '</code></div>' +
+        '<div class="bb-adv-row"><span class="bb-adv-k">내부 매핑</span><code class="bb-adv-v stam-scrollbar">' + esc(mapTxt) + '</code></div>';
     }
     function renderFields() {
       if (els.fieldCount) els.fieldCount.textContent = fields.length + '개 필드';
@@ -391,14 +406,16 @@
                 (f.system ? '<span class="bb-fc-lock" title="시스템 필드 — 잠금">🔒 시스템</span>' : (f.role === 'name' ? '<span class="bb-fchip">이름</span>' : '')) +
               '</div>' +
               '<div class="bb-fc-row2">' +
-                reqControl(f) +
+                useChk(f, 'visibleInTable', '목록 표시') +
+                useChk(f, 'visibleInFilter', '필터 사용') +
+                useChk(f, 'visibleInDrawer', '입력폼 표시') +
                 '<span class="bb-fc-sep"></span>' +
-                '<span class="bb-fc-uselbl">표시</span>' +
-                useChk(f, 'visibleInTable', '목록') +
-                useChk(f, 'visibleInFilter', '필터') +
-                useChk(f, 'visibleInDrawer', '입력폼') +
+                reqControl(f) +
               '</div>' +
-              (optType ? '<div class="bb-fc-row3"><input class="bb-input bb-fc-opts" data-bb-fp="options" value="' + esc((f.options || []).join(', ')) + '" placeholder="옵션(쉼표로 구분) 예) 높음, 보통, 낮음" aria-label="선택 옵션"></div>' : '') +
+              (optType ? '<div class="bb-fc-row3">' +
+                  '<input class="bb-input bb-fc-opts" data-bb-fp="options" value="' + esc((f.options || []).join(', ')) + '" placeholder="쉼표로 구분해 입력하세요. 예: 작성중, 검토요청, 완료" aria-label="선택 옵션">' +
+                  '<div class="bb-fc-opt-hint">옵션은 미리보기 chip · 필터 값에 사용됩니다.</div>' +
+                '</div>' : '') +
             '</div>' +
             '<div class="bb-fc-actions">' +
               '<button type="button" class="bb-iconbtn" data-bb-finsert title="이 필드 아래에 새 필드 추가" aria-label="이 필드 아래에 새 필드 추가">＋</button>' +
@@ -406,7 +423,7 @@
             '</div>' +
           '</div>' +
           '<button type="button" class="bb-fc-adv-tog' + (advIsOpen ? ' is-open' : '') + '" data-bb-advtog aria-expanded="' + (advIsOpen ? 'true' : 'false') + '">' +
-            '<span class="bb-fc-adv-arr">▾</span> 고급 설정 보기 <span class="bb-fc-adv-meta">key · raw type · 매핑</span>' +
+            '<span class="bb-fc-adv-arr">▾</span> 고급 설정 <span class="bb-fc-adv-meta">연동용 · 보통 수정 불필요</span>' +
           '</button>' +
           '<div class="bb-fc-adv"' + (advIsOpen ? '' : ' hidden') + '>' + advBody(f, lockInputs) + '</div>' +
         '</div>';
@@ -699,7 +716,7 @@
       els.preview.innerHTML = head + tabbar + '<div class="bb-tabpanels stam-scrollbar">' + screenPanel + fieldsPanel + filtersPanel + jsonPanel + '</div>';
       applyActiveTab();
     }
-    function typeLabel(t) { var meta = (window.STAM.boardFieldSchema && window.STAM.boardFieldSchema.types[t]) || {}; return meta.label || t; }
+    function typeLabel(t) { return builderTypeLabel(t); }
     function tabBtn(id, label, note) { return '<button type="button" class="bb-tab" role="tab" data-bb-tab="' + id + '">' + esc(label) + (note ? '<span class="bb-tab-note">' + esc(note) + '</span>' : '') + '</button>'; }
     function panel(id, inner) { return '<div class="bb-tabpanel" role="tabpanel" data-bb-panel="' + id + '">' + inner + '</div>'; }
     function group(h, inner) { return '<div class="bb-pgroup"><div class="bb-pgroup-h">' + esc(h) + '</div><div class="bb-taglist">' + inner + '</div></div>'; }
