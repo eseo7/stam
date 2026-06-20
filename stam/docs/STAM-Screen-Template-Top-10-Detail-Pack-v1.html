@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang='ko' data-theme='dark'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1.0'>
+<title>STAM Screen Template Top 10 Detail Pack v1</title>
+<link rel='icon' href='../assets/brand/stam/stam_favicon.ico' type='image/x-icon'>
+<link rel='stylesheet' href='../assets/fonts/s-core-dream/s-core-dream.css'>
+<link rel='stylesheet' href='../css/stam.tokens.css'>
+<link rel='stylesheet' href='../css/stam.shell.css'>
+<link rel='stylesheet' href='../css/stam.components.css'>
+<link rel='stylesheet' href='../css/stam.docs.css'>
+<style>
+:root{--bg:#07111f;--card:rgba(255,255,255,.055);--card2:rgba(255,255,255,.085);--line:rgba(148,163,184,.24);--text:#e5edf8;--muted:#93a4bb;--accent:#7dd3fc;--good:#86efac;--warn:#facc15;--bad:#fca5a5;--purple:#c4b5fd}
+[data-theme='light']{--bg:#f7f9fc;--card:#fff;--card2:#f0f5fb;--line:#d9e2ef;--text:#162033;--muted:#63738a;--accent:#0ea5e9;--good:#16a34a;--warn:#b45309;--bad:#dc2626;--purple:#7c3aed}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'S-Core Dream',system-ui,sans-serif;line-height:1.65}
+.top{position:sticky;top:0;z-index:20;display:flex;gap:12px;align-items:center;padding:12px 28px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px)}
+.top a{color:var(--text);text-decoration:none}
+.logo{font-weight:800;display:flex;align-items:center;gap:8px}
+.logo img{width:26px;height:26px}
+.sp{flex:1}
+.btn,.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 10px;font-size:11px;color:var(--muted);text-decoration:none}
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px;max-width:1580px;margin:0 auto;padding:28px}
+.toc{position:sticky;top:72px;align-self:start;border:1px solid var(--line);background:var(--card);border-radius:22px;padding:16px;max-height:calc(100vh - 100px);overflow-y:auto}
+.toc h2{margin:0 0 8px;font-size:13px}
+.toc a{display:block;padding:7px 10px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:11.5px}
+.toc a:hover{background:var(--card2);color:var(--text)}
+.toc-group{margin:6px 0 2px;font-size:10px;font-weight:800;color:var(--accent);padding:0 10px;letter-spacing:.05em;opacity:.8}
+.hero,.sec{border:1px solid var(--line);background:var(--card);border-radius:26px;padding:24px;margin-bottom:18px}
+.hero{background:linear-gradient(135deg,var(--card2),var(--card))}
+h1{margin:0;font-size:34px;line-height:1.18;letter-spacing:-.04em}
+h2{margin:0;font-size:21px;letter-spacing:-.025em}
+h3{margin:0 0 6px;font-size:14px}
+.lead{max-width:980px;margin:14px 0 0;color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+.metric{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:15px}
+.metric b{display:block;font-size:28px}
+.metric span{display:block;margin-top:5px;font-size:12px;color:var(--muted)}
+.head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.no{display:inline-flex;width:34px;height:34px;align-items:center;justify-content:center;border-radius:12px;background:var(--card2);font-weight:900;color:var(--accent);font-size:13px;flex-shrink:0}
+.tid-badge{display:inline-flex;align-items:center;justify-content:center;border-radius:10px;background:color-mix(in srgb,var(--accent) 18%,transparent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);padding:4px 12px;font-weight:900;font-size:13px;color:var(--accent);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;flex-shrink:0}
+.grid{display:grid;gap:12px}
+.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card,.note,.rule{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:15px}
+.card p,.note,.rule span{margin:0;color:var(--muted);font-size:12.5px}
+.card ul{margin:6px 0 0;padding-left:16px;color:var(--muted);font-size:12.5px}
+.card ul li{margin-bottom:3px}
+.card .lk{display:inline-block;margin-top:9px;font-size:11.5px;color:var(--good);text-decoration:none}
+.card .lk:hover{text-decoration:underline}
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rule b{display:block;font-size:13px;margin-bottom:4px}
+.table{overflow:auto;border:1px solid var(--line);border-radius:16px;-webkit-overflow-scrolling:touch}
+.table table{width:100%;border-collapse:collapse;min-width:600px}
+.table.wide table{min-width:900px}
+.table th,.table td{border-bottom:1px solid var(--line);padding:9px 11px;text-align:left;font-size:11.5px;vertical-align:top}
+.table th{background:var(--card2);color:var(--muted);white-space:nowrap}
+.table td b{font-weight:800}
+.table tr:last-child td{border-bottom:none}
+.tid{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--accent);font-weight:800;white-space:nowrap}
+.ok{color:var(--good);font-weight:800}
+.wn{color:var(--warn);font-weight:800}
+.bad{color:var(--bad);font-weight:800}
+.purple{color:var(--purple);font-weight:800}
+.muted{color:var(--muted)}
+.tag{display:inline-block;border:1px solid var(--line);background:var(--card2);border-radius:999px;padding:2px 9px;font-size:10.5px;font-weight:800;white-space:nowrap}
+.tag.g{color:var(--good)}.tag.w{color:var(--warn)}.tag.a{color:var(--accent)}.tag.p{color:var(--purple)}.tag.m{color:var(--muted)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--card2);border:1px solid var(--line);border-radius:7px;padding:1px 5px;font-size:.92em}
+.note.warnbox{border-color:color-mix(in srgb,var(--warn) 45%,var(--line))}
+.tpl-divider{height:1px;background:var(--line);margin:16px 0}
+.badge-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.status-badge{display:inline-block;border:1px solid var(--line);background:var(--card2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:700}
+.status-badge.ok{color:var(--good);border-color:color-mix(in srgb,var(--good) 35%,var(--line))}
+.status-badge.wn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 35%,var(--line))}
+.status-badge.bd{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 35%,var(--line))}
+.status-badge.ac{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.status-badge.mu{color:var(--muted)}
+.footer{padding:20px;color:var(--muted);font-size:12px;text-align:center}
+@media(max-width:980px){.shell{grid-template-columns:1fr;padding:18px}.toc{position:relative;top:auto;max-height:none}.metrics,.c2,.c3,.c4,.rules{grid-template-columns:1fr}.top{padding:10px 16px}h1{font-size:26px}}
+</style>
+</head>
+<body>
+<nav class='top'>
+<a class='logo' href='STAM-Docs-Index.html'><img src='../assets/brand/stam/stam_icon_primary_transparent.png' alt='STAM'><span>STAM</span></a>
+<span class='pill'>Screen Template · Top 10 Detail Pack v1</span>
+<span class='sp'></span>
+<a class='btn' href='STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html'>Priority 30</a>
+<a class='btn' href='STAM-Screen-Template-System-Master-Guide-v1.html'>Master Guide</a>
+<a class='btn' href='STAM-Docs-Index.html'>Docs Index</a>
+</nav>
+<div class='shell'>
+<aside class='toc'>
+<h2>목차</h2>
+<a href='#summary'>00 Executive Summary</a>
+<a href='#rationale'>01 Selection Rationale</a>
+<a href='#overview'>02 Overview Table</a>
+<div class='toc-group'>TEMPLATE DETAILS</div>
+<a href='#t01'>T01 Basic Board List</a>
+<a href='#t02'>T02 Advanced Search List</a>
+<a href='#t03'>T03 Grouped Work List</a>
+<a href='#t05'>T05 Wide Data Table</a>
+<a href='#t07'>T07 Basic Detail View</a>
+<a href='#t08'>T08 Approval Detail View</a>
+<a href='#t11'>T11 Basic Create Form</a>
+<a href='#t12'>T12 Multi-section Edit Form</a>
+<a href='#t26'>T26 Board Settings</a>
+<a href='#t27'>T27 Custom Field Settings</a>
+<div class='toc-group'>STANDARDS</div>
+<a href='#cross'>13 Cross-template 공통 기준</a>
+<a href='#boardbuilder'>14 Board Builder 관계</a>
+<a href='#screenspec'>15 화면설계서 제품 관계</a>
+<a href='#roadmap'>16 Follow-up Roadmap</a>
+<a href='#linkpolicy'>17 Link Policy</a>
+<a href='#qa'>18 QA Checklist</a>
+</aside>
+<main>
+
+<section class='hero' id='summary'>
+<div class='chips'><span class='pill'>Top 10 Detail Pack · P3</span><span class='pill'>Docs Only</span><span class='pill'>No Product File Change</span><span class='pill'>한국형 업무 화면 기준</span><span class='pill'>2026-06-20</span></div>
+<h1>STAM Screen Template<br>Top 10 Detail Pack v1</h1>
+<p class='lead'>Priority 30 Korean Baseline(P2)에서 선정한 <strong>Top 10 후보 템플릿</strong>을 목적·레이아웃·필드·액션·권한·상태·모바일·QA 체크리스트 기준으로 상세화한 기준 문서다. 실제 UI 구현이나 제품 화면 수정이 아니라, 화면설계서 제품에서 <strong>템플릿 선택 → 초안 생성 → 검토</strong> 흐름을 수행할 때 각 템플릿이 제공해야 할 기본 구조를 정의하는 기준이다. 한국형 업무/관리자/그룹웨어/전자결재/프로젝트 산출물 화면을 기준으로 작성했다. 상위 기준은 <a href='STAM-Screen-Template-System-Master-Guide-v1.html' style='color:var(--good)'>Master Guide(P1)</a>, 30종 목록 기준은 <a href='STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html' style='color:var(--good)'>Priority 30(P2)</a>를 따른다.</p>
+<div class='metrics'>
+<div class='metric'><b>10</b><span>상세화 템플릿</span></div>
+<div class='metric'><b>15</b><span>섹션/템플릿</span></div>
+<div class='metric'><b>7</b><span>Board Builder 연계</span></div>
+<div class='metric'><b>0</b><span>제품 파일 변경</span></div>
+</div>
+</section>
+
+<section class='sec' id='rationale'>
+<div class='head'><span class='no'>01</span><h2>Top 10 Selection Rationale — 상세화 우선 선정 이유</h2></div>
+<div class='rules'>
+<div class='rule'><b class='ok'>산출물 관리 핵심 흐름</b><span>목록 조회(T01·T02·T03·T05) → 상세/승인(T07·T08) → 작성/수정(T11·T12) → 설정(T26·T27) 흐름이 완성된다. 이 10개만으로 산출물 관리의 80% 시나리오를 커버한다.</span></div>
+<div class='rule'><b class='ok'>반복 사용 가능성</b><span>T01(기본 목록)·T07(기본 상세)·T11(기본 작성폼)은 요구사항·화면설계·WBS·정책·공지 등 모든 산출물 유형에 반복 적용된다. 한 번 기준을 잡으면 전체에 적용 가능하다.</span></div>
+<div class='rule'><b class='purple'>Board Builder 연계</b><span>T01·T05·T11·T12·T26·T27은 Board Builder 필드/게시판 구조 정의와 직접 또는 강하게 연결된다. 설정 화면(T26·T27)은 Board Builder 자체가 화면설계서 템플릿으로 표현된 형태다.</span></div>
+<div class='rule'><b class='purple'>권한/검토/승인/이력 연결</b><span>T07·T08·T11·T12는 검토요청·승인·변경이력(T09 Change History 패턴)과 직접 연결된다. 특히 T08 Approval Detail View는 전자결재 핵심 화면으로 권한 분기 기준이 복잡하다.</span></div>
+<div class='rule'><b style='color:var(--accent)'>모바일 기준 필요성</b><span>T01·T02·T03·T05는 PC 테이블 기반이라 모바일/좁은 화면 전환 기준이 반드시 필요하다. T08·T11은 모바일에서 핵심 액션(승인/저장) 우선 노출이 UX 핵심이다.</span></div>
+<div class='rule'><b style='color:var(--accent)'>화면설계서 초안 가속</b><span>이 10개 기준이 확립되면 화면설계서 제품에서 템플릿 선택 → 필드/액션/권한 초안 자동 생성 흐름의 기준으로 직접 사용 가능하다. 설계자가 처음부터 만들지 않아도 된다.</span></div>
+</div>
+</section>
+
+<section class='sec' id='overview'>
+<div class='head'><span class='no'>02</span><h2>Top 10 Overview Table</h2><span class='pill'>정확히 10개</span></div>
+<div class='table wide'>
+<table>
+<thead><tr>
+<th>ID</th><th>Template Name</th><th>Category</th><th>Primary Use</th><th>Board Builder</th><th>Permission Level</th><th>Mobile</th><th>Related STAM Area</th>
+</tr></thead>
+<tbody>
+<tr><td class='tid'>T01</td><td><b>Basic Board List</b></td><td>List / Board</td><td>레코드 기본 목록 조회</td><td class='ok'>직접 연계</td><td>목록조회·등록·삭제·내보내기</td><td>카드 전환</td><td>요구사항·화면설계·WBS·정책</td></tr>
+<tr><td class='tid'>T02</td><td><b>Advanced Search List</b></td><td>List / Board</td><td>다조건 검색 결과 목록</td><td class='wn'>부분 연계</td><td>검색범위·필드노출·내보내기</td><td>조건 접힘</td><td>산출물 통합 검색</td></tr>
+<tr><td class='tid'>T03</td><td><b>Grouped Work List</b></td><td>List / Board</td><td>그룹 묶음 목록 조회</td><td class='wn'>부분 연계</td><td>그룹별 열람·편집·등록</td><td>그룹 카드 스택</td><td>WBS·기능정의·메뉴화면목록</td></tr>
+<tr><td class='tid'>T05</td><td><b>Wide Data Table</b></td><td>List / Board</td><td>다컬럼 대용량 표 조회</td><td class='ok'>직접 연계</td><td>컬럼노출·편집·내보내기</td><td>핵심컬럼 고정</td><td>테이블정의·API명세·DB정보</td></tr>
+<tr><td class='tid'>T07</td><td><b>Basic Detail View</b></td><td>Detail</td><td>단일 레코드 상세 조회</td><td class='muted'>미연계</td><td>열람·편집·삭제·검토요청</td><td>섹션 아코디언</td><td>요구사항·화면설계·정책 상세</td></tr>
+<tr><td class='tid'>T08</td><td><b>Approval Detail View</b></td><td>Detail</td><td>승인 대상 상세 + 결재선</td><td class='muted'>미연계</td><td>단계별 승인·반려·회수</td><td>액션 고정바</td><td>전자결재·산출물 승인</td></tr>
+<tr><td class='tid'>T11</td><td><b>Basic Create Form</b></td><td>Create / Edit Form</td><td>신규 레코드 작성</td><td class='ok'>직접 연계</td><td>작성·임시저장·검토요청</td><td>1열 폼</td><td>요구사항·정책·공지 등록</td></tr>
+<tr><td class='tid'>T12</td><td><b>Multi-section Edit Form</b></td><td>Create / Edit Form</td><td>다중 섹션 레코드 수정</td><td class='wn'>부분 연계</td><td>섹션별 편집·저장</td><td>아코디언/탭</td><td>화면설계서·기능정의서 수정</td></tr>
+<tr><td class='tid'>T26</td><td><b>Board Settings</b></td><td>Settings / Admin</td><td>게시판 표시/동작 설정</td><td class='ok'>직접 연계</td><td>게시판설정(관리자)</td><td>설정 스택</td><td>게시판 설정·산출물 유형</td></tr>
+<tr><td class='tid'>T27</td><td><b>Custom Field Settings</b></td><td>Settings / Admin</td><td>커스텀 필드 정의 관리</td><td class='ok'>직접 연계</td><td>필드정의(관리자)</td><td>필드카드 1열</td><td>커스텀 필드 정의</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ───── T01 ───── -->
+<section class='sec' id='t01'>
+<div class='head'><span class='tid-badge'>T01</span><h2>Basic Board List</h2><span class='tag a'>List / Board</span><span class='tag g'>Board Builder 직접 연계</span></div>
+<div class='grid c3'>
+<div class='card'><h3>목적</h3><p>모든 산출물 유형의 기본 목록 조회 화면. 레코드 목록을 테이블로 표시하고, 기본 검색·정렬·페이지네이션·신규 등록 흐름을 제공한다.</p></div>
+<div class='card'><h3>적용 화면 예시</h3><p>공지사항 목록 · 요구사항 목록 · 정책 목록 · 화면설계서 목록 · 일반 산출물 목록</p></div>
+<div class='card'><h3>기본 레이아웃</h3><p>상단 검색바 + 툴바(신규/내보내기/컬럼설정) → 본문 테이블 → 하단 페이지네이션. 툴바는 목록 상단에 고정.</p></div>
+</div>
+<div class='grid c2' style='margin-top:12px'>
+<div class='card'><h3>기본 필드</h3><ul><li>ID (자동)</li><li>제목 (필수, 클릭 시 상세)</li><li>상태 (배지)</li><li>담당자</li><li>작성자</li><li>수정일</li><li>조회수 (선택)</li></ul></div>
+<div class='card'><h3>기본 액션</h3><ul><li>키워드 검색 / 초기화</li><li>컬럼 정렬(오름/내림)</li><li>페이지네이션 / 페이지크기</li><li>행 선택(단일·다중)</li><li>신규 등록</li><li>상세 진입</li><li>일괄 삭제(권한)</li><li>엑셀·문서 내보내기</li></ul></div>
+<div class='card'><h3>상태값 / 배지</h3>
+<div class='badge-row'>
+<span class='status-badge ac'>작성중</span>
+<span class='status-badge wn'>검토중</span>
+<span class='status-badge ok'>완료</span>
+<span class='status-badge mu'>보류</span>
+<span class='status-badge bd'>반려</span>
+</div>
+<p style='margin-top:8px'>상태 배지는 Cross-template 공통 기준(섹션 13) 준수.</p>
+</div>
+<div class='card'><h3>권한 포인트</h3><ul><li>목록 조회 — 최소 권한</li><li>행 열람 — 문서별 공개범위</li><li>신규 등록</li><li>수정 / 삭제</li><li>일괄 삭제</li><li>내보내기</li></ul></div>
+<div class='card'><h3>연결 산출물</h3><ul><li>요구사항 · 화면설계서 · WBS · 정책 · 공지</li><li>상세: T07 Basic Detail View</li><li>작성: T11 Basic Create Form</li><li>승인: T08 Approval Detail View</li></ul></div>
+<div class='card'><h3>Board Builder 연계</h3><p>게시판 컬럼 정의 → 목록 표시 컬럼으로 직접 반영. Board Builder에서 정의한 필드 구조가 이 템플릿의 기본 필드 세트가 된다.<br><a class='lk' href='../pages/boards-v2/board-builder.html'>→ Board Builder</a></p></div>
+</div>
+<div class='grid c3' style='margin-top:12px'>
+<div class='card'><h3>빈 상태</h3><p>"등록된 항목이 없습니다."<br>검색 조건 있을 경우 "조건에 맞는 항목이 없습니다. 조건을 변경하거나 초기화하세요." + [등록] 버튼 표시(권한 있을 때)</p></div>
+<div class='card'><h3>오류 상태</h3><p>"목록을 불러올 수 없습니다. 새로고침하거나 관리자에게 문의하세요."<br>네트워크 오류와 권한 오류 메시지를 구분해서 표시.</p></div>
+<div class='card'><h3>모바일 / 좁은 화면</h3><p>• 테이블 → 카드형 전환(상태·제목·담당자·날짜 우선)<br>• 필수 컬럼(상태·제목) 우선 노출, 부가 컬럼 숨김<br>• 행 선택 → 팝업 액션 메뉴<br>• 신규 버튼 FAB 또는 하단 고정</p></div>
+</div>
+<div class='table' style='margin-top:12px'>
+<table>
+<thead><tr><th>#</th><th>QA 항목</th><th>확인 기준</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>컬럼 정렬</td><td>오름/내림차순 토글 동작, 정렬 컬럼 표시</td></tr>
+<tr><td>2</td><td>페이지네이션</td><td>이전/다음/페이지크기 동작, 전체 건수 표시</td></tr>
+<tr><td>3</td><td>행 선택</td><td>단일·다중 선택, 선택 해제, 일괄 액션 활성화</td></tr>
+<tr><td>4</td><td>빈 상태</td><td>데이터 없을 때 빈 상태 메시지 노출</td></tr>
+<tr><td>5</td><td>모바일 카드</td><td>980px 이하에서 카드형 전환 확인</td></tr>
+<tr><td>6</td><td>권한 분기</td><td>등록/삭제/내보내기 버튼 권한 없을 때 미노출</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ───── T02 ───── -->
+<section class='sec' id='t02'>
+<div class='head'><span class='tid-badge'>T02</span><h2>Advanced Search List</h2><span class='tag a'>List / Board</span><span class='tag m'>Board Builder 부분 연계</span></div>
+<div class='grid c3'>
+<div class='card'><h3>목적</h3><p>키워드·기간·상태·담당자·분류·태그 등 다중 조건 조합으로 산출물을 통합 검색하는 화면. 조건 저장·재사용·결과 내보내기를 지원한다.</p></div>
+<div class='card'><h3>적용 화면 예시</h3><p>산출물 통합 검색 · 요구사항 검색 · 화면설계서 검색 · WBS 검색 · 고급 필터 목록</p></div>
+<div class='card'><h3>기본 레이아웃</h3><p>상단 검색 조건 패널(접힘/펼침) + 검색/초기화/조건저장 버튼 → 적용된 조건 칩 → 결과 목록 테이블 → 페이지네이션.</p></div>
+</div>
+<div class='grid c2' style='margin-top:12px'>
+<div class='card'><h3>기본 필드(검색 조건)</h3><ul><li>키워드 (전문 검색)</li><li>기간 (시작~종료)</li><li>상태 (다중 선택)</li><li>담당자</li><li>분류 / 유형</li><li>태그 (복수)</li></ul></div>
+<div class='card'><h3>기본 액션</h3><ul><li>검색 실행</li><li>조건 초기화</li><li>조건 저장(프리셋) / 불러오기</li><li>결과 건수 표시</li><li>결과 내보내기(엑셀·문서)</li><li>상세 진입</li></ul></div>
+<div class='card'><h3>상태값 / 배지</h3>
+<div class='badge-row'>
+<span class='status-badge ac'>적용된 조건 칩</span>
+<span class='status-badge ok'>N건 검색됨</span>
+<span class='status-badge mu'>조건 없음</span>
+</div>
+<p style='margin-top:8px'>검색 결과 건수는 항상 노출. 적용 조건은 칩으로 표시·개별 제거 가능.</p>
+</div>
+<div class='card'><h3>권한 포인트</h3><ul><li>검색 범위 (전체·프로젝트·본인)</li><li>필드 노출 (역할별)</li><li>결과 내보내기</li><li>조건 저장 (개인·공유)</li></ul></div>
+<div class='card'><h3>연결 산출물</h3><ul><li>요구사항 · 화면설계서 · WBS · 테스트 케이스</li><li>상세: T07 Basic Detail View</li><li>저장 프리셋: T17 Saved Filter Preset</li></ul></div>
+<div class='card'><h3>Board Builder 연계</h3><p>게시판별 검색 가능 필드를 Board Builder 구조에서 읽어 조건 패널을 동적으로 구성. 일부 필드 구조만 연계(부분 연계).<br><a class='lk' href='../pages/boards-v2/board-builder.html'>→ Board Builder</a></p></div>
+</div>
+<div class='grid c3' style='margin-top:12px'>
+<div class='card'><h3>빈 상태</h3><p>"검색 결과가 없습니다."<br>"조건을 변경하거나 초기화 후 재시도하세요." + [초기화] 버튼</p></div>
+<div class='card'><h3>오류 상태</h3><p>"검색 중 오류가 발생했습니다. 잠시 후 다시 시도하세요."<br>잘못된 조건 입력 시 인라인 유효성 메시지.</p></div>
+<div class='card'><h3>모바일 / 좁은 화면</h3><p>• 검색 조건 패널 기본 접힘 → 토글 펼침<br>• 적용된 조건은 칩 요약으로 표시<br>• 결과 목록 카드 전환<br>• 내보내기 버튼 툴바 최우선</p></div>
+</div>
+<div class='table' style='margin-top:12px'>
+<table>
+<thead><tr><th>#</th><th>QA 항목</th><th>확인 기준</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>조건 조합 검색</td><td>2개 이상 조건 동시 적용 검색 동작</td></tr>
+<tr><td>2</td><td>초기화</td><td>전체 조건 초기화 후 전체 결과 반환</td></tr>
+<tr><td>3</td><td>조건 저장/불러오기</td><td>프리셋 저장, 이름 입력, 불러오기 적용</td></tr>
+<tr><td>4</td><td>결과 없음 상태</td><td>0건일 때 빈 상태 메시지 노출</td></tr>
+<tr><td>5</td><td>모바일 접힘 토글</td><td>조건 패널 접힘/펼침 동작</td></tr>
+<tr><td>6</td><td>조건 칩 제거</td><td>개별 조건 칩 X 클릭 시 해당 조건 제거 후 재검색</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ───── T03 ───── -->
+<section class='sec' id='t03'>
+<div class='head'><span class='tid-badge'>T03</span><h2>Grouped Work List</h2><span class='tag a'>List / Board</span><span class='tag m'>Board Builder 부분 연계</span></div>
+<div class='grid c3'>
+<div class='card'><h3>목적</h3><p>업무 항목을 그룹(업무영역·기능·메뉴·카테고리)으로 묶어 표시하는 목록 화면. 그룹 접기/펼치기, 그룹별 집계, 항목 상태 관리를 제공한다.</p></div>
+<div class='card'><h3>적용 화면 예시</h3><p>기능정의서 그룹 목록 · 메뉴/화면 목록 · WBS 업무 목록 · 산출물 그룹 목록 · 테스트 케이스 그룹</p></div>
+<div class='card'><h3>기본 레이아웃</h3><p>전체 접기/펼치기 툴바 → 그룹 헤더(이름·집계·상태) + 그룹 내 항목 행 반복. 그룹 헤더 sticky 고정.</p></div>
+</div>
+<div class='grid c2' style='margin-top:12px'>
+<div class='card'><h3>기본 필드</h3><ul><li>그룹명 (헤더)</li><li>그룹 내 항목 수 / 완료 수</li><li>항목명</li><li>항목 상태</li><li>담당자</li><li>진척률 (선택)</li><li>마감일 (선택)</li></ul></div>
+<div class='card'><h3>기본 액션</h3><ul><li>전체 접기 / 전체 펼치기</li><li>그룹별 개별 접기/펼치기</li><li>그룹 내 항목 정렬</li><li>신규 항목 등록</li><li>항목 상태 변경</li><li>상세 진입</li></ul></div>
+<div class='card'><h3>상태값 / 배지</h3>
+<div class='badge-row'>
+<span class='status-badge ac'>작성중</span>
+<span class='status-badge wn'>검토중</span>
+<span class='status-badge ok'>완료</span>
+<span class='status-badge bd'>지연</span>
+<span class='status-badge mu'>미시작</span>
+</div>
+<p style='margin-top:8px'>그룹 헤더에 완료율(완료/전체) 표시.</p>
+</div>
+<div class='card'><h3>권한 포인트</h3><ul><li>그룹 열람 (그룹별 공개 범위)</li><li>그룹 내 항목 등록/수정/삭제</li><li>그룹 자체 추가/삭제 (관리자)</li><li>상태 변경 (담당자·권한자)</li></ul></div>
+<div class='card'><h3>연결 산출물</h3><ul><li>WBS · 기능정의서 · 메뉴/화면목록</li><li>상세: T07 Basic Detail View</li><li>작성: T11 Basic Create Form</li></ul></div>
+<div class='card'><h3>Board Builder 연계</h3><p>그룹 카테고리 필드 / 태그 구조를 Board Builder 필드에서 읽어 그룹 헤더를 구성. 그룹 기준 필드 정의가 부분 연계.<br><a class='lk' href='../pages/boards-v2/board-builder.html'>→ Board Builder</a></p></div>
+</div>
+<div class='grid c3' style='margin-top:12px'>
+<div class='card'><h3>빈 상태</h3><p>그룹 내 항목 없음: "이 그룹에 항목이 없습니다." + [등록] 버튼<br>전체 항목 없음: "등록된 항목이 없습니다."</p></div>
+<div class='card'><h3>오류 상태</h3><p>"그룹 목록을 불러올 수 없습니다. 새로고침하거나 관리자에게 문의하세요."</p></div>
+<div class='card'><h3>모바일 / 좁은 화면</h3><p>• 그룹 헤더 카드(집계 요약) + 항목 카드 스택<br>• 그룹 헤더 sticky 유지<br>• 항목 행 → 카드(제목·상태·담당자)<br>• 전체 접기/펼치기 버튼 상단 고정</p></div>
+</div>
+<div class='table' style='margin-top:12px'>
+<table>
+<thead><tr><th>#</th><th>QA 항목</th><th>확인 기준</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>그룹 개별 접기/펼치기</td><td>그룹별 독립 토글 동작</td></tr>
+<tr><td>2</td><td>전체 접기/펼치기</td><td>전체 그룹 일괄 토글</td></tr>
+<tr><td>3</td><td>그룹 집계</td><td>완료/전체 카운트 실시간 반영</td></tr>
+<tr><td>4</td><td>그룹 내 항목 등록</td><td>그룹 컨텍스트로 신규 항목 등록</td></tr>
+<tr><td>5</td><td>모바일 카드 스택</td><td>980px 이하 그룹 헤더+카드 전환</td></tr>
+<tr><td>6</td><td>그룹 헤더 sticky</td><td>스크롤 시 그룹 헤더 상단 고정</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ───── T05 ───── -->
+<section class='sec' id='t05'>
+<div class='head'><span class='tid-badge'>T05</span><h2>Wide Data Table</h2><span class='tag a'>List / Board</span><span class='tag g'>Board Builder 직접 연계</span></div>
+<div class='grid c3'>
+<div class='card'><h3>목적</h3><p>컬럼 수가 많은 대용량 데이터(테이블 정의서·API 명세 등)를 효율적으로 조회하는 화면. 핵심 컬럼 고정 + 가로 스크롤 + 전체보기(Focus View) 지원.</p></div>
+<div class='card'><h3>적용 화면 예시</h3><p>테이블 정의서 · API 명세 목록 · DB 정보 · 서버 정보 · 접근보안 정보 · ERD 필드 목록</p></div>
+<div class='card'><h3>기본 레이아웃</h3><p>좌측 핵심 컬럼 고정 + 우측 가로 스크롤 영역. 상단 컬럼 설정 · 포커스 뷰 전환 버튼. 헤더 행 sticky.</p></div>
+</div>
+<div class='grid c2' style='margin-top:12px'>
+<div class='card'><h3>기본 필드</h3><ul><li>키 / ID (고정 컬럼)</li><li>이름 / 컬럼명 (고정 컬럼)</li><li>타입</li><li>설명</li><li>제약조건 / NULL 여부</li><li>기본값</li><li>비고</li><li>(추가 컬럼 동적 구성)</li></ul></div>
+<div class='card'><h3>기본 액션</h3><ul><li>컬럼 고정 / 고정 해제</li><li>가로 스크롤</li><li>전체보기 / 포커스 뷰 전환</li><li>컬럼 표시/숨김 설정</li><li>정렬</li><li>내보내기 (Excel·CSV)</li></ul></div>
+<div class='card'><h3>상태값 / 배지</h3>
+<div class='badge-row'>
+<span class='status-badge ok'>활성</span>
+<span class='status-badge mu'>비활성</span>
+<span class='status-badge wn'>검토중</span>
+<span class='status-badge ac'>고정 컬럼</span>
+</div>
+<p style='margin-top:8px'>고정 컬럼은 시각적으로 구분(배경·경계선). 행별 상태 배지.</p>
+</div>
+<div class='card'><h3>권한 포인트</h3><ul><li>컬럼별 노출 권한 (역할별)</li><li>행 편집 권한</li><li>전체 내보내기 권한</li><li>컬럼 설정 저장 (개인·공유)</li></ul></div>
+<div class='card'><h3>연결 산출물</h3><ul><li>테이블 정의서 · API 명세 · DB ERD</li><li>상세: T07 Basic Detail View</li><li>작성: T11 Basic Create Form</li></ul></div>
+<div class='card'><h3>Board Builder 연계</h3><p>Board Builder 컬럼 정의 구조 → Wide Data Table 컬럼 세트로 직접 반영. 다컬럼 게시판 구조에 가장 직접적으로 매핑된다.<br><a class='lk' href='../pages/boards-v2/board-builder.html'>→ Board Builder</a></p></div>
+</div>
+<div class='grid c3' style='margin-top:12px'>
+<div class='card'><h3>빈 상태</h3><p>"데이터가 없습니다. 항목을 추가하거나 필터 조건을 확인하세요."<br>+ [등록] 또는 [조건 초기화] 버튼</p></div>
+<div class='card'><h3>오류 상태</h3><p>"데이터를 불러올 수 없습니다. 네트워크 또는 서버 상태를 확인하세요."<br>컬럼 설정 로드 실패 시 기본 컬럼 세트로 대체.</p></div>
+<div class='card'><h3>모바일 / 좁은 화면</h3><p>• 핵심 컬럼(키·이름·상태) 좌측 고정 필수<br>• 나머지 컬럼 가로 스크롤 정책 명시<br>• 포커스 뷰: 단일 행 전체 필드 세로 표시<br>• 가로 스크롤 힌트(그라디언트 페이드) 표시</p></div>
+</div>
+<div class='table' style='margin-top:12px'>
+<table>
+<thead><tr><th>#</th><th>QA 항목</th><th>확인 기준</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>컬럼 고정</td><td>고정 컬럼 스크롤 시 위치 유지</td></tr>
+<tr><td>2</td><td>가로 스크롤</td><td>비고정 컬럼 가로 스크롤 동작</td></tr>
+<tr><td>3</td><td>포커스 뷰</td><td>단일 행 포커스 뷰 전환 동작</td></tr>
+<tr><td>4</td><td>컬럼 표시/숨김</td><td>컬럼 설정 팝업 토글 동작</td></tr>
+<tr><td>5</td><td>내보내기</td><td>현재 표시 컬럼 기준 Excel/CSV 내보내기</td></tr>
+<tr><td>6</td><td>모바일 핵심 컬럼</td><td>980px 이하 핵심 컬럼 우선 표시</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ───── T07 ───── -->
+<section class='sec' id='t07'>
+<div class='head'><span class='tid-badge'>T07</span><h2>Basic Detail View</h2><span class='tag p'>Detail</span><span class='tag m'>Board Builder 미연계</span></div>
+<div class='grid c3'>
+<div class='card'><h3>목적</h3><p>단일 레코드의 상세 내용을 조회하는 기본 상세 화면. 헤더·메타정보·본문·첨부·변경이력·하단 액션바 구조를 제공한다.</p></div>
+<div class='card'><h3>적용 화면 예시</h3><p>요구사항 상세 · 화면설계서 상세 · 정책 상세 · 공지 상세 · 기능정의서 항목 상세</p></div>
+<div class='card'><h3>기본 레이아웃</h3><p>상단 헤더(제목+상태+액션) → 메타정보(작성자/담당자/수정일) → 본문(리치텍스트) → 첨부 → 변경이력 → 하단 액션바.</p></div>
+</div>
+<div class='grid c2' style='margin-top:12px'>
+<div class='card'><h3>기본 필드</h3><ul><li>제목 (헤더)</li><li>상태 (배지)</li><li>작성자</li><li>담당자</li><li>수정일 / 작성일</li><li>본문 (리치텍스트)</li><li>연결 항목</li><li>첨부 파일</li><li>변경이력 (접힘/펼침)</li></ul></div>
+<div class='card'><h3>기본 액션</h3><ul><li>수정 (권한)</li><li>삭제 / 숨김 (권한)</li><li>검토 요청</li><li>인쇄 / 내보내기</li><li>목록으로</li><li>복사 (선택)</li><li>승인 요청 → T08 연결</li></ul></div>
+<div class='card'><h3>상태값 / 배지</h3>
+<div class='badge-row'>
+<span class='status-badge ac'>작성중</span>
+<span class='status-badge wn'>검토중</span>
+<span class='status-badge wn'>승인요청</span>
+<span class='status-badge ok'>완료</span>
+<span class='status-badge mu'>보류</span>
+<span class='status-badge bd'>반려</span>
+</div>
+</div>
+<div class='card'><h3>권한 포인트</h3><ul><li>문서 열람</li><li>편집</li><li>삭제 / 숨김</li><li>검토 요청</li><li>내보내기</li><li>변경이력 열람</li></ul></div>
+<div class='card'><h3>연결 산출물</h3><ul><li>요구사항 · 화면설계서 · 정책</li><li>승인: T08 Approval Detail View</li><li>이력: T09 Change History Detail</li><li>수정: T12 Multi-section Edit Form</li></ul></div>
+<div class='card'><h3>Board Builder 연계</h3><p>상세 보기는 목록 구조(T01·T05)에 종속. Board Builder 필드 정의가 메타정보 필드 세트에 간접 반영되나 직접 연계는 없음.</p></div>
+</div>
+<div class='grid c3' style='margin-top:12px'>
+<div class='card'><h3>빈 상태</h3><p>상세 화면은 항상 데이터 로드 전제. 로딩 상태 스켈레톤 표시.</p></div>
+<div class='card'><h3>오류 상태</h3><p>"문서를 불러올 수 없습니다. 권한 또는 삭제 여부를 확인하세요."<br>404(삭제됨) / 403(권한없음) 메시지 구분.</p></div>
+<div class='card'><h3>모바일 / 좁은 화면</h3><p>• 섹션 아코디언(본문·첨부·이력 순)<br>• 단일 컬럼 레이아웃<br>• 하단 액션바 fixed 여부 판단(긴 본문 시 고정 권장)<br>• 메타정보 2열 → 1열 전환</p></div>
+</div>
+<div class='table' style='margin-top:12px'>
+<table>
+<thead><tr><th>#</th><th>QA 항목</th><th>확인 기준</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>메타정보 표시</td><td>작성자·담당자·수정일 정상 표시</td></tr>
+<tr><td>2</td><td>본문 리치텍스트</td><td>리치텍스트 렌더링 (이미지·링크·목록)</td></tr>
+<tr><td>3</td><td>변경이력 표시</td><td>이력 섹션 접힘/펼침, 변경 항목 표시</td></tr>
+<tr><td>4</td><td>검토요청 액션</td><td>검토요청 버튼 → 검토자 선택 → 상태 변경</td></tr>
+<tr><td>5</td><td>권한 분기</td><td>편집/삭제 버튼 권한 없을 때 미노출</td></tr>
+<tr><td>6</td><td>모바일 아코디언</td><td>섹션별 접힘/펼침 동작</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ───── T08 ───── -->
+<section class='sec' id='t08'>
+<div class='head'><span class='tid-badge'>T08</span><h2>Approval Detail View</h2><span class='tag p'>Detail</span><span class='tag m'>Board Builder 미연계</span></div>
+<div class='grid c3'>
+<div class='card'><h3>목적</h3><p>승인 대상 문서의 결재선·의견·이력을 포함한 상세 화면. 승인자·요청자·참조자별 액션이 분기되며 전자결재 흐름의 핵심 화면이다.</p></div>
+<div class='card'><h3>적용 화면 예시</h3><p>전자결재 상세 · 승인 요청 상세 · 산출물 승인 상세 · 검토 요청 상세</p></div>
+<div class='card'><h3>기본 레이아웃</h3><p>상단 제목+승인 상태 → 대상 문서/본문 → 결재선(단계별 세로 표시) → 의견 입력 → 하단 액션바(승인/반려/보류) → 이력.</p></div>
+</div>
+<div class='grid c2' style='margin-top:12px'>
+<div class='card'><h3>기본 필드</h3><ul><li>제목 (대상 문서)</li><li>승인 상태 (헤더 배지)</li><li>요청자 / 요청일</li><li>결재선 (단계·승인자·상태·의견)</li><li>처리일</li><li>반려 사유 (반려 시)</li></ul></div>
+<div class='card'><h3>기본 액션 (역할별 분기)</h3><ul><li>승인 (결재 권한자)</li><li>반려 + 사유 입력 (결재 권한자)</li><li>보류 (결재 권한자)</li><li>의견 등록 (참조자·권한자)</li><li>회수 (요청자, 미처리 단계)</li><li>이력 펼치기</li></ul></div>
+<div class='card'><h3>상태값 / 배지</h3>
+<div class='badge-row'>
+<span class='status-badge ac'>승인대기</span>
+<span class='status-badge wn'>진행중</span>
+<span class='status-badge ok'>승인완료</span>
+<span class='status-badge bd'>반려</span>
+<span class='status-badge mu'>보류</span>
+<span class='status-badge mu'>회수됨</span>
+</div>
+</div>
+<div class='card'><h3>권한 포인트</h3><ul><li>결재 단계별 승인 권한</li><li>반려 권한 (단계 권한자)</li><li>보류 권한</li><li>회수 권한 (요청자, 미처리 시)</li><li>의견 열람/등록 (참조자)</li><li>이력 열람</li></ul></div>
+<div class='card'><h3>연결 산출물</h3><ul><li>승인 대상 산출물 (요구사항·화면설계 등)</li><li>목록: T22 Approval Queue</li><li>상세 원문: T07 Basic Detail View</li></ul></div>
+<div class='card'><h3>Board Builder 연계</h3><p>승인 흐름은 게시판 구조보다 결재선 정의에 의존. Board Builder 직접 연계 없음. 승인 완료 시 대상 문서 상태가 T07 상세로 반영됨.</p></div>
+</div>
+<div class='grid c3' style='margin-top:12px'>
+<div class='card'><h3>빈 상태</h3><p>해당 없음. 승인 상세는 항상 결재 요청 데이터 존재 전제.</p></div>
+<div class='card'><h3>오류 상태</h3><p>"승인 정보를 불러올 수 없습니다. 결재선 또는 권한을 확인하세요."<br>이미 처리된 건 재처리 시 "이미 처리된 결재입니다." 안내.</p></div>
+<div class='card'><h3>모바일 / 좁은 화면</h3><p>• 결재선 세로 스택 (단계 카드)<br>• 승인/반려 버튼 하단 고정바 최우선 노출<br>• 본문 아코디언(긴 경우)<br>• 의견 입력 영역 하단 고정 or 인라인</p></div>
+</div>
+<div class='table' style='margin-top:12px'>
+<table>
+<thead><tr><th>#</th><th>QA 항목</th><th>확인 기준</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>결재선 단계 표시</td><td>각 단계 승인자·상태·의견 정상 표시</td></tr>
+<tr><td>2</td><td>권한별 액션 분기</td><td>승인자/요청자/참조자별 버튼 분기</td></tr>
+<tr><td>3</td><td>승인 처리</td><td>승인 후 상태 변경·이력 기록</td></tr>
+<tr><td>4</td><td>반려 사유</td><td>반려 시 사유 입력 필수 확인</td></tr>
+<tr><td>5</td><td>이력 표시</td><td>처리 이력 시간순 표시</td></tr>
+<tr><td>6</td><td>모바일 고정바</td><td>승인/반려 버튼 하단 고정 동작</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ───── T11 ───── -->
+<section class='sec' id='t11'>
+<div class='head'><span class='tid-badge'>T11</span><h2>Basic Create Form</h2><span class='tag g'>Create / Edit Form</span><span class='tag g'>Board Builder 직접 연계</span></div>
+<div class='grid c3'>
+<div class='card'><h3>목적</h3><p>신규 레코드를 작성·저장하는 기본 폼 화면. 필수 필드 유효성 검증, 임시저장, 저장 후 상세 이동 흐름을 제공한다.</p></div>
+<div class='card'><h3>적용 화면 예시</h3><p>요구사항 등록 · 정책 등록 · 일반 게시글 작성 · 공지 작성 · 기능 항목 등록</p></div>
+<div class='card'><h3>기본 레이아웃</h3><p>단일 컬럼 폼 영역(제목+필드+본문+첨부) → 하단 액션바(저장/임시저장/취소). 폼 영역은 스크롤, 하단 액션바 fixed.</p></div>
+</div>
+<div class='grid c2' style='margin-top:12px'>
+<div class='card'><h3>기본 필드</h3><ul><li>제목 (필수)</li><li>분류 / 유형</li><li>상태 (기본값 '작성중')</li><li>담당자</li><li>본문 (리치텍스트)</li><li>첨부 파일</li><li>(Board Builder 커스텀 필드)</li></ul></div>
+<div class='card'><h3>기본 액션</h3><ul><li>저장 → 상세 이동</li><li>임시저장 (로컬 또는 서버)</li><li>취소 → 확인 후 목록 이동</li><li>검토 요청 (저장 완료 후)</li><li>첨부 파일 추가/삭제</li></ul></div>
+<div class='card'><h3>상태값 / 배지</h3>
+<div class='badge-row'>
+<span class='status-badge mu'>필수(*)</span>
+<span class='status-badge bd'>유효성 오류</span>
+<span class='status-badge wn'>임시저장됨</span>
+<span class='status-badge ok'>저장 성공</span>
+</div>
+<p style='margin-top:8px'>필수 필드는 레이블에 * 표시. 저장 실패 시 인라인 오류 메시지.</p>
+</div>
+<div class='card'><h3>권한 포인트</h3><ul><li>작성 진입 권한</li><li>첨부 파일 업로드 권한</li><li>저장 권한</li><li>검토 요청 권한</li></ul></div>
+<div class='card'><h3>연결 산출물</h3><ul><li>신규 요구사항 · 화면설계서 · 정책</li><li>저장 후: T07 Basic Detail View</li><li>복합 폼: T12 Multi-section Edit Form</li></ul></div>
+<div class='card'><h3>Board Builder 연계</h3><p>Board Builder 필드 정의 → 폼 필드 세트로 직접 반영. 커스텀 필드 추가 시 폼에 동적 추가됨.<br><a class='lk' href='../pages/boards-v2/board-builder.html'>→ Board Builder</a></p></div>
+</div>
+<div class='grid c3' style='margin-top:12px'>
+<div class='card'><h3>빈 상태</h3><p>폼 초기 상태: 빈 입력 필드(기본값 설정 필드는 채워진 상태). 임시저장 데이터 있을 경우 "임시저장된 내용을 불러올까요?" 팝업.</p></div>
+<div class='card'><h3>오류 상태</h3><p>필수 미입력: "제목을 입력하세요."(인라인)<br>저장 실패: "저장 중 오류가 발생했습니다. 다시 시도하세요."<br>임시저장 실패: "임시저장에 실패했습니다."</p></div>
+<div class='card'><h3>모바일 / 좁은 화면</h3><p>• 1열 폼 레이아웃 (2열 → 1열)<br>• 필수 필드 우선 배치<br>• 하단 액션바 fixed<br>• 리치텍스트 에디터 툴바 컴팩트 모드<br>• 첨부 버튼 전체 너비</p></div>
+</div>
+<div class='table' style='margin-top:12px'>
+<table>
+<thead><tr><th>#</th><th>QA 항목</th><th>확인 기준</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>필수 필드 유효성</td><td>제목 빈 상태 저장 시 인라인 오류 표시</td></tr>
+<tr><td>2</td><td>임시저장</td><td>임시저장 후 새로고침 시 복구 팝업</td></tr>
+<tr><td>3</td><td>취소 확인</td><td>내용 입력 후 취소 시 "변경사항을 저장하지 않겠습니까?" 팝업</td></tr>
+<tr><td>4</td><td>저장 후 이동</td><td>저장 성공 시 생성된 레코드 상세로 이동</td></tr>
+<tr><td>5</td><td>첨부 파일</td><td>파일 추가·미리보기·삭제 동작</td></tr>
+<tr><td>6</td><td>모바일 1열</td><td>980px 이하 1열 폼, 하단 액션바 fixed</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ───── T12 ───── -->
+<section class='sec' id='t12'>
+<div class='head'><span class='tid-badge'>T12</span><h2>Multi-section Edit Form</h2><span class='tag g'>Create / Edit Form</span><span class='tag m'>Board Builder 부분 연계</span></div>
+<div class='grid c3'>
+<div class='card'><h3>목적</h3><p>기본정보·상세내용·연결정보·권한·첨부 등 다중 섹션으로 구성된 복합 문서를 수정하는 폼 화면. 섹션별 저장과 전체 저장을 모두 지원한다.</p></div>
+<div class='card'><h3>적용 화면 예시</h3><p>화면설계서 수정 · 기능정의서 수정 · 복합 산출물 수정 · 정책 정의서 수정</p></div>
+<div class='card'><h3>기본 레이아웃</h3><p>섹션 탭 또는 아코디언(기본정보/상세/연결/권한/첨부) → 각 섹션 내 폼 필드 → 섹션 저장 버튼 → 하단 전체 저장/취소.</p></div>
+</div>
+<div class='grid c2' style='margin-top:12px'>
+<div class='card'><h3>기본 섹션 / 필드</h3><ul><li>기본정보: 제목·유형·상태·담당자</li><li>상세내용: 본문·연결 항목·태그</li><li>연결정보: 관련 문서·참조 링크</li><li>권한/검토: 검토자·승인자 지정</li><li>첨부: 파일 목록·버전 관리</li></ul></div>
+<div class='card'><h3>기본 액션</h3><ul><li>섹션 저장 (섹션별 독립)</li><li>전체 저장</li><li>취소 → 변경사항 확인 팝업</li><li>미리보기 (읽기 모드 전환)</li><li>변경사항 확인 (미저장 이탈 경고)</li></ul></div>
+<div class='card'><h3>상태값 / 배지</h3>
+<div class='badge-row'>
+<span class='status-badge wn'>섹션 변경됨</span>
+<span class='status-badge ok'>섹션 저장됨</span>
+<span class='status-badge bd'>저장 실패</span>
+<span class='status-badge mu'>미저장 이탈</span>
+</div>
+<p style='margin-top:8px'>섹션 탭/헤더에 변경됨(·) 표시. 미저장 이탈 시 경고 팝업.</p>
+</div>
+<div class='card'><h3>권한 포인트</h3><ul><li>섹션별 편집 권한 (섹션별 분리)</li><li>저장 권한</li><li>검토자·승인자 지정 권한</li><li>미리보기 (열람 권한)</li></ul></div>
+<div class='card'><h3>연결 산출물</h3><ul><li>화면설계서 · 기능정의서 · 정책</li><li>저장 후: T07 Basic Detail View</li><li>신규 작성: T11 Basic Create Form</li></ul></div>
+<div class='card'><h3>Board Builder 연계</h3><p>기본정보 섹션의 필드 일부가 Board Builder 필드 구조와 연결. 연결정보·권한/검토 섹션은 Board Builder 범위 외 독립 구성.</p></div>
+</div>
+<div class='grid c3' style='margin-top:12px'>
+<div class='card'><h3>빈 상태</h3><p>수정 화면은 항상 기존 데이터 로드. 로딩 중 스켈레톤 표시.</p></div>
+<div class='card'><h3>오류 상태</h3><p>"수정 정보를 불러올 수 없습니다. 권한 또는 삭제 여부를 확인하세요."<br>섹션 저장 실패: "저장 중 오류가 발생했습니다."</p></div>
+<div class='card'><h3>모바일 / 좁은 화면</h3><p>• 섹션 아코디언 전환 (탭 → 아코디언)<br>• 하단 전체 저장바 fixed<br>• 연결정보·권한 섹션 기본 접힘<br>• 필드 1열 레이아웃</p></div>
+</div>
+<div class='table' style='margin-top:12px'>
+<table>
+<thead><tr><th>#</th><th>QA 항목</th><th>확인 기준</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>섹션별 저장 독립</td><td>섹션 A 저장 시 섹션 B 미영향</td></tr>
+<tr><td>2</td><td>미저장 이탈 경고</td><td>변경 후 이탈 시 "변경사항이 있습니다." 팝업</td></tr>
+<tr><td>3</td><td>변경됨 표시</td><td>섹션 수정 시 탭/헤더에 · 표시</td></tr>
+<tr><td>4</td><td>전체 저장</td><td>전체 저장 시 모든 섹션 일괄 저장</td></tr>
+<tr><td>5</td><td>미리보기 전환</td><td>미리보기 → 편집 모드 전환</td></tr>
+<tr><td>6</td><td>모바일 아코디언</td><td>섹션 아코디언 독립 접힘/펼침</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ───── T26 ───── -->
+<section class='sec' id='t26'>
+<div class='head'><span class='tid-badge'>T26</span><h2>Board Settings</h2><span class='tag w'>Settings / Admin</span><span class='tag g'>Board Builder 직접 연계</span></div>
+<div class='grid c3'>
+<div class='card'><h3>목적</h3><p>게시판의 표시 방식·컬럼 노출·기본 정렬·권한 역할 매핑을 설정하는 관리자 화면. Board Builder 게시판 구조 정의와 직접 연결된다.</p></div>
+<div class='card'><h3>적용 화면 예시</h3><p>게시판 표시 설정 · 산출물 유형 설정 · 게시판별 컬럼/권한 설정 · 보드 표시 옵션 설정</p></div>
+<div class='card'><h3>기본 레이아웃</h3><p>설정 섹션(기본정보/컬럼노출/정렬/권한/고급) → 각 섹션 폼 필드 → 우측 또는 하단 저장바. 변경 미리보기(선택).</p></div>
+</div>
+<div class='grid c2' style='margin-top:12px'>
+<div class='card'><h3>기본 필드</h3><ul><li>게시판명</li><li>유형 (선택)</li><li>사용 여부 (토글)</li><li>표시 컬럼 (체크 목록)</li><li>기본 정렬 (컬럼·방향)</li><li>권한 역할 매핑 (역할별 권한)</li></ul></div>
+<div class='card'><h3>기본 액션</h3><ul><li>저장</li><li>기본값 복원</li><li>미리보기 (선택)</li><li>취소</li></ul></div>
+<div class='card'><h3>상태값 / 배지</h3>
+<div class='badge-row'>
+<span class='status-badge ok'>저장됨</span>
+<span class='status-badge wn'>변경됨</span>
+<span class='status-badge mu'>기본값 복원됨</span>
+<span class='status-badge ok'>사용중</span>
+<span class='status-badge bd'>사용안함</span>
+</div>
+</div>
+<div class='card'><h3>권한 포인트</h3><ul><li>게시판 설정 진입 (관리자)</li><li>컬럼 설정 저장</li><li>권한 매핑 변경 (최고관리자)</li><li>기본값 복원</li></ul></div>
+<div class='card'><h3>연결 산출물</h3><ul><li>게시판 설정 산출물</li><li>커스텀 필드: T27 Custom Field Settings</li><li>권한 관리: T25 Role/Permission Management</li></ul></div>
+<div class='card'><h3>Board Builder 연계</h3><p>Board Builder의 게시판 구조 정의 → T26 설정 화면으로 표현. 컬럼 노출 설정이 Board Builder 필드 체크와 직접 연결.<br><a class='lk' href='../pages/boards-v2/board-builder.html'>→ Board Builder</a></p></div>
+</div>
+<div class='grid c3' style='margin-top:12px'>
+<div class='card'><h3>빈 상태</h3><p>설정 화면은 항상 기본값 로드. 신규 게시판인 경우 기본 설정 세트 제공.</p></div>
+<div class='card'><h3>오류 상태</h3><p>"설정을 불러올 수 없습니다. 관리자에게 문의하세요."<br>저장 실패: "설정 저장에 실패했습니다."</p></div>
+<div class='card'><h3>모바일 / 좁은 화면</h3><p>• 설정 섹션 1열 스택<br>• 하단 저장바 fixed<br>• 컬럼 체크 목록 2열 → 1열<br>• 권한 매트릭스 가로 스크롤</p></div>
+</div>
+<div class='table' style='margin-top:12px'>
+<table>
+<thead><tr><th>#</th><th>QA 항목</th><th>확인 기준</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>컬럼 표시/숨김 설정</td><td>체크 토글 후 저장 시 목록 반영 확인</td></tr>
+<tr><td>2</td><td>기본 정렬 설정</td><td>저장 후 게시판 목록 기본 정렬 변경 확인</td></tr>
+<tr><td>3</td><td>기본값 복원</td><td>복원 버튼 클릭 → 확인 팝업 → 기본값 적용</td></tr>
+<tr><td>4</td><td>저장 후 반영</td><td>설정 저장 후 게시판에 즉시 반영</td></tr>
+<tr><td>5</td><td>권한 분기</td><td>관리자 아닌 경우 설정 페이지 진입 차단</td></tr>
+<tr><td>6</td><td>모바일 스택</td><td>설정 섹션 1열, 저장바 fixed</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ───── T27 ───── -->
+<section class='sec' id='t27'>
+<div class='head'><span class='tid-badge'>T27</span><h2>Custom Field Settings</h2><span class='tag w'>Settings / Admin</span><span class='tag g'>Board Builder 직접 연계</span></div>
+<div class='grid c3'>
+<div class='card'><h3>목적</h3><p>게시판별 커스텀 필드를 정의·관리하는 관리자 화면. 필드 추가·편집·삭제·정렬, 타입별 옵션 관리를 제공하며 Board Builder 필드 구조 정의와 직접 연결된다.</p></div>
+<div class='card'><h3>적용 화면 예시</h3><p>커스텀 필드 추가/편집 · 필드 타입 설정 · 옵션값 관리 · 필드 정렬순서 설정</p></div>
+<div class='card'><h3>기본 레이아웃</h3><p>필드 목록(드래그 정렬) → 우측 또는 하단 필드 추가/편집 패널 → 저장바. 필드 목록은 순서 조정 가능.</p></div>
+</div>
+<div class='grid c2' style='margin-top:12px'>
+<div class='card'><h3>기본 필드(필드 속성)</h3><ul><li>필드명 (필수)</li><li>타입 (텍스트·숫자·선택·날짜·파일·토글)</li><li>필수 여부 (토글)</li><li>기본값</li><li>옵션값 (선택·다중선택 타입)</li><li>정렬순서</li><li>표시 여부</li></ul></div>
+<div class='card'><h3>기본 액션</h3><ul><li>필드 추가</li><li>필드 편집</li><li>필드 삭제 (확인 팝업)</li><li>정렬 변경 (드래그 또는 순서 버튼)</li><li>옵션값 편집 (선택형)</li><li>저장</li></ul></div>
+<div class='card'><h3>상태값 / 배지</h3>
+<div class='badge-row'>
+<span class='status-badge mu'>필수(*)</span>
+<span class='status-badge ac'>텍스트</span>
+<span class='status-badge ac'>숫자</span>
+<span class='status-badge ac'>선택</span>
+<span class='status-badge ac'>날짜</span>
+<span class='status-badge ac'>파일</span>
+</div>
+<p style='margin-top:8px'>타입 배지로 필드 유형 구분. 필수 필드는 * 표시.</p>
+</div>
+<div class='card'><h3>권한 포인트</h3><ul><li>커스텀 필드 정의 진입 (관리자)</li><li>필드 추가/편집/삭제</li><li>옵션값 관리</li><li>정렬 변경 저장</li></ul></div>
+<div class='card'><h3>연결 산출물</h3><ul><li>커스텀 필드 정의 산출물</li><li>게시판 설정: T26 Board Settings</li><li>입력 화면: T14 Custom Field Form</li></ul></div>
+<div class='card'><h3>Board Builder 연계</h3><p>Board Builder 필드 구조 정의가 곧 T27 커스텀 필드 설정. 이 설정이 T14 Custom Field Form의 동적 입력 필드 세트를 구성함.<br><a class='lk' href='../pages/boards-v2/board-builder.html'>→ Board Builder</a></p></div>
+</div>
+<div class='grid c3' style='margin-top:12px'>
+<div class='card'><h3>빈 상태</h3><p>"정의된 커스텀 필드가 없습니다. 필드를 추가하세요." + [필드 추가] 버튼</p></div>
+<div class='card'><h3>오류 상태</h3><p>"필드 정보를 불러올 수 없습니다. 관리자에게 문의하세요."<br>삭제 실패: "사용 중인 필드는 삭제할 수 없습니다."</p></div>
+<div class='card'><h3>모바일 / 좁은 화면</h3><p>• 필드 카드 1열 목록<br>• 드래그 정렬 → 위/아래 이동 버튼 대체<br>• 편집 패널 → 전체화면 전환<br>• 옵션 편집 → 전체화면 모달</p></div>
+</div>
+<div class='table' style='margin-top:12px'>
+<table>
+<thead><tr><th>#</th><th>QA 항목</th><th>확인 기준</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>필드 추가/편집/삭제</td><td>각 CRUD 동작 정상 저장 확인</td></tr>
+<tr><td>2</td><td>타입별 유효성</td><td>숫자 타입 문자 입력 차단, 날짜 형식 검증</td></tr>
+<tr><td>3</td><td>정렬 동작</td><td>순서 변경 후 저장 시 목록 반영</td></tr>
+<tr><td>4</td><td>옵션 편집</td><td>선택형 타입 옵션값 추가/삭제/순서 변경</td></tr>
+<tr><td>5</td><td>삭제 확인</td><td>사용 중인 필드 삭제 시 경고 메시지</td></tr>
+<tr><td>6</td><td>모바일 대체 액션</td><td>드래그 대신 위/아래 버튼으로 정렬</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ───── Cross-template Standards ───── -->
+<section class='sec' id='cross'>
+<div class='head'><span class='no'>13</span><h2>Cross-template Standards — 10개 공통 기준</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>상태 배지 공통 기준</h3><ul>
+<li><span class='ok'>완료</span> — 모든 작업/검토/승인 완료</li>
+<li><span class='wn'>검토중 / 승인요청</span> — 진행중 상태</li>
+<li><span style='color:var(--accent)'>작성중</span> — 편집 가능 상태</li>
+<li><span class='bad'>반려</span> — 반려/오류 상태</li>
+<li><span class='muted'>보류 / 미시작</span> — 비활성 상태</li>
+</ul><p style='margin-top:8px'>상태 배지 색상 기준은 모든 10개 템플릿에 동일 적용.</p></div>
+<div class='card'><h3>권한 단위 공통 기준</h3><ul>
+<li>화면 진입 권한 (최소 단위)</li>
+<li>행/문서 열람 권한</li>
+<li>등록 / 작성 권한</li>
+<li>수정 / 편집 권한</li>
+<li>삭제 / 숨김 권한</li>
+<li>내보내기 권한</li>
+<li>관리자 전용 (설정·권한 관리)</li>
+</ul></div>
+<div class='card'><h3>검토 / 승인 / 댓글 연결</h3><p>작성형(T11·T12)·상세형(T07) 템플릿은 검토 요청·승인 요청·댓글/멘션(D그룹 공통 레이어) 액션을 기본 액션에 포함한다. 승인 흐름은 T08 Approval Detail View로 연결된다.<br><a class='lk' href='STAM-Sitemap-IA-Overview-v1.html'>→ STAM Sitemap & IA Overview</a></p></div>
+<div class='card'><h3>변경이력 연결</h3><p>수정 가능한 템플릿(T07·T11·T12)은 변경자·변경일·변경 항목 이력(T09 Change History Detail 패턴)과 연결한다. 이력은 접힘/펼침 섹션으로 제공하며 롤백은 권한자 요청 방식으로 처리한다.</p></div>
+<div class='card'><h3>첨부 / 파일 공통 기준</h3><p>파일 첨부 지원 템플릿(T07·T11·T12): 파일명·형식·크기·업로더·업로드일 표시. 다운로드·미리보기·삭제 권한 분리. 버전 관리가 필요한 경우 T10 Attachment Detail View 연결.</p></div>
+<div class='card'><h3>빈 상태 공통 기준</h3><p>• 데이터 없음: 아이콘 + 설명 텍스트 + 액션 버튼<br>• 검색 결과 없음: 조건 초기화 버튼 포함<br>• 권한 없음: "접근 권한이 없습니다." 별도 상태<br>• 로딩 중: 스켈레톤 UI 표시</p></div>
+<div class='card'><h3>오류 상태 공통 기준</h3><p>• 네트워크 오류 / 서버 오류: 재시도 버튼 포함<br>• 404(삭제됨): 삭제 안내 메시지<br>• 403(권한없음): 권한 안내 메시지<br>• 인라인 유효성 오류: 필드별 개별 표시</p></div>
+<div class='card'><h3>내보내기 공통 기준</h3><p>목록형(T01·T02·T03·T05): Excel·CSV 기준. 상세형(T07·T08): PDF·인쇄. 내보내기 권한은 독립적으로 관리. 내보내기 범위는 현재 필터/조건 기준.</p></div>
+<div class='card'><h3>모바일 공통 기준</h3><p>• 980px 이하: 테이블 → 카드 전환(T01·T02·T03)<br>• 고정 컬럼 + 가로 스크롤(T05)<br>• 하단 액션바 fixed(T11·T12·T26·T27)<br>• 승인/저장 등 핵심 액션 최우선 노출(T08·T11)<br>• 드래그 → 버튼 대체(T27)</p></div>
+<div class='card'><h3>로딩 / 스켈레톤 공통 기준</h3><p>데이터 로딩 중에는 스켈레톤 UI 표시. 목록 로딩: 행 스켈레톤. 상세/폼 로딩: 섹션 스켈레톤. 저장 중: 버튼 비활성화 + 로딩 스피너.</p></div>
+</div>
+</section>
+
+<!-- ───── Board Builder ───── -->
+<section class='sec' id='boardbuilder'>
+<div class='head'><span class='no'>14</span><h2>Board Builder Relationship</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>직접 연계 템플릿 (5종)</h3><p>Board Builder 필드/게시판 구조와 직접 연결:</p><ul>
+<li><b>T01</b> Basic Board List — 컬럼 구조 직접 반영</li>
+<li><b>T05</b> Wide Data Table — 다컬럼 필드 정의</li>
+<li><b>T11</b> Basic Create Form — 폼 필드 세트</li>
+<li><b>T26</b> Board Settings — 게시판 구조 설정</li>
+<li><b>T27</b> Custom Field Settings — 필드 정의 관리</li>
+</ul><a class='lk' href='../pages/boards-v2/board-builder.html'>→ Board Builder (pages/boards-v2/board-builder.html)</a></div>
+<div class='card'><h3>부분 연계 템플릿 (2종)</h3><p>Board Builder 구조 일부와 연결:</p><ul>
+<li><b>T02</b> Advanced Search List — 게시판별 검색 조건 필드</li>
+<li><b>T12</b> Multi-section Edit Form — 기본정보 섹션 일부 필드</li>
+</ul><p style='margin-top:8px'>T03 Grouped Work List도 그룹 카테고리 필드가 부분 연계되나, Top 10 상세화 기준에서는 독립 운영 가능.</p></div>
+<div class='card'><h3>역할 분담</h3><p>Board Builder는 <strong>필드/게시판 구조</strong>를 정의하고, Top 10 템플릿은 그 구조를 <strong>화면 UX 산출물</strong>로 표현한다. 게시판 구조 정의 → 템플릿 선택 → 화면설계서 작성 흐름으로 보완 관계.</p></div>
+<div class='card'><h3>주의 사항</h3><p>현재 Board Builder는 <strong>preview / local 기준</strong>이며 실제 저장·배포 기능이 아니다. 입력 결과는 localStorage 기준 Preview이고 Firestore/API/fetch 호출이 없는 상태를 유지한다. 이 문서는 Board Builder 제품 파일을 수정하지 않으며 참조 링크만 제공한다.</p></div>
+</div>
+</section>
+
+<!-- ───── Screen Spec ───── -->
+<section class='sec' id='screenspec'>
+<div class='head'><span class='no'>15</span><h2>Screen Specification Product Relationship</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>화면설계서 제품 페이지</h3><p><code>stam/pages/boards/screen-specification.html</code>은 실제 화면설계서 제품 페이지다. 이 Top 10 Detail Pack 문서는 해당 <strong>제품 페이지를 수정하지 않는다</strong>. 후속 템플릿 선택/에디터/미리보기 개선 시 이 문서의 기준을 참조한다.</p><a class='lk' href='../pages/boards/screen-specification.html'>→ 화면설계서 제품 (pages/boards/screen-specification.html)</a></div>
+<div class='card'><h3>이 문서의 역할</h3><p>후속 구현 단계에서 화면설계서 제품에 <strong>템플릿 선택 → 기본 초안 생성 → 편집 → 미리보기 → 저장</strong> 흐름을 추가할 때, Top 10 템플릿 각각의 기본 필드·액션·레이아웃 기준으로 사용한다.</p></div>
+</div>
+<div class='note' style='margin-top:12px'>템플릿 기준 HTML: <a href='templates/STAM-Screen-Specification-Template-Baseline.html' style='color:var(--good)'>templates/STAM-Screen-Specification-Template-Baseline.html</a> · 샘플 목록: <a href='templates/STAM-Screen-Specification-Sample-Screen-Spec-List.html' style='color:var(--good)'>templates/STAM-Screen-Specification-Sample-Screen-Spec-List.html</a></div>
+</section>
+
+<!-- ───── Roadmap ───── -->
+<section class='sec' id='roadmap'>
+<div class='head'><span class='no'>16</span><h2>Follow-up Roadmap</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>우선순위</th><th>문서</th><th>역할</th><th>상태</th></tr></thead>
+<tbody>
+<tr><td><span class='tag g'>P1</span></td><td><b><a href='STAM-Screen-Template-System-Master-Guide-v1.html' style='color:var(--good)'>STAM-Screen-Template-System-Master-Guide-v1.html</a></b></td><td>전체 시스템 상위 기준 문서</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag a'>P2</span></td><td><b><a href='STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html' style='color:var(--good)'>STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html</a></b></td><td>우선 제공 템플릿 30종 한국형 Baseline</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag a'>P3</span></td><td><b><a href='STAM-Screen-Template-Top-10-Detail-Pack-v1.html' style='color:var(--good)'>STAM-Screen-Template-Top-10-Detail-Pack-v1.html</a></b></td><td>Top 10 화면 상세 팩(레이아웃·필드·상태·액션)</td><td class='ok'>이번 문서</td></tr>
+<tr><td><span class='tag w'>P4</span></td><td>STAM-Screen-Template-Top-3-Drawer-Preview-v1.html</td><td>Top 3 Drawer/상세 연동 Preview</td><td class='wn'>후속 판단</td></tr>
+<tr><td><span class='tag w'>P5</span></td><td>STAM-Object-Builder-Preview.html · STAM-Common-Catalog-Preview.html</td><td>Object Builder / Common Catalog 통합 여부 판단</td><td class='wn'>후속 판단</td></tr>
+</tbody>
+</table>
+</div>
+<div class='note' style='margin-top:12px'>P4·P5 문서는 아직 생성되지 않았다. 이 로드맵에서는 파일명을 텍스트로만 표기하며 <code>href</code>를 부여하지 않는다. P1·P2·P3(이 문서)만 링크가 활성화되어 있다. 후속으로는 Top 3 Drawer Preview 또는 Board Builder 연결 설계 중 하나를 선택한다.</div>
+</section>
+
+<!-- ───── Link Policy ───── -->
+<section class='sec' id='linkpolicy'>
+<div class='head'><span class='no'>17</span><h2>Link Policy</h2></div>
+<div class='rules'>
+<div class='rule'><b class='ok'>실제 존재 파일만 링크</b><span>이 문서 내 모든 <code>&lt;a href&gt;</code>는 <code>stam/</code> 하위에 실제로 존재하는 파일만 참조한다.</span></div>
+<div class='rule'><b class='ok'>Missing 문서는 링크 안 함</b><span>P4·P5 후속 문서는 파일명 텍스트로만 표기하고 <code>href</code>를 부여하지 않는다.</span></div>
+<div class='rule'><b class='wn'>임의 경로 금지</b><span>예상 파일명이나 가상 route를 확정 경로처럼 쓰지 않는다. 후속 문서 생성 후 연결한다.</span></div>
+<div class='rule'><b class='wn'>nav-data 연동 금지</b><span>이 문서는 <code>stam/js/stam.nav-data.js</code>에 등록하지 않는다. docs 영역 독립 문서로 유지한다.</span></div>
+</div>
+<div class='note' style='margin-top:12px'><strong>이 문서에서 활성 링크가 부여된 파일:</strong><br>
+• <a href='STAM-Docs-Index.html' style='color:var(--good)'>STAM-Docs-Index.html</a><br>
+• <a href='STAM-Screen-Template-System-Master-Guide-v1.html' style='color:var(--good)'>STAM-Screen-Template-System-Master-Guide-v1.html</a><br>
+• <a href='STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html' style='color:var(--good)'>STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html</a><br>
+• <a href='STAM-Screen-Template-Top-10-Detail-Pack-v1.html' style='color:var(--good)'>STAM-Screen-Template-Top-10-Detail-Pack-v1.html</a> (자기 자신)<br>
+• <a href='STAM-Sitemap-IA-Overview-v1.html' style='color:var(--good)'>STAM-Sitemap-IA-Overview-v1.html</a><br>
+• <a href='templates/STAM-Screen-Specification-Template-Baseline.html' style='color:var(--good)'>templates/STAM-Screen-Specification-Template-Baseline.html</a><br>
+• <a href='templates/STAM-Screen-Specification-Sample-Screen-Spec-List.html' style='color:var(--good)'>templates/STAM-Screen-Specification-Sample-Screen-Spec-List.html</a><br>
+• <a href='../pages/boards/screen-specification.html' style='color:var(--good)'>../pages/boards/screen-specification.html</a><br>
+• <a href='../pages/boards-v2/board-builder.html' style='color:var(--good)'>../pages/boards-v2/board-builder.html</a>
+</div>
+</section>
+
+<!-- ───── QA ───── -->
+<section class='sec' id='qa'>
+<div class='head'><span class='no'>18</span><h2>QA Checklist</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>#</th><th>항목</th><th>기준</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>docs-only</td><td>변경 파일이 <code>stam/docs/**</code> 하위에만 존재</td><td class='ok'>확인</td></tr>
+<tr><td>2</td><td>제품 파일 무변경</td><td><code>pages/</code>, <code>js/</code>, <code>css/</code> 수정 없음</td><td class='ok'>확인</td></tr>
+<tr><td>3</td><td>nav-data 무변경</td><td><code>stam/js/stam.nav-data.js</code> 변경 없음</td><td class='ok'>확인</td></tr>
+<tr><td>4</td><td>깨진 링크 없음</td><td>모든 href가 실제 존재 파일</td><td class='ok'>확인</td></tr>
+<tr><td>5</td><td>HTML 태그 밸런스</td><td>div / section / a 열기=닫기</td><td class='ok'>확인</td></tr>
+<tr><td>6</td><td>가로 스크롤 처리</td><td>표 컨테이너 <code>overflow:auto</code>, 모바일 1열 전환</td><td class='ok'>확인</td></tr>
+<tr><td>7</td><td>외부 폰트 CDN 없음</td><td>S-Core Dream 자체 서빙만 사용</td><td class='ok'>확인</td></tr>
+<tr><td>8</td><td>iframe 없음</td><td>문서 내 <code>&lt;iframe&gt;</code> 미사용</td><td class='ok'>확인</td></tr>
+<tr><td>9</td><td>신규 JS 없음</td><td>기존 <code>stam.theme.js</code>만 참조, 신규 스크립트 없음</td><td class='ok'>확인</td></tr>
+<tr><td>10</td><td>Top 10 템플릿 수</td><td>상세화 템플릿 정확히 10개 (T01·T02·T03·T05·T07·T08·T11·T12·T26·T27)</td><td class='ok'>확인</td></tr>
+<tr><td>11</td><td>10개 상세 섹션</td><td>각 템플릿마다 독립 section 존재</td><td class='ok'>확인</td></tr>
+<tr><td>12</td><td>공통 구조</td><td>10개 섹션 모두 목적·레이아웃·필드·액션·권한·빈상태·오류·모바일·QA 포함</td><td class='ok'>확인</td></tr>
+<tr><td>13</td><td>Missing 문서 미링크</td><td>P4·P5 href 없음, 텍스트만</td><td class='ok'>확인</td></tr>
+<tr><td>14</td><td>범위 표현 기준</td><td>금지 표현 미사용, "1차 범위/우선 적용/후속 단계" 기준 준수</td><td class='ok'>확인</td></tr>
+<tr><td>15</td><td>Docs Index 카드</td><td>섹션 04에 Top 10 Detail Pack 카드 1개 추가</td><td class='ok'>확인</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<div class='footer'>STAM Screen Template Top 10 Detail Pack v1 · P3 Detail Pack · docs-only · 기준 main 46dde38 · 2026-06-20</div>
+</main>
+</div>
+<script src='../js/stam.theme.js'></script>
+</body>
+</html>
