@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang='ko' data-theme='dark'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1.0'>
+<title>STAM Screen Template Top 3 Drawer Preview v1</title>
+<link rel='icon' href='../assets/brand/stam/stam_favicon.ico' type='image/x-icon'>
+<link rel='stylesheet' href='../assets/fonts/s-core-dream/s-core-dream.css'>
+<link rel='stylesheet' href='../css/stam.tokens.css'>
+<link rel='stylesheet' href='../css/stam.shell.css'>
+<link rel='stylesheet' href='../css/stam.components.css'>
+<link rel='stylesheet' href='../css/stam.docs.css'>
+<style>
+:root{--bg:#07111f;--card:rgba(255,255,255,.055);--card2:rgba(255,255,255,.085);--line:rgba(148,163,184,.24);--text:#e5edf8;--muted:#93a4bb;--accent:#7dd3fc;--good:#86efac;--warn:#facc15;--bad:#fca5a5;--purple:#c4b5fd}
+[data-theme='light']{--bg:#f7f9fc;--card:#fff;--card2:#f0f5fb;--line:#d9e2ef;--text:#162033;--muted:#63738a;--accent:#0ea5e9;--good:#16a34a;--warn:#b45309;--bad:#dc2626;--purple:#7c3aed}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'S-Core Dream',system-ui,sans-serif;line-height:1.65}
+.top{position:sticky;top:0;z-index:20;display:flex;gap:12px;align-items:center;padding:12px 28px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px)}
+.top a{color:var(--text);text-decoration:none}
+.logo{font-weight:800;display:flex;align-items:center;gap:8px}
+.logo img{width:26px;height:26px}
+.sp{flex:1}
+.btn,.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 10px;font-size:11px;color:var(--muted);text-decoration:none}
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px;max-width:1580px;margin:0 auto;padding:28px}
+.toc{position:sticky;top:72px;align-self:start;border:1px solid var(--line);background:var(--card);border-radius:22px;padding:16px;max-height:calc(100vh - 100px);overflow-y:auto}
+.toc h2{margin:0 0 8px;font-size:13px}
+.toc a{display:block;padding:7px 10px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:11.5px}
+.toc a:hover{background:var(--card2);color:var(--text)}
+.hero,.sec{border:1px solid var(--line);background:var(--card);border-radius:26px;padding:24px;margin-bottom:18px}
+.hero{background:linear-gradient(135deg,var(--card2),var(--card))}
+h1{margin:0;font-size:33px;line-height:1.18;letter-spacing:-.04em}
+h2{margin:0;font-size:21px;letter-spacing:-.025em}
+h3{margin:0 0 6px;font-size:14px}
+.lead{max-width:980px;margin:14px 0 0;color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+.metric{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:15px}
+.metric b{display:block;font-size:28px}
+.metric span{display:block;margin-top:5px;font-size:12px;color:var(--muted)}
+.head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.no{display:inline-flex;width:34px;height:34px;align-items:center;justify-content:center;border-radius:12px;background:var(--card2);font-weight:900;color:var(--accent);font-size:13px;flex-shrink:0}
+.grid{display:grid;gap:12px}
+.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card,.note,.rule{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:15px}
+.card p,.note,.rule span{margin:0;color:var(--muted);font-size:12.5px}
+.card ul{margin:6px 0 0;padding-left:16px;color:var(--muted);font-size:12.5px}
+.card ul li{margin-bottom:3px}
+.card .lk{display:inline-block;margin-top:9px;font-size:11.5px;color:var(--good);text-decoration:none}
+.card .lk:hover{text-decoration:underline}
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rule b{display:block;font-size:13px;margin-bottom:4px}
+.table{overflow:auto;border:1px solid var(--line);border-radius:16px;-webkit-overflow-scrolling:touch}
+.table table{width:100%;border-collapse:collapse;min-width:620px}
+.table.wide table{min-width:1040px}
+.table.xwide table{min-width:1480px}
+.table th,.table td{border-bottom:1px solid var(--line);padding:9px 11px;text-align:left;font-size:11.5px;vertical-align:top}
+.table th{background:var(--card2);color:var(--muted);white-space:nowrap;position:sticky;top:0}
+.table td b{font-weight:800}
+.table tr:last-child td{border-bottom:none}
+.tid{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--accent);font-weight:800;white-space:nowrap}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;color:var(--purple)}
+.ok{color:var(--good);font-weight:800}
+.wn{color:var(--warn);font-weight:800}
+.bad{color:var(--bad);font-weight:800}
+.purple{color:var(--purple);font-weight:800}
+.muted{color:var(--muted)}
+.tag{display:inline-block;border:1px solid var(--line);background:var(--card2);border-radius:999px;padding:2px 9px;font-size:10.5px;font-weight:800;white-space:nowrap}
+.tag.g{color:var(--good)}.tag.w{color:var(--warn)}.tag.a{color:var(--accent)}.tag.p{color:var(--purple)}.tag.m{color:var(--muted)}.tag.b{color:var(--bad)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--card2);border:1px solid var(--line);border-radius:7px;padding:1px 5px;font-size:.92em}
+.note.warnbox{border-color:color-mix(in srgb,var(--warn) 45%,var(--line))}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:12px}
+.kv dt{color:var(--accent);font-weight:800;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}
+.kv dd{margin:0;color:var(--muted)}
+.wire{border:1px dashed var(--line);background:var(--card2);border-radius:16px;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--muted);overflow:auto;-webkit-overflow-scrolling:touch}
+.wire .wt{color:var(--accent);font-weight:800}
+.wire .wr{color:var(--purple);font-weight:800}
+.wire pre{margin:0;white-space:pre;font:inherit;color:inherit}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.footer{padding:20px;color:var(--muted);font-size:12px;text-align:center}
+@media(max-width:980px){.shell{grid-template-columns:1fr;padding:18px}.toc{position:relative;top:auto;max-height:none}.metrics,.c2,.c3,.c4,.rules{grid-template-columns:1fr}.top{padding:10px 16px}h1{font-size:25px}.kv{grid-template-columns:1fr}.kv dt{margin-top:6px}}
+</style>
+</head>
+<body>
+<nav class='top'>
+<a class='logo' href='STAM-Docs-Index.html'><img src='../assets/brand/stam/stam_icon_primary_transparent.png' alt='STAM'><span>STAM</span></a>
+<span class='pill'>Screen Template · Top 3 Drawer Preview v1</span>
+<span class='sp'></span>
+<a class='btn' href='STAM-Screen-Template-Top-10-Detail-Pack-v1.html'>Top 10 Detail</a>
+<a class='btn' href='STAM-Screen-Template-Selector-UX-Flow-Prototype-v1.html'>Selector UX Flow</a>
+<a class='btn' href='STAM-Docs-Index.html'>Docs Index</a>
+</nav>
+<div class='shell'>
+<aside class='toc'>
+<h2>목차</h2>
+<a href='#summary'>00 Executive Summary</a>
+<a href='#principle'>01 Drawer Pattern Principle</a>
+<a href='#anatomy'>02 Drawer Anatomy</a>
+<a href='#t07'>03 Preview 01 — T07 Detail Drawer</a>
+<a href='#t11'>04 Preview 02 — T11 Create/Edit Drawer</a>
+<a href='#t27'>05 Preview 03 — T27 Field Settings Drawer</a>
+<a href='#compare'>06 Top 3 Comparison Table</a>
+<a href='#state'>07 Drawer State Matrix</a>
+<a href='#permission'>08 Permission Matrix</a>
+<a href='#validation'>09 Validation / Error Pattern</a>
+<a href='#mobile'>10 Mobile / Narrow Width Rules</a>
+<a href='#bbrel'>11 Board Builder Relationship</a>
+<a href='#ssrel'>12 Screen Specification Relationship</a>
+<a href='#roadmap'>13 Follow-up Roadmap</a>
+<a href='#linkpolicy'>14 Link Policy</a>
+<a href='#qa'>15 QA Checklist</a>
+</aside>
+<main>
+
+<section class='hero' id='summary'>
+<div class='chips'><span class='pill'>Top 3 Drawer Preview · P6</span><span class='pill'>Docs Only</span><span class='pill'>No Product File Change</span><span class='pill'>Preview 기준 문서</span><span class='pill'>2026-06-20</span></div>
+<h1>Screen Template<br>Top 3 Drawer Preview v1</h1>
+<p class='lead'>STAM의 핵심 UX 패턴인 <strong>"목록 + 우측 드로워"</strong>를 화면설계서 템플릿 관점에서 구체화한 Preview 문서다. Top 10 Detail Pack(P3) 중 드로워 UX에 직접 연결되는 <strong>T07 Basic Detail View · T11 Basic Create Form · T27 Custom Field Settings</strong> 3개를 골라 상세/등록·수정/설정 드로워의 헤더 · 본문 · 필드 · 액션 · 권한 · 상태 · 검증 · 모바일 기준을 정리한다. 이 문서는 제품 기능을 구현하거나 제품 파일을 수정하지 않는 <strong>docs-only preview</strong>이며, 후속 제품 보정 시 드로워 기준으로 사용한다. P1~P5(<a href='STAM-Screen-Template-System-Master-Guide-v1.html' style='color:var(--good)'>Master Guide</a> · <a href='STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html' style='color:var(--good)'>Priority 30</a> · <a href='STAM-Screen-Template-Top-10-Detail-Pack-v1.html' style='color:var(--good)'>Top 10 Detail Pack</a> · <a href='STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html' style='color:var(--good)'>Integration Blueprint</a> · <a href='STAM-Screen-Template-Selector-UX-Flow-Prototype-v1.html' style='color:var(--good)'>Selector UX Flow</a>)를 잇는 P6 단계다. 기준 커밋은 <code>main 491ff63</code> (PR #174 merge)이다.</p>
+<div class='metrics'>
+<div class='metric'><b>3</b><span>Drawer Preview (T07·T11·T27)</span></div>
+<div class='metric'><b>3</b><span>pseudo-wireframe 블록</span></div>
+<div class='metric'><b>12</b><span>Drawer State 정의</span></div>
+<div class='metric'><b>0</b><span>제품 파일 변경</span></div>
+</div>
+</section>
+
+<section class='sec' id='summary-detail'>
+<div class='head'><span class='no'>00</span><h2>이 문서의 의미</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>문서 목적</h3><p>P3 Top 10 Detail Pack 중 드로워 UX에 직접 연결되는 3개를 실제 화면설계서 Preview로 구체화한다. 상세·등록/수정·설정 드로워의 구조 차이를 명확히 한다.</p></div>
+<div class='card'><h3>Top 3 Drawer Preview의 의미</h3><p>STAM은 목록 이동 없이 우측 드로워로 상세/등록/수정/설정을 처리하는 패턴이 핵심이다. 가장 자주 쓰이는 3개 드로워를 우선 적용 기준으로 잡는다.</p></div>
+<div class='card'><h3>P1~P5와의 관계</h3><p>P3가 정의한 T07·T11·T27을 드로워 표현으로 확장하고, P4(필드 매핑)·P5(선택→미리보기→초안)와 맞물린다. 새 기준을 만들지 않고 인용·구체화한다.</p></div>
+<div class='card warnbox' style='background:var(--card2)'><h3 class='wn'>이 문서의 성격</h3><p>실제 Drawer 기능 · Board Builder 기능 · 화면설계서 제품 기능을 <strong>구현하지 않는다.</strong> wireframe은 흐름 이해용 pseudo-screen이며 제품 코드가 아니다. merge/deploy는 사용자 승인 전 대기한다.</p></div>
+</div>
+<div class='note' style='margin-top:12px'><strong>용어 기준:</strong> 단계 범위는 <strong>"1차 범위 / 우선 적용 / 후속 단계"</strong> 표현을 사용한다. 기존 드로워 계약 문서(<a href='STAM-Drawer-Guide.html' style='color:var(--good)'>Drawer Guide</a> · <a href='STAM-Board-Drawer-Shell-Contract-v1.html' style='color:var(--good)'>Drawer Shell Contract</a> · <a href='STAM-Board-Drawer-Detail-Form-Audit-v1.html' style='color:var(--good)'>Detail/Form Audit</a> · <a href='STAM-Board-Form-Field-Contract-v1.html' style='color:var(--good)'>Form Field Contract</a>)와 정합하도록 작성한다.</div>
+</section>
+
+<section class='sec' id='principle'>
+<div class='head'><span class='no'>01</span><h2>Drawer Pattern Principle</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>목록 유지 + 우측 드로워</h3><p>목록 화면을 유지한 채 우측 드로워로 상세/등록/수정/설정을 처리한다. 페이지 전환 없이 작업해 <strong>현재 위치(스크롤·필터·페이지)를 잃지 않게</strong> 한다.</p></div>
+<div class='card'><h3>영역 구분</h3><p>드로워는 <strong>헤더 / 본문 / 하단 액션 / 보조 정보</strong> 영역으로 구분한다. 헤더·하단 액션은 고정, 본문은 스크롤.</p></div>
+<div class='card'><h3>읽기 vs 편집 모드</h3><p>상세는 <strong>읽기 모드</strong>, 등록/수정은 <strong>편집 모드</strong>. 같은 드로워 틀을 쓰되 본문 컨트롤(텍스트 표시 ↔ 입력 컨트롤)과 하단 액션이 달라진다.</p></div>
+<div class='card'><h3>상세 → 수정 전환</h3><p>읽기 모드에서 "수정"을 누르면 같은 드로워가 편집 모드로 전환된다. 권한이 없으면 수정 액션을 노출하지 않는다.</p></div>
+<div class='card'><h3>등록 완료 후 목록 반영</h3><p>저장 성공 시 드로워를 닫고 목록에 신규/변경 행을 반영(하이라이트). 실패 시 드로워 유지 + 오류 표시.</p></div>
+<div class='card'><h3>닫기 / 취소 / 저장 기준</h3><p>ESC·backdrop·닫기 버튼으로 닫기. 변경사항(dirty)이 있으면 <strong>변경사항 확인</strong> 다이얼로그로 유실 방지. 저장은 명시적 버튼.</p></div>
+</div>
+<div class='note' style='margin-top:12px'>모바일/좁은 화면에서는 드로워가 <strong>전체 화면 전환</strong> 가능(섹션 10). 공통 셸 규약은 <a href='STAM-Board-Drawer-Shell-Contract-v1.html' style='color:var(--good)'>Drawer Shell Contract</a>를 따른다.</div>
+</section>
+
+<section class='sec' id='anatomy'>
+<div class='head'><span class='no'>02</span><h2>Drawer Anatomy — 공통 구성 요소</h2></div>
+<div class='table wide'>
+<table>
+<thead><tr><th>영역</th><th>요소</th><th>기준</th></tr></thead>
+<tbody>
+<tr><td rowspan='2'><b>Overlay</b></td><td>Backdrop / dim</td><td>본문 위 dim 배경. backdrop 클릭 = 닫기(dirty면 확인)</td></tr>
+<tr><td>Drawer Width</td><td>PC 기준 480~640px 범위. 설정 드로워는 더 넓게(미리보기 동반). 모바일 전체화면</td></tr>
+<tr><td rowspan='4'><b>Header</b></td><td>Title / Subtitle</td><td>대상 제목 + 보조(코드·유형). 한 줄 말줄임</td></tr>
+<tr><td>Status Badge</td><td>상태 chip(초안/검토중/승인/반려/보류 등)</td></tr>
+<tr><td>Meta Info</td><td>작성자·작성일·최종수정 등 핵심 메타</td></tr>
+<tr><td>Close</td><td>닫기(X) · ESC 동일 동작</td></tr>
+<tr><td rowspan='5'><b>Body</b></td><td>Tabs / Accordion</td><td>섹션이 많으면 탭(PC) 또는 아코디언(모바일)</td></tr>
+<tr><td>Field Group</td><td>필드 라벨+값(읽기) 또는 라벨+컨트롤(편집)</td></tr>
+<tr><td>Attachment Area</td><td>첨부 목록/업로드(파일명·형식·크기). 현재 12종 외 별도 컴포넌트(후속 단계)</td></tr>
+<tr><td>History Area</td><td>변경이력(변경자·변경일·항목)</td></tr>
+<tr><td>Comment Area</td><td>댓글/검토 의견(멘션)</td></tr>
+<tr><td rowspan='3'><b>Footer</b></td><td>Primary / Secondary / Danger</td><td>저장(Primary) · 취소/닫기(Secondary) · 삭제(Danger). 고정 바</td></tr>
+<tr><td>Permission Notice</td><td>권한 부족/읽기전용 안내(편집 불가 사유)</td></tr>
+<tr><td>Validation Message</td><td>저장 차단/경고 요약(섹션 09)</td></tr>
+<tr><td rowspan='2'><b>State</b></td><td>Empty / Error</td><td>데이터 없음 · 로드 실패 표현(섹션 07)</td></tr>
+<tr><td>Mobile Fullscreen</td><td>좁은 화면 전체 화면 전환(섹션 10)</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class='sec' id='t07'>
+<div class='head'><span class='no'>03</span><h2>Preview 01 — T07 Basic Detail View Drawer</h2><span class='tag a'>상세 드로워</span></div>
+<p class='lead' style='margin-bottom:14px'><b>적용 화면 예시:</b> 요구사항 상세 · 화면설계서 상세 · 정책 상세 · 일반 산출물 상세. <b>드로워 목적:</b> 목록을 유지한 채 한 항목의 상세 정보를 읽기 모드로 빠르게 확인하고, 권한이 있으면 수정/검토 요청으로 전환한다.</p>
+<div class='wire'><pre><span class='wt'>┌─ Drawer · T07 Detail ───────────────── [X] ┐</span>   <span class='wr'>← Header</span>
+│ 요구사항 #REQ-014  로그인 2단계 인증        │
+│ [검토중]  작성자 김·2026-06-18 · 최종 06-19 │   <span class='wr'>(Status · Meta)</span>
+│ ───────────────────────────────────────── │
+│ [개요] [상세] [연결] [이력] [댓글]          │   <span class='wr'>← Tabs</span>
+│ ───────────────────────────────────────── │
+│ 우선순위 : 높음                              │   <span class='wr'>← Body / Field</span>
+│ 담당자   : 박검토                            │
+│ 상태     : 검토중                            │
+│ 설명     : 로그인 시 2단계 인증을 …          │
+│ 첨부     : 와이어프레임.png (240KB)          │   <span class='wr'>(Attachment)</span>
+│ 연결산출물: 화면설계서 #SS-007              │   <span class='wr'>(Meta / Relation)</span>
+│ ───────────────────────────────────────── │
+│ [닫기] [내보내기]      [검토 요청] [수정 ✎] │   <span class='wr'>← Footer Actions</span>
+<span class='wt'>└─────────────────────────────────────────────┘</span></pre></div>
+<div class='grid c3' style='margin-top:14px'>
+<div class='card'><h3>헤더 / 메타</h3><ul><li>Title: 산출물 코드 + 제목</li><li>Status Badge: 상태 chip</li><li>Meta: 작성자·작성일·최종수정</li></ul></div>
+<div class='card'><h3>본문 섹션</h3><ul><li>개요/상세: 필드 라벨+값(읽기)</li><li>연결: relation 산출물 링크</li><li>섹션 많으면 탭 전환</li></ul></div>
+<div class='card'><h3>첨부 / 이력 / 댓글</h3><ul><li>첨부: 파일명·형식·크기(다운로드 권한)</li><li>이력: 변경자·변경일·항목</li><li>댓글/검토: 의견·멘션</li></ul></div>
+<div class='card'><h3>기본 액션</h3><ul><li>목록 유지(닫아도 위치 유지)</li><li>수정 · 검토 요청 · 내보내기 · 닫기</li></ul></div>
+<div class='card'><h3>권한 포인트</h3><ul><li>보기 / 수정 / 삭제</li><li>검토 요청 / 내보내기</li><li>권한 없는 액션 미노출</li></ul></div>
+<div class='card'><h3>상태 배지</h3><div class='badges'><span class='tag m'>초안</span><span class='tag a'>검토중</span><span class='tag g'>승인</span><span class='tag b'>반려</span><span class='tag w'>보류</span></div></div>
+<div class='card'><h3>빈 상태</h3><p>본문/연결/이력 없음 시 "내용이 없습니다" 안내. 탭별 빈 상태 분리.</p></div>
+<div class='card'><h3>오류 상태</h3><p>로드 실패(404/403/네트워크) 시 본문 영역 오류 + 재시도. 권한 부족은 권한 안내.</p></div>
+<div class='card'><h3>모바일 기준</h3><p>전체 화면 전환. 탭은 가로 스크롤/세그먼트. 헤더·하단 액션 고정.</p></div>
+</div>
+<div class='note' style='margin-top:12px'><strong>T07 QA 체크:</strong> 읽기 모드 기본 · 수정 권한 있을 때만 수정 액션 노출 · 탭별 빈 상태 · 닫기 시 목록 위치 유지 · 모바일 전체화면. 상세 필드 기준은 <a href='STAM-Screen-Template-Top-10-Detail-Pack-v1.html' style='color:var(--good)'>Top 10 Detail Pack</a> T07을 따른다.</div>
+</section>
+
+<section class='sec' id='t11'>
+<div class='head'><span class='no'>04</span><h2>Preview 02 — T11 Basic Create Form Drawer</h2><span class='tag a'>등록 / 수정 드로워</span></div>
+<p class='lead' style='margin-bottom:14px'><b>적용 화면 예시:</b> 요구사항 등록 · 정책 등록 · 일반 게시글 등록 · 산출물 등록. <b>드로워 목적:</b> 목록을 유지한 채 새 항목을 등록하거나 기존 항목을 수정한다. 필수/선택 입력을 구분하고 저장 전 검증한다.</p>
+<div class='wire'><pre><span class='wt'>┌─ Drawer · T11 Create/Edit ──────────── [X] ┐</span>   <span class='wr'>← Header</span>
+│ 새 요구사항 등록                            │
+│ ───────────────────────────────────────── │
+│ <span class='wr'>* 필수 입력</span>                                  │   <span class='wr'>← Body / Field</span>
+│ 제목*    [___________________________]      │
+│ 유형*    [▼ 선택 ]                          │
+│ 우선순위* [▼ 높음 ]                          │
+│ 담당자   [▼ 사용자 검색 ]                    │   <span class='wr'>(선택 입력)</span>
+│ 설명     [__________________________]       │
+│          [__________________________]       │
+│ 첨부     [＋ 파일 추가]                      │   <span class='wr'>(Attachment)</span>
+│ ───────────────────────────────────────── │
+│ ⚠ 제목은 필수입니다.                        │   <span class='wr'>(Validation)</span>
+│ [취소] [초기화] [미리보기]      [저장]      │   <span class='wr'>← Footer Actions</span>
+<span class='wt'>└─────────────────────────────────────────────┘</span></pre></div>
+<div class='grid c3' style='margin-top:14px'>
+<div class='card'><h3>헤더</h3><ul><li>"새 OOO 등록" / "OOO 수정"</li><li>수정 시 대상 코드 표시</li></ul></div>
+<div class='card'><h3>필수 입력 영역</h3><ul><li>required 필드 상단 그룹 + <code>*</code></li><li>제목·유형·상태 등 핵심값</li></ul></div>
+<div class='card'><h3>선택 입력 영역</h3><ul><li>담당자·설명·우선순위 등</li><li>접힘 가능(고급)</li></ul></div>
+<div class='card'><h3>첨부 / 임시저장</h3><ul><li>첨부: 파일 추가(형식·크기)</li><li>임시저장/미리보기 여부 표시(우선 적용 범위 명시)</li></ul></div>
+<div class='card'><h3>기본 액션</h3><ul><li>저장 · 취소 · 초기화 · 미리보기</li><li>저장 시 검증 통과 필요</li></ul></div>
+<div class='card'><h3>권한 포인트</h3><ul><li>등록 가능 여부 · 수정 가능 여부</li><li>필드별 수정 권한(읽기전용 필드)</li></ul></div>
+<div class='card'><h3>유효성 검증</h3><ul><li>필수값 · 형식 · 길이 · 중복</li><li>권한(편집 불가 필드)</li></ul></div>
+<div class='card'><h3>저장 전/후</h3><ul><li>저장 전: 검증 요약 + 확인</li><li>저장 후: 드로워 닫고 목록 반영(하이라이트)</li></ul></div>
+<div class='card'><h3>빈 / 오류 / 모바일</h3><ul><li>빈: 초기 입력 안내</li><li>오류: 필드 하단 + 상단 요약</li><li>모바일: 전체화면, 하단 저장 고정</li></ul></div>
+</div>
+<div class='note' style='margin-top:12px'><strong>T11 QA 체크:</strong> 필수 표시(<code>*</code>) · 저장 전 검증 차단 · dirty 상태 닫기 확인 · 저장 후 목록 반영 · 필드별 수정 권한 · 모바일 하단 저장 고정. 등록 폼 필드는 Board Builder 정의(<a href='STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html' style='color:var(--good)'>Integration Blueprint</a>)를 입력으로 사용한다.</div>
+</section>
+
+<section class='sec' id='t27'>
+<div class='head'><span class='no'>05</span><h2>Preview 03 — T27 Custom Field Settings Drawer</h2><span class='tag p'>설정 드로워</span></div>
+<p class='lead' style='margin-bottom:14px'><b>적용 화면 예시:</b> Board Builder / 게시판 설정 / 필드 타입 / 옵션 / 필수 여부 / 정렬순서. <b>드로워 목적:</b> 게시판의 커스텀 필드 하나를 추가/수정한다. 필드 타입·표시 토글·옵션·정렬을 설정하고 우측 미리보기로 확인한다. <b>Board Builder와 직접 연결</b>된다.</p>
+<div class='wire'><pre><span class='wt'>┌─ Drawer · T27 Field Settings ───────── [X] ┐</span>   <span class='wr'>← Header</span>
+│ 필드 설정 · 우선순위                        │
+│ ───────────────────────────────────────── │
+│ 필드 타입* [▼ 단일 선택(select) ]           │   <span class='wr'>← Body / Field</span>
+│ 필드명*    [ 우선순위 ]                      │
+│ 설명       [ 업무 우선순위 ]                 │
+│ placeholder[ 선택하세요 ]                    │
+│ 표시: [✓목록][✓상세][✓등록/수정][✓검색]    │   <span class='wr'>(표시 토글)</span>
+│ 필수[✓]  내보내기[✓]  정렬순서[ 3 ]         │
+│ 옵션값: 높음 / 보통 / 낮음    [＋옵션 추가]  │
+│ ───────────────────────────────────────── │
+│ <span class='wr'>미리보기:</span>  [높음 ▼]  (chip tone)            │   <span class='wr'>← Preview Area</span>
+│ ───────────────────────────────────────── │
+│ [복제] [삭제]      [취소] [필드 추가] [저장] │   <span class='wr'>← Footer Actions</span>
+<span class='wt'>└─────────────────────────────────────────────┘</span></pre></div>
+<div class='grid c3' style='margin-top:14px'>
+<div class='card'><h3>Board Builder 관계</h3><p>이 드로워는 Board Builder 필드 정의를 직접 편집한다. 12종 필드 타입과 18속성(표시·필수·옵션·정렬 등)을 다룬다. preview/local 기준(실제 저장/배포 아님).</p></div>
+<div class='card'><h3>필드 타입 선택</h3><div class='badges'><span class='tag m'>text</span><span class='tag m'>textarea</span><span class='tag a'>select</span><span class='tag a'>multiSelect</span><span class='tag m'>date</span><span class='tag m'>user</span><span class='tag m'>relation</span><span class='tag g'>status</span><span class='tag w'>priority</span><span class='tag m'>boolean</span><span class='tag m'>number</span><span class='tag m'>url</span></div><p style='margin-top:6px'>타입 선택 시 옵션/검증/표시 기본값 자동 조정.</p></div>
+<div class='card'><h3>식별 / 문구</h3><ul><li>필드명* · 설명 · placeholder</li><li>필드명 중복 불가</li></ul></div>
+<div class='card'><h3>표시 토글</h3><ul><li>목록 표시(visibleInTable)</li><li>상세 표시 / 등록·수정 표시(visibleInDrawer)</li><li>검색 가능(visibleInFilter)</li><li>내보내기 포함(exportable)</li></ul></div>
+<div class='card'><h3>옵션 / 정렬 / 권한</h3><ul><li>옵션값(select/status 등)</li><li>정렬순서(number)</li><li>권한 힌트(permission)</li></ul></div>
+<div class='card'><h3>미리보기 영역</h3><p>설정한 필드가 목록 컬럼/입력 컨트롤로 어떻게 보이는지 즉시 미리보기(chip tone 포함).</p></div>
+<div class='card'><h3>기본 액션</h3><ul><li>필드 추가 · 저장 · 삭제 · 복제 · 취소</li><li>복제는 옵션/표시 토글 복사</li></ul></div>
+<div class='card'><h3>오류 상태</h3><ul><li>중복 필드명</li><li>옵션 필요한 타입에 옵션 없음</li><li>필수 설정 누락(타입/필드명)</li></ul></div>
+<div class='card'><h3>모바일 기준</h3><p>전체 화면 전환. 표시 토글은 세로 스택. 옵션 목록·미리보기는 컨테이너 overflow 처리.</p></div>
+</div>
+<div class='note' style='margin-top:12px'><strong>T27 QA 체크:</strong> 타입 선택 시 기본값 조정 · 필드명 중복 차단 · 옵션 필요 타입 옵션 검증 · 표시 토글 4종 · 미리보기 동반 · 모바일 토글 스택. 필드 타입/속성 표준은 실제 <code>stam/js/stam.board-field-schema.js</code>(12종·18속성, 읽기 전용)와 정합한다.</div>
+</section>
+
+<section class='sec' id='compare'>
+<div class='head'><span class='no'>06</span><h2>Top 3 Comparison Table</h2></div>
+<div class='table xwide'>
+<table>
+<thead><tr>
+<th>항목</th><th>T07 Basic Detail View</th><th>T11 Basic Create Form</th><th>T27 Custom Field Settings</th>
+</tr></thead>
+<tbody>
+<tr><td>Template ID</td><td class='tid'>T07</td><td class='tid'>T11</td><td class='tid'>T27</td></tr>
+<tr><td>Drawer Type</td><td>상세(읽기) 드로워</td><td>등록/수정(편집) 드로워</td><td>설정(편집) 드로워</td></tr>
+<tr><td>Primary Purpose</td><td>한 항목 상세 확인</td><td>항목 등록·수정</td><td>커스텀 필드 정의</td></tr>
+<tr><td>Main Data Source</td><td>저장된 레코드</td><td>입력값 + Board Builder 필드</td><td>Board Builder 필드 정의</td></tr>
+<tr><td>Main Actions</td><td>수정·검토요청·내보내기·닫기</td><td>저장·취소·초기화·미리보기</td><td>필드추가·저장·삭제·복제·취소</td></tr>
+<tr><td>Permission Complexity</td><td><span class='tag a'>보통</span> 보기/수정/검토</td><td><span class='tag a'>보통</span> 등록/필드별 수정</td><td><span class='tag w'>높음</span> 관리자 설정</td></tr>
+<tr><td>Validation Complexity</td><td><span class='tag m'>낮음</span> 읽기 위주</td><td><span class='tag w'>높음</span> 필수/형식/중복</td><td><span class='tag w'>높음</span> 타입/옵션/중복</td></tr>
+<tr><td>Board Builder Link</td><td><span class='tag a'>표현</span> 필드→상세</td><td><span class='tag a'>표현</span> 필드→폼</td><td><span class='tag p'>직접</span> 필드 정의 편집</td></tr>
+<tr><td>Mobile Complexity</td><td><span class='tag m'>낮음</span> 읽기 스택</td><td><span class='tag a'>보통</span> 입력 스택</td><td><span class='tag w'>주의</span> 토글+미리보기</td></tr>
+<tr><td>Follow-up Use</td><td>상세 드로워 표준</td><td>등록/수정 드로워 표준</td><td>필드 설정 드로워 표준</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class='sec' id='state'>
+<div class='head'><span class='no'>07</span><h2>Drawer State Matrix</h2></div>
+<div class='table xwide'>
+<table>
+<thead><tr><th>상태</th><th>의미</th><th>T07 상세</th><th>T11 등록/수정</th><th>T27 설정</th></tr></thead>
+<tbody>
+<tr><td><b>Closed</b></td><td>드로워 닫힘</td><td>목록만 표시</td><td>목록만 표시</td><td>설정 목록만</td></tr>
+<tr><td><b>Opening</b></td><td>열리는 전환</td><td colspan='3' class='muted'>우측 슬라이드 인 + backdrop dim (과한 애니메이션 금지)</td></tr>
+<tr><td><b>Loading</b></td><td>데이터 로드 중</td><td>본문 스켈레톤</td><td>폼 스켈레톤</td><td>필드/옵션 로드</td></tr>
+<tr><td><b>Read-only</b></td><td>읽기 모드</td><td>기본 모드</td><td>권한 없으면 읽기</td><td>조회 전용 표시</td></tr>
+<tr><td><b>Edit</b></td><td>편집 모드</td><td>수정 전환 시</td><td>기본 모드</td><td>기본 모드</td></tr>
+<tr><td><b>Dirty</b></td><td>변경사항 있음</td><td>수정 중</td><td>입력 변경</td><td>설정 변경</td></tr>
+<tr><td><b>Saving</b></td><td>저장 중</td><td>—</td><td>저장 버튼 로딩</td><td>저장 버튼 로딩</td></tr>
+<tr><td><b>Saved</b></td><td>저장 완료</td><td>—</td><td>닫고 목록 반영</td><td>닫고 필드 반영</td></tr>
+<tr><td><b>Error</b></td><td>오류</td><td>로드 오류</td><td>검증/저장 오류</td><td>검증/저장 오류</td></tr>
+<tr><td><b>Permission Denied</b></td><td>권한 부족</td><td>액션 미노출</td><td>등록 차단 안내</td><td>관리자 전용 차단</td></tr>
+<tr><td><b>Confirm Close</b></td><td>닫기 확인</td><td>dirty면 확인</td><td>dirty면 확인</td><td>dirty면 확인</td></tr>
+<tr><td><b>Mobile Fullscreen</b></td><td>전체 화면</td><td colspan='3' class='muted'>좁은 화면에서 전체 화면 전환, 헤더·하단 액션 고정</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class='sec' id='permission'>
+<div class='head'><span class='no'>08</span><h2>Permission Matrix — 역할 × 상태</h2></div>
+<p class='lead' style='margin-bottom:14px'>역할/상태별 드로워 액션 가능 여부 기준이다. 실제 권한 정책 화면과 연결해 확정하며 여기서는 UX 기준만 제시한다.</p>
+<div class='table xwide'>
+<table>
+<thead><tr><th>역할</th><th>보기</th><th>등록</th><th>수정</th><th>삭제</th><th>검토 요청</th><th>승인/반려</th><th>필드 설정(T27)</th><th>내보내기</th></tr></thead>
+<tbody>
+<tr><td><b>작성자</b></td><td class='ok'>O</td><td class='ok'>O</td><td class='wn'>본인·초안</td><td class='wn'>본인·초안</td><td class='ok'>O</td><td class='bad'>X</td><td class='bad'>X</td><td class='wn'>권한 시</td></tr>
+<tr><td><b>담당자</b></td><td class='ok'>O</td><td class='ok'>O</td><td class='ok'>O</td><td class='wn'>상태 제한</td><td class='ok'>O</td><td class='bad'>X</td><td class='bad'>X</td><td class='wn'>권한 시</td></tr>
+<tr><td><b>검토자</b></td><td class='ok'>O</td><td class='bad'>X</td><td class='wn'>검토 의견</td><td class='bad'>X</td><td class='ok'>O</td><td class='wn'>검토 단계</td><td class='bad'>X</td><td class='wn'>권한 시</td></tr>
+<tr><td><b>승인자</b></td><td class='ok'>O</td><td class='bad'>X</td><td class='bad'>X</td><td class='bad'>X</td><td class='bad'>X</td><td class='ok'>O</td><td class='bad'>X</td><td class='ok'>O</td></tr>
+<tr><td><b>관리자</b></td><td class='ok'>O</td><td class='ok'>O</td><td class='ok'>O</td><td class='ok'>O</td><td class='ok'>O</td><td class='ok'>O</td><td class='ok'>O</td><td class='ok'>O</td></tr>
+<tr><td><b>조회 전용</b></td><td class='ok'>O</td><td class='bad'>X</td><td class='bad'>X</td><td class='bad'>X</td><td class='bad'>X</td><td class='bad'>X</td><td class='bad'>X</td><td class='wn'>권한 시</td></tr>
+</tbody>
+</table>
+</div>
+<div class='note' style='margin-top:12px'><strong>상태별 잠금:</strong> <span class='tag m'>초안</span> 작성자·담당자 수정 가능 · <span class='tag a'>검토중</span> 검토자 의견, 작성자 보정 제한 · <span class='tag g'>승인</span> 수정 잠금(관리자 예외) · <span class='tag b'>반려</span> 작성자 재수정 가능 · <span class='tag w'>보관</span> 읽기 전용. 권한 없는 액션은 드로워에서 미노출한다. 상세 기준은 <a href='STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html' style='color:var(--good)'>Integration Blueprint</a> Permission 섹션과 <a href='STAM-Sitemap-IA-Overview-v1.html' style='color:var(--good)'>IA Overview</a>를 참조한다.</div>
+</section>
+
+<section class='sec' id='validation'>
+<div class='head'><span class='no'>09</span><h2>Validation / Error Pattern</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>필드 하단 메시지</h3><p>해당 필드 바로 아래 인라인 메시지(빨강). 포커스 시 우선 표시.</p></div>
+<div class='card'><h3>상단 오류 요약</h3><p>저장 시도 시 드로워 상단/하단 액션 위에 오류 요약(개수+첫 항목 이동).</p></div>
+<div class='card'><h3>저장 차단</h3><p>필수값·형식·중복 위반 시 저장 차단. 위반 필드로 스크롤.</p></div>
+<div class='card'><h3>저장 가능 + 경고</h3><p>권장 위반(긴 길이 등)은 경고만 표시, 저장은 허용(확인 1회).</p></div>
+<div class='card'><h3>권한 오류</h3><p>편집 불가 필드/액션은 읽기전용 + 사유 안내. 저장 시 권한 오류 메시지.</p></div>
+<div class='card'><h3>네트워크 / 저장 오류</h3><p>저장 실패 시 드로워 유지 + 재시도. 입력값 보존(유실 방지).</p></div>
+<div class='card'><h3>변경사항 유실 방지</h3><p>dirty 상태에서 닫기/ESC/backdrop 시 확인 다이얼로그. 저장/계속/취소 선택.</p></div>
+<div class='card'><h3>중복 / 형식 오류</h3><p>중복(필드명·코드), 형식(date/url/number) 위반 인라인 표시.</p></div>
+</div>
+<div class='note' style='margin-top:12px'><strong>모바일 오류 표시:</strong> 좁은 화면에서는 상단 요약을 접고 위반 필드로 이동 + 하단 고정 저장 영역 위에 한 줄 요약. 폼 필드 검증 기준은 <a href='STAM-Board-Form-Field-Contract-v1.html' style='color:var(--good)'>Form Field Contract</a>를 따른다.</div>
+</section>
+
+<section class='sec' id='mobile'>
+<div class='head'><span class='no'>10</span><h2>Mobile / Narrow Width Rules</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>전체 화면 전환</h3><p>좁은 화면에서 드로워는 <b>전체 화면</b>으로 전환(화면 80% 이상 덮을 때).</p></div>
+<div class='card'><h3>Header / Footer 고정</h3><p>헤더(제목·닫기)와 하단 액션(저장/취소) <b>고정</b>. 본문만 스크롤.</p></div>
+<div class='card'><h3>Body 1열 스택</h3><p>필드/섹션은 1열 세로 스택. 2열 그리드 금지.</p></div>
+<div class='card'><h3>Tabs 전환</h3><p>탭은 <b>세그먼트 컨트롤</b> 또는 <b>아코디언</b>으로 전환(가로 넘침 방지).</p></div>
+<div class='card'><h3>Footer CTA 우선순위</h3><p>하단 고정. <b>저장(Primary)</b> 우선, 취소/닫기 보조, 삭제는 분리(오발 방지).</p></div>
+<div class='card'><h3>Wide / 옵션 목록</h3><p>옵션 목록·미리보기·표는 컨테이너 <code>overflow:auto</code> 처리. 과도한 가로 스크롤 금지.</p></div>
+</div>
+<div class='note' style='margin-top:12px'>이 문서 자체도 동일 정책을 따른다: 표·wireframe은 컨테이너 <code>overflow:auto</code>로 처리하고 980px 이하에서 그리드를 1열로 전환한다. 공통 모바일 셸 기준은 <a href='STAM-Mobile-Shell-Top-Navigation-Guide-v1.html' style='color:var(--good)'>Mobile Shell Guide</a>를 참조한다.</div>
+</section>
+
+<section class='sec' id='bbrel'>
+<div class='head'><span class='no'>11</span><h2>Board Builder Relationship</h2></div>
+<div class='grid c3'>
+<div class='card'><h3 class='purple'>T27 — 직접 연결</h3><p>Board Builder 필드 정의를 <strong>직접 편집</strong>하는 드로워. 타입·표시 토글·옵션·필수·정렬을 설정한다.</p></div>
+<div class='card'><h3>T11 — 필드 → 폼</h3><p>Board Builder에서 정의한 필드를 <strong>등록/수정 폼</strong>으로 표현. visibleInDrawer·required·validation 반영.</p></div>
+<div class='card'><h3>T07 — 필드 → 상세</h3><p>Board Builder에서 정의한 필드를 <strong>상세 보기</strong>로 표현. visibleInDrawer 필드를 라벨+값으로.</p></div>
+</div>
+<div class='note warnbox' style='margin-top:12px'><strong>제약:</strong> 현재 Board Builder는 <strong>preview/local 기준</strong>(config(JSON)→localStorage)이며 실제 Firestore 저장·배포 기능이 아니다. 이 문서는 드로워 <strong>표현 기준</strong>이며 구현을 지시하지 않는다. 필드 타입↔화면 매핑은 <a href='STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html' style='color:var(--good)'>Integration Blueprint</a>를, 필드 스키마는 <code>stam/js/stam.board-field-schema.js</code>(읽기 전용)를 따른다.</div>
+</section>
+
+<section class='sec' id='ssrel'>
+<div class='head'><span class='no'>12</span><h2>Screen Specification Product Relationship</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>실제 제품 페이지</h3><p><code>stam/pages/boards/screen-specification.html</code>은 실제 화면설계서 제품 페이지다. 이 문서는 제품 파일을 <strong>수정하지 않는다.</strong></p><a class='lk' href='../pages/boards/screen-specification.html'>→ 화면설계서 제품 페이지</a></div>
+<div class='card'><h3>후속 보정 기준 제공</h3><p>화면설계서 상세/등록/수정 드로워가 이 Preview 기준과 맞물리도록 후속 단계에서 보정한다. 보정은 별도 PR로 분리한다.</p></div>
+</div>
+</section>
+
+<section class='sec' id='roadmap'>
+<div class='head'><span class='no'>13</span><h2>Follow-up Roadmap</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>우선순위</th><th>문서 / 작업</th><th>역할</th><th>상태</th></tr></thead>
+<tbody>
+<tr><td><span class='tag g'>P1</span></td><td><b><a href='STAM-Screen-Template-System-Master-Guide-v1.html' style='color:var(--good)'>STAM-Screen-Template-System-Master-Guide-v1.html</a></b></td><td>템플릿 시스템 상위 기준</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag g'>P2</span></td><td><b><a href='STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html' style='color:var(--good)'>STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html</a></b></td><td>우선 템플릿 30종 Baseline</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag g'>P3</span></td><td><b><a href='STAM-Screen-Template-Top-10-Detail-Pack-v1.html' style='color:var(--good)'>STAM-Screen-Template-Top-10-Detail-Pack-v1.html</a></b></td><td>Top 10 상세 기준</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag g'>P4</span></td><td><b><a href='STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html' style='color:var(--good)'>STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html</a></b></td><td>Board Builder ↔ Screen Template 연결 설계</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag g'>P5</span></td><td><b><a href='STAM-Screen-Template-Selector-UX-Flow-Prototype-v1.html' style='color:var(--good)'>STAM-Screen-Template-Selector-UX-Flow-Prototype-v1.html</a></b></td><td>템플릿 선택 UX 흐름 프로토타입</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag a'>P6</span></td><td><b><a href='STAM-Screen-Template-Top-3-Drawer-Preview-v1.html' style='color:var(--good)'>STAM-Screen-Template-Top-3-Drawer-Preview-v1.html</a></b></td><td>Top 3 Drawer Preview (T07·T11·T27)</td><td class='ok'>이번 문서</td></tr>
+<tr><td><span class='tag w'>P7</span></td><td>Product Flow Prototype 또는 화면설계서 제품 드로워 보정</td><td>제품 드로워 보정 / 흐름 프로토타입</td><td class='wn'>후속 판단</td></tr>
+</tbody>
+</table>
+</div>
+<div class='note' style='margin-top:12px'>P7은 아직 생성되지 않았다. 이 로드맵에서는 작업명을 텍스트로만 표기하며 <code>href</code>를 부여하지 않는다. P1~P6(이 문서)만 링크가 활성화되어 있다. 후속으로는 Product Flow Prototype 또는 실제 화면설계서 제품 드로워 보정 중 하나를 후속 판단한다.</div>
+</section>
+
+<section class='sec' id='linkpolicy'>
+<div class='head'><span class='no'>14</span><h2>Link Policy</h2></div>
+<div class='rules'>
+<div class='rule'><b class='ok'>실제 존재 파일만 링크</b><span>이 문서 내 모든 <code>&lt;a href&gt;</code>는 <code>stam/</code> 하위에 실제로 존재하는 파일만 참조한다.</span></div>
+<div class='rule'><b class='ok'>Missing 문서는 링크 안 함</b><span>후속(P7) 문서는 작업명 텍스트로만 표기하고 <code>href</code>를 부여하지 않는다.</span></div>
+<div class='rule'><b class='wn'>임의 경로 금지</b><span>예상 파일명·가상 route를 확정 경로처럼 쓰지 않는다. 후속 문서 생성 후 연결한다.</span></div>
+<div class='rule'><b class='wn'>nav-data 연동 금지</b><span>이 문서는 <code>stam/js/stam.nav-data.js</code>에 등록하지 않는다. docs 영역 독립 문서로 유지한다.</span></div>
+</div>
+<div class='note' style='margin-top:12px'><strong>이 문서에서 활성 링크가 부여된 파일:</strong><br>
+• <a href='STAM-Docs-Index.html' style='color:var(--good)'>STAM-Docs-Index.html</a><br>
+• <a href='STAM-Screen-Template-System-Master-Guide-v1.html' style='color:var(--good)'>STAM-Screen-Template-System-Master-Guide-v1.html</a><br>
+• <a href='STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html' style='color:var(--good)'>STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html</a><br>
+• <a href='STAM-Screen-Template-Top-10-Detail-Pack-v1.html' style='color:var(--good)'>STAM-Screen-Template-Top-10-Detail-Pack-v1.html</a><br>
+• <a href='STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html' style='color:var(--good)'>STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html</a><br>
+• <a href='STAM-Screen-Template-Selector-UX-Flow-Prototype-v1.html' style='color:var(--good)'>STAM-Screen-Template-Selector-UX-Flow-Prototype-v1.html</a><br>
+• <a href='STAM-Drawer-Guide.html' style='color:var(--good)'>STAM-Drawer-Guide.html</a><br>
+• <a href='STAM-Board-Drawer-Shell-Contract-v1.html' style='color:var(--good)'>STAM-Board-Drawer-Shell-Contract-v1.html</a><br>
+• <a href='STAM-Board-Drawer-Detail-Form-Audit-v1.html' style='color:var(--good)'>STAM-Board-Drawer-Detail-Form-Audit-v1.html</a><br>
+• <a href='STAM-Board-Form-Field-Contract-v1.html' style='color:var(--good)'>STAM-Board-Form-Field-Contract-v1.html</a><br>
+• <a href='STAM-Sitemap-IA-Overview-v1.html' style='color:var(--good)'>STAM-Sitemap-IA-Overview-v1.html</a><br>
+• <a href='STAM-Mobile-Shell-Top-Navigation-Guide-v1.html' style='color:var(--good)'>STAM-Mobile-Shell-Top-Navigation-Guide-v1.html</a><br>
+• <a href='../pages/boards/screen-specification.html' style='color:var(--good)'>../pages/boards/screen-specification.html</a><br>
+• <a href='../pages/boards-v2/board-builder.html' style='color:var(--good)'>../pages/boards-v2/board-builder.html</a>
+</div>
+</section>
+
+<section class='sec' id='qa'>
+<div class='head'><span class='no'>15</span><h2>QA Checklist</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>#</th><th>항목</th><th>기준</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>docs-only</td><td>변경 파일이 <code>stam/docs/**</code> 하위에만 존재</td><td class='ok'>확인</td></tr>
+<tr><td>2</td><td>제품 파일 무변경</td><td><code>pages/</code>, <code>js/</code>, <code>css/</code> 수정 없음</td><td class='ok'>확인</td></tr>
+<tr><td>3</td><td>nav-data 무변경</td><td><code>stam/js/stam.nav-data.js</code> 변경 없음</td><td class='ok'>확인</td></tr>
+<tr><td>4</td><td>board-field-schema 무변경</td><td><code>stam/js/stam.board-field-schema.js</code> 변경 없음</td><td class='ok'>확인</td></tr>
+<tr><td>5</td><td>깨진 링크 없음</td><td>모든 href가 실제 존재 파일</td><td class='ok'>확인</td></tr>
+<tr><td>6</td><td>HTML 태그 밸런스</td><td>div / section / a 열기=닫기</td><td class='ok'>확인</td></tr>
+<tr><td>7</td><td>가로 스크롤 처리</td><td>표/wire 컨테이너 <code>overflow:auto</code>, 모바일 1열 전환</td><td class='ok'>확인</td></tr>
+<tr><td>8</td><td>외부 폰트 CDN 없음</td><td>S-Core Dream 자체 서빙만 사용</td><td class='ok'>확인</td></tr>
+<tr><td>9</td><td>iframe 없음</td><td>문서 내 <code>&lt;iframe&gt;</code> 미사용</td><td class='ok'>확인</td></tr>
+<tr><td>10</td><td>신규 JS 없음</td><td>기존 <code>stam.theme.js</code>만 참조, 신규 스크립트 없음</td><td class='ok'>확인</td></tr>
+<tr><td>11</td><td>Top 3 Preview 대상 = 3개</td><td>T07 · T11 · T27 정확히 3개</td><td class='ok'>확인</td></tr>
+<tr><td>12</td><td>T07/T11/T27 상세 포함</td><td>각 적용예시·레이아웃·액션·권한·상태·검증·모바일</td><td class='ok'>확인</td></tr>
+<tr><td>13</td><td>pseudo-wireframe 3개</td><td>T07·T11·T27 각 1개(Header/Body/Field/Preview·Meta/Footer 구분)</td><td class='ok'>확인</td></tr>
+<tr><td>14</td><td>Drawer State Matrix 포함</td><td>Closed~Mobile Fullscreen 12상태</td><td class='ok'>확인</td></tr>
+<tr><td>15</td><td>Permission Matrix 포함</td><td>역할 6 × 액션 + 상태별 잠금</td><td class='ok'>확인</td></tr>
+<tr><td>16</td><td>Missing 문서 미링크</td><td>P7 href 없음, 텍스트만</td><td class='ok'>확인</td></tr>
+<tr><td>17</td><td>금지 표현 미사용</td><td>금지 약어형 표현 미사용, "1차 범위/우선 적용/후속 단계" 기준</td><td class='ok'>확인</td></tr>
+<tr><td>18</td><td>Docs Index 카드</td><td>화면설계서 템플릿 섹션에 카드 1개 추가</td><td class='ok'>확인</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<div class='footer'>STAM Screen Template Top 3 Drawer Preview v1 · P6 · docs-only · 기준 main 491ff63 · 2026-06-20</div>
+</main>
+</div>
+<script src='../js/stam.theme.js'></script>
+</body>
+</html>
