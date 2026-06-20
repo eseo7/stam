@@ -52,7 +52,8 @@
   var BUILDER_FIELD_TYPES = ['text', 'textarea', 'select', 'date', 'user', 'status', 'priority', 'relation', 'boolean', 'number', 'url'];
   var OPTION_TYPES = ['select', 'status', 'priority', 'multiSelect'];
 
-  var SAMPLE_USERS = ['김민준', '이수빈', '박지호'];
+  var SAMPLE_USERS = ['김민준', '이수빈', '박지호', '최유진', '정하윤'];
+  var SAMPLE_ROW_COUNT = 9; // 우측 미리보기 표 샘플 row 수(하단 빈 공간 축소). 실제 저장 아님 — localStorage 미리보기.
   var TEMPLATE_LABEL = '목록 + 필터 + 등록 Drawer + 상세 Drawer + 수정 Drawer';
 
   /* 필드 카드 액션 아이콘 (inline SVG, 외부 asset 0) */
@@ -507,7 +508,7 @@
     }
     function renderPreview(config) {
       if (!els.preview) return;
-      var rows = sampleRows(config, 3);
+      var rows = sampleRows(config, SAMPLE_ROW_COUNT);
       var visCols = config.columns.filter(function (c) { return c.type !== 'checkbox' && c.type !== 'actionButtons'; });
       var listCount = config.fields.filter(function (f) { return f.visibleInTable; }).length;
       var reqCount = config.fields.filter(function (f) { return f.required; }).length;
