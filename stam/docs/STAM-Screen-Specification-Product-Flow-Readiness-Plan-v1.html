@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang='ko' data-theme='dark'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1.0'>
+<title>STAM Screen Specification Product Flow Readiness Plan v1</title>
+<link rel='icon' href='../assets/brand/stam/stam_favicon.ico' type='image/x-icon'>
+<link rel='stylesheet' href='../assets/fonts/s-core-dream/s-core-dream.css'>
+<link rel='stylesheet' href='../css/stam.tokens.css'>
+<link rel='stylesheet' href='../css/stam.shell.css'>
+<link rel='stylesheet' href='../css/stam.components.css'>
+<link rel='stylesheet' href='../css/stam.docs.css'>
+<style>
+:root{--bg:#07111f;--card:rgba(255,255,255,.055);--card2:rgba(255,255,255,.085);--line:rgba(148,163,184,.24);--text:#e5edf8;--muted:#93a4bb;--accent:#7dd3fc;--good:#86efac;--warn:#facc15;--bad:#fca5a5;--purple:#c4b5fd}
+[data-theme='light']{--bg:#f7f9fc;--card:#fff;--card2:#f0f5fb;--line:#d9e2ef;--text:#162033;--muted:#63738a;--accent:#0ea5e9;--good:#16a34a;--warn:#b45309;--bad:#dc2626;--purple:#7c3aed}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'S-Core Dream',system-ui,sans-serif;line-height:1.65}
+.top{position:sticky;top:0;z-index:20;display:flex;gap:12px;align-items:center;padding:12px 28px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px)}
+.top a{color:var(--text);text-decoration:none}
+.logo{font-weight:800;display:flex;align-items:center;gap:8px}
+.logo img{width:26px;height:26px}
+.sp{flex:1}
+.btn,.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 10px;font-size:11px;color:var(--muted);text-decoration:none}
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px;max-width:1580px;margin:0 auto;padding:28px}
+.toc{position:sticky;top:72px;align-self:start;border:1px solid var(--line);background:var(--card);border-radius:22px;padding:16px;max-height:calc(100vh - 100px);overflow-y:auto}
+.toc h2{margin:0 0 8px;font-size:13px}
+.toc a{display:block;padding:7px 10px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:11.5px}
+.toc a:hover{background:var(--card2);color:var(--text)}
+.hero,.sec{border:1px solid var(--line);background:var(--card);border-radius:26px;padding:24px;margin-bottom:18px}
+.hero{background:linear-gradient(135deg,var(--card2),var(--card))}
+h1{margin:0;font-size:33px;line-height:1.18;letter-spacing:-.04em}
+h2{margin:0;font-size:21px;letter-spacing:-.025em}
+h3{margin:0 0 6px;font-size:14px}
+.lead{max-width:980px;margin:14px 0 0;color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+.metric{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:15px}
+.metric b{display:block;font-size:28px}
+.metric span{display:block;margin-top:5px;font-size:12px;color:var(--muted)}
+.head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.no{display:inline-flex;width:34px;height:34px;align-items:center;justify-content:center;border-radius:12px;background:var(--card2);font-weight:900;color:var(--accent);font-size:13px;flex-shrink:0}
+.grid{display:grid;gap:12px}
+.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card,.note,.rule{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:15px}
+.card p,.note,.rule span{margin:0;color:var(--muted);font-size:12.5px}
+.card ul{margin:6px 0 0;padding-left:16px;color:var(--muted);font-size:12.5px}
+.card ul li{margin-bottom:3px}
+.card .lk{display:inline-block;margin-top:9px;font-size:11.5px;color:var(--good);text-decoration:none}
+.card .lk:hover{text-decoration:underline}
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rule b{display:block;font-size:13px;margin-bottom:4px}
+.table{overflow:auto;border:1px solid var(--line);border-radius:16px;-webkit-overflow-scrolling:touch}
+.table table{width:100%;border-collapse:collapse;min-width:680px}
+.table.wide table{min-width:1040px}
+.table.xwide table{min-width:1480px}
+.table th,.table td{border-bottom:1px solid var(--line);padding:9px 11px;text-align:left;font-size:11.5px;vertical-align:top}
+.table th{background:var(--card2);color:var(--muted);white-space:nowrap;position:sticky;top:0}
+.table td b{font-weight:800}
+.table tr:last-child td{border-bottom:none}
+.tid{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--accent);font-weight:800;white-space:nowrap}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;color:var(--purple)}
+.ok{color:var(--good);font-weight:800}
+.wn{color:var(--warn);font-weight:800}
+.bad{color:var(--bad);font-weight:800}
+.purple{color:var(--purple);font-weight:800}
+.muted{color:var(--muted)}
+.tag{display:inline-block;border:1px solid var(--line);background:var(--card2);border-radius:999px;padding:2px 9px;font-size:10.5px;font-weight:800;white-space:nowrap}
+.tag.g{color:var(--good)}.tag.w{color:var(--warn)}.tag.a{color:var(--accent)}.tag.p{color:var(--purple)}.tag.m{color:var(--muted)}.tag.b{color:var(--bad)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--card2);border:1px solid var(--line);border-radius:7px;padding:1px 5px;font-size:.92em}
+.note.warnbox{border-color:color-mix(in srgb,var(--warn) 45%,var(--line))}
+.note.badbox{border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+.flow{display:grid;gap:10px}
+.flow-step{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);background:var(--card2);border-radius:14px;padding:12px 14px}
+.flow-step .n{display:inline-flex;width:26px;height:26px;flex-shrink:0;align-items:center;justify-content:center;border-radius:8px;background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent);font-weight:900;font-size:12px}
+.flow-step b{font-size:13px}
+.flow-step p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:12px}
+.kv dt{color:var(--accent);font-weight:800;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}
+.kv dd{margin:0;color:var(--muted)}
+.st{display:inline-block;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:800;white-space:nowrap;border:1px solid var(--line)}
+.st.ready{color:var(--good);background:color-mix(in srgb,var(--good) 14%,transparent)}
+.st.partial{color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.st.missing{color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,transparent)}
+.st.review{color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,transparent)}
+.st.blocked{color:var(--purple);background:color-mix(in srgb,var(--purple) 14%,transparent)}
+.footer{padding:20px;color:var(--muted);font-size:12px;text-align:center}
+@media(max-width:980px){.shell{grid-template-columns:1fr;padding:18px}.toc{position:relative;top:auto;max-height:none}.metrics,.c2,.c3,.c4,.rules{grid-template-columns:1fr}.top{padding:10px 16px}h1{font-size:25px}.kv{grid-template-columns:1fr}.kv dt{margin-top:6px}}
+</style>
+</head>
+<body>
+<nav class='top'>
+<a class='logo' href='STAM-Docs-Index.html'><img src='../assets/brand/stam/stam_icon_primary_transparent.png' alt='STAM'><span>STAM</span></a>
+<span class='pill'>Screen Specification · Product Flow Readiness Plan v1</span>
+<span class='sp'></span>
+<a class='btn' href='STAM-Screen-Template-Top-3-Drawer-Preview-v1.html'>Top 3 Drawer</a>
+<a class='btn' href='../pages/boards/screen-specification.html'>화면설계서 제품</a>
+<a class='btn' href='STAM-Docs-Index.html'>Docs Index</a>
+</nav>
+<div class='shell'>
+<aside class='toc'>
+<h2>목차</h2>
+<a href='#summary'>00 Executive Summary</a>
+<a href='#inventory'>01 Current Product Inventory</a>
+<a href='#flowmap'>02 Current Flow Map</a>
+<a href='#criteria'>03 P1~P6 Criteria Summary</a>
+<a href='#gap'>04 Gap Analysis</a>
+<a href='#classify'>05 Safe Change Classification</a>
+<a href='#prsplit'>06 Recommended PR Split</a>
+<a href='#riskmap'>07 Product File Risk Map</a>
+<a href='#forbidden'>08 Forbidden Scope (First Product PR)</a>
+<a href='#selready'>09 Selector Readiness Checklist</a>
+<a href='#dwready'>10 Drawer Readiness Checklist</a>
+<a href='#bbready'>11 Board Builder Integration Readiness</a>
+<a href='#mobile'>12 Mobile / Narrow Width QA</a>
+<a href='#accept'>13 Acceptance Criteria (First PR)</a>
+<a href='#roadmap'>14 Follow-up Roadmap</a>
+<a href='#linkpolicy'>15 Link Policy</a>
+<a href='#qa'>16 QA Checklist</a>
+</aside>
+<main>
+
+<section class='hero' id='summary'>
+<div class='chips'><span class='pill'>Product Flow Readiness Plan · P7</span><span class='pill'>Docs Only</span><span class='pill'>No Product File Change</span><span class='pill'>진단/계획 문서</span><span class='pill'>2026-06-20</span></div>
+<h1>Screen Specification<br>Product Flow Readiness Plan v1</h1>
+<p class='lead'>실제 화면설계서 제품 페이지(<code>stam/pages/boards/screen-specification.html</code>)와 참조 JS/CSS의 <strong>현재 상태를 조사</strong>하고, P1~P6 문서 기준과의 <strong>Gap</strong>을 정리한 진단·계획 문서다. 제품 파일을 <strong>바로 고치기 전에</strong>, 후속 제품 보정 작업을 안전하게 쪼개기 위한 기준을 제공한다. 이 문서는 제품 기능을 구현하거나 제품 파일을 수정하지 않는 <strong>docs-only readiness plan</strong>이다. P1~P6(<a href='STAM-Screen-Template-System-Master-Guide-v1.html' style='color:var(--good)'>Master Guide</a> · <a href='STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html' style='color:var(--good)'>Priority 30</a> · <a href='STAM-Screen-Template-Top-10-Detail-Pack-v1.html' style='color:var(--good)'>Top 10 Detail Pack</a> · <a href='STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html' style='color:var(--good)'>Integration Blueprint</a> · <a href='STAM-Screen-Template-Selector-UX-Flow-Prototype-v1.html' style='color:var(--good)'>Selector UX Flow</a> · <a href='STAM-Screen-Template-Top-3-Drawer-Preview-v1.html' style='color:var(--good)'>Top 3 Drawer Preview</a>) 다음 단계인 P7이다. 기준 커밋은 <code>main d392497</code> (PR #175 merge)이다.</p>
+<div class='metrics'>
+<div class='metric'><b>13</b><span>참조 CSS(13) · JS(8)</span></div>
+<div class='metric'><b>4</b><span>제품 내 View(list·template·editor·preview)</span></div>
+<div class='metric'><b>12</b><span>Gap 비교 항목</span></div>
+<div class='metric'><b>0</b><span>제품 파일 변경</span></div>
+</div>
+</section>
+
+<section class='sec' id='summary-detail'>
+<div class='head'><span class='no'>00</span><h2>왜 바로 수정이 아니라 Readiness Plan인가</h2></div>
+<div class='grid c2'>
+<div class='card'><h3>문서 목적</h3><p>현재 제품의 실제 구조·동작 범위를 조사하고 P1~P6 기준과의 Gap을 정리해, 후속 제품 보정 PR을 <strong>안전한 단위</strong>로 나눈다.</p></div>
+<div class='card'><h3>바로 수정의 위험</h3><p>화면설계서 페이지는 App Shell·드로워·목록·mock 데이터·다중 View가 얽혀 있다. 무계획 수정은 회귀·데이터/권한 로직 위험이 크다. 먼저 진단·분류가 필요하다.</p></div>
+<div class='card'><h3>P1~P6과의 관계</h3><p>P1~P6은 템플릿·연결·선택·드로워 <strong>기준</strong>을 정의했다. 이 문서는 그 기준을 실제 제품에 적용하기 위한 <strong>준비 점검</strong>이다.</p></div>
+<div class='card warnbox' style='background:var(--card2)'><h3 class='wn'>이 문서의 성격</h3><p>실제 Selector·Drawer·Board Builder·화면설계서 제품 기능을 <strong>구현하지 않는다.</strong> 제품 파일 무변경 진단·계획 문서다. merge/deploy는 사용자 승인 전 대기한다.</p></div>
+</div>
+<div class='note' style='margin-top:12px'><strong>핵심 발견:</strong> 화면설계서 제품 페이지는 이미 <strong>템플릿 선택 View · 편집기(Wireframe+Form) · 미리보기 View · 상세/등록 드로워</strong>를 갖추고 있으나, JS 주석 기준 <strong>"mock only — no localStorage / Firestore / DB"</strong>이며 템플릿 분류 체계가 P2/P3의 구조형 Top 10(T01~T27)과 <strong>다른 도메인형 프리셋</strong>(bran딩/커머스/업무/커뮤니티)으로 되어 있다. Board Builder 연계(P4)는 제품에 아직 연결되어 있지 않다. 단계 범위는 <strong>"1차 범위 / 우선 적용 / 후속 단계"</strong> 표현을 사용한다.</div>
+</section>
+
+<section class='sec' id='inventory'>
+<div class='head'><span class='no'>01</span><h2>Current Product Inventory</h2><span class='pill'>실제 조사 기준</span></div>
+<div class='grid c2'>
+<div class='card'><h3>파일 / 참조</h3>
+<dl class='kv'>
+<dt>page</dt><dd><code>stam/pages/boards/screen-specification.html</code> (216줄)</dd>
+<dt>CSS</dt><dd>tokens · shell · components · project-overview · form-controls · drawer · table-selection · buttons · board-toolbar · board-filter · board-layout · custom-select · <strong>screen-specification</strong> (13종)</dd>
+<dt>JS</dt><dd>theme · nav-data · shell · nav-render · topbar-render · project-context-render · board-filter · <strong>screen-specification</strong>(약 2,495줄) (8종)</dd>
+<dt>App Shell</dt><dd><code>po-shell</code> · topbar · left-nav · project-context (공통 셸)</dd>
+</dl>
+</div>
+<div class='card'><h3>주요 DOM 섹션</h3><ul>
+<li><b>헤더</b>: "내보내기" · "템플릿으로 작성"(<code>#ss-reg-btn</code>) 버튼</li>
+<li><b>상태 스트립</b>: <code>#ss-sstrip</code> / meta</li>
+<li><b>툴바</b>: 검색 · 필터 · 삭제</li>
+<li><b>목록 표</b>: 8컬럼(체크·화면ID/명·버전·작성상태·검토상태·승인상태·이미지/주석·최종수정일)</li>
+<li><b>페이지네이션</b> · <b>삭제 확인 다이얼로그</b></li>
+<li><b>드로워</b>: <code>#ss-drawer</code>(head/tabs/body/foot)</li>
+<li><b>Template View</b>: <code>#ss-template-view</code> (풀페이지, 기본 hidden)</li>
+<li><b>Editor View</b>: <code>#ss-editor-view</code> (Split: 좌 Wireframe + 우 Form)</li>
+<li><b>Preview View</b>: <code>#ss-preview-view</code> (풀페이지 초안 미리보기)</li>
+</ul></div>
+</div>
+<div class='table wide' style='margin-top:12px'>
+<table>
+<thead><tr><th>기능 영역</th><th>현재 상태(실제)</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>목록 영역</td><td class='ok'>존재</td><td>mock 데이터(ALL_SCREENS) 기반 표·검색·필터·페이징</td></tr>
+<tr><td>상세 드로워</td><td class='ok'>존재</td><td>탭(개요/연결정보/검토이력) · footer 액션</td></tr>
+<tr><td>등록/수정 드로워</td><td class='ok'>존재</td><td>드로워 + 편집기 View. "임시저장"·"저장" 버튼(mock)</td></tr>
+<tr><td>템플릿 선택 UI</td><td class='ok'>존재</td><td>Template View + "템플릿으로 작성" 진입. 도메인형 프리셋</td></tr>
+<tr><td>미리보기 영역</td><td class='ok'>존재</td><td>Preview View(초안 미리보기, mock)</td></tr>
+<tr><td>저장 / 내보내기 / 검토 UI</td><td class='wn'>부분</td><td>버튼 존재(mock). "저장 + 검토요청 (준비중)" 비활성</td></tr>
+<tr><td>모바일 대응 구조</td><td class='wn'>부분</td><td>fluid <code>clamp()/calc(100vw)</code> 사용, <strong><code>@media</code> 브레이크포인트 없음</strong></td></tr>
+<tr><td>샘플/정적 데이터</td><td class='bad'>mock only</td><td>JS 주석 명시: localStorage/Firestore/DB 없음</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class='sec' id='flowmap'>
+<div class='head'><span class='no'>02</span><h2>Current Flow Map</h2></div>
+<div class='flow'>
+<div class='flow-step'><span class='n'>1</span><div><b>목록 진입</b><p>화면설계서 목록(표) 표시. 검색·필터·페이징 동작(mock).</p></div></div>
+<div class='flow-step'><span class='n'>2</span><div><b>"템플릿으로 작성" → Template View</b><p><code>switchView('template')</code>로 풀페이지 템플릿 선택 화면 전환.</p></div></div>
+<div class='flow-step'><span class='n'>3</span><div><b>템플릿 선택 → Editor View</b><p>도메인형 프리셋 선택 후 편집기(좌 Wireframe + 우 Form) 전환. draft 모델 구성.</p></div></div>
+<div class='flow-step'><span class='n'>4</span><div><b>Preview View</b><p>draft 기준 초안 미리보기(mock, "실제 데이터 아님" 표기).</p></div></div>
+<div class='flow-step'><span class='n'>5</span><div><b>목록 행 클릭 → 상세 드로워</b><p>개요/연결정보/검토이력 탭. 우측 드로워 표시.</p></div></div>
+<div class='flow-step'><span class='n'>6</span><div><b>저장 / 취소 / 내보내기</b><p>버튼 존재하나 mock. 실제 저장·검토요청·내보내기 동작 없음(검토요청 비활성).</p></div></div>
+</div>
+<div class='note' style='margin-top:12px'>현재 흐름은 <strong>UI/뷰 전환은 동작</strong>하나 <strong>영속 저장·데이터·권한 판정·Board Builder 연계는 없음</strong>이다. P5 Selector 흐름(진입점→카드→필드소스→미리보기→초안)과 부분 일치하되, Field Source Selection과 구조형 Top 10 카드는 미구현이다.</div>
+</section>
+
+<section class='sec' id='criteria'>
+<div class='head'><span class='no'>03</span><h2>P1~P6 Criteria Summary</h2></div>
+<div class='table wide'>
+<table>
+<thead><tr><th>문서</th><th>핵심 기준(요약)</th></tr></thead>
+<tbody>
+<tr><td><b><a href='STAM-Screen-Template-System-Master-Guide-v1.html' style='color:var(--good)'>P1 Master Guide</a></b></td><td>템플릿 시스템 목적/원칙 · 12 분류 체계 · "선택 → 수정" 원칙</td></tr>
+<tr><td><b><a href='STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html' style='color:var(--good)'>P2 Priority 30</a></b></td><td>우선 템플릿 30종(구조형) · 한국형 업무 화면 기준</td></tr>
+<tr><td><b><a href='STAM-Screen-Template-Top-10-Detail-Pack-v1.html' style='color:var(--good)'>P3 Top 10 Detail Pack</a></b></td><td>핵심 10종(T01~T27) 필드/액션/권한/상태/모바일 상세</td></tr>
+<tr><td><b><a href='STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html' style='color:var(--good)'>P4 Integration Blueprint</a></b></td><td>Board Builder 12 필드타입 ↔ 화면 매핑 · 초안 생성 입력 구조</td></tr>
+<tr><td><b><a href='STAM-Screen-Template-Selector-UX-Flow-Prototype-v1.html' style='color:var(--good)'>P5 Selector UX Flow</a></b></td><td>진입점 · Selector Layout · Top 10 카드 · Field Source · Preview Panel · Draft Result</td></tr>
+<tr><td><b><a href='STAM-Screen-Template-Top-3-Drawer-Preview-v1.html' style='color:var(--good)'>P6 Top 3 Drawer Preview</a></b></td><td>상세(T07)/등록·수정(T11)/필드설정(T27) 드로워 · State/Permission Matrix</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class='sec' id='gap'>
+<div class='head'><span class='no'>04</span><h2>Gap Analysis — 현재 제품 vs P1~P6</h2></div>
+<p class='lead' style='margin-bottom:14px'>상태: <span class='st ready'>Ready</span> <span class='st partial'>Partial</span> <span class='st missing'>Missing</span> <span class='st review'>Needs Review</span> <span class='st blocked'>Blocked by Data/Logic</span></p>
+<div class='table xwide'>
+<table>
+<thead><tr><th>비교 항목</th><th>상태</th><th>현재 제품(실제)</th><th>P1~P6 기준</th><th>차이 / 메모</th></tr></thead>
+<tbody>
+<tr><td>템플릿 선택 진입점</td><td><span class='st ready'>Ready</span></td><td>"템플릿으로 작성" + Template View</td><td>P5 진입점</td><td>진입점 존재. 문구/위치 정렬만 필요</td></tr>
+<tr><td>Top 10 템플릿 카드</td><td><span class='st review'>Needs Review</span></td><td>도메인형 프리셋(브랜딩/커머스/업무/커뮤니티 × f/a)</td><td>구조형 Top 10(T01~T27)</td><td>분류 체계 상이 — 매핑/통합 방향 결정 필요</td></tr>
+<tr><td>Board Builder 필드 구조 연계</td><td><span class='st missing'>Missing</span></td><td>screen-spec에 board-field-schema 참조 없음</td><td>P4 12타입 매핑</td><td>제품 연결 미구현. board-builder→screen-spec 링크 0</td></tr>
+<tr><td>Field Source Selection</td><td><span class='st missing'>Missing</span></td><td>"빈 템플릿" 프리셋만 존재</td><td>P5 5방식(BB/기존/직접/샘플/빈)</td><td>소스 선택 단계 없음</td></tr>
+<tr><td>Preview Panel</td><td><span class='st partial'>Partial</span></td><td>Preview View(초안 미리보기, mock)</td><td>P5 Preview Panel 항목</td><td>존재하나 P5 표시 항목 정렬 필요</td></tr>
+<tr><td>Draft Generation Result</td><td><span class='st partial'>Partial</span></td><td>draft 모델 + 미리보기(mock)</td><td>P5 Draft Result 구조</td><td>저장 없음. 결과 구조 정렬 필요</td></tr>
+<tr><td>상세 드로워(T07)</td><td><span class='st partial'>Partial</span></td><td>드로워 + 개요/연결/이력 탭</td><td>P6 T07 기준</td><td>구조 근접. 액션/권한 표시 정렬</td></tr>
+<tr><td>등록/수정 드로워(T11)</td><td><span class='st partial'>Partial</span></td><td>드로워 편집 + Editor View(mock)</td><td>P6 T11 기준</td><td>필드별 권한·검증 표시 미흡</td></tr>
+<tr><td>Custom Field Settings 드로워(T27)</td><td><span class='st missing'>Missing</span></td><td>screen-spec에 없음(Board Builder 영역)</td><td>P6 T27 기준</td><td>Board Builder 연계 후속</td></tr>
+<tr><td>권한 / 상태 / 검토 / 변경이력</td><td><span class='st partial'>Partial</span></td><td>상태 3종(작성/검토/승인) + 이력 탭. 검토요청 비활성</td><td>P5/P6 권한·검토 기준</td><td>권한 판정 로직 없음(<span class='st blocked'>Blocked by Logic</span>)</td></tr>
+<tr><td>모바일 / 좁은 화면</td><td><span class='st review'>Needs Review</span></td><td>fluid 사이징, <code>@media</code> 0개</td><td>P5/P6 모바일 전환</td><td>드로워 full-screen·1열 전환 브레이크포인트 없음</td></tr>
+<tr><td>내보내기 / 납품 연결</td><td><span class='st partial'>Partial</span></td><td>"내보내기" 버튼(mock)</td><td>P3/P5 내보내기</td><td>실제 export 동작 없음(<span class='st blocked'>Blocked by Logic</span>)</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class='sec' id='classify'>
+<div class='head'><span class='no'>05</span><h2>Safe Change Classification</h2></div>
+<div class='grid c2'>
+<div class='card'><h3 class='ok'>A. Docs-only</h3><ul><li>문서 링크 보정 · 설명 문구 보정</li><li>QA 기준 추가</li><li><span class='ok'>위험 낮음</span> — 이번 문서 범위</li></ul></div>
+<div class='card'><h3 style='color:var(--accent)'>B. UI-only / Static Preview</h3><ul><li>템플릿 카드 표시 · 미리보기 영역 UI</li><li>드로워 레이아웃 정리 · 버튼/라벨/배지 보정</li><li><span class='wn'>주의</span> — 정적, 저장 로직 무관</li></ul></div>
+<div class='card'><h3 class='wn'>C. Product UI with Mock Data</h3><ul><li>제품 파일에서 정적 샘플 기반 selector 표시</li><li>저장 없이 preview-only 동작</li><li><span class='wn'>주의</span> — 기존 mock 흐름 회귀 점검</li></ul></div>
+<div class='card badbox' style='background:var(--card2)'><h3 class='bad'>D. Data / Logic Sensitive</h3><ul><li>실제 저장 · Firestore · API · fetch · localStorage 로직</li><li>권한 판정 · 실제 배포/생성</li><li><span class='bad'>금지(이 단계)</span> — 별도 승인·별도 PR</li></ul></div>
+</div>
+<div class='note' style='margin-top:12px'>후속 제품 보정은 <strong>A → B → C</strong> 순으로 진행하고, <strong>D는 분리·보류</strong>한다. 각 PR은 단일 분류에 머무르게 해 회귀 범위를 좁힌다.</div>
+</section>
+
+<section class='sec' id='prsplit'>
+<div class='head'><span class='no'>06</span><h2>Recommended PR Split</h2></div>
+<div class='table xwide'>
+<table>
+<thead><tr><th>PR</th><th>목적</th><th>수정 예상 파일</th><th>금지 파일</th><th>검증 기준</th><th>리스크</th><th>분류</th></tr></thead>
+<tbody>
+<tr><td class='tid'>PR-A</td><td>템플릿 선택 진입점 UI 정렬(문구/위치)</td><td>screen-specification.html/css</td><td>js 저장로직·nav-data·schema</td><td>진입 버튼 정상·회귀 없음</td><td class='ok'>낮음</td><td><span class='tag a'>B</span></td></tr>
+<tr><td class='tid'>PR-B</td><td>Top 10 Template Selector static panel</td><td>screen-specification.html/css(+정적 데이터)</td><td>저장/fetch/localStorage</td><td>카드 표시·선택 정적 동작</td><td class='wn'>중간</td><td><span class='tag a'>C</span></td></tr>
+<tr><td class='tid'>PR-C</td><td>Preview Panel 정적/샘플 UI 정렬</td><td>screen-specification.html/css</td><td>저장/데이터 로직</td><td>P5 표시 항목 일치·mock 유지</td><td class='wn'>중간</td><td><span class='tag a'>C</span></td></tr>
+<tr><td class='tid'>PR-D</td><td>Drawer layout 기준 보정(P6 정렬)</td><td>screen-specification.css · stam.drawer.css(주의)</td><td>드로워 저장/권한 로직</td><td>상세/등록 드로워 회귀 없음</td><td class='wn'>중간</td><td><span class='tag a'>B</span></td></tr>
+<tr><td class='tid'>PR-E</td><td>Field Source 연계 준비 문구/placeholder</td><td>screen-specification.html</td><td>board-field-schema·board-builder</td><td>안내 문구만·동작 변경 없음</td><td class='ok'>낮음</td><td><span class='tag a'>B</span></td></tr>
+<tr><td class='tid'>PR-F</td><td>모바일/좁은 화면 보정(@media 추가)</td><td>screen-specification.css</td><td>js 로직·shell</td><td>4 폭에서 정상·가로 스크롤 억제</td><td class='wn'>중간</td><td><span class='tag a'>B</span></td></tr>
+<tr><td class='tid'>PR-G</td><td>실제 데이터/저장 연계</td><td>—</td><td>—</td><td>—</td><td class='bad'>높음</td><td><span class='tag b'>D · 보류</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class='note' style='margin-top:12px'>각 PR은 단일 목적·작은 diff·staging 확인 가능해야 한다. <strong>PR-G(데이터/저장)는 별도 승인 전 보류</strong>한다. merge/deploy 판단은 "회귀 없음 + 콘솔 오류 없음 + 라이트/다크 + 모바일 정상 + staging 확인"을 충족할 때만 진행한다.</div>
+</section>
+
+<section class='sec' id='riskmap'>
+<div class='head'><span class='no'>07</span><h2>Product File Risk Map</h2></div>
+<div class='table wide'>
+<table>
+<thead><tr><th>파일 / 영역</th><th>구분</th><th>메모</th></tr></thead>
+<tbody>
+<tr><td><code>pages/boards/screen-specification.html</code></td><td class='wn'>Safe to edit with caution</td><td>DOM 구조 보정 가능. View 스캐폴딩 유지</td></tr>
+<tr><td><code>css/stam.screen-specification.css</code></td><td class='wn'>Safe to edit with caution</td><td>레이아웃/모바일 보정 대상. 토큰 우선</td></tr>
+<tr><td><code>js/stam.screen-specification.js</code></td><td class='bad'>Requires separate approval</td><td>draft·view·mock 로직. 저장/권한 손대지 않기</td></tr>
+<tr><td>공통 shell JS(shell·nav-render·topbar)</td><td class='bad'>Do not edit in this phase</td><td>App Shell 영향 광범위</td></tr>
+<tr><td><code>js/stam.nav-data.js</code></td><td class='bad'>Do not edit in this phase</td><td>IA/메뉴 SSOT</td></tr>
+<tr><td><code>js/stam.board-field-schema.js</code></td><td class='ok'>Safe to read</td><td>읽기 전용. 12타입/18속성 참조</td></tr>
+<tr><td>Board Builder 제품 파일</td><td class='bad'>Requires separate approval</td><td>연계는 후속 설계 후</td></tr>
+<tr><td>저장/데이터 로직(Firestore/API/fetch/localStorage)</td><td class='bad'>Do not edit in this phase</td><td>D 분류. 별도 PR·별도 승인</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class='sec' id='forbidden'>
+<div class='head'><span class='no'>08</span><h2>Forbidden Scope for First Product PR</h2></div>
+<div class='note badbox'><strong>첫 제품 보정 PR에서 절대 건드리지 않는다.</strong></div>
+<div class='grid c3' style='margin-top:12px'>
+<div class='card'><h3 class='bad'>데이터/저장</h3><ul><li>Firestore · API · fetch</li><li>localStorage 기능 로직</li><li>실제 저장/삭제/배포</li></ul></div>
+<div class='card'><h3 class='bad'>셸/IA</h3><ul><li>App Shell · Left Nav · Topbar</li><li><code>stam.nav-data.js</code></li><li><code>stam.board-field-schema.js</code></li></ul></div>
+<div class='card'><h3 class='bad'>설정/외부</h3><ul><li>Firebase 설정</li><li>GitHub Actions workflow</li><li>Board Builder 제품 로직 · 권한 판정 로직</li></ul></div>
+</div>
+</section>
+
+<section class='sec' id='selready'>
+<div class='head'><span class='no'>09</span><h2>Selector Readiness Checklist</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>#</th><th>점검 항목</th><th>현재</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>진입 버튼 위치 확정</td><td class='ok'>존재("템플릿으로 작성")</td></tr>
+<tr><td>2</td><td>Selector 표시 방식 확정(풀페이지 vs 모달)</td><td class='wn'>풀페이지 View 존재·방식 확정 필요</td></tr>
+<tr><td>3</td><td>Top 10 카드 데이터 구조 확정</td><td class='bad'>도메인형 프리셋 → 구조형 매핑 필요</td></tr>
+<tr><td>4</td><td>Field Source 선택 방식 확정</td><td class='bad'>미구현</td></tr>
+<tr><td>5</td><td>Preview Panel 표시 항목 확정</td><td class='wn'>Preview View 존재·항목 정렬</td></tr>
+<tr><td>6</td><td>Draft Result 구조 확정</td><td class='wn'>draft 모델 존재·정렬</td></tr>
+<tr><td>7</td><td>저장 여부 결정</td><td class='bad'>mock only · 저장 보류</td></tr>
+<tr><td>8</td><td>모바일 동작 확정</td><td class='bad'>@media 없음</td></tr>
+<tr><td>9</td><td>권한/검토/내보내기 표시 기준 확정</td><td class='wn'>버튼 존재·표시 기준 정렬</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class='sec' id='dwready'>
+<div class='head'><span class='no'>10</span><h2>Drawer Readiness Checklist</h2><span class='pill'>P6 기준</span></div>
+<div class='table'>
+<table>
+<thead><tr><th>#</th><th>점검 항목</th><th>현재</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>상세 드로워 구조 확인</td><td class='ok'>존재(개요/연결/이력 탭)</td></tr>
+<tr><td>2</td><td>등록/수정 드로워 구조 확인</td><td class='ok'>존재(드로워+편집기)</td></tr>
+<tr><td>3</td><td>드로워 footer action 기준 확인</td><td class='wn'>임시저장/저장 존재·P6 정렬</td></tr>
+<tr><td>4</td><td>닫기/ESC/취소/저장 기준 확인</td><td class='wn'>닫기/취소 존재·ESC/dirty 확인 필요</td></tr>
+<tr><td>5</td><td>Dirty 상태 / Confirm Close 기준</td><td class='bad'>확인 다이얼로그 기준 정렬 필요</td></tr>
+<tr><td>6</td><td>모바일 full-screen 전환 기준</td><td class='bad'>@media 없음</td></tr>
+<tr><td>7</td><td>권한별 action 표시 기준</td><td class='bad'>권한 판정 로직 없음</td></tr>
+<tr><td>8</td><td>검증 메시지 표시 기준</td><td class='wn'>P6 검증 패턴 정렬 필요</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class='sec' id='bbready'>
+<div class='head'><span class='no'>11</span><h2>Board Builder Integration Readiness</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>#</th><th>점검 항목</th><th>현재</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>board-field-schema 12종 타입 기준 확인</td><td class='ok'>스키마 존재(읽기) · text~url 12종</td></tr>
+<tr><td>2</td><td>필드 속성 매핑 확인</td><td class='ok'>P4 매핑 기준 존재</td></tr>
+<tr><td>3</td><td>화면설계서 템플릿 input 구조 확정</td><td class='wn'>draft 모델 존재·input 구조 정렬</td></tr>
+<tr><td>4</td><td>field source selection 방식 확정</td><td class='bad'>미구현</td></tr>
+<tr><td>5</td><td>현재 preview/local 제약 확인</td><td class='ok'>Board Builder preview/local 명시</td></tr>
+<tr><td>6</td><td>실제 저장/배포 기능과 분리</td><td class='ok'>분리 유지(D 보류)</td></tr>
+</tbody>
+</table>
+</div>
+<div class='note' style='margin-top:12px'>현재 <code>board-builder.html</code>은 <code>screen-specification.html</code>로의 연결 링크가 없다. Board Builder ↔ 화면설계서 연계는 <a href='STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html' style='color:var(--good)'>Integration Blueprint</a> 기준으로 <strong>후속 설계 후</strong> 진행한다.</div>
+</section>
+
+<section class='sec' id='mobile'>
+<div class='head'><span class='no'>12</span><h2>Mobile / Narrow Width QA</h2></div>
+<div class='table wide'>
+<table>
+<thead><tr><th>기준 폭</th><th>점검</th><th>메모</th></tr></thead>
+<tbody>
+<tr><td>1366px</td><td>편집기 Split 비율·목록 컬럼</td><td>Wireframe+Form 2열 유지 가능</td></tr>
+<tr><td>1024px</td><td>드로워 폭·툴바 줄바꿈</td><td>드로워 <code>clamp</code> 폭 확인</td></tr>
+<tr><td>768px</td><td>Split → 스택 전환 / 카드 1열</td><td>브레이크포인트 필요(현재 없음)</td></tr>
+<tr><td>430px</td><td>드로워 full-screen · Footer CTA 고정</td><td>전체화면 전환 필요(현재 없음)</td></tr>
+</tbody>
+</table>
+</div>
+<div class='grid c2' style='margin-top:12px'>
+<div class='card'><h3>공통 QA</h3><ul><li>드로워 전체 화면 전환</li><li>Template card 1열 전환</li><li>Preview Panel 하단 전환</li><li>Wide table overflow 정책</li></ul></div>
+<div class='card'><h3>터치/스크롤</h3><ul><li>Footer CTA 고정 여부</li><li>터치 영역 크기(최소 44px 권장)</li><li>스크롤 들썩임 없음</li><li>가로 스크롤 컨테이너 한정</li></ul></div>
+</div>
+<div class='note warnbox' style='margin-top:12px'><strong>핵심:</strong> 현재 <code>stam.screen-specification.css</code>에 <code>@media</code> 브레이크포인트가 없어 768px/430px 전환이 정의되어 있지 않다. 모바일 보정(PR-F)은 <strong>CSS @media 추가 위주</strong>로 하고 JS 로직은 건드리지 않는다.</div>
+</section>
+
+<section class='sec' id='accept'>
+<div class='head'><span class='no'>13</span><h2>Acceptance Criteria for First Product PR</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>#</th><th>PASS 기준</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>제품 파일 수정 범위가 명확함(단일 목적·작은 diff)</td></tr>
+<tr><td>2</td><td>저장/데이터 로직 무변경(Firestore/API/fetch/localStorage)</td></tr>
+<tr><td>3</td><td>템플릿 선택 진입점 또는 static selector만 추가(mock 유지)</td></tr>
+<tr><td>4</td><td>기존 목록/드로워/편집기/미리보기 기능 회귀 없음</td></tr>
+<tr><td>5</td><td>콘솔 오류 없음</td></tr>
+<tr><td>6</td><td>라이트/다크 정상</td></tr>
+<tr><td>7</td><td>모바일/좁은 화면 정상(가로 스크롤 억제)</td></tr>
+<tr><td>8</td><td>staging URL 확인 가능</td></tr>
+<tr><td>9</td><td>nav-data · board-field-schema · App Shell 무변경</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class='sec' id='roadmap'>
+<div class='head'><span class='no'>14</span><h2>Follow-up Roadmap</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>우선순위</th><th>문서 / 작업</th><th>역할</th><th>상태</th></tr></thead>
+<tbody>
+<tr><td><span class='tag g'>P1</span></td><td><b><a href='STAM-Screen-Template-System-Master-Guide-v1.html' style='color:var(--good)'>STAM-Screen-Template-System-Master-Guide-v1.html</a></b></td><td>템플릿 시스템 상위 기준</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag g'>P2</span></td><td><b><a href='STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html' style='color:var(--good)'>STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html</a></b></td><td>우선 템플릿 30종 Baseline</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag g'>P3</span></td><td><b><a href='STAM-Screen-Template-Top-10-Detail-Pack-v1.html' style='color:var(--good)'>STAM-Screen-Template-Top-10-Detail-Pack-v1.html</a></b></td><td>Top 10 상세 기준</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag g'>P4</span></td><td><b><a href='STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html' style='color:var(--good)'>STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html</a></b></td><td>Board Builder ↔ Screen Template 연결 설계</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag g'>P5</span></td><td><b><a href='STAM-Screen-Template-Selector-UX-Flow-Prototype-v1.html' style='color:var(--good)'>STAM-Screen-Template-Selector-UX-Flow-Prototype-v1.html</a></b></td><td>템플릿 선택 UX 흐름 프로토타입</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag g'>P6</span></td><td><b><a href='STAM-Screen-Template-Top-3-Drawer-Preview-v1.html' style='color:var(--good)'>STAM-Screen-Template-Top-3-Drawer-Preview-v1.html</a></b></td><td>Top 3 Drawer Preview (T07·T11·T27)</td><td class='ok'>완료</td></tr>
+<tr><td><span class='tag a'>P7</span></td><td><b><a href='STAM-Screen-Specification-Product-Flow-Readiness-Plan-v1.html' style='color:var(--good)'>STAM-Screen-Specification-Product-Flow-Readiness-Plan-v1.html</a></b></td><td>제품 보정 전 진단·계획</td><td class='ok'>이번 문서</td></tr>
+<tr><td><span class='tag w'>P8</span></td><td>Product UI Static Selector PR</td><td>제품 정적 selector(UI/mock)</td><td class='wn'>후속 단계</td></tr>
+<tr><td><span class='tag w'>P9</span></td><td>Product Preview Panel PR</td><td>제품 미리보기 패널(UI/mock)</td><td class='wn'>후속 단계</td></tr>
+<tr><td><span class='tag w'>P10</span></td><td>Board Builder Field Source 연계 설계 또는 구현 판단</td><td>BB↔화면설계서 연계</td><td class='wn'>후속 판단</td></tr>
+</tbody>
+</table>
+</div>
+<div class='note' style='margin-top:12px'>P8·P9·P10은 아직 생성되지 않았다. 작업명을 텍스트로만 표기하며 <code>href</code>를 부여하지 않는다. P1~P7(이 문서)만 링크가 활성화되어 있다.</div>
+</section>
+
+<section class='sec' id='linkpolicy'>
+<div class='head'><span class='no'>15</span><h2>Link Policy</h2></div>
+<div class='rules'>
+<div class='rule'><b class='ok'>실제 존재 파일만 링크</b><span>이 문서 내 모든 <code>&lt;a href&gt;</code>는 <code>stam/</code> 하위에 실제로 존재하는 파일만 참조한다.</span></div>
+<div class='rule'><b class='ok'>Missing 문서는 링크 안 함</b><span>후속(P8·P9·P10) 작업은 텍스트로만 표기하고 <code>href</code>를 부여하지 않는다.</span></div>
+<div class='rule'><b class='wn'>임의 경로 금지</b><span>예상 파일명·가상 route를 확정 경로처럼 쓰지 않는다.</span></div>
+<div class='rule'><b class='wn'>nav-data 연동 금지</b><span>이 문서는 <code>stam/js/stam.nav-data.js</code>에 등록하지 않는다. docs 영역 독립 문서로 유지한다.</span></div>
+</div>
+<div class='note' style='margin-top:12px'><strong>이 문서에서 활성 링크가 부여된 파일:</strong><br>
+• <a href='STAM-Docs-Index.html' style='color:var(--good)'>STAM-Docs-Index.html</a><br>
+• <a href='STAM-Screen-Template-System-Master-Guide-v1.html' style='color:var(--good)'>STAM-Screen-Template-System-Master-Guide-v1.html</a><br>
+• <a href='STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html' style='color:var(--good)'>STAM-Screen-Template-Priority-30-Korean-Baseline-v1.html</a><br>
+• <a href='STAM-Screen-Template-Top-10-Detail-Pack-v1.html' style='color:var(--good)'>STAM-Screen-Template-Top-10-Detail-Pack-v1.html</a><br>
+• <a href='STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html' style='color:var(--good)'>STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html</a><br>
+• <a href='STAM-Screen-Template-Selector-UX-Flow-Prototype-v1.html' style='color:var(--good)'>STAM-Screen-Template-Selector-UX-Flow-Prototype-v1.html</a><br>
+• <a href='STAM-Screen-Template-Top-3-Drawer-Preview-v1.html' style='color:var(--good)'>STAM-Screen-Template-Top-3-Drawer-Preview-v1.html</a><br>
+• <a href='STAM-Screen-Template-Docs-Inventory-Gap-Report-v1.html' style='color:var(--good)'>STAM-Screen-Template-Docs-Inventory-Gap-Report-v1.html</a><br>
+• <a href='../pages/boards/screen-specification.html' style='color:var(--good)'>../pages/boards/screen-specification.html</a><br>
+• <a href='../pages/boards-v2/board-builder.html' style='color:var(--good)'>../pages/boards-v2/board-builder.html</a>
+</div>
+</section>
+
+<section class='sec' id='qa'>
+<div class='head'><span class='no'>16</span><h2>QA Checklist</h2></div>
+<div class='table'>
+<table>
+<thead><tr><th>#</th><th>항목</th><th>기준</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>docs-only</td><td>변경 파일이 <code>stam/docs/**</code> 하위에만 존재</td><td class='ok'>확인</td></tr>
+<tr><td>2</td><td>제품 파일 무변경</td><td><code>pages/</code>, <code>js/</code>, <code>css/</code> 수정 없음</td><td class='ok'>확인</td></tr>
+<tr><td>3</td><td>nav-data 무변경</td><td><code>stam/js/stam.nav-data.js</code> 변경 없음</td><td class='ok'>확인</td></tr>
+<tr><td>4</td><td>board-field-schema 무변경</td><td><code>stam/js/stam.board-field-schema.js</code> 변경 없음</td><td class='ok'>확인</td></tr>
+<tr><td>5</td><td>깨진 링크 없음</td><td>모든 href가 실제 존재 파일</td><td class='ok'>확인</td></tr>
+<tr><td>6</td><td>HTML 태그 밸런스</td><td>div / section / a 열기=닫기</td><td class='ok'>확인</td></tr>
+<tr><td>7</td><td>가로 스크롤 처리</td><td>표 컨테이너 <code>overflow:auto</code>, 모바일 1열 전환</td><td class='ok'>확인</td></tr>
+<tr><td>8</td><td>외부 폰트 CDN 없음</td><td>S-Core Dream 자체 서빙만 사용</td><td class='ok'>확인</td></tr>
+<tr><td>9</td><td>iframe 없음</td><td>문서 내 <code>&lt;iframe&gt;</code> 미사용</td><td class='ok'>확인</td></tr>
+<tr><td>10</td><td>신규 JS 없음</td><td>기존 <code>stam.theme.js</code>만 참조, 신규 스크립트 없음</td><td class='ok'>확인</td></tr>
+<tr><td>11</td><td>Current Product Inventory 포함</td><td>실제 파일/DOM/View 조사</td><td class='ok'>확인</td></tr>
+<tr><td>12</td><td>Gap Analysis 포함</td><td>12 항목 × 5 상태</td><td class='ok'>확인</td></tr>
+<tr><td>13</td><td>Recommended PR Split 포함</td><td>PR-A~PR-G(목적/파일/금지/검증/리스크)</td><td class='ok'>확인</td></tr>
+<tr><td>14</td><td>Product File Risk Map 포함</td><td>파일별 4구분</td><td class='ok'>확인</td></tr>
+<tr><td>15</td><td>Acceptance Criteria 포함</td><td>첫 제품 PR PASS 기준</td><td class='ok'>확인</td></tr>
+<tr><td>16</td><td>Missing 문서 미링크</td><td>P8·P9·P10 href 없음, 텍스트만</td><td class='ok'>확인</td></tr>
+<tr><td>17</td><td>금지 표현 미사용</td><td>금지 약어형 표현 미사용, "1차 범위/우선 적용/후속 단계" 기준</td><td class='ok'>확인</td></tr>
+<tr><td>18</td><td>Docs Index 카드</td><td>화면설계서 템플릿 섹션에 카드 1개 추가</td><td class='ok'>확인</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<div class='footer'>STAM Screen Specification Product Flow Readiness Plan v1 · P7 · docs-only · 기준 main d392497 · 2026-06-20</div>
+</main>
+</div>
+<script src='../js/stam.theme.js'></script>
+</body>
+</html>
