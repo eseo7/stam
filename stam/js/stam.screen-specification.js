@@ -2937,10 +2937,10 @@
         return;
       }
 
-      /* Component Library category toggle */
-      var ccHdr = e.target.closest('.cc-hdr');
-      if (ccHdr && SSP.view.mode === 'editor') {
-        var catEl = ccHdr.closest('.comp-cat');
+      /* Component Library category toggle — chevron button only */
+      var ccChev = e.target.closest('.cc-chev');
+      if (ccChev && SSP.view.mode === 'editor') {
+        var catEl = ccChev.closest('.comp-cat');
         if (catEl) {
           catEl.classList.toggle('open');
           var catId = catEl.getAttribute('data-cat-id');
