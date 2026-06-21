@@ -1874,7 +1874,7 @@
   max-width: var(--content-max, 1560px);
   margin: 0 auto;
   box-sizing: border-box;
-  min-height: 100%;
+  min-height: 0;
   background: var(--bg-base);
   overflow-x: hidden;
 }
@@ -4217,11 +4217,16 @@ select.ss-ed-inp:focus,
 ═══════════════════════════════════════════════════════ */
 
 /* ── Override editor view container for full-width workbench (P12/P13) ── */
+/* flex: 1 1 auto + min-height: 0 fills the remaining height in .po-main
+   (after .po-ctx), preventing .po-main from scrolling and keeping the
+   action bar naturally pinned at the bottom via the flex column layout. */
 .ss-editor-view {
   max-width: none;
   margin-left: 0;
   margin-right: 0;
-  height: calc(100vh - var(--topbar-h, 48px));
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -4229,6 +4234,7 @@ select.ss-ed-inp:focus,
 .ss-editor-head {
   padding: 0 18px;
   height: 44px;
+  flex-shrink: 0;
   gap: 8px;
 }
 
@@ -4659,16 +4665,23 @@ select.ss-ed-inp:focus,
 .imp-m { display: inline-flex; padding: 1px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; background: rgba(245,158,11,.12); color: var(--warn, #f59e0b); border: 1px solid rgba(245,158,11,.2); }
 .imp-l { display: inline-flex; padding: 1px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; background: rgba(100,116,139,.12); color: var(--t3); border: 1px solid var(--bd); }
 
-/* ── Editor Action Bar (ss-editor-foot) — sticky footer (P13) ── */
+/* ── Editor Action Bar (ss-editor-foot) — sticky footer (P13/P15-Fix) ── */
 .ss-editor-foot {
   padding: 10px 18px;
   background: var(--bg-sur);
   justify-content: flex-start;
   flex: 0 0 auto;
+  flex-wrap: wrap;
   position: sticky;
   bottom: 0;
   z-index: 20;
   border-top: 1px solid var(--bd);
+  box-shadow: 0 -2px 8px rgba(0,0,0,.06);
+}
+@media (max-width: 768px) {
+  .ss-editor-foot { padding: 8px 12px; gap: 6px; }
+  .ss-editor-foot .bsm { font-size: 11px; padding: 5px 10px; }
+  .ss-editor-foot .ed-btm-flex { display: none; }
 }
 
 .ed-si {
@@ -4720,7 +4733,9 @@ select.ss-ed-inp:focus,
 .ss-preview-view {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - var(--topbar-h, 48px));
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
   overflow: hidden;
   background: var(--bg-base);
 }
@@ -5032,3 +5047,4 @@ select.ss-ed-inp:focus,
 [data-theme="dark"] .ss-rec-act-btn:hover { background: rgba(84,81,232,.18); border-color: rgba(84,81,232,.32); color: #a5b4fc; }
 [data-theme="dark"] .ss-rec-act-edit { background: rgba(84,81,232,.12); border-color: rgba(84,81,232,.28); color: #a5b4fc; }
 [data-theme="dark"] .ss-toast { background: rgba(30,30,40,.96); color: #e2e8f0; }
+[data-theme="dark"] .ss-editor-foot { box-shadow: 0 -2px 12px rgba(0,0,0,.30); }
