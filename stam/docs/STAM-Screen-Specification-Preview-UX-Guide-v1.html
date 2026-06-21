@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM · Screen Specification Preview UX Guide v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;font-family:inherit}
+body{background:var(--bg-base);color:var(--t1);font-family:var(--font);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button{cursor:pointer;font-family:var(--font)}
+.dn{display:none!important}
+
+/* Topbar */
+.top{position:sticky;top:0;z-index:200;height:48px;display:flex;align-items:center;background:#0A0E1A;border-bottom:1px solid rgba(255,255,255,.07)}
+.top-logo{display:flex;align-items:center;gap:8px;padding:0 16px;height:100%;border-right:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.top-logo img{width:22px;height:22px;object-fit:contain}
+.top-logo span{font-size:13px;font-weight:700;color:rgba(255,255,255,.90);letter-spacing:.06em}
+.top-title{font-size:11px;color:rgba(255,255,255,.35);padding:0 14px}
+.top-sp{flex:1}
+.top-pill{font-size:9.5px;font-weight:700;padding:2px 9px;border-radius:10px;background:rgba(139,127,248,.12);color:#8B7FF8;border:1px solid rgba(139,127,248,.2);margin-right:16px;display:flex;align-items:center;gap:4px}
+.top-pill .dot{width:5px;height:5px;border-radius:50%;background:#8B7FF8}
+
+/* Doc */
+.doc{max-width:960px;margin:0 auto;padding:40px 32px 80px}
+.doc-hero{background:linear-gradient(135deg,rgba(84,81,232,.1),rgba(139,127,248,.03));border:1px solid rgba(84,81,232,.22);border-radius:14px;padding:24px 28px 20px;margin-bottom:32px}
+.hero-sup{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#8B7FF8;margin-bottom:8px}
+.hero-title{font-size:22px;font-weight:700;color:var(--t1);line-height:1.25;margin-bottom:6px;letter-spacing:-.01em}
+.hero-sub{font-size:12.5px;color:var(--t3);line-height:1.75;margin-bottom:14px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:7px}
+.mbadge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 9px;border-radius:4px;border:1px solid}
+.mb-s{background:rgba(84,81,232,.1);color:#8B7FF8;border-color:rgba(84,81,232,.25)}
+.mb-n{background:rgba(100,116,139,.1);color:var(--t2);border-color:rgba(100,116,139,.2)}
+.mb-g{background:rgba(34,197,94,.1);color:var(--pass);border-color:rgba(34,197,94,.25)}
+.mb-w{background:rgba(245,158,11,.1);color:var(--warn);border-color:rgba(245,158,11,.2)}
+
+/* Sections */
+.sec{margin-bottom:52px}
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--brand)}
+.sec-num{width:28px;height:28px;border-radius:50%;background:var(--brand);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-title{font-size:18px;font-weight:700;color:var(--t1)}
+
+/* Cards */
+.card{background:var(--bg-sur);border:1px solid var(--bd);border-radius:10px;padding:18px 20px;margin-bottom:12px}
+.card-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:10px}
+.card-body{font-size:12.5px;color:var(--t2);line-height:1.75}
+.card-body p{margin-bottom:7px}
+.card-body p:last-child{margin-bottom:0}
+.note{background:rgba(84,81,232,.07);border-left:3px solid #8B7FF8;border-radius:0 6px 6px 0;padding:10px 14px;margin:12px 0;font-size:12px;color:var(--t2);line-height:1.65}
+.note strong{color:var(--t1)}
+code{font-family:var(--mono);font-size:11.5px;background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;color:#8B7FF8}
+
+/* Problem list */
+.prob-list{display:flex;flex-direction:column;gap:7px}
+.prob-item{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;background:var(--bg-sur2);border:1px solid var(--bd);border-radius:8px}
+.prob-ico{width:20px;height:20px;border-radius:5px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.prob-ico svg{width:11px;height:11px;color:#ef4444}
+.prob-txt{font-size:12px;color:var(--t2);line-height:1.65}
+.prob-txt strong{color:var(--t1);font-weight:600}
+
+/* Layout comparison */
+.lc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.lc-card{border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.lc-card.rec{border-color:rgba(84,81,232,.55);box-shadow:0 0 0 3px rgba(84,81,232,.1)}
+.lc-hdr{padding:11px 16px;background:var(--bg-sur2);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px}
+.lc-lbl{font-size:11px;font-weight:700;color:var(--t2)}
+.lc-badge{font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:4px}
+.lc-badge.rec{background:rgba(84,81,232,.15);color:#8B7FF8;border:1px solid rgba(84,81,232,.3)}
+.lc-badge.alt{background:rgba(100,116,139,.12);color:var(--t3);border:1px solid var(--bd)}
+.lc-vis{padding:14px 16px;border-bottom:1px solid var(--bd)}
+.lc-vis-lbl{font-size:9.5px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+
+/* Mini wireframe diagrams */
+.wd{display:flex;flex-direction:column;gap:3px}
+.wd-row{display:flex;gap:2px;align-items:stretch}
+.wdb{display:flex;align-items:center;justify-content:center;border-radius:3px;font-size:8px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 3px}
+.wdb-top{flex:1;height:16px;background:#0A0E1A;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.07)}
+.wdb-meta{flex:1;height:22px;background:rgba(84,81,232,.1);color:#8B7FF8;border:1px solid rgba(84,81,232,.22)}
+.wdb-mock{flex:0 0 55%;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t3)}
+.wdb-desc{flex:1;background:var(--bg-sur);border:1px solid var(--bd);color:var(--t3)}
+.wdb-act{flex:1;height:18px;background:rgba(84,81,232,.08);border:1px solid rgba(84,81,232,.15);color:#8B7FF8}
+.wdb-side{flex:0 0 28px;background:var(--bg-sur);border:1px solid var(--bd);color:var(--t3)}
+.wdb-center{flex:1;background:var(--bg-base);border:1px solid var(--bd);color:var(--t3)}
+.wdb-insp{flex:0 0 32px;background:var(--bg-sur);border:1px solid var(--bd);color:rgba(84,81,232,.6)}
+
+.lc-pros{padding:12px 16px}
+.lc-sl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:5px;margin-top:8px}
+.lc-sl:first-child{margin-top:0}
+.lc-i{display:flex;align-items:flex-start;gap:5px;font-size:11.5px;color:var(--t2);margin-bottom:3px;line-height:1.5}
+.lc-i::before{content:'';width:4px;height:4px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.lc-i.pro::before{background:var(--pass)}
+.lc-i.con::before{background:rgba(239,68,68,.7)}
+
+/* Recommendation */
+.rec-card{background:rgba(84,81,232,.06);border:1.5px solid rgba(84,81,232,.3);border-radius:12px;padding:22px 24px;margin-top:8px}
+.rec-tag{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:5px;background:rgba(84,81,232,.15);border:1px solid rgba(84,81,232,.3);color:#8B7FF8;margin-bottom:12px}
+.rec-title{font-size:16px;font-weight:700;color:var(--t1);margin-bottom:8px;letter-spacing:-.01em}
+.rec-desc{font-size:12.5px;color:var(--t2);line-height:1.75;margin-bottom:14px}
+.reason-list{display:flex;flex-direction:column;gap:6px}
+.reason-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:rgba(84,81,232,.06);border:1px solid rgba(84,81,232,.15);border-radius:7px;font-size:12px;color:var(--t2);line-height:1.6}
+.reason-num{width:18px;height:18px;border-radius:50%;background:var(--stam);color:#fff;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+/* ─── INTERACTIVE C안 DEMO ─────────────────────────────── */
+.demo-wrap{border:1px solid var(--bd);border-radius:12px;overflow:hidden;background:var(--bg-base);margin-top:10px}
+.demo-toolbar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--bg-sur2);border-bottom:1px solid var(--bd)}
+.demo-toolbar-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;flex:1}
+.demo-tabs{display:flex;gap:5px}
+.demo-tab{padding:4px 12px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid var(--bd);background:var(--bg-sur2);color:var(--t3);transition:all 150ms}
+.demo-tab.on{background:rgba(84,81,232,.12);border-color:rgba(84,81,232,.3);color:#8B7FF8}
+.demo-inner{height:560px;overflow:hidden;position:relative}
+
+/* Preview UI inside demo */
+.prev-ui{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg-base)}
+
+/* Preview header */
+.prev-hdr{display:flex;align-items:center;gap:10px;padding:0 20px;height:48px;background:var(--bg-sur);border-bottom:1px solid var(--bd);flex-shrink:0}
+.prev-hdr-id{font-size:12px;font-weight:700;color:var(--t1);font-family:var(--mono);flex-shrink:0}
+.prev-hdr-name{font-size:12.5px;color:var(--t2);flex-shrink:0}
+.prev-hdr-chip{display:inline-flex;align-items:center;padding:2px 9px;border-radius:4px;font-size:10.5px;font-weight:700;flex-shrink:0}
+.phc-draft{background:rgba(100,116,139,.12);color:var(--t3);border:1px solid var(--bd)}
+.phc-review{background:rgba(245,158,11,.1);color:var(--warn);border:1px solid rgba(245,158,11,.2)}
+.prev-hdr-meta{font-size:10.5px;color:var(--t3);flex-shrink:0}
+.prev-hdr-sp{flex:1}
+.prev-hdr-close{padding:5px 14px;border-radius:5px;font-size:11.5px;font-weight:600;border:1px solid var(--bd);background:var(--bg-sur2);color:var(--t2);transition:all 150ms}
+.prev-hdr-close:hover{color:var(--t1)}
+
+/* Preview body */
+.prev-body-wrap{display:flex;flex:1;overflow:hidden;gap:0}
+
+/* Left: mockup */
+.prev-mock-col{flex:0 0 52%;overflow-y:auto;padding:16px;border-right:1px solid var(--bd);scrollbar-width:thin}
+.prev-mock-col::-webkit-scrollbar{width:3px}
+.prev-mock-col::-webkit-scrollbar-thumb{background:var(--bd-s);border-radius:99px}
+.prev-mock-frame{background:var(--bg-sur);border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.pmf-gnb{height:40px;background:var(--bg-sur2);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 12px;gap:8px}
+.pmf-logo{width:48px;height:11px;background:var(--bg-sur3);border-radius:2px}
+.pmf-sp{flex:1}
+.pmf-nav{display:flex;gap:4px}
+.pmf-ni{width:24px;height:5px;background:var(--bg-sur3);border-radius:2px}
+.pmf-body{padding:10px;display:flex;flex-direction:column;gap:5px}
+
+/* Numbered mockup blocks */
+.pmf-block{position:relative;border:1.5px solid var(--bd);border-radius:6px;padding:9px 11px 9px 36px;background:var(--bg-base);cursor:pointer;transition:border-color 150ms,background 150ms}
+.pmf-block:hover{border-color:rgba(139,127,248,.4)}
+.pmf-block.lit{border-color:var(--stam);background:rgba(84,81,232,.07)}
+.pmf-block.hidden-blk{opacity:.35;cursor:not-allowed}
+.pmf-badge{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:var(--bg-sur3);border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--t3);flex-shrink:0;transition:all 150ms}
+.pmf-block.lit .pmf-badge{background:var(--stam);border-color:var(--stam);color:#fff}
+.pmf-block-lines{display:flex;flex-direction:column;gap:3px}
+.pmf-line{height:6px;border-radius:3px;background:var(--bg-sur2)}
+.pmf-line.short{width:55%}
+.pmf-block-name{font-size:11px;font-weight:600;color:var(--t2);margin-bottom:3px}
+
+/* Right: description panel */
+.prev-desc-col{flex:1;overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:thin}
+.prev-desc-col::-webkit-scrollbar{width:3px}
+.prev-desc-col::-webkit-scrollbar-thumb{background:var(--bd-s);border-radius:99px}
+.prev-desc-hdr{padding:10px 14px 8px;border-bottom:1px solid var(--bd);flex-shrink:0;display:flex;align-items:center;gap:8px}
+.prev-desc-hdr-lbl{font-size:11px;font-weight:700;color:var(--t2);flex:1}
+.prev-desc-legend{display:flex;align-items:center;gap:6px}
+.ldot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ldot-req{background:#ef4444}
+.ldot-opt{background:var(--pass)}
+.ldot-missing{background:var(--warn)}
+.ldot-lbl{font-size:9.5px;color:var(--t3)}
+
+.desc-item{padding:11px 14px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background 150ms}
+.desc-item:hover{background:rgba(255,255,255,.02)}
+.desc-item.lit{background:rgba(84,81,232,.07);border-left:3px solid var(--stam)}
+.desc-item:not(.lit){border-left:3px solid transparent}
+.desc-item-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.desc-num{width:20px;height:20px;border-radius:50%;background:var(--bg-sur3);border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--t3);flex-shrink:0}
+.desc-item.lit .desc-num{background:var(--stam);border-color:var(--stam);color:#fff}
+.desc-item-name{font-size:12px;font-weight:700;color:var(--t1);flex:1;padding-top:2px}
+.desc-status{font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;flex-shrink:0;margin-top:3px}
+.ds-req{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.2)}
+.ds-opt{background:rgba(34,197,94,.1);color:var(--pass);border:1px solid rgba(34,197,94,.2)}
+.ds-miss{background:rgba(245,158,11,.1);color:var(--warn);border:1px solid rgba(245,158,11,.2)}
+
+.desc-fields{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-left:28px}
+.desc-field{font-size:10.5px;color:var(--t3);display:flex;gap:4px;align-items:flex-start;line-height:1.5}
+.desc-field-lbl{font-weight:700;color:var(--t3);flex-shrink:0;min-width:48px}
+.desc-field-val{color:var(--t2)}
+.desc-field-empty{color:rgba(245,158,11,.8);font-style:italic}
+
+/* Preview footer */
+.prev-ftr{display:flex;align-items:center;gap:7px;padding:10px 18px;background:var(--bg-sur);border-top:1px solid var(--bd);flex-shrink:0}
+.prev-ftr-sp{flex:1}
+.prev-missing{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--warn)}
+.prev-missing svg{width:13px;height:13px;flex-shrink:0}
+.pbtn{padding:6px 14px;font-size:12px;font-weight:600;border-radius:5px;border:1px solid var(--bd);background:var(--bg-sur2);color:var(--t2);transition:all 150ms}
+.pbtn:hover{color:var(--t1);border-color:var(--bd-s)}
+.pbtn.ghost{background:none;border-color:rgba(139,127,248,.28);color:var(--stam)}
+.pbtn.ghost:hover{background:rgba(139,127,248,.08)}
+.pbtn.save{background:rgba(84,81,232,.12);border-color:rgba(84,81,232,.3);color:#8B7FF8}
+.pbtn.save:hover{background:rgba(84,81,232,.2)}
+.pbtn.primary{background:var(--stam);border-color:var(--stam);color:#fff}
+.pbtn.primary:hover{background:#7B6FE8;border-color:#7B6FE8}
+
+/* Empty state */
+.desc-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;gap:6px}
+.desc-empty-ico{width:40px;height:40px;border-radius:10px;background:var(--bg-sur2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+.desc-empty-ico svg{width:18px;height:18px;color:var(--t3)}
+.desc-empty-msg{font-size:12px;font-weight:600;color:var(--t2)}
+.desc-empty-sub{font-size:11px;color:var(--t3);line-height:1.6}
+
+/* Tables */
+.gtable{width:100%;border-collapse:collapse;margin-top:8px}
+.gtable th,.gtable td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--bd);font-size:12px}
+.gtable th{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;background:var(--bg-sur2)}
+.gtable tr:last-child td{border-bottom:none}
+.gtable td:first-child{font-weight:600;color:var(--t1);white-space:nowrap}
+.gtable td.mono{font-family:var(--mono);font-size:11.5px;color:#8B7FF8;white-space:nowrap}
+.gtable td.dim{color:var(--t3);font-size:11px}
+
+/* Flow diagram */
+.flow-row{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-top:8px}
+.flow-step{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 14px;background:var(--bg-sur2);border:1px solid var(--bd);border-radius:8px;min-width:100px;text-align:center}
+.flow-step.active{background:rgba(84,81,232,.1);border-color:rgba(84,81,232,.3)}
+.flow-step.warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2)}
+.flow-step-ico{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--bg-sur3);border:1px solid var(--bd);margin-bottom:2px}
+.flow-step-ico svg{width:13px;height:13px;color:var(--t3)}
+.flow-step.active .flow-step-ico{background:rgba(84,81,232,.12);border-color:rgba(84,81,232,.2)}
+.flow-step.active .flow-step-ico svg{color:#8B7FF8}
+.flow-step-name{font-size:11px;font-weight:600;color:var(--t2)}
+.flow-step-sub{font-size:9.5px;color:var(--t3);line-height:1.5}
+.flow-arr{color:var(--t3);font-size:16px;padding:0 6px;flex-shrink:0}
+.flow-branch{display:flex;flex-direction:column;gap:5px}
+.flow-branch-item{display:flex;align-items:center;gap:6px;padding:7px 11px;background:var(--bg-sur);border:1px solid var(--bd);border-radius:6px;font-size:11.5px;color:var(--t2)}
+.flow-branch-item.good{border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.05)}
+.flow-branch-item.warn{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.05)}
+.flow-branch-item svg{width:12px;height:12px;flex-shrink:0}
+
+/* QA */
+.qa-sec-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;margin-top:14px}
+.qa-sec-lbl:first-child{margin-top:0}
+.qa-list{display:flex;flex-direction:column;gap:5px}
+.qa-item{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;background:var(--bg-sur);border:1px solid var(--bd);border-radius:7px}
+.qa-chk{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--bd-s);flex-shrink:0;margin-top:2px}
+.qa-txt{font-size:12px;color:var(--t2);line-height:1.6}
+.qa-txt strong{color:var(--t1);font-weight:600}
+
+/* Marker spec */
+.marker-spec{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.ms-card{background:var(--bg-sur);border:1px solid var(--bd);border-radius:10px;padding:16px}
+.ms-title{font-size:12px;font-weight:700;color:var(--t1);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ms-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd);font-size:11.5px;color:var(--t2)}
+.ms-item:last-child{border-bottom:none}
+.ms-badge{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;flex-shrink:0}
+.ms-badge.normal{background:var(--bg-sur3);border:1.5px solid var(--bd);color:var(--t3)}
+.ms-badge.active{background:var(--stam);color:#fff}
+.ms-badge.hidden{background:var(--bg-sur3);border:1.5px dashed var(--bd);color:var(--t3);opacity:.5}
+.ms-badge.missing{background:rgba(245,158,11,.15);border:1.5px solid rgba(245,158,11,.4);color:var(--warn)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-logo">
+    <img src="../assets/brand/stam/stam_icon_32.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="top-title">Screen Specification Preview UX Guide</span>
+  <span class="top-sp"></span>
+  <div class="top-pill"><span class="dot"></span>v1 · 2026-06-14</div>
+</header>
+
+<div class="doc">
+
+  <div class="doc-hero">
+    <div class="hero-sup">UX Design Guide</div>
+    <div class="hero-title">화면설계서 미리보기 UX 고도화 기준안</div>
+    <div class="hero-sub">Editor "미리보기" 버튼을 눌렀을 때 나오는 Preview UX의 세 가지 대안을 비교하고, STAM 화면설계서 저장·검토 흐름에 가장 적합한 방식을 정의한다.</div>
+    <div class="hero-meta">
+      <span class="mbadge mb-n">Baseline.html 기준</span>
+      <span class="mbadge mb-n">Editor Workbench 구조 유지</span>
+      <span class="mbadge mb-s">Preview UX 고도화</span>
+      <span class="mbadge mb-g">최종 추천: C안</span>
+    </div>
+  </div>
+
+  <!-- 1. 현재 문제 -->
+  <div class="sec">
+    <div class="sec-head"><div class="sec-num">1</div><div class="sec-title">현재 미리보기 문제 요약</div></div>
+    <div class="prob-list">
+      <div class="prob-item">
+        <div class="prob-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="prob-txt"><strong>mockup이 목업 수준에 그침.</strong> 현재 Preview는 WF 블록을 단순 선 박스로만 표현해 검토자가 화면 구조를 파악하기 어렵다. 번호 마커가 있지만 정보가 빈약하다.</div>
+      </div>
+      <div class="prob-item">
+        <div class="prob-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="prob-txt"><strong>Description 정보가 없음.</strong> 표시 조건, 권한, 액션/연결, 데이터 출처 등 검토에 필요한 정보를 미리보기에서 확인할 수 없다.</div>
+      </div>
+      <div class="prob-item">
+        <div class="prob-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="prob-txt"><strong>저장/검토요청 액션이 분리됨.</strong> 미리보기에서 문제를 발견해도 닫고 → Editor로 돌아가 → 수정하는 흐름이 명확하지 않다. 미리보기 안에서 저장/검토요청이 가능해야 한다.</div>
+      </div>
+      <div class="prob-item">
+        <div class="prob-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="prob-txt"><strong>필수 미작성 항목 표시 없음.</strong> 검토 요청 전 필수 항목이 누락됐을 때 경고를 주는 기능이 없다.</div>
+      </div>
+      <div class="prob-item">
+        <div class="prob-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="prob-txt"><strong>화면 메타 정보가 없음.</strong> 화면 ID, 작성자, 최종 수정일, 상태가 표시되지 않아 검토자 입장에서 맥락 파악이 어렵다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. A/B/C 비교 -->
+  <div class="sec">
+    <div class="sec-head"><div class="sec-num">2</div><div class="sec-title">미리보기 A / B / C 안 비교</div></div>
+    <div class="lc-grid">
+
+      <!-- A안 -->
+      <div class="lc-card">
+        <div class="lc-hdr"><div class="lc-lbl">A안</div><div class="lc-badge alt">Fullscreen Overlay</div></div>
+        <div class="lc-vis">
+          <div class="lc-vis-lbl">position:fixed; inset:0 — topbar까지 덮음</div>
+          <div class="wd">
+            <div class="wd-row" style="height:16px"><div class="wdb" style="flex:1;height:16px;background:rgba(84,81,232,.15);border:1px solid rgba(84,81,232,.25);color:#8B7FF8;font-size:8px">Preview Header (전체 덮음)</div></div>
+            <div class="wd-row" style="height:80px">
+              <div class="wdb wdb-mock" style="font-size:8px;padding:4px">mockup<br>+ 번호 마커</div>
+              <div class="wdb wdb-desc" style="font-size:8px;padding:4px">Description<br>목록</div>
+            </div>
+            <div class="wd-row" style="height:16px"><div class="wdb" style="flex:1;height:16px;background:rgba(84,81,232,.08);border:1px solid rgba(84,81,232,.18);color:#8B7FF8;font-size:8px">저장 · 검토요청 · 닫기</div></div>
+          </div>
+        </div>
+        <div class="lc-pros">
+          <div class="lc-sl">장점</div>
+          <div class="lc-i pro">전체 화면 → 번호 마커 + mockup 가독성 최고</div>
+          <div class="lc-i pro">몰입형 검토 경험</div>
+          <div class="lc-i pro">저장/검토요청 액션 포함 가능</div>
+          <div class="lc-sl">단점</div>
+          <div class="lc-i con">Editor context 완전 이탈 → 수정하려면 닫아야 함</div>
+          <div class="lc-i con">Topbar 덮으면 STAM 브랜드/네비 맥락 소실</div>
+          <div class="lc-i con">단순 overlay — 산출물 문서 느낌 없음</div>
+        </div>
+      </div>
+
+      <!-- B안 -->
+      <div class="lc-card">
+        <div class="lc-hdr"><div class="lc-lbl">B안</div><div class="lc-badge alt">Split Preview</div></div>
+        <div class="lc-vis">
+          <div class="lc-vis-lbl">Editor 안에서 ComponentLib 숨김 + Inspector 전환</div>
+          <div class="wd">
+            <div class="wd-row" style="height:14px"><div class="wdb wdb-top" style="flex:1;height:14px">Topbar</div></div>
+            <div class="wd-row" style="height:14px"><div class="wdb" style="flex:1;height:14px;background:rgba(84,81,232,.1);border:1px solid rgba(84,81,232,.22);color:#8B7FF8;font-size:8px">Context Bar (Preview 모드)</div></div>
+            <div class="wd-row" style="height:72px">
+              <div class="wdb" style="width:28px;height:72px;background:rgba(100,116,139,.08);border:1px dashed var(--bd);color:var(--t3);font-size:7px">숨김</div>
+              <div class="wdb" style="flex:0 0 52%;height:72px;background:var(--bg-base);border:1px solid var(--bd);font-size:8px;color:var(--t3)">Canvas Preview</div>
+              <div class="wdb" style="flex:1;height:72px;background:rgba(84,81,232,.06);border:1px solid rgba(84,81,232,.18);font-size:7px;color:#8B7FF8">Desc Panel<br>(Inspector 대체)</div>
+            </div>
+          </div>
+        </div>
+        <div class="lc-pros">
+          <div class="lc-sl">장점</div>
+          <div class="lc-i pro">Editor context 유지 — 즉시 수정 가능</div>
+          <div class="lc-i pro">레이아웃 전환 없음</div>
+          <div class="lc-sl">단점</div>
+          <div class="lc-i con">Canvas 너비가 좁아 mockup 가독성 저하</div>
+          <div class="lc-i con">Inspector → Preview 전환 UX 혼란 가능</div>
+          <div class="lc-i con">산출물 문서 느낌 없음</div>
+          <div class="lc-i con">Description 패널 공간 협소</div>
+        </div>
+      </div>
+
+      <!-- C안 (추천) -->
+      <div class="lc-card rec">
+        <div class="lc-hdr"><div class="lc-lbl">C안</div><div class="lc-badge rec">★ 추천</div></div>
+        <div class="lc-vis">
+          <div class="lc-vis-lbl" style="color:#8B7FF8">Review Sheet — Topbar 유지, inset 덮기</div>
+          <div class="wd">
+            <div class="wd-row" style="height:14px"><div class="wdb wdb-top" style="flex:1;height:14px">Topbar (유지)</div></div>
+            <div class="wd-row" style="height:16px"><div class="wdb wdb-meta" style="flex:1;height:16px">ID · 화면명 · 상태 · 작성자 · 날짜</div></div>
+            <div class="wd-row" style="height:72px">
+              <div class="wdb wdb-mock" style="flex:0 0 52%;height:72px;font-size:8px;padding:4px;background:rgba(84,81,232,.06);border-color:rgba(84,81,232,.2)">mockup<br>번호 마커 ①②③</div>
+              <div class="wdb wdb-desc" style="flex:1;height:72px;font-size:8px;padding:4px">번호<br>항목명<br>표시조건<br>권한/액션</div>
+            </div>
+            <div class="wd-row" style="height:16px"><div class="wdb wdb-act" style="flex:1;height:16px;font-size:8px">필수누락 경고 · 저장 · 검토요청 · 닫기</div></div>
+          </div>
+        </div>
+        <div class="lc-pros">
+          <div class="lc-sl">장점</div>
+          <div class="lc-i pro">산출물 문서처럼 보임 → 검토자 UX 최적</div>
+          <div class="lc-i pro">화면 메타 정보 + 번호 마커 + Description 한 화면</div>
+          <div class="lc-i pro">필수 미작성 항목 경고 포함</div>
+          <div class="lc-i pro">저장/검토요청 액션 인라인</div>
+          <div class="lc-i pro">Topbar 유지로 STAM 브랜드 맥락 유지</div>
+          <div class="lc-sl">단점</div>
+          <div class="lc-i con">Editor로 돌아가 수정하는 흐름 필요</div>
+          <div class="lc-i con">S21 예외 등록 필요 (A안과 동일)</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3. 추천안 -->
+  <div class="sec">
+    <div class="sec-head"><div class="sec-num">3</div><div class="sec-title">추천안 및 이유</div></div>
+    <div class="rec-card">
+      <div class="rec-tag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:11px;height:11px"><path d="M5 12l5 5L20 7"/></svg>
+        STAM 최종 추천
+      </div>
+      <div class="rec-title">C안 — Review Sheet Preview (Topbar 아래 고정 오버레이)</div>
+      <div class="rec-desc">화면설계서 미리보기의 1차 목적은 "검토자에게 전달될 산출물이 어떻게 보이는가"를 작성자가 먼저 확인하는 것이다. 단순 overlay보다 실제 검토 문서처럼 보이는 구조가 UX 완성도가 높다. Topbar는 유지해 STAM 도구 맥락을 유지하고, Topbar 아래 전체를 Review Sheet가 덮는다.</div>
+      <div class="reason-list">
+        <div class="reason-item"><div class="reason-num">1</div><strong>산출물 미리보기가 목적.</strong> 저장·검토요청 전 확인용이므로 문서 형식이 적합하다. 검토자가 볼 화면과 동일한 구조로 미리 확인해야 한다.</div>
+        <div class="reason-item"><div class="reason-num">2</div><strong>번호 마커 + Description이 한 화면에.</strong> 좌측 mockup과 우측 Description 패널이 함께 보여야 번호 연동이 의미 있다. A안과 같은 2열 구조를 C안도 채택한다.</div>
+        <div class="reason-item"><div class="reason-num">3</div><strong>필수 항목 미작성 경고가 검토요청 직전에 필요.</strong> "저장 후 검토요청" 전에 필수 Description이 비어있는 항목을 footer에서 경고해야 검토 품질이 높아진다.</div>
+        <div class="reason-item"><div class="reason-num">4</div><strong>Topbar 유지 = STAM 맥락 유지.</strong> 완전한 fullscreen(A안)보다 Topbar를 유지한 상태가 "STAM 도구 안에서의 검토"임을 자연스럽게 전달한다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 인터랙티브 C안 와이어프레임 -->
+  <div class="sec">
+    <div class="sec-head"><div class="sec-num">4</div><div class="sec-title">C안 — 화면 구성 와이어프레임 (인터랙티브)</div></div>
+    <div class="note"><strong>사용 방법.</strong> 좌측 블록 또는 우측 Description 항목을 클릭하면 번호 연동 강조가 활성화됩니다. "필수 누락" 탭에서 누락 상태를 확인하세요.</div>
+
+    <div class="demo-wrap">
+      <div class="demo-toolbar">
+        <span class="demo-toolbar-lbl">Preview — C안 Review Sheet</span>
+        <div class="demo-tabs">
+          <button class="demo-tab on" onclick="setDemoState('normal')">일반 상태</button>
+          <button class="demo-tab" onclick="setDemoState('missing')">필수 누락</button>
+          <button class="demo-tab" onclick="setDemoState('empty')">빈 상태</button>
+        </div>
+      </div>
+
+      <div class="demo-inner">
+        <div class="prev-ui" id="prevUI">
+          <!-- Preview Header -->
+          <div class="prev-hdr">
+            <span class="prev-hdr-id" id="demoId">SC-MAIN-001</span>
+            <span class="prev-hdr-name" id="demoName">커머스형 메인</span>
+            <span class="prev-hdr-chip phc-draft" id="demoStatus">초안</span>
+            <span class="prev-hdr-meta" id="demoMeta">작성자: 김설계 · 최종 수정: 2026-06-14</span>
+            <div class="prev-hdr-sp"></div>
+            <button class="prev-hdr-close" onclick="alert('Editor로 돌아갑니다.')">Editor로 돌아가기</button>
+          </div>
+
+          <!-- Preview Body -->
+          <div class="prev-body-wrap">
+            <!-- Left: mockup -->
+            <div class="prev-mock-col">
+              <div class="prev-mock-frame">
+                <div class="pmf-gnb">
+                  <div class="pmf-logo"></div>
+                  <div class="pmf-sp"></div>
+                  <div class="pmf-nav"><div class="pmf-ni"></div><div class="pmf-ni"></div><div class="pmf-ni"></div></div>
+                </div>
+                <div class="pmf-body" id="mockupBody"></div>
+              </div>
+            </div>
+            <!-- Right: description -->
+            <div class="prev-desc-col">
+              <div class="prev-desc-hdr">
+                <span class="prev-desc-hdr-lbl">Description</span>
+                <div class="prev-desc-legend">
+                  <span class="ldot ldot-req"></span><span class="ldot-lbl">필수</span>
+                  <span class="ldot ldot-opt" style="margin-left:6px"></span><span class="ldot-lbl">작성완료</span>
+                  <span class="ldot ldot-missing" style="margin-left:6px"></span><span class="ldot-lbl">미작성</span>
+                </div>
+              </div>
+              <div id="descBody" style="flex:1;overflow-y:auto;scrollbar-width:thin"></div>
+            </div>
+          </div>
+
+          <!-- Preview Footer -->
+          <div class="prev-ftr">
+            <div class="prev-missing dn" id="missingAlert">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <span id="missingText">필수 미작성 항목이 있습니다.</span>
+            </div>
+            <div class="prev-ftr-sp"></div>
+            <button class="pbtn" onclick="alert('Editor로 돌아갑니다.')">닫기</button>
+            <button class="pbtn ghost" onclick="alert('임시저장됐습니다.')">임시저장</button>
+            <button class="pbtn save" onclick="alert('저장됐습니다.')">저장</button>
+            <button class="pbtn primary" id="reviewBtn" onclick="handleReview()">저장 후 검토요청</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. 번호 마커 연동 방식 -->
+  <div class="sec">
+    <div class="sec-head"><div class="sec-num">5</div><div class="sec-title">번호 마커 및 Description 연동 방식</div></div>
+
+    <div class="marker-spec">
+      <div class="ms-card">
+        <div class="ms-title">마커 상태 정의</div>
+        <div class="ms-item"><div class="ms-badge normal">01</div>기본 상태 — Description 작성 가능</div>
+        <div class="ms-item"><div class="ms-badge active">02</div>선택됨 — 클릭 또는 Description 선택 시</div>
+        <div class="ms-item"><div class="ms-badge hidden">03</div>숨김 블록 — visible=false 시 점선 테두리</div>
+        <div class="ms-item"><div class="ms-badge missing">04</div>필수 미작성 — 경고 상태</div>
+      </div>
+      <div class="ms-card">
+        <div class="ms-title">클릭 연동 규칙</div>
+        <div class="ms-item" style="flex-direction:column;align-items:flex-start;gap:3px">
+          <div style="font-size:11.5px;color:var(--t1);font-weight:600">mockup 블록 클릭 →</div>
+          <div style="font-size:11px;color:var(--t3)">해당 번호 마커 강조 + 우측 Description 해당 항목 강조. offset 기반 스크롤로 항목을 뷰포트 내 상단으로 이동.</div>
+        </div>
+        <div class="ms-item" style="flex-direction:column;align-items:flex-start;gap:3px;margin-top:4px">
+          <div style="font-size:11.5px;color:var(--t1);font-weight:600">Description 항목 클릭 →</div>
+          <div style="font-size:11px;color:var(--t3)">해당 mockup 블록과 번호 마커 강조. mockup 영역 스크롤로 해당 블록을 뷰포트 내로 이동.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="card-title">스크롤 이동 구현 기준</div>
+      <div class="card-body">
+        <p><strong>scrollIntoView 사용 금지.</strong> STAM 환경에서 scrollIntoView는 예기치 않은 페이지 점프를 일으킬 수 있다. 대신 각 패널(mockup col, desc col)의 <code>scrollTop</code>을 직접 계산해 이동한다.</p>
+        <p>계산식: <code>targetEl.offsetTop - panelEl.offsetTop - 40</code> (40 = 여유 padding). 결과가 0 미만이면 0으로 클램프한다.</p>
+        <p>애니메이션: <code>panelEl.scrollTo({ top: value, behavior: 'smooth' })</code> 사용. smooth 스크롤이 지원되지 않는 환경에서는 <code>panelEl.scrollTop = value</code> fallback.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Description 패널 구조 -->
+  <div class="sec">
+    <div class="sec-head"><div class="sec-num">6</div><div class="sec-title">Description 패널 구조 기준</div></div>
+    <div class="card">
+      <table class="gtable">
+        <thead><tr><th>필드</th><th>레이블</th><th>필수 여부</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr><td>번호</td><td>No.</td><td class="dim">자동</td><td class="dim">WF 블록 순서 자동 채번</td></tr>
+          <tr><td>항목명</td><td>컴포넌트명</td><td><span style="color:#ef4444;font-weight:700">필수</span></td><td class="dim">Inspector 속성 탭 "컴포넌트명"과 동기화</td></tr>
+          <tr><td>설명</td><td>설명</td><td><span style="color:#ef4444;font-weight:700">필수</span></td><td class="dim">Inspector 속성 탭 "설명"과 동기화</td></tr>
+          <tr><td>표시 조건</td><td>표시/권한</td><td class="dim">선택</td><td class="dim">Inspector 표시/권한 탭 값 표시</td></tr>
+          <tr><td>액션</td><td>연결 화면</td><td class="dim">선택</td><td class="dim">Inspector 액션/연결 탭 값 표시</td></tr>
+          <tr><td>데이터</td><td>데이터 출처</td><td class="dim">선택</td><td class="dim">Inspector 데이터/검증 탭 값 표시</td></tr>
+          <tr><td>검증 규칙</td><td>검증</td><td class="dim">선택</td><td class="dim">Inspector 데이터/검증 탭 검증 규칙</td></tr>
+          <tr><td>오류 메시지</td><td>오류</td><td class="dim">선택</td><td class="dim">Inspector 데이터/검증 탭 오류 메시지</td></tr>
+          <tr><td>상태</td><td>상태</td><td class="dim">자동</td><td class="dim">필수 필드 입력 여부 기준 자동 계산: 완료/미작성</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note"><strong>데이터 흐름.</strong> Description 패널은 Inspector에서 입력된 값을 읽어 표시한다. Preview에서는 읽기 전용(read-only)이며, 수정하려면 Editor로 돌아가야 한다. Inspector와의 실시간 동기화는 클코 구현 시 상태 관리 설계가 필요하다.</div>
+  </div>
+
+  <!-- 7. 저장/검토요청 흐름 -->
+  <div class="sec">
+    <div class="sec-head"><div class="sec-num">7</div><div class="sec-title">저장 · 검토요청 액션 흐름</div></div>
+
+    <div class="card">
+      <div class="card-title">Preview Footer 액션 구성</div>
+      <table class="gtable">
+        <thead><tr><th>버튼</th><th>동작</th><th>상태 조건</th></tr></thead>
+        <tbody>
+          <tr><td>닫기 / Editor로 돌아가기</td><td class="dim">Preview 오버레이를 닫고 Editor Workbench로 복귀</td><td class="dim">항상 활성</td></tr>
+          <tr><td>임시저장</td><td class="dim">현재 상태를 임시저장 (필수 항목 미입력 허용)</td><td class="dim">항상 활성</td></tr>
+          <tr><td>저장</td><td class="dim">정식 저장. 화면 ID·화면명 필수 확인</td><td class="dim">화면 ID, 화면명 입력 시 활성</td></tr>
+          <tr><td>저장 후 검토요청</td><td class="dim">저장 후 검토 상태로 전환. 필수 Description 미작성 시 경고 표시 후 진행 여부 확인</td><td class="dim">저장 가능 상태에서 활성</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="card-title">필수 항목 누락 처리 흐름</div>
+      <div class="flow-row" style="flex-wrap:wrap;gap:6px">
+        <div class="flow-step active">
+          <div class="flow-step-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <div class="flow-step-name">미리보기 열기</div>
+          <div class="flow-step-sub">Editor → 미리보기 클릭</div>
+        </div>
+        <div class="flow-arr">›</div>
+        <div class="flow-step">
+          <div class="flow-step-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+          <div class="flow-step-name">검토요청 클릭</div>
+          <div class="flow-step-sub">footer 버튼</div>
+        </div>
+        <div class="flow-arr">›</div>
+        <div class="flow-step warn">
+          <div class="flow-step-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <div class="flow-step-name">누락 감지</div>
+          <div class="flow-step-sub">필수 Description 확인</div>
+        </div>
+        <div class="flow-arr">›</div>
+        <div class="flow-branch">
+          <div class="flow-branch-item warn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--warn)"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+            누락 있음 → footer 경고 표시. 항목 강조. 진행할지 묻는 확인 팝업
+          </div>
+          <div class="flow-branch-item good">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--pass)"><path d="M9 11l3 3L22 4"/></svg>
+            누락 없음 → 즉시 저장 + 검토 상태로 전환
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. 라이트/다크모드 -->
+  <div class="sec">
+    <div class="sec-head"><div class="sec-num">8</div><div class="sec-title">라이트 / 다크모드 기준</div></div>
+    <div class="card">
+      <table class="gtable">
+        <thead><tr><th>영역</th><th>다크 모드</th><th>라이트 모드</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Preview Header</td>
+            <td class="mono">--bg-sur (#1C2030)</td>
+            <td class="dim">--bg-sur = #FFFFFF + 하단 border</td>
+          </tr>
+          <tr>
+            <td>Mockup 프레임</td>
+            <td class="mono">--bg-sur (#1C2030)</td>
+            <td class="dim">--bg-sur = #FFFFFF. 흰색 덩어리 방지 위해 1px border 필수</td>
+          </tr>
+          <tr>
+            <td>Mockup 블록</td>
+            <td class="mono">--bg-base (#13161D)</td>
+            <td class="dim">--bg-base = #F8FAFC. 카드 대비 확보</td>
+          </tr>
+          <tr>
+            <td>번호 마커 기본</td>
+            <td class="mono">--bg-sur3 + --bd</td>
+            <td class="dim">--bg-sur2 + --bd-s</td>
+          </tr>
+          <tr>
+            <td>번호 마커 활성</td>
+            <td class="mono">--stam = #8B7FF8</td>
+            <td class="dim">--stam = #5451E8</td>
+          </tr>
+          <tr>
+            <td>Description 패널</td>
+            <td class="mono">--bg-sur (#1C2030)</td>
+            <td class="dim">--bg-sur = #FFFFFF</td>
+          </tr>
+          <tr>
+            <td>활성 Description 행</td>
+            <td class="mono">rgba(84,81,232,.07)</td>
+            <td class="dim">rgba(84,81,232,.06) + left border --stam</td>
+          </tr>
+          <tr>
+            <td>미작성 경고 텍스트</td>
+            <td class="mono">--warn = #f59e0b</td>
+            <td class="dim">--warn = #854D0E (다크 대비 토큰 사용)</td>
+          </tr>
+          <tr>
+            <td>Preview Footer</td>
+            <td class="mono">--bg-sur + border-top</td>
+            <td class="dim">--bg-sur = #FFFFFF + border-top</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <strong>흰색 덩어리 방지 원칙.</strong> 라이트 모드에서 Mockup 프레임과 Description 패널이 모두 흰색이 되면 배경과 구분이 없어진다. Preview Body의 배경을 <code>--bg-base (#F8FAFC)</code>로 유지하고 각 패널에 <code>--bd</code> border를 반드시 적용한다.
+    </div>
+  </div>
+
+  <!-- 9. S21 예외 -->
+  <div class="sec">
+    <div class="sec-head"><div class="sec-num">9</div><div class="sec-title">S21 Page Layout Contract 예외 여부</div></div>
+    <div class="card">
+      <div class="card-title" style="display:flex;align-items:center;gap:10px">
+        Preview View — S21 예외 등록 필요
+        <span style="font-size:9.5px;font-weight:700;padding:2px 9px;border-radius:4px;background:rgba(34,197,94,.1);color:var(--pass);border:1px solid rgba(34,197,94,.2)">예외 등록 필요</span>
+      </div>
+      <div class="card-body">
+        <p><strong>이유.</strong> S21 계약은 본문 <code>max-width: 1560px; padding: 0 32px</code>을 요구한다. Preview View는 2열 레이아웃(mockup + description)이 뷰포트 전체를 사용해야 양쪽 패널에 충분한 공간이 확보된다. Editor Workbench와 동일한 예외 사유가 적용된다.</p>
+        <p><strong>예외 범위.</strong> <code>.prev-ui</code> 및 그 하위 전체. Topbar와 STAM GNB Sidebar는 유지한다.</p>
+        <p><strong>등록 표기 제안.</strong> <code>LAYOUT_EXCEPTION: PREVIEW_REVIEW_SHEET</code> — "화면설계서 Preview는 2열 Review Sheet 구조로 full-width를 사용한다."</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. CSS Selector 구조 -->
+  <div class="sec">
+    <div class="sec-head"><div class="sec-num">10</div><div class="sec-title">클코 구현 예상 Selector / Class 구조</div></div>
+    <div class="card">
+      <table class="gtable">
+        <thead><tr><th>Selector</th><th>역할</th><th>주요 속성</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="mono">.prev-ui</td>
+            <td class="dim">Preview 루트 컨테이너</td>
+            <td class="dim"><code>position:fixed; top:48px; inset:0 0 0 var(--sw); z-index:500; display:flex; flex-direction:column</code> (Topbar 48px + Sidebar --sw 아래서 시작)</td>
+          </tr>
+          <tr>
+            <td class="mono">.prev-hdr</td>
+            <td class="dim">메타 헤더 바</td>
+            <td class="dim"><code>height:48px; flex-shrink:0; display:flex; align-items:center; gap:10px; padding:0 20px; background:var(--bg-sur)</code></td>
+          </tr>
+          <tr>
+            <td class="mono">.prev-body-wrap</td>
+            <td class="dim">2열 본문 컨테이너</td>
+            <td class="dim"><code>display:flex; flex:1; overflow:hidden</code></td>
+          </tr>
+          <tr>
+            <td class="mono">.prev-mock-col</td>
+            <td class="dim">좌측 mockup 패널</td>
+            <td class="dim"><code>flex:0 0 52%; overflow-y:auto; padding:16px; border-right:1px solid var(--bd)</code></td>
+          </tr>
+          <tr>
+            <td class="mono">.prev-desc-col</td>
+            <td class="dim">우측 Description 패널</td>
+            <td class="dim"><code>flex:1; overflow-y:auto; display:flex; flex-direction:column</code></td>
+          </tr>
+          <tr>
+            <td class="mono">.pmf-block</td>
+            <td class="dim">Mockup 블록 카드</td>
+            <td class="dim"><code>position:relative; padding-left:36px; cursor:pointer</code> (번호 마커 절대 위치)</td>
+          </tr>
+          <tr>
+            <td class="mono">.pmf-block.lit</td>
+            <td class="dim">선택된 블록</td>
+            <td class="dim"><code>border-color:var(--stam); background:rgba(84,81,232,.07)</code></td>
+          </tr>
+          <tr>
+            <td class="mono">.pmf-badge</td>
+            <td class="dim">번호 마커 circle</td>
+            <td class="dim"><code>position:absolute; left:9px; top:50%; transform:translateY(-50%); width:20px; height:20px; border-radius:50%</code></td>
+          </tr>
+          <tr>
+            <td class="mono">.desc-item</td>
+            <td class="dim">Description 항목 행</td>
+            <td class="dim"><code>padding:11px 14px; border-bottom:1px solid var(--bd); border-left:3px solid transparent; cursor:pointer</code></td>
+          </tr>
+          <tr>
+            <td class="mono">.desc-item.lit</td>
+            <td class="dim">선택된 Description 행</td>
+            <td class="dim"><code>background:rgba(84,81,232,.07); border-left-color:var(--stam)</code></td>
+          </tr>
+          <tr>
+            <td class="mono">.prev-ftr</td>
+            <td class="dim">하단 액션 바</td>
+            <td class="dim"><code>flex-shrink:0; display:flex; align-items:center; gap:7px; padding:10px 18px; background:var(--bg-sur); border-top:1px solid var(--bd)</code></td>
+          </tr>
+          <tr>
+            <td class="mono">.prev-missing</td>
+            <td class="dim">필수 누락 경고</td>
+            <td class="dim"><code>display:flex; align-items:center; gap:5px; font-size:11px; color:var(--warn)</code>. JS로 show/hide.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 11. QA 체크리스트 -->
+  <div class="sec">
+    <div class="sec-head"><div class="sec-num">11</div><div class="sec-title">QA 체크리스트</div></div>
+
+    <div class="qa-sec-lbl">레이아웃 구조</div>
+    <div class="qa-list">
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt"><strong>Topbar는 Preview 위에도 보이는지</strong> 확인 — preview-ui top:48px 기준</div></div>
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt"><strong>1440px 뷰포트</strong>에서 mockup 패널과 Description 패널이 자연스럽게 2열로 배치되는지</div></div>
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">각 패널이 독립 스크롤되는지 — 한쪽 스크롤이 다른 패널에 영향 없어야 함</div></div>
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">Preview Footer가 패널 스크롤과 독립적으로 하단 고정 유지되는지</div></div>
+    </div>
+
+    <div class="qa-sec-lbl">번호 마커 연동</div>
+    <div class="qa-list">
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">mockup 블록 클릭 시 <strong>번호 마커 강조 + Description 항목 강조</strong>가 동시에 작동하는지</div></div>
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">Description 항목 클릭 시 <strong>mockup 블록과 번호 마커</strong>가 동시에 강조되는지</div></div>
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt"><strong>scrollIntoView 대신 scrollTop offset 방식</strong>을 사용하는지</div></div>
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">숨김 처리된 블록(visible=false)이 mockup에서 비활성 표시되고 클릭 불가인지</div></div>
+    </div>
+
+    <div class="qa-sec-lbl">Description 패널</div>
+    <div class="qa-list">
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">필수 필드(항목명·설명) 미작성 항목에 <strong>미작성 상태 배지</strong>가 표시되는지</div></div>
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">Inspector에서 입력한 값이 <strong>Description 패널에 올바르게 반영</strong>되는지</div></div>
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">Description이 없는 초기 상태에서 <strong>empty state 안내</strong>가 표시되는지</div></div>
+    </div>
+
+    <div class="qa-sec-lbl">저장 / 검토요청 흐름</div>
+    <div class="qa-list">
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">필수 미작성 항목이 있을 때 footer에 <strong>경고 메시지</strong>가 표시되는지</div></div>
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">"저장 후 검토요청" 클릭 시 누락 확인 → 확인 팝업 → 저장 + 상태 전환 흐름이 작동하는지</div></div>
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">"닫기 / Editor로 돌아가기" 클릭 시 Editor Workbench로 <strong>정상 복귀</strong>되는지</div></div>
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">저장 후 Context Bar의 상태 chip이 업데이트되는지</div></div>
+    </div>
+
+    <div class="qa-sec-lbl">라이트/다크모드</div>
+    <div class="qa-list">
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">다크 모드에서 mockup 블록(<code>--bg-base</code>)과 프레임(<code>--bg-sur</code>)의 계층 구분이 명확한지</div></div>
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">라이트 모드에서 흰 mockup 프레임이 흰 배경에 묻히지 않도록 <strong>border가 유지</strong>되는지</div></div>
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">활성 번호 마커 색상이 두 모드 모두에서 <strong>충분한 대비</strong>를 가지는지</div></div>
+    </div>
+
+    <div class="qa-sec-lbl">금지 표현</div>
+    <div class="qa-list">
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">Preview 화면 어디에도 "시뮬레이션", "검토용", "데모" 표현이 없는지</div></div>
+      <div class="qa-item"><div class="qa-chk"></div><div class="qa-txt">자동저장 상태 표시에 "자동저장됨 · 데모" 등 demo 표현이 없는지</div></div>
+    </div>
+  </div>
+
+</div><!-- /doc -->
+
+<script>
+// ─── DEMO DATA ───────────────────────────────────────────────────────
+const DEMO_BLOCKS_NORMAL = [
+  {name:'GNB/헤더',desc:'로고, 네비게이션, 사용자 메뉴',cond:'전체',action:'SC-AUTH-001 로그인',data:'공통 컴포넌트 참조',req:'필수',status:'complete'},
+  {name:'서비스 탭',desc:'주요 카테고리 탭 이동',cond:'전체',action:'-',data:'-',req:'선택',status:'complete'},
+  {name:'카테고리 띠',desc:'카테고리 빠른 선택 영역',cond:'전체',action:'-',data:'API /categories',req:'필수',status:'complete'},
+  {name:'히어로 배너',desc:'메인 프로모션·메시지 배너',cond:'전체',action:'-',data:'CMS 배너 API',req:'필수',status:'complete'},
+  {name:'퀵 메뉴',desc:'자주 쓰는 기능 빠른 진입',cond:'로그인 사용자',action:'-',data:'사용자 설정',req:'선택',status:'complete'},
+  {name:'추천 상품 섹션',desc:'개인화 또는 인기 상품 추천',cond:'전체',action:'SC-LIST-001 목록',data:'API /recommendations',req:'필수',status:'complete'},
+  {name:'배너 영역',desc:'이벤트·프로모션 배너',cond:'전체',action:'-',data:'CMS 배너 API',req:'선택',status:'complete'},
+  {name:'Footer',desc:'하단 링크, 법적 고지, 소셜',cond:'전체',action:'-',data:'공통 컴포넌트',req:'선택',status:'complete'},
+];
+const DEMO_BLOCKS_MISSING = [
+  {name:'GNB/헤더',desc:'',cond:'',action:'',data:'',req:'필수',status:'missing'},
+  {name:'서비스 탭',desc:'주요 카테고리 탭 이동',cond:'전체',action:'-',data:'-',req:'선택',status:'complete'},
+  {name:'카테고리 띠',desc:'',cond:'',action:'',data:'',req:'필수',status:'missing'},
+  {name:'히어로 배너',desc:'메인 프로모션·메시지 배너',cond:'전체',action:'-',data:'CMS 배너 API',req:'필수',status:'complete'},
+  {name:'퀵 메뉴',desc:'',cond:'로그인 사용자',action:'',data:'',req:'선택',status:'missing'},
+  {name:'추천 상품 섹션',desc:'개인화 또는 인기 상품 추천',cond:'전체',action:'SC-LIST-001',data:'API /recommendations',req:'필수',status:'complete'},
+  {name:'배너 영역',desc:'이벤트·프로모션 배너',cond:'전체',action:'-',data:'CMS 배너 API',req:'선택',status:'complete'},
+  {name:'Footer',desc:'하단 링크, 법적 고지',cond:'전체',action:'-',data:'공통 컴포넌트',req:'선택',status:'complete'},
+];
+
+let currentBlocks = DEMO_BLOCKS_NORMAL;
+let currentLit = null;
+
+function setDemoState(state) {
+  document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('on'));
+  event.target.classList.add('on');
+  if (state === 'normal') {
+    currentBlocks = DEMO_BLOCKS_NORMAL;
+    renderDemo(false);
+    setMissing(false, '');
+  } else if (state === 'missing') {
+    currentBlocks = DEMO_BLOCKS_MISSING;
+    renderDemo(false);
+    const count = currentBlocks.filter(b => b.status === 'missing' && b.req === '필수').length;
+    setMissing(true, `필수 미작성 항목 ${count}개 — 검토요청 전 확인이 필요합니다.`);
+  } else if (state === 'empty') {
+    currentBlocks = [];
+    renderDemo(false);
+    setMissing(false, '');
+  }
+  currentLit = null;
+}
+
+function setMissing(show, text) {
+  const el = document.getElementById('missingAlert');
+  const txt = document.getElementById('missingText');
+  el.classList.toggle('dn', !show);
+  txt.textContent = text;
+}
+
+function renderDemo(keepLit) {
+  if (!keepLit) currentLit = null;
+  renderMockup();
+  renderDesc();
+}
+
+function renderMockup() {
+  const el = document.getElementById('mockupBody');
+  if (!currentBlocks.length) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;font-size:11px;color:var(--t3)">wireframe 블록이 없습니다.</div>';
+    return;
+  }
+  el.innerHTML = currentBlocks.map((b, i) => `
+    <div class="pmf-block${currentLit === i ? ' lit' : ''}" onclick="litItem(${i})">
+      <div class="pmf-badge">${String(i+1).padStart(2,'0')}</div>
+      <div class="pmf-block-name">${b.name}</div>
+      <div class="pmf-block-lines">
+        <div class="pmf-line" style="width:${60 + i * 4}%"></div>
+        <div class="pmf-line short"></div>
+      </div>
+    </div>`).join('');
+}
+
+function renderDesc() {
+  const el = document.getElementById('descBody');
+  if (!currentBlocks.length) {
+    el.innerHTML = `<div class="desc-empty">
+      <div class="desc-empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="14" y2="12"/></svg></div>
+      <div class="desc-empty-msg">등록된 블록이 없습니다</div>
+      <div class="desc-empty-sub">Editor에서 Page Template을 선택하면<br>기본 블록이 자동 생성됩니다.</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = currentBlocks.map((b, i) => {
+    const sc = b.status === 'missing' ? 'ds-miss' : b.req === '필수' ? 'ds-req' : 'ds-opt';
+    const sl = b.status === 'missing' ? '미작성' : b.req === '필수' ? '필수' : '완료';
+    const fld = (lbl, val) => `<div class="desc-field"><span class="desc-field-lbl">${lbl}</span><span class="${val ? 'desc-field-val' : 'desc-field-empty'}">${val || '미입력'}</span></div>`;
+    return `<div class="desc-item${currentLit === i ? ' lit' : ''}" id="di${i}" onclick="litItem(${i})">
+      <div class="desc-item-top">
+        <div class="desc-num">${String(i+1).padStart(2,'0')}</div>
+        <div class="desc-item-name">${b.name}</div>
+        <div class="desc-status ${sc}">${sl}</div>
+      </div>
+      <div class="desc-fields">
+        ${fld('설명', b.desc)}
+        ${fld('표시 조건', b.cond)}
+        ${fld('연결 화면', b.action)}
+        ${fld('데이터 출처', b.data)}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function litItem(i) {
+  currentLit = currentLit === i ? null : i;
+  renderMockup();
+  renderDesc();
+  // Scroll desc panel to item (offset-based, no scrollIntoView)
+  if (currentLit !== null) {
+    const descCol = document.querySelector('.prev-desc-col');
+    const item = document.getElementById('di' + currentLit);
+    if (descCol && item) {
+      const off = item.offsetTop - descCol.offsetTop - 40;
+      descCol.scrollTop = Math.max(0, off);
+    }
+    // Scroll mockup to block
+    const mockCol = document.querySelector('.prev-mock-col');
+    const mblks = document.querySelectorAll('.pmf-block');
+    if (mockCol && mblks[currentLit]) {
+      const off = mblks[currentLit].offsetTop - mockCol.offsetTop - 40;
+      mockCol.scrollTop = Math.max(0, off);
+    }
+  }
+}
+
+function handleReview() {
+  const missing = currentBlocks.filter(b => b.req === '필수' && b.status === 'missing').length;
+  if (missing > 0) {
+    if (confirm(`필수 미작성 항목이 ${missing}개 있습니다.\n그래도 검토요청을 진행하시겠습니까?`)) {
+      alert('저장 후 검토요청이 완료됐습니다.');
+    }
+  } else {
+    alert('저장 후 검토요청이 완료됐습니다.');
+  }
+}
+
+// Init
+renderDemo(false);
+</script>
+</body>
+</html>

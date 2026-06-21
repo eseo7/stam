@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM — 화면설계서 Object Builder · Design Preview v1.0</title>
+<link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../../css/stam.tokens.css">
+<link rel="stylesheet" href="../../css/stam.shell.css">
+<link rel="stylesheet" href="../../css/stam.components.css">
+<link rel="stylesheet" href="../../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../../css/stam.docs.css">
+<style>
+/* ============================================================
+ * STAM — 화면설계서 Object Builder · Design Preview
+ * prefix: sob- | v1.0 | 2026-06-13
+ * 이 스타일은 이 문서 전용 격리 스타일입니다.
+ * ============================================================ */
+
+/* ── Hero ── */
+.sob-hero {
+  background: linear-gradient(140deg, rgba(84,81,232,.13) 0%, rgba(139,127,248,.05) 100%);
+  border: 1px solid rgba(139,127,248,.24);
+  border-radius: var(--r-lg);
+  padding: 20px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sob-hero-sup {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--stam);
+  font-family: var(--font);
+}
+.sob-hero-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--t1);
+  font-family: var(--font);
+  line-height: 1.3;
+}
+.sob-hero-sub {
+  font-size: 12px;
+  color: var(--t2);
+  line-height: 1.8;
+  font-family: var(--font);
+  max-width: 680px;
+}
+.sob-hero-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 4px;
+}
+.sob-hero-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 10.5px;
+  font-weight: 600;
+  background: rgba(139,127,248,.13);
+  color: var(--stam);
+  border: 1px solid rgba(139,127,248,.22);
+  font-family: var(--font);
+}
+.sob-hero-pill.strike {
+  background: rgba(255,66,66,.08);
+  color: var(--fail);
+  border-color: rgba(255,66,66,.18);
+  text-decoration: line-through;
+  opacity: .65;
+}
+/* change-arrow */
+.sob-hero-arrow {
+  font-size: 12px;
+  color: var(--label-muted);
+  flex-shrink: 0;
+}
+
+/* ── Form ── */
+.sob-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.sob-form-grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+.sob-form-grid.col1  { grid-template-columns: 1fr; }
+@media(max-width:640px){ .sob-form-grid, .sob-form-grid.cols3 { grid-template-columns: 1fr; } }
+
+.sob-field { display: flex; flex-direction: column; gap: 4px; }
+.sob-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--label-neutral);
+  font-family: var(--font);
+  letter-spacing: .03em;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.sob-label .req { color: var(--fail); }
+.sob-input {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  font-size: 12px;
+  color: var(--t1);
+  font-family: var(--font);
+  gap: 6px;
+}
+.sob-input.ph  { color: var(--label-muted); }
+.sob-input.foc { border-color: var(--bd-f); background: rgba(139,127,248,.05); }
+.sob-input.code { color: var(--stam); font-weight: 700; font-size: 11.5px; }
+.sob-input.sel  { justify-content: space-between; }
+.sob-arr {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--label-muted);
+  flex-shrink: 0;
+}
+.sob-textarea {
+  padding: 8px 10px;
+  min-height: 60px;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  font-size: 12px;
+  color: var(--t2);
+  line-height: 1.7;
+  font-family: var(--font);
+}
+
+/* ── Status badges (for form) ── */
+.sob-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: var(--r-md);
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: var(--font);
+}
+.sob-status.wip  { background: var(--info-bg);  color: var(--info); }
+.sob-status.pass { background: var(--pass-bg);  color: var(--pass); }
+.sob-status.warn { background: var(--warn-bg);  color: var(--warn); }
+.sob-status-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+/* ── Section note (callout) ── */
+.sob-note {
+  padding: 9px 12px 9px 14px;
+  border-left: 3px solid var(--stam);
+  background: var(--stam-soft);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  font-size: 11.5px;
+  color: var(--t2);
+  line-height: 1.75;
+  font-family: var(--font);
+}
+.sob-note strong { color: var(--stam); }
+.sob-note.warn {
+  border-left-color: var(--warn);
+  background: var(--warn-bg);
+}
+.sob-note.warn strong { color: var(--warn); }
+
+/* ── Template Cards ── */
+.sob-tmpl-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+@media(max-width:820px){ .sob-tmpl-grid { grid-template-columns: repeat(3,1fr); } }
+@media(max-width:520px){ .sob-tmpl-grid { grid-template-columns: 1fr 1fr; } }
+
+.sob-tmpl-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 9px 10px;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  position: relative;
+  transition: border-color 120ms, background 120ms;
+}
+.sob-tmpl-card:hover { border-color: rgba(139,127,248,.38); background: rgba(139,127,248,.05); }
+.sob-tmpl-card.sel {
+  border-color: rgba(84,81,232,.55);
+  background: rgba(84,81,232,.10);
+}
+.sob-tmpl-card.sel::after {
+  content: '✓';
+  position: absolute;
+  top: 6px;
+  right: 9px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--stam);
+  font-family: var(--font);
+}
+/* mini wireframe inside card */
+.sob-tmpl-icon {
+  width: 100%;
+  height: 40px;
+  background: var(--bg-sur3);
+  border: 1px solid var(--bd-s);
+  border-radius: 4px;
+  padding: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.sob-tmpl-icon-bar { height: 6px; border-radius: 2px; background: rgba(84,81,232,.35); flex-shrink: 0; }
+.sob-tmpl-icon-body { flex: 1; display: flex; gap: 2px; }
+.sob-tmpl-icon-main { flex: 1; background: rgba(139,127,248,.18); border-radius: 2px; }
+.sob-tmpl-icon-side { width: 28%; background: rgba(84,81,232,.28); border-radius: 2px; }
+.sob-tmpl-icon-cols { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.sob-tmpl-icon-row  { height: 6px; background: rgba(139,127,248,.18); border-radius: 2px; }
+.sob-tmpl-icon-row.dark { background: rgba(84,81,232,.28); }
+.sob-tmpl-icon-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.sob-tmpl-icon-cell { background: rgba(139,127,248,.16); border-radius: 2px; }
+
+.sob-tmpl-name { font-size: 10.5px; font-weight: 700; color: var(--t1); font-family: var(--font); line-height: 1.35; }
+.sob-tmpl-card.sel .sob-tmpl-name { color: var(--stam); }
+.sob-tmpl-desc { font-size: 9.5px; color: var(--t3); line-height: 1.5; font-family: var(--font); }
+.sob-tmpl-objs { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 1px; }
+.sob-tmpl-obj {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--bg-sur3);
+  border: 1px solid var(--bd-s);
+  color: var(--label-muted);
+  font-family: var(--font);
+}
+.sob-tmpl-card.sel .sob-tmpl-obj {
+  background: rgba(84,81,232,.10);
+  border-color: rgba(84,81,232,.22);
+  color: var(--stam);
+}
+
+/* ── 3-Panel Builder ── */
+.sob-builder {
+  display: grid;
+  grid-template-columns: 200px 1fr 252px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  min-height: 440px;
+  margin-top: 10px;
+}
+@media(max-width:820px){
+  .sob-builder { grid-template-columns: 1fr; }
+  .sob-builder-props { border-top: 1px solid var(--bd); border-left: none !important; }
+}
+
+/* Library panel */
+.sob-lib {
+  background: var(--bg-sur2);
+  border-right: 1px solid var(--bd);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.07) transparent;
+}
+.sob-lib-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--bd);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--label-alt);
+  font-family: var(--font);
+  flex-shrink: 0;
+}
+.sob-lib-hdr-action { color: var(--stam); font-size: 9px; cursor: pointer; font-weight: 600; }
+.sob-lib-grp { border-bottom: 1px solid rgba(180,184,200,.07); }
+.sob-lib-grp-hdr {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--label-neutral);
+  cursor: pointer;
+  font-family: var(--font);
+  letter-spacing: .03em;
+  user-select: none;
+}
+.sob-lib-grp-hdr:hover { color: var(--t1); }
+.sob-lib-chev { font-size: 8px; margin-left: auto; color: var(--label-muted); }
+.sob-lib-items { display: flex; flex-direction: column; padding: 2px 6px 5px; gap: 1px; }
+.sob-lib-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  color: var(--t2);
+  cursor: grab;
+  font-family: var(--font);
+  transition: background 100ms, color 100ms;
+}
+.sob-lib-item:hover { background: rgba(139,127,248,.10); color: var(--t1); }
+.sob-lib-item.act { background: rgba(84,81,232,.15); color: var(--stam); font-weight: 700; }
+.sob-lib-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--dot-idle); flex-shrink: 0; }
+.sob-lib-item.act .sob-lib-dot { background: var(--stam); }
+.sob-lib-count { font-size: 8.5px; font-weight: 700; color: var(--label-muted); margin-left: auto; }
+
+/* Preview panel */
+.sob-preview-panel {
+  background: var(--bg-base);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sob-preview-topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--bg-sur);
+  border-bottom: 1px solid var(--bd);
+  flex-shrink: 0;
+}
+.sob-preview-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--label-alt);
+  font-family: var(--font);
+}
+.sob-preview-tmpl {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 3px;
+  background: rgba(84,81,232,.12);
+  color: var(--stam);
+  font-family: var(--font);
+}
+.sob-preview-body {
+  flex: 1;
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+  overflow: auto;
+}
+
+/* Wireframe blocks */
+.sob-wf {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.sob-wf-row { display: flex; gap: 4px; }
+.sob-wb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1.5px dashed var(--bd-s);
+  border-radius: 4px;
+  padding: 5px 7px;
+  font-size: 8.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--label-muted);
+  font-family: var(--font);
+  line-height: 1.4;
+}
+.sob-wb.fill { flex: 1; }
+.sob-wb.xs   { min-height: 20px; }
+.sob-wb.sm   { min-height: 30px; }
+.sob-wb.md   { min-height: 54px; }
+.sob-wb.lg   { min-height: 110px; }
+.sob-wb.brand { background: var(--stam-soft); border-color: rgba(84,81,232,.28); color: var(--stam); }
+.sob-wb.info  { background: var(--info-bg);   border-color: rgba(111,168,255,.25); color: var(--info); }
+.sob-wb.pass  { background: var(--pass-bg);   border-color: rgba(0,191,64,.22); color: var(--pass); }
+.sob-wb.act   { border-style: solid; border-color: var(--stam); box-shadow: 0 0 0 2px rgba(84,81,232,.18); color: var(--stam); }
+.sob-wb.dim   { opacity: .4; }
+.sob-wb-sub   { font-size: 7.5px; font-weight: 400; margin-top: 2px; color: var(--label-muted); text-transform: none; letter-spacing: 0; font-family: var(--font); }
+
+/* Drawer preview (right side within wireframe) */
+.sob-drw-preview {
+  width: 130px;
+  flex-shrink: 0;
+  background: var(--bg-sur);
+  border: 1.5px dashed rgba(139,127,248,.38);
+  border-radius: 5px;
+  padding: 7px 7px 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.sob-drw-hdr { font-size: 8px; font-weight: 700; color: var(--stam); font-family: var(--font); border-bottom: 1px solid rgba(139,127,248,.2); padding-bottom: 4px; margin-bottom: 2px; }
+.sob-drw-row { height: 6px; background: rgba(139,127,248,.14); border-radius: 2px; width: 100%; }
+.sob-drw-row.w80 { width: 80%; }
+.sob-drw-row.w60 { width: 60%; }
+.sob-drw-row.h { background: rgba(84,81,232,.28); }
+.sob-drw-block { height: 28px; background: rgba(84,81,232,.08); border: 1px solid rgba(84,81,232,.18); border-radius: 3px; margin-top: 3px; }
+
+/* Properties panel */
+.sob-builder-props {
+  background: var(--bg-sur);
+  border-left: 1px solid var(--bd);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.sob-props-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--bd);
+  flex-shrink: 0;
+}
+.sob-props-title { font-size: 11px; font-weight: 700; color: var(--t1); font-family: var(--font); flex: 1; }
+.sob-props-type {
+  font-size: 8.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: rgba(84,81,232,.12);
+  color: var(--stam);
+  font-family: var(--font);
+}
+.sob-props-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 9px; }
+.sob-prop { display: flex; flex-direction: column; gap: 3px; }
+.sob-prop-k {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--label-neutral);
+  font-family: var(--font);
+}
+.sob-prop-v { font-size: 11.5px; color: var(--t1); font-family: var(--font); line-height: 1.5; }
+.sob-prop-v.muted { color: var(--t3); font-size: 11px; }
+.sob-prop-v.code  { color: var(--stam); font-size: 11px; font-weight: 600; }
+.sob-prop-chips { display: flex; flex-wrap: wrap; gap: 3px; }
+.sob-prop-chip {
+  font-size: 9.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  color: var(--t2);
+  font-family: var(--font);
+}
+.sob-divider { height: 1px; background: var(--bd); }
+.sob-toggle-row { display: flex; align-items: center; justify-content: space-between; }
+.sob-toggle {
+  width: 28px; height: 16px; border-radius: 99px;
+  background: rgba(84,81,232,.60); position: relative; flex-shrink: 0;
+}
+.sob-toggle::after {
+  content: ''; position: absolute; top: 2px; right: 2px;
+  width: 12px; height: 12px; border-radius: 50%; background: #fff;
+}
+.sob-toggle.off { background: var(--bg-sur3); }
+.sob-toggle.off::after { right: auto; left: 2px; }
+
+/* ── Tables (field / action defs) ── */
+.sob-tbl-wrap { border: 1px solid var(--bd); border-radius: var(--r-md); overflow: hidden; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.sob-tbl { width: 100%; border-collapse: collapse; font-family: var(--font); font-size: 11.5px; min-width: 600px; }
+.sob-tbl th {
+  text-align: left; padding: 6px 10px;
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--th-fg); background: var(--bg-sur2); border-bottom: 1px solid var(--bd); white-space: nowrap;
+}
+.sob-tbl td { padding: 7px 10px; border-bottom: 1px solid rgba(180,184,200,.07); color: var(--t2); vertical-align: middle; }
+.sob-tbl tr:last-child td { border-bottom: none; }
+.sob-tbl tr:hover td { background: var(--row-hover); }
+.sob-tbl .mono   { font-size: 10.5px; color: var(--stam); font-weight: 600; }
+.sob-tbl .chip-y { display: inline-flex; padding: 1px 7px; border-radius: 99px; font-size: 9px; font-weight: 700; background: var(--pass-bg); color: var(--pass); }
+.sob-tbl .chip-n { display: inline-flex; padding: 1px 7px; border-radius: 99px; font-size: 9px; font-weight: 700; background: var(--skip-bg); color: var(--skip); }
+.sob-tbl .chip-t { display: inline-flex; padding: 1px 7px; border-radius: 4px; font-size: 9px; font-weight: 700; background: rgba(84,81,232,.10); color: var(--stam); }
+.sob-tbl .chip-w { display: inline-flex; padding: 1px 7px; border-radius: 99px; font-size: 9px; font-weight: 700; background: var(--warn-bg); color: var(--warn); }
+.sob-tbl .chip-i { display: inline-flex; padding: 1px 7px; border-radius: 99px; font-size: 9px; font-weight: 700; background: var(--info-bg); color: var(--info); }
+.sob-tbl-add { display: flex; align-items: center; gap: 6px; padding: 7px 10px; font-size: 11px; color: var(--label-muted); border-top: 1px dashed var(--bd-s); cursor: pointer; font-family: var(--font); }
+.sob-tbl-add:hover { color: var(--stam); background: rgba(84,81,232,.04); }
+
+/* ── Connection chips ── */
+.sob-conn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media(max-width:600px){ .sob-conn-grid { grid-template-columns: 1fr; } }
+.sob-conn-card {
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  padding: 9px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sob-conn-title { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--label-neutral); font-family: var(--font); }
+.sob-conn-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.sob-cc {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  font-size: 10.5px;
+  font-weight: 600;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  color: var(--t2);
+  font-family: var(--font);
+}
+.sob-cc.req { background: var(--info-bg);       border-color: rgba(111,168,255,.25); color: var(--info); }
+.sob-cc.fn  { background: var(--purple-bg);     border-color: rgba(139,127,248,.22); color: var(--purple); }
+.sob-cc.wbs { background: var(--warn-bg);       border-color: rgba(245,158,11,.25);  color: var(--warn); }
+.sob-cc.ifc { background: rgba(16,185,129,.10); border-color: rgba(16,185,129,.22);  color: #46C97D; }
+.sob-cc.tc  { background: var(--fail-bg);       border-color: rgba(255,66,66,.22);   color: var(--fail); }
+.sob-cc.add { background: transparent; border-style: dashed; border-color: var(--bd-s); color: var(--label-muted); cursor: pointer; }
+.sob-cc.add:hover { color: var(--stam); border-color: rgba(84,81,232,.3); }
+
+/* ── Attachment ── */
+.sob-att-zone {
+  border: 1.5px dashed var(--bd);
+  border-radius: var(--r-md);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-sur2);
+  text-align: center;
+}
+.sob-att-ico {
+  width: 32px; height: 32px; border-radius: var(--r-md);
+  background: rgba(84,81,232,.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  color: var(--stam);
+  flex-shrink: 0;
+}
+.sob-att-label { font-size: 12px; font-weight: 700; color: var(--t2); font-family: var(--font); }
+.sob-att-hint  { font-size: 10.5px; color: var(--t3); line-height: 1.6; font-family: var(--font); }
+.sob-att-types { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; margin-top: 3px; }
+.sob-att-type  { font-size: 8.5px; font-weight: 700; padding: 2px 6px; border-radius: 3px; background: var(--bg-sur3); border: 1px solid var(--bd-s); color: var(--label-neutral); font-family: var(--font); }
+.sob-att-list  { display: flex; flex-direction: column; gap: 5px; }
+.sob-att-item  { display: flex; align-items: center; gap: 9px; padding: 7px 12px; background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: var(--r-md); font-family: var(--font); }
+.sob-att-ext   { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 3px; background: rgba(84,81,232,.10); color: var(--stam); flex-shrink: 0; }
+.sob-att-name  { flex: 1; font-size: 11.5px; color: var(--t2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sob-att-size  { font-size: 10px; color: var(--t3); flex-shrink: 0; }
+
+/* ── Review / Approval ── */
+.sob-rev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media(max-width:600px){ .sob-rev-grid { grid-template-columns: 1fr; } }
+.sob-rev-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: var(--r-md); }
+.sob-av {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(84,81,232,.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: var(--stam); flex-shrink: 0; font-family: var(--font);
+}
+.sob-av.g { background: rgba(16,185,129,.15); color: #46C97D; }
+.sob-av-info { flex: 1; min-width: 0; }
+.sob-av-name { font-size: 12px; font-weight: 700; color: var(--t1); font-family: var(--font); }
+.sob-av-role { font-size: 10px; color: var(--t3); font-family: var(--font); }
+.sob-av-badge { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 99px; font-family: var(--font); flex-shrink: 0; }
+.sob-av-badge.wait { background: var(--warn-bg); color: var(--warn); }
+.sob-av-badge.req  { background: var(--info-bg);  color: var(--info); }
+
+/* ── Bottom action bar ── */
+.sob-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-lg);
+  position: sticky;
+  bottom: 0;
+  margin-top: 4px;
+}
+.sob-sp { flex: 1; }
+.sob-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 16px;
+  height: 34px;
+  border-radius: var(--r-md);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  font-family: var(--font);
+  transition: background 120ms, border-color 120ms;
+  white-space: nowrap;
+}
+.sob-btn.ghost   { background: transparent; border-color: var(--bd); color: var(--t2); }
+.sob-btn.ghost:hover { background: var(--surf-hover); color: var(--t1); }
+.sob-btn.outline { background: transparent; border-color: rgba(139,127,248,.38); color: var(--stam); }
+.sob-btn.outline:hover { background: rgba(84,81,232,.08); }
+.sob-btn.primary { background: var(--stam); border-color: var(--stam); color: #fff; }
+.sob-btn.primary:hover { opacity: .9; }
+
+/* ── font guard ── */
+*, *::before, *::after,
+.sob-hero *, .sob-tmpl-card *,
+.sob-builder *, .sob-tbl *,
+.sob-conn-grid *, .sob-att-zone *,
+.sob-att-list *, .sob-rev-grid *,
+.sob-action-bar * { font-family: var(--font) !important; }
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM" onerror="this.style.display='none'">
+    <span>STAM</span>
+  </div>
+  <a href="STAM-Screen-Specification-Sample-Screen-Spec-List.html" class="doc-nav-back">← 목록</a>
+  <span class="doc-nav-title">화면설계서 등록 — Object Builder Design Preview</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Design Preview</span>
+  <span class="doc-nav-pill"><span class="dot"></span>v1.0</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">화면설계서 등록</span>
+      <span class="toc-ver-pill">v1.0</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#hero"><span class="toc-n">00</span>개요 &amp; 변경 방향</a></li>
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>기본 정보</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>작성 정보</a></li>
+      <li class="toc-item active"><a href="#s03"><span class="toc-n">03</span>화면 구성 Builder</a></li>
+      <li class="toc-item" style="padding-left:8px"><a href="#s03a"><span class="toc-n">↳</span>템플릿 선택</a></li>
+      <li class="toc-item" style="padding-left:8px"><a href="#s03b"><span class="toc-n">↳</span>오브젝트 라이브러리</a></li>
+      <li class="toc-item" style="padding-left:8px"><a href="#s03c"><span class="toc-n">↳</span>설계 미리보기</a></li>
+      <li class="toc-item" style="padding-left:8px"><a href="#s03d"><span class="toc-n">↳</span>속성 패널</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>필드/컬럼 정의</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>액션 정의</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>연결정보</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>첨부파일</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>검토/승인</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ══ 00 — Hero ══ -->
+      <div id="hero" class="sob-hero" data-screen-label="00 개요">
+        <div class="sob-hero-sup">Design Preview v1.0 · Object Builder</div>
+        <div class="sob-hero-title">화면설계서 등록 — 화면 구성 중심 재설계</div>
+        <div class="sob-hero-sub">
+          화면 캡처가 없어도 화면설계서를 작성할 수 있습니다.<br>
+          템플릿과 오브젝트를 선택해 화면 구조를 정의합니다.<br>
+          첨부파일은 참고자료 영역에서 별도로 관리합니다.
+        </div>
+        <div class="sob-hero-pills">
+          <span class="sob-hero-pill sob-hero-pill--strike">기존</span>
+          <span class="sob-hero-pill strike">3. 화면 이미지 (이미지 첨부 중심)</span>
+          <span class="sob-hero-arrow">→</span>
+          <span class="sob-hero-pill">3. 화면 구성 Builder (구조 설계 중심)</span>
+        </div>
+      </div>
+
+      <!-- ══ 01 — 기본 정보 ══ -->
+      <section id="s01" class="sec" data-screen-label="01 기본 정보">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">기본 정보</span>
+          <span class="sbadge done">필수</span>
+        </div>
+        <div class="sec-body">
+          <div class="sob-form-grid">
+            <div class="sob-field">
+              <div class="sob-label"><span class="req">✱</span>화면 ID</div>
+              <div class="sob-input code">SCR-LIST-001</div>
+            </div>
+            <div class="sob-field">
+              <div class="sob-label"><span class="req">✱</span>화면명</div>
+              <div class="sob-input foc">화면설계서 목록</div>
+            </div>
+            <div class="sob-field">
+              <div class="sob-label"><span class="req">✱</span>화면 유형</div>
+              <div class="sob-input sel">목록 화면<span class="sob-arr"></span></div>
+            </div>
+            <div class="sob-field">
+              <div class="sob-label">버전</div>
+              <div class="sob-input">v1.0</div>
+            </div>
+          </div>
+          <div class="sob-field">
+            <div class="sob-label">메뉴 경로</div>
+            <div class="sob-input ph">예: 산출물관리 &gt; 화면설계서</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 02 — 작성 정보 ══ -->
+      <section id="s02" class="sec" data-screen-label="02 작성 정보">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">작성 정보</span>
+          <span class="sbadge done">필수</span>
+        </div>
+        <div class="sec-body">
+          <div class="sob-form-grid cols3">
+            <div class="sob-field">
+              <div class="sob-label">담당자</div>
+              <div class="sob-input sel">김기획<span class="sob-arr"></span></div>
+            </div>
+            <div class="sob-field">
+              <div class="sob-label">작성 상태</div>
+              <div class="sob-status wip"><span class="sob-status-dot"></span>작성 중</div>
+            </div>
+            <div class="sob-field">
+              <div class="sob-label">우선순위</div>
+              <div class="sob-input sel">P1 — 높음<span class="sob-arr"></span></div>
+            </div>
+          </div>
+          <div class="sob-field">
+            <div class="sob-label">화면 목적</div>
+            <div class="sob-textarea">STAM 프로젝트 내 모든 화면설계서 항목을 조회·검색·필터·상세 확인·등록·수정·검토 요청할 수 있는 산출물 관리 보드입니다.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 03 — 화면 구성 Builder ══ -->
+      <section id="s03" class="sec" data-screen-label="03 화면 구성 Builder">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">화면 구성 Builder</span>
+          <span class="sbadge lock">핵심 신규</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="sob-note">
+            <strong>이 섹션이 핵심입니다.</strong> 화면 캡처 이미지 대신, 템플릿과 오브젝트를 선택해 화면 구조를 직접 설계합니다.
+            등록 시점에 실제 화면이 없어도 구조·필드·액션을 완전히 정의할 수 있습니다.
+          </div>
+
+          <!-- ── 3a 템플릿 선택 ── -->
+          <div id="s03a">
+            <div class="sub">A. 화면 템플릿 선택</div>
+            <div class="sob-tmpl-grid" style="margin-top:8px">
+
+              <!-- Template 1 (selected) -->
+              <div class="sob-tmpl-card sel">
+                <div class="sob-tmpl-icon">
+                  <div style="height:6px;background:rgba(84,81,232,.35);border-radius:2px;flex-shrink:0"></div>
+                  <div style="flex:1;display:flex;gap:2px;margin-top:2px">
+                    <div style="flex:1;background:rgba(139,127,248,.18);border-radius:2px"></div>
+                    <div style="width:30%;background:rgba(84,81,232,.30);border-radius:2px"></div>
+                  </div>
+                </div>
+                <div class="sob-tmpl-name">목록 + 우측 상세 Drawer</div>
+                <div class="sob-tmpl-desc">검색·필터·테이블·상세 Drawer 구성</div>
+                <div class="sob-tmpl-objs">
+                  <span class="sob-tmpl-obj">검색</span>
+                  <span class="sob-tmpl-obj">테이블</span>
+                  <span class="sob-tmpl-obj">Drawer</span>
+                  <span class="sob-tmpl-obj">검토이력</span>
+                </div>
+              </div>
+
+              <!-- Template 2 -->
+              <div class="sob-tmpl-card">
+                <div class="sob-tmpl-icon">
+                  <div style="height:6px;background:rgba(84,81,232,.28);border-radius:2px;flex-shrink:0"></div>
+                  <div style="flex:1;display:flex;gap:2px;margin-top:2px">
+                    <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+                      <div style="height:8px;background:rgba(139,127,248,.18);border-radius:2px"></div>
+                      <div style="flex:1;background:rgba(139,127,248,.14);border-radius:2px"></div>
+                    </div>
+                    <div style="width:32%;background:rgba(84,81,232,.22);border-radius:2px"></div>
+                  </div>
+                </div>
+                <div class="sob-tmpl-name">목록 + 등록 Drawer</div>
+                <div class="sob-tmpl-desc">목록 우측에 등록 폼 Drawer 포함</div>
+                <div class="sob-tmpl-objs">
+                  <span class="sob-tmpl-obj">테이블</span>
+                  <span class="sob-tmpl-obj">폼</span>
+                  <span class="sob-tmpl-obj">Drawer</span>
+                </div>
+              </div>
+
+              <!-- Template 3 -->
+              <div class="sob-tmpl-card">
+                <div class="sob-tmpl-icon">
+                  <div style="height:6px;background:rgba(84,81,232,.28);border-radius:2px;flex-shrink:0"></div>
+                  <div style="flex:1;display:flex;flex-direction:column;gap:2px;margin-top:2px">
+                    <div style="height:7px;background:rgba(139,127,248,.28);border-radius:2px"></div>
+                    <div style="flex:1;background:rgba(139,127,248,.14);border-radius:2px"></div>
+                    <div style="height:5px;background:rgba(139,127,248,.10);border-radius:2px"></div>
+                  </div>
+                </div>
+                <div class="sob-tmpl-name">검색/필터 목록</div>
+                <div class="sob-tmpl-desc">상단 검색·필터 영역 + 목록 테이블</div>
+                <div class="sob-tmpl-objs">
+                  <span class="sob-tmpl-obj">검색</span>
+                  <span class="sob-tmpl-obj">필터</span>
+                  <span class="sob-tmpl-obj">테이블</span>
+                </div>
+              </div>
+
+              <!-- Template 4 -->
+              <div class="sob-tmpl-card">
+                <div class="sob-tmpl-icon">
+                  <div style="height:6px;background:rgba(84,81,232,.28);border-radius:2px;flex-shrink:0"></div>
+                  <div style="flex:1;display:flex;flex-direction:column;gap:2px;margin-top:2px">
+                    <div style="height:5px;background:rgba(139,127,248,.14);border-radius:2px"></div>
+                    <div style="height:5px;background:rgba(139,127,248,.14);border-radius:2px"></div>
+                    <div style="height:5px;background:rgba(139,127,248,.14);border-radius:2px"></div>
+                    <div style="height:5px;background:rgba(84,81,232,.24);border-radius:2px;width:50%"></div>
+                  </div>
+                </div>
+                <div class="sob-tmpl-name">등록 / 수정 화면</div>
+                <div class="sob-tmpl-desc">필드 폼 기반 데이터 입력 화면</div>
+                <div class="sob-tmpl-objs">
+                  <span class="sob-tmpl-obj">입력폼</span>
+                  <span class="sob-tmpl-obj">파일업로드</span>
+                  <span class="sob-tmpl-obj">액션</span>
+                </div>
+              </div>
+
+              <!-- Template 5 -->
+              <div class="sob-tmpl-card">
+                <div class="sob-tmpl-icon">
+                  <div style="height:6px;background:rgba(84,81,232,.28);border-radius:2px;flex-shrink:0"></div>
+                  <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:2px">
+                    <div style="background:rgba(139,127,248,.18);border-radius:2px"></div>
+                    <div style="background:rgba(139,127,248,.14);border-radius:2px"></div>
+                    <div style="background:rgba(84,81,232,.22);border-radius:2px"></div>
+                    <div style="background:rgba(139,127,248,.10);border-radius:2px"></div>
+                  </div>
+                </div>
+                <div class="sob-tmpl-name">대시보드</div>
+                <div class="sob-tmpl-desc">집계 카드·차트·요약 패널 구성</div>
+                <div class="sob-tmpl-objs">
+                  <span class="sob-tmpl-obj">카드</span>
+                  <span class="sob-tmpl-obj">차트</span>
+                  <span class="sob-tmpl-obj">요약</span>
+                </div>
+              </div>
+
+            </div>
+            <div style="font-size:10.5px;color:var(--label-muted);font-family:var(--font);text-align:right;margin-top:2px">
+              + 상세 화면, 팝업, 검토/승인 화면 등 5개 템플릿 더 보기
+            </div>
+          </div>
+
+          <!-- ── 3b/c/d 3-패널 빌더 ── -->
+          <div id="s03b" style="margin-top:4px">
+            <div class="sub">B·C·D. 오브젝트 라이브러리 · 설계 미리보기 · 속성 패널</div>
+          </div>
+
+          <div id="s03c" class="sob-builder">
+
+            <!-- LEFT: Object Library -->
+            <div class="sob-lib" id="s03b-panel">
+              <div class="sob-lib-hdr">
+                오브젝트 라이브러리
+                <span class="sob-lib-hdr-action">+ 추가</span>
+              </div>
+
+              <div class="sob-lib-grp">
+                <div class="sob-lib-grp-hdr">
+                  <span>Navigation</span><span class="sob-lib-chev">▾</span>
+                </div>
+                <div class="sob-lib-items">
+                  <div class="sob-lib-item"><span class="sob-lib-dot"></span>Page Title</div>
+                  <div class="sob-lib-item"><span class="sob-lib-dot"></span>Breadcrumb</div>
+                  <div class="sob-lib-item"><span class="sob-lib-dot"></span>Status Strip</div>
+                </div>
+              </div>
+
+              <div class="sob-lib-grp">
+                <div class="sob-lib-grp-hdr">
+                  <span>Search / Filter</span><span class="sob-lib-chev">▾</span>
+                </div>
+                <div class="sob-lib-items">
+                  <div class="sob-lib-item"><span class="sob-lib-dot"></span>Search Input</div>
+                  <div class="sob-lib-item"><span class="sob-lib-dot"></span>Filter Button</div>
+                  <div class="sob-lib-item"><span class="sob-lib-dot"></span>Filter Popover</div>
+                  <div class="sob-lib-item"><span class="sob-lib-dot"></span>Date Range</div>
+                </div>
+              </div>
+
+              <div class="sob-lib-grp">
+                <div class="sob-lib-grp-hdr">
+                  <span>List / Table</span><span class="sob-lib-chev">▾</span>
+                </div>
+                <div class="sob-lib-items">
+                  <div class="sob-lib-item act"><span class="sob-lib-dot"></span>Data Table<span class="sob-lib-count">선택됨</span></div>
+                  <div class="sob-lib-item"><span class="sob-lib-dot"></span>Group Header</div>
+                  <div class="sob-lib-item"><span class="sob-lib-dot"></span>Status Chip</div>
+                  <div class="sob-lib-item"><span class="sob-lib-dot"></span>Row Action</div>
+                  <div class="sob-lib-item"><span class="sob-lib-dot"></span>Pagination</div>
+                </div>
+              </div>
+
+              <div class="sob-lib-grp">
+                <div class="sob-lib-grp-hdr">
+                  <span>Form</span><span class="sob-lib-chev">▾</span>
+                </div>
+                <div class="sob-lib-items">
+                  <div class="sob-lib-item"><span class="sob-lib-dot"></span>Text Input</div>
+                  <div class="sob-lib-item"><span class="sob-lib-dot"></span>Select</div>
+                  <div class="sob-lib-item"><span class="sob-lib-dot"></span>Textarea</div>
+                  <div class="sob-lib-item"><span class="sob-lib-dot"></span>File Upload</div>
+                </div>
+              </div>
+
+              <div class="sob-lib-grp">
+                <div class="sob-lib-grp-hdr">
+                  <span>Detail / Drawer</span><span class="sob-lib-chev">▸</span>
+                </div>
+              </div>
+
+              <div class="sob-lib-grp">
+                <div class="sob-lib-grp-hdr">
+                  <span>Action</span><span class="sob-lib-chev">▸</span>
+                </div>
+              </div>
+
+              <div class="sob-lib-grp">
+                <div class="sob-lib-grp-hdr">
+                  <span>Workflow</span><span class="sob-lib-chev">▸</span>
+                </div>
+              </div>
+
+              <div class="sob-lib-grp">
+                <div class="sob-lib-grp-hdr">
+                  <span>Attachment</span><span class="sob-lib-chev">▸</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- CENTER: Design Preview -->
+            <div class="sob-preview-panel">
+              <div class="sob-preview-topbar">
+                <span class="sob-preview-label">설계 미리보기</span>
+                <span class="sob-preview-tmpl">목록 + 우측 상세 Drawer</span>
+                <span style="flex:1"></span>
+                <span style="font-size:9.5px;color:var(--label-muted);font-family:var(--font)">Wireframe · 선택 오브젝트 기반</span>
+              </div>
+              <div class="sob-preview-body">
+                <div class="sob-wf">
+                  <!-- Top bar -->
+                  <div class="sob-wb brand xs fill" style="flex-direction:row;justify-content:space-between;padding:4px 8px">
+                    <span>화면설계서 목록</span>
+                    <span style="display:flex;gap:4px">
+                      <span style="font-size:7.5px;padding:1px 5px;background:var(--info-bg);color:var(--info);border-radius:3px">작성중</span>
+                      <span style="font-size:7.5px;padding:1px 5px;background:rgba(84,81,232,.15);color:var(--stam);border-radius:3px">v1.0</span>
+                    </span>
+                  </div>
+                  <!-- Search / Filter row -->
+                  <div class="sob-wf-row">
+                    <div class="sob-wb fill xs info">🔍 화면명·ID 검색</div>
+                    <div class="sob-wb xs" style="width:54px">필터 ▾</div>
+                    <div class="sob-wb xs" style="width:54px">메뉴 ▾</div>
+                    <div class="sob-wb xs brand" style="width:42px">+등록</div>
+                  </div>
+                  <!-- Table main area + drawer -->
+                  <div class="sob-wf-row" style="flex:1;min-height:0">
+                    <!-- Data Table (active/selected) -->
+                    <div class="sob-wb fill md act" style="justify-content:flex-start;align-items:flex-start;padding:6px 7px;gap:3px;flex-direction:column">
+                      <div style="display:flex;gap:4px;width:100%;border-bottom:1px solid rgba(84,81,232,.2);padding-bottom:3px;margin-bottom:2px">
+                        <span style="font-size:7px;color:var(--stam);font-weight:700">☑</span>
+                        <span style="font-size:7px;color:var(--stam)">화면ID</span>
+                        <span style="font-size:7px;color:var(--stam)">화면명</span>
+                        <span style="font-size:7px;color:var(--stam)">작성상태</span>
+                        <span style="font-size:7px;color:var(--stam)">담당자</span>
+                      </div>
+                      <div style="display:flex;gap:4px;width:100%;opacity:.7">
+                        <span style="font-size:7px">☐</span>
+                        <span style="font-size:7px;color:var(--stam)">SCR-001</span>
+                        <span style="font-size:7px">화면설계서 목록</span>
+                        <span style="font-size:7px;color:var(--info)">●작성중</span>
+                      </div>
+                      <div style="display:flex;gap:4px;width:100%;opacity:.7">
+                        <span style="font-size:7px">☐</span>
+                        <span style="font-size:7px;color:var(--stam)">SCR-002</span>
+                        <span style="font-size:7px">기본정보 등록</span>
+                        <span style="font-size:7px;color:var(--warn)">●검토중</span>
+                      </div>
+                      <div style="display:flex;gap:4px;width:100%;opacity:.7">
+                        <span style="font-size:7px">☐</span>
+                        <span style="font-size:7px;color:var(--stam)">SCR-003</span>
+                        <span style="font-size:7px">WBS 관리</span>
+                        <span style="font-size:7px;color:var(--pass)">●완료</span>
+                      </div>
+                      <div style="font-size:7px;color:var(--stam);margin-top:auto;font-weight:700">≡ Data Table — 선택됨</div>
+                    </div>
+                    <!-- Right drawer preview -->
+                    <div class="sob-drw-preview">
+                      <div class="sob-drw-hdr">상세 Drawer</div>
+                      <div class="sob-drw-row h"></div>
+                      <div class="sob-drw-row w80"></div>
+                      <div class="sob-drw-row w60"></div>
+                      <div class="sob-drw-block"></div>
+                      <div class="sob-drw-row"></div>
+                      <div class="sob-drw-row w80"></div>
+                      <div class="sob-drw-row w60"></div>
+                      <div style="margin-top:auto;padding-top:6px;display:flex;gap:3px">
+                        <div style="flex:1;height:12px;background:rgba(84,81,232,.12);border-radius:2px;border:1px solid rgba(84,81,232,.22)"></div>
+                        <div style="width:36px;height:12px;background:rgba(84,81,232,.55);border-radius:2px"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Pagination + bulk bar -->
+                  <div class="sob-wf-row">
+                    <div class="sob-wb fill xs dim">Bulk Action Bar</div>
+                    <div class="sob-wb xs" style="width:110px">◀ 1  2  3 … 28 ▶</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT: Object Properties -->
+            <div class="sob-builder-props" id="s03d">
+              <div class="sob-props-hdr">
+                <div class="sob-props-title">Data Table</div>
+                <span class="sob-props-type">LIST</span>
+              </div>
+              <div class="sob-props-body">
+                <div class="sob-prop">
+                  <div class="sob-prop-k">오브젝트 ID</div>
+                  <div class="sob-prop-v code">tbl-main-001</div>
+                </div>
+                <div class="sob-prop">
+                  <div class="sob-prop-k">위치</div>
+                  <div class="sob-prop-v">본문 메인</div>
+                </div>
+                <div class="sob-divider"></div>
+                <div class="sob-prop">
+                  <div class="sob-prop-k">컬럼 구성</div>
+                  <div class="sob-prop-chips">
+                    <span class="sob-prop-chip">화면ID</span>
+                    <span class="sob-prop-chip">화면명</span>
+                    <span class="sob-prop-chip">작성상태</span>
+                    <span class="sob-prop-chip">검토상태</span>
+                    <span class="sob-prop-chip">담당자</span>
+                    <span class="sob-prop-chip">최종수정일</span>
+                  </div>
+                </div>
+                <div class="sob-divider"></div>
+                <div class="sob-prop">
+                  <div class="sob-prop-k">행 클릭 동작</div>
+                  <div class="sob-prop-v">상세 Drawer 열기</div>
+                </div>
+                <div class="sob-prop">
+                  <div class="sob-prop-k">그룹핑 기준</div>
+                  <div class="sob-prop-v">메뉴 경로</div>
+                </div>
+                <div class="sob-divider"></div>
+                <div class="sob-toggle-row">
+                  <div class="sob-prop-k">다중 선택</div>
+                  <div class="sob-toggle"></div>
+                </div>
+                <div class="sob-toggle-row">
+                  <div class="sob-prop-k">정렬 허용</div>
+                  <div class="sob-toggle"></div>
+                </div>
+                <div class="sob-toggle-row">
+                  <div class="sob-prop-k">컬럼 편집</div>
+                  <div class="sob-toggle off"></div>
+                </div>
+                <div class="sob-divider"></div>
+                <div class="sob-prop">
+                  <div class="sob-prop-k">상태 조건</div>
+                  <div class="sob-prop-v muted">전체 역할 허용</div>
+                </div>
+                <div class="sob-prop">
+                  <div class="sob-prop-k">권한 조건</div>
+                  <div class="sob-prop-v muted">뷰어 이상</div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /sob-builder -->
+        </div><!-- /sec-body -->
+      </section>
+
+      <!-- ══ 04 — 필드/컬럼 정의 ══ -->
+      <section id="s04" class="sec" data-screen-label="04 필드/컬럼 정의">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">필드 / 컬럼 정의</span>
+          <span class="sbadge guide">Builder 연동</span>
+        </div>
+        <div class="sec-body">
+          <div class="sob-tbl-wrap">
+            <table class="sob-tbl">
+              <thead>
+                <tr>
+                  <th>표시명</th>
+                  <th>Key</th>
+                  <th>유형</th>
+                  <th>I/O</th>
+                  <th>필수</th>
+                  <th>기본값</th>
+                  <th>검증 규칙</th>
+                  <th>표시 위치</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>화면 ID</td>
+                  <td><span class="mono">screenId</span></td>
+                  <td><span class="chip-t">String</span></td>
+                  <td>출력</td>
+                  <td><span class="chip-y">Y</span></td>
+                  <td>자동생성</td>
+                  <td>SCR- 형식</td>
+                  <td>테이블 1열</td>
+                </tr>
+                <tr>
+                  <td>화면명</td>
+                  <td><span class="mono">screenName</span></td>
+                  <td><span class="chip-t">String</span></td>
+                  <td>입력/출력</td>
+                  <td><span class="chip-y">Y</span></td>
+                  <td>—</td>
+                  <td>2–60자</td>
+                  <td>테이블 2열</td>
+                </tr>
+                <tr>
+                  <td>작성 상태</td>
+                  <td><span class="mono">writeStatus</span></td>
+                  <td><span class="chip-t">Enum</span></td>
+                  <td>입력/출력</td>
+                  <td><span class="chip-y">Y</span></td>
+                  <td>작성중</td>
+                  <td>Enum 값 일치</td>
+                  <td>Status Chip</td>
+                </tr>
+                <tr>
+                  <td>담당자</td>
+                  <td><span class="mono">assigneeId</span></td>
+                  <td><span class="chip-t">User</span></td>
+                  <td>입력/출력</td>
+                  <td><span class="chip-n">N</span></td>
+                  <td>현재 사용자</td>
+                  <td>유효 멤버</td>
+                  <td>테이블 5열</td>
+                </tr>
+                <tr>
+                  <td>최종수정일</td>
+                  <td><span class="mono">updatedAt</span></td>
+                  <td><span class="chip-t">DateTime</span></td>
+                  <td>출력</td>
+                  <td><span class="chip-n">N</span></td>
+                  <td>서버 자동</td>
+                  <td>—</td>
+                  <td>테이블 7열</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="sob-tbl-add">＋ 필드 추가</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 05 — 액션 정의 ══ -->
+      <section id="s05" class="sec" data-screen-label="05 액션 정의">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">액션 정의</span>
+          <span class="sbadge guide">Builder 연동</span>
+        </div>
+        <div class="sec-body">
+          <div class="sob-tbl-wrap">
+            <table class="sob-tbl">
+              <thead>
+                <tr>
+                  <th>액션명</th>
+                  <th>오브젝트</th>
+                  <th>위치</th>
+                  <th>트리거</th>
+                  <th>성공 결과</th>
+                  <th>상태 조건</th>
+                  <th>권한 조건</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>등록</td>
+                  <td><span class="mono">btn-register</span></td>
+                  <td>상단 우측</td>
+                  <td>Click</td>
+                  <td>등록 Drawer 열기</td>
+                  <td>—</td>
+                  <td><span class="chip-i">편집자+</span></td>
+                </tr>
+                <tr>
+                  <td>상세 열기</td>
+                  <td><span class="mono">tbl-row</span></td>
+                  <td>테이블 행</td>
+                  <td>Row Click</td>
+                  <td>상세 Drawer 표시</td>
+                  <td>—</td>
+                  <td><span class="chip-i">뷰어+</span></td>
+                </tr>
+                <tr>
+                  <td>검토요청</td>
+                  <td><span class="mono">btn-review</span></td>
+                  <td>Drawer 하단</td>
+                  <td>Click</td>
+                  <td>검토자에게 알림 발송</td>
+                  <td><span class="chip-w">작성중</span></td>
+                  <td><span class="chip-i">담당자</span></td>
+                </tr>
+                <tr>
+                  <td>일괄 삭제</td>
+                  <td><span class="mono">bulk-delete</span></td>
+                  <td>Bulk Bar</td>
+                  <td>Click</td>
+                  <td>확인 Dialog 후 삭제</td>
+                  <td><span class="chip-w">1건+ 선택</span></td>
+                  <td><span class="chip-i">관리자</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="sob-tbl-add">＋ 액션 추가</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 06 — 연결정보 ══ -->
+      <section id="s06" class="sec" data-screen-label="06 연결정보">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">연결정보</span>
+          <span class="sbadge plan">선택</span>
+        </div>
+        <div class="sec-body">
+          <div class="sob-conn-grid">
+            <div class="sob-conn-card">
+              <div class="sob-conn-title">요구사항</div>
+              <div class="sob-conn-chips">
+                <span class="sob-cc req">REQ-041</span>
+                <span class="sob-cc req">REQ-042</span>
+                <span class="sob-cc add">+ 연결</span>
+              </div>
+            </div>
+            <div class="sob-conn-card">
+              <div class="sob-conn-title">기능정의</div>
+              <div class="sob-conn-chips">
+                <span class="sob-cc fn">FN-023</span>
+                <span class="sob-cc fn">FN-024</span>
+                <span class="sob-cc add">+ 연결</span>
+              </div>
+            </div>
+            <div class="sob-conn-card">
+              <div class="sob-conn-title">WBS 작업</div>
+              <div class="sob-conn-chips">
+                <span class="sob-cc wbs">WBS-2.3.1</span>
+                <span class="sob-cc add">+ 연결</span>
+              </div>
+            </div>
+            <div class="sob-conn-card">
+              <div class="sob-conn-title">인터페이스</div>
+              <div class="sob-conn-chips">
+                <span class="sob-cc ifc">IFC-011</span>
+                <span class="sob-cc add">+ 연결</span>
+              </div>
+            </div>
+            <div class="sob-conn-card">
+              <div class="sob-conn-title">테스트케이스</div>
+              <div class="sob-conn-chips">
+                <span class="sob-cc tc">TC-201</span>
+                <span class="sob-cc tc">TC-202</span>
+                <span class="sob-cc add">+ 연결</span>
+              </div>
+            </div>
+            <div class="sob-conn-card">
+              <div class="sob-conn-title">메뉴/화면목록</div>
+              <div class="sob-conn-chips">
+                <span class="sob-cc">산출물관리 &gt; 화면설계서</span>
+                <span class="sob-cc add">+ 연결</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 07 — 첨부파일 ══ -->
+      <section id="s07" class="sec" data-screen-label="07 첨부파일">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">첨부파일</span>
+          <span class="sbadge plan">보조 영역 · 선택</span>
+        </div>
+        <div class="sec-body">
+          <div class="sob-note warn">
+            <strong>첨부파일은 화면설계서의 보조 영역입니다.</strong>
+            화면 구성 빌더(Section 03)가 주요 설계 도구이며, 이 섹션은 참고자료·산출물 보관 전용입니다.
+          </div>
+          <div class="sob-att-zone">
+            <div class="sob-att-ico">↑</div>
+            <div class="sob-att-label">참고자료 첨부</div>
+            <div class="sob-att-hint">화면 설계에 필요한 문서, 이미지, 파일을 첨부합니다.<br>첨부는 선택 사항입니다.</div>
+            <div class="sob-att-types">
+              <span class="sob-att-type">PDF</span>
+              <span class="sob-att-type">Excel</span>
+              <span class="sob-att-type">Word</span>
+              <span class="sob-att-type">Markdown</span>
+              <span class="sob-att-type">HTML</span>
+              <span class="sob-att-type">이미지</span>
+              <span class="sob-att-type">Figma export</span>
+              <span class="sob-att-type">ZIP</span>
+            </div>
+          </div>
+          <div class="sob-att-list">
+            <div class="sob-att-item">
+              <span class="sob-att-ext">REQ</span>
+              <span class="sob-att-name">요구사항_화면설계서목록_v1.2.pdf</span>
+              <span class="sob-att-size">342 KB</span>
+            </div>
+            <div class="sob-att-item">
+              <span class="sob-att-ext">IMG</span>
+              <span class="sob-att-name">기존화면_참고_스크린샷.png</span>
+              <span class="sob-att-size">1.1 MB</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 08 — 검토/승인 ══ -->
+      <section id="s08" class="sec" data-screen-label="08 검토/승인">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">검토 / 승인</span>
+          <span class="sbadge plan">선택</span>
+        </div>
+        <div class="sec-body">
+          <div class="sob-rev-grid">
+            <div class="sob-rev-card">
+              <div class="sob-av">김</div>
+              <div class="sob-av-info">
+                <div class="sob-av-name">김검토</div>
+                <div class="sob-av-role">검토자 · UX팀</div>
+              </div>
+              <span class="sob-av-badge req">검토요청</span>
+            </div>
+            <div class="sob-rev-card">
+              <div class="sob-av g">박</div>
+              <div class="sob-av-info">
+                <div class="sob-av-name">박승인</div>
+                <div class="sob-av-role">승인자 · PM</div>
+              </div>
+              <span class="sob-av-badge wait">대기중</span>
+            </div>
+          </div>
+          <div class="sob-field">
+            <div class="sob-label">검토 요청 메시지</div>
+            <div class="sob-textarea" style="min-height:50px;color:var(--label-muted)">검토 요청 메시지를 입력하세요…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Bottom Action Bar ── -->
+      <div class="sob-action-bar">
+        <span style="font-size:10.5px;color:var(--label-muted);font-family:var(--font)">임시저장: 방금 전</span>
+        <div class="sob-sp"></div>
+        <button class="sob-btn ghost">취소</button>
+        <button class="sob-btn outline">임시저장</button>
+        <button class="sob-btn primary">등록</button>
+      </div>
+
+    </div><!-- /guide-content -->
+  </main>
+</div><!-- /guide-shell -->
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.querySelector('[data-theme-toggle]').textContent = isDark ? '☀ 라이트모드' : '☾ 다크모드';
+}
+
+// TOC active highlight on scroll
+(function() {
+  const main = document.getElementById('guide-main');
+  const sections = document.querySelectorAll('.sec[id], [id^="s0"], [id="hero"]');
+  const tocLinks = document.querySelectorAll('.toc-item');
+
+  function onScroll() {
+    let active = null;
+    const scrollTop = main.scrollTop + 40;
+    sections.forEach(sec => {
+      if (sec.offsetTop <= scrollTop) active = sec.id;
+    });
+    tocLinks.forEach(li => {
+      const a = li.querySelector('a');
+      const href = a ? a.getAttribute('href') : '';
+      li.classList.toggle('active', href === '#' + active);
+    });
+  }
+  main.addEventListener('scroll', onScroll, { passive: true });
+})();
+</script>
+</body>
+</html>

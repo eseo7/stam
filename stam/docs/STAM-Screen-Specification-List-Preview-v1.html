@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM 화면설계서 목록 Preview v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<style>
+/* ============================================================
+ * STAM Screen Specification List Preview v1 — Drawer UX
+ * prefix: ssl-   /   실제 product CSS 절대 덮어쓰지 않음
+ * ============================================================ */
+.ssl-page{overflow-x:hidden;min-height:100vh}
+.ssl-outer{max-width:1440px;margin:0 auto;padding:20px 20px 48px;box-sizing:border-box}
+
+/* ── Buttons ── */
+.ssl-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:var(--font);transition:opacity 120ms,background 80ms,border-color 80ms;white-space:nowrap}
+.ssl-btn.primary{background:var(--stam);color:#fff}.ssl-btn.primary:hover{opacity:.88}
+.ssl-btn.secondary{background:var(--bg-sur2);color:var(--t1);border:1px solid var(--bd)}.ssl-btn.secondary:hover{border-color:var(--stam);color:var(--stam)}
+.ssl-btn.ghost{background:none;border:1px solid var(--bd);color:var(--t2);padding:5px 10px;font-size:11.5px}.ssl-btn.ghost:hover{border-color:var(--stam);color:var(--stam)}
+.ssl-btn.sm{padding:5px 10px;font-size:11px}
+
+/* ── Pills ── */
+.ssl-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.ssl-pill::before{content:"";width:5px;height:5px;border-radius:999px;background:currentColor;display:inline-block;flex-shrink:0}
+.ssl-pill.preview{background:var(--info-bg);color:var(--info)}
+.ssl-pill.scope  {background:var(--stam-soft);color:var(--stam)}
+.ssl-pill.type   {background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t3)}
+.ssl-pill.draft  {background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t3)}
+.ssl-pill.review {background:var(--info-bg);color:var(--info)}
+.ssl-pill.approved{background:var(--pass-bg);color:var(--pass)}
+.ssl-pill.needs  {background:var(--warn-bg);color:var(--warn)}
+
+/* ── Status Chips ── */
+.ssl-chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:700;white-space:nowrap}
+.ssl-chip.draft   {background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t3)}
+.ssl-chip.review  {background:var(--info-bg);color:var(--info)}
+.ssl-chip.approved{background:var(--pass-bg);color:var(--pass)}
+.ssl-chip.needs   {background:var(--warn-bg);color:var(--warn)}
+.ssl-chip.archived{background:var(--skip-bg);color:var(--skip)}
+
+/* ── Page Header ── */
+.ssl-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--bd)}
+.ssl-hdr-left{display:flex;flex-direction:column;gap:6px}
+.ssl-hdr-pills{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ssl-hdr-title{font-size:21px;font-weight:800;color:var(--t1);letter-spacing:-.022em;margin:0}
+.ssl-hdr-desc{font-size:12px;color:var(--t2);line-height:1.6;margin:0;max-width:520px}
+.ssl-hdr-cta{display:flex;align-items:center;gap:7px;flex-shrink:0;flex-wrap:wrap}
+
+/* ── KPI ── */
+.ssl-kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+@media(max-width:900px){.ssl-kpi-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:540px){.ssl-kpi-row{grid-template-columns:repeat(2,1fr)}}
+.ssl-kpi{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px;cursor:pointer;transition:border-color 120ms}
+.ssl-kpi:hover{border-color:var(--stam)}.ssl-kpi.ka{border-color:var(--stam);background:var(--stam-soft)}
+.ssl-kpi-lbl{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3)}
+.ssl-kpi-n{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.1;color:var(--t1)}
+.ssl-kpi-sub{font-size:10.5px;color:var(--t3)}
+.ssl-kpi.kt .ssl-kpi-n{color:var(--stam)} .ssl-kpi.kd .ssl-kpi-n{color:var(--t2)}
+.ssl-kpi.kr .ssl-kpi-n{color:var(--info)} .ssl-kpi.kap .ssl-kpi-n{color:var(--pass)}
+.ssl-kpi.knu .ssl-kpi-n{color:var(--warn)}
+
+/* ── Filter Bar ── */
+.ssl-fbar{border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);padding:10px 14px;margin-bottom:10px;display:flex;flex-direction:column;gap:7px}
+.ssl-frow{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.ssl-finput{flex:1;min-width:160px;max-width:260px;padding:6px 10px;border:1px solid var(--bd);border-radius:5px;background:var(--bg-sur2);color:var(--t1);font-size:12px;font-family:var(--font)}
+.ssl-finput::placeholder{color:var(--t3)}.ssl-finput:focus{outline:none;border-color:var(--stam)}
+.ssl-fsel{padding:6px 9px;border:1px solid var(--bd);border-radius:5px;background:var(--bg-sur2);color:var(--t2);font-size:12px;font-family:var(--font);cursor:pointer;min-width:96px}
+.ssl-fsel:focus{outline:none;border-color:var(--stam)}
+.ssl-fsep{width:1px;height:18px;background:var(--bd);flex-shrink:0}
+.ssl-flbl{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--t3);white-space:nowrap;flex-shrink:0}
+.ssl-fchip{display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:var(--bg-sur2);color:var(--t2);transition:all 120ms;user-select:none;white-space:nowrap}
+.ssl-fchip:hover{border-color:var(--stam);color:var(--stam)}
+.ssl-fchip.fa{background:var(--stam-soft);border-color:var(--stam);color:var(--stam)}
+.ssl-fchip.fa-r{background:var(--info-bg);border-color:rgba(111,168,255,.4);color:var(--info)}
+.ssl-fchip.fa-p{background:var(--pass-bg);border-color:rgba(0,191,64,.3);color:var(--pass)}
+.ssl-fchip.fa-w{background:var(--warn-bg);border-color:rgba(245,158,11,.35);color:var(--warn)}
+
+/* ── Main Split — Table + Drawer ── */
+.ssl-split{display:flex;align-items:flex-start;gap:0;overflow:hidden;margin-bottom:14px}
+.ssl-tbl-col{flex:1;min-width:0;overflow:hidden;transition:flex 200ms}
+
+/* ── Table ── */
+.ssl-tw{overflow-x:auto;border:1px solid var(--bd);border-radius:var(--r-md);background:var(--bg-sur)}
+.ssl-t{width:100%;border-collapse:collapse;font-size:12px}
+.ssl-t thead th{padding:9px 10px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.055em;text-align:left;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2);white-space:nowrap}
+.ssl-t thead th:first-child{padding-left:13px}
+.ssl-t tbody tr{border-bottom:1px solid var(--bd);cursor:pointer;transition:background 80ms}
+.ssl-t tbody tr:last-child{border-bottom:none}
+.ssl-t tbody tr:hover{background:rgba(84,81,232,.04)}
+.ssl-t tbody tr.sel{background:var(--stam-soft)}
+.ssl-t td{padding:9px 10px;color:var(--t2);vertical-align:middle;white-space:nowrap}
+.ssl-t td:first-child{padding-left:13px}
+.ssl-doc-name{font-weight:700;color:var(--t1);max-width:180px;overflow:hidden;text-overflow:ellipsis;display:block}
+.ssl-doc-name:hover{color:var(--stam)}
+.ssl-chg{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:18px;border-radius:4px;font-size:10px;font-weight:800;background:var(--bg-sur2);color:var(--t3);border:1px solid var(--bd)}
+.ssl-chg.has{background:var(--stam-soft);color:var(--stam);border-color:rgba(84,81,232,.2)}
+.ssl-act-row{display:flex;align-items:center;gap:3px}
+.ssl-act{display:inline-flex;align-items:center;padding:3px 8px;border-radius:4px;font-size:10.5px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:transparent;color:var(--t2);font-family:var(--font);transition:all 80ms;white-space:nowrap}
+.ssl-act:hover{border-color:var(--stam);color:var(--stam);background:var(--stam-soft)}
+.ssl-act.pa{background:var(--stam-soft);border-color:rgba(84,81,232,.25);color:var(--stam)}
+.ssl-tfoot{display:flex;align-items:center;justify-content:space-between;padding:7px 2px;margin-top:4px}
+.ssl-tfoot-info{font-size:11px;color:var(--t3)}
+.ssl-tfoot-pg{display:flex;gap:3px}
+
+/* ── Drawer ── */
+.ssl-drawer{width:0;flex-shrink:0;overflow:hidden;transition:width 220ms ease;background:var(--bg-sur);border-left:0px solid var(--bd)}
+.ssl-drawer.open{width:clamp(560px,48%,720px);border-left:1px solid var(--bd);border-radius:0 var(--r-md) var(--r-md) 0}
+.ssl-drawer-inner{width:clamp(560px,48%,720px);max-width:720px;height:100%;display:flex;flex-direction:column;box-sizing:border-box}
+
+/* Drawer Header */
+.ssl-dr-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--bd);background:var(--bg-sur2);flex-shrink:0}
+.ssl-dr-hdr-left{display:flex;align-items:center;gap:8px}
+.ssl-dr-hdr-title{font-size:13px;font-weight:800;color:var(--t1)}
+/* Mode tabs */
+.ssl-dr-tabs{display:flex;gap:2px;border:1px solid var(--bd);border-radius:6px;padding:2px;background:var(--bg-sur);flex-shrink:0}
+.ssl-dr-tab{padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;color:var(--t3);transition:all 120ms;background:none;border:none;font-family:var(--font);white-space:nowrap}
+.ssl-dr-tab:hover{color:var(--t1)}.ssl-dr-tab.ta{background:var(--stam);color:#fff}
+.ssl-dr-close{background:none;border:none;cursor:pointer;color:var(--t3);font-size:15px;padding:3px 7px;border-radius:4px;font-family:var(--font);line-height:1;transition:all 80ms}
+.ssl-dr-close:hover{color:var(--t1);background:var(--bd)}
+
+/* Drawer Body */
+.ssl-dr-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:14px}
+.ssl-dr-sec{display:flex;flex-direction:column;gap:6px}
+.ssl-dr-sec-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);padding-bottom:4px;border-bottom:1px solid var(--bd)}
+
+/* Meta grid */
+.ssl-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ssl-meta-cell{display:flex;flex-direction:column;gap:2px}
+.ssl-meta-k{font-size:9px;color:var(--t3);letter-spacing:.04em;text-transform:uppercase}
+.ssl-meta-v{font-size:12px;font-weight:700;color:var(--t1)}
+
+/* Screen list in drawer */
+.ssl-sc-list{display:flex;flex-direction:column;gap:3px}
+.ssl-sc-item{display:flex;align-items:center;justify-content:space-between;padding:6px 9px;border:1px solid var(--bd);border-radius:5px;background:var(--bg-sur2);font-size:11.5px}
+.ssl-sc-name{font-weight:600;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
+
+/* Change log */
+.ssl-log-list{display:flex;flex-direction:column;gap:0}
+.ssl-log-item{display:flex;gap:9px;padding:6px 0;border-bottom:1px solid var(--bd);font-size:11px;line-height:1.55}
+.ssl-log-item:last-child{border-bottom:none}
+.ssl-log-time{color:var(--t3);flex-shrink:0;font-size:10px;margin-top:1px;min-width:72px}
+.ssl-log-desc{color:var(--t2)}
+
+/* Candidate chips */
+.ssl-cand-wrap{display:flex;gap:4px;flex-wrap:wrap}
+.ssl-cand{background:var(--stam-soft);border:1px solid rgba(84,81,232,.15);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700;color:var(--stam)}
+.ssl-cand-note{font-size:10.5px;color:var(--t3);margin-top:3px;line-height:1.5}
+
+/* Form fields */
+.ssl-field{display:flex;flex-direction:column;gap:5px}
+.ssl-field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t3)}
+.ssl-finp{padding:7px 10px;border:1px solid var(--bd);border-radius:5px;background:var(--bg-sur2);color:var(--t1);font-size:12.5px;font-family:var(--font);width:100%;box-sizing:border-box}
+.ssl-finp:focus{outline:none;border-color:var(--stam)}
+.ssl-ftextarea{resize:vertical;min-height:72px;padding:8px 10px;border:1px solid var(--bd);border-radius:5px;background:var(--bg-sur2);color:var(--t1);font-size:12.5px;font-family:var(--font);width:100%;box-sizing:border-box}
+.ssl-ftextarea:focus{outline:none;border-color:var(--stam)}
+.ssl-fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* Template selector */
+.ssl-tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.ssl-tpl-card{border:1px solid var(--bd);border-radius:6px;padding:9px 10px;cursor:pointer;display:flex;flex-direction:column;gap:3px;transition:all 120ms;background:var(--bg-sur2)}
+.ssl-tpl-card:hover{border-color:var(--stam);background:var(--stam-soft)}
+.ssl-tpl-card.ts{border-color:var(--stam);background:var(--stam-soft)}
+.ssl-tpl-n{font-size:12px;font-weight:700;color:var(--t1)}
+.ssl-tpl-d{font-size:10px;color:var(--t3)}
+
+/* Review form */
+.ssl-rchk-list{display:flex;flex-direction:column;gap:4px}
+.ssl-rchk{display:flex;align-items:flex-start;gap:7px;padding:7px 9px;border:1px solid var(--bd);border-radius:5px;background:var(--bg-sur2);font-size:11.5px}
+.ssl-rchk-icon{width:14px;height:14px;border-radius:3px;border:1px solid var(--bd);background:var(--stam-soft);display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:var(--stam);flex-shrink:0;margin-top:1px}
+.ssl-rchk-text{color:var(--t2);line-height:1.5}
+.ssl-rchk-text strong{color:var(--t1)}
+
+/* Drawer footer */
+.ssl-dr-foot{display:flex;align-items:center;gap:6px;padding:11px 16px;border-top:1px solid var(--bd);background:var(--bg-sur2);flex-shrink:0;flex-wrap:wrap}
+.ssl-dr-foot .ssl-btn{font-size:12px;padding:7px 14px}
+
+/* ── State Samples ── */
+.ssl-states-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:14px}
+@media(max-width:800px){.ssl-states-grid{grid-template-columns:repeat(2,1fr)}}
+.ssl-state-card{border:1px solid var(--bd);border-radius:var(--r-md);padding:12px 13px;background:var(--bg-sur);display:flex;flex-direction:column;gap:4px}
+.ssl-state-tag{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+.ssl-state-msg{font-size:12px;font-weight:700;color:var(--t1)}
+.ssl-state-sub{font-size:10.5px;color:var(--t3);line-height:1.5}
+.ssl-state-card.s-empty .ssl-state-tag{color:var(--t3)}
+.ssl-state-card.s-load{border-color:rgba(111,168,255,.2);background:var(--info-bg)}.ssl-state-card.s-load .ssl-state-tag{color:var(--info)}
+.ssl-state-card.s-err{border-color:rgba(255,90,71,.2);background:var(--fail-bg)}.ssl-state-card.s-err .ssl-state-tag{color:var(--fail)}
+.ssl-state-card.s-cfl{border-color:rgba(245,158,11,.25);background:var(--warn-bg)}.ssl-state-card.s-cfl .ssl-state-tag{color:var(--warn)}
+
+/* ── Policy Box ── */
+.ssl-pbox{border:1px solid var(--bd);border-radius:var(--r-md);padding:11px 14px;background:var(--bg-sur2);margin-bottom:14px}
+.ssl-pbox-title{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-bottom:7px}
+.ssl-plist{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:4px}
+.ssl-plist li{font-size:11.5px;color:var(--t2);padding-left:12px;position:relative;line-height:1.6}
+.ssl-plist li::before{content:"·";position:absolute;left:2px;color:var(--t3);font-weight:800}
+.ssl-plist li strong{color:var(--t1)}
+
+/* ── Related Links ── */
+.ssl-rel-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);margin-bottom:8px}
+.ssl-link-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+@media(max-width:800px){.ssl-link-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.ssl-link-grid{grid-template-columns:1fr}}
+.ssl-link-card{display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid var(--bd);background:var(--bg-sur);border-radius:var(--r-md);text-decoration:none;transition:border-color 120ms,background 120ms}
+.ssl-link-card:hover{border-color:rgba(84,81,232,.35);background:rgba(84,81,232,.03)}
+.ssl-link-ico{width:28px;height:28px;border-radius:6px;background:var(--stam-soft);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--stam);flex-shrink:0}
+.ssl-link-nm{font-size:11.5px;font-weight:700;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ssl-link-sub{font-size:10.5px;color:var(--t3)}
+
+/* Font lock */
+.ssl-page,.ssl-page *{font-family:var(--font)!important}
+
+/* ── Responsive: small viewports ── */
+@media(max-width:900px){
+  .ssl-drawer.open{width:100%;position:fixed;right:0;top:0;bottom:0;z-index:200;border-radius:0;border-left:1px solid var(--bd)}
+  .ssl-drawer-inner{width:100%;max-width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a class="doc-nav-back" href="STAM-Docs-Index.html">← Docs Index</a>
+  <span class="doc-nav-title">화면설계서 목록 Preview v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Preview</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Full Stack Scope v1</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="ssl-page">
+<div class="ssl-outer">
+
+  <!-- ① Page Header -->
+  <div class="ssl-hdr">
+    <div class="ssl-hdr-left">
+      <div class="ssl-hdr-pills">
+        <span class="ssl-pill preview">Preview</span>
+        <span class="ssl-pill scope">Full Stack Scope v1</span>
+        <span class="ssl-pill type">Screen Specification</span>
+      </div>
+      <h1 class="ssl-hdr-title">화면설계서</h1>
+      <p class="ssl-hdr-desc">화면설계서 문서, 화면 목록, 검토 상태, 버전, Export 상태를 한 곳에서 관리합니다.</p>
+    </div>
+    <div class="ssl-hdr-cta">
+      <button class="ssl-btn primary" onclick="openDrawer('reg')">+ 화면설계서 등록</button>
+      <button class="ssl-btn secondary">템플릿 관리</button>
+      <button class="ssl-btn secondary">Export 이력</button>
+    </div>
+  </div>
+
+  <!-- ② KPI -->
+  <div class="ssl-kpi-row">
+    <div class="ssl-kpi kt" onclick="kpiClick(this)"><span class="ssl-kpi-lbl">전체 문서</span><span class="ssl-kpi-n">24</span><span class="ssl-kpi-sub">전체 프로젝트 포함</span></div>
+    <div class="ssl-kpi kd" onclick="kpiClick(this)"><span class="ssl-kpi-lbl">작성 중</span><span class="ssl-kpi-n">8</span><span class="ssl-kpi-sub">Draft 상태</span></div>
+    <div class="ssl-kpi kr" onclick="kpiClick(this)"><span class="ssl-kpi-lbl">검토 요청</span><span class="ssl-kpi-n">5</span><span class="ssl-kpi-sub">In Review 상태</span></div>
+    <div class="ssl-kpi kap" onclick="kpiClick(this)"><span class="ssl-kpi-lbl">승인 완료</span><span class="ssl-kpi-n">9</span><span class="ssl-kpi-sub">Approved 상태</span></div>
+    <div class="ssl-kpi knu" onclick="kpiClick(this)"><span class="ssl-kpi-lbl">변경 필요</span><span class="ssl-kpi-n">2</span><span class="ssl-kpi-sub">Needs Update 상태</span></div>
+  </div>
+
+  <!-- ③ Filter Bar -->
+  <div class="ssl-fbar">
+    <div class="ssl-frow">
+      <input class="ssl-finput" type="text" placeholder="문서명 / 화면명 / 작성자 검색...">
+      <select class="ssl-fsel"><option>전체 프로젝트</option><option>STAM Core</option><option>어드민 프로젝트</option><option>QA 모듈</option><option>워크플로</option></select>
+      <select class="ssl-fsel"><option>전체 상태</option><option>Draft</option><option>In Review</option><option>Approved</option><option>Needs Update</option><option>Archived</option></select>
+      <select class="ssl-fsel"><option>전체 작성자</option><option>김지수</option><option>이채원</option><option>박민호</option><option>최준영</option><option>정수현</option></select>
+      <select class="ssl-fsel"><option>최근 수정일</option><option>오늘</option><option>이번 주</option><option>이번 달</option></select>
+    </div>
+    <div class="ssl-frow">
+      <span class="ssl-flbl">빠른 필터</span>
+      <span class="ssl-fchip" onclick="toggleChip(this)">내가 작성한 문서</span>
+      <span class="ssl-fchip fa-r" onclick="toggleChip(this)">검토 대기</span>
+      <span class="ssl-fchip fa-p" onclick="toggleChip(this)">승인 완료</span>
+      <span class="ssl-fchip fa-w" onclick="toggleChip(this)">변경 필요</span>
+      <div class="ssl-fsep"></div>
+      <span class="ssl-fchip" onclick="toggleChip(this)">Export 준비</span>
+      <span class="ssl-fchip" onclick="toggleChip(this)">태그: 에디터</span>
+      <span class="ssl-fchip" onclick="toggleChip(this)">태그: 권한</span>
+    </div>
+  </div>
+
+  <!-- ④ Main Split: Table + Drawer -->
+  <div class="ssl-split" id="ssl-split">
+
+    <!-- Table column -->
+    <div class="ssl-tbl-col">
+      <div class="ssl-tw">
+        <table class="ssl-t" id="ssl-t">
+          <thead>
+            <tr>
+              <th style="min-width:160px">문서명</th>
+              <th style="min-width:96px">프로젝트</th>
+              <th>화면 수</th>
+              <th style="min-width:96px">상태</th>
+              <th>버전</th>
+              <th style="min-width:60px">작성자</th>
+              <th style="min-width:60px">검토자</th>
+              <th style="min-width:82px">최근 수정</th>
+              <th>변경</th>
+              <th style="min-width:144px">액션</th>
+            </tr>
+          </thead>
+          <tbody id="ssl-tbody"></tbody>
+        </table>
+      </div>
+      <div class="ssl-tfoot">
+        <span class="ssl-tfoot-info">7개 문서 표시 중 · 전체 24개</span>
+        <div class="ssl-tfoot-pg">
+          <button class="ssl-act" style="padding:4px 9px">이전</button>
+          <button class="ssl-act pa" style="padding:4px 9px">1</button>
+          <button class="ssl-act" style="padding:4px 9px">2</button>
+          <button class="ssl-act" style="padding:4px 9px">3</button>
+          <button class="ssl-act" style="padding:4px 9px">다음</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Drawer ── -->
+    <div class="ssl-drawer" id="ssl-drawer">
+      <div class="ssl-drawer-inner">
+
+        <!-- Drawer Header -->
+        <div class="ssl-dr-hdr">
+          <div class="ssl-dr-hdr-left">
+            <span class="ssl-dr-hdr-title" id="dr-title">문서 상세</span>
+            <span class="ssl-chip draft" id="dr-status-chip">Draft</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="ssl-dr-tabs" id="dr-tabs">
+              <button class="ssl-dr-tab ta" onclick="switchMode('view')">상세</button>
+              <button class="ssl-dr-tab"    onclick="switchMode('edit')">수정</button>
+              <button class="ssl-dr-tab"    onclick="switchMode('reg')">등록</button>
+              <button class="ssl-dr-tab"    onclick="switchMode('review')">검토 요청</button>
+            </div>
+            <button class="ssl-dr-close" onclick="closeDrawer()">✕</button>
+          </div>
+        </div>
+
+        <!-- ── 상세 mode ── -->
+        <div class="ssl-dr-body" id="dr-view">
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">문서 메타</div>
+            <div class="ssl-meta-grid">
+              <div class="ssl-meta-cell" style="grid-column:1/-1"><span class="ssl-meta-k">문서명</span><span class="ssl-meta-v" id="dr-name" style="font-size:14px">—</span></div>
+              <div class="ssl-meta-cell"><span class="ssl-meta-k">프로젝트</span><span class="ssl-meta-v" id="dr-proj">—</span></div>
+              <div class="ssl-meta-cell"><span class="ssl-meta-k">버전</span><span class="ssl-meta-v" id="dr-ver">—</span></div>
+              <div class="ssl-meta-cell"><span class="ssl-meta-k">작성자</span><span class="ssl-meta-v" id="dr-author">—</span></div>
+              <div class="ssl-meta-cell"><span class="ssl-meta-k">검토자</span><span class="ssl-meta-v" id="dr-reviewer">—</span></div>
+              <div class="ssl-meta-cell"><span class="ssl-meta-k">최근 수정</span><span class="ssl-meta-v" id="dr-mod">—</span></div>
+              <div class="ssl-meta-cell"><span class="ssl-meta-k">Export</span><span class="ssl-meta-v" id="dr-export">—</span></div>
+            </div>
+          </div>
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">포함 화면 목록 <span id="dr-sc-count" style="color:var(--stam);font-weight:800"></span></div>
+            <div class="ssl-sc-list" id="dr-screens"></div>
+          </div>
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">최근 변경이력</div>
+            <div class="ssl-log-list" id="dr-log"></div>
+          </div>
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">검토 / 승인 상태</div>
+            <div style="border:1px solid var(--bd);border-radius:6px;padding:9px 11px;background:var(--bg-sur2);font-size:12px;color:var(--t1);line-height:1.6" id="dr-review-status">—</div>
+          </div>
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">DB Impact 후보</div>
+            <div class="ssl-cand-wrap"><span class="ssl-cand">screenSpecs</span><span class="ssl-cand">screenPages</span><span class="ssl-cand">specPermissions</span><span class="ssl-cand">reviewRequests</span><span class="ssl-cand">changeHistory</span></div>
+            <div class="ssl-cand-note">모두 Candidate — DB 테이블 / 컬럼 확정 아님</div>
+          </div>
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">연결된 Guide</div>
+            <div style="border:1px solid var(--bd);border-radius:6px;padding:9px 11px;background:var(--bg-sur2);font-size:11.5px;color:var(--t2);line-height:1.65">
+              Screen Specification Full Stack Module Guide v1<br>
+              <span style="color:var(--t3)">저장/충돌 → Save &amp; Conflict Guide · 변경이력 → Change History Guide</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ── 수정 mode ── -->
+        <div class="ssl-dr-body" id="dr-edit" style="display:none">
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">기본 정보 수정</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="ssl-field"><label>문서명</label><input class="ssl-finp" value="관리자 대시보드 화면설계서"></div>
+              <div class="ssl-fgrid">
+                <div class="ssl-field"><label>프로젝트</label><select class="ssl-finp"><option>어드민 프로젝트</option><option>STAM Core</option></select></div>
+                <div class="ssl-field"><label>검토자</label><select class="ssl-finp"><option>박민호</option><option>이채원</option><option>최준영</option></select></div>
+              </div>
+              <div class="ssl-field"><label>설명</label><textarea class="ssl-ftextarea" placeholder="변경 내용 또는 수정 배경을 입력하세요"></textarea></div>
+            </div>
+          </div>
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">버전 / 변경 사유</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="ssl-fgrid">
+                <div class="ssl-field"><label>현재 버전</label><input class="ssl-finp" value="v2.1" readonly style="color:var(--t3)"></div>
+                <div class="ssl-field"><label>신규 버전 후보</label><input class="ssl-finp" value="v2.2" placeholder="v2.2"></div>
+              </div>
+              <div class="ssl-field"><label>변경 사유</label><textarea class="ssl-ftextarea" placeholder="변경이력 기록 후보로 저장됩니다"></textarea></div>
+            </div>
+          </div>
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">정책 안내</div>
+            <div class="ssl-rchk-list">
+              <div class="ssl-rchk"><span class="ssl-rchk-icon">✓</span><span class="ssl-rchk-text"><strong>변경이력 기록 후보</strong> — 저장 성공 시 변경이력 후보가 생성됩니다. Change History Guide 기준 적용.</span></div>
+              <div class="ssl-rchk"><span class="ssl-rchk-icon">!</span><span class="ssl-rchk-text"><strong>승인 상태 문서</strong> — 승인 완료 문서 수정 시 신규 버전 분기 후보. 정책은 Screen Specification Guide 기준.</span></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ── 등록 mode ── -->
+        <div class="ssl-dr-body" id="dr-reg" style="display:none">
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">기본 정보</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="ssl-field"><label>문서명 *</label><input class="ssl-finp" placeholder="화면설계서 문서명을 입력하세요"></div>
+              <div class="ssl-fgrid">
+                <div class="ssl-field"><label>프로젝트</label><select class="ssl-finp"><option>프로젝트 선택</option><option>STAM Core</option><option>어드민 프로젝트</option><option>QA 모듈</option></select></div>
+                <div class="ssl-field"><label>작성자</label><input class="ssl-finp" value="김지수" placeholder="작성자"></div>
+              </div>
+              <div class="ssl-field"><label>설명</label><textarea class="ssl-ftextarea" placeholder="이 화면설계서의 목적과 범위를 입력하세요"></textarea></div>
+            </div>
+          </div>
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">템플릿 선택</div>
+            <div class="ssl-tpl-grid" id="tpl-grid">
+              <div class="ssl-tpl-card ts" onclick="selectTpl(this)"><span class="ssl-tpl-n">대시보드</span><span class="ssl-tpl-d">KPI + 목록 구성</span></div>
+              <div class="ssl-tpl-card"   onclick="selectTpl(this)"><span class="ssl-tpl-n">목록</span><span class="ssl-tpl-d">필터 + 테이블</span></div>
+              <div class="ssl-tpl-card"   onclick="selectTpl(this)"><span class="ssl-tpl-n">상세</span><span class="ssl-tpl-d">메타 + 본문</span></div>
+              <div class="ssl-tpl-card"   onclick="selectTpl(this)"><span class="ssl-tpl-n">등록/수정</span><span class="ssl-tpl-d">폼 기반 입력</span></div>
+              <div class="ssl-tpl-card"   onclick="selectTpl(this)"><span class="ssl-tpl-n">검토/승인</span><span class="ssl-tpl-d">워크플로 구성</span></div>
+              <div class="ssl-tpl-card"   onclick="selectTpl(this)"><span class="ssl-tpl-n">빈 문서</span><span class="ssl-tpl-d">템플릿 없이 시작</span></div>
+            </div>
+          </div>
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">초기 화면 구성 후보</div>
+            <div style="border:1px solid var(--bd);border-radius:6px;padding:9px 11px;background:var(--bg-sur2)">
+              <div style="font-size:11.5px;color:var(--t1);font-weight:700;margin-bottom:5px">화면 1개부터 시작</div>
+              <div style="font-size:11px;color:var(--t3);line-height:1.6">템플릿 선택 시 기본 화면 구조가 자동 포함됩니다. 등록 후 에디터에서 화면을 추가/수정합니다.</div>
+            </div>
+          </div>
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">정책 후보 안내</div>
+            <div class="ssl-rchk-list">
+              <div class="ssl-rchk"><span class="ssl-rchk-icon">✓</span><span class="ssl-rchk-text"><strong>변경이력 기록 후보</strong> — 등록 성공 시 변경이력 후보가 생성됩니다.</span></div>
+              <div class="ssl-rchk"><span class="ssl-rchk-icon">✓</span><span class="ssl-rchk-text"><strong>DB Impact 후보</strong> — <code style="background:var(--stam-soft);color:var(--stam);border-radius:3px;padding:1px 5px;font-size:10px">screenSpecs</code> · <code style="background:var(--stam-soft);color:var(--stam);border-radius:3px;padding:1px 5px;font-size:10px">screenPages</code> 후보 — 확정 아님</span></div>
+              <div class="ssl-rchk"><span class="ssl-rchk-icon">✓</span><span class="ssl-rchk-text"><strong>검토/승인 후보</strong> — 등록 후 검토 요청이 가능합니다.</span></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ── 검토 요청 mode ── -->
+        <div class="ssl-dr-body" id="dr-review" style="display:none">
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">검토자 선택</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="ssl-field"><label>검토자 *</label><select class="ssl-finp"><option>검토자 선택</option><option>박민호</option><option>이채원</option><option>최준영</option><option>정수현</option></select></div>
+              <div class="ssl-field"><label>요청 메시지</label><textarea class="ssl-ftextarea" placeholder="검토 요청 내용을 입력하세요"></textarea></div>
+            </div>
+          </div>
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">검토 대상 화면 목록</div>
+            <div class="ssl-sc-list">
+              <div class="ssl-sc-item"><span class="ssl-sc-name">대시보드 메인</span><span class="ssl-chip approved">Approved</span></div>
+              <div class="ssl-sc-item"><span class="ssl-sc-name">통계 위젯</span><span class="ssl-chip approved">Approved</span></div>
+              <div class="ssl-sc-item"><span class="ssl-sc-name">알림 패널</span><span class="ssl-chip draft">Draft</span></div>
+              <div class="ssl-sc-item"><span class="ssl-sc-name">사용자 요약</span><span class="ssl-chip approved">Approved</span></div>
+            </div>
+          </div>
+
+          <div class="ssl-dr-sec">
+            <div class="ssl-dr-sec-title">정책 후보 안내</div>
+            <div class="ssl-rchk-list">
+              <div class="ssl-rchk"><span class="ssl-rchk-icon">!</span><span class="ssl-rchk-text"><strong>반려 시 사유 필수 후보</strong> — 반려 처리 시 사유 입력 정책 후보. 정책 기준은 Screen Specification Guide 참고.</span></div>
+              <div class="ssl-rchk"><span class="ssl-rchk-icon">!</span><span class="ssl-rchk-text"><strong>승인 후 잠금/버전 분기 후보</strong> — 승인 완료 후 편집 제한 또는 신규 버전 분기 정책 후보.</span></div>
+              <div class="ssl-rchk"><span class="ssl-rchk-icon">✓</span><span class="ssl-rchk-text"><strong>감사 로그 후보</strong> — 검토 요청/승인/반려 이벤트는 감사 로그 후보로 연결됩니다. Audit Log Guide 위임.</span></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="ssl-dr-foot" id="dr-foot-view">
+          <button class="ssl-btn secondary sm" onclick="switchMode('edit')">수정</button>
+          <button class="ssl-btn secondary sm" onclick="switchMode('review')">검토 요청</button>
+          <button class="ssl-btn secondary sm">복제</button>
+          <button class="ssl-btn secondary sm">Export</button>
+        </div>
+        <div class="ssl-dr-foot" id="dr-foot-edit" style="display:none">
+          <button class="ssl-btn secondary sm" onclick="switchMode('view')">취소</button>
+          <button class="ssl-btn primary sm">변경 저장 (Preview)</button>
+        </div>
+        <div class="ssl-dr-foot" id="dr-foot-reg" style="display:none">
+          <button class="ssl-btn secondary sm" onclick="closeDrawer()">취소</button>
+          <button class="ssl-btn primary sm">등록 (Preview)</button>
+        </div>
+        <div class="ssl-dr-foot" id="dr-foot-review" style="display:none">
+          <button class="ssl-btn secondary sm" onclick="switchMode('view')">취소</button>
+          <button class="ssl-btn primary sm">검토 요청 전송 (Preview)</button>
+        </div>
+
+      </div>
+    </div><!-- /ssl-drawer -->
+  </div><!-- /ssl-split -->
+
+  <!-- ⑤ State Samples -->
+  <div style="margin-bottom:6px"><span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t3)">UI 상태 샘플</span></div>
+  <div class="ssl-states-grid" style="margin-bottom:14px">
+    <div class="ssl-state-card s-empty"><span class="ssl-state-tag">Empty</span><span class="ssl-state-msg">검색 결과 없음</span><span class="ssl-state-sub">조건을 변경하거나 새 문서를 등록하세요.</span></div>
+    <div class="ssl-state-card s-load"><span class="ssl-state-tag">Loading</span><span class="ssl-state-msg">문서 목록 불러오는 중</span><span class="ssl-state-sub">권한 확인 후 목록을 표시합니다.</span></div>
+    <div class="ssl-state-card s-err"><span class="ssl-state-tag">Error</span><span class="ssl-state-msg">권한 없음</span><span class="ssl-state-sub">이 문서를 열람할 권한이 없습니다. 관리자에게 문의하세요.</span></div>
+    <div class="ssl-state-card s-cfl"><span class="ssl-state-tag">Conflict Candidate</span><span class="ssl-state-msg">저장 충돌 감지 후보</span><span class="ssl-state-sub">처리 기준은 Save &amp; Conflict Handling Policy Guide v1 참고. 충돌 차단 여부는 정책에 따라 결정.</span></div>
+  </div>
+
+  <!-- ⑥ Policy Notes -->
+  <div class="ssl-pbox">
+    <div class="ssl-pbox-title">Preview 정책 기준 안내</div>
+    <ul class="ssl-plist">
+      <li>저장 / 충돌 처리는 <strong>Save &amp; Conflict Handling Policy Guide v1</strong> 기준을 따릅니다.</li>
+      <li>변경이력 / 복구는 <strong>Change History / Recovery Policy Guide v1</strong> 기준을 따릅니다.</li>
+      <li>DB / 권한 / 로그 항목은 모두 <strong>Candidate(후보)</strong> 단계이며, 정식 스키마 / ERD가 아닙니다.</li>
+      <li>기술 엔진(에디터, Export 등)은 후보 단계입니다. <strong>Screen Specification Full Stack Module Guide v1</strong>을 참고하세요.</li>
+      <li>이 Preview는 기능 구현이 아닌 <strong>UX 기준 시안</strong>입니다. Firebase / API 연동 없음.</li>
+    </ul>
+  </div>
+
+  <!-- ⑦ Related Links -->
+  <div class="ssl-rel-lbl">Related Links</div>
+  <div class="ssl-link-grid">
+    <a class="ssl-link-card" href="STAM-Screen-Specification-Full-Stack-Module-Guide-v1.html"><div class="ssl-link-ico">SS</div><div><div class="ssl-link-nm">Screen Specification Full Stack Module Guide v1</div><div class="ssl-link-sub">화면설계서 모듈 정책 기준</div></div></a>
+    <a class="ssl-link-card" href="STAM-Save-Conflict-Handling-Policy-Guide-v1.html"><div class="ssl-link-ico">SC</div><div><div class="ssl-link-nm">Save &amp; Conflict Handling Policy Guide v1</div><div class="ssl-link-sub">저장 · 충돌 처리 정책</div></div></a>
+    <a class="ssl-link-card" href="STAM-Change-History-Recovery-Policy-Guide-v1.html"><div class="ssl-link-ico">CH</div><div><div class="ssl-link-nm">Change History / Recovery Policy Guide v1</div><div class="ssl-link-sub">변경이력 · 복구 정책</div></div></a>
+    <a class="ssl-link-card" href="STAM-Docs-Index.html"><div class="ssl-link-ico">DI</div><div><div class="ssl-link-nm">Docs Index</div><div class="ssl-link-sub">STAM 전체 문서 목록</div></div></a>
+    <a class="ssl-link-card" href="STAM-Guide-Registry-Inventory-v1.html"><div class="ssl-link-ico">GR</div><div><div class="ssl-link-nm">Guide Registry / Inventory v1</div><div class="ssl-link-sub">Guide 등록 현황</div></div></a>
+  </div>
+
+</div><!-- /ssl-outer -->
+</div><!-- /ssl-page -->
+
+<script src="../js/stam.theme.js"></script>
+<script>
+// ── Data ──
+var specs=[
+  {id:1,name:'관리자 대시보드 화면설계서',proj:'어드민 프로젝트',sc:12,status:'approved',ver:'v2.1',author:'김지수',reviewer:'박민호',mod:'2026-06-09',chg:8,export:'Ready',
+   screens:[{n:'대시보드 메인',s:'approved'},{n:'통계 위젯',s:'approved'},{n:'알림 패널',s:'review'},{n:'사용자 요약',s:'approved'}],
+   log:['2026-06-09 — 통계 위젯 레이아웃 수정','2026-06-08 — 알림 패널 콜아웃 추가','2026-06-07 — v2.1 승인'],
+   reviewTxt:'승인 완료 · 검토자: 박민호 · 2026-06-08'},
+  {id:2,name:'화면설계서 작성 에디터',proj:'STAM Core',sc:8,status:'review',ver:'v1.3',author:'이채원',reviewer:'최준영',mod:'2026-06-10',chg:3,export:'—',
+   screens:[{n:'에디터 메인',s:'review'},{n:'블록 도구모음',s:'draft'},{n:'저장 상태 표시',s:'review'}],
+   log:['2026-06-10 — 저장 상태 표시 섹션 추가','2026-06-09 — 에디터 콜아웃 정리','2026-06-08 — 검토 요청 생성'],
+   reviewTxt:'검토 중 · 검토자: 최준영 · 2026-06-10 요청'},
+  {id:3,name:'결함 상세 화면',proj:'QA 모듈',sc:5,status:'draft',ver:'v0.4',author:'정수현',reviewer:'—',mod:'2026-06-11',chg:1,export:'—',
+   screens:[{n:'결함 목록',s:'draft'},{n:'결함 상세',s:'draft'},{n:'첨부파일 패널',s:'draft'}],
+   log:['2026-06-11 — 초안 작성 시작'],
+   reviewTxt:'검토 요청 없음 · Draft 단계'},
+  {id:4,name:'검토 승인 플로우',proj:'워크플로',sc:7,status:'needs',ver:'v1.1',author:'박민호',reviewer:'김지수',mod:'2026-06-08',chg:5,export:'—',
+   screens:[{n:'검토 요청 화면',s:'needs'},{n:'승인 화면',s:'approved'},{n:'반려 사유 입력',s:'needs'}],
+   log:['2026-06-08 — 반려 사유 입력 보완 필요','2026-06-07 — 승인 플로우 변경','2026-06-06 — 검토자 의견 반영'],
+   reviewTxt:'변경 필요 · 반려 사유: 반려 시 UI 보완 필요 · 검토자: 김지수'},
+  {id:5,name:'템플릿 관리 화면',proj:'STAM Core',sc:4,status:'draft',ver:'v0.2',author:'이채원',reviewer:'—',mod:'2026-06-07',chg:2,export:'—',
+   screens:[{n:'템플릿 목록',s:'draft'},{n:'템플릿 편집기',s:'draft'}],
+   log:['2026-06-07 — 템플릿 목록 초안','2026-06-06 — 파일 생성'],
+   reviewTxt:'검토 요청 없음 · Draft 단계'},
+  {id:6,name:'Export 설정 화면',proj:'내보내기 모듈',sc:3,status:'approved',ver:'v1.0',author:'김지수',reviewer:'박민호',mod:'2026-06-05',chg:6,export:'Ready',
+   screens:[{n:'Export 형식 선택',s:'approved'},{n:'범위 설정',s:'approved'},{n:'생성 진행 상태',s:'approved'}],
+   log:['2026-06-05 — 최종 승인','2026-06-04 — Export 진행 상태 화면 추가','2026-06-03 — 범위 설정 콜아웃 정리'],
+   reviewTxt:'승인 완료 · 검토자: 박민호 · 2026-06-05'},
+  {id:7,name:'권한 관리 화면',proj:'권한 모듈',sc:6,status:'review',ver:'v0.8',author:'최준영',reviewer:'이채원',mod:'2026-06-09',chg:4,export:'—',
+   screens:[{n:'권한 목록',s:'review'},{n:'역할 편집',s:'review'},{n:'사용자 권한 설정',s:'draft'}],
+   log:['2026-06-09 — 역할 편집 섹션 수정','2026-06-08 — 검토 요청 생성','2026-06-07 — 권한 모델 후보 추가'],
+   reviewTxt:'검토 중 · 검토자: 이채원 · 2026-06-09 요청'}
+];
+
+var SM={approved:{l:'Approved',c:'approved'},review:{l:'In Review',c:'review'},draft:{l:'Draft',c:'draft'},needs:{l:'Needs Update',c:'needs'},archived:{l:'Archived',c:'archived'}};
+var SL={approved:'Approved','review':'In Review',draft:'Draft',needs:'Needs Update'};
+
+// ── Render Table ──
+function renderTable(){
+  var tb=document.getElementById('ssl-tbody');
+  tb.innerHTML='';
+  specs.forEach(function(s){
+    var sm=SM[s.status];
+    var tr=document.createElement('tr');
+    tr.setAttribute('data-id',s.id);
+    tr.innerHTML=
+      '<td><span class="ssl-doc-name" title="'+s.name+'">'+s.name+'</span></td>'+
+      '<td>'+s.proj+'</td>'+
+      '<td style="text-align:center">'+s.sc+'</td>'+
+      '<td><span class="ssl-chip '+sm.c+'">'+sm.l+'</span></td>'+
+      '<td>'+s.ver+'</td>'+
+      '<td>'+s.author+'</td>'+
+      '<td>'+s.reviewer+'</td>'+
+      '<td>'+s.mod+'</td>'+
+      '<td style="text-align:center"><span class="ssl-chg'+(s.chg>0?' has':'')+'">'+s.chg+'</span></td>'+
+      '<td><div class="ssl-act-row">'+
+        '<button class="ssl-act pa" onclick="openDrawer(\'view\','+s.id+');event.stopPropagation()">보기</button>'+
+        '<button class="ssl-act" onclick="openDrawer(\'edit\','+s.id+');event.stopPropagation()">수정</button>'+
+        '<button class="ssl-act" onclick="openDrawer(\'review\','+s.id+');event.stopPropagation()">검토</button>'+
+        '<button class="ssl-act">더보기</button>'+
+      '</div></td>';
+    tr.addEventListener('click',function(){openDrawer('view',s.id);});
+    tb.appendChild(tr);
+  });
+}
+
+// ── Drawer State ──
+var curId=null;
+var curMode='view';
+
+function openDrawer(mode,id){
+  // populate data if id provided
+  if(id){
+    curId=id;
+    var s=specs.find(function(x){return x.id===id;});
+    if(s) populateDetail(s);
+  }
+  var drawer=document.getElementById('ssl-drawer');
+  drawer.classList.add('open');
+  switchMode(mode);
+  // mark selected row
+  document.querySelectorAll('#ssl-tbody tr').forEach(function(r){r.classList.remove('sel');});
+  if(id){
+    var row=document.querySelector('#ssl-tbody tr[data-id="'+id+'"]');
+    if(row)row.classList.add('sel');
+  }
+}
+
+function closeDrawer(){
+  document.getElementById('ssl-drawer').classList.remove('open');
+  document.querySelectorAll('#ssl-tbody tr').forEach(function(r){r.classList.remove('sel');});
+  curId=null;
+}
+
+function switchMode(mode){
+  curMode=mode;
+  // bodies
+  ['view','edit','reg','review'].forEach(function(m){
+    document.getElementById('dr-'+m).style.display=m===mode?'flex':'none';
+  });
+  // footers
+  ['view','edit','reg','review'].forEach(function(m){
+    document.getElementById('dr-foot-'+m).style.display=m===mode?'flex':'none';
+  });
+  // tabs
+  var tabs=['view','edit','reg','review'];
+  var labels=['상세','수정','등록','검토 요청'];
+  document.querySelectorAll('.ssl-dr-tab').forEach(function(t,i){
+    t.classList.toggle('ta',tabs[i]===mode);
+  });
+  // title/status update
+  if(mode==='reg'){
+    document.getElementById('dr-title').textContent='화면설계서 등록';
+    document.getElementById('dr-status-chip').textContent='신규';
+    document.getElementById('dr-status-chip').className='ssl-chip draft';
+  } else if(mode==='edit'&&curId){
+    var s=specs.find(function(x){return x.id===curId;});
+    if(s){document.getElementById('dr-title').textContent='수정 — '+s.name;}
+  }
+}
+
+function populateDetail(s){
+  var sm=SM[s.status];
+  document.getElementById('dr-title').textContent=s.name;
+  document.getElementById('dr-status-chip').textContent=sm.l;
+  document.getElementById('dr-status-chip').className='ssl-chip '+sm.c;
+  document.getElementById('dr-name').textContent=s.name;
+  document.getElementById('dr-proj').textContent=s.proj;
+  document.getElementById('dr-ver').textContent=s.ver;
+  document.getElementById('dr-author').textContent=s.author;
+  document.getElementById('dr-reviewer').textContent=s.reviewer;
+  document.getElementById('dr-mod').textContent=s.mod;
+  document.getElementById('dr-export').textContent=s.export;
+  document.getElementById('dr-sc-count').textContent=s.sc+'개';
+  // screens
+  var scHTML='';
+  s.screens.forEach(function(sc){
+    var stCls=sc.s==='approved'?'approved':sc.s==='review'?'review':sc.s==='needs'?'needs':'draft';
+    scHTML+='<div class="ssl-sc-item"><span class="ssl-sc-name">'+sc.n+'</span><span class="ssl-chip '+stCls+'">'+SL[sc.s]+'</span></div>';
+  });
+  document.getElementById('dr-screens').innerHTML=scHTML;
+  // log
+  var logHTML='';
+  s.log.forEach(function(l){
+    var p=l.split(' — ');
+    logHTML+='<div class="ssl-log-item"><span class="ssl-log-time">'+p[0]+'</span><span class="ssl-log-desc">'+(p[1]||'')+'</span></div>';
+  });
+  document.getElementById('dr-log').innerHTML=logHTML;
+  document.getElementById('dr-review-status').textContent=s.reviewTxt;
+}
+
+function kpiClick(el){
+  document.querySelectorAll('.ssl-kpi').forEach(function(k){k.classList.remove('ka');});
+  el.classList.add('ka');
+}
+function toggleChip(el){el.classList.toggle('fa');}
+function selectTpl(el){
+  document.querySelectorAll('#tpl-grid .ssl-tpl-card').forEach(function(c){c.classList.remove('ts');});
+  el.classList.add('ts');
+}
+
+// ── Init — open first row's detail by default ──
+renderTable();
+openDrawer('view',1);
+</script>
+</body>
+</html>

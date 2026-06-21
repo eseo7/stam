@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM · Screen Specification Register Drawer v2 · Template Driven</title>
+<link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../../css/stam.tokens.css">
+<style>
+/* ============================================================
+ * Screen Specification Register Drawer v2 — Template Driven
+ * prefix: srd- | v2.0 | 2026-06-13
+ * ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;font-family:inherit}
+html,body{height:100%;overflow:hidden;background:var(--bg-base);color:var(--t1);font-size:13px;line-height:1.5;font-family:var(--font);-webkit-font-smoothing:antialiased}
+
+/* ── App shell ── */
+.srd-app{height:100vh;display:flex;overflow:hidden}
+
+/* ── Left background (blurred list) ── */
+.srd-bg{width:38%;flex-shrink:0;height:100vh;overflow:hidden;background:var(--bg-base);border-right:1px solid var(--bd);position:relative}
+.srd-bg-inner{padding:0;height:100%;opacity:.18;filter:blur(1.5px);pointer-events:none;user-select:none}
+.srd-bg-topbar{height:48px;background:var(--bg-side);border-bottom:1px solid rgba(180,184,200,.1);display:flex;align-items:center;padding:0 18px;gap:12px}
+.srd-bg-logo{width:72px;height:16px;background:rgba(84,81,232,.5);border-radius:3px}
+.srd-bg-bc{font-size:11px;color:rgba(200,204,220,.4);display:flex;align-items:center;gap:6px}
+.srd-bg-content{padding:16px;display:flex;flex-direction:column;gap:10px}
+.srd-bg-title-row{display:flex;align-items:center;justify-content:space-between}
+.srd-bg-title{font-size:15px;font-weight:700;color:var(--t1)}
+.srd-bg-btn{height:28px;padding:0 12px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(84,81,232,.3);color:rgba(139,127,248,.8);border:1px solid rgba(84,81,232,.3)}
+.srd-bg-toolbar{display:flex;gap:7px}
+.srd-bg-search{flex:1;height:30px;background:var(--bg-sur2);border:1px solid var(--bd);border-radius:6px}
+.srd-bg-filter{height:30px;padding:0 12px;background:var(--bg-sur2);border:1px solid var(--bd);border-radius:6px;font-size:10px;color:var(--t3)}
+.srd-bg-table{background:var(--bg-sur);border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.srd-bg-th{display:grid;grid-template-columns:60px 1fr 100px 80px 70px;gap:0;background:var(--bg-sur2);border-bottom:1px solid var(--bd);padding:6px 12px}
+.srd-bg-th span{font-size:9px;font-weight:700;color:var(--th-fg);text-transform:uppercase}
+.srd-bg-row{display:grid;grid-template-columns:60px 1fr 100px 80px 70px;gap:0;padding:7px 12px;border-bottom:1px solid var(--bd)}
+.srd-bg-row span{font-size:10.5px;color:var(--t2)}
+.srd-bg-row:last-child{border-bottom:none}
+.srd-bg-chip{font-size:8px;font-weight:700;padding:1px 6px;border-radius:3px}
+.srd-bg-chip.draft{background:var(--info-bg);color:var(--info)}
+.srd-bg-chip.rev{background:var(--warn-bg);color:var(--warn)}
+.srd-bg-chip.done{background:var(--pass-bg);color:var(--pass)}
+/* dim overlay on background */
+.srd-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(19,22,29,.4),rgba(19,22,29,.7));pointer-events:none}
+
+/* ── Drawer area ── */
+.srd-drawer{flex:1;height:100vh;display:flex;flex-direction:column;background:var(--bg-sur);border-left:2px solid rgba(84,81,232,.35);box-shadow:-6px 0 32px rgba(0,0,0,.35)}
+
+/* ── Drawer header ── */
+.srd-hdr{flex-shrink:0;padding:14px 18px 12px;border-bottom:1px solid var(--bd);background:var(--bg-sur);display:flex;flex-direction:column;gap:8px}
+.srd-hdr-top{display:flex;align-items:center;gap:8px}
+.srd-hdr-title{font-size:16px;font-weight:700;color:var(--t1);flex:1}
+.srd-hdr-badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:3px;background:rgba(84,81,232,.14);color:var(--stam)}
+.srd-hdr-tpl{font-size:9px;font-weight:700;padding:2px 8px;border-radius:3px;background:rgba(52,211,153,.12);color:#34D399}
+.srd-hdr-prog{font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t2)}
+.srd-hdr-close{width:28px;height:28px;border-radius:6px;border:1px solid var(--bd);background:transparent;color:var(--t3);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 100ms}
+.srd-hdr-close:hover{background:rgba(255,66,66,.1);border-color:rgba(255,66,66,.3);color:var(--fail)}
+.srd-hdr-sub{font-size:11px;color:var(--t3);line-height:1.5}
+
+/* ── Step tabs ── */
+.srd-steps{flex-shrink:0;display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--bd);background:var(--bg-sur2);padding:0 16px}
+.srd-steps::-webkit-scrollbar{display:none}
+.srd-step{display:inline-flex;align-items:center;gap:5px;padding:9px 12px;font-size:10.5px;font-weight:600;color:var(--t3);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all 100ms;flex-shrink:0}
+.srd-step:hover{color:var(--t1)}
+.srd-step.active{color:var(--stam);border-bottom-color:var(--stam);font-weight:700}
+.srd-step.done{color:var(--pass)}
+.srd-step.done .srd-step-n{background:var(--pass-bg);color:var(--pass)}
+.srd-step-n{font-size:8.5px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(180,184,200,.12);color:var(--label-muted)}
+.srd-step.active .srd-step-n{background:rgba(84,81,232,.2);color:var(--stam)}
+
+/* ── Drawer body ── */
+.srd-body{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(139,127,248,.3) transparent}
+
+/* ── Section ── */
+.srd-sec{padding:16px 18px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:10px;transition:background 200ms}
+.srd-sec.active{background:rgba(84,81,232,.04)}
+.srd-sec-hdr{display:flex;align-items:center;gap:8px}
+.srd-sec-n{font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(84,81,232,.14);color:var(--stam);letter-spacing:.04em;flex-shrink:0}
+.srd-sec-title{font-size:13px;font-weight:700;color:var(--t1);flex:1}
+.srd-sec-done{font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:var(--pass-bg);color:var(--pass)}
+.srd-sec-sub{font-size:11px;color:var(--t3);line-height:1.55}
+
+/* ── Template selection cards ── */
+.srd-tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.srd-tpl-card{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:8px;padding:9px;cursor:pointer;transition:all 100ms;display:flex;flex-direction:column;gap:5px;position:relative}
+.srd-tpl-card:hover{border-color:rgba(139,127,248,.35)}
+.srd-tpl-card.sel{border-color:rgba(84,81,232,.6);background:rgba(84,81,232,.07)}
+.srd-tpl-card.sel::after{content:'✓ 선택됨';position:absolute;top:6px;right:6px;font-size:8px;font-weight:700;color:var(--stam);background:rgba(84,81,232,.12);padding:1px 5px;border-radius:3px}
+.srd-tpl-id{font-size:8.5px;font-weight:700;color:var(--stam);letter-spacing:.03em}
+.srd-tpl-nm{font-size:11.5px;font-weight:700;color:var(--t1)}
+.srd-tpl-card.sel .srd-tpl-nm{color:var(--stam)}
+.srd-tpl-cat{font-size:9px;color:var(--t3);margin-bottom:2px}
+.srd-tpl-nums{display:flex;gap:6px;flex-wrap:wrap}
+.srd-tpl-n{font-size:9px;color:var(--label-muted)}
+.srd-tpl-n strong{color:var(--t2);font-weight:700}
+.srd-tpl-wire{height:36px;border-radius:4px;background:var(--bg-sur);border:1px solid var(--bd-s);background-repeat:no-repeat;margin-bottom:2px}
+
+/* Wireframe patterns (mini) */
+.wm-drawer{background-image:linear-gradient(rgba(84,81,232,.28),rgba(84,81,232,.28)),linear-gradient(rgba(180,184,200,.12),rgba(180,184,200,.12)),linear-gradient(rgba(180,184,200,.10),rgba(180,184,200,.10)),linear-gradient(rgba(84,81,232,.20),rgba(84,81,232,.20));background-size:100% 4px,60% 3px,60% 3px,32% 32px;background-position:0 0,0 9px,0 16px,right 0}
+.wm-login{background-image:linear-gradient(rgba(84,81,232,.30),rgba(84,81,232,.30)),linear-gradient(rgba(180,184,200,.14),rgba(180,184,200,.14)),linear-gradient(rgba(180,184,200,.14),rgba(180,184,200,.14)),linear-gradient(rgba(84,81,232,.35),rgba(84,81,232,.35));background-size:100% 4px,56% 4px,56% 4px,56% 6px;background-position:0 0,50% 12px,50% 19px,50% 28px}
+.wm-form{background-image:linear-gradient(rgba(84,81,232,.28),rgba(84,81,232,.28)),linear-gradient(rgba(180,184,200,.12),rgba(180,184,200,.12)),linear-gradient(rgba(180,184,200,.12),rgba(180,184,200,.12)),linear-gradient(rgba(84,81,232,.30),rgba(84,81,232,.30));background-size:100% 4px,76% 4px,76% 4px,40% 6px;background-position:0 0,12% 10px,12% 18px,50% 28px}
+.wm-dialog{background-image:linear-gradient(rgba(84,81,232,.07),rgba(84,81,232,.07)),linear-gradient(rgba(84,81,232,.26),rgba(84,81,232,.26)),linear-gradient(rgba(180,184,200,.13),rgba(180,184,200,.13)),linear-gradient(rgba(84,81,232,.28),rgba(84,81,232,.28));background-size:64% 28px,64% 5px,50% 4px,36% 6px;background-position:18% 4px,18% 4px,50% 14px,50% 25px}
+.wm-result{background-image:linear-gradient(rgba(0,191,64,.16),rgba(0,191,64,.16)),linear-gradient(rgba(0,191,64,.22),rgba(0,191,64,.22)),linear-gradient(rgba(180,184,200,.12),rgba(180,184,200,.12)),linear-gradient(rgba(84,81,232,.28),rgba(84,81,232,.28));background-size:100% 2px,12px 12px,44% 4px,38% 6px;background-position:0 0,50% 7px,50% 22px,50% 30px}
+.wm-error{background-image:linear-gradient(rgba(255,66,66,.10),rgba(255,66,66,.10)),linear-gradient(rgba(255,66,66,.24),rgba(255,66,66,.24)),linear-gradient(rgba(180,184,200,.13),rgba(180,184,200,.13)),linear-gradient(rgba(84,81,232,.22),rgba(84,81,232,.22));background-size:100% 2px,12px 12px,42% 4px,34% 6px;background-position:0 0,50% 8px,50% 22px,50% 30px}
+
+/* ── Form fields ── */
+.srd-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.srd-field{display:flex;flex-direction:column;gap:4px}
+.srd-field.full{grid-column:1/-1}
+.srd-label{font-size:10px;font-weight:700;color:var(--t3);display:flex;align-items:center;gap:4px}
+.srd-req{font-size:8.5px;color:var(--fail);font-weight:700}
+.srd-input{height:32px;background:var(--bg-sur2);border:1px solid var(--bd);border-radius:6px;padding:0 10px;font-size:11.5px;color:var(--t1);font-family:var(--font)}
+.srd-input:focus{outline:none;border-color:var(--stam)}
+.srd-input.readonly{color:var(--t3);cursor:default;background:var(--bg-sur3)}
+.srd-select{height:32px;background:var(--bg-sur2);border:1px solid var(--bd);border-radius:6px;padding:0 10px;font-size:11.5px;color:var(--t1);font-family:var(--font);cursor:pointer}
+.srd-textarea{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:6px;padding:8px 10px;font-size:11.5px;color:var(--t1);font-family:var(--font);resize:none;height:60px}
+
+/* ── Draft summary ── */
+.srd-draft-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.srd-dstat{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:6px;padding:10px 8px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.srd-dstat-n{font-size:20px;font-weight:700;color:var(--stam);line-height:1}
+.srd-dstat-l{font-size:9px;color:var(--t3);font-weight:600}
+.srd-draft-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.srd-dl-title{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--label-muted);margin-bottom:5px}
+.srd-dl-item{display:flex;align-items:center;gap:6px;padding:3px 5px;border-radius:4px;cursor:pointer;transition:background 100ms}
+.srd-dl-item:hover{background:var(--surf-hover)}
+.srd-dl-dot{width:5px;height:5px;border-radius:50%;background:var(--stam);flex-shrink:0}
+.srd-dl-nm{font-size:11px;color:var(--t2);flex:1}
+.srd-dl-key{font-size:8.5px;font-weight:700;color:var(--stam);background:rgba(84,81,232,.1);padding:1px 5px;border-radius:3px;flex-shrink:0}
+
+/* ── Wireframe preview (section 3 sub) ── */
+.srd-wf-wrap{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:8px;overflow:hidden;padding:1px}
+.srd-wf-screen{background:var(--bg-sur3);border-radius:7px;overflow:hidden;display:flex;height:180px}
+.srd-wf-left{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.srd-wf-topbar{height:22px;background:rgba(84,81,232,.25);display:flex;align-items:center;padding:0 8px;gap:6px;flex-shrink:0}
+.srd-wf-tb-logo{width:32px;height:8px;background:rgba(255,255,255,.3);border-radius:2px}
+.srd-wf-tb-bc{font-size:7px;color:rgba(255,255,255,.4)}
+.srd-wf-content{flex:1;padding:6px;display:flex;flex-direction:column;gap:4px;overflow:hidden}
+.srd-wf-title-row{display:flex;align-items:center;justify-content:space-between;height:12px}
+.srd-wf-pg-title{width:120px;height:8px;background:rgba(255,255,255,.25);border-radius:2px}
+.srd-wf-reg-btn{width:48px;height:10px;background:rgba(84,81,232,.45);border-radius:2px}
+.srd-wf-toolbar{display:flex;gap:4px;align-items:center;height:12px}
+.srd-wf-search{flex:1;height:9px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);border-radius:2px}
+.srd-wf-filter{width:32px;height:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:2px}
+.srd-wf-table{flex:1;background:rgba(255,255,255,.06);border:2px solid rgba(84,81,232,.6);border-radius:4px;padding:4px;display:flex;flex-direction:column;gap:2px;position:relative}
+.srd-wf-table-sel{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:7px;font-weight:700;color:var(--stam);background:rgba(84,81,232,.15);padding:1px 5px;border-radius:3px;white-space:nowrap}
+.srd-wf-th{display:flex;gap:3px;height:8px}
+.srd-wf-th div{flex:1;height:6px;background:rgba(255,255,255,.12);border-radius:1px}
+.srd-wf-row{display:flex;gap:3px;height:7px}
+.srd-wf-row div{flex:1;height:5px;background:rgba(255,255,255,.08);border-radius:1px}
+.srd-wf-row.hl{background:rgba(84,81,232,.08);border-radius:2px}
+.srd-wf-right{width:38%;border-left:1px solid rgba(84,81,232,.3);background:rgba(84,81,232,.05);display:flex;flex-direction:column;flex-shrink:0}
+.srd-wf-dr-hdr{height:22px;background:rgba(84,81,232,.15);display:flex;align-items:center;padding:0 6px;gap:4px;border-bottom:1px solid rgba(84,81,232,.2)}
+.srd-wf-dr-title{font-size:7px;font-weight:700;color:rgba(139,127,248,.8)}
+.srd-wf-dr-body{flex:1;padding:5px;display:flex;flex-direction:column;gap:3px}
+.srd-wf-dr-row{height:7px;background:rgba(255,255,255,.08);border-radius:1px}
+.srd-wf-dr-row.wide{width:90%}
+.srd-wf-dr-row.med{width:70%}
+.srd-wf-dr-row.sm{width:50%}
+.srd-wf-dr-tabs{display:flex;gap:2px;margin:3px 0}
+.srd-wf-dr-tab{flex:1;height:8px;background:rgba(255,255,255,.05);border-radius:2px}
+.srd-wf-dr-tab.active{background:rgba(84,81,232,.3)}
+.srd-wf-prop{background:var(--bg-sur2);border:1px solid rgba(84,81,232,.25);border-radius:6px;padding:8px 10px;margin-top:4px;display:flex;flex-direction:column;gap:4px}
+.srd-wf-prop-title{font-size:9px;font-weight:700;color:var(--stam)}
+.srd-wf-prop-row{display:flex;align-items:center;gap:6px}
+.srd-wf-prop-k{font-size:9px;color:var(--label-muted);width:64px;flex-shrink:0}
+.srd-wf-prop-v{font-size:10px;color:var(--t2)}
+
+/* ── Table (fields / actions) ── */
+.srd-tbl-wrap{overflow-x:auto;border-radius:7px;border:1px solid var(--bd)}
+.srd-tbl{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--font);min-width:600px}
+.srd-tbl th{background:var(--bg-sur2);padding:7px 10px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--th-fg);border-bottom:1px solid var(--bd);white-space:nowrap}
+.srd-tbl td{padding:7px 10px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;line-height:1.5}
+.srd-tbl tr:last-child td{border-bottom:none}
+.srd-tbl tr:hover td{background:var(--row-hover)}
+.srd-tbl td:first-child{color:var(--t1);font-weight:600}
+.srd-add-row{display:flex;align-items:center;gap:6px;padding:8px 12px;cursor:pointer;border-top:1px solid var(--bd);background:var(--bg-sur2)}
+.srd-add-row:hover{background:rgba(84,81,232,.06)}
+.srd-add-label{font-size:11px;color:var(--stam);font-weight:600}
+.srd-chip{font-size:9.5px;font-weight:600;padding:2px 6px;border-radius:3px;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t2)}
+.srd-chip.req{background:rgba(255,66,66,.1);border-color:rgba(255,66,66,.2);color:var(--fail)}
+.srd-chip.opt{background:var(--skip-bg);color:var(--skip)}
+.srd-chip.y{background:var(--pass-bg);color:var(--pass)}
+
+/* ── Links section ── */
+.srd-link-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.srd-link-card{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:7px;padding:10px;display:flex;flex-direction:column;gap:5px}
+.srd-link-type{font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(84,81,232,.12);color:var(--stam);width:fit-content;letter-spacing:.04em}
+.srd-link-name{font-size:11px;font-weight:700;color:var(--t1)}
+.srd-link-n{font-size:10px;color:var(--t3)}
+.srd-link-btn{font-size:9.5px;font-weight:600;color:var(--stam);cursor:pointer;background:none;border:none;padding:0;text-align:left;font-family:var(--font)}
+
+/* ── Attachments ── */
+.srd-dropzone{border:2px dashed rgba(84,81,232,.3);border-radius:8px;padding:24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(84,81,232,.03);cursor:pointer;transition:all 100ms}
+.srd-dropzone:hover{border-color:rgba(84,81,232,.55);background:rgba(84,81,232,.07)}
+.srd-drop-icon{font-size:24px;opacity:.7}
+.srd-drop-title{font-size:12.5px;font-weight:700;color:var(--t1)}
+.srd-drop-sub{font-size:11px;color:var(--t3)}
+.srd-file-types{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:4px}
+.srd-ft{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:3px;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t3)}
+
+/* ── Review section ── */
+.srd-status-flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.srd-sf-node{font-size:10.5px;font-weight:600;padding:4px 12px;border-radius:99px;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t3)}
+.srd-sf-node.active{background:rgba(84,81,232,.14);border-color:rgba(84,81,232,.3);color:var(--stam)}
+.srd-sf-arr{font-size:11px;color:var(--label-muted)}
+
+/* ── Right summary panel ── */
+.srd-summary{position:absolute;right:0;top:108px;width:180px;background:var(--bg-sur2);border:1px solid rgba(84,81,232,.28);border-right:none;border-radius:8px 0 0 8px;padding:10px 12px;display:flex;flex-direction:column;gap:7px;box-shadow:-3px 4px 16px rgba(0,0,0,.2);z-index:10}
+.srd-sum-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--label-muted)}
+.srd-sum-row{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.srd-sum-k{font-size:10px;color:var(--t3)}
+.srd-sum-v{font-size:10.5px;font-weight:700;color:var(--t1)}
+.srd-sum-v.brand{color:var(--stam)}
+.srd-sum-v.muted{color:var(--label-muted);font-weight:400}
+.srd-sum-div{height:1px;background:var(--bd)}
+
+/* ── Footer action bar ── */
+.srd-footer{flex-shrink:0;padding:12px 18px;border-top:1px solid var(--bd);background:var(--bg-sur);display:flex;align-items:center;gap:8px}
+.srd-footer-info{flex:1;font-size:10.5px;color:var(--label-muted)}
+.srd-footer-info strong{color:var(--stam)}
+.srd-btn-cancel{height:32px;padding:0 16px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;background:transparent;border:1px solid var(--bd);color:var(--t3);transition:all 100ms;font-family:var(--font)}
+.srd-btn-cancel:hover{border-color:var(--bd-s);color:var(--t1)}
+.srd-btn-save{height:32px;padding:0 16px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;background:var(--bg-sur2);border:1px solid var(--bd-s);color:var(--t2);transition:all 100ms;font-family:var(--font)}
+.srd-btn-save:hover{background:var(--bg-sur3);color:var(--t1)}
+.srd-btn-prev{height:32px;padding:0 14px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;background:transparent;border:1px solid rgba(84,81,232,.3);color:var(--stam);transition:all 100ms;font-family:var(--font)}
+.srd-btn-prev:hover{background:rgba(84,81,232,.08)}
+.srd-btn-reg{height:32px;padding:0 20px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;background:var(--stam);border:none;color:#fff;transition:background 120ms;font-family:var(--font)}
+.srd-btn-reg:hover{background:var(--stam-h)}
+
+/* ── Callout ── */
+.srd-note{padding:9px 12px;border-left:3px solid var(--stam);background:rgba(84,81,232,.06);border-radius:0 6px 6px 0;font-size:11px;color:var(--t2);line-height:1.65}
+.srd-note strong{color:var(--stam)}
+.srd-note.warn{border-left-color:rgba(255,146,0,.6);background:rgba(255,146,0,.05);color:var(--warn)}
+</style>
+</head>
+<body>
+<div class="srd-app">
+
+  <!-- ── Left background ── -->
+  <div class="srd-bg">
+    <div class="srd-bg-inner">
+      <div class="srd-bg-topbar">
+        <div class="srd-bg-logo"></div>
+        <div class="srd-bg-bc">STAM <span>›</span> 산출물 <span>›</span> 화면설계서</div>
+      </div>
+      <div class="srd-bg-content">
+        <div class="srd-bg-title-row">
+          <span class="srd-bg-title">화면설계서 목록</span>
+          <button class="srd-bg-btn">+ 등록</button>
+        </div>
+        <div class="srd-bg-toolbar">
+          <div class="srd-bg-search"></div>
+          <div class="srd-bg-filter">상태 ▾</div>
+          <div class="srd-bg-filter">담당자 ▾</div>
+        </div>
+        <div class="srd-bg-table">
+          <div class="srd-bg-th">
+            <span>ID</span><span>화면명</span><span>작성상태</span><span>담당자</span><span>수정일</span>
+          </div>
+          <div class="srd-bg-row"><span>SCR-001</span><span>로그인 화면</span><span><em class="srd-bg-chip done">승인</em></span><span>김민준</span><span>06-10</span></div>
+          <div class="srd-bg-row"><span>SCR-002</span><span>목록 + Drawer</span><span><em class="srd-bg-chip rev">검토중</em></span><span>이서연</span><span>06-11</span></div>
+          <div class="srd-bg-row"><span>SCR-003</span><span>기본 등록 폼</span><span><em class="srd-bg-chip draft">작성중</em></span><span>박지훈</span><span>06-12</span></div>
+          <div class="srd-bg-row"><span>SCR-004</span><span>삭제 확인 Dialog</span><span><em class="srd-bg-chip done">승인</em></span><span>최예진</span><span>06-09</span></div>
+          <div class="srd-bg-row"><span>SCR-005</span><span>등록 완료 페이지</span><span><em class="srd-bg-chip draft">작성중</em></span><span>김민준</span><span>06-12</span></div>
+          <div class="srd-bg-row"><span>SCR-006</span><span>권한 없음 오류</span><span><em class="srd-bg-chip rev">검토중</em></span><span>이서연</span><span>06-11</span></div>
+          <div class="srd-bg-row"><span>SCR-007</span><span>단계형 등록</span><span><em class="srd-bg-chip draft">작성중</em></span><span>박지훈</span><span>06-13</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Register Drawer ── -->
+  <div class="srd-drawer" style="position:relative">
+
+    <!-- Summary panel -->
+    <div class="srd-summary">
+      <div class="srd-sum-title">초안 요약</div>
+      <div class="srd-sum-row"><span class="srd-sum-k">템플릿</span><span class="srd-sum-v brand" style="font-size:9px">TPL-LIST-DRAWER</span></div>
+      <div class="srd-sum-div"></div>
+      <div class="srd-sum-row"><span class="srd-sum-k">오브젝트</span><span class="srd-sum-v">9</span></div>
+      <div class="srd-sum-row"><span class="srd-sum-k">필드</span><span class="srd-sum-v">6</span></div>
+      <div class="srd-sum-row"><span class="srd-sum-k">액션</span><span class="srd-sum-v">5</span></div>
+      <div class="srd-sum-row"><span class="srd-sum-k">연결 후보</span><span class="srd-sum-v">7</span></div>
+      <div class="srd-sum-div"></div>
+      <div class="srd-sum-row"><span class="srd-sum-k">첨부</span><span class="srd-sum-v muted">선택</span></div>
+      <div class="srd-sum-row"><span class="srd-sum-k">검토자</span><span class="srd-sum-v muted">미지정</span></div>
+    </div>
+
+    <!-- Header -->
+    <div class="srd-hdr">
+      <div class="srd-hdr-top">
+        <span class="srd-hdr-title">화면설계서 등록</span>
+        <span class="srd-hdr-badge">템플릿 기반 작성</span>
+        <span class="srd-hdr-tpl">TPL-LIST-DRAWER</span>
+        <span class="srd-hdr-prog">3 / 8</span>
+        <button class="srd-hdr-close" title="닫기">✕</button>
+      </div>
+      <div class="srd-hdr-sub">공통 템플릿을 선택해 화면설계서 초안을 만들고, 필드·액션·연결정보를 조정합니다.</div>
+    </div>
+
+    <!-- Step tabs -->
+    <div class="srd-steps">
+      <div class="srd-step done"><span class="srd-step-n">1</span> 템플릿 선택</div>
+      <div class="srd-step done"><span class="srd-step-n">2</span> 기본 정보</div>
+      <div class="srd-step active"><span class="srd-step-n">3</span> 자동 생성 초안</div>
+      <div class="srd-step"><span class="srd-step-n">4</span> 필드/컬럼 조정</div>
+      <div class="srd-step"><span class="srd-step-n">5</span> 액션 조정</div>
+      <div class="srd-step"><span class="srd-step-n">6</span> 연결정보</div>
+      <div class="srd-step"><span class="srd-step-n">7</span> 첨부파일</div>
+      <div class="srd-step"><span class="srd-step-n">8</span> 검토/승인</div>
+    </div>
+
+    <!-- Body -->
+    <div class="srd-body">
+
+      <!-- ── STEP 1: 템플릿 선택 ── -->
+      <div class="srd-sec">
+        <div class="srd-sec-hdr">
+          <span class="srd-sec-n">STEP 1</span>
+          <span class="srd-sec-title">템플릿 선택</span>
+          <span class="srd-sec-done">✓ 완료</span>
+        </div>
+        <div class="srd-note">템플릿은 완성 화면이 아니라 화면설계서 초안입니다. 선택 후 필드, 액션, 연결 화면을 프로젝트에 맞게 수정할 수 있습니다.</div>
+        <div class="srd-tpl-grid">
+          <div class="srd-tpl-card sel">
+            <div class="srd-tpl-wire wm-drawer"></div>
+            <div class="srd-tpl-id">TPL-LIST-DRAWER</div>
+            <div class="srd-tpl-nm">목록 + 상세 Drawer</div>
+            <div class="srd-tpl-cat">목록/검색</div>
+            <div class="srd-tpl-nums">
+              <span class="srd-tpl-n">오브젝트 <strong>9</strong></span>
+              <span class="srd-tpl-n">필드 <strong>5</strong></span>
+              <span class="srd-tpl-n">액션 <strong>6</strong></span>
+            </div>
+          </div>
+          <div class="srd-tpl-card">
+            <div class="srd-tpl-wire wm-login"></div>
+            <div class="srd-tpl-id">TPL-AUTH-LOGIN</div>
+            <div class="srd-tpl-nm">로그인 화면</div>
+            <div class="srd-tpl-cat">인증/회원</div>
+            <div class="srd-tpl-nums">
+              <span class="srd-tpl-n">오브젝트 <strong>4</strong></span>
+              <span class="srd-tpl-n">필드 <strong>3</strong></span>
+            </div>
+          </div>
+          <div class="srd-tpl-card">
+            <div class="srd-tpl-wire wm-form"></div>
+            <div class="srd-tpl-id">TPL-FORM-BASIC</div>
+            <div class="srd-tpl-nm">기본 등록</div>
+            <div class="srd-tpl-cat">등록/수정</div>
+            <div class="srd-tpl-nums">
+              <span class="srd-tpl-n">오브젝트 <strong>5</strong></span>
+              <span class="srd-tpl-n">액션 <strong>3</strong></span>
+            </div>
+          </div>
+          <div class="srd-tpl-card">
+            <div class="srd-tpl-wire wm-dialog"></div>
+            <div class="srd-tpl-id">TPL-DIALOG-CONFIRM</div>
+            <div class="srd-tpl-nm">확인 Dialog</div>
+            <div class="srd-tpl-cat">팝업/Dialog</div>
+            <div class="srd-tpl-nums">
+              <span class="srd-tpl-n">오브젝트 <strong>5</strong></span>
+              <span class="srd-tpl-n">액션 <strong>2</strong></span>
+            </div>
+          </div>
+          <div class="srd-tpl-card">
+            <div class="srd-tpl-wire wm-result"></div>
+            <div class="srd-tpl-id">TPL-RESULT-CREATE</div>
+            <div class="srd-tpl-nm">등록 완료</div>
+            <div class="srd-tpl-cat">완료/결과</div>
+            <div class="srd-tpl-nums">
+              <span class="srd-tpl-n">오브젝트 <strong>5</strong></span>
+              <span class="srd-tpl-n">액션 <strong>3</strong></span>
+            </div>
+          </div>
+          <div class="srd-tpl-card">
+            <div class="srd-tpl-wire wm-error"></div>
+            <div class="srd-tpl-id">TPL-ERROR-FORBIDDEN</div>
+            <div class="srd-tpl-nm">권한 없음</div>
+            <div class="srd-tpl-cat">오류/권한</div>
+            <div class="srd-tpl-nums">
+              <span class="srd-tpl-n">오브젝트 <strong>4</strong></span>
+              <span class="srd-tpl-n">액션 <strong>2</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 2: 기본 정보 ── -->
+      <div class="srd-sec">
+        <div class="srd-sec-hdr">
+          <span class="srd-sec-n">STEP 2</span>
+          <span class="srd-sec-title">기본 정보</span>
+          <span class="srd-sec-done">✓ 완료</span>
+        </div>
+        <div class="srd-form-grid">
+          <div class="srd-field">
+            <label class="srd-label">화면 ID</label>
+            <input class="srd-input readonly" value="SCR-NEW-001" readonly>
+          </div>
+          <div class="srd-field">
+            <label class="srd-label">화면명 <span class="srd-req">*</span></label>
+            <input class="srd-input" value="화면설계서 목록">
+          </div>
+          <div class="srd-field">
+            <label class="srd-label">화면 유형</label>
+            <select class="srd-select"><option>목록 + 상세 Drawer</option></select>
+          </div>
+          <div class="srd-field">
+            <label class="srd-label">버전</label>
+            <input class="srd-input" value="v0.1">
+          </div>
+          <div class="srd-field full">
+            <label class="srd-label">메뉴 경로</label>
+            <input class="srd-input" value="산출물 관리 > 화면설계서">
+          </div>
+          <div class="srd-field">
+            <label class="srd-label">담당자</label>
+            <select class="srd-select"><option>이서연</option></select>
+          </div>
+          <div class="srd-field">
+            <label class="srd-label">작성 상태</label>
+            <select class="srd-select"><option>작성중</option></select>
+          </div>
+          <div class="srd-field full">
+            <label class="srd-label">화면 목적</label>
+            <textarea class="srd-textarea">STAM 프로젝트의 화면설계서 목록을 조회하고 상세 내용을 Drawer로 확인하는 화면</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: 자동 생성 초안 ── -->
+      <div class="srd-sec active">
+        <div class="srd-sec-hdr">
+          <span class="srd-sec-n">STEP 3</span>
+          <span class="srd-sec-title">자동 생성 초안</span>
+          <span style="font-size:10px;color:var(--stam);font-weight:600">현재 단계</span>
+        </div>
+        <div class="srd-sec-sub">선택한 템플릿이 화면 구성 Builder에 자동 배치됩니다. 필요 없는 오브젝트는 제외하고, 필요한 오브젝트는 추가할 수 있습니다.</div>
+
+        <!-- Stats -->
+        <div class="srd-draft-stats">
+          <div class="srd-dstat"><div class="srd-dstat-n">9</div><div class="srd-dstat-l">생성 오브젝트</div></div>
+          <div class="srd-dstat"><div class="srd-dstat-n">5</div><div class="srd-dstat-l">기본 필드</div></div>
+          <div class="srd-dstat"><div class="srd-dstat-n">6</div><div class="srd-dstat-l">기본 액션</div></div>
+          <div class="srd-dstat"><div class="srd-dstat-n">4</div><div class="srd-dstat-l">연결 화면</div></div>
+        </div>
+
+        <!-- Object / Field / Action lists -->
+        <div class="srd-draft-cols">
+          <div>
+            <div class="srd-dl-title">오브젝트</div>
+            <div class="srd-dl-item"><div class="srd-dl-dot"></div><span class="srd-dl-nm">Page Title</span><span class="srd-dl-key">title</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot"></div><span class="srd-dl-nm">Summary Strip</span><span class="srd-dl-key">strip</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot"></div><span class="srd-dl-nm">Search Input</span><span class="srd-dl-key">search</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot"></div><span class="srd-dl-nm">Filter Button</span><span class="srd-dl-key">filter</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:rgba(84,81,232,.5)"></div><span class="srd-dl-nm">Data Table</span><span class="srd-dl-key">table</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot"></div><span class="srd-dl-nm">Row Click Action</span><span class="srd-dl-key">rowAct</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot"></div><span class="srd-dl-nm">Right Detail Drawer</span><span class="srd-dl-key">drawer</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot"></div><span class="srd-dl-nm">Tab Panel</span><span class="srd-dl-key">tabs</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot"></div><span class="srd-dl-nm">Change History</span><span class="srd-dl-key">hist</span></div>
+          </div>
+          <div>
+            <div class="srd-dl-title">기본 필드</div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:#34D399"></div><span class="srd-dl-nm">ID</span><span class="srd-dl-key">id</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:#34D399"></div><span class="srd-dl-nm">화면명</span><span class="srd-dl-key">name</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:#34D399"></div><span class="srd-dl-nm">상태</span><span class="srd-dl-key">status</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:#34D399"></div><span class="srd-dl-nm">담당자</span><span class="srd-dl-key">owner</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:#34D399"></div><span class="srd-dl-nm">최종수정일</span><span class="srd-dl-key">updAt</span></div>
+          </div>
+          <div>
+            <div class="srd-dl-title">기본 액션</div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:#FBBF24"></div><span class="srd-dl-nm">검색</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:#FBBF24"></div><span class="srd-dl-nm">필터 적용</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:#FBBF24"></div><span class="srd-dl-nm">행 클릭</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:#FBBF24"></div><span class="srd-dl-nm">상세 Drawer 열기</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:#FBBF24"></div><span class="srd-dl-nm">등록 Drawer 열기</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:#FBBF24"></div><span class="srd-dl-nm">선택 삭제</span></div>
+            <div style="margin-top:10px" class="srd-dl-title">연결 가능 화면</div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:#F472B6"></div><span class="srd-dl-nm">등록 Drawer</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:#F472B6"></div><span class="srd-dl-nm">수정 Drawer</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:#F472B6"></div><span class="srd-dl-nm">상세 Drawer</span></div>
+            <div class="srd-dl-item"><div class="srd-dl-dot" style="background:#F472B6"></div><span class="srd-dl-nm">검토이력</span></div>
+          </div>
+        </div>
+
+        <!-- Wireframe preview -->
+        <div>
+          <div class="srd-dl-title" style="margin-bottom:8px">화면 구성 미리보기 — Data Table 선택됨</div>
+          <div class="srd-wf-wrap">
+            <div class="srd-wf-screen">
+              <div class="srd-wf-left">
+                <div class="srd-wf-topbar">
+                  <div class="srd-wf-tb-logo"></div>
+                  <span class="srd-wf-tb-bc">산출물 &gt; 화면설계서</span>
+                </div>
+                <div class="srd-wf-content">
+                  <div class="srd-wf-title-row">
+                    <div class="srd-wf-pg-title"></div>
+                    <div class="srd-wf-reg-btn"></div>
+                  </div>
+                  <div class="srd-wf-toolbar">
+                    <div class="srd-wf-search"></div>
+                    <div class="srd-wf-filter"></div>
+                    <div class="srd-wf-filter" style="width:24px"></div>
+                  </div>
+                  <div class="srd-wf-table">
+                    <div class="srd-wf-table-sel">Data Table 선택됨</div>
+                    <div class="srd-wf-th"><div></div><div></div><div></div><div></div></div>
+                    <div class="srd-wf-row hl"><div></div><div></div><div></div><div></div></div>
+                    <div class="srd-wf-row"><div></div><div></div><div></div><div></div></div>
+                    <div class="srd-wf-row"><div></div><div></div><div></div><div></div></div>
+                    <div class="srd-wf-row"><div></div><div></div><div></div><div></div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="srd-wf-right">
+                <div class="srd-wf-dr-hdr">
+                  <span class="srd-wf-dr-title">상세 Drawer</span>
+                </div>
+                <div class="srd-wf-dr-body">
+                  <div class="srd-wf-dr-tabs">
+                    <div class="srd-wf-dr-tab active"></div>
+                    <div class="srd-wf-dr-tab"></div>
+                    <div class="srd-wf-dr-tab"></div>
+                  </div>
+                  <div class="srd-wf-dr-row wide"></div>
+                  <div class="srd-wf-dr-row med"></div>
+                  <div class="srd-wf-dr-row sm"></div>
+                  <div class="srd-wf-dr-row wide"></div>
+                  <div class="srd-wf-dr-row med"></div>
+                  <div class="srd-wf-dr-row sm"></div>
+                </div>
+              </div>
+            </div>
+            <div class="srd-wf-prop">
+              <div class="srd-wf-prop-title">Data Table · 선택된 오브젝트</div>
+              <div class="srd-wf-prop-row"><span class="srd-wf-prop-k">key</span><span class="srd-wf-prop-v">table</span></div>
+              <div class="srd-wf-prop-row"><span class="srd-wf-prop-k">컬럼 수</span><span class="srd-wf-prop-v">5개 (수정 가능)</span></div>
+              <div class="srd-wf-prop-row"><span class="srd-wf-prop-k">Row 액션</span><span class="srd-wf-prop-v">클릭 → Drawer 열기</span></div>
+              <div class="srd-wf-prop-row"><span class="srd-wf-prop-k">선택 모드</span><span class="srd-wf-prop-v">다중 선택 + 일괄 삭제</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 4: 필드/컬럼 조정 ── -->
+      <div class="srd-sec">
+        <div class="srd-sec-hdr">
+          <span class="srd-sec-n">STEP 4</span>
+          <span class="srd-sec-title">필드/컬럼 조정</span>
+        </div>
+        <div class="srd-tbl-wrap">
+          <table class="srd-tbl">
+            <thead>
+              <tr><th>표시명</th><th>key</th><th>입력/출력</th><th>타입</th><th>필수</th><th>목록 표시</th><th>모바일</th><th>비고</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>화면 ID</td><td>id</td><td>출력</td><td>text</td><td><span class="srd-chip req">필수</span></td><td><span class="srd-chip y">표시</span></td><td><span class="srd-chip y">표시</span></td><td></td></tr>
+              <tr><td>화면명</td><td>name</td><td>입력+출력</td><td>text</td><td><span class="srd-chip req">필수</span></td><td><span class="srd-chip y">표시</span></td><td><span class="srd-chip y">표시</span></td><td></td></tr>
+              <tr><td>작성 상태</td><td>wst</td><td>출력</td><td>enum</td><td><span class="srd-chip req">필수</span></td><td><span class="srd-chip y">표시</span></td><td><span class="srd-chip y">표시</span></td><td>Draft·Ready·검토중·승인</td></tr>
+              <tr><td>검토 상태</td><td>rst</td><td>출력</td><td>enum</td><td><span class="srd-chip req">필수</span></td><td><span class="srd-chip y">표시</span></td><td><span class="srd-chip">축약</span></td><td></td></tr>
+              <tr><td>담당자</td><td>owner</td><td>입력+출력</td><td>user</td><td><span class="srd-chip req">필수</span></td><td><span class="srd-chip y">표시</span></td><td><span class="srd-chip y">표시</span></td><td></td></tr>
+              <tr><td>최종수정일</td><td>updAt</td><td>출력</td><td>date</td><td><span class="srd-chip opt">선택</span></td><td><span class="srd-chip y">표시</span></td><td><span class="srd-chip opt">숨김</span></td><td>상대시간 표시</td></tr>
+            </tbody>
+          </table>
+          <div class="srd-add-row"><span style="font-size:14px;color:var(--stam)">+</span><span class="srd-add-label">필드 추가</span></div>
+        </div>
+      </div>
+
+      <!-- ── STEP 5: 액션 조정 ── -->
+      <div class="srd-sec">
+        <div class="srd-sec-hdr">
+          <span class="srd-sec-n">STEP 5</span>
+          <span class="srd-sec-title">액션 조정</span>
+        </div>
+        <div class="srd-tbl-wrap">
+          <table class="srd-tbl">
+            <thead>
+              <tr><th>액션명</th><th>오브젝트</th><th>위치</th><th>트리거</th><th>성공 결과</th><th>상태 조건</th><th>권한 조건</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>검색</td><td>Search Input</td><td>Toolbar</td><td>Enter / 클릭</td><td>목록 필터링</td><td>전체</td><td>조회 권한</td></tr>
+              <tr><td>필터 적용</td><td>Filter Button</td><td>Toolbar</td><td>옵션 선택</td><td>목록 재조회</td><td>전체</td><td>조회 권한</td></tr>
+              <tr><td>상세 열기</td><td>Data Table</td><td>Row</td><td>행 클릭</td><td>Detail Drawer 열기</td><td>전체</td><td>조회 권한</td></tr>
+              <tr><td>등록 열기</td><td>Register Btn</td><td>Toolbar</td><td>클릭</td><td>Register Drawer 열기</td><td>Draft 가능</td><td>작성 권한</td></tr>
+              <tr><td>선택 삭제</td><td>Bulk Action</td><td>Table Top</td><td>삭제 클릭</td><td>삭제 확인 Dialog</td><td>Draft만</td><td>관리자·작성자</td></tr>
+            </tbody>
+          </table>
+          <div class="srd-add-row"><span style="font-size:14px;color:var(--stam)">+</span><span class="srd-add-label">액션 추가</span></div>
+        </div>
+      </div>
+
+      <!-- ── STEP 6: 연결정보 ── -->
+      <div class="srd-sec">
+        <div class="srd-sec-hdr">
+          <span class="srd-sec-n">STEP 6</span>
+          <span class="srd-sec-title">연결정보</span>
+        </div>
+        <div class="srd-note">연결정보는 화면설계서의 추적성을 높이기 위한 영역입니다. 템플릿 선택 시 기본 연결 후보를 추천할 수 있습니다.</div>
+        <div class="srd-link-grid">
+          <div class="srd-link-card"><span class="srd-link-type">REQ</span><div class="srd-link-name">요구사항</div><div class="srd-link-n">연결 0건</div><button class="srd-link-btn">+ 연결 추가</button></div>
+          <div class="srd-link-card"><span class="srd-link-type">WBS</span><div class="srd-link-name">WBS 작업</div><div class="srd-link-n">연결 0건</div><button class="srd-link-btn">+ 연결 추가</button></div>
+          <div class="srd-link-card"><span class="srd-link-type">IFC</span><div class="srd-link-name">인터페이스</div><div class="srd-link-n">연결 0건</div><button class="srd-link-btn">+ 연결 추가</button></div>
+          <div class="srd-link-card"><span class="srd-link-type">FN</span><div class="srd-link-name">기능정의</div><div class="srd-link-n">연결 0건</div><button class="srd-link-btn">+ 연결 추가</button></div>
+          <div class="srd-link-card"><span class="srd-link-type">ART</span><div class="srd-link-name">산출물</div><div class="srd-link-n">연결 0건</div><button class="srd-link-btn">+ 연결 추가</button></div>
+          <div class="srd-link-card"><span class="srd-link-type">MENU</span><div class="srd-link-name">메뉴/화면목록</div><div class="srd-link-n">연결 0건</div><button class="srd-link-btn">+ 연결 추가</button></div>
+          <div class="srd-link-card"><span class="srd-link-type">TC</span><div class="srd-link-name">테스트케이스</div><div class="srd-link-n">연결 0건</div><button class="srd-link-btn">+ 연결 추가</button></div>
+        </div>
+      </div>
+
+      <!-- ── STEP 7: 첨부파일 ── -->
+      <div class="srd-sec">
+        <div class="srd-sec-hdr">
+          <span class="srd-sec-n">STEP 7</span>
+          <span class="srd-sec-title">참고자료 / 첨부파일</span>
+        </div>
+        <div class="srd-sec-sub">화면 설계에 필요한 문서, 이미지, 파일을 첨부합니다. 첨부파일은 선택 사항입니다. 화면 구조는 템플릿과 오브젝트로 작성합니다.</div>
+        <div class="srd-note warn">화면 이미지 업로드 중심으로 진행하지 않습니다. 화면 구조는 위의 오브젝트·필드·액션으로 정의합니다.</div>
+        <div class="srd-dropzone">
+          <div class="srd-drop-icon">📎</div>
+          <div class="srd-drop-title">참고자료 첨부</div>
+          <div class="srd-drop-sub">클릭하거나 파일을 드래그하세요</div>
+          <div class="srd-file-types">
+            <span class="srd-ft">PDF</span><span class="srd-ft">Excel</span><span class="srd-ft">Word</span>
+            <span class="srd-ft">Markdown</span><span class="srd-ft">HTML</span><span class="srd-ft">이미지</span>
+            <span class="srd-ft">Figma Export</span><span class="srd-ft">ZIP</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 8: 검토/승인 ── -->
+      <div class="srd-sec" style="padding-bottom:20px">
+        <div class="srd-sec-hdr">
+          <span class="srd-sec-n">STEP 8</span>
+          <span class="srd-sec-title">검토/승인</span>
+        </div>
+        <div class="srd-sec-sub">wst(작성상태) · rst(검토상태) · ast(승인상태)는 독립적으로 관리됩니다. workflowState는 저장하지 않는 파생 상태입니다.</div>
+
+        <!-- Status flow -->
+        <div>
+          <div class="srd-dl-title" style="margin-bottom:8px">상태 흐름</div>
+          <div class="srd-status-flow">
+            <span class="srd-sf-node active">Draft</span>
+            <span class="srd-sf-arr">→</span>
+            <span class="srd-sf-node">Ready</span>
+            <span class="srd-sf-arr">→</span>
+            <span class="srd-sf-node">In Review</span>
+            <span class="srd-sf-arr">→</span>
+            <span class="srd-sf-node">Approved</span>
+          </div>
+        </div>
+
+        <div class="srd-form-grid">
+          <div class="srd-field">
+            <label class="srd-label">검토자</label>
+            <select class="srd-select"><option>미지정</option><option>김민준</option><option>이서연</option></select>
+          </div>
+          <div class="srd-field">
+            <label class="srd-label">승인자</label>
+            <select class="srd-select"><option>미지정</option></select>
+          </div>
+          <div class="srd-field">
+            <label class="srd-label">우선순위</label>
+            <select class="srd-select"><option>보통</option><option>높음</option><option>낮음</option></select>
+          </div>
+          <div class="srd-field">
+            <label class="srd-label">검토 마감일</label>
+            <input class="srd-input" type="text" placeholder="날짜 선택">
+          </div>
+          <div class="srd-field full">
+            <label class="srd-label">검토 요청 메시지</label>
+            <textarea class="srd-textarea" placeholder="검토자에게 전달할 메시지를 입력하세요 (선택)"></textarea>
+          </div>
+        </div>
+
+        <!-- Custom builder note -->
+        <div class="srd-note" style="margin-top:4px">
+          <strong>커스텀 빌더 안내:</strong> 표준 템플릿으로 표현하기 어려운 화면은 후속 커스텀 빌더에서 오브젝트 조합 방식으로 작성합니다. 현재 단계에서는 공통 템플릿 선택형 작성을 우선 제공합니다.
+        </div>
+      </div>
+
+    </div><!-- end .srd-body -->
+
+    <!-- ── Footer action bar ── -->
+    <div class="srd-footer">
+      <div class="srd-footer-info">자동 저장됨 · <strong>3 / 8단계</strong> · TPL-LIST-DRAWER 기반</div>
+      <button class="srd-btn-cancel">취소</button>
+      <button class="srd-btn-save">임시저장</button>
+      <button class="srd-btn-prev">미리보기</button>
+      <button class="srd-btn-reg">등록</button>
+    </div>
+
+  </div><!-- end .srd-drawer -->
+
+</div><!-- end .srd-app -->
+</body>
+</html>
