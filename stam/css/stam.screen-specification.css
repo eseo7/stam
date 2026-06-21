@@ -4917,3 +4917,118 @@ select.ss-ed-inp:focus,
 .pbtn.ghost:hover { background: rgba(139,127,248,.08); }
 .pbtn.primary { background: var(--stam, #8B7FF8); border-color: var(--stam, #8B7FF8); color: #fff; }
 .pbtn.primary:hover { background: #7B6FE8; border-color: #7B6FE8; }
+
+/* ================================================================
+ * MEMORY RECORDS — list binding styles (P15)
+ * ================================================================ */
+
+/* Record status chips */
+.ss-chip-rec-draft {
+  background: rgba(100,116,139,.10);
+  color: #475569;
+  border-color: rgba(100,116,139,.18);
+}
+.ss-chip-rec-saved {
+  background: rgba(84,81,232,.10);
+  color: #4340C8;
+  border-color: rgba(84,81,232,.22);
+}
+.ss-chip-rec-review {
+  background: rgba(133,77,14,.09);
+  color: #854D0E;
+  border-color: rgba(133,77,14,.22);
+}
+
+/* Group chip variants for records */
+.ss-gr-chip.ss-chip-rec-draft  { background: rgba(100,116,139,.10); color: #475569; border-color: rgba(100,116,139,.18); }
+.ss-gr-chip.ss-chip-rec-saved  { background: rgba(84,81,232,.10); color: #4340C8; border-color: rgba(84,81,232,.22); }
+.ss-gr-chip.ss-chip-rec-review { background: rgba(133,77,14,.09); color: #854D0E; border-color: rgba(133,77,14,.22); }
+
+/* Records group row subtle distinction */
+.ss-records-grp { background: rgba(84,81,232,.04); }
+.ss-records-grp .ss-gr-name { color: var(--brand); font-weight: 700; }
+
+/* Service type chip inside name column */
+.ss-rec-svc-chip {
+  background: rgba(84,81,232,.08) !important;
+  color: var(--brand) !important;
+  border-color: rgba(84,81,232,.18) !important;
+}
+
+/* Record row action buttons */
+.ss-rec-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.ss-rec-act-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  color: var(--t2);
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms, color 120ms;
+  white-space: nowrap;
+}
+.ss-rec-act-btn:hover {
+  background: rgba(84,81,232,.08);
+  border-color: rgba(84,81,232,.22);
+  color: var(--brand);
+}
+.ss-rec-act-edit {
+  background: none;
+  border-color: rgba(84,81,232,.22);
+  color: var(--brand);
+}
+.ss-rec-act-edit:hover {
+  background: rgba(84,81,232,.10);
+}
+
+/* Toast notification */
+.ss-toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--t1);
+  color: var(--bg-sur);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.22);
+  opacity: 0;
+  transition: opacity 200ms, transform 200ms;
+  pointer-events: none;
+  z-index: 9999;
+  white-space: nowrap;
+}
+.ss-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Editor status indicator "임시저장됨" dot */
+.dot-ok {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  margin-right: 5px;
+}
+
+/* Dark mode record chips */
+[data-theme="dark"] .ss-chip-rec-draft  { background: rgba(100,116,139,.18); color: #94a3b8; border-color: rgba(100,116,139,.28); }
+[data-theme="dark"] .ss-chip-rec-saved  { background: rgba(84,81,232,.18);   color: #a5b4fc; border-color: rgba(84,81,232,.30); }
+[data-theme="dark"] .ss-chip-rec-review { background: rgba(133,77,14,.16);   color: #fbbf24; border-color: rgba(133,77,14,.30); }
+[data-theme="dark"] .ss-rec-act-btn { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); color: var(--t2); }
+[data-theme="dark"] .ss-rec-act-btn:hover { background: rgba(84,81,232,.18); border-color: rgba(84,81,232,.32); color: #a5b4fc; }
+[data-theme="dark"] .ss-rec-act-edit { background: rgba(84,81,232,.12); border-color: rgba(84,81,232,.28); color: #a5b4fc; }
+[data-theme="dark"] .ss-toast { background: rgba(30,30,40,.96); color: #e2e8f0; }
