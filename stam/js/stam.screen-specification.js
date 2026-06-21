@@ -2750,6 +2750,11 @@
     return html || '<div class="ss-pv-empty">입력된 구조가 없습니다. 편집기에서 화면 구조를 작성한 뒤 다시 확인하세요.</div>';
   }
 
+  function escHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
   function renderPreviewView() {
     var d = SSP.draft;
     if (!d) return;
@@ -2765,11 +2770,11 @@
       var num = i < 9 ? '0' + (i + 1) : '' + (i + 1);
       var hasDescFilled = b.desc && b.desc !== '화면 구성 요소';
       var descSnip = hasDescFilled
-        ? '<div class="pmf-blk-desc">' + b.desc.substring(0, 50) + (b.desc.length > 50 ? '…' : '') + '</div>'
+        ? '<div class="pmf-blk-desc">' + escHtml(b.desc.substring(0, 50)) + (b.desc.length > 50 ? '…' : '') + '</div>'
         : '';
       return '<div class="pmf-blk" data-pv-idx="' + i + '">' +
         '<div class="pmf-badge">' + num + '</div>' +
-        '<div class="pmf-blk-name">' + (b.name || '블록') + '</div>' +
+        '<div class="pmf-blk-name">' + (escHtml(b.name) || '블록') + '</div>' +
         descSnip +
         '<div class="pmf-blk-lines">' +
           '<div class="pmf-bline" style="width:' + (55 + (i % 3) * 10) + '%"></div>' +
@@ -2787,15 +2792,15 @@
       return '<div class="desc-item" data-pv-idx="' + i + '">' +
         '<div class="desc-item-top">' +
           '<div class="desc-num">' + num + '</div>' +
-          '<div class="desc-item-name">' + (b.name || '블록') + '</div>' +
+          '<div class="desc-item-name">' + (escHtml(b.name) || '블록') + '</div>' +
           '<div class="desc-st ' + (hasDesc ? 'dst-ok' : 'dst-miss') + '">' + (hasDesc ? '완료' : '미작성') + '</div>' +
         '</div>' +
         '<div class="desc-fields">' +
-          '<div class="desc-field desc-field-full"><span class="dflbl">설명</span><span class="' + (hasDesc ? 'dfval' : 'dfempty') + '">' + (b.desc || '설명 미입력 — 이 영역의 목적과 표시 조건을 작성하세요.') + '</span></div>' +
+          '<div class="desc-field desc-field-full"><span class="dflbl">설명</span><span class="' + (hasDesc ? 'dfval' : 'dfempty') + '">' + (escHtml(b.desc) || '설명 미입력 — 이 영역의 목적과 표시 조건을 작성하세요.') + '</span></div>' +
           '<div class="desc-field"><span class="dflbl">중요도</span><span class="dfval">' + (b.imp === 'h' ? '높음' : b.imp === 'l' ? '낮음' : '중간') + '</span></div>' +
-          '<div class="desc-field"><span class="dflbl">표시 조건</span><span class="' + (disp.condition ? 'dfval' : 'dfempty') + '">' + (disp.condition || '조건 미입력') + '</span></div>' +
-          '<div class="desc-field"><span class="dflbl">연결 화면</span><span class="' + (act.link && act.link !== '미연결' ? 'dfval' : 'dfempty') + '">' + (act.link || '미연결') + '</span></div>' +
-          '<div class="desc-field"><span class="dflbl">데이터 출처</span><span class="' + (dat.source && dat.source !== '미정' ? 'dfval' : 'dfempty') + '">' + (dat.source || '미정') + '</span></div>' +
+          '<div class="desc-field"><span class="dflbl">표시 조건</span><span class="' + (disp.condition ? 'dfval' : 'dfempty') + '">' + (escHtml(disp.condition) || '조건 미입력') + '</span></div>' +
+          '<div class="desc-field"><span class="dflbl">연결 화면</span><span class="' + (act.link && act.link !== '미연결' ? 'dfval' : 'dfempty') + '">' + (escHtml(act.link) || '미연결') + '</span></div>' +
+          '<div class="desc-field"><span class="dflbl">데이터 출처</span><span class="' + (dat.source && dat.source !== '미정' ? 'dfval' : 'dfempty') + '">' + (escHtml(dat.source) || '미정') + '</span></div>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -2837,8 +2842,8 @@
 
     el.innerHTML =
       '<div class="prev-hdr">' +
-        '<span class="prev-hdr-id">' + (d.screenId || '') + '</span>' +
-        '<span class="prev-hdr-name">' + (d.screenName || '제목 없음') + '</span>' +
+        '<span class="prev-hdr-id">' + (escHtml(d.screenId) || '') + '</span>' +
+        '<span class="prev-hdr-name">' + (escHtml(d.screenName) || '제목 없음') + '</span>' +
         '<span class="prev-hdr-chip phc-draft">초안</span>' +
         '<span class="prev-hdr-meta">작성자: 나 · ' + today + '</span>' +
         '<div class="prev-hdr-sp"></div>' +
