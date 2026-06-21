@@ -1327,56 +1327,89 @@
   /* backward-compat alias used by execSave / refreshEditorBuilders */
   function readDraftFromForm() { collectDraftFromEditor(); }
 
-  /* ── Template View ── */
+  /* ── Create View (새 화면설계서 작성 — Step 1: 서비스 유형 선택) ── */
+  var CREATE_SVC_LIST = [
+    { id: 'branding',    name: '홍보형',           desc: '회사소개, 브랜드, 랜딩, 캠페인, 콘텐츠 홍보 화면',
+      icon: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>' },
+    { id: 'commerce',    name: '커머스형',          desc: '상품, 장바구니, 주문, 결제, 마이페이지 화면',
+      icon: '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>' },
+    { id: 'business',    name: '업무시스템형',       desc: '관리자, 승인, 검토, 운영, 내부 업무 처리 화면',
+      icon: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>' },
+    { id: 'community',   name: '커뮤니티/콘텐츠형', desc: '게시판, 피드, 콘텐츠 상세, 댓글, 공지 화면',
+      icon: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' },
+    { id: 'reservation', name: '예약/신청형',        desc: '예약, 신청, 접수, 일정, 완료 화면',
+      icon: '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' },
+    { id: 'blank',       name: '빈 템플릿',         desc: '정해진 유형 없이 직접 구성하는 화면',
+      icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>' }
+  ];
+
   function renderTemplateView() {
     var el = document.getElementById('ss-template-view');
     if (!el) return;
-    var st = SSP.serviceType || 'branding';
-    var group = SSP.templateTab || 'front';
-    var stObj = findServiceTypeById(st);
+    var sel = SSP.serviceType || '';
 
     el.innerHTML =
-      '<div class="ss-tpl-view-inner">' +
-        '<div class="ss-tpl-view-hdr">' +
-          '<button type="button" class="ss-tpl-back" data-ssv-action="list">' +
+      '<div class="ss-create-inner">' +
+        '<div class="ss-create-hdr">' +
+          '<button type="button" class="ss-create-back" data-ssv-action="list">' +
             svgIc('<polyline points="15 18 9 12 15 6"/>', 14) + ' 목록으로' +
           '</button>' +
-          '<h2 class="ss-tpl-view-title">화면설계서 작성 — 템플릿 선택</h2>' +
-          '<p class="ss-tpl-view-sub">서비스 유형을 선택하고 Front·Admin 탭에서 템플릿을 고르세요.</p>' +
+          '<div class="ss-create-hdr-body">' +
+            '<h2 class="ss-create-title">새 화면설계서 작성</h2>' +
+            '<p class="ss-create-sub">설계 대상 서비스 유형과 화면 영역을 선택한 뒤, Page Template을 기준으로 화면설계서를 시작합니다.</p>' +
+          '</div>' +
         '</div>' +
-        '<div class="ss-svc-type-bar">' +
-          SERVICE_TYPES.map(function(s) {
-            return '<button type="button" class="ss-svc-type-btn' + (s.id === st ? ' active' : '') + '" data-ssv-svc-type="' + s.id + '">' + s.name + '</button>';
+        '<div class="ss-create-steps" role="list" aria-label="작성 단계">' +
+          '<div class="ss-step is-active" role="listitem">' +
+            '<span class="ss-step-num">1</span>' +
+            '<span class="ss-step-label">서비스 유형</span>' +
+          '</div>' +
+          '<span class="ss-step-sep" aria-hidden="true"></span>' +
+          '<div class="ss-step" role="listitem">' +
+            '<span class="ss-step-num">2</span>' +
+            '<span class="ss-step-label">Front / Admin</span>' +
+          '</div>' +
+          '<span class="ss-step-sep" aria-hidden="true"></span>' +
+          '<div class="ss-step" role="listitem">' +
+            '<span class="ss-step-num">3</span>' +
+            '<span class="ss-step-label">Page Template</span>' +
+          '</div>' +
+          '<span class="ss-step-sep" aria-hidden="true"></span>' +
+          '<div class="ss-step" role="listitem">' +
+            '<span class="ss-step-num">4</span>' +
+            '<span class="ss-step-label">기본 정보</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="ss-create-sec-hdr">' +
+          '<h3 class="ss-create-sec-title">설계 대상 서비스의 유형을 선택하세요</h3>' +
+          '<p class="ss-create-sec-desc">선택한 유형을 기준으로 적합한 Page Template 목록이 제공됩니다.</p>' +
+        '</div>' +
+        '<div class="ss-svc-grid">' +
+          CREATE_SVC_LIST.map(function(s) {
+            return '<button type="button" class="ss-svc-card' + (s.id === sel ? ' is-active' : '') + '" data-ss-svc="' + s.id + '">' +
+              '<span class="ss-svc-card-icon">' +
+                '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">' + s.icon + '</svg>' +
+              '</span>' +
+              '<span class="ss-svc-card-body">' +
+                '<span class="ss-svc-card-name">' + s.name + '</span>' +
+                '<span class="ss-svc-card-desc">' + s.desc + '</span>' +
+              '</span>' +
+            '</button>';
           }).join('') +
         '</div>' +
-        '<div class="ss-template-tabs">' +
-          '<button type="button" class="ss-template-tab' + (group === 'front' ? ' active' : '') + '" data-ssv-tab-group="front">' +
-            svgIc('<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>', 14) + ' Front 화면' +
-          '</button>' +
-          '<button type="button" class="ss-template-tab' + (group === 'admin' ? ' active' : '') + '" data-ssv-tab-group="admin">' +
-            svgIc('<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>', 14) + ' Admin 화면' +
-          '</button>' +
-        '</div>' +
-        '<div class="ss-tpl-grid" id="ss-tpl-grid">' +
-          renderTplCardHtml(stObj, group) +
+        '<div class="ss-create-foot">' +
+          '<div class="ss-create-foot-l">' +
+            '<button type="button" class="ss-create-btn" data-ssv-action="list" disabled>' +
+              svgIc('<polyline points="15 18 9 12 15 6"/>', 13) + ' 이전' +
+            '</button>' +
+          '</div>' +
+          '<div class="ss-create-foot-r">' +
+            '<button type="button" class="ss-create-btn is-primary" id="ss-create-next-btn" data-ssv-action="create-next" disabled>' +
+              '다음 단계 ' + svgIc('<polyline points="9 18 15 12 9 6"/>', 13) +
+            '</button>' +
+          '</div>' +
         '</div>' +
       '</div>';
-  }
-
-  function renderTplCardHtml(stObj, group) {
-    var list = (stObj && stObj[group]) || [];
-    return list.map(function(tpl) {
-      return '<div class="ss-tpl-card" data-ssv-tpl="' + tpl.id + '">' +
-        '<div class="ss-tpl-card-icon">' + svgIc(tpl.iconPath, 20) + '</div>' +
-        '<div class="ss-tpl-card-name">' + tpl.name + '</div>' +
-        '<div class="ss-tpl-card-desc">' + tpl.desc + '</div>' +
-        '<div class="ss-tpl-card-info"><span class="ss-tpl-card-badge">' + tpl.recommendedUse + '</span></div>' +
-        '<div class="ss-tpl-card-items">' + tpl.items.map(function(item) { return '<span class="ss-tpl-item-chip">' + item + '</span>'; }).join('') + '</div>' +
-        '<button type="button" class="ss-tpl-sel-btn" data-ssv-tpl="' + tpl.id + '">' +
-          svgIc('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>', 12) + ' 이 템플릿으로 작성' +
-        '</button>' +
-      '</div>';
-    }).join('');
   }
 
   /* ── Editor builder helpers ── */
@@ -2085,40 +2118,14 @@
   function initViewEvents() {
     /* Global delegation: data-ssv-action = list | template | editor | preview | save | save-detail */
     document.addEventListener('click', function(e) {
-      /* Service type (1Depth) selection */
-      var svcBtn = e.target.closest('[data-ssv-svc-type]');
-      if (svcBtn && SSP.view.mode === 'template') {
-        var newSt = svcBtn.getAttribute('data-ssv-svc-type');
-        SSP.serviceType = newSt;
-        document.querySelectorAll('[data-ssv-svc-type]').forEach(function(b) { b.classList.remove('active'); });
-        svcBtn.classList.add('active');
-        var stObj = findServiceTypeById(newSt);
-        var grid = document.getElementById('ss-tpl-grid');
-        if (grid) grid.innerHTML = renderTplCardHtml(stObj, SSP.templateTab || 'front');
-        return;
-      }
-
-      /* Template tab switch */
-      var tabBtn = e.target.closest('[data-ssv-tab-group]');
-      if (tabBtn && SSP.view.mode === 'template') {
-        var grp = tabBtn.getAttribute('data-ssv-tab-group');
-        SSP.templateTab = grp;
-        document.querySelectorAll('[data-ssv-tab-group]').forEach(function(b) { b.classList.remove('active'); });
-        tabBtn.classList.add('active');
-        var grid = document.getElementById('ss-tpl-grid');
-        if (grid) grid.innerHTML = renderTplCardHtml(findServiceTypeById(SSP.serviceType || 'branding'), grp);
-        return;
-      }
-
-      /* Template selection */
-      var tplBtn = e.target.closest('[data-ssv-tpl]');
-      if (tplBtn && SSP.view.mode === 'template') {
-        var tplId = tplBtn.getAttribute('data-ssv-tpl');
-        var tpl = findTemplateById(tplId);
-        var stObj = findServiceTypeById(SSP.serviceType || 'branding');
-        if (tpl) createDraftFromTemplate(tpl, SSP.templateTab, SSP.serviceType, stObj.name);
-        switchView('editor');
-        renderEditorView();
+      /* Service type card selection (create view) */
+      var svcCard = e.target.closest('[data-ss-svc]');
+      if (svcCard && SSP.view.mode === 'template') {
+        SSP.serviceType = svcCard.getAttribute('data-ss-svc');
+        document.querySelectorAll('[data-ss-svc]').forEach(function(c) { c.classList.remove('is-active'); });
+        svcCard.classList.add('is-active');
+        var nextBtn = document.getElementById('ss-create-next-btn');
+        if (nextBtn) nextBtn.disabled = false;
         return;
       }
 
@@ -2164,6 +2171,9 @@
       } else if (act === 'back-to-template') {
         switchView('template');
         renderTemplateView();
+
+      } else if (act === 'create-next') {
+        /* Step 2 진입 — 미구현 placeholder */
       }
     });
 
@@ -2430,12 +2440,6 @@
   function initRegisterBtn() {
     var regBtn = document.getElementById('ss-reg-btn');
     if (regBtn) regBtn.addEventListener('click', function() {
-      switchView('template');
-      renderTemplateView();
-    });
-    /* P8-S: 기존 프리셋 보기 CTA → 기존 template view 진입 */
-    var existingTplBtn = document.getElementById('ss-existing-template-cta');
-    if (existingTplBtn) existingTplBtn.addEventListener('click', function() {
       switchView('template');
       renderTemplateView();
     });

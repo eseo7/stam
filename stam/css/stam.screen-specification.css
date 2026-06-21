@@ -3524,3 +3524,347 @@ select.ss-ed-inp:focus,
 [data-theme="dark"] .ss-tpl-actions {
   border-top-color: rgba(255,255,255,.12);
 }
+
+/* ============================================================
+ * Create View — 새 화면설계서 작성 (Step 1: 서비스 유형 선택)
+ * ============================================================ */
+
+/* Outer container reuses ss-template-view; no own max-width — parent handles it */
+.ss-create-inner {
+  width: 100%;
+  padding: 28px 0 80px;
+}
+
+/* Header row: back button + title block */
+.ss-create-hdr {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.ss-create-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--t2);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 4px;
+  transition: color .15s, border-color .15s;
+}
+.ss-create-back:hover { color: var(--brand); border-color: var(--brand); }
+
+.ss-create-hdr-body { min-width: 0; }
+
+.ss-create-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--t1);
+  margin: 0 0 5px;
+  letter-spacing: -.02em;
+  line-height: 1.3;
+}
+
+.ss-create-sub {
+  font-size: 13px;
+  color: var(--t2);
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* Step indicator — column-direction circles with connector lines */
+.ss-create-steps {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 32px;
+  padding: 20px 24px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  overflow-x: auto;
+}
+
+.ss-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+  min-width: 80px;
+  opacity: .42;
+}
+
+.ss-step.is-active { opacity: 1; }
+.ss-step.is-done   { opacity: .75; }
+
+.ss-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-sur2);
+  border: 2px solid var(--bd);
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--t3);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.ss-step.is-done .ss-step-num {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+.ss-step.is-active .ss-step-num {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand) 14%, transparent);
+}
+
+.ss-step-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--t3);
+  white-space: nowrap;
+  text-align: center;
+}
+
+.ss-step.is-active .ss-step-label { color: var(--brand); font-weight: 700; }
+.ss-step.is-done .ss-step-label   { color: var(--t2); }
+
+/* Connector line — sits at midpoint of the 28px circle (14px from top of step) */
+.ss-step-sep {
+  flex: 1;
+  height: 2px;
+  background: var(--bd);
+  align-self: flex-start;
+  margin-top: 13px;
+}
+
+/* Section heading */
+.ss-create-sec-hdr { margin-bottom: 18px; }
+
+.ss-create-sec-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--t1);
+  margin: 0 0 4px;
+  letter-spacing: -.01em;
+}
+
+.ss-create-sec-desc {
+  font-size: 12.5px;
+  color: var(--t2);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Service type card grid — 3 columns */
+.ss-svc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.ss-svc-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 20px 20px 18px;
+  border: 1.5px solid var(--bd);
+  border-radius: var(--r-lg, 14px);
+  background: var(--bg-sur);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .15s, background .15s, box-shadow .15s;
+}
+
+.ss-svc-card:hover {
+  border-color: var(--brand);
+  background: var(--bg-sur2);
+}
+
+.ss-svc-card.is-active {
+  border-color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 5%, var(--bg-sur));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 12%, transparent);
+}
+
+/* Icon box */
+.ss-svc-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-md);
+  background: var(--bg-sur2);
+  color: var(--t2);
+  flex-shrink: 0;
+  transition: background .15s, color .15s;
+}
+
+.ss-svc-card:hover .ss-svc-card-icon,
+.ss-svc-card.is-active .ss-svc-card-icon {
+  background: color-mix(in srgb, var(--brand) 12%, transparent);
+  color: var(--brand);
+}
+
+.ss-svc-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ss-svc-card-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--t1);
+  line-height: 1.3;
+}
+
+.ss-svc-card.is-active .ss-svc-card-name { color: var(--brand); }
+
+.ss-svc-card-desc {
+  font-size: 12px;
+  color: var(--t3);
+  line-height: 1.5;
+}
+
+/* Bottom action bar — sticky within po-main scroll context */
+.ss-create-foot {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px var(--content-pad-x, 32px);
+  background: var(--bg);
+  border-top: 1px solid var(--bd);
+  margin-top: 32px;
+  margin-left: calc(-1 * var(--content-pad-x, 32px));
+  margin-right: calc(-1 * var(--content-pad-x, 32px));
+  z-index: 10;
+}
+
+.ss-create-foot-l,
+.ss-create-foot-r { display: flex; gap: 8px; }
+
+.ss-create-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 36px;
+  border-radius: var(--r-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--bd);
+  background: transparent;
+  color: var(--t2);
+  transition: border-color .15s, color .15s, background .15s, opacity .15s;
+  white-space: nowrap;
+}
+
+.ss-create-btn:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.ss-create-btn.is-primary {
+  background: var(--btn-primary-bg, var(--brand));
+  border-color: var(--btn-primary-bg, var(--brand));
+  color: var(--btn-primary-text, #fff);
+}
+
+.ss-create-btn.is-primary:not(:disabled):hover {
+  opacity: .88;
+}
+
+.ss-create-btn:not(.is-primary):not(:disabled):hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .ss-svc-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .ss-svc-grid { grid-template-columns: repeat(2, 1fr); }
+  .ss-create-inner { padding: 20px 0 64px; }
+  .ss-create-title { font-size: 16px; }
+}
+
+@media (max-width: 430px) {
+  .ss-svc-grid { grid-template-columns: 1fr; }
+  .ss-create-steps { padding: 16px; }
+  .ss-step { min-width: 60px; }
+  .ss-step-sep { margin-top: 13px; }
+}
+
+/* Dark mode */
+[data-theme="dark"] .ss-create-back {
+  border-color: rgba(255,255,255,.15);
+  color: var(--t2);
+}
+[data-theme="dark"] .ss-create-back:hover {
+  color: #8B7FF8;
+  border-color: #8B7FF8;
+}
+[data-theme="dark"] .ss-create-steps {
+  background: rgba(255,255,255,.04);
+  border-color: rgba(255,255,255,.1);
+}
+[data-theme="dark"] .ss-step-num {
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.15);
+}
+[data-theme="dark"] .ss-step.is-active .ss-step-num {
+  background: #8B7FF8;
+  border-color: #8B7FF8;
+  box-shadow: 0 0 0 4px rgba(139,127,248,.18);
+}
+[data-theme="dark"] .ss-step-sep { background: rgba(255,255,255,.12); }
+[data-theme="dark"] .ss-svc-card {
+  background: rgba(255,255,255,.04);
+  border-color: rgba(255,255,255,.1);
+}
+[data-theme="dark"] .ss-svc-card:hover {
+  border-color: #8B7FF8;
+  background: rgba(139,127,248,.08);
+}
+[data-theme="dark"] .ss-svc-card.is-active {
+  border-color: #8B7FF8;
+  background: rgba(139,127,248,.06);
+  box-shadow: 0 0 0 3px rgba(139,127,248,.18);
+}
+[data-theme="dark"] .ss-svc-card.is-active .ss-svc-card-name { color: #8B7FF8; }
+[data-theme="dark"] .ss-svc-card-icon { background: rgba(255,255,255,.08); }
+[data-theme="dark"] .ss-svc-card:hover .ss-svc-card-icon,
+[data-theme="dark"] .ss-svc-card.is-active .ss-svc-card-icon {
+  background: rgba(139,127,248,.15);
+  color: #8B7FF8;
+}
+[data-theme="dark"] .ss-create-foot {
+  background: var(--bg);
+  border-color: rgba(255,255,255,.1);
+}
