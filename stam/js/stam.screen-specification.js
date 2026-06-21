@@ -2917,6 +2917,8 @@
       /* Component Library item click → insert block */
       var compItem = e.target.closest('.comp-item[data-comp-id]');
       if (compItem && SSP.view.mode === 'editor') {
+        var clBodyBefore = document.querySelector('.cl-body');
+        var clScrollTop = clBodyBefore ? clBodyBefore.scrollTop : 0;
         var newBlock = {
           id: 'block-' + Date.now(),
           type: compItem.getAttribute('data-comp-id'),
@@ -2934,6 +2936,10 @@
         SSP.editor.selBlock = SSP.editor.wfBlocks.length - 1;
         SSP.editor.inspectorTab = 'props';
         renderEditorView();
+        requestAnimationFrame(function() {
+          var clBodyAfter = document.querySelector('.cl-body');
+          if (clBodyAfter) clBodyAfter.scrollTop = clScrollTop;
+        });
         return;
       }
 
