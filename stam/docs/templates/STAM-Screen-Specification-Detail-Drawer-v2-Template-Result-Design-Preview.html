@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM · Screen Specification Detail Drawer v2 · Template Result</title>
+<link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../../css/stam.tokens.css">
+<style>
+/* sdd- prefix | Detail Drawer v2 | 2026-06-13 */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;font-family:inherit}
+html,body{height:100%;overflow:hidden;background:var(--bg-base);color:var(--t1);font-size:13px;line-height:1.5;font-family:var(--font);-webkit-font-smoothing:antialiased}
+.sdd-app{height:100vh;display:flex;overflow:hidden}
+
+/* ── Background ── */
+.sdd-bg{width:36%;flex-shrink:0;height:100vh;overflow:hidden;background:var(--bg-base);border-right:1px solid var(--bd);position:relative}
+.sdd-bg-inner{opacity:.16;filter:blur(1.5px);pointer-events:none;user-select:none}
+.sdd-bg-topbar{height:48px;background:var(--bg-side);display:flex;align-items:center;padding:0 16px;gap:10px}
+.sdd-bg-logo{width:68px;height:14px;background:rgba(84,81,232,.5);border-radius:3px}
+.sdd-bg-bc{font-size:10px;color:rgba(200,204,220,.3)}
+.sdd-bg-body{padding:14px}
+.sdd-bg-titlerow{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sdd-bg-title{font-size:14px;font-weight:700;color:var(--t1)}
+.sdd-bg-btn{height:26px;padding:0 10px;border-radius:5px;font-size:9.5px;font-weight:700;background:rgba(84,81,232,.3);color:rgba(139,127,248,.8);border:1px solid rgba(84,81,232,.25)}
+.sdd-bg-toolbar{display:flex;gap:6px;margin-bottom:10px}
+.sdd-bg-search{flex:1;height:28px;background:var(--bg-sur2);border:1px solid var(--bd);border-radius:5px}
+.sdd-bg-fil{height:28px;padding:0 10px;background:var(--bg-sur2);border:1px solid var(--bd);border-radius:5px;font-size:9.5px;color:var(--t3)}
+.sdd-bg-tbl{background:var(--bg-sur);border:1px solid var(--bd);border-radius:7px;overflow:hidden}
+.sdd-bg-th{display:grid;grid-template-columns:56px 1fr 90px 70px 60px;padding:5px 10px;background:var(--bg-sur2);border-bottom:1px solid var(--bd)}
+.sdd-bg-th span{font-size:8.5px;font-weight:700;color:var(--th-fg);text-transform:uppercase}
+.sdd-bg-row{display:grid;grid-template-columns:56px 1fr 90px 70px 60px;padding:6px 10px;border-bottom:1px solid var(--bd)}
+.sdd-bg-row.hl{background:rgba(84,81,232,.06)}
+.sdd-bg-row span{font-size:10px;color:var(--t2)}
+.sdd-bg-chip{font-size:7.5px;font-weight:700;padding:1px 5px;border-radius:3px}
+.sdd-bg-chip.d{background:var(--info-bg);color:var(--info)}
+.sdd-bg-chip.r{background:var(--warn-bg);color:var(--warn)}
+.sdd-bg-chip.a{background:var(--pass-bg);color:var(--pass)}
+.sdd-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(19,22,29,.3),rgba(19,22,29,.65));pointer-events:none}
+
+/* ── Drawer ── */
+.sdd-drawer{flex:1;height:100vh;display:flex;flex-direction:column;background:var(--bg-sur);border-left:2px solid rgba(84,81,232,.38);box-shadow:-6px 0 28px rgba(0,0,0,.32);position:relative}
+
+/* ── Header ── */
+.sdd-hdr{flex-shrink:0;padding:12px 16px 10px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:7px}
+.sdd-hdr-top{display:flex;align-items:flex-start;gap:8px}
+.sdd-hdr-id{font-size:9.5px;font-weight:700;color:var(--stam);letter-spacing:.05em;flex-shrink:0;margin-top:3px}
+.sdd-hdr-name{font-size:16px;font-weight:700;color:var(--t1);flex:1;line-height:1.2}
+.sdd-hdr-ver{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t3);flex-shrink:0;margin-top:3px}
+.sdd-hdr-close{width:28px;height:28px;border-radius:6px;border:1px solid var(--bd);background:transparent;color:var(--t3);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 100ms}
+.sdd-hdr-close:hover{background:rgba(255,66,66,.1);color:var(--fail);border-color:rgba(255,66,66,.3)}
+.sdd-hdr-row{display:flex;align-items:center;flex-wrap:wrap;gap:5px}
+.sdd-badge{font-size:8.5px;font-weight:700;padding:2px 7px;border-radius:3px}
+.sdd-badge.tpl{background:rgba(52,211,153,.12);color:#34D399}
+.sdd-badge.complete{background:var(--pass-bg);color:var(--pass)}
+.sdd-badge.inrev{background:var(--warn-bg);color:var(--warn)}
+.sdd-badge.none{background:var(--skip-bg);color:var(--skip)}
+.sdd-badge.brand{background:rgba(84,81,232,.12);color:var(--stam)}
+.sdd-hdr-person{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--t3);flex-shrink:0}
+.sdd-hdr-person strong{color:var(--t2);font-weight:600}
+.sdd-hdr-sep{color:var(--bd-s);font-size:10px}
+
+/* ── Summary strip ── */
+.sdd-summary-strip{flex-shrink:0;display:flex;gap:0;border-bottom:1px solid var(--bd);background:var(--bg-sur2);overflow-x:auto;scrollbar-width:none}
+.sdd-summary-strip::-webkit-scrollbar{display:none}
+.sdd-ss-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 14px;border-right:1px solid var(--bd);flex-shrink:0;min-width:72px;text-align:center}
+.sdd-ss-n{font-size:16px;font-weight:700;color:var(--stam);line-height:1}
+.sdd-ss-l{font-size:9px;color:var(--t3);white-space:nowrap}
+
+/* ── Tabs ── */
+.sdd-tabs{flex-shrink:0;display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--bd);background:var(--bg-sur);padding:0 14px}
+.sdd-tabs::-webkit-scrollbar{display:none}
+.sdd-tab{display:inline-flex;align-items:center;gap:4px;padding:9px 12px;font-size:11px;font-weight:600;color:var(--t3);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all 100ms;flex-shrink:0;user-select:none}
+.sdd-tab:hover{color:var(--t1)}
+.sdd-tab.active{color:var(--stam);border-bottom-color:var(--stam);font-weight:700}
+.sdd-tab-n{font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;background:rgba(180,184,200,.1);color:var(--label-muted)}
+.sdd-tab.active .sdd-tab-n{background:rgba(84,81,232,.18);color:var(--stam)}
+
+/* ── Body ── */
+.sdd-body{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(139,127,248,.3) transparent}
+.sdd-panel{display:none;padding:16px;display:flex;flex-direction:column;gap:12px}
+.sdd-panel.active{display:flex}
+
+/* ── Generic helpers ── */
+.sdd-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sdd-kv{display:flex;flex-direction:column;gap:3px}
+.sdd-key{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--label-muted)}
+.sdd-val{font-size:11.5px;color:var(--t2);line-height:1.5}
+.sdd-val.t1{color:var(--t1);font-weight:600}
+.sdd-divider{height:1px;background:var(--bd)}
+.sdd-sub-title{font-size:11px;font-weight:700;color:var(--t2);display:flex;align-items:center;gap:6px}
+.sdd-sub-title::before{content:'';display:inline-block;width:3px;height:12px;background:var(--stam);border-radius:2px;flex-shrink:0}
+.sdd-note{padding:9px 12px;border-left:3px solid var(--stam);background:rgba(84,81,232,.06);border-radius:0 6px 6px 0;font-size:11px;color:var(--t2);line-height:1.65}
+.sdd-note.warn{border-left-color:rgba(255,146,0,.6);background:rgba(255,146,0,.05);color:var(--warn)}
+.sdd-chip{font-size:9.5px;font-weight:600;padding:2px 6px;border-radius:3px;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t2)}
+.sdd-chip.req{background:rgba(255,66,66,.1);border-color:rgba(255,66,66,.2);color:var(--fail)}
+.sdd-chip.opt{background:var(--skip-bg);color:var(--skip)}
+.sdd-chip.y{background:var(--pass-bg);border-color:rgba(4,120,87,.15);color:var(--pass)}
+.sdd-chip.b{background:rgba(84,81,232,.1);border-color:rgba(84,81,232,.2);color:var(--stam)}
+
+/* ── Screen composition tab ── */
+.sdd-screen-layout{display:grid;grid-template-columns:160px 1fr 156px;gap:8px;align-items:start}
+@media(max-width:800px){.sdd-screen-layout{grid-template-columns:1fr}}
+.sdd-obj-tree{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.sdd-obj-tree-hdr{padding:8px 10px;border-bottom:1px solid var(--bd);font-size:9px;font-weight:700;color:var(--label-muted);text-transform:uppercase;letter-spacing:.07em}
+.sdd-obj-item{display:flex;align-items:center;gap:6px;padding:5px 10px;cursor:pointer;transition:background 100ms;border-bottom:1px solid var(--bd)}
+.sdd-obj-item:last-child{border-bottom:none}
+.sdd-obj-item:hover{background:var(--surf-hover)}
+.sdd-obj-item.sel{background:rgba(84,81,232,.08)}
+.sdd-obj-dot{width:5px;height:5px;border-radius:50%;background:rgba(84,81,232,.4);flex-shrink:0}
+.sdd-obj-item.sel .sdd-obj-dot{background:var(--stam)}
+.sdd-obj-nm{font-size:10.5px;color:var(--t2)}
+.sdd-obj-item.sel .sdd-obj-nm{color:var(--stam);font-weight:700}
+
+/* wireframe */
+.sdd-wf-box{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.sdd-wf-screen{background:var(--bg-sur3);display:flex;height:200px}
+.sdd-wf-left{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.sdd-wf-topbar{height:20px;background:rgba(84,81,232,.25);display:flex;align-items:center;padding:0 6px;gap:5px;flex-shrink:0}
+.sdd-wf-logo{width:28px;height:7px;background:rgba(255,255,255,.3);border-radius:2px}
+.sdd-wf-bc{font-size:6px;color:rgba(255,255,255,.35)}
+.sdd-wf-content{flex:1;padding:5px;display:flex;flex-direction:column;gap:4px;overflow:hidden}
+.sdd-wf-titlerow{display:flex;justify-content:space-between;align-items:center;height:10px}
+.sdd-wf-pg-title{width:100px;height:7px;background:rgba(255,255,255,.22);border-radius:2px}
+.sdd-wf-regbtn{width:44px;height:8px;background:rgba(84,81,232,.45);border-radius:2px}
+.sdd-wf-strip{height:8px;background:rgba(84,81,232,.1);border:1px solid rgba(84,81,232,.15);border-radius:2px}
+.sdd-wf-toolbar{display:flex;gap:3px;height:10px}
+.sdd-wf-search{flex:1;height:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.08);border-radius:2px}
+.sdd-wf-fil{width:28px;height:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:2px}
+.sdd-wf-table{flex:1;background:rgba(255,255,255,.05);border:2px solid rgba(84,81,232,.65);border-radius:3px;padding:3px;position:relative;display:flex;flex-direction:column;gap:2px}
+.sdd-wf-sel-label{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:6px;font-weight:700;color:var(--stam);background:rgba(84,81,232,.15);padding:1px 4px;border-radius:2px;white-space:nowrap}
+.sdd-wf-th{display:flex;gap:2px;height:6px}
+.sdd-wf-th div{flex:1;height:5px;background:rgba(255,255,255,.12);border-radius:1px}
+.sdd-wf-row{display:flex;gap:2px;height:6px}
+.sdd-wf-row div{flex:1;height:4px;background:rgba(255,255,255,.07);border-radius:1px}
+.sdd-wf-row.hl{background:rgba(84,81,232,.08);border-radius:2px}
+.sdd-wf-right{width:36%;border-left:1px solid rgba(84,81,232,.28);background:rgba(84,81,232,.04);display:flex;flex-direction:column;flex-shrink:0}
+.sdd-wf-dr-hdr{height:20px;background:rgba(84,81,232,.14);display:flex;align-items:center;padding:0 5px;border-bottom:1px solid rgba(84,81,232,.2)}
+.sdd-wf-dr-title{font-size:6.5px;font-weight:700;color:rgba(139,127,248,.8)}
+.sdd-wf-dr-body{flex:1;padding:4px;display:flex;flex-direction:column;gap:2px}
+.sdd-wf-dr-tabs{display:flex;gap:2px;margin:2px 0}
+.sdd-wf-dr-tab{flex:1;height:7px;background:rgba(255,255,255,.05);border-radius:2px}
+.sdd-wf-dr-tab.a{background:rgba(84,81,232,.3)}
+.sdd-wf-r-row{height:6px;background:rgba(255,255,255,.07);border-radius:1px}
+.sdd-wf-r-row.w9{width:90%}
+.sdd-wf-r-row.w7{width:70%}
+.sdd-wf-r-row.w5{width:50%}
+.sdd-wf-prop{background:var(--bg-sur2);border:1px solid rgba(84,81,232,.22);border-radius:6px;padding:8px;display:flex;flex-direction:column;gap:4px;margin:6px}
+.sdd-wf-prop-title{font-size:9px;font-weight:700;color:var(--stam)}
+.sdd-wf-prop-row{display:flex;gap:5px;align-items:center}
+.sdd-wf-pk{font-size:9px;color:var(--label-muted);width:60px;flex-shrink:0}
+.sdd-wf-pv{font-size:10px;color:var(--t2)}
+.sdd-obj-props{background:var(--bg-sur2);border:1px solid rgba(84,81,232,.22);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.sdd-obj-props-title{font-size:9.5px;font-weight:700;color:var(--stam)}
+
+/* table */
+.sdd-tbl-wrap{overflow-x:auto;border-radius:7px;border:1px solid var(--bd)}
+.sdd-tbl{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--font);min-width:540px}
+.sdd-tbl th{background:var(--bg-sur2);padding:6px 10px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--th-fg);border-bottom:1px solid var(--bd);white-space:nowrap}
+.sdd-tbl td{padding:6px 10px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;line-height:1.5}
+.sdd-tbl tr:last-child td{border-bottom:none}
+.sdd-tbl tr:hover td{background:var(--row-hover)}
+.sdd-tbl td:first-child{color:var(--t1);font-weight:600}
+
+/* links grid */
+.sdd-link-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sdd-link-card{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:7px;padding:10px;display:flex;flex-direction:column;gap:4px}
+.sdd-link-type{font-size:8.5px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(84,81,232,.12);color:var(--stam);width:fit-content;letter-spacing:.04em}
+.sdd-link-name{font-size:11px;font-weight:700;color:var(--t1)}
+.sdd-link-cnt{font-size:10px;color:var(--t3)}
+.sdd-link-item{font-size:9.5px;color:var(--t3);padding-left:8px;position:relative;line-height:1.55}
+.sdd-link-item::before{content:'·';position:absolute;left:0;color:var(--stam)}
+.sdd-link-btn{font-size:9.5px;font-weight:600;color:var(--stam);cursor:pointer;background:none;border:none;padding:0;font-family:var(--font);text-align:left;margin-top:2px}
+
+/* attachments */
+.sdd-file-card{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:7px;padding:10px;display:flex;align-items:center;gap:10px}
+.sdd-file-ico{width:32px;height:36px;background:rgba(84,81,232,.1);border:1px solid rgba(84,81,232,.2);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--stam);flex-shrink:0}
+.sdd-file-body{flex:1;display:flex;flex-direction:column;gap:2px}
+.sdd-file-name{font-size:11.5px;font-weight:700;color:var(--t1)}
+.sdd-file-meta{font-size:10px;color:var(--t3)}
+.sdd-file-dl{height:24px;padding:0 10px;border-radius:4px;font-size:10px;font-weight:600;border:1px solid var(--bd);background:transparent;color:var(--t3);cursor:pointer;flex-shrink:0;transition:all 100ms;font-family:var(--font)}
+.sdd-file-dl:hover{border-color:var(--stam);color:var(--stam)}
+
+/* timeline */
+.sdd-timeline{display:flex;flex-direction:column;gap:0;position:relative;padding-left:20px}
+.sdd-timeline::before{content:'';position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:rgba(84,81,232,.2)}
+.sdd-tl-item{position:relative;padding:0 0 14px 16px}
+.sdd-tl-item::before{content:'';position:absolute;left:-5px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--bg-sur2);border:2px solid rgba(84,81,232,.4)}
+.sdd-tl-item.current::before{background:var(--stam);border-color:var(--stam);box-shadow:0 0 0 3px rgba(84,81,232,.15)}
+.sdd-tl-card{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:7px;padding:10px 12px;display:flex;flex-direction:column;gap:5px}
+.sdd-tl-item.current .sdd-tl-card{border-color:rgba(84,81,232,.35);background:rgba(84,81,232,.06)}
+.sdd-tl-hdr{display:flex;align-items:center;gap:6px}
+.sdd-tl-evt{font-size:12px;font-weight:700;color:var(--t1);flex:1}
+.sdd-tl-who{font-size:10px;color:var(--t3)}
+.sdd-tl-time{font-size:9.5px;color:var(--label-muted)}
+.sdd-tl-body{font-size:11px;color:var(--t2);line-height:1.65}
+.sdd-tl-change{display:flex;align-items:center;gap:6px;font-size:10.5px}
+.sdd-tl-before{color:var(--t3);background:var(--bg-sur3);padding:2px 7px;border-radius:3px}
+.sdd-tl-arrow{color:var(--label-muted);font-size:10px}
+.sdd-tl-after{color:var(--pass);background:var(--pass-bg);padding:2px 7px;border-radius:3px;font-weight:600}
+
+/* workflow status flow */
+.sdd-wf-flow{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:4px}
+.sdd-wf-node{font-size:10px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t3)}
+.sdd-wf-node.active{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.35);color:var(--warn);font-weight:700}
+.sdd-wf-arr{font-size:10px;color:var(--label-muted)}
+
+/* right sticky summary */
+.sdd-summary{position:absolute;right:0;top:130px;width:164px;background:var(--bg-sur2);border:1px solid rgba(84,81,232,.28);border-right:none;border-radius:8px 0 0 8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;box-shadow:-3px 4px 16px rgba(0,0,0,.2);z-index:20}
+.sdd-sum-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--label-muted)}
+.sdd-sum-row{display:flex;align-items:center;justify-content:space-between}
+.sdd-sum-k{font-size:9.5px;color:var(--t3)}
+.sdd-sum-v{font-size:10.5px;font-weight:700;color:var(--t1)}
+.sdd-sum-v.b{color:var(--stam)}
+.sdd-sum-v.warn{color:var(--warn)}
+.sdd-sum-div{height:1px;background:var(--bd)}
+.sdd-sum-action{font-size:9.5px;font-weight:700;color:var(--warn);padding:4px 8px;border-radius:4px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);text-align:center}
+
+/* footer */
+.sdd-footer{flex-shrink:0;padding:10px 16px;border-top:1px solid var(--bd);background:var(--bg-sur);display:flex;align-items:center;gap:7px}
+.sdd-footer-info{flex:1;font-size:10px;color:var(--label-muted)}
+.sdd-footer-info strong{color:var(--warn)}
+.sdd-fbtn{height:32px;padding:0 14px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all 100ms}
+.sdd-fbtn.close{background:transparent;border:1px solid var(--bd);color:var(--t3)}
+.sdd-fbtn.close:hover{border-color:var(--bd-s);color:var(--t1)}
+.sdd-fbtn.edit{background:var(--bg-sur2);border:1px solid var(--bd-s);color:var(--t2)}
+.sdd-fbtn.edit:hover{background:var(--bg-sur3)}
+.sdd-fbtn.comment{background:transparent;border:1px solid rgba(84,81,232,.35);color:var(--stam)}
+.sdd-fbtn.comment:hover{background:rgba(84,81,232,.08)}
+.sdd-fbtn.reject{background:rgba(255,66,66,.1);border:1px solid rgba(255,66,66,.25);color:var(--fail)}
+.sdd-fbtn.reject:hover{background:rgba(255,66,66,.18)}
+.sdd-fbtn.approve{background:var(--stam);border:none;color:#fff}
+.sdd-fbtn.approve:hover{background:var(--stam-h)}
+</style>
+</head>
+<body>
+<div class="sdd-app">
+
+  <!-- ── Background ── -->
+  <div class="sdd-bg">
+    <div class="sdd-bg-inner">
+      <div class="sdd-bg-topbar">
+        <div class="sdd-bg-logo"></div>
+        <div class="sdd-bg-bc">STAM › 산출물 › 화면설계서</div>
+      </div>
+      <div class="sdd-bg-body">
+        <div class="sdd-bg-titlerow">
+          <span class="sdd-bg-title">화면설계서 목록</span>
+          <button class="sdd-bg-btn">+ 등록</button>
+        </div>
+        <div class="sdd-bg-toolbar">
+          <div class="sdd-bg-search"></div>
+          <div class="sdd-bg-fil">상태 ▾</div>
+          <div class="sdd-bg-fil">담당자 ▾</div>
+        </div>
+        <div class="sdd-bg-tbl">
+          <div class="sdd-bg-th"><span>ID</span><span>화면명</span><span>작성상태</span><span>담당자</span><span>수정일</span></div>
+          <div class="sdd-bg-row hl"><span>SCR-001</span><span>화면설계서 목록</span><span><em class="sdd-bg-chip r">검토중</em></span><span>이UX</span><span>06-12</span></div>
+          <div class="sdd-bg-row"><span>SCR-002</span><span>로그인 화면</span><span><em class="sdd-bg-chip a">승인</em></span><span>박PM</span><span>06-10</span></div>
+          <div class="sdd-bg-row"><span>SCR-003</span><span>기본 등록 폼</span><span><em class="sdd-bg-chip d">작성중</em></span><span>이UX</span><span>06-13</span></div>
+          <div class="sdd-bg-row"><span>SCR-004</span><span>삭제 확인 Dialog</span><span><em class="sdd-bg-chip a">승인</em></span><span>박PM</span><span>06-09</span></div>
+          <div class="sdd-bg-row"><span>SCR-005</span><span>등록 완료 페이지</span><span><em class="sdd-bg-chip d">작성중</em></span><span>이UX</span><span>06-13</span></div>
+          <div class="sdd-bg-row"><span>SCR-006</span><span>권한 없음 오류</span><span><em class="sdd-bg-chip r">검토중</em></span><span>박PM</span><span>06-11</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Detail Drawer ── -->
+  <div class="sdd-drawer">
+
+    <!-- Sticky summary -->
+    <div class="sdd-summary">
+      <div class="sdd-sum-title">화면 요약</div>
+      <div class="sdd-sum-row"><span class="sdd-sum-k">ID</span><span class="sdd-sum-v b">SCR-001</span></div>
+      <div class="sdd-sum-row"><span class="sdd-sum-k">템플릿</span><span class="sdd-sum-v" style="font-size:9px">LIST-DRAWER</span></div>
+      <div class="sdd-sum-row"><span class="sdd-sum-k">상태</span><span class="sdd-sum-v warn">In Review</span></div>
+      <div class="sdd-sum-div"></div>
+      <div class="sdd-sum-row"><span class="sdd-sum-k">오브젝트</span><span class="sdd-sum-v">9</span></div>
+      <div class="sdd-sum-row"><span class="sdd-sum-k">필드</span><span class="sdd-sum-v">6</span></div>
+      <div class="sdd-sum-row"><span class="sdd-sum-k">액션</span><span class="sdd-sum-v">5</span></div>
+      <div class="sdd-sum-row"><span class="sdd-sum-k">연결</span><span class="sdd-sum-v">7</span></div>
+      <div class="sdd-sum-row"><span class="sdd-sum-k">첨부</span><span class="sdd-sum-v">2</span></div>
+      <div class="sdd-sum-div"></div>
+      <div class="sdd-sum-row"><span class="sdd-sum-k">검토자</span><span class="sdd-sum-v">박PM</span></div>
+      <div class="sdd-sum-row"><span class="sdd-sum-k">승인자</span><span class="sdd-sum-v">김Lead</span></div>
+      <div class="sdd-sum-div"></div>
+      <div class="sdd-sum-action">다음 액션: 승인 또는 반려</div>
+    </div>
+
+    <!-- Header -->
+    <div class="sdd-hdr">
+      <div class="sdd-hdr-top">
+        <span class="sdd-hdr-id">SCR-001</span>
+        <span class="sdd-hdr-name">화면설계서 목록</span>
+        <span class="sdd-hdr-ver">v0.2</span>
+        <button class="sdd-hdr-close">✕</button>
+      </div>
+      <div class="sdd-hdr-row">
+        <span class="sdd-badge tpl">TPL-LIST-DRAWER</span>
+        <span class="sdd-badge complete">작성완료</span>
+        <span class="sdd-badge inrev">검토중</span>
+        <span class="sdd-badge none">미승인</span>
+        <span class="sdd-hdr-sep">|</span>
+        <span class="sdd-hdr-person">담당자 <strong>이UX</strong></span>
+        <span class="sdd-hdr-person">검토자 <strong>박PM</strong></span>
+        <span class="sdd-hdr-person">승인자 <strong>김Lead</strong></span>
+        <span class="sdd-hdr-person" style="margin-left:auto">수정 2026-06-12</span>
+      </div>
+    </div>
+
+    <!-- Summary strip -->
+    <div class="sdd-summary-strip">
+      <div class="sdd-ss-item"><div class="sdd-ss-n">9</div><div class="sdd-ss-l">오브젝트</div></div>
+      <div class="sdd-ss-item"><div class="sdd-ss-n">6</div><div class="sdd-ss-l">필드</div></div>
+      <div class="sdd-ss-item"><div class="sdd-ss-n">5</div><div class="sdd-ss-l">액션</div></div>
+      <div class="sdd-ss-item"><div class="sdd-ss-n">7</div><div class="sdd-ss-l">연결정보</div></div>
+      <div class="sdd-ss-item"><div class="sdd-ss-n">2</div><div class="sdd-ss-l">첨부파일</div></div>
+      <div class="sdd-ss-item"><div class="sdd-ss-n">5</div><div class="sdd-ss-l">검토이력</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="sdd-tabs">
+      <div class="sdd-tab" data-tab="overview" onclick="switchTab('overview')">개요</div>
+      <div class="sdd-tab active" data-tab="screen" onclick="switchTab('screen')">화면 구성</div>
+      <div class="sdd-tab" data-tab="fields" onclick="switchTab('fields')">필드/액션</div>
+      <div class="sdd-tab" data-tab="links" onclick="switchTab('links')">연결정보 <span class="sdd-tab-n">7</span></div>
+      <div class="sdd-tab" data-tab="files" onclick="switchTab('files')">첨부파일 <span class="sdd-tab-n">2</span></div>
+      <div class="sdd-tab" data-tab="history" onclick="switchTab('history')">검토이력 <span class="sdd-tab-n">5</span></div>
+    </div>
+
+    <!-- Body -->
+    <div class="sdd-body">
+
+      <!-- TAB: 개요 -->
+      <div class="sdd-panel" id="panel-overview">
+        <div class="sdd-sub-title">화면 기본 정보</div>
+        <div class="sdd-row2">
+          <div class="sdd-kv"><div class="sdd-key">화면 ID</div><div class="sdd-val t1">SCR-001</div></div>
+          <div class="sdd-kv"><div class="sdd-key">화면명</div><div class="sdd-val t1">화면설계서 목록</div></div>
+          <div class="sdd-kv"><div class="sdd-key">화면 유형</div><div class="sdd-val">목록 + 상세 Drawer</div></div>
+          <div class="sdd-kv"><div class="sdd-key">버전</div><div class="sdd-val">v0.2</div></div>
+          <div class="sdd-kv" style="grid-column:1/-1"><div class="sdd-key">메뉴 경로</div><div class="sdd-val">산출물 관리 › 화면설계서</div></div>
+          <div class="sdd-kv"><div class="sdd-key">담당자</div><div class="sdd-val">이UX</div></div>
+          <div class="sdd-kv"><div class="sdd-key">검토자</div><div class="sdd-val">박PM</div></div>
+          <div class="sdd-kv"><div class="sdd-key">승인자</div><div class="sdd-val">김Lead</div></div>
+          <div class="sdd-kv"><div class="sdd-key">최종 수정</div><div class="sdd-val">2026-06-12 14:32</div></div>
+        </div>
+        <div class="sdd-kv"><div class="sdd-key">화면 목적</div><div class="sdd-val">STAM 프로젝트의 화면설계서 목록을 조회하고, 행 클릭 시 상세 Drawer로 내용을 검토하는 화면. 검색·필터·일괄 삭제 지원.</div></div>
+        <div class="sdd-divider"></div>
+        <div class="sdd-sub-title">사용 템플릿</div>
+        <div class="sdd-row2">
+          <div class="sdd-kv"><div class="sdd-key">템플릿 ID</div><div class="sdd-val t1">TPL-LIST-DRAWER</div></div>
+          <div class="sdd-kv"><div class="sdd-key">템플릿명</div><div class="sdd-val">목록 + 상세 Drawer</div></div>
+          <div class="sdd-kv"><div class="sdd-key">카테고리</div><div class="sdd-val">목록/검색</div></div>
+          <div class="sdd-kv"><div class="sdd-key">추천 상황</div><div class="sdd-val">설계서 작성 빈도 1위 패턴</div></div>
+        </div>
+        <div class="sdd-divider"></div>
+        <div class="sdd-sub-title">작성 상태 요약</div>
+        <div class="sdd-row2">
+          <div class="sdd-kv"><div class="sdd-key">wst (작성 상태)</div><div class="sdd-val"><span class="sdd-chip y">complete</span></div></div>
+          <div class="sdd-kv"><div class="sdd-key">rst (검토 상태)</div><div class="sdd-val"><span class="sdd-chip" style="background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.2);color:var(--warn)">pending</span></div></div>
+          <div class="sdd-kv"><div class="sdd-key">ast (승인 상태)</div><div class="sdd-val"><span class="sdd-chip opt">none</span></div></div>
+          <div class="sdd-kv"><div class="sdd-key">workflowState</div><div class="sdd-val"><span class="sdd-chip b">In Review</span></div></div>
+        </div>
+        <div class="sdd-note" style="font-size:10.5px;color:var(--label-muted)"><strong style="color:var(--stam)">workflowState</strong>는 저장되지 않는 파생 상태입니다. wst · rst · ast 조합에서 도출되며 DB에 별도 저장하지 않습니다.</div>
+      </div>
+
+      <!-- TAB: 화면 구성 -->
+      <div class="sdd-panel active" id="panel-screen">
+        <div class="sdd-screen-layout">
+          <!-- Object tree -->
+          <div class="sdd-obj-tree">
+            <div class="sdd-obj-tree-hdr">오브젝트 (9)</div>
+            <div class="sdd-obj-item"><div class="sdd-obj-dot"></div><span class="sdd-obj-nm">Page Title</span></div>
+            <div class="sdd-obj-item"><div class="sdd-obj-dot"></div><span class="sdd-obj-nm">Summary Strip</span></div>
+            <div class="sdd-obj-item"><div class="sdd-obj-dot"></div><span class="sdd-obj-nm">Search Input</span></div>
+            <div class="sdd-obj-item"><div class="sdd-obj-dot"></div><span class="sdd-obj-nm">Filter Button</span></div>
+            <div class="sdd-obj-item sel"><div class="sdd-obj-dot"></div><span class="sdd-obj-nm">Data Table</span></div>
+            <div class="sdd-obj-item"><div class="sdd-obj-dot"></div><span class="sdd-obj-nm">Row Click Action</span></div>
+            <div class="sdd-obj-item"><div class="sdd-obj-dot"></div><span class="sdd-obj-nm">Right Detail Drawer</span></div>
+            <div class="sdd-obj-item"><div class="sdd-obj-dot"></div><span class="sdd-obj-nm">Tab Panel</span></div>
+            <div class="sdd-obj-item"><div class="sdd-obj-dot"></div><span class="sdd-obj-nm">Change History</span></div>
+          </div>
+          <!-- Wireframe -->
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div class="sdd-wf-box">
+              <div class="sdd-wf-screen">
+                <div class="sdd-wf-left">
+                  <div class="sdd-wf-topbar"><div class="sdd-wf-logo"></div><span class="sdd-wf-bc">화면설계서</span></div>
+                  <div class="sdd-wf-content">
+                    <div class="sdd-wf-titlerow"><div class="sdd-wf-pg-title"></div><div class="sdd-wf-regbtn"></div></div>
+                    <div class="sdd-wf-strip"></div>
+                    <div class="sdd-wf-toolbar"><div class="sdd-wf-search"></div><div class="sdd-wf-fil"></div><div class="sdd-wf-fil" style="width:22px"></div></div>
+                    <div class="sdd-wf-table">
+                      <div class="sdd-wf-sel-label">Data Table 선택됨</div>
+                      <div class="sdd-wf-th"><div></div><div></div><div></div><div></div></div>
+                      <div class="sdd-wf-row hl"><div></div><div></div><div></div><div></div></div>
+                      <div class="sdd-wf-row"><div></div><div></div><div></div><div></div></div>
+                      <div class="sdd-wf-row"><div></div><div></div><div></div><div></div></div>
+                      <div class="sdd-wf-row"><div></div><div></div><div></div><div></div></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="sdd-wf-right">
+                  <div class="sdd-wf-dr-hdr"><span class="sdd-wf-dr-title">Detail Drawer</span></div>
+                  <div class="sdd-wf-dr-body">
+                    <div class="sdd-wf-dr-tabs"><div class="sdd-wf-dr-tab a"></div><div class="sdd-wf-dr-tab"></div><div class="sdd-wf-dr-tab"></div></div>
+                    <div class="sdd-wf-r-row w9"></div><div class="sdd-wf-r-row w7"></div><div class="sdd-wf-r-row w5"></div>
+                    <div class="sdd-wf-r-row w9"></div><div class="sdd-wf-r-row w7"></div><div class="sdd-wf-r-row w5"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="sdd-wf-prop">
+                <div class="sdd-wf-prop-title">Data Table · 선택됨</div>
+                <div class="sdd-wf-prop-row"><span class="sdd-wf-pk">역할</span><span class="sdd-wf-pv">목록 데이터 표시</span></div>
+                <div class="sdd-wf-prop-row"><span class="sdd-wf-pk">컬럼</span><span class="sdd-wf-pv">6개 (수정 가능)</span></div>
+                <div class="sdd-wf-prop-row"><span class="sdd-wf-pk">행 클릭</span><span class="sdd-wf-pv">Detail Drawer 열기</span></div>
+                <div class="sdd-wf-prop-row"><span class="sdd-wf-pk">다중 선택</span><span class="sdd-wf-pv">허용 — 일괄 삭제</span></div>
+              </div>
+            </div>
+          </div>
+          <!-- Props -->
+          <div class="sdd-obj-props">
+            <div class="sdd-obj-props-title">오브젝트 속성</div>
+            <div class="sdd-kv"><div class="sdd-key">오브젝트명</div><div class="sdd-val t1">Data Table</div></div>
+            <div class="sdd-kv"><div class="sdd-key">key</div><div class="sdd-val">table</div></div>
+            <div class="sdd-kv"><div class="sdd-key">역할</div><div class="sdd-val">목록 데이터 표시</div></div>
+            <div class="sdd-kv"><div class="sdd-key">컬럼 수</div><div class="sdd-val">6개</div></div>
+            <div class="sdd-kv"><div class="sdd-key">행 클릭</div><div class="sdd-val">Drawer 열기</div></div>
+            <div class="sdd-kv"><div class="sdd-key">다중 선택</div><div class="sdd-val">허용</div></div>
+            <div class="sdd-kv"><div class="sdd-key">그룹핑</div><div class="sdd-val">메뉴 경로 기준</div></div>
+            <div class="sdd-kv"><div class="sdd-key">모바일</div><div class="sdd-val">가로 스크롤 또는 카드 전환 후보</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: 필드/액션 -->
+      <div class="sdd-panel" id="panel-fields">
+        <div class="sdd-sub-title">필드 정의 (6)</div>
+        <div class="sdd-tbl-wrap">
+          <table class="sdd-tbl">
+            <thead><tr><th>표시명</th><th>key</th><th>입력/출력</th><th>타입</th><th>필수</th><th>목록</th><th>모바일</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>화면 ID</td><td>id</td><td>출력</td><td>text</td><td><span class="sdd-chip req">필수</span></td><td><span class="sdd-chip y">표시</span></td><td><span class="sdd-chip y">표시</span></td><td></td></tr>
+              <tr><td>화면명</td><td>name</td><td>입력+출력</td><td>text</td><td><span class="sdd-chip req">필수</span></td><td><span class="sdd-chip y">표시</span></td><td><span class="sdd-chip y">표시</span></td><td></td></tr>
+              <tr><td>작성 상태</td><td>wst</td><td>출력</td><td>enum</td><td><span class="sdd-chip req">필수</span></td><td><span class="sdd-chip y">표시</span></td><td><span class="sdd-chip y">표시</span></td><td>Draft·Ready·완료</td></tr>
+              <tr><td>검토 상태</td><td>rst</td><td>출력</td><td>enum</td><td><span class="sdd-chip req">필수</span></td><td><span class="sdd-chip y">표시</span></td><td><span class="sdd-chip">축약</span></td><td></td></tr>
+              <tr><td>담당자</td><td>owner</td><td>입력+출력</td><td>user</td><td><span class="sdd-chip req">필수</span></td><td><span class="sdd-chip y">표시</span></td><td><span class="sdd-chip y">표시</span></td><td></td></tr>
+              <tr><td>최종수정일</td><td>upd</td><td>출력</td><td>date</td><td><span class="sdd-chip opt">선택</span></td><td><span class="sdd-chip y">표시</span></td><td><span class="sdd-chip opt">숨김</span></td><td>상대시간</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="sdd-sub-title" style="margin-top:4px">액션 정의 (5)</div>
+        <div class="sdd-tbl-wrap">
+          <table class="sdd-tbl">
+            <thead><tr><th>액션명</th><th>오브젝트</th><th>위치</th><th>트리거</th><th>성공 결과</th><th>상태 조건</th><th>권한 조건</th></tr></thead>
+            <tbody>
+              <tr><td>검색</td><td>Search Input</td><td>Toolbar</td><td>Enter / 클릭</td><td>목록 필터링</td><td>전체</td><td>조회 권한</td></tr>
+              <tr><td>필터 적용</td><td>Filter Button</td><td>Toolbar</td><td>옵션 선택</td><td>목록 재조회</td><td>전체</td><td>조회 권한</td></tr>
+              <tr><td>상세 열기</td><td>Data Table</td><td>Row Click</td><td>행 클릭</td><td>Detail Drawer 열기</td><td>전체</td><td>조회 권한</td></tr>
+              <tr><td>등록 열기</td><td>Register Btn</td><td>Toolbar</td><td>클릭</td><td>Register Drawer 열기</td><td>Draft 가능</td><td>작성 권한</td></tr>
+              <tr><td>선택 삭제</td><td>Bulk Action</td><td>Table Top</td><td>삭제 클릭</td><td>삭제 확인 Dialog</td><td>Draft만</td><td>관리자·작성자</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: 연결정보 -->
+      <div class="sdd-panel" id="panel-links">
+        <div class="sdd-note">연결정보는 요구사항부터 테스트케이스까지 추적성을 확보하기 위한 기준입니다.</div>
+        <div class="sdd-link-grid">
+          <div class="sdd-link-card"><span class="sdd-link-type">REQ</span><div class="sdd-link-name">요구사항</div><div class="sdd-link-cnt">연결 3건</div><div class="sdd-link-item">REQ-012 화면설계서 조회</div><div class="sdd-link-item">REQ-013 상세 Drawer 표시</div><div class="sdd-link-item">REQ-014 상태 필터</div><button class="sdd-link-btn">연결 관리</button></div>
+          <div class="sdd-link-card"><span class="sdd-link-type">WBS</span><div class="sdd-link-name">WBS 작업</div><div class="sdd-link-cnt">연결 2건</div><div class="sdd-link-item">WBS-034 화면 목록 구현</div><div class="sdd-link-item">WBS-035 Drawer 구현</div><button class="sdd-link-btn">연결 관리</button></div>
+          <div class="sdd-link-card"><span class="sdd-link-type">IFC</span><div class="sdd-link-name">인터페이스</div><div class="sdd-link-cnt">연결 1건</div><div class="sdd-link-item">IFC-007 화면설계서 목록 API</div><button class="sdd-link-btn">연결 추가</button></div>
+          <div class="sdd-link-card"><span class="sdd-link-type">FN</span><div class="sdd-link-name">기능정의</div><div class="sdd-link-cnt">연결 0건</div><button class="sdd-link-btn">+ 연결 추가</button></div>
+          <div class="sdd-link-card"><span class="sdd-link-type">ART</span><div class="sdd-link-name">산출물</div><div class="sdd-link-cnt">연결 1건</div><div class="sdd-link-item">ART-002 화면설계서</div><button class="sdd-link-btn">연결 관리</button></div>
+          <div class="sdd-link-card"><span class="sdd-link-type">MENU</span><div class="sdd-link-name">메뉴/화면목록</div><div class="sdd-link-cnt">연결 1건</div><div class="sdd-link-item">산출물 관리 › 화면설계서</div><button class="sdd-link-btn">연결 관리</button></div>
+          <div class="sdd-link-card"><span class="sdd-link-type">TC</span><div class="sdd-link-name">테스트케이스</div><div class="sdd-link-cnt">연결 0건</div><button class="sdd-link-btn">+ 연결 추가</button></div>
+        </div>
+      </div>
+
+      <!-- TAB: 첨부파일 -->
+      <div class="sdd-panel" id="panel-files">
+        <div class="sdd-note warn">첨부파일은 화면 구조를 대체하지 않습니다. 화면 구조는 템플릿과 오브젝트 구성으로 관리합니다. 첨부파일은 참고자료로만 사용합니다.</div>
+        <div class="sdd-sub-title">참고 문서 (2)</div>
+        <div class="sdd-file-card">
+          <div class="sdd-file-ico">PDF</div>
+          <div class="sdd-file-body">
+            <div class="sdd-file-name">화면설계서_요구사항_참고.pdf</div>
+            <div class="sdd-file-meta">1.2 MB · 이UX · 2026-06-11</div>
+          </div>
+          <button class="sdd-file-dl">다운로드</button>
+        </div>
+        <div class="sdd-file-card">
+          <div class="sdd-file-ico">XLS</div>
+          <div class="sdd-file-body">
+            <div class="sdd-file-name">컬럼_정의서_v0.1.xlsx</div>
+            <div class="sdd-file-meta">84 KB · 이UX · 2026-06-12</div>
+          </div>
+          <button class="sdd-file-dl">다운로드</button>
+        </div>
+        <div class="sdd-sub-title">이미지 참고자료 (1)</div>
+        <div class="sdd-file-card">
+          <div class="sdd-file-ico" style="font-size:9px">IMG</div>
+          <div class="sdd-file-body">
+            <div class="sdd-file-name">레퍼런스_Drawer_UI.png</div>
+            <div class="sdd-file-meta">340 KB · 이UX · 2026-06-10</div>
+          </div>
+          <button class="sdd-file-dl">다운로드</button>
+        </div>
+      </div>
+
+      <!-- TAB: 검토이력 -->
+      <div class="sdd-panel" id="panel-history">
+        <div class="sdd-sub-title">워크플로 상태</div>
+        <div class="sdd-wf-flow">
+          <span class="sdd-wf-node">Draft</span><span class="sdd-wf-arr">→</span>
+          <span class="sdd-wf-node">Ready</span><span class="sdd-wf-arr">→</span>
+          <span class="sdd-wf-node active">In Review</span><span class="sdd-wf-arr">→</span>
+          <span class="sdd-wf-node">Review Done</span><span class="sdd-wf-arr">→</span>
+          <span class="sdd-wf-node">Approved</span>
+          <span class="sdd-wf-arr">또는</span>
+          <span class="sdd-wf-node" style="border-color:rgba(255,66,66,.25);color:var(--fail)">Rejected</span>
+        </div>
+        <div class="sdd-divider"></div>
+        <div class="sdd-sub-title">이력 타임라인 (5건)</div>
+        <div class="sdd-timeline">
+          <div class="sdd-tl-item">
+            <div class="sdd-tl-card">
+              <div class="sdd-tl-hdr"><span class="sdd-tl-evt">최초 등록</span><span class="sdd-tl-who">이UX</span><span class="sdd-tl-time">06-11 10:22</span></div>
+              <div class="sdd-tl-body">화면설계서 SCR-001 생성. TPL-LIST-DRAWER 템플릿 기반 초안 자동 생성.</div>
+              <div class="sdd-tl-change"><span class="sdd-tl-before">없음</span><span class="sdd-tl-arrow">→</span><span class="sdd-tl-after">Draft</span></div>
+            </div>
+          </div>
+          <div class="sdd-tl-item">
+            <div class="sdd-tl-card">
+              <div class="sdd-tl-hdr"><span class="sdd-tl-evt">템플릿 선택</span><span class="sdd-tl-who">이UX</span><span class="sdd-tl-time">06-11 10:24</span></div>
+              <div class="sdd-tl-body">TPL-LIST-DRAWER 선택. 오브젝트 9개 · 필드 5개 · 액션 6개 자동 배치.</div>
+            </div>
+          </div>
+          <div class="sdd-tl-item">
+            <div class="sdd-tl-card">
+              <div class="sdd-tl-hdr"><span class="sdd-tl-evt">필드 조정</span><span class="sdd-tl-who">이UX</span><span class="sdd-tl-time">06-11 14:50</span></div>
+              <div class="sdd-tl-body">기본 필드 5개 → 검토 상태(rst) 필드 추가. 최종수정일 모바일 표시 숨김으로 변경.</div>
+              <div class="sdd-tl-change"><span class="sdd-tl-before">필드 5개</span><span class="sdd-tl-arrow">→</span><span class="sdd-tl-after">필드 6개</span></div>
+            </div>
+          </div>
+          <div class="sdd-tl-item">
+            <div class="sdd-tl-card">
+              <div class="sdd-tl-hdr"><span class="sdd-tl-evt">검토 요청</span><span class="sdd-tl-who">이UX</span><span class="sdd-tl-time">06-12 09:15</span></div>
+              <div class="sdd-tl-body">박PM에게 검토 요청 발송. 마감일 2026-06-14. "목록 Drawer 흐름 및 필드 정의 확인 부탁드립니다."</div>
+              <div class="sdd-tl-change"><span class="sdd-tl-before">Draft</span><span class="sdd-tl-arrow">→</span><span class="sdd-tl-after">In Review</span></div>
+            </div>
+          </div>
+          <div class="sdd-tl-item current">
+            <div class="sdd-tl-card">
+              <div class="sdd-tl-hdr"><span class="sdd-tl-evt">검토 의견 작성</span><span class="sdd-badge inrev" style="font-size:8px">현재</span><span class="sdd-tl-who">박PM</span><span class="sdd-tl-time">06-12 16:40</span></div>
+              <div class="sdd-tl-body">Data Table 컬럼 구성 전반적으로 적절. rst(검토상태) 필드 목록 표시 여부 재확인 필요. 모바일 카드 전환 기준 명시 요청.</div>
+            </div>
+          </div>
+        </div>
+        <div class="sdd-note" style="margin-top:4px;font-size:10.5px">현재 <strong>In Review</strong> 상태입니다. 검토 의견을 반영한 뒤 승인하거나, 수정 요청 사유를 입력하고 반려할 수 있습니다.</div>
+      </div>
+
+    </div><!-- end .sdd-body -->
+
+    <!-- Footer -->
+    <div class="sdd-footer">
+      <div class="sdd-footer-info">현재 상태 <strong>In Review</strong> · 검토자 박PM · 마감 2026-06-14</div>
+      <button class="sdd-fbtn close">닫기</button>
+      <button class="sdd-fbtn edit">수정</button>
+      <button class="sdd-fbtn comment">검토 의견</button>
+      <button class="sdd-fbtn reject">반려</button>
+      <button class="sdd-fbtn approve">승인</button>
+    </div>
+
+  </div><!-- end .sdd-drawer -->
+
+</div>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.sdd-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+  document.querySelectorAll('.sdd-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + id));
+}
+</script>
+</body>
+</html>

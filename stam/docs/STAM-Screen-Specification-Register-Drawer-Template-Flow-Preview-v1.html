@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM · Register Drawer Template Flow Preview v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<style>
+/* ──────────────────────────────────────────────────
+   STAM Register Drawer Template Flow Preview v1
+   Self-contained · 2026-06-14
+────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;font-family:inherit}
+html,body{overflow-y:auto;overflow-x:hidden}
+body{background:var(--bg-base);color:var(--t1);font-family:var(--font);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;text-wrap:pretty}
+a{color:inherit;text-decoration:none}
+code{font-family:var(--mono,var(--font));font-size:.875em;padding:2px 6px;background:var(--bg-sur2);border-radius:3px;color:var(--t2);border:1px solid var(--bd)}
+strong{font-weight:600}
+
+/* ── Shell ── */
+.kb-top{height:50px;display:flex;align-items:center;gap:10px;padding:0 20px;background:var(--bg-sur);border-bottom:1px solid var(--bd);position:fixed;top:0;left:0;right:0;z-index:200}
+.kb-top-logo{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--t1);flex-shrink:0}
+.kb-top-logo img{width:22px;height:22px;object-fit:contain}
+.kb-top-back{font-size:11px;color:var(--t3);padding:3px 9px;border-radius:5px;border:1px solid var(--bd);transition:all 120ms;flex-shrink:0}
+.kb-top-back:hover{color:var(--stam);border-color:rgba(84,81,232,.4);background:rgba(84,81,232,.06)}
+.kb-top-title{font-size:11.5px;font-weight:600;color:var(--t2);flex-shrink:0}
+.kb-top-pill{font-size:9.5px;font-weight:600;padding:2px 9px;border-radius:10px;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t3);display:flex;align-items:center;gap:4px;flex-shrink:0}
+.kb-top-pill .dot{width:5px;height:5px;border-radius:50%;background:var(--pass);flex-shrink:0}
+.kb-top-sp{flex:1}
+.kb-top-btn{font-size:11px;padding:5px 13px;border-radius:6px;border:1px solid var(--bd);background:transparent;color:var(--t2);cursor:pointer;font-family:var(--font);font-weight:600;transition:all 120ms}
+.kb-top-btn:hover{background:var(--bg-sur2);color:var(--t1)}
+.kb-shell{display:flex;min-height:calc(100vh - 50px);margin-top:50px;align-items:flex-start}
+.kb-toc{width:220px;flex-shrink:0;border-right:1px solid var(--bd);background:var(--bg-side,var(--bg-sur));overflow-y:auto;scrollbar-width:thin;padding-bottom:48px;position:sticky;top:50px;height:calc(100vh - 50px)}
+.kb-toc-hdr{padding:14px 14px 10px;border-bottom:1px solid var(--bd);margin-bottom:3px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.kb-toc-brand{font-size:11px;font-weight:700;color:var(--t1)}
+.kb-toc-ver{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(84,81,232,.14);color:var(--stam);border:1px solid rgba(84,81,232,.2)}
+.kb-toc-list{display:flex;flex-direction:column;gap:1px;padding:4px 7px}
+.kb-toc-a{display:flex;align-items:center;gap:6px;padding:5px 9px;border-radius:5px;font-size:10.5px;color:var(--t3);cursor:pointer;transition:background 100ms,color 100ms;user-select:none}
+.kb-toc-a:hover{background:rgba(255,255,255,.05);color:var(--t2)}
+.kb-toc-a.active{background:rgba(84,81,232,.12);color:var(--stam)}
+.kb-toc-n{font-size:7.5px;font-weight:700;padding:2px 4px;border-radius:3px;background:rgba(84,81,232,.1);color:var(--stam);min-width:20px;text-align:center;flex-shrink:0}
+.kb-toc-a.active .kb-toc-n{background:rgba(84,81,232,.22)}
+.kb-main{flex:1;min-width:0}
+.kb-main-inner{max-width:1100px;margin:0 auto;padding:26px 30px 80px}
+@media(max-width:960px){.kb-main-inner{padding:20px 18px 60px}}
+
+/* ── Badges / Sections ── */
+.sbadge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;border:1px solid;white-space:nowrap}
+.sbadge.done{background:rgba(34,197,94,.1);color:var(--pass);border-color:rgba(34,197,94,.25)}
+.sbadge.lock{background:rgba(100,116,139,.1);color:var(--t2);border-color:rgba(100,116,139,.2)}
+.sbadge.plan{background:rgba(245,158,11,.1);color:var(--warn);border-color:rgba(245,158,11,.25)}
+.sbadge.guide{background:rgba(84,81,232,.1);color:var(--stam);border-color:rgba(84,81,232,.2)}
+.kb-hero{background:linear-gradient(135deg,rgba(84,81,232,.1),rgba(139,127,248,.03));border:1px solid rgba(84,81,232,.22);border-radius:14px;padding:28px 32px 24px;display:flex;flex-direction:column;gap:14px;margin-bottom:22px}
+.kb-hero-sup{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--stam)}
+.kb-hero-row{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.kb-hero-title{font-size:22px;font-weight:700;color:var(--t1);line-height:1.2}
+.kb-hero-badges{display:flex;flex-wrap:wrap;gap:6px}
+.kb-hero-quote{font-size:13px;color:var(--t2);line-height:1.85;border-left:3px solid rgba(84,81,232,.45);padding-left:16px}
+.kb-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
+@media(max-width:900px){.kb-stats{grid-template-columns:repeat(3,1fr)}}
+.kb-stat{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:4px}
+.kb-stat.accent{border-color:rgba(84,81,232,.3);background:rgba(84,81,232,.07)}
+.kb-stat-n{font-size:20px;font-weight:700;color:var(--t1);line-height:1}
+.kb-stat.accent .kb-stat-n{color:var(--stam)}
+.kb-stat-l{font-size:11px;font-weight:600;color:var(--t2);margin-top:2px}
+.kb-stat-d{font-size:10px;color:var(--t3)}
+.kb-sec{background:var(--bg-sur);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.kb-sec-hdr{display:flex;align-items:center;gap:9px;padding:11px 18px;background:var(--bg-sur2);border-bottom:1px solid var(--bd)}
+.kb-sec-n{font-size:8.5px;font-weight:700;padding:2px 7px;border-radius:3px;background:rgba(84,81,232,.14);color:var(--stam);letter-spacing:.05em;flex-shrink:0}
+.kb-sec-title{font-size:13px;font-weight:700;color:var(--t1);flex:1}
+.kb-sec-body{padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.kb-note{padding:10px 14px;border-radius:7px;font-size:12.5px;line-height:1.75}
+.kb-note.info{background:rgba(84,81,232,.06);border:1px solid rgba(84,81,232,.2);color:var(--t2)}
+.kb-note.info strong{color:var(--stam)}
+.kb-note.warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.22);color:var(--t2)}
+.kb-note.warn strong{color:var(--warn)}
+.kb-note.fail{background:rgba(255,66,66,.06);border:1px solid rgba(255,66,66,.2);color:var(--t2)}
+.kb-note.fail strong{color:var(--fail)}
+.kb-note.pass{background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.2);color:var(--t2)}
+.kb-note.pass strong{color:var(--pass)}
+.kb-sh{font-size:11.5px;font-weight:700;color:var(--t2);display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.kb-sh::before{content:'';display:inline-block;width:3px;height:13px;background:var(--stam);border-radius:2px;flex-shrink:0}
+.kb-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+@media(max-width:680px){.kb-2col{grid-template-columns:1fr}}
+.kb-tbl-wrap{border:1px solid var(--bd);border-radius:9px;overflow:auto}
+.kb-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.kb-tbl th{padding:7px 10px;text-align:left;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2);white-space:nowrap}
+.kb-tbl td{padding:8px 10px;border-bottom:1px solid var(--bd);vertical-align:middle;color:var(--t2);line-height:1.55}
+.kb-tbl td:first-child{color:var(--t3);font-weight:700;font-size:11px}
+.kb-tbl tr:last-child td{border-bottom:none}
+.kb-qa-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
+.kb-qa-item{display:flex;align-items:flex-start;gap:8px;padding:9px 11px;background:var(--bg-sur2);border:1px solid var(--bd);border-radius:6px;font-size:12.5px;color:var(--t2);line-height:1.5}
+.kb-qa-chk{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--bd);flex-shrink:0;margin-top:2px}
+.kb-tag-list{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.kb-tag{padding:6px 10px;background:var(--bg-sur2);border:1px solid var(--bd);border-radius:5px;font-size:12px;color:var(--t2)}
+
+/* ── Flow Steps ── */
+.flow-steps{display:flex;flex-direction:column;gap:0}
+.flow-step{display:grid;grid-template-columns:36px 1fr;position:relative}
+.flow-step:not(:last-child)::before{content:'';position:absolute;left:16px;top:36px;bottom:0;width:2px;background:var(--bd);z-index:0}
+.flow-n{width:32px;height:32px;border-radius:50%;background:rgba(84,81,232,.12);border:2px solid rgba(84,81,232,.28);display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;color:var(--stam);flex-shrink:0;position:relative;z-index:1;margin-top:2px}
+.flow-body{padding:0 0 16px 12px}
+.flow-title{font-size:12.5px;font-weight:700;color:var(--t1);padding-top:7px;margin-bottom:6px}
+.flow-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px 10px;font-size:11.5px}
+.flow-kv{display:flex;flex-direction:column;gap:2px}
+.flow-k{color:var(--t3);font-size:10px;font-weight:600}
+.flow-v{color:var(--t2);line-height:1.5}
+
+/* ── Mock UI ── */
+.mock-frame{background:var(--bg-base);border:1px solid var(--bd);border-radius:10px;overflow:hidden;font-size:12px;font-family:var(--font)}
+.mock-topbar{height:38px;display:flex;align-items:center;gap:10px;padding:0 12px;background:var(--bg-sur);border-bottom:1px solid var(--bd)}
+.mock-topbar-logo{font-size:10.5px;font-weight:700;color:var(--stam);padding:2px 7px;background:rgba(84,81,232,.12);border-radius:4px;flex-shrink:0}
+.mock-topbar-sp{flex:1}
+.mock-topbar-user{font-size:10px;color:var(--t3)}
+.mbtn{padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600;cursor:default;border:1px solid;display:inline-flex;align-items:center;gap:4px;font-family:var(--font);white-space:nowrap}
+.mbtn.primary{background:var(--stam);color:#fff;border-color:var(--stam)}
+.mbtn.ghost{background:var(--bg-sur2);color:var(--t2);border-color:var(--bd)}
+.mbtn.create{background:rgba(34,197,94,.1);color:var(--pass);border-color:rgba(34,197,94,.28)}
+.mbtn.outline{background:transparent;color:var(--t2);border-color:var(--bd)}
+.mbtn.stam-ol{background:rgba(84,81,232,.08);color:var(--stam);border-color:rgba(84,81,232,.28)}
+.mbtn.sm{padding:3px 8px;font-size:10px}
+.mchip{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:4px;display:inline-block;white-space:nowrap}
+.mchip.warn{background:rgba(245,158,11,.1);color:var(--warn);border:1px solid rgba(245,158,11,.25)}
+.mchip.stam{background:rgba(84,81,232,.1);color:var(--stam);border:1px solid rgba(84,81,232,.22)}
+.mchip.pass{background:rgba(34,197,94,.1);color:var(--pass);border:1px solid rgba(34,197,94,.25)}
+.mchip.fail{background:rgba(255,66,66,.08);color:var(--fail);border:1px solid rgba(255,66,66,.22)}
+.mock-input{padding:5px 8px;border:1px solid var(--bd);border-radius:4px;background:var(--bg-sur2);color:var(--t2);font-size:11.5px;cursor:default;width:100%;font-family:var(--font)}
+.mock-input.required{border-color:rgba(84,81,232,.3)}
+.mtbl{width:100%;border-collapse:collapse;font-size:11px;background:var(--bg-sur);border:1px solid var(--bd);border-radius:7px;overflow:hidden}
+.mtbl th{padding:6px 9px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2);white-space:nowrap}
+.mtbl td{padding:7px 9px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:middle}
+.mtbl tr:last-child td{border-bottom:none}
+.mtbl tr.sel td{background:rgba(84,81,232,.08)}
+
+/* ── Template Catalog ── */
+.tcat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.tcat-card{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:9px;padding:13px;cursor:default;display:flex;flex-direction:column;gap:6px;transition:border-color 100ms}
+.tcat-card.sel{border-color:rgba(84,81,232,.5);background:rgba(84,81,232,.07)}
+.tcat-card-type{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3)}
+.tcat-card.sel .tcat-card-type{color:var(--stam)}
+.tcat-card-name{font-size:12.5px;font-weight:700;color:var(--t1);line-height:1.4}
+.tcat-card-desc{font-size:11px;color:var(--t3);line-height:1.55}
+.tcat-card-tags{display:flex;flex-wrap:wrap;gap:4px}
+.tcat-card-tag{font-size:9.5px;padding:1px 6px;border-radius:3px;background:var(--bg-sur);border:1px solid var(--bd);color:var(--t3)}
+.tcat-card.sel .tcat-card-tag{background:rgba(84,81,232,.08);border-color:rgba(84,81,232,.18);color:var(--stam)}
+.tcat-sel-info{background:var(--bg-sur);border:1px solid rgba(84,81,232,.25);border-radius:9px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.tcat-sel-row{display:grid;grid-template-columns:110px 1fr;gap:6px;font-size:12px;line-height:1.55}
+.tcat-sel-k{color:var(--t3);font-weight:600}
+.tcat-sel-v{color:var(--t2)}
+.tcat-actions{display:flex;gap:7px;align-items:center}
+
+/* ── Register Drawer Layout ── */
+.reg-layout{display:flex;border:1px solid var(--bd);border-radius:10px;overflow:hidden;background:var(--bg-base)}
+.reg-bg{width:32%;flex-shrink:0;padding:12px;background:rgba(0,0,0,.2);display:flex;flex-direction:column;gap:6px;opacity:.55}
+.reg-panel{flex:1;background:var(--bg-sur);border-left:1px solid var(--bd);display:flex;flex-direction:column}
+.reg-hdr{padding:11px 14px;background:var(--bg-sur2);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.reg-hdr-title{font-size:13px;font-weight:700;color:var(--t1);flex:1}
+.reg-hdr-close{font-size:9.5px;color:var(--t3);padding:2px 7px;border:1px solid var(--bd);border-radius:4px;cursor:default}
+.reg-body{flex:1;padding:12px 14px;display:flex;flex-direction:column;gap:0}
+.reg-sec{border-bottom:1px solid var(--bd);padding:8px 0}
+.reg-sec:last-child{border-bottom:none}
+.reg-sec-hdr{display:flex;align-items:center;gap:7px;padding:5px 0;cursor:default}
+.reg-sec-n{font-size:8px;font-weight:700;padding:2px 5px;border-radius:3px;background:rgba(84,81,232,.12);color:var(--stam);min-width:20px;text-align:center;flex-shrink:0}
+.reg-sec-title{font-size:11.5px;font-weight:700;color:var(--t1);flex:1}
+.reg-sec-badge{font-size:9px;font-weight:600;padding:2px 6px;border-radius:3px;border:1px solid;white-space:nowrap}
+.reg-sec-badge.ok{background:rgba(34,197,94,.08);color:var(--pass);border-color:rgba(34,197,94,.22)}
+.reg-sec-badge.req{background:rgba(245,158,11,.08);color:var(--warn);border-color:rgba(245,158,11,.22)}
+.reg-sec-badge.opt{background:var(--bg-sur2);color:var(--t3);border-color:var(--bd)}
+.reg-sec-content{padding:6px 0 2px;font-size:11.5px;color:var(--t3)}
+.reg-footer{border-top:1px solid var(--bd);padding:10px 14px;background:var(--bg-sur2);display:flex;gap:6px;align-items:center}
+.reg-footer-sp{flex:1}
+
+/* ── Section Mini Mockup ── */
+.sec-mock{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:8px;padding:13px;display:flex;flex-direction:column;gap:8px}
+.sec-mock-title{font-size:10.5px;font-weight:700;color:var(--t2);display:flex;align-items:center;gap:6px;padding-bottom:7px;border-bottom:1px solid var(--bd)}
+.sec-mock-title::before{content:'';display:inline-block;width:3px;height:12px;background:var(--stam);border-radius:2px;flex-shrink:0}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.fitem{display:flex;flex-direction:column;gap:3px}
+.flabel{font-size:10px;color:var(--t3);font-weight:600}
+.flabel .req{color:var(--fail);margin-left:2px}
+.fhint{font-size:9.5px;color:var(--t3)}
+.ferr{font-size:9.5px;color:var(--fail);display:flex;align-items:center;gap:3px}
+.rule-list{display:flex;flex-direction:column;gap:4px}
+.rule-item{font-size:12px;color:var(--t2);padding:5px 9px;background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+.rule-item::before{content:'·';color:var(--stam);flex-shrink:0;font-weight:700}
+
+/* ── State Cards ── */
+.state-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.state-card{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:9px;overflow:hidden}
+.state-card-hdr{padding:8px 12px;font-size:10px;font-weight:700;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:7px}
+.state-card-hdr.s-warn{background:rgba(245,158,11,.07);color:var(--warn)}
+.state-card-hdr.s-pass{background:rgba(34,197,94,.07);color:var(--pass)}
+.state-card-hdr.s-fail{background:rgba(255,66,66,.06);color:var(--fail)}
+.state-card-hdr.s-info{background:rgba(84,81,232,.07);color:var(--stam)}
+.state-card-hdr.s-neutral{background:var(--bg-sur2);color:var(--t2)}
+.state-card-body{padding:9px 12px;display:flex;flex-direction:column;gap:4px}
+.state-row{display:grid;grid-template-columns:54px 1fr;gap:4px;font-size:11.5px;line-height:1.5}
+.state-k{color:var(--t3);font-size:10px;font-weight:600}
+.state-v{color:var(--t2)}
+
+/* ── Output Preview card ── */
+.output-card{background:var(--bg-sur2);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.output-hdr{display:flex;align-items:center;gap:9px;padding-bottom:9px;border-bottom:1px solid var(--bd)}
+.output-hdr-title{font-size:13px;font-weight:700;color:var(--t1);flex:1}
+.output-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.output-item{padding:6px 10px;background:var(--bg-sur);border:1px solid var(--bd);border-radius:5px;font-size:12px;color:var(--t2);display:flex;align-items:center;gap:6px}
+.output-item::before{content:'✓';font-size:10px;color:var(--pass);flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<header class="kb-top">
+  <div class="kb-top-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a href="STAM-Docs-Index.html" class="kb-top-back">← Docs</a>
+  <a href="STAM-Screen-Template-Top-3-Drawer-Preview-v1.html" class="kb-top-back">Top 3 Preview</a>
+  <span class="kb-top-title">Register Drawer Template Flow Preview v1</span>
+  <span class="kb-top-pill"><span class="dot"></span>Register Flow v1</span>
+  <span class="kb-top-pill"><span class="dot"></span>2026-06-14</span>
+  <div class="kb-top-sp"></div>
+  <button class="kb-top-btn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</header>
+
+<div class="kb-shell">
+  <!-- ── TOC ── -->
+  <aside class="kb-toc" id="kb-toc">
+    <div class="kb-toc-hdr">
+      <span class="kb-toc-brand">Register Flow</span>
+      <span class="kb-toc-ver">v1</span>
+    </div>
+    <nav class="kb-toc-list">
+      <a href="#s01" class="kb-toc-a active"><span class="kb-toc-n">01</span>Executive Summary</a>
+      <a href="#s02" class="kb-toc-a"><span class="kb-toc-n">02</span>Register Flow Overview</a>
+      <a href="#s03" class="kb-toc-a"><span class="kb-toc-n">03</span>Template Selection Entry</a>
+      <a href="#s04" class="kb-toc-a"><span class="kb-toc-n">04</span>Register Drawer Main</a>
+      <a href="#s05" class="kb-toc-a"><span class="kb-toc-n">05</span>§ 템플릿 요약</a>
+      <a href="#s06" class="kb-toc-a"><span class="kb-toc-n">06</span>§ 기본정보</a>
+      <a href="#s07" class="kb-toc-a"><span class="kb-toc-n">07</span>§ 필드 구성</a>
+      <a href="#s08" class="kb-toc-a"><span class="kb-toc-n">08</span>§ 액션 버튼</a>
+      <a href="#s09" class="kb-toc-a"><span class="kb-toc-n">09</span>§ 문구/검증</a>
+      <a href="#s10" class="kb-toc-a"><span class="kb-toc-n">10</span>§ 연결 화면</a>
+      <a href="#s11" class="kb-toc-a"><span class="kb-toc-n">11</span>§ 첨부 참고자료</a>
+      <a href="#s12" class="kb-toc-a"><span class="kb-toc-n">12</span>§ 검토 요청 정보</a>
+      <a href="#s13" class="kb-toc-a"><span class="kb-toc-n">13</span>Preview / Draft / Save / Review States</a>
+      <a href="#s14" class="kb-toc-a"><span class="kb-toc-n">14</span>Register vs Edit Mode</a>
+      <a href="#s15" class="kb-toc-a"><span class="kb-toc-n">15</span>Output Preview</a>
+      <a href="#s16" class="kb-toc-a"><span class="kb-toc-n">16</span>Accessibility Notes</a>
+      <a href="#s17" class="kb-toc-a"><span class="kb-toc-n">17</span>Cursor Notes</a>
+      <a href="#s18" class="kb-toc-a"><span class="kb-toc-n">18</span>QA Checklist</a>
+    </nav>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="kb-main" id="kb-main">
+    <div class="kb-main-inner">
+
+      <!-- Hero -->
+      <div class="kb-hero">
+        <span class="kb-hero-sup">STAM · Docs · Screen Template System · 2026-06-14</span>
+        <div class="kb-hero-row">
+          <h1 class="kb-hero-title">Screen Specification<br>Register Drawer<br>Template Flow Preview v1</h1>
+          <span class="sbadge done" style="font-size:11px;padding:4px 12px;">Register Flow Preview v1</span>
+        </div>
+        <div class="kb-hero-badges">
+          <span class="sbadge lock">Template-driven</span>
+          <span class="sbadge guide">Register Drawer</span>
+          <span class="sbadge guide">Field Editable</span>
+          <span class="sbadge plan">Copy Editable</span>
+          <span class="sbadge plan">Review Request</span>
+        </div>
+        <p class="kb-hero-quote">이 Preview는 화면설계서 작성자가 템플릿을 선택한 뒤 Drawer 안에서 기본정보, 필드, 액션, 문구, 연결 화면, 첨부 참고자료를 수정하고 저장 또는 검토요청까지 진행하는 흐름을 정의한다.</p>
+        <div class="kb-stats">
+          <div class="kb-stat accent"><span class="kb-stat-n">8</span><span class="kb-stat-l">Flow Steps</span><span class="kb-stat-d">선택부터 검토요청까지</span></div>
+          <div class="kb-stat accent"><span class="kb-stat-n">6</span><span class="kb-stat-l">Editable Areas</span><span class="kb-stat-d">기본정보/필드/액션/문구/연결/첨부</span></div>
+          <div class="kb-stat accent"><span class="kb-stat-n" style="font-size:13px;padding-top:5px;">Reg /<br>Edit</span><span class="kb-stat-l">Drawer Mode</span><span class="kb-stat-d">등록과 수정 공용 구조</span></div>
+          <div class="kb-stat"><span class="kb-stat-n" style="font-size:12px;padding-top:5px;">Screen<br>Draft</span><span class="kb-stat-l">Output</span><span class="kb-stat-d">화면설계서 초안 생성</span></div>
+          <div class="kb-stat"><span class="kb-stat-n" style="font-size:12px;padding-top:5px;">Detail<br>Result</span><span class="kb-stat-l">Next Step</span><span class="kb-stat-d">생성 결과 상세 Drawer 연결</span></div>
+        </div>
+      </div>
+
+      <!-- S01 -->
+      <section id="s01" class="kb-sec" data-screen-label="01 Executive Summary">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">01</span><span class="kb-sec-title">Executive Summary — 작성 흐름 개요</span><span class="sbadge done">기준</span></div>
+        <div class="kb-sec-body">
+          <ul style="margin:0;padding-left:20px;font-size:13px;color:var(--t2);line-height:2.3;">
+            <li>Register Drawer의 <strong>실제 작성 흐름</strong>을 8단계로 구체화한다.</li>
+            <li>사용자는 빈 화면을 처음부터 그리는 것이 아니라, <strong>템플릿을 선택해 초안을 생성</strong>한다.</li>
+            <li>화면명, 목적, 메뉴 경로, 필드, 액션, 문구, 연결 화면, 첨부 참고자료를 <strong>직접 수정</strong>한다.</li>
+            <li>템플릿의 <strong>핵심 구조는 유지</strong>하고, 실무 화면에 맞는 항목만 조정한다.</li>
+            <li>저장, 임시저장, 검토요청 흐름까지 포함한다. <strong>첨부파일은 참고자료로만 사용</strong>한다.</li>
+          </ul>
+          <div class="kb-note info"><strong>관련 문서:</strong>
+            <a href="STAM-Screen-Template-Top-3-Drawer-Preview-v1.html" style="color:var(--stam);text-decoration:underline;">Top 3 Drawer Preview v1</a> — 검색목록·상세Drawer·등록Drawer 핵심 3종 정적 시안. ·
+            <a href="STAM-Screen-Template-Top-10-Detail-Pack-v1.html" style="color:var(--stam);text-decoration:underline;">Top 10 Detail Pack v1</a> — 초기 적용 범위 10종 상세 정의 포함. ·
+            <a href="STAM-Screen-Specification-Visual-Annotation-Template-Preview-v1.html" style="color:var(--stam);text-decoration:underline;">Visual Annotation Template Preview v1</a> — 좌측 UI 목업 + 번호 마커 + 우측 Description 패널 구조 포함.
+          </div>
+        </div>
+      </section>
+
+      <!-- S02 -->
+      <section id="s02" class="kb-sec" data-screen-label="02 Register Flow Overview">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">02</span><span class="kb-sec-title">Register Flow Overview — 템플릿 기반 작성 9단계 흐름</span><span class="sbadge guide">9단계</span></div>
+        <div class="kb-sec-body">
+          <div class="flow-steps">
+            <div class="flow-step"><div class="flow-n">1</div><div class="flow-body"><div class="flow-title">템플릿 카탈로그 진입</div><div class="flow-grid"><div class="flow-kv"><span class="flow-k">사용자 행동</span><span class="flow-v">「+ 템플릿으로 작성」 클릭</span></div><div class="flow-kv"><span class="flow-k">시스템 반응</span><span class="flow-v">템플릿 카탈로그 오픈</span></div><div class="flow-kv"><span class="flow-k">사용 데이터</span><span class="flow-v">배포된 템플릿 목록</span></div><div class="flow-kv"><span class="flow-k">다음 이동</span><span class="flow-v">템플릿 선택 단계</span></div><div class="flow-kv"><span class="flow-k">주의사항</span><span class="flow-v">권한 없는 역할은 버튼 비활성</span></div></div></div></div>
+            <div class="flow-step"><div class="flow-n">2</div><div class="flow-body"><div class="flow-title">템플릿 선택</div><div class="flow-grid"><div class="flow-kv"><span class="flow-k">사용자 행동</span><span class="flow-v">템플릿 카드 클릭 후 선택</span></div><div class="flow-kv"><span class="flow-k">시스템 반응</span><span class="flow-v">선택 강조, 템플릿 정보 표시</span></div><div class="flow-kv"><span class="flow-k">사용 데이터</span><span class="flow-v">템플릿 정의 데이터</span></div><div class="flow-kv"><span class="flow-k">다음 이동</span><span class="flow-v">Register Drawer 열림</span></div><div class="flow-kv"><span class="flow-k">주의사항</span><span class="flow-v">한 번에 하나의 템플릿만 선택</span></div></div></div></div>
+            <div class="flow-step"><div class="flow-n">3</div><div class="flow-body"><div class="flow-title">Register Drawer 열림</div><div class="flow-grid"><div class="flow-kv"><span class="flow-k">사용자 행동</span><span class="flow-v">「이 템플릿으로 작성」 클릭</span></div><div class="flow-kv"><span class="flow-k">시스템 반응</span><span class="flow-v">Drawer 오픈, 초기값 로드</span></div><div class="flow-kv"><span class="flow-k">사용 데이터</span><span class="flow-v">템플릿 기본 구조 데이터</span></div><div class="flow-kv"><span class="flow-k">다음 이동</span><span class="flow-v">기본정보 입력 단계</span></div><div class="flow-kv"><span class="flow-k">주의사항</span><span class="flow-v">초점은 화면명 입력 필드로 이동</span></div></div></div></div>
+            <div class="flow-step"><div class="flow-n">4</div><div class="flow-body"><div class="flow-title">기본정보 입력</div><div class="flow-grid"><div class="flow-kv"><span class="flow-k">사용자 행동</span><span class="flow-v">화면명·목적·메뉴경로 입력</span></div><div class="flow-kv"><span class="flow-k">시스템 반응</span><span class="flow-v">임시저장 활성화</span></div><div class="flow-kv"><span class="flow-k">사용 데이터</span><span class="flow-v">화면명, 목적, 메뉴경로, 유형</span></div><div class="flow-kv"><span class="flow-k">다음 이동</span><span class="flow-v">필드 구성 수정</span></div><div class="flow-kv"><span class="flow-k">주의사항</span><span class="flow-v">화면명, 목적, 경로는 필수값</span></div></div></div></div>
+            <div class="flow-step"><div class="flow-n">5</div><div class="flow-body"><div class="flow-title">필드 구성 수정</div><div class="flow-grid"><div class="flow-kv"><span class="flow-k">사용자 행동</span><span class="flow-v">필드명·필수·순서 수정</span></div><div class="flow-kv"><span class="flow-k">시스템 반응</span><span class="flow-v">필드 테이블 갱신</span></div><div class="flow-kv"><span class="flow-k">사용 데이터</span><span class="flow-v">템플릿 기본 필드 목록</span></div><div class="flow-kv"><span class="flow-k">다음 이동</span><span class="flow-v">액션/문구 수정</span></div><div class="flow-kv"><span class="flow-k">주의사항</span><span class="flow-v">기본 필드는 삭제보다 숨김 권장</span></div></div></div></div>
+            <div class="flow-step"><div class="flow-n">6</div><div class="flow-body"><div class="flow-title">액션/문구/검증 수정</div><div class="flow-grid"><div class="flow-kv"><span class="flow-k">사용자 행동</span><span class="flow-v">버튼명·문구·오류 메시지 수정</span></div><div class="flow-kv"><span class="flow-k">시스템 반응</span><span class="flow-v">미리보기 반영</span></div><div class="flow-kv"><span class="flow-k">사용 데이터</span><span class="flow-v">템플릿 기본 문구 세트</span></div><div class="flow-kv"><span class="flow-k">다음 이동</span><span class="flow-v">연결 화면·첨부 지정</span></div><div class="flow-kv"><span class="flow-k">주의사항</span><span class="flow-v">국내 업무형 문구 기준 준수</span></div></div></div></div>
+            <div class="flow-step"><div class="flow-n">7</div><div class="flow-body"><div class="flow-title">연결 화면 / 첨부 참고자료 지정</div><div class="flow-grid"><div class="flow-kv"><span class="flow-k">사용자 행동</span><span class="flow-v">연결 화면 지정, 첨부 추가</span></div><div class="flow-kv"><span class="flow-k">시스템 반응</span><span class="flow-v">연결 목록 업데이트</span></div><div class="flow-kv"><span class="flow-k">사용 데이터</span><span class="flow-v">화면설계서 목록, 파일</span></div><div class="flow-kv"><span class="flow-k">다음 이동</span><span class="flow-v">저장/임시저장</span></div><div class="flow-kv"><span class="flow-k">주의사항</span><span class="flow-v">첨부는 참고자료 — 구조 대체 금지</span></div></div></div></div>
+            <div class="flow-step"><div class="flow-n">8</div><div class="flow-body"><div class="flow-title">미리보기 확인</div><div class="flow-grid"><div class="flow-kv"><span class="flow-k">사용자 행동</span><span class="flow-v">하단 「미리보기」 버튼 클릭</span></div><div class="flow-kv"><span class="flow-k">시스템 반응</span><span class="flow-v">현재 입력값 기반 번호 주석형 Preview 표시</span></div><div class="flow-kv"><span class="flow-k">사용 데이터</span><span class="flow-v">저장 전 임시 렌더링 데이터</span></div><div class="flow-kv"><span class="flow-k">다음 이동</span><span class="flow-v">계속 작성 또는 임시저장/저장/검토요청</span></div><div class="flow-kv"><span class="flow-k">주의사항</span><span class="flow-v">필수값 미충족 시에도 Preview 가능 · 누락 항목 경고 병행 표시</span></div></div></div></div>
+            <div class="flow-step"><div class="flow-n">9</div><div class="flow-body"><div class="flow-title">임시저장 / 저장 / 검토요청</div><div class="flow-grid"><div class="flow-kv"><span class="flow-k">사용자 행동</span><span class="flow-v">하단 액션 클릭</span></div><div class="flow-kv"><span class="flow-k">시스템 반응</span><span class="flow-v">저장 완료 + 이력 기록</span></div><div class="flow-kv"><span class="flow-k">사용 데이터</span><span class="flow-v">입력된 전체 초안 데이터</span></div><div class="flow-kv"><span class="flow-k">다음 이동</span><span class="flow-v">상세 Drawer 또는 목록 복귀</span></div><div class="flow-kv"><span class="flow-k">주의사항</span><span class="flow-v">검토요청 전 필수값 전체 검증</span></div></div></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S03 Template Selection -->
+      <section id="s03" class="kb-sec" data-screen-label="03 Template Selection Entry Preview">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">03</span><span class="kb-sec-title">Template Selection Entry Preview — 템플릿 선택 진입 시안</span><span class="sbadge guide">카탈로그</span></div>
+        <div class="kb-sec-body">
+          <div class="kb-note info"><strong>진입 기준:</strong> 목록 화면에서 「+ 템플릿으로 작성」 클릭 시 카탈로그 모달 또는 페이지가 표시된다. 한 번에 하나의 템플릿을 선택한다.</div>
+
+          <div class="tcat-grid">
+            <div class="tcat-card sel">
+              <div class="tcat-card-type">★ 선택됨 · 목록/검색</div>
+              <div class="tcat-card-name">검색조건 + 결과 테이블 목록</div>
+              <div class="tcat-card-desc">검색 조건과 결과 테이블이 중심인 가장 기본적인 관리자 목록 화면</div>
+              <div class="tcat-card-tags"><span class="tcat-card-tag">요구사항</span><span class="tcat-card-tag">화면설계서</span><span class="tcat-card-tag">WBS</span><span class="tcat-card-tag">산출물</span></div>
+            </div>
+            <div class="tcat-card">
+              <div class="tcat-card-type">목록/상세</div>
+              <div class="tcat-card-name">목록 + 상세 Drawer</div>
+              <div class="tcat-card-desc">목록 컨텍스트를 유지하면서 우측 Drawer로 상세 정보를 확인하는 구조</div>
+              <div class="tcat-card-tags"><span class="tcat-card-tag">화면설계서</span><span class="tcat-card-tag">공지사항</span></div>
+            </div>
+            <div class="tcat-card">
+              <div class="tcat-card-type">입력형</div>
+              <div class="tcat-card-name">등록/수정 Drawer</div>
+              <div class="tcat-card-desc">신규 데이터 등록 또는 기존 데이터 수정을 위한 폼 기반 입력 Drawer</div>
+              <div class="tcat-card-tags"><span class="tcat-card-tag">등록</span><span class="tcat-card-tag">수정</span></div>
+            </div>
+          </div>
+
+          <div class="tcat-sel-info">
+            <div class="tcat-sel-row"><span class="tcat-sel-k">템플릿명</span><span class="tcat-sel-v" style="font-weight:600;color:var(--t1);">검색조건 + 결과 테이블 목록</span></div>
+            <div class="tcat-sel-row"><span class="tcat-sel-k">템플릿 ID</span><span class="tcat-sel-v"><code>TPL-LIST-SEARCH-001</code></span></div>
+            <div class="tcat-sel-row"><span class="tcat-sel-k">화면 유형</span><span class="tcat-sel-v">목록/검색</span></div>
+            <div class="tcat-sel-row"><span class="tcat-sel-k">기본 제공 섹션</span><span class="tcat-sel-v">검색 조건 · 결과 테이블 · 상태 요약 · 액션 버튼</span></div>
+            <div class="tcat-sel-row"><span class="tcat-sel-k">수정 가능 항목</span><span class="tcat-sel-v">필드명 · 필수 여부 · 버튼명 · 안내 문구 · 연결 화면</span></div>
+            <div style="font-size:11.5px;color:var(--t3);padding:4px 0;">선택한 템플릿을 기준으로 화면설계서 초안을 생성합니다. 템플릿 구조는 유지되며, 필드와 문구는 작성자가 수정할 수 있습니다.</div>
+            <div class="tcat-actions">
+              <span class="mbtn outline">미리보기</span>
+              <span class="mbtn create">이 템플릿으로 작성</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S04 Register Drawer Main -->
+      <section id="s04" class="kb-sec" data-screen-label="04 Register Drawer Main Preview">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">04</span><span class="kb-sec-title">Register Drawer Main Preview — 전체 Drawer 구조 시안</span><span class="sbadge done">TPL-003</span></div>
+        <div class="kb-sec-body">
+          <div class="kb-note info"><strong>Drawer 기준:</strong> 우측에서 열린 넓은 패널 · 8개 섹션 구분 · 하단 액션바 항상 표시 · 배경 목록은 반투명 유지.</div>
+
+          <div class="reg-layout">
+            <!-- Background list (dimmed) -->
+            <div class="reg-bg">
+              <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:4px;">화면설계서 목록</div>
+              <table class="mtbl" style="opacity:.6">
+                <thead><tr><th>상태</th><th>화면명</th><th>수정일</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="mchip warn">작성중</span></td><td>요구사항 목록</td><td>2026-06-10</td></tr>
+                  <tr><td><span class="mchip stam">검토요청</span></td><td>요구사항 상세</td><td>2026-06-11</td></tr>
+                  <tr><td><span class="mchip pass">승인</span></td><td>화면설계서 목록</td><td>2026-06-12</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Register Drawer Panel -->
+            <div class="reg-panel">
+              <div class="reg-hdr">
+                <span class="reg-hdr-title">템플릿으로 화면설계서 작성</span>
+                <span class="mchip stam" style="font-size:9px;">TPL-LIST-SEARCH-001</span>
+                <span class="mchip warn">작성중</span>
+                <span class="reg-hdr-close">✕ 닫기</span>
+              </div>
+              <div class="reg-body">
+
+                <div class="reg-sec">
+                  <div class="reg-sec-hdr"><span class="reg-sec-n">1</span><span class="reg-sec-title">템플릿 요약</span><span class="reg-sec-badge opt">조회</span></div>
+                  <div class="reg-sec-content">검색조건 + 결과 테이블 목록 · 검색 조건, 결과 테이블, 상태 요약, 액션 버튼 제공</div>
+                </div>
+
+                <div class="reg-sec">
+                  <div class="reg-sec-hdr"><span class="reg-sec-n">2</span><span class="reg-sec-title">기본정보</span><span class="reg-sec-badge req">필수 입력</span></div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px 0;">
+                    <div class="fitem"><div class="flabel">화면명<span class="req">*</span></div><input class="mock-input required" value="요구사항 목록" readonly></div>
+                    <div class="fitem"><div class="flabel">메뉴 경로<span class="req">*</span></div><input class="mock-input required" value="요구사항 > 요구사항 목록" readonly></div>
+                    <div class="fitem" style="grid-column:1/-1;"><div class="flabel">화면 목적<span class="req">*</span></div><input class="mock-input required" value="프로젝트 요구사항을 조건별로 조회하고 상세 내용을 확인합니다." readonly></div>
+                  </div>
+                </div>
+
+                <div class="reg-sec">
+                  <div class="reg-sec-hdr"><span class="reg-sec-n">3</span><span class="reg-sec-title">필드 구성</span><span class="reg-sec-badge ok">4개 필드</span></div>
+                  <div class="reg-sec-content">검색어 · 상태 · 담당자 · 등록일 기간 <span style="color:var(--stam);font-size:10px;margin-left:6px;">+ 필드 추가</span></div>
+                </div>
+
+                <div class="reg-sec">
+                  <div class="reg-sec-hdr"><span class="reg-sec-n">4</span><span class="reg-sec-title">액션 버튼</span><span class="reg-sec-badge ok">4개 액션</span></div>
+                  <div class="reg-sec-content">조회 · 초기화 · 등록 · 엑셀 다운로드</div>
+                </div>
+
+                <div class="reg-sec">
+                  <div class="reg-sec-hdr"><span class="reg-sec-n">5</span><span class="reg-sec-title">문구 / 검증</span><span class="reg-sec-badge ok">설정됨</span></div>
+                  <div class="reg-sec-content">빈 결과: 조회 결과가 없습니다. · 필수오류: 필수 항목을 입력해 주세요.</div>
+                </div>
+
+                <div class="reg-sec">
+                  <div class="reg-sec-hdr"><span class="reg-sec-n">6</span><span class="reg-sec-title">연결 화면</span><span class="reg-sec-badge ok">2개 연결</span></div>
+                  <div class="reg-sec-content">상세 조회 Drawer · 등록/수정 Drawer</div>
+                </div>
+
+                <div class="reg-sec">
+                  <div class="reg-sec-hdr"><span class="reg-sec-n">7</span><span class="reg-sec-title">첨부 참고자료</span><span class="reg-sec-badge opt">선택</span></div>
+                  <div class="reg-sec-content" style="color:var(--t3);">첨부파일은 참고자료로만 사용됩니다. 화면 구조를 대체하지 않습니다.</div>
+                </div>
+
+                <div class="reg-sec">
+                  <div class="reg-sec-hdr"><span class="reg-sec-n">8</span><span class="reg-sec-title">검토 요청 정보</span><span class="reg-sec-badge opt">선택</span></div>
+                  <div class="reg-sec-content">검토자 · 요청 메시지 · 희망 완료일 · 우선순위</div>
+                </div>
+
+              </div>
+              <div class="reg-footer">
+                <span class="mbtn ghost">취소</span>
+                <div class="reg-footer-sp"></div>
+                <span class="mbtn outline">임시저장</span>
+                <span class="mbtn outline" style="color:var(--stam);border-color:rgba(84,81,232,.4);background:rgba(84,81,232,.06);">미리보기</span>
+                <span class="mbtn primary">저장</span>
+                <span class="mbtn stam-ol">검토요청</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S05 템플릿 요약 -->
+      <section id="s05" class="kb-sec" data-screen-label="05 Section Detail 템플릿 요약">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">05</span><span class="kb-sec-title">Section Detail — 템플릿 요약</span><span class="sbadge lock">조회 전용</span></div>
+        <div class="kb-sec-body">
+          <div class="sec-mock">
+            <div class="sec-mock-title">§1 · 템플릿 요약</div>
+            <div class="kb-tbl-wrap">
+              <table class="kb-tbl">
+                <tbody>
+                  <tr><td>템플릿명</td><td>검색조건 + 결과 테이블 목록</td></tr>
+                  <tr><td>템플릿 ID</td><td><code>TPL-LIST-SEARCH-001</code></td></tr>
+                  <tr><td>화면 유형</td><td>목록/검색</td></tr>
+                  <tr><td>국내 업무형 분류</td><td>조회형 — 검색 조건 + 결과 테이블</td></tr>
+                  <tr><td>적용 가능 메뉴</td><td>요구사항, 화면설계서, WBS, 산출물 관리</td></tr>
+                  <tr><td>기본 제공 섹션</td><td>검색 조건 · 결과 테이블 · 상태 요약 · 액션 버튼</td></tr>
+                  <tr><td>작성자 수정 가능</td><td>필드명, 필수 여부, 버튼명, 안내 문구, 연결 화면</td></tr>
+                  <tr><td>관리자 관리 항목</td><td>기본 검색 조건 구성, 결과 컬럼 정의, 권한 기본값</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="kb-note info"><strong>원칙:</strong> 이 섹션은 읽기 전용이다. 작성자는 템플릿 구조를 변경할 수 없고, 선택만 할 수 있다. 변경이 필요하면 관리자에게 요청한다.</div>
+        </div>
+      </section>
+
+      <!-- S06 기본정보 -->
+      <section id="s06" class="kb-sec" data-screen-label="06 Section Detail 기본정보">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">06</span><span class="kb-sec-title">Section Detail — 기본정보</span><span class="sbadge plan">필수 입력</span></div>
+        <div class="kb-sec-body">
+          <div class="sec-mock">
+            <div class="sec-mock-title">§2 · 기본정보 입력</div>
+            <div class="fgrid">
+              <div class="fitem"><div class="flabel">화면명<span class="req">*</span></div><input class="mock-input required" value="요구사항 목록" readonly><div class="fhint">실제 메뉴명과 일치하도록 작성해 주세요.</div></div>
+              <div class="fitem"><div class="flabel">화면 ID</div><input class="mock-input" value="SCR-REQ-001" readonly style="color:var(--t3);"><div class="fhint">시스템 자동 부여</div></div>
+              <div class="fitem" style="grid-column:1/-1;"><div class="flabel">화면 목적<span class="req">*</span></div><input class="mock-input required" value="프로젝트 요구사항을 조건별로 조회하고 상세 내용을 확인합니다." readonly><div class="fhint">사용자가 이 화면에서 수행하는 업무를 기준으로 작성합니다.</div></div>
+              <div class="fitem"><div class="flabel">메뉴 경로<span class="req">*</span></div><input class="mock-input required" value="요구사항 > 요구사항 목록" readonly></div>
+              <div class="fitem"><div class="flabel">화면 유형</div><input class="mock-input" value="검색조건 + 결과 테이블" readonly style="color:var(--t3);"><div class="fhint">템플릿 기준 (고정)</div></div>
+              <div class="fitem"><div class="flabel">업무 영역</div><input class="mock-input" placeholder="요구사항 관리" readonly></div>
+              <div class="fitem"><div class="flabel">작성자</div><input class="mock-input" value="박설계" readonly style="color:var(--t3);"><div class="fhint">로그인 계정 자동 입력</div></div>
+              <div class="fitem"><div class="flabel">검토자</div><input class="mock-input" placeholder="검토자 선택" readonly></div>
+            </div>
+          </div>
+          <div class="rule-list">
+            <div class="rule-item">화면명은 실제 메뉴명과 일치하도록 작성한다.</div>
+            <div class="rule-item">화면 목적은 사용자가 이 화면에서 수행하는 업무 기준으로 작성한다.</div>
+            <div class="rule-item">화면 ID는 시스템이 자동 부여하며 작성자가 변경할 수 없다.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S07 필드 구성 -->
+      <section id="s07" class="kb-sec" data-screen-label="07 Section Detail 필드 구성">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">07</span><span class="kb-sec-title">Section Detail — 필드 구성</span><span class="sbadge plan">수정 가능</span></div>
+        <div class="kb-sec-body">
+          <div class="sec-mock">
+            <div class="sec-mock-title">§3 · 필드 구성</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;"><span style="font-size:11px;color:var(--t3);">검색 조건 필드</span><span class="mbtn create sm">+ 필드 추가</span></div>
+            <table class="mtbl">
+              <thead><tr><th>#</th><th>필드명</th><th>필드 유형</th><th>표시 위치</th><th>필수</th><th>노출</th><th>도움말</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>검색어</td><td>text</td><td>검색 조건</td><td><span class="mchip warn" style="font-size:9px;">선택</span></td><td><span class="mchip pass" style="font-size:9px;">노출</span></td><td>화면명 또는 메뉴 경로</td><td><span class="mbtn ghost sm">수정</span></td></tr>
+                <tr><td>2</td><td>상태</td><td>select</td><td>검색 조건</td><td><span class="mchip warn" style="font-size:9px;">선택</span></td><td><span class="mchip pass" style="font-size:9px;">노출</span></td><td>전체/작성중/검토요청/승인</td><td><span class="mbtn ghost sm">수정</span></td></tr>
+                <tr><td>3</td><td>담당자</td><td>user-search</td><td>검색 조건</td><td><span class="mchip warn" style="font-size:9px;">선택</span></td><td><span class="mchip pass" style="font-size:9px;">노출</span></td><td>담당자 검색</td><td><span class="mbtn ghost sm">수정</span></td></tr>
+                <tr><td>4</td><td>등록일 기간</td><td>date-range</td><td>검색 조건</td><td><span class="mchip warn" style="font-size:9px;">선택</span></td><td><span class="mchip pass" style="font-size:9px;">노출</span></td><td>시작일 ~ 종료일</td><td><span class="mbtn ghost sm">수정</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="rule-list">
+            <div class="rule-item">필드명은 사용자에게 표시되는 이름이다.</div>
+            <div class="rule-item">필수 필드는 저장 전 검증된다.</div>
+            <div class="rule-item">템플릿 기본 필드는 삭제보다 숨김 처리를 권장한다.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S08 액션 버튼 -->
+      <section id="s08" class="kb-sec" data-screen-label="08 Section Detail 액션 버튼">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">08</span><span class="kb-sec-title">Section Detail — 액션 버튼</span><span class="sbadge plan">수정 가능</span></div>
+        <div class="kb-sec-body">
+          <div class="sec-mock">
+            <div class="sec-mock-title">§4 · 액션 버튼 구성</div>
+            <table class="mtbl">
+              <thead><tr><th>#</th><th>버튼명</th><th>유형</th><th>위치</th><th>권한</th><th>연결 동작</th><th>노출</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>조회</td><td>primary</td><td>검색폼 우측</td><td>전체</td><td>목록 갱신</td><td><span class="mchip pass" style="font-size:9px;">노출</span></td></tr>
+                <tr><td>2</td><td>초기화</td><td>ghost</td><td>검색폼 우측</td><td>전체</td><td>조건 초기화</td><td><span class="mchip pass" style="font-size:9px;">노출</span></td></tr>
+                <tr><td>3</td><td>등록</td><td>create</td><td>상단 우측</td><td>작성자</td><td>등록 Drawer</td><td><span class="mchip pass" style="font-size:9px;">노출</span></td></tr>
+                <tr><td>4</td><td>엑셀 다운로드</td><td>outline</td><td>상단 우측</td><td>작성자</td><td>파일 다운로드</td><td><span class="mchip pass" style="font-size:9px;">노출</span></td></tr>
+                <tr><td>5</td><td>미리보기</td><td>preview</td><td>Drawer 하단 고정 액션바</td><td>작성자</td><td>번호 주석형 화면설계서 Preview 표시 (저장 전에도 가능)</td><td><span class="mchip pass" style="font-size:9px;">노출</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="rule-list">
+            <div class="rule-item">버튼명은 국내 업무 화면에서 익숙한 용어를 사용한다.</div>
+            <div class="rule-item">위험 액션은 확인 문구를 함께 설정한다.</div>
+            <div class="rule-item">권한이 없는 사용자는 해당 액션을 볼 수 없다.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S09 문구/검증 -->
+      <section id="s09" class="kb-sec" data-screen-label="09 Section Detail 문구 검증">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">09</span><span class="kb-sec-title">Section Detail — 문구 / 검증</span><span class="sbadge plan">수정 가능</span></div>
+        <div class="kb-sec-body">
+          <div class="sec-mock">
+            <div class="sec-mock-title">§5 · 문구 / 검증</div>
+            <div class="fgrid">
+              <div class="fitem"><div class="flabel">검색 안내</div><input class="mock-input" value="검색 조건을 입력한 후 조회해 주세요." readonly></div>
+              <div class="fitem"><div class="flabel">빈 결과</div><input class="mock-input" value="조회 결과가 없습니다." readonly></div>
+              <div class="fitem"><div class="flabel">필수값 오류</div><input class="mock-input" value="필수 항목을 입력해 주세요." readonly></div>
+              <div class="fitem"><div class="flabel">저장 확인</div><input class="mock-input" value="저장하시겠습니까?" readonly></div>
+              <div class="fitem"><div class="flabel">임시저장 완료</div><input class="mock-input" value="임시저장되었습니다." readonly></div>
+              <div class="fitem"><div class="flabel">검토요청 완료</div><input class="mock-input" value="검토 요청이 완료되었습니다." readonly></div>
+            </div>
+          </div>
+          <div class="kb-note fail"><strong>검증 규칙:</strong> 필수값 누락 · 날짜 역전 · 중복 화면명 · 연결 화면 미지정 · 첨부파일 설명 누락 시 저장 차단 또는 경고 표시.</div>
+        </div>
+      </section>
+
+      <!-- S10 연결 화면 -->
+      <section id="s10" class="kb-sec" data-screen-label="10 Section Detail 연결 화면">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">10</span><span class="kb-sec-title">Section Detail — 연결 화면</span><span class="sbadge plan">수정 가능</span></div>
+        <div class="kb-sec-body">
+          <div class="sec-mock">
+            <div class="sec-mock-title">§6 · 연결 화면</div>
+            <table class="mtbl">
+              <thead><tr><th>연결 유형</th><th>연결 화면명</th><th>메뉴 경로</th><th>연결 액션</th><th>필수</th></tr></thead>
+              <tbody>
+                <tr><td>상세 화면</td><td>요구사항 상세</td><td>요구사항 &gt; 상세</td><td>행 클릭</td><td><span class="mchip warn" style="font-size:9px;">필수</span></td></tr>
+                <tr><td>등록 화면</td><td>요구사항 등록</td><td>요구사항 &gt; 등록</td><td>등록 버튼</td><td><span class="mchip warn" style="font-size:9px;">필수</span></td></tr>
+                <tr><td>검토요청 화면</td><td>검토 요청함</td><td>내 업무 &gt; 검토 요청함</td><td>검토요청</td><td><span class="mchip warn" style="font-size:9px;">선택</span></td></tr>
+                <tr><td>관련 산출물</td><td>요구사항 산출물</td><td>산출물 &gt; 목록</td><td>링크</td><td><span class="mchip warn" style="font-size:9px;">선택</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="rule-list">
+            <div class="rule-item">연결 화면은 화면 간 이동 흐름을 설명하는 기준이다.</div>
+            <div class="rule-item">연결 화면이 아직 없으면 예정 화면으로 등록할 수 있다.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S11 첨부 참고자료 -->
+      <section id="s11" class="kb-sec" data-screen-label="11 Section Detail 첨부 참고자료">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">11</span><span class="kb-sec-title">Section Detail — 첨부 참고자료</span><span class="sbadge lock">참고자료 전용</span></div>
+        <div class="kb-sec-body">
+          <div class="kb-note fail"><strong>핵심 원칙:</strong> 첨부파일은 화면 구조를 대체하지 않는다. 기존 화면 캡처·회의자료·정책 문서로만 사용한다. 화면 구조는 템플릿 데이터와 작성자 수정값으로 관리한다.</div>
+          <div class="sec-mock">
+            <div class="sec-mock-title">§7 · 첨부 참고자료</div>
+            <table class="mtbl">
+              <thead><tr><th>파일명</th><th>유형</th><th>설명</th><th>참조 구분</th><th>등록자</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>요구사항_기획서_v1.pdf</td><td>PDF</td><td>화면 구조 참고</td><td>화면 구조 참고</td><td>박설계</td><td><div style="display:flex;gap:4px;"><span class="mbtn ghost sm">다운로드</span><span class="mbtn ghost sm">삭제</span></div></td></tr>
+                <tr><td>회의록_20260610.docx</td><td>DOCX</td><td>검토 의견 참고</td><td>검토 참고</td><td>박설계</td><td><div style="display:flex;gap:4px;"><span class="mbtn ghost sm">다운로드</span><span class="mbtn ghost sm">삭제</span></div></td></tr>
+              </tbody>
+            </table>
+            <div style="margin-top:7px;"><span class="mbtn outline sm">+ 첨부파일 추가</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S12 검토 요청 정보 -->
+      <section id="s12" class="kb-sec" data-screen-label="12 Section Detail 검토 요청 정보">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">12</span><span class="kb-sec-title">Section Detail — 검토 요청 정보</span><span class="sbadge plan">선택 입력</span></div>
+        <div class="kb-sec-body">
+          <div class="sec-mock">
+            <div class="sec-mock-title">§8 · 검토 요청 정보</div>
+            <div class="fgrid">
+              <div class="fitem"><div class="flabel">검토 요청 대상<span class="req">*</span></div><input class="mock-input" placeholder="검토자 선택" readonly></div>
+              <div class="fitem"><div class="flabel">희망 완료일</div><input class="mock-input" value="2026-06-20" readonly></div>
+              <div class="fitem" style="grid-column:1/-1;"><div class="flabel">검토 요청 메시지</div><input class="mock-input" value="요구사항 목록 화면설계서 초안입니다. 검토 부탁드립니다." readonly></div>
+              <div class="fitem"><div class="flabel">우선순위</div><input class="mock-input" value="보통" readonly></div>
+              <div class="fitem"><div class="flabel">보완 요청 수신</div><input class="mock-input" value="수신" readonly></div>
+            </div>
+          </div>
+          <div class="rule-list">
+            <div class="rule-item">검토 요청 전 필수 항목을 확인해 주세요.</div>
+            <div class="rule-item">검토 요청이 완료되면 상태가 「검토요청」으로 변경됩니다.</div>
+            <div class="rule-item">보완 요청이 오면 「작성중」 상태로 다시 수정할 수 있습니다.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S13 Save/Draft/Review States -->
+      <section id="s13" class="kb-sec" data-screen-label="13 Save Draft Review States">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">13</span><span class="kb-sec-title">Preview / Draft / Save / Review Request States — 미리보기 및 저장 상태별 UI</span><span class="sbadge guide">9 상태</span></div>
+        <div class="kb-sec-body">
+          <div class="state-grid">
+            <div class="state-card"><div class="state-card-hdr s-info">미리보기 확인</div><div class="state-card-body"><div class="state-row"><span class="state-k">사용자</span><span class="state-v">하단 「미리보기」 버튼 클릭</span></div><div class="state-row"><span class="state-k">시스템</span><span class="state-v">현재 입력값 기반 번호 주석형 화면설계서 Preview 표시. 저장되지 않은 값도 Preview에 반영.</span></div><div class="state-row"><span class="state-k">문구</span><span class="state-v">현재 입력한 내용을 기준으로 미리보기를 표시합니다. · 저장되지 않은 내용이 포함되어 있습니다.</span></div><div class="state-row"><span class="state-k">다음</span><span class="state-v">계속 작성 · 임시저장 · 저장 · 검토요청</span></div></div></div>
+            <div class="state-card"><div class="state-card-hdr s-warn"><span class="mchip warn" style="font-size:9px;">작성중</span>작성중</div><div class="state-card-body"><div class="state-row"><span class="state-k">사용자</span><span class="state-v">내용 입력 중</span></div><div class="state-row"><span class="state-k">시스템</span><span class="state-v">임시저장 활성화</span></div><div class="state-row"><span class="state-k">문구</span><span class="state-v">입력 중인 내용은 임시저장됩니다.</span></div><div class="state-row"><span class="state-k">다음</span><span class="state-v">임시저장 또는 저장</span></div></div></div>
+            <div class="state-card"><div class="state-card-hdr s-fail">필수값 오류</div><div class="state-card-body"><div class="state-row"><span class="state-k">사용자</span><span class="state-v">저장 클릭</span></div><div class="state-row"><span class="state-k">시스템</span><span class="state-v">오류 필드 강조</span></div><div class="state-row"><span class="state-k">문구</span><span class="state-v">필수 항목을 입력해 주세요.</span></div><div class="state-row"><span class="state-k">다음</span><span class="state-v">오류 수정 후 재시도</span></div></div></div>
+            <div class="state-card"><div class="state-card-hdr s-neutral">임시저장 완료</div><div class="state-card-body"><div class="state-row"><span class="state-k">사용자</span><span class="state-v">임시저장 클릭</span></div><div class="state-row"><span class="state-k">시스템</span><span class="state-v">진행 중 데이터 저장</span></div><div class="state-row"><span class="state-k">문구</span><span class="state-v">임시저장되었습니다.</span></div><div class="state-row"><span class="state-k">다음</span><span class="state-v">계속 작성 또는 닫기</span></div></div></div>
+            <div class="state-card"><div class="state-card-hdr s-pass">저장 완료</div><div class="state-card-body"><div class="state-row"><span class="state-k">사용자</span><span class="state-v">저장 클릭 + 확인</span></div><div class="state-row"><span class="state-k">시스템</span><span class="state-v">변경이력 기록, 상태 유지</span></div><div class="state-row"><span class="state-k">문구</span><span class="state-v">저장이 완료되었습니다.</span></div><div class="state-row"><span class="state-k">다음</span><span class="state-v">상세 Drawer 또는 목록 복귀</span></div></div></div>
+            <div class="state-card"><div class="state-card-hdr s-info">검토요청 전 확인</div><div class="state-card-body"><div class="state-row"><span class="state-k">사용자</span><span class="state-v">검토요청 클릭</span></div><div class="state-row"><span class="state-k">시스템</span><span class="state-v">확인 모달 표시</span></div><div class="state-row"><span class="state-k">문구</span><span class="state-v">검토 요청 전 필수 항목을 확인해 주세요.</span></div><div class="state-row"><span class="state-k">다음</span><span class="state-v">확인 또는 취소</span></div></div></div>
+            <div class="state-card"><div class="state-card-hdr s-pass"><span class="mchip stam" style="font-size:9px;">검토요청</span>검토요청 완료</div><div class="state-card-body"><div class="state-row"><span class="state-k">사용자</span><span class="state-v">확인 완료</span></div><div class="state-row"><span class="state-k">시스템</span><span class="state-v">상태 변경, 검토자 알림</span></div><div class="state-row"><span class="state-k">문구</span><span class="state-v">검토 요청이 완료되었습니다.</span></div><div class="state-row"><span class="state-k">다음</span><span class="state-v">목록 복귀 (수정 잠금)</span></div></div></div>
+            <div class="state-card"><div class="state-card-hdr s-warn"><span class="mchip warn2" style="font-size:9px;background:rgba(245,158,11,.06);color:#d97706;border:1px solid rgba(245,158,11,.2);">보완요청</span>보완요청 수신</div><div class="state-card-body"><div class="state-row"><span class="state-k">사용자</span><span class="state-v">알림 확인</span></div><div class="state-row"><span class="state-k">시스템</span><span class="state-v">상태 → 보완요청</span></div><div class="state-row"><span class="state-k">문구</span><span class="state-v">보완 요청 사유를 확인해 주세요.</span></div><div class="state-row"><span class="state-k">다음</span><span class="state-v">수정 후 재검토요청</span></div></div></div>
+            <div class="state-card"><div class="state-card-hdr s-info">수정 모드</div><div class="state-card-body"><div class="state-row"><span class="state-k">사용자</span><span class="state-v">기존 초안 수정</span></div><div class="state-row"><span class="state-k">시스템</span><span class="state-v">기존 값 로드, 이력 비교</span></div><div class="state-row"><span class="state-k">문구</span><span class="state-v">기존 내용을 수정합니다.</span></div><div class="state-row"><span class="state-k">다음</span><span class="state-v">저장 또는 재검토요청</span></div></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S14 Register vs Edit Mode -->
+      <section id="s14" class="kb-sec" data-screen-label="14 Register vs Edit Mode">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">14</span><span class="kb-sec-title">Register vs Edit Mode — 등록/수정 모드 비교</span><span class="sbadge guide">공용 Drawer</span></div>
+        <div class="kb-sec-body">
+          <div class="kb-tbl-wrap">
+            <table class="kb-tbl">
+              <thead><tr><th>항목</th><th>등록 모드</th><th>수정 모드</th><th>공통</th><th>주의사항</th></tr></thead>
+              <tbody>
+                <tr><td>Drawer 제목</td><td>템플릿으로 화면설계서 작성</td><td>화면설계서 수정</td><td>—</td><td>모드에 따라 제목 변경</td></tr>
+                <tr><td>기본값</td><td>템플릿 초기값 로드</td><td>기존 저장값 로드</td><td>—</td><td>수정 모드는 덮어쓰지 않음</td></tr>
+                <tr><td>템플릿 변경</td><td>가능 (선택 단계 복귀)</td><td>불가</td><td>—</td><td>수정 시 템플릿 고정</td></tr>
+                <tr><td>기존 값 표시</td><td>없음</td><td>이전 저장값 표시</td><td>—</td><td>변경 전/후 비교 가능</td></tr>
+                <tr><td>저장 동작</td><td>새 초안 생성</td><td>기존 초안 갱신</td><td>✓</td><td>모두 변경이력 기록</td></tr>
+                <tr><td>검토요청</td><td>가능 (저장 후)</td><td>가능 (재검토)</td><td>✓</td><td>필수값 검증 필요</td></tr>
+                <tr><td>변경이력 생성</td><td>초안 생성 이력</td><td>수정 이력</td><td>✓</td><td>자동 기록</td></tr>
+                <tr><td>첨부 유지</td><td>없음 (새로 추가)</td><td>기존 첨부 유지</td><td>—</td><td>참고자료로만 사용</td></tr>
+                <tr><td>연결 화면 유지</td><td>없음 (새로 설정)</td><td>기존 연결 유지</td><td>—</td><td>수정 가능</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- S15 Output Preview -->
+      <section id="s15" class="kb-sec" data-screen-label="15 Output Preview">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">15</span><span class="kb-sec-title">Output Preview — 생성되는 화면설계서 초안</span><span class="sbadge done">생성 결과</span></div>
+        <div class="kb-sec-body">
+          <div class="kb-note pass"><strong>생성 결과:</strong> 저장이 완료되면 화면설계서 초안이 생성됩니다. 생성된 초안은 상세 Drawer에서 확인할 수 있으며, 검토 요청 전까지 작성자가 수정할 수 있습니다.</div>
+          <div class="kb-note info"><strong>미리보기 연결:</strong> 미리보기는 저장 전 현재 입력값을 기반으로 생성된다. 미리보기 결과는 번호 주석형 화면설계서 형태(Visual Annotation 구조)로 표시된다. 사용자는 미리보기에서 번호 마커와 Description 패널을 확인한 뒤 다시 Drawer로 돌아와 수정할 수 있다. 미리보기는 실제 저장 데이터가 아니라 임시 렌더링 결과다. 저장 후에는 Detail Drawer에서 동일한 결과를 조회할 수 있다.</div>
+          <div class="output-card">
+            <div class="output-hdr">
+              <div>
+                <div class="output-hdr-title">요구사항 목록 — 화면설계서 초안</div>
+                <div style="font-size:10.5px;color:var(--t3);margin-top:2px;">선택한 템플릿을 기반으로 화면설계서 초안이 생성되었습니다.</div>
+              </div>
+              <span class="mchip warn">작성중</span>
+            </div>
+            <div class="output-grid">
+              <div class="output-item">화면 기본정보 (ID · 화면명 · 버전)</div>
+              <div class="output-item">화면 목적</div>
+              <div class="output-item">메뉴 경로</div>
+              <div class="output-item">화면 유형</div>
+              <div class="output-item">필드 목록 (4개)</div>
+              <div class="output-item">액션 목록 (4개)</div>
+              <div class="output-item">문구/검증 세트</div>
+              <div class="output-item">연결 화면 (2개)</div>
+              <div class="output-item">첨부 참고자료</div>
+              <div class="output-item">검토 상태 (작성중)</div>
+              <div class="output-item">변경이력 (초안 생성)</div>
+              <div class="output-item">작성자 정보</div>
+            </div>
+            <div style="display:flex;gap:7px;padding-top:6px;border-top:1px solid var(--bd);">
+              <span class="mbtn stam-ol sm">상세 Drawer에서 확인</span>
+              <span class="mbtn ghost sm">검토요청</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S16 Accessibility -->
+      <section id="s16" class="kb-sec" data-screen-label="16 Accessibility Notes">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">16</span><span class="kb-sec-title">Accessibility Notes — KWCAG 2.2 기준 메모</span><span class="sbadge guide">10 항목</span></div>
+        <div class="kb-sec-body">
+          <div class="kb-qa-grid">
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>Drawer 열림 시 첫 입력 항목(화면명)으로 초점 이동</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>Drawer 닫힘 시 「템플릿으로 작성」 버튼으로 초점 복귀</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>하단 고정 액션바 Tab 순서 마지막 · focus-visible 스타일 유지</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>필수값 오류는 해당 입력 필드 바로 아래 인접 표시</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>오류 메시지는 색상만으로 전달하지 않음 (텍스트 병행)</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>섹션 접기/펼치기 상태 aria-expanded로 스크린리더에 전달</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>필드 테이블 th scope="col" 명시 · 체크박스 aria-label 제공</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>첨부파일 삭제 버튼 파일명과 함께 의미 전달 (aria-describedby)</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>검토요청 확인 모달은 ESC 닫기 · 초점 트랩 적용</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>상태 chip은 텍스트 라벨 병행 필수 (색상 단독 금지)</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S17 Cursor Notes -->
+      <section id="s17" class="kb-sec" data-screen-label="17 Cursor Implementation Notes">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">17</span><span class="kb-sec-title">Cursor Implementation Notes — 구현 기준 메모</span><span class="sbadge plan">후속 작업 참고</span></div>
+        <div class="kb-sec-body">
+          <div class="kb-note warn"><strong>중요:</strong> 이 문서는 정적 Preview다. 실제 구현은 Cursor 복귀 후 별도 PR로 분리한다.</div>
+          <div class="kb-2col">
+            <div>
+              <p class="kb-sh">구현 원칙</p>
+              <div class="rule-list">
+                <div class="rule-item">Register Drawer UI와 저장 로직을 분리한다.</div>
+                <div class="rule-item">Register Drawer와 Detail Drawer는 공통 Drawer shell을 공유할 수 있다.</div>
+                <div class="rule-item">필드 구성 편집은 별도 컴포넌트로 분리 가능하다.</div>
+                <div class="rule-item">첨부파일은 참고자료 데이터로 관리하며 화면 구조 데이터와 분리한다.</div>
+              </div>
+            </div>
+            <div>
+              <p class="kb-sh">후속 연결 항목</p>
+              <div class="rule-list">
+                <div class="rule-item">검토요청은 권한/상태 전환 로직(T09)과 연결한다.</div>
+                <div class="rule-item">임시저장/저장/검토요청 상태값을 명확히 분리한다.</div>
+                <div class="rule-item">변경이력은 저장 후 별도 history model과 연결한다.</div>
+                <div class="rule-item">각 섹션 편집 상태는 로컬 상태로 관리하고 저장 시 일괄 커밋한다.</div>
+              <div class="rule-item">Register Drawer에는 <strong>「미리보기」 액션</strong>이 필요하다. 저장 전 입력값을 기준으로 Preview model을 생성한다.</div>
+              <div class="rule-item">Preview model은 <strong>Visual Annotation Template 구조</strong>와 연결된다 (번호 마커 + Description 패널).</div>
+              <div class="rule-item">미리보기 구현은 별도 읽기 전용 Preview Drawer, Modal, 우측 Preview Panel 중 선택 가능. <strong>1차 구현은 별도 Preview Drawer 권장</strong>.</div>
+              <div class="rule-item">저장 전 미리보기와 저장 후 Detail Drawer 결과는 <strong>같은 렌더링 구조를 공유</strong>해야 한다.</div>
+              <div class="rule-item">검토요청 전 사용자가 미리보기를 통해 <strong>누락 항목을 확인</strong>할 수 있어야 한다.</div>
+              <div class="rule-item">Register Drawer 항목 사용/숨김/삭제/복원 제어 기준 → <a href="STAM-Template-Item-Usage-Control-Preview-v1.html" style="color:var(--stam);text-decoration:underline;">Template Item Usage Control Preview v1</a></div>
+              <div class="rule-item">저장된 화면설계서 상세 결과 조회 기준 → <a href="STAM-Screen-Specification-Detail-Drawer-Result-Preview-v1.html" style="color:var(--stam);text-decoration:underline;">Detail Drawer Result Preview v1</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S18 QA Checklist -->
+      <section id="s18" class="kb-sec" data-screen-label="18 QA Checklist">
+        <div class="kb-sec-hdr"><span class="kb-sec-n">18</span><span class="kb-sec-title">QA Checklist — 문서 자체 검증</span><span class="sbadge guide">22 항목</span></div>
+        <div class="kb-sec-body">
+          <div class="kb-qa-grid">
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>Register Drawer 전체 흐름 포함</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>템플릿 선택 진입 Preview 포함</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>기본정보 섹션 포함</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>필드 구성 섹션 포함</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>액션 버튼 섹션 포함</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>문구/검증 섹션 포함</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>연결 화면 섹션 포함</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>첨부 참고자료 섹션 포함</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>검토 요청 정보 포함</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>저장 상태별 UI 포함</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>등록/수정 모드 비교 포함</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>생성 결과 Preview 포함</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>접근성 메모 포함</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>Cursor 구현 노트 포함</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>금지 표현 기준 준수</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>S-Core Dream 기준 준수</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>외부 폰트 CDN 없음</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>브라우저 스크롤 기준</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>본문 내부 이중 스크롤 없음</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>가로 스크롤 없음</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>콘솔 오류 없음</div>
+            <div class="kb-qa-item"><div class="kb-qa-chk"></div>제품 pages/js/css/nav-data 변경 없음</div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /kb-main-inner -->
+  </main>
+</div><!-- /kb-shell -->
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var items = Array.from(document.querySelectorAll('.kb-toc-a'));
+  var sections = items.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = window.scrollY || document.documentElement.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].getBoundingClientRect().top + window.scrollY - 80 <= top) cur = i;
+    }
+    items.forEach(function (a, i) { a.classList.toggle('active', i === cur); });
+  }
+  window.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  items.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) window.scrollTo({ top: t.offsetTop - 66, behavior: 'smooth' });
+    });
+  });
+}());
+</script>
+</body>
+</html>
