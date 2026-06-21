@@ -3868,3 +3868,44 @@ select.ss-ed-inp:focus,
   background: var(--bg);
   border-color: rgba(255,255,255,.1);
 }
+
+/* ── Create View: 2-card grid (Step 2) ── */
+.ss-svc-grid.ss-svc-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 430px) {
+  .ss-svc-grid.ss-svc-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ── Create View: Step 3 placeholder ── */
+.ss-step3-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  padding: 40px 24px;
+  text-align: center;
+  border: 1.5px dashed var(--bd);
+  border-radius: var(--r-lg, 14px);
+  background: var(--bg-sur);
+}
+
+.ss-step3-ic {
+  margin-bottom: 14px;
+  color: var(--t3);
+  opacity: .45;
+}
+
+.ss-step3-msg {
+  font-size: 14px;
+  color: var(--t3);
+  margin: 0;
+  line-height: 1.6;
+}
+
+[data-theme="dark"] .ss-step3-placeholder {
+  border-color: rgba(255,255,255,.1);
+  background: rgba(255,255,255,.03);
+}

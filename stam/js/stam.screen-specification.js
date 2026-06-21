@@ -1346,7 +1346,9 @@
   function renderTemplateView() {
     var el = document.getElementById('ss-template-view');
     if (!el) return;
-    var sel = SSP.serviceType || '';
+    if (!SSP.serviceType) SSP.serviceType = 'branding';
+    SSP.createStep = 1;
+    var sel = SSP.serviceType;
 
     el.innerHTML =
       '<div class="ss-create-inner">' +
@@ -1399,12 +1401,158 @@
         '</div>' +
         '<div class="ss-create-foot">' +
           '<div class="ss-create-foot-l">' +
-            '<button type="button" class="ss-create-btn" data-ssv-action="list" disabled>' +
+            '<button type="button" class="ss-create-btn" data-ssv-action="create-prev">' +
               svgIc('<polyline points="15 18 9 12 15 6"/>', 13) + ' 이전' +
             '</button>' +
           '</div>' +
           '<div class="ss-create-foot-r">' +
-            '<button type="button" class="ss-create-btn is-primary" id="ss-create-next-btn" data-ssv-action="create-next" disabled>' +
+            '<button type="button" class="ss-create-btn is-primary" id="ss-create-next-btn" data-ssv-action="create-next">' +
+              '다음 단계 ' + svgIc('<polyline points="9 18 15 12 9 6"/>', 13) +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  /* ── Create View Step 2: Front / Admin ── */
+  var CREATE_FRONT_ADMIN_LIST = [
+    { id: 'front', name: 'Front',
+      desc: '사용자에게 노출되는 웹/앱 화면을 설계합니다.',
+      icon: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>' },
+    { id: 'admin', name: 'Admin',
+      desc: '운영자, 관리자, 내부 담당자가 사용하는 업무 화면을 설계합니다.',
+      icon: '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>' }
+  ];
+
+  var SS_STEP_CHK = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  function renderCreateStep2() {
+    var el = document.getElementById('ss-template-view');
+    if (!el) return;
+    if (!SSP.frontAdmin) SSP.frontAdmin = 'front';
+    SSP.createStep = 2;
+    var sel = SSP.frontAdmin;
+
+    el.innerHTML =
+      '<div class="ss-create-inner">' +
+        '<div class="ss-create-hdr">' +
+          '<button type="button" class="ss-create-back" data-ssv-action="list">' +
+            svgIc('<polyline points="15 18 9 12 15 6"/>', 14) + ' 목록으로' +
+          '</button>' +
+          '<div class="ss-create-hdr-body">' +
+            '<h2 class="ss-create-title">새 화면설계서 작성</h2>' +
+            '<p class="ss-create-sub">설계 대상 서비스 유형과 화면 영역을 선택한 뒤, Page Template을 기준으로 화면설계서를 시작합니다.</p>' +
+          '</div>' +
+        '</div>' +
+        '<div class="ss-create-steps" role="list" aria-label="작성 단계">' +
+          '<div class="ss-step is-done" role="listitem">' +
+            '<span class="ss-step-num">' + SS_STEP_CHK + '</span>' +
+            '<span class="ss-step-label">서비스 유형</span>' +
+          '</div>' +
+          '<span class="ss-step-sep" aria-hidden="true"></span>' +
+          '<div class="ss-step is-active" role="listitem">' +
+            '<span class="ss-step-num">2</span>' +
+            '<span class="ss-step-label">Front / Admin</span>' +
+          '</div>' +
+          '<span class="ss-step-sep" aria-hidden="true"></span>' +
+          '<div class="ss-step" role="listitem">' +
+            '<span class="ss-step-num">3</span>' +
+            '<span class="ss-step-label">Page Template</span>' +
+          '</div>' +
+          '<span class="ss-step-sep" aria-hidden="true"></span>' +
+          '<div class="ss-step" role="listitem">' +
+            '<span class="ss-step-num">4</span>' +
+            '<span class="ss-step-label">기본 정보</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="ss-create-sec-hdr">' +
+          '<h3 class="ss-create-sec-title">화면 영역을 선택하세요</h3>' +
+          '<p class="ss-create-sec-desc">선택한 서비스 유형에 맞춰 Front 또는 Admin 화면설계서 흐름을 이어갑니다.</p>' +
+        '</div>' +
+        '<div class="ss-svc-grid ss-svc-grid-2">' +
+          CREATE_FRONT_ADMIN_LIST.map(function(s) {
+            return '<button type="button" class="ss-svc-card' + (s.id === sel ? ' is-active' : '') + '" data-ss-fa="' + s.id + '">' +
+              '<span class="ss-svc-card-icon">' +
+                '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">' + s.icon + '</svg>' +
+              '</span>' +
+              '<span class="ss-svc-card-body">' +
+                '<span class="ss-svc-card-name">' + s.name + '</span>' +
+                '<span class="ss-svc-card-desc">' + s.desc + '</span>' +
+              '</span>' +
+            '</button>';
+          }).join('') +
+        '</div>' +
+        '<div class="ss-create-foot">' +
+          '<div class="ss-create-foot-l">' +
+            '<button type="button" class="ss-create-btn" data-ssv-action="create-prev">' +
+              svgIc('<polyline points="15 18 9 12 15 6"/>', 13) + ' 이전' +
+            '</button>' +
+          '</div>' +
+          '<div class="ss-create-foot-r">' +
+            '<button type="button" class="ss-create-btn is-primary" data-ssv-action="create-next">' +
+              '다음 단계 ' + svgIc('<polyline points="9 18 15 12 9 6"/>', 13) +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  /* ── Create View Step 3: Page Template (placeholder) ── */
+  function renderCreateStep3() {
+    var el = document.getElementById('ss-template-view');
+    if (!el) return;
+    SSP.createStep = 3;
+
+    el.innerHTML =
+      '<div class="ss-create-inner">' +
+        '<div class="ss-create-hdr">' +
+          '<button type="button" class="ss-create-back" data-ssv-action="list">' +
+            svgIc('<polyline points="15 18 9 12 15 6"/>', 14) + ' 목록으로' +
+          '</button>' +
+          '<div class="ss-create-hdr-body">' +
+            '<h2 class="ss-create-title">새 화면설계서 작성</h2>' +
+            '<p class="ss-create-sub">설계 대상 서비스 유형과 화면 영역을 선택한 뒤, Page Template을 기준으로 화면설계서를 시작합니다.</p>' +
+          '</div>' +
+        '</div>' +
+        '<div class="ss-create-steps" role="list" aria-label="작성 단계">' +
+          '<div class="ss-step is-done" role="listitem">' +
+            '<span class="ss-step-num">' + SS_STEP_CHK + '</span>' +
+            '<span class="ss-step-label">서비스 유형</span>' +
+          '</div>' +
+          '<span class="ss-step-sep" aria-hidden="true"></span>' +
+          '<div class="ss-step is-done" role="listitem">' +
+            '<span class="ss-step-num">' + SS_STEP_CHK + '</span>' +
+            '<span class="ss-step-label">Front / Admin</span>' +
+          '</div>' +
+          '<span class="ss-step-sep" aria-hidden="true"></span>' +
+          '<div class="ss-step is-active" role="listitem">' +
+            '<span class="ss-step-num">3</span>' +
+            '<span class="ss-step-label">Page Template</span>' +
+          '</div>' +
+          '<span class="ss-step-sep" aria-hidden="true"></span>' +
+          '<div class="ss-step" role="listitem">' +
+            '<span class="ss-step-num">4</span>' +
+            '<span class="ss-step-label">기본 정보</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="ss-create-sec-hdr">' +
+          '<h3 class="ss-create-sec-title">Page Template 선택</h3>' +
+          '<p class="ss-create-sec-desc">선택한 서비스 유형과 화면 영역에 맞는 Page Template을 선택합니다.</p>' +
+        '</div>' +
+        '<div class="ss-step3-placeholder">' +
+          '<div class="ss-step3-ic">' +
+            svgIc('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/>', 36) +
+          '</div>' +
+          '<p class="ss-step3-msg">Page Template 선택 화면은 다음 작업에서 구성됩니다.</p>' +
+        '</div>' +
+        '<div class="ss-create-foot">' +
+          '<div class="ss-create-foot-l">' +
+            '<button type="button" class="ss-create-btn" data-ssv-action="create-prev">' +
+              svgIc('<polyline points="15 18 9 12 15 6"/>', 13) + ' 이전' +
+            '</button>' +
+          '</div>' +
+          '<div class="ss-create-foot-r">' +
+            '<button type="button" class="ss-create-btn is-primary" data-ssv-action="create-next" disabled>' +
               '다음 단계 ' + svgIc('<polyline points="9 18 15 12 9 6"/>', 13) +
             '</button>' +
           '</div>' +
@@ -2118,14 +2266,21 @@
   function initViewEvents() {
     /* Global delegation: data-ssv-action = list | template | editor | preview | save | save-detail */
     document.addEventListener('click', function(e) {
-      /* Service type card selection (create view) */
+      /* Service type card selection (create view step 1) */
       var svcCard = e.target.closest('[data-ss-svc]');
       if (svcCard && SSP.view.mode === 'template') {
         SSP.serviceType = svcCard.getAttribute('data-ss-svc');
         document.querySelectorAll('[data-ss-svc]').forEach(function(c) { c.classList.remove('is-active'); });
         svcCard.classList.add('is-active');
-        var nextBtn = document.getElementById('ss-create-next-btn');
-        if (nextBtn) nextBtn.disabled = false;
+        return;
+      }
+
+      /* Front/Admin card selection (create view step 2) */
+      var faCard = e.target.closest('[data-ss-fa]');
+      if (faCard && SSP.view.mode === 'template') {
+        SSP.frontAdmin = faCard.getAttribute('data-ss-fa');
+        document.querySelectorAll('[data-ss-fa]').forEach(function(c) { c.classList.remove('is-active'); });
+        faCard.classList.add('is-active');
         return;
       }
 
@@ -2173,7 +2328,25 @@
         renderTemplateView();
 
       } else if (act === 'create-next') {
-        /* Step 2 진입 — 미구현 placeholder */
+        var curStep = SSP.createStep || 1;
+        if (curStep === 1) {
+          renderCreateStep2();
+        } else if (curStep === 2) {
+          renderCreateStep3();
+        }
+
+      } else if (act === 'create-prev') {
+        var curStep = SSP.createStep || 1;
+        if (curStep <= 1) {
+          SSP.draft = null;
+          switchView('list');
+          renderStrip();
+          renderTable();
+        } else if (curStep === 2) {
+          renderTemplateView();
+        } else if (curStep === 3) {
+          renderCreateStep2();
+        }
       }
     });
 
@@ -2440,6 +2613,9 @@
   function initRegisterBtn() {
     var regBtn = document.getElementById('ss-reg-btn');
     if (regBtn) regBtn.addEventListener('click', function() {
+      SSP.serviceType = null;
+      SSP.frontAdmin = null;
+      SSP.createStep = null;
       switchView('template');
       renderTemplateView();
     });
