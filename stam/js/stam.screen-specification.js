@@ -969,7 +969,7 @@
   /* ── State ── */
   var SSP = {
     view: { mode: 'list' },
-    editor: { mode: 'create', activeId: null, previewDirty: false, previewAppliedAt: null },
+    editor: { mode: 'create', activeId: null, previewDirty: false, previewAppliedAt: null, wfBlocks: [], selBlock: null },
     detailDrawer: { open: false, activeId: null },
     serviceType: 'branding',
     templateTab: 'front',
@@ -2174,6 +2174,93 @@
       '</section>';
   }
 
+  /* ── Editor Workbench Helpers (P12) ── */
+  var WB_COMP_CATS = [
+    { label: '네비게이션',    items: ['GNB', 'LNB / 사이드메뉴', 'Breadcrumb', 'Tab Bar'] },
+    { label: '검색 / 필터',   items: ['텍스트 검색', '고급 필터', '날짜 선택기', '드롭다운 필터'] },
+    { label: '데이터 표시',   items: ['결과 테이블', '카드 그리드', '통계 카드', '차트 영역'] },
+    { label: '폼 요소',       items: ['텍스트 입력', '선택 드롭다운', '파일 업로드', '체크박스/라디오'] },
+    { label: '액션',          items: ['버튼 그룹', '행 액션', '플로팅 버튼', 'Pagination'] },
+    { label: '상태 / 피드백', items: ['빈 화면', '로딩 스피너', '알림 배너', '에러 메시지'] }
+  ];
+
+  function buildCompLib() {
+    return WB_COMP_CATS.map(function(cat, ci) {
+      return '<div class="comp-cat' + (ci < 2 ? ' open' : '') + '">' +
+        '<div class="cc-hdr">' + cat.label +
+          '<svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>' +
+        '</div>' +
+        '<div class="cc-items">' +
+          cat.items.map(function(item) {
+            return '<div class="comp-item"><span class="ci-dot"></span><span class="ci-name">' + item + '</span></div>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function buildWfBlocks(blocks, selIdx) {
+    if (!blocks || !blocks.length) {
+      return '<div class="wf-drop-placeholder">블록을 추가하거나 라이브러리에서 드래그하세요.</div>';
+    }
+    return blocks.map(function(b, i) {
+      var num = i < 9 ? '0' + (i + 1) : '' + (i + 1);
+      var isSel = (selIdx === i);
+      var eyeIc = b.visible === false
+        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>'
+        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+      return '<div class="wf-block' + (isSel ? ' sel' : '') + (b.visible === false ? ' hidden' : '') + '" data-wf-idx="' + i + '">' +
+        '<div class="wf-num">' + num + '</div>' +
+        '<div class="wf-body">' +
+          '<div class="wf-bname">' + (b.name || '블록명') + '</div>' +
+          '<div class="wf-bdesc">' + (b.desc || '화면 구성 요소') + '</div>' +
+        '</div>' +
+        '<div class="wf-acts">' +
+          '<button type="button" class="wf-act" data-wf-act="toggle" data-wf-idx="' + i + '" title="표시/숨기기">' + svgIc(eyeIc, 13) + '</button>' +
+          '<button type="button" class="wf-act" data-wf-act="up" data-wf-idx="' + i + '" title="위로">' + svgIc('<polyline points="18 15 12 9 6 15"/>', 13) + '</button>' +
+          '<button type="button" class="wf-act" data-wf-act="down" data-wf-idx="' + i + '" title="아래로">' + svgIc('<polyline points="6 9 12 15 18 9"/>', 13) + '</button>' +
+          '<button type="button" class="wf-act del" data-wf-act="del" data-wf-idx="' + i + '" title="삭제">' + svgIc('<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>', 13) + '</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function buildInspEmpty() {
+    return '<div class="insp-empty">' +
+      '<div class="insp-ico">' + svgIc('<rect x="3" y="3" width="18" height="18" rx="3"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="14" y2="12"/><line x1="8" y1="16" x2="11" y2="16"/>', 18) + '</div>' +
+      '<div class="insp-em-msg">컴포넌트를 선택하세요</div>' +
+      '<div class="insp-em-sub">블록을 클릭하면 속성, 표시/권한,<br>액션/연결 정보를 편집할 수 있습니다.</div>' +
+    '</div>';
+  }
+
+  function buildInspContent(block, idx) {
+    if (!block) return buildInspEmpty();
+    var nm = (block.name || '').replace(/"/g, '&quot;');
+    var dc = (block.desc || '').replace(/"/g, '&quot;');
+    return '<div class="insp-content">' +
+      '<div class="insp-tabs">' +
+        '<button type="button" class="insp-tab on" data-insp-tab="props">속성</button>' +
+        '<button type="button" class="insp-tab" data-insp-tab="vis">표시/권한</button>' +
+        '<button type="button" class="insp-tab" data-insp-tab="action">액션/연결</button>' +
+        '<button type="button" class="insp-tab" data-insp-tab="data">데이터/검증</button>' +
+      '</div>' +
+      '<div class="insp-panel">' +
+        '<div class="if"><div class="iflbl">컴포넌트명</div>' +
+          '<input class="ifinp" data-insp-field="name" data-wf-idx="' + idx + '" value="' + nm + '"></div>' +
+        '<div class="if"><div class="iflbl">설명</div>' +
+          '<input class="ifinp" data-insp-field="desc" data-wf-idx="' + idx + '" value="' + dc + '"></div>' +
+        '<div class="ifdiv"></div>' +
+        '<div class="if"><div class="iflbl">중요도</div>' +
+          '<div class="irg">' +
+            '<label class="iri"><input type="radio" name="insp-imp-' + idx + '" value="h"' + (block.imp === 'h' ? ' checked' : '') + '><span class="imp-h">높음</span> 필수 핵심 영역</label>' +
+            '<label class="iri"><input type="radio" name="insp-imp-' + idx + '" value="m"' + (block.imp !== 'h' && block.imp !== 'l' ? ' checked' : '') + '><span class="imp-m">중간</span> 권장 포함 영역</label>' +
+            '<label class="iri"><input type="radio" name="insp-imp-' + idx + '" value="l"' + (block.imp === 'l' ? ' checked' : '') + '><span class="imp-l">낮음</span> 선택 또는 보조 영역</label>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
   /* ── Editor View (split orchestrator) ── */
   function renderEditorView() {
     var d = SSP.draft;
@@ -2181,45 +2268,75 @@
     var headEl = document.getElementById('ss-editor-head');
     var splitEl = document.getElementById('ss-editor-split');
     var footEl = document.getElementById('ss-editor-foot');
-    var groupLabel = d.templateGroup === 'admin' ? 'Admin' : 'Front';
-    var edTitle = SSP.editor.mode === 'edit' ? '화면설계서 수정' : '화면설계서 작성';
+
+    var ptpl = null;
+    for (var pi = 0; pi < CREATE_PAGE_TEMPLATE_LIST.length; pi++) {
+      if (CREATE_PAGE_TEMPLATE_LIST[pi].id === (SSP.pageTemplate || d.pageTemplate)) { ptpl = CREATE_PAGE_TEMPLATE_LIST[pi]; break; }
+    }
+    if (!ptpl) ptpl = CREATE_PAGE_TEMPLATE_LIST[0];
+
+    if (!SSP.editor.wfBlocks || !SSP.editor.wfBlocks.length) {
+      SSP.editor.wfBlocks = ptpl.sections.map(function(s) {
+        return { name: s, desc: '화면 구성 요소', visible: true, imp: 'm' };
+      });
+    }
+    if (SSP.editor.selBlock === undefined) SSP.editor.selBlock = null;
+
+    var groupLabel = (d.templateGroup === 'admin' || SSP.frontAdmin === 'admin') ? 'Admin' : 'Front';
+    var svcName = d.serviceTypeName || '';
 
     if (headEl) {
       headEl.innerHTML =
-        '<div class="ss-ed-head-l">' +
-          '<button type="button" class="ss-ed-back-btn" data-ssv-action="list">' +
-            svgIc('<polyline points="15 18 9 12 15 6"/>', 14) + ' 목록으로' +
-          '</button>' +
-          '<span class="ss-ed-head-sep"></span>' +
-          '<span class="ss-ed-head-title">' + edTitle + '</span>' +
-          '<span class="ss-ed-ctx-chip ss-ed-ctx-svc">' + (d.serviceTypeName || '') + '</span>' +
-          '<span class="ss-ed-ctx-chip-sep">·</span>' +
-          '<span class="ss-ed-ctx-chip ss-ed-ctx-grp">' + groupLabel + '</span>' +
-          '<span class="ss-ed-ctx-chip-sep">·</span>' +
-          '<span class="ss-ed-ctx-chip ss-ed-ctx-tpl">' + d.templateName + '</span>' +
-        '</div>' +
-        '<div class="ss-ed-head-r">' +
-          '<span class="ss-ed-save-hint" id="ed-save-hint">저장 안 됨</span>' +
-          '<button type="button" class="ss-ed-pv-btn" data-ssv-action="preview">' +
-            svgIc('<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>', 14) + ' 검수 미리보기' +
-          '</button>' +
-        '</div>';
+        '<button type="button" class="ctx-back" data-ssv-action="list">' +
+          svgIc('<polyline points="15 18 9 12 15 6"/>', 11) + ' 목록으로' +
+        '</button>' +
+        '<span class="ctx-sep"></span>' +
+        '<span class="ctx-id">' + (d.screenId || '') + '</span>' +
+        '<span class="ctx-name">' + (d.screenName || '제목 없음') + '</span>' +
+        '<span class="ctx-chip">' + (svcName || '서비스') + '</span>' +
+        '<span class="ctx-chip" style="background:rgba(100,116,139,.1);border-color:rgba(100,116,139,.2);color:var(--t3)">' + groupLabel + '</span>' +
+        '<span class="ctx-flex"></span>' +
+        '<button type="button" class="ctx-change" data-ssv-action="editor-change-template">템플릿 변경</button>';
     }
 
     if (splitEl) {
+      var canvasSub = (svcName || '서비스') + ' · ' + groupLabel + ' · 블록 ' + SSP.editor.wfBlocks.length + '개';
       splitEl.innerHTML =
-        '<div class="ss-live-wireframe" id="ss-live-wireframe"></div>' +
-        '<div class="ss-editor-form-panel" id="ss-editor-form-panel"></div>';
-      renderWireframePreview(SSP.previewModel);
-      renderEditorFormPanel(d);
+        '<aside class="comp-lib">' +
+          '<div class="cl-hdr"><span class="cl-ttl">Component Library</span></div>' +
+          '<div class="cl-body">' + buildCompLib() + '</div>' +
+        '</aside>' +
+        '<main class="wf-canvas">' +
+          '<div class="wf-inner">' +
+            '<div class="canvas-top">' +
+              '<div class="canvas-info">' +
+                '<div class="canvas-ttl">' + ptpl.name + ' — Wireframe</div>' +
+                '<div class="canvas-sub">' + canvasSub + '</div>' +
+              '</div>' +
+              '<button type="button" class="canvas-prev-btn" data-ssv-action="preview">미리보기</button>' +
+            '</div>' +
+            buildWfBlocks(SSP.editor.wfBlocks, SSP.editor.selBlock) +
+          '</div>' +
+        '</main>' +
+        '<aside class="inspector">' +
+          '<div class="insp-hdr">' +
+            '<div class="insp-ttl">Inspector</div>' +
+            '<div class="insp-sub" id="insp-sub">컴포넌트를 선택하면 속성을 편집할 수 있습니다</div>' +
+          '</div>' +
+          '<div id="insp-body">' +
+            (SSP.editor.selBlock !== null ? buildInspContent(SSP.editor.wfBlocks[SSP.editor.selBlock], SSP.editor.selBlock) : buildInspEmpty()) +
+          '</div>' +
+        '</aside>';
     }
 
     if (footEl) {
       footEl.innerHTML =
-        '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary" data-ssv-action="list">취소</button>' +
-        '<span style="flex:1"></span>' +
-        '<button type="button" class="stam-btn stam-btn--md stam-btn--primary" data-ssv-action="save">저장</button>' +
-        '<button type="button" class="stam-btn stam-btn--md stam-btn--ghost" title="저장 + 검토요청 (준비중)" disabled>저장 + 검토요청</button>';
+        '<button type="button" class="bsm" data-ssv-action="list">취소</button>' +
+        '<div class="ed-si" id="ed-si-status"><span class="dot"></span><span>임시 작업 중</span></div>' +
+        '<div class="ed-btm-flex"></div>' +
+        '<button type="button" class="bsm ghost" data-ssv-action="preview">미리보기</button>' +
+        '<button type="button" class="bsm" data-ssv-action="save">저장</button>' +
+        '<button type="button" class="bsm primary" data-ssv-action="save">저장 후 검토요청</button>';
     }
   }
 
@@ -2291,56 +2408,89 @@
   }
 
   function renderPreviewView() {
-    readDraftFromForm();
     var d = SSP.draft;
     if (!d) return;
     var el = document.getElementById('ss-preview-view');
     if (!el) return;
-    var items = buildPreviewItems(d);
-    var sName = d.screenName || '(화면명 미입력)';
+
+    var visBlocks = (SSP.editor.wfBlocks && SSP.editor.wfBlocks.length)
+      ? SSP.editor.wfBlocks.filter(function(b) { return b.visible !== false; })
+      : [];
+    var today = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+    var mockBodyHtml = visBlocks.map(function(b, i) {
+      var num = i < 9 ? '0' + (i + 1) : '' + (i + 1);
+      return '<div class="pmf-blk" data-pv-idx="' + i + '">' +
+        '<div class="pmf-badge">' + num + '</div>' +
+        '<div class="pmf-blk-name">' + (b.name || '블록') + '</div>' +
+        '<div class="pmf-blk-lines">' +
+          '<div class="pmf-bline" style="width:' + (55 + (i % 3) * 10) + '%"></div>' +
+          '<div class="pmf-bline" style="width:' + (35 + (i % 4) * 8) + '%"></div>' +
+        '</div>' +
+      '</div>';
+    }).join('') || '<div style="padding:20px;text-align:center;font-size:12px;color:var(--t3)">화면 구성 블록이 없습니다.</div>';
+
+    var descItemsHtml = visBlocks.map(function(b, i) {
+      var num = i < 9 ? '0' + (i + 1) : '' + (i + 1);
+      var hasDesc = b.desc && b.desc !== '화면 구성 요소';
+      return '<div class="desc-item" data-pv-idx="' + i + '">' +
+        '<div class="desc-item-top">' +
+          '<div class="desc-num">' + num + '</div>' +
+          '<div class="desc-item-name">' + (b.name || '블록') + '</div>' +
+          '<div class="desc-st ' + (hasDesc ? 'dst-ok' : 'dst-miss') + '">' + (hasDesc ? '완료' : '미작성') + '</div>' +
+        '</div>' +
+        '<div class="desc-fields">' +
+          '<div class="desc-field"><span class="dflbl">설명</span><span class="' + (hasDesc ? 'dfval' : 'dfempty') + '">' + (b.desc || '미입력') + '</span></div>' +
+          '<div class="desc-field"><span class="dflbl">중요도</span><span class="dfval">' + (b.imp === 'h' ? '높음' : b.imp === 'l' ? '낮음' : '중간') + '</span></div>' +
+          '<div class="desc-field"><span class="dflbl">표시 조건</span><span class="dfempty">미입력</span></div>' +
+          '<div class="desc-field"><span class="dflbl">연결 화면</span><span class="dfempty">미입력</span></div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    var missCnt = visBlocks.filter(function(b) { return !b.desc || b.desc === '화면 구성 요소'; }).length;
+    var missingHtml = missCnt > 0
+      ? '<div class="prev-missing">' +
+          svgIc('<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>', 13) +
+          '필수 미작성 항목 ' + missCnt + '개</div>'
+      : '';
+
     el.innerHTML =
-      '<div class="ss-pv-head">' +
-        '<div class="ss-pv-head-l">' +
-          '<button type="button" class="ss-pv-back-btn" data-ssv-action="editor">' +
-            svgIc('<polyline points="15 18 9 12 15 6"/>', 14) + ' 편집으로 돌아가기' +
-          '</button>' +
-          '<span class="ss-pv-draft-chip">초안 미리보기</span>' +
-          '<span class="ss-pv-tpl-chip">' + d.templateName + '</span>' +
-        '</div>' +
-        '<div class="ss-pv-head-r">' +
-          '<button type="button" class="stam-btn stam-btn--md stam-btn--secondary" data-ssv-action="editor">편집으로 돌아가기</button>' +
-          '<button type="button" class="stam-btn stam-btn--md stam-btn--primary" data-ssv-action="save">저장</button>' +
-          '<button type="button" class="stam-btn stam-btn--md stam-btn--ghost" data-ssv-action="save-detail">저장 후 상세 보기</button>' +
-        '</div>' +
+      '<div class="prev-hdr">' +
+        '<span class="prev-hdr-id">' + (d.screenId || '') + '</span>' +
+        '<span class="prev-hdr-name">' + (d.screenName || '제목 없음') + '</span>' +
+        '<span class="prev-hdr-chip phc-draft">초안</span>' +
+        '<span class="prev-hdr-meta">작성자: 나 · ' + today + '</span>' +
+        '<div class="prev-hdr-sp"></div>' +
+        '<button type="button" class="prev-hdr-close" data-ssv-action="editor">Editor로 돌아가기</button>' +
       '</div>' +
-      '<div class="ss-pv-labels">' +
-        '<span class="ss-pv-label">현재 입력값 기준</span>' +
-        '<span class="ss-pv-label">사용함 항목만 자동 재번호</span>' +
-        '<span class="ss-pv-label">숨김/삭제 항목 제외</span>' +
-        '<span class="ss-pv-label">샘플 데이터 아님</span>' +
-      '</div>' +
-      '<div class="ss-pv-layout">' +
-        '<div class="ss-pv-mockup">' +
-          '<div class="ss-pv-mockup-bar">' +
-            '<span class="ss-pv-mockup-title">' + (d.screenTitle || sName) + '</span>' +
-            '<span class="ss-pv-mockup-tag">UI 목업</span>' +
-          '</div>' +
-          '<div class="ss-pv-mockup-body">' + buildMockup(d, items) + '</div>' +
-        '</div>' +
-        '<div class="ss-pv-desc-panel">' +
-          '<div class="ss-pv-desc-hdr">Description<span style="font-size:11px;font-weight:400;color:var(--t3);margin-left:6px">' + items.length + '개 항목</span></div>' +
-          '<div class="ss-pv-desc-list">' +
-            items.map(function(item) {
-              return '<div class="ss-pv-desc-item">' +
-                '<div class="ss-pv-desc-marker">' + item.n + '</div>' +
-                '<div class="ss-pv-desc-content">' +
-                  '<div class="ss-pv-desc-name">' + item.name + '</div>' +
-                  '<div class="ss-pv-desc-detail">' + item.detail + '</div>' +
-                '</div>' +
-              '</div>';
-            }).join('') +
+      '<div class="prev-body-wrap">' +
+        '<div class="prev-mock-col" id="prev-mock-col">' +
+          '<div class="pmf">' +
+            '<div class="pmf-gnb">' +
+              '<div class="pmf-logo"></div><div class="pmf-sp"></div>' +
+              '<div class="pmf-nav"><div class="pmf-ni"></div><div class="pmf-ni"></div><div class="pmf-ni"></div></div>' +
+            '</div>' +
+            '<div class="pmf-body" id="prev-mock-body">' + mockBodyHtml + '</div>' +
           '</div>' +
         '</div>' +
+        '<div class="prev-desc-col" id="prev-desc-col">' +
+          '<div class="prev-desc-hdr">' +
+            '<span class="prev-desc-hdr-lbl">Description</span>' +
+            '<div class="prev-legend">' +
+              '<span class="ldot ldot-ok"></span><span class="ldot-lbl">완료</span>' +
+              '<span class="ldot ldot-miss" style="margin-left:5px"></span><span class="ldot-lbl">미작성</span>' +
+            '</div>' +
+          '</div>' +
+          '<div id="prev-desc-body" style="flex:1;overflow-y:auto;scrollbar-width:thin">' + descItemsHtml + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="prev-ftr">' +
+        missingHtml +
+        '<div class="prev-ftr-sp"></div>' +
+        '<button type="button" class="pbtn" data-ssv-action="editor">닫기</button>' +
+        '<button type="button" class="pbtn ghost" data-ssv-action="save">저장</button>' +
+        '<button type="button" class="pbtn primary" data-ssv-action="save">저장 후 검토요청</button>' +
       '</div>';
   }
 
@@ -2414,6 +2564,95 @@
         SSP.pageTemplate = ptplCard.getAttribute('data-ss-ptpl');
         document.querySelectorAll('[data-ss-ptpl]').forEach(function(c) { c.classList.remove('is-active'); });
         ptplCard.classList.add('is-active');
+        return;
+      }
+
+      /* Component Library category toggle */
+      var ccHdr = e.target.closest('.cc-hdr');
+      if (ccHdr && SSP.view.mode === 'editor') {
+        var catEl = ccHdr.closest('.comp-cat');
+        if (catEl) catEl.classList.toggle('open');
+        return;
+      }
+
+      /* Wireframe block action buttons (toggle/up/down/del) */
+      var wfActBtn = e.target.closest('[data-wf-act]');
+      if (wfActBtn && SSP.view.mode === 'editor') {
+        e.stopPropagation();
+        var actType = wfActBtn.getAttribute('data-wf-act');
+        var wfIdx = parseInt(wfActBtn.getAttribute('data-wf-idx'), 10);
+        var blks = SSP.editor.wfBlocks;
+        if (actType === 'toggle') {
+          blks[wfIdx].visible = (blks[wfIdx].visible !== false) ? false : true;
+        } else if (actType === 'up' && wfIdx > 0) {
+          var tmp = blks[wfIdx]; blks[wfIdx] = blks[wfIdx - 1]; blks[wfIdx - 1] = tmp;
+          if (SSP.editor.selBlock === wfIdx) SSP.editor.selBlock = wfIdx - 1;
+          else if (SSP.editor.selBlock === wfIdx - 1) SSP.editor.selBlock = wfIdx;
+        } else if (actType === 'down' && wfIdx < blks.length - 1) {
+          var tmp2 = blks[wfIdx]; blks[wfIdx] = blks[wfIdx + 1]; blks[wfIdx + 1] = tmp2;
+          if (SSP.editor.selBlock === wfIdx) SSP.editor.selBlock = wfIdx + 1;
+          else if (SSP.editor.selBlock === wfIdx + 1) SSP.editor.selBlock = wfIdx;
+        } else if (actType === 'del') {
+          blks.splice(wfIdx, 1);
+          if (SSP.editor.selBlock === wfIdx) SSP.editor.selBlock = null;
+          else if (SSP.editor.selBlock > wfIdx) SSP.editor.selBlock--;
+        }
+        renderEditorView();
+        return;
+      }
+
+      /* Wireframe block selection → update inspector */
+      var wfBlock = e.target.closest('[data-wf-idx]');
+      if (wfBlock && SSP.view.mode === 'editor' && !e.target.closest('[data-wf-act]')) {
+        var wbIdx = parseInt(wfBlock.getAttribute('data-wf-idx'), 10);
+        SSP.editor.selBlock = (SSP.editor.selBlock === wbIdx) ? null : wbIdx;
+        document.querySelectorAll('.wf-block').forEach(function(bl, i) {
+          bl.classList.toggle('sel', i === SSP.editor.selBlock);
+        });
+        var inspBody = document.getElementById('insp-body');
+        if (inspBody) {
+          inspBody.innerHTML = SSP.editor.selBlock !== null
+            ? buildInspContent(SSP.editor.wfBlocks[SSP.editor.selBlock], SSP.editor.selBlock)
+            : buildInspEmpty();
+        }
+        return;
+      }
+
+      /* Preview mockup block highlight */
+      var pvBlk = e.target.closest('.pmf-blk');
+      if (pvBlk && SSP.view.mode === 'preview') {
+        var pvIdx = parseInt(pvBlk.getAttribute('data-pv-idx'), 10);
+        var wasLit = pvBlk.classList.contains('lit');
+        document.querySelectorAll('.pmf-blk').forEach(function(b) { b.classList.remove('lit'); });
+        document.querySelectorAll('.desc-item').forEach(function(di) { di.classList.remove('lit'); });
+        if (!wasLit) {
+          pvBlk.classList.add('lit');
+          var destItem = document.querySelector('.desc-item[data-pv-idx="' + pvIdx + '"]');
+          if (destItem) {
+            destItem.classList.add('lit');
+            var dc2 = document.getElementById('prev-desc-body');
+            if (dc2) dc2.scrollTop = Math.max(0, destItem.offsetTop - 40);
+          }
+        }
+        return;
+      }
+
+      /* Preview description item highlight */
+      var pvDescItem = e.target.closest('.desc-item[data-pv-idx]');
+      if (pvDescItem && SSP.view.mode === 'preview') {
+        var pvdIdx = parseInt(pvDescItem.getAttribute('data-pv-idx'), 10);
+        var wasDescLit = pvDescItem.classList.contains('lit');
+        document.querySelectorAll('.pmf-blk').forEach(function(b) { b.classList.remove('lit'); });
+        document.querySelectorAll('.desc-item').forEach(function(di) { di.classList.remove('lit'); });
+        if (!wasDescLit) {
+          pvDescItem.classList.add('lit');
+          var mockBlk = document.querySelector('.pmf-blk[data-pv-idx="' + pvdIdx + '"]');
+          if (mockBlk) {
+            mockBlk.classList.add('lit');
+            var mc = document.getElementById('prev-mock-col');
+            if (mc) mc.scrollTop = Math.max(0, mockBlk.offsetTop - mc.offsetTop - 40);
+          }
+        }
         return;
       }
 
@@ -2520,10 +2759,17 @@
         } else if (curStep === 4) {
           renderCreateStep3();
         }
+
+      } else if (act === 'editor-change-template') {
+        SSP.editor.wfBlocks = [];
+        SSP.editor.selBlock = null;
+        SSP.createStep = 3;
+        switchView('template');
+        renderCreateStep3();
       }
     });
 
-    /* Toggle change → refresh builders */
+    /* Toggle change → refresh builders + inspector importance sync */
     document.addEventListener('change', function(e) {
       if (SSP.view.mode !== 'editor' || !SSP.draft) return;
       var toggle = e.target.closest('[data-ed-toggle]');
@@ -2536,12 +2782,28 @@
       }
       var inp = e.target.closest('.ss-ed-inp');
       if (inp) { markPreviewDirty(); }
+      var impRadio = e.target.closest('input[type="radio"][name^="insp-imp-"]');
+      if (impRadio && SSP.editor.wfBlocks) {
+        var impIdx = parseInt(impRadio.getAttribute('name').replace('insp-imp-', ''), 10);
+        if (SSP.editor.wfBlocks[impIdx]) SSP.editor.wfBlocks[impIdx].imp = impRadio.value;
+      }
     });
 
-    /* Input events → mark preview dirty */
+    /* Input events → mark preview dirty + inspector field sync */
     document.addEventListener('input', function(e) {
       if (SSP.view.mode !== 'editor' || !SSP.draft) return;
       if (e.target.closest('.ss-ed-inp')) { markPreviewDirty(); }
+      var inspInp = e.target.closest('[data-insp-field]');
+      if (inspInp && SSP.editor.wfBlocks) {
+        var iIdx = parseInt(inspInp.getAttribute('data-wf-idx'), 10);
+        var iField = inspInp.getAttribute('data-insp-field');
+        if (SSP.editor.wfBlocks[iIdx]) {
+          SSP.editor.wfBlocks[iIdx][iField] = inspInp.value;
+          var canvasSel = '.wf-block[data-wf-idx="' + iIdx + '"] .wf-b' + (iField === 'name' ? 'name' : 'desc');
+          var canvasEl = document.querySelector(canvasSel);
+          if (canvasEl) canvasEl.textContent = inspInp.value;
+        }
+      }
     });
 
     /* Builder add/delete */
