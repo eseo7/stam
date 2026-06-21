@@ -2433,6 +2433,12 @@
       switchView('template');
       renderTemplateView();
     });
+    /* P8-A: 정적 Template Starter Card의 Primary CTA → 기존 template view 진입(동일 동작) */
+    var starterBtn = document.getElementById('ss-starter-cta');
+    if (starterBtn) starterBtn.addEventListener('click', function() {
+      switchView('template');
+      renderTemplateView();
+    });
   }
 
   function initEscapeKey() {
