@@ -3535,34 +3535,10 @@ select.ss-ed-inp:focus,
   padding: 28px 0 80px;
 }
 
-/* Header row: back button + title block */
+/* Header row: title + sub (no back button) */
 .ss-create-hdr {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
   margin-bottom: 28px;
 }
-
-.ss-create-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  border: 1px solid var(--bd);
-  border-radius: var(--r-md);
-  background: transparent;
-  color: var(--t2);
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  margin-top: 4px;
-  transition: color .15s, border-color .15s;
-}
-.ss-create-back:hover { color: var(--brand); border-color: var(--brand); }
-
-.ss-create-hdr-body { min-width: 0; }
 
 .ss-create-title {
   font-size: 18px;
@@ -3604,7 +3580,7 @@ select.ss-ed-inp:focus,
 }
 
 .ss-step.is-active { opacity: 1; }
-.ss-step.is-done   { opacity: .75; }
+.ss-step.is-done   { opacity: 1; }
 
 .ss-step-num {
   display: inline-flex;
@@ -3624,8 +3600,8 @@ select.ss-ed-inp:focus,
 }
 
 .ss-step.is-done .ss-step-num {
-  background: var(--brand);
-  border-color: var(--brand);
+  background: #22c55e;
+  border-color: #22c55e;
   color: #fff;
 }
 
@@ -3645,7 +3621,7 @@ select.ss-ed-inp:focus,
 }
 
 .ss-step.is-active .ss-step-label { color: var(--brand); font-weight: 700; }
-.ss-step.is-done .ss-step-label   { color: var(--t2); }
+.ss-step.is-done .ss-step-label   { color: #16a34a; font-weight: 600; }
 
 /* Connector line — sits at midpoint of the 28px circle (14px from top of step) */
 .ss-step-sep {
@@ -3655,6 +3631,9 @@ select.ss-ed-inp:focus,
   align-self: flex-start;
   margin-top: 13px;
 }
+
+/* Done segment of connector turns green */
+.ss-step.is-done + .ss-step-sep { background: rgba(34, 197, 94, .5); }
 
 /* Section heading */
 .ss-create-sec-hdr { margin-bottom: 18px; }
@@ -3822,14 +3801,12 @@ select.ss-ed-inp:focus,
 }
 
 /* Dark mode */
-[data-theme="dark"] .ss-create-back {
-  border-color: rgba(255,255,255,.15);
-  color: var(--t2);
+[data-theme="dark"] .ss-step.is-done .ss-step-num {
+  background: #22c55e;
+  border-color: #22c55e;
 }
-[data-theme="dark"] .ss-create-back:hover {
-  color: #8B7FF8;
-  border-color: #8B7FF8;
-}
+[data-theme="dark"] .ss-step.is-done .ss-step-label { color: #4ade80; }
+[data-theme="dark"] .ss-step.is-done + .ss-step-sep { background: rgba(74, 222, 128, .35); }
 [data-theme="dark"] .ss-create-steps {
   background: rgba(255,255,255,.04);
   border-color: rgba(255,255,255,.1);
