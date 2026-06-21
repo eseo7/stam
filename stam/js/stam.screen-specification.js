@@ -1018,7 +1018,7 @@
   /* ── State ── */
   var SSP = {
     view: { mode: 'list' },
-    editor: { mode: 'create', activeId: null, previewDirty: false, previewAppliedAt: null, wfBlocks: [], selBlock: null },
+    editor: { mode: 'create', activeId: null, previewDirty: false, previewAppliedAt: null, wfBlocks: [], selBlock: null, compLibOpenCats: null },
     detailDrawer: { open: false, activeId: null },
     serviceType: 'branding',
     templateTab: 'front',
@@ -2456,8 +2456,13 @@
   var _wfDragIdx = null;
 
   function buildCompLib() {
-    return WB_COMP_CATS.map(function(cat, ci) {
-      return '<div class="comp-cat' + (ci < 2 ? ' open' : '') + '" data-cat-id="' + cat.id + '">' +
+    if (!SSP.editor.compLibOpenCats) {
+      SSP.editor.compLibOpenCats = {};
+      WB_COMP_CATS.forEach(function(c) { SSP.editor.compLibOpenCats[c.id] = true; });
+    }
+    return WB_COMP_CATS.map(function(cat) {
+      var isOpen = SSP.editor.compLibOpenCats[cat.id] !== false;
+      return '<div class="comp-cat' + (isOpen ? ' open' : '') + '" data-cat-id="' + cat.id + '">' +
         '<div class="cc-hdr">' + cat.name +
           '<svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>' +
         '</div>' +
@@ -2936,7 +2941,12 @@
       var ccHdr = e.target.closest('.cc-hdr');
       if (ccHdr && SSP.view.mode === 'editor') {
         var catEl = ccHdr.closest('.comp-cat');
-        if (catEl) catEl.classList.toggle('open');
+        if (catEl) {
+          catEl.classList.toggle('open');
+          var catId = catEl.getAttribute('data-cat-id');
+          if (!SSP.editor.compLibOpenCats) SSP.editor.compLibOpenCats = {};
+          SSP.editor.compLibOpenCats[catId] = catEl.classList.contains('open');
+        }
         return;
       }
 
