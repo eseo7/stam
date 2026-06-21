@@ -4216,11 +4216,13 @@ select.ss-ed-inp:focus,
    P12 — Editor Workbench + Preview Review Sheet
 ═══════════════════════════════════════════════════════ */
 
-/* ── Override editor view container for full-width workbench ── */
+/* ── Override editor view container for full-width workbench (P12/P13) ── */
 .ss-editor-view {
   max-width: none;
   margin-left: 0;
   margin-right: 0;
+  height: calc(100vh - var(--topbar-h, 48px));
+  overflow: hidden;
 }
 
 /* ── Context Bar (replaces ss-editor-head content) ── */
@@ -4295,7 +4297,7 @@ select.ss-ed-inp:focus,
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  max-height: calc(100vh - var(--topbar-h, 48px) - 96px);
+  height: 100%;
 }
 
 .wf-canvas {
@@ -4303,7 +4305,7 @@ select.ss-ed-inp:focus,
   overflow-y: auto;
   background: var(--bg-base);
   scrollbar-width: thin;
-  max-height: calc(100vh - var(--topbar-h, 48px) - 96px);
+  height: 100%;
 }
 .wf-canvas::-webkit-scrollbar { width: 4px; }
 .wf-canvas::-webkit-scrollbar-thumb { background: var(--bd); border-radius: 99px; }
@@ -4316,7 +4318,7 @@ select.ss-ed-inp:focus,
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  max-height: calc(100vh - var(--topbar-h, 48px) - 96px);
+  height: 100%;
 }
 
 /* ── Component Library ── */
@@ -4416,6 +4418,8 @@ select.ss-ed-inp:focus,
   box-shadow: 0 0 0 2px rgba(139,127,248,.14);
 }
 .wf-block.hidden { opacity: .4; }
+.wf-block.is-dragging { opacity: .45; border-color: var(--stam, #8B7FF8); }
+.wf-block.is-drop-target { border-color: var(--stam, #8B7FF8); border-style: dashed; box-shadow: 0 0 0 2px rgba(139,127,248,.2); }
 
 .wf-num {
   width: 36px;
@@ -4570,11 +4574,16 @@ select.ss-ed-inp:focus,
 .imp-m { display: inline-flex; padding: 1px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; background: rgba(245,158,11,.12); color: var(--warn, #f59e0b); border: 1px solid rgba(245,158,11,.2); }
 .imp-l { display: inline-flex; padding: 1px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; background: rgba(100,116,139,.12); color: var(--t3); border: 1px solid var(--bd); }
 
-/* ── Editor Action Bar (ss-editor-foot) ── */
+/* ── Editor Action Bar (ss-editor-foot) — sticky footer (P13) ── */
 .ss-editor-foot {
   padding: 10px 18px;
   background: var(--bg-sur);
   justify-content: flex-start;
+  flex: 0 0 auto;
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  border-top: 1px solid var(--bd);
 }
 
 .ed-si {

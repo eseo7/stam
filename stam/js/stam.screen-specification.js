@@ -2174,15 +2174,18 @@
       '</section>';
   }
 
-  /* ── Editor Workbench Helpers (P12) ── */
+  /* ── Editor Workbench Helpers (P12/P13) ── */
   var WB_COMP_CATS = [
-    { label: '네비게이션',    items: ['GNB', 'LNB / 사이드메뉴', 'Breadcrumb', 'Tab Bar'] },
-    { label: '검색 / 필터',   items: ['텍스트 검색', '고급 필터', '날짜 선택기', '드롭다운 필터'] },
-    { label: '데이터 표시',   items: ['결과 테이블', '카드 그리드', '통계 카드', '차트 영역'] },
-    { label: '폼 요소',       items: ['텍스트 입력', '선택 드롭다운', '파일 업로드', '체크박스/라디오'] },
-    { label: '액션',          items: ['버튼 그룹', '행 액션', '플로팅 버튼', 'Pagination'] },
-    { label: '상태 / 피드백', items: ['빈 화면', '로딩 스피너', '알림 배너', '에러 메시지'] }
+    { label: '레이아웃',  items: ['컨테이너', '그리드', '플렉스 행', '스택', '디바이더', '스크롤 영역'] },
+    { label: '텍스트',    items: ['제목', '본문', '라벨', '도움말', '링크 텍스트'] },
+    { label: '콘텐츠',    items: ['이미지', '비디오', '카드', '배너', '아이콘', '썸네일'] },
+    { label: '입력',      items: ['텍스트 입력', '셀렉트', '체크박스', '라디오', '토글', '날짜 선택', '파일 업로드'] },
+    { label: '데이터',    items: ['데이터 테이블', '리스트', '페이지네이션', '필터', '검색'] },
+    { label: '상태',      items: ['상태 chip', '배지', '진행 상태', '알림', '빈 상태'] },
+    { label: '공통 참조', items: ['GNB', 'Footer', 'Modal', 'Toast'] }
   ];
+
+  var _wfDragIdx = null;
 
   function buildCompLib() {
     return WB_COMP_CATS.map(function(cat, ci) {
@@ -2209,7 +2212,7 @@
       var eyeIc = b.visible === false
         ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>'
         : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
-      return '<div class="wf-block' + (isSel ? ' sel' : '') + (b.visible === false ? ' hidden' : '') + '" data-wf-idx="' + i + '">' +
+      return '<div class="wf-block' + (isSel ? ' sel' : '') + (b.visible === false ? ' hidden' : '') + '" draggable="true" data-wf-idx="' + i + '">' +
         '<div class="wf-num">' + num + '</div>' +
         '<div class="wf-body">' +
           '<div class="wf-bname">' + (b.name || '블록명') + '</div>' +
@@ -2854,6 +2857,46 @@
           navLink.classList.add('active');
         }
       }
+    });
+
+    /* Wireframe block drag-and-drop (P13) */
+    document.addEventListener('dragstart', function(e) {
+      var blk = e.target.closest('.wf-block[data-wf-idx]');
+      if (!blk || SSP.view.mode !== 'editor') return;
+      _wfDragIdx = parseInt(blk.getAttribute('data-wf-idx'), 10);
+      blk.classList.add('is-dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+
+    document.addEventListener('dragover', function(e) {
+      var blk = e.target.closest('.wf-block[data-wf-idx]');
+      if (!blk || SSP.view.mode !== 'editor' || _wfDragIdx === null) return;
+      e.preventDefault();
+      document.querySelectorAll('.wf-block').forEach(function(b) { b.classList.remove('is-drop-target'); });
+      blk.classList.add('is-drop-target');
+    });
+
+    document.addEventListener('drop', function(e) {
+      var blk = e.target.closest('.wf-block[data-wf-idx]');
+      if (!blk || SSP.view.mode !== 'editor' || _wfDragIdx === null) return;
+      e.preventDefault();
+      var toIdx = parseInt(blk.getAttribute('data-wf-idx'), 10);
+      if (toIdx !== _wfDragIdx) {
+        var moved = SSP.editor.wfBlocks.splice(_wfDragIdx, 1)[0];
+        SSP.editor.wfBlocks.splice(toIdx, 0, moved);
+        if (SSP.editor.selBlock === _wfDragIdx) SSP.editor.selBlock = toIdx;
+        else if (SSP.editor.selBlock > _wfDragIdx && SSP.editor.selBlock <= toIdx) SSP.editor.selBlock--;
+        else if (SSP.editor.selBlock < _wfDragIdx && SSP.editor.selBlock >= toIdx) SSP.editor.selBlock++;
+        renderEditorView();
+      }
+      _wfDragIdx = null;
+    });
+
+    document.addEventListener('dragend', function(e) {
+      _wfDragIdx = null;
+      document.querySelectorAll('.wf-block').forEach(function(b) {
+        b.classList.remove('is-dragging', 'is-drop-target');
+      });
     });
   }
 
