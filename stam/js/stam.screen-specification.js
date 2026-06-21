@@ -363,6 +363,54 @@
     var q = S.srch.toLowerCase();
     var html = '';
     var total = 0;
+
+    /* Records section (신규 작성 기록) — 항상 상단에 표시 */
+    if (SSP.records && SSP.records.length > 0) {
+      var rDraft  = SSP.records.filter(function(r) { return r.status === 'draft'; }).length;
+      var rSaved  = SSP.records.filter(function(r) { return r.status === 'saved'; }).length;
+      var rReview = SSP.records.filter(function(r) { return r.status === 'review'; }).length;
+      html += '<tr class="ss-gr-row ss-records-grp">' +
+        '<td class="ss-ch stam-check-cell"></td>' +
+        '<td colspan="8"><div class="ss-gr-cell">' +
+        '<svg class="ss-gr-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+        '<span class="ss-gr-name">신규 작성 기록</span>' +
+        '<span class="ss-gr-sep"></span>' +
+        '<span class="ss-gr-count">' + SSP.records.length + '개 화면</span>' +
+        '<div class="ss-gr-chips">' +
+        (rDraft  > 0 ? '<span class="ss-gr-chip ss-chip-rec-draft">작성중 '  + rDraft  + '</span>' : '') +
+        (rSaved  > 0 ? '<span class="ss-gr-chip ss-chip-rec-saved">저장됨 '   + rSaved  + '</span>' : '') +
+        (rReview > 0 ? '<span class="ss-gr-chip ss-chip-rec-review">검토요청 ' + rReview + '</span>' : '') +
+        '</div></div></td></tr>';
+
+      SSP.records.forEach(function(rec, ri) {
+        var last = ri === SSP.records.length - 1;
+        var blockInfo = rec.blocks ? rec.blocks.length + '블록' : '';
+        var tplInfo   = rec.pageTemplateName || '';
+        var infoTxt   = tplInfo + (tplInfo && blockInfo ? ' · ' : '') + blockInfo;
+        html += '<tr class="ss-sc-row ss-record-row stam-table-row' + (last ? ' lg' : '') +
+          '" data-id="' + rec.id + '" data-record-id="' + rec.id + '">' +
+          '<td class="ss-ch stam-check-cell"></td>' +
+          '<td class="ss-name-col"><div class="ss-sc-cell">' +
+            '<span class="ss-sc-ind">└</span>' +
+            '<span class="ss-sc-id">' + rec.screenId + '</span>' +
+            '<span class="ss-sc-name">' + (rec.screenName || '제목 없음') + '</span>' +
+            '<span class="ss-type-chip ss-type-chip-sm ss-rec-svc-chip">' + rec.serviceTypeName + '</span>' +
+            '<span class="ss-type-chip ss-type-chip-sm">' + rec.frontAdminName + '</span>' +
+          '</div></td>' +
+          '<td><span class="ss-vp">v0.1</span></td>' +
+          '<td>' + recordStatusChip(rec.status) + '</td>' +
+          '<td>' + rChip(rec.reviewStatus === 'requested' ? 'pending' : 'none') + '</td>' +
+          '<td>' + aChip('none') + '</td>' +
+          '<td style="font-size:11px;color:var(--t3);white-space:nowrap">' + infoTxt + '</td>' +
+          '<td style="color:var(--t3);font-size:12px">' + (rec.updatedAt ? rec.updatedAt.slice(5).replace('.', '-') : '') + '</td>' +
+          '<td><div class="ss-rec-actions">' +
+            '<button type="button" class="ss-rec-act-btn" data-ssv-action="record-detail" data-record-id="' + rec.id + '">상세</button>' +
+            '<button type="button" class="ss-rec-act-btn ss-rec-act-edit" data-ssv-action="record-edit" data-record-id="' + rec.id + '">수정</button>' +
+          '</div></td>' +
+        '</tr>';
+      });
+    }
+
     MENUS.forEach(function (grp) {
       if (S.F.grpId && grp.id !== S.F.grpId) return;
       var screens = grp.screens;
@@ -391,7 +439,7 @@
         '<td class="ss-ch stam-check-cell"><input type="checkbox" class="ss-cb stam-check" id="cb-' + grp.id + '"' +
         (cbChecked ? ' checked' : '') + (cbIndet ? ' data-indet' : '') +
         ' data-ss-grp-sel="' + grp.id + '"></td>' +
-        '<td colspan="7"><div class="ss-gr-cell" data-ss-grp="' + grp.id + '">' +
+        '<td colspan="8"><div class="ss-gr-cell" data-ss-grp="' + grp.id + '">' +
         '<svg class="ss-gr-caret' + (exp ? '' : ' col') + '" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>' +
         '<span class="ss-gr-icon">' + ic(ICONS.folder, 14) + '</span>' +
         '<span class="ss-gr-name">' + grp.name + '</span>' +
@@ -418,11 +466,12 @@
           '<td>' + rChip(s.rst) + '</td>' +
           '<td>' + aChip(s.ast) + '</td>' +
           '<td style="display:flex;align-items:center;gap:4px">' + imgChip(s.hasImg) + annChip(s.annots) + '</td>' +
-          '<td style="color:var(--t3);font-size:12px">' + s.upd.slice(5) + '</td></tr>';
+          '<td style="color:var(--t3);font-size:12px">' + s.upd.slice(5) + '</td>' +
+          '<td></td></tr>';
       });
     });
     if (!html) {
-      html = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--t3)">조건에 맞는 화면설계서가 없습니다.</td></tr>';
+      html = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--t3)">조건에 맞는 화면설계서가 없습니다.</td></tr>';
     }
     var tbody = document.getElementById('ss-tbody');
     if (tbody) tbody.innerHTML = html;
@@ -975,7 +1024,9 @@
     templateTab: 'front',
     draft: null,
     previewModel: null,
-    savedItems: []
+    savedItems: [],
+    records: [],
+    activeRecordId: null
   };
 
   var SS_SEQ = 16;
@@ -1236,6 +1287,157 @@
   function svgIc(path, sz, sw) {
     sz = sz || 14; sw = sw || 2;
     return '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round">' + path + '</svg>';
+  }
+
+  /* ================================================================
+   * MEMORY RECORDS — 브라우저 메모리 기반 record 관리
+   * localStorage / Firestore / API / fetch 저장 없음
+   * ================================================================ */
+
+  function recordStatusChip(status) {
+    var map = {
+      draft:  { cls: 'ss-chip-rec-draft',  lbl: '작성중' },
+      saved:  { cls: 'ss-chip-rec-saved',  lbl: '저장됨' },
+      review: { cls: 'ss-chip-rec-review', lbl: '검토요청' }
+    };
+    var m = map[status] || map.draft;
+    return '<span class="ss-chip ' + m.cls + '">' + m.lbl + '</span>';
+  }
+
+  function findRecordById(id) {
+    for (var i = 0; i < SSP.records.length; i++) {
+      if (SSP.records[i].id === id) return SSP.records[i];
+    }
+    return null;
+  }
+
+  function buildRecordFromCurrentDraft(saveType) {
+    if (SSP.view.mode === 'editor' && SSP.draft) { collectDraftFromEditor(); }
+    var d = SSP.draft;
+    if (!d) return null;
+
+    var now = new Date();
+    var mm = String(now.getMonth() + 1).padStart(2, '0');
+    var dd = String(now.getDate()).padStart(2, '0');
+    var dateStr = now.getFullYear() + '.' + mm + '.' + dd;
+
+    var status = saveType === 'draft' ? 'draft' : saveType === 'review' ? 'review' : 'saved';
+    var reviewStatus = saveType === 'review' ? 'requested' : 'not_requested';
+
+    var svcType = SSP.serviceType || d.serviceType || 'branding';
+    var svcObj = findServiceTypeById(svcType);
+    var svcTypeName = d.serviceTypeName || (svcObj ? svcObj.name : svcType);
+    var frontAdmin = SSP.frontAdmin || d.templateGroup || 'front';
+    var frontAdminName = frontAdmin === 'admin' ? 'Admin' : 'Front';
+    var pageTemplate = SSP.pageTemplate || d.pageTemplate || '';
+
+    var ptpl = null;
+    for (var pi = 0; pi < CREATE_PAGE_TEMPLATE_LIST.length; pi++) {
+      if (CREATE_PAGE_TEMPLATE_LIST[pi].id === pageTemplate) { ptpl = CREATE_PAGE_TEMPLATE_LIST[pi]; break; }
+    }
+    var pageTemplateName = ptpl ? ptpl.name : (d.templateName || pageTemplate);
+
+    var recordId = SSP.activeRecordId || ('SCR-MEM-' + Date.now());
+
+    return {
+      id: recordId,
+      screenId: d.screenId || recordId,
+      screenName: d.screenName || '제목 없음',
+      serviceType: svcType,
+      serviceTypeName: svcTypeName,
+      frontAdmin: frontAdmin,
+      frontAdminName: frontAdminName,
+      pageTemplate: pageTemplate,
+      pageTemplateName: pageTemplateName,
+      status: status,
+      reviewStatus: reviewStatus,
+      approvalStatus: 'pending',
+      owner: '나',
+      domain: d.bizArea || '',
+      memo: d.memo || '',
+      blocks: (SSP.editor.wfBlocks || []).map(function(b) { return Object.assign({}, b); }),
+      draft: Object.assign({}, d),
+      updatedAt: dateStr,
+      createdAt: dateStr
+    };
+  }
+
+  function upsertScreenRecord(record) {
+    var existingIdx = -1;
+    for (var i = 0; i < SSP.records.length; i++) {
+      if (SSP.records[i].id === record.id || SSP.records[i].screenId === record.screenId) {
+        existingIdx = i;
+        break;
+      }
+    }
+    if (existingIdx >= 0) {
+      SSP.records[existingIdx] = record;
+    } else {
+      SSP.records.unshift(record);
+    }
+    SSP.activeRecordId = record.id;
+  }
+
+  function hydrateDraftFromRecord(record) {
+    SSP.activeRecordId = record.id;
+    SSP.serviceType   = record.serviceType  || SSP.serviceType;
+    SSP.frontAdmin    = record.frontAdmin   || SSP.frontAdmin;
+    SSP.pageTemplate  = record.pageTemplate || SSP.pageTemplate;
+
+    SSP.draft = record.draft
+      ? Object.assign({}, record.draft)
+      : {
+          screenId: record.screenId, screenName: record.screenName,
+          serviceType: record.serviceType, serviceTypeName: record.serviceTypeName,
+          templateGroup: record.frontAdmin, pageTemplate: record.pageTemplate,
+          templateName: record.pageTemplateName,
+          screenType: 'main', menuPath: '', purpose: '', memo: record.memo || '',
+          bizArea: record.domain || '', searchItems: [], tableColumns: [], rowActions: []
+        };
+
+    SSP.editor.wfBlocks      = (record.blocks || []).map(function(b) { return Object.assign({}, b); });
+    SSP.editor.selBlock      = null;
+    SSP.editor.previewDirty  = false;
+    SSP.editor.previewAppliedAt = null;
+    SSP.previewModel = null;
+  }
+
+  function showToast(msg) {
+    var existing = document.getElementById('ss-toast');
+    if (existing) existing.remove();
+    var toast = document.createElement('div');
+    toast.id = 'ss-toast';
+    toast.className = 'ss-toast';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    requestAnimationFrame(function() {
+      toast.classList.add('show');
+      setTimeout(function() {
+        toast.classList.remove('show');
+        setTimeout(function() { if (toast.parentNode) toast.remove(); }, 320);
+      }, 2200);
+    });
+  }
+
+  function execMemorySave(saveType) {
+    var nameEl = document.getElementById('ed-screen-name');
+    var draftName = SSP.draft ? (SSP.draft.screenName || '') : '';
+    var name = nameEl ? nameEl.value.trim() : draftName.trim();
+    if (!name) {
+      if (nameEl) {
+        nameEl.focus();
+        nameEl.style.outline = '2px solid #DC2626';
+        setTimeout(function() { nameEl.style.outline = ''; }, 2000);
+      }
+      alert('화면명을 입력하세요.');
+      return null;
+    }
+    var record = buildRecordFromCurrentDraft(saveType);
+    if (!record) return null;
+    upsertScreenRecord(record);
+    var toastMap = { draft: '임시저장되었습니다.', saved: '저장되었습니다.', review: '검토요청으로 저장되었습니다.' };
+    showToast(toastMap[saveType] || '저장되었습니다.');
+    return record;
   }
 
   /* ── View switching ── */
@@ -2470,8 +2672,9 @@
         '<div class="ed-si" id="ed-si-status"><span class="dot"></span><span>임시 작업 중</span></div>' +
         '<div class="ed-btm-flex"></div>' +
         '<button type="button" class="bsm ghost" data-ssv-action="preview">미리보기</button>' +
-        '<button type="button" class="bsm" data-ssv-action="save">저장</button>' +
-        '<button type="button" class="bsm primary" data-ssv-action="save">저장 후 검토요청</button>';
+        '<button type="button" class="bsm" data-ssv-action="mem-draft">임시저장</button>' +
+        '<button type="button" class="bsm" data-ssv-action="mem-save">저장</button>' +
+        '<button type="button" class="bsm primary" data-ssv-action="mem-review">저장 후 검토요청</button>';
     }
   }
 
@@ -2628,8 +2831,8 @@
         missingHtml +
         '<div class="prev-ftr-sp"></div>' +
         '<button type="button" class="pbtn" data-ssv-action="editor">닫기</button>' +
-        '<button type="button" class="pbtn ghost" data-ssv-action="save">저장</button>' +
-        '<button type="button" class="pbtn primary" data-ssv-action="save">저장 후 검토요청</button>' +
+        '<button type="button" class="pbtn ghost" data-ssv-action="mem-save">저장</button>' +
+        '<button type="button" class="pbtn primary" data-ssv-action="mem-review">저장 후 검토요청</button>' +
       '</div>';
   }
 
@@ -2857,6 +3060,45 @@
         renderPreviewView();
         var poMain = document.getElementById('po-main');
         if (poMain) poMain.scrollTop = 0;
+
+      } else if (act === 'mem-draft') {
+        var mRec = execMemorySave('draft');
+        if (!mRec) return;
+        renderTable();
+        var siEl = document.getElementById('ed-si-status');
+        if (siEl) siEl.innerHTML = '<span class="dot dot-ok"></span><span>임시저장됨</span>';
+
+      } else if (act === 'mem-save') {
+        var mRec2 = execMemorySave('saved');
+        if (!mRec2) return;
+        switchView('list');
+        renderStrip();
+        renderTable();
+
+      } else if (act === 'mem-review') {
+        var mRec3 = execMemorySave('review');
+        if (!mRec3) return;
+        switchView('list');
+        renderStrip();
+        renderTable();
+
+      } else if (act === 'record-detail') {
+        var rdId = actionBtn.getAttribute('data-record-id');
+        var rdRec = rdId ? findRecordById(rdId) : null;
+        if (!rdRec) return;
+        hydrateDraftFromRecord(rdRec);
+        switchView('preview');
+        renderPreviewView();
+        var poMainPv = document.getElementById('po-main');
+        if (poMainPv) poMainPv.scrollTop = 0;
+
+      } else if (act === 'record-edit') {
+        var reId = actionBtn.getAttribute('data-record-id');
+        var reRec = reId ? findRecordById(reId) : null;
+        if (!reRec) return;
+        hydrateDraftFromRecord(reRec);
+        switchView('editor');
+        renderEditorView();
 
       } else if (act === 'save' || act === 'save-detail') {
         var saved = execSave();
@@ -3187,7 +3429,22 @@
         return;
       }
       var row = e.target.closest('.ss-sc-row');
-      if (row) openDetail(row.getAttribute('data-id'));
+      if (row) {
+        if (e.target.closest('[data-ssv-action]')) return;
+        var recId = row.getAttribute('data-record-id');
+        if (recId) {
+          var clickedRec = findRecordById(recId);
+          if (clickedRec) {
+            hydrateDraftFromRecord(clickedRec);
+            switchView('preview');
+            renderPreviewView();
+            var poM = document.getElementById('po-main');
+            if (poM) poM.scrollTop = 0;
+          }
+          return;
+        }
+        openDetail(row.getAttribute('data-id'));
+      }
     });
     tbody.addEventListener('change', function (e) {
       var grpCb = e.target.closest('[data-ss-grp-sel]');
@@ -3261,11 +3518,12 @@
   function initRegisterBtn() {
     var regBtn = document.getElementById('ss-reg-btn');
     if (regBtn) regBtn.addEventListener('click', function() {
-      SSP.serviceType = null;
-      SSP.frontAdmin = null;
-      SSP.pageTemplate = null;
-      SSP.step4ScreenId = null;
-      SSP.createStep = null;
+      SSP.serviceType    = null;
+      SSP.frontAdmin     = null;
+      SSP.pageTemplate   = null;
+      SSP.step4ScreenId  = null;
+      SSP.createStep     = null;
+      SSP.activeRecordId = null;
       switchView('template');
       renderTemplateView();
     });
