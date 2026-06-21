@@ -4369,13 +4369,29 @@ select.ss-ed-inp:focus,
   border-radius: 5px;
   font-size: 11.5px;
   color: var(--t2);
-  cursor: grab;
+  cursor: pointer;
   transition: background 120ms, color 120ms;
+  user-select: none;
 }
-.comp-item:hover { background: rgba(255,255,255,.05); color: var(--t1); }
+.comp-item:hover {
+  background: rgba(139,127,248,.1);
+  color: var(--stam, #8B7FF8);
+}
+.comp-item:hover .ci-dot { background: var(--stam, #8B7FF8); }
+.comp-item:active { background: rgba(139,127,248,.18); }
 
-.ci-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--t3); flex-shrink: 0; }
+.ci-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--t3); flex-shrink: 0; transition: background 120ms; }
 .ci-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ci-add {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--t3);
+  opacity: 0;
+  transition: opacity 120ms, color 120ms;
+  flex-shrink: 0;
+}
+.comp-item:hover .ci-add { opacity: 1; color: var(--stam, #8B7FF8); }
 
 /* ── Wireframe Canvas ── */
 .wf-inner { padding: 18px 20px 80px; }
@@ -4589,6 +4605,37 @@ select.ss-ed-inp:focus,
 }
 .ifinp:focus { border-color: rgba(139,127,248,.5); }
 .ifdiv { height: 1px; background: var(--bd); margin: 10px 0; }
+
+/* Inspector skeleton — chips, seg, tab panels */
+.if-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.if-chip {
+  padding: 2px 9px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  color: var(--t2);
+}
+
+.if-seg { display: flex; gap: 3px; }
+.if-seg-item {
+  flex: 1;
+  padding: 5px 4px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-align: center;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  color: var(--t3);
+  cursor: default;
+}
+.if-seg-item.on {
+  background: rgba(139,127,248,.1);
+  border-color: rgba(139,127,248,.35);
+  color: var(--stam, #8B7FF8);
+}
 
 .irg { display: flex; flex-direction: column; gap: 4px; }
 .iri {
