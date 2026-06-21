@@ -2174,28 +2174,98 @@
       '</section>';
   }
 
-  /* ── Editor Workbench Helpers (P12/P13) ── */
+  /* ── Editor Workbench Helpers (P12/P13/P14) ── */
   var WB_COMP_CATS = [
-    { label: '레이아웃',  items: ['컨테이너', '그리드', '플렉스 행', '스택', '디바이더', '스크롤 영역'] },
-    { label: '텍스트',    items: ['제목', '본문', '라벨', '도움말', '링크 텍스트'] },
-    { label: '콘텐츠',    items: ['이미지', '비디오', '카드', '배너', '아이콘', '썸네일'] },
-    { label: '입력',      items: ['텍스트 입력', '셀렉트', '체크박스', '라디오', '토글', '날짜 선택', '파일 업로드'] },
-    { label: '데이터',    items: ['데이터 테이블', '리스트', '페이지네이션', '필터', '검색'] },
-    { label: '상태',      items: ['상태 chip', '배지', '진행 상태', '알림', '빈 상태'] },
-    { label: '공통 참조', items: ['GNB', 'Footer', 'Modal', 'Toast'] }
+    {
+      id: 'layout', name: '레이아웃',
+      items: [
+        { id: 'container',   name: '컨테이너',  blockName: '컨테이너 영역' },
+        { id: 'grid',        name: '그리드',     blockName: '그리드 레이아웃' },
+        { id: 'flex-row',    name: '플렉스 행',  blockName: '가로 정렬 영역' },
+        { id: 'stack',       name: '스택',       blockName: '세로 정렬 영역' },
+        { id: 'divider',     name: '디바이더',   blockName: '구분선' },
+        { id: 'scroll-area', name: '스크롤 영역', blockName: '스크롤 콘텐츠 영역' }
+      ]
+    },
+    {
+      id: 'text', name: '텍스트',
+      items: [
+        { id: 'title',     name: '제목',       blockName: '화면 제목' },
+        { id: 'body',      name: '본문',       blockName: '본문 텍스트' },
+        { id: 'label',     name: '라벨',       blockName: '필드 라벨' },
+        { id: 'help',      name: '도움말',     blockName: '도움말 문구' },
+        { id: 'link-text', name: '링크 텍스트', blockName: '텍스트 링크' }
+      ]
+    },
+    {
+      id: 'content', name: '콘텐츠',
+      items: [
+        { id: 'image',     name: '이미지',  blockName: '이미지 영역' },
+        { id: 'video',     name: '비디오',  blockName: '비디오 영역' },
+        { id: 'card',      name: '카드',    blockName: '카드 영역' },
+        { id: 'banner',    name: '배너',    blockName: '배너 영역' },
+        { id: 'icon',      name: '아이콘',  blockName: '아이콘 표시' },
+        { id: 'thumbnail', name: '썸네일', blockName: '썸네일 목록' }
+      ]
+    },
+    {
+      id: 'input', name: '입력',
+      items: [
+        { id: 'text-input',   name: '텍스트 입력', blockName: '텍스트 입력 필드' },
+        { id: 'select',       name: '셀렉트',      blockName: '선택 입력' },
+        { id: 'checkbox',     name: '체크박스',    blockName: '체크박스 그룹' },
+        { id: 'radio',        name: '라디오',      blockName: '라디오 그룹' },
+        { id: 'toggle',       name: '토글',        blockName: '토글 스위치' },
+        { id: 'date',         name: '날짜 선택',   blockName: '날짜 선택 필드' },
+        { id: 'file-upload',  name: '파일 업로드', blockName: '파일 업로드 영역' }
+      ]
+    },
+    {
+      id: 'data', name: '데이터',
+      items: [
+        { id: 'table',      name: '데이터 테이블', blockName: '결과 테이블' },
+        { id: 'list',       name: '리스트',        blockName: '목록 리스트' },
+        { id: 'pagination', name: '페이지네이션',  blockName: '페이지네이션' },
+        { id: 'filter',     name: '필터',          blockName: '필터 영역' },
+        { id: 'search',     name: '검색',          blockName: '검색 조건' }
+      ]
+    },
+    {
+      id: 'state', name: '상태',
+      items: [
+        { id: 'status-chip', name: '상태 chip', blockName: '상태 표시' },
+        { id: 'badge',       name: '배지',      blockName: '배지 표시' },
+        { id: 'progress',    name: '진행 상태', blockName: '진행 상태 표시' },
+        { id: 'alert',       name: '알림',      blockName: '알림 메시지' },
+        { id: 'empty',       name: '빈 상태',   blockName: '빈 결과 안내' }
+      ]
+    },
+    {
+      id: 'common', name: '공통 참조',
+      items: [
+        { id: 'gnb',    name: 'GNB',    blockName: '공통 GNB' },
+        { id: 'footer', name: 'Footer', blockName: '공통 Footer' },
+        { id: 'modal',  name: 'Modal',  blockName: '확인 모달' },
+        { id: 'toast',  name: 'Toast',  blockName: '토스트 알림' }
+      ]
+    }
   ];
 
   var _wfDragIdx = null;
 
   function buildCompLib() {
     return WB_COMP_CATS.map(function(cat, ci) {
-      return '<div class="comp-cat' + (ci < 2 ? ' open' : '') + '">' +
-        '<div class="cc-hdr">' + cat.label +
+      return '<div class="comp-cat' + (ci < 2 ? ' open' : '') + '" data-cat-id="' + cat.id + '">' +
+        '<div class="cc-hdr">' + cat.name +
           '<svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>' +
         '</div>' +
         '<div class="cc-items">' +
           cat.items.map(function(item) {
-            return '<div class="comp-item"><span class="ci-dot"></span><span class="ci-name">' + item + '</span></div>';
+            return '<div class="comp-item" data-comp-cat="' + cat.id + '" data-comp-id="' + item.id + '" data-comp-name="' + item.blockName + '" title="클릭하여 블록 추가">' +
+              '<span class="ci-dot"></span>' +
+              '<span class="ci-name">' + item.name + '</span>' +
+              '<span class="ci-add">+</span>' +
+            '</div>';
           }).join('') +
         '</div>' +
       '</div>';
@@ -2241,16 +2311,13 @@
 
   function buildInspContent(block, idx) {
     if (!block) return buildInspEmpty();
+    var tab = SSP.editor.inspectorTab || 'props';
     var nm = (block.name || '').replace(/"/g, '&quot;');
     var dc = (block.desc || '').replace(/"/g, '&quot;');
-    return '<div class="insp-content">' +
-      '<div class="insp-tabs">' +
-        '<button type="button" class="insp-tab on" data-insp-tab="props">속성</button>' +
-        '<button type="button" class="insp-tab" data-insp-tab="vis">표시/권한</button>' +
-        '<button type="button" class="insp-tab" data-insp-tab="action">액션/연결</button>' +
-        '<button type="button" class="insp-tab" data-insp-tab="data">데이터/검증</button>' +
-      '</div>' +
-      '<div class="insp-panel">' +
+
+    var panelHtml = '';
+    if (tab === 'props') {
+      panelHtml =
         '<div class="if"><div class="iflbl">컴포넌트명</div>' +
           '<input class="ifinp" data-insp-field="name" data-wf-idx="' + idx + '" value="' + nm + '"></div>' +
         '<div class="if"><div class="iflbl">설명</div>' +
@@ -2258,12 +2325,73 @@
         '<div class="ifdiv"></div>' +
         '<div class="if"><div class="iflbl">중요도</div>' +
           '<div class="irg">' +
-            '<label class="iri"><input type="radio" name="insp-imp-' + idx + '" value="h"' + (block.imp === 'h' ? ' checked' : '') + '><span class="imp-h">높음</span> 필수 핵심 영역</label>' +
-            '<label class="iri"><input type="radio" name="insp-imp-' + idx + '" value="m"' + (block.imp !== 'h' && block.imp !== 'l' ? ' checked' : '') + '><span class="imp-m">중간</span> 권장 포함 영역</label>' +
-            '<label class="iri"><input type="radio" name="insp-imp-' + idx + '" value="l"' + (block.imp === 'l' ? ' checked' : '') + '><span class="imp-l">낮음</span> 선택 또는 보조 영역</label>' +
+            '<label class="iri"><input type="radio" name="insp-imp-' + idx + '" value="h"' + (block.imp === 'h' ? ' checked' : '') + '><span class="imp-h">높음</span> 필수 핵심 영역</label>' +
+            '<label class="iri"><input type="radio" name="insp-imp-' + idx + '" value="m"' + (block.imp !== 'h' && block.imp !== 'l' ? ' checked' : '') + '><span class="imp-m">중간</span> 권장 포함 영역</label>' +
+            '<label class="iri"><input type="radio" name="insp-imp-' + idx + '" value="l"' + (block.imp === 'l' ? ' checked' : '') + '><span class="imp-l">낮음</span> 선택 또는 보조 영역</label>' +
           '</div>' +
-        '</div>' +
+        '</div>';
+    } else if (tab === 'vis') {
+      var disp = block.display || {};
+      var condVal = disp.condition || '항상 표시';
+      var rolesArr = (disp.roles && disp.roles.length) ? disp.roles : ['전체 사용자'];
+      var editArr  = (disp.editableBy && disp.editableBy.length) ? disp.editableBy : ['작성자', 'PM'];
+      panelHtml =
+        '<div class="if"><div class="iflbl">표시 조건</div>' +
+          '<input class="ifinp" value="' + condVal.replace(/"/g, '&quot;') + '" readonly></div>' +
+        '<div class="if"><div class="iflbl">접근 역할</div>' +
+          '<div class="if-chips">' + rolesArr.map(function(r) { return '<span class="if-chip">' + r + '</span>'; }).join('') + '</div></div>' +
+        '<div class="if"><div class="iflbl">편집 가능 역할</div>' +
+          '<div class="if-chips">' + editArr.map(function(r) { return '<span class="if-chip">' + r + '</span>'; }).join('') + '</div></div>' +
+        '<div class="ifdiv"></div>' +
+        '<div class="if"><div class="iflbl">상태별 노출</div>' +
+          '<div class="if-seg">' +
+            '<span class="if-seg-item on">초안</span>' +
+            '<span class="if-seg-item on">검토중</span>' +
+            '<span class="if-seg-item on">확정</span>' +
+          '</div></div>';
+    } else if (tab === 'action') {
+      var act = block.action || {};
+      panelHtml =
+        '<div class="if"><div class="iflbl">주요 액션</div>' +
+          '<input class="ifinp" value="' + (act.primary || '미정').replace(/"/g, '&quot;') + '" readonly></div>' +
+        '<div class="if"><div class="iflbl">연결 화면</div>' +
+          '<input class="ifinp" value="' + (act.link || '미연결').replace(/"/g, '&quot;') + '" readonly></div>' +
+        '<div class="if"><div class="iflbl">이벤트</div>' +
+          '<input class="ifinp" value="' + (act.event || '클릭').replace(/"/g, '&quot;') + '" readonly></div>' +
+        '<div class="ifdiv"></div>' +
+        '<div class="if"><div class="iflbl">후속 액션</div>' +
+          '<div class="if-chips">' +
+            '<span class="if-chip">수정</span>' +
+            '<span class="if-chip">삭제</span>' +
+            '<span class="if-chip">검토요청</span>' +
+          '</div></div>';
+    } else if (tab === 'data') {
+      var dat = block.data || {};
+      panelHtml =
+        '<div class="if"><div class="iflbl">데이터 출처</div>' +
+          '<input class="ifinp" value="' + (dat.source || '미정').replace(/"/g, '&quot;') + '" readonly></div>' +
+        '<div class="if"><div class="iflbl">필수 여부</div>' +
+          '<div class="if-seg">' +
+            '<span class="if-seg-item' + (!dat.required ? ' on' : '') + '">선택</span>' +
+            '<span class="if-seg-item' + (dat.required ? ' on' : '') + '">필수</span>' +
+          '</div></div>' +
+        '<div class="if"><div class="iflbl">검증 규칙</div>' +
+          '<input class="ifinp" value="' + (dat.validation || '미입력').replace(/"/g, '&quot;') + '" readonly></div>' +
+        '<div class="ifdiv"></div>' +
+        '<div class="if"><div class="iflbl">빈 상태</div>' +
+          '<input class="ifinp" value="' + (dat.emptyState || '표시 필요').replace(/"/g, '&quot;') + '" readonly></div>' +
+        '<div class="if"><div class="iflbl">오류 상태</div>' +
+          '<input class="ifinp" value="' + (dat.errorState || '표시 필요').replace(/"/g, '&quot;') + '" readonly></div>';
+    }
+
+    return '<div class="insp-content">' +
+      '<div class="insp-tabs">' +
+        '<button type="button" class="insp-tab' + (tab === 'props'  ? ' on' : '') + '" data-insp-tab="props">속성</button>' +
+        '<button type="button" class="insp-tab' + (tab === 'vis'    ? ' on' : '') + '" data-insp-tab="vis">표시/권한</button>' +
+        '<button type="button" class="insp-tab' + (tab === 'action' ? ' on' : '') + '" data-insp-tab="action">액션/연결</button>' +
+        '<button type="button" class="insp-tab' + (tab === 'data'   ? ' on' : '') + '" data-insp-tab="data">데이터/검증</button>' +
       '</div>' +
+      '<div class="insp-panel">' + panelHtml + '</div>' +
     '</div>';
   }
 
@@ -2287,6 +2415,7 @@
       });
     }
     if (SSP.editor.selBlock === undefined) SSP.editor.selBlock = null;
+    if (!SSP.editor.inspectorTab) SSP.editor.inspectorTab = 'props';
 
     var groupLabel = (d.templateGroup === 'admin' || SSP.frontAdmin === 'admin') ? 'Admin' : 'Front';
     var svcName = d.serviceTypeName || '';
@@ -2439,6 +2568,9 @@
     var descItemsHtml = visBlocks.map(function(b, i) {
       var num = i < 9 ? '0' + (i + 1) : '' + (i + 1);
       var hasDesc = b.desc && b.desc !== '화면 구성 요소';
+      var disp = b.display || {};
+      var act = b.action || {};
+      var dat = b.data || {};
       return '<div class="desc-item" data-pv-idx="' + i + '">' +
         '<div class="desc-item-top">' +
           '<div class="desc-num">' + num + '</div>' +
@@ -2448,8 +2580,9 @@
         '<div class="desc-fields">' +
           '<div class="desc-field"><span class="dflbl">설명</span><span class="' + (hasDesc ? 'dfval' : 'dfempty') + '">' + (b.desc || '미입력') + '</span></div>' +
           '<div class="desc-field"><span class="dflbl">중요도</span><span class="dfval">' + (b.imp === 'h' ? '높음' : b.imp === 'l' ? '낮음' : '중간') + '</span></div>' +
-          '<div class="desc-field"><span class="dflbl">표시 조건</span><span class="dfempty">미입력</span></div>' +
-          '<div class="desc-field"><span class="dflbl">연결 화면</span><span class="dfempty">미입력</span></div>' +
+          '<div class="desc-field"><span class="dflbl">표시 조건</span><span class="' + (disp.condition ? 'dfval' : 'dfempty') + '">' + (disp.condition || '미입력') + '</span></div>' +
+          '<div class="desc-field"><span class="dflbl">연결 화면</span><span class="' + (act.link && act.link !== '미연결' ? 'dfval' : 'dfempty') + '">' + (act.link || '미연결') + '</span></div>' +
+          '<div class="desc-field"><span class="dflbl">데이터 출처</span><span class="' + (dat.source && dat.source !== '미정' ? 'dfval' : 'dfempty') + '">' + (dat.source || '미정') + '</span></div>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -2573,6 +2706,29 @@
         return;
       }
 
+      /* Component Library item click → insert block */
+      var compItem = e.target.closest('.comp-item[data-comp-id]');
+      if (compItem && SSP.view.mode === 'editor') {
+        var newBlock = {
+          id: 'block-' + Date.now(),
+          type: compItem.getAttribute('data-comp-id'),
+          category: compItem.getAttribute('data-comp-cat'),
+          name: compItem.getAttribute('data-comp-name') || compItem.getAttribute('data-comp-id'),
+          desc: '화면 구성 요소',
+          visible: true,
+          imp: 'm',
+          display: { condition: '항상 표시', roles: ['전체 사용자'], editableBy: ['작성자', 'PM'] },
+          action: { primary: '미정', link: '미연결', event: '클릭' },
+          data: { source: '미정', required: false, validation: '미입력', emptyState: '표시 필요', errorState: '표시 필요' },
+          status: 'draft'
+        };
+        SSP.editor.wfBlocks.push(newBlock);
+        SSP.editor.selBlock = SSP.editor.wfBlocks.length - 1;
+        SSP.editor.inspectorTab = 'props';
+        renderEditorView();
+        return;
+      }
+
       /* Component Library category toggle */
       var ccHdr = e.target.closest('.cc-hdr');
       if (ccHdr && SSP.view.mode === 'editor') {
@@ -2604,6 +2760,17 @@
           else if (SSP.editor.selBlock > wfIdx) SSP.editor.selBlock--;
         }
         renderEditorView();
+        return;
+      }
+
+      /* Inspector tab switching (no full re-render needed) */
+      var inspTabBtn = e.target.closest('.insp-tab[data-insp-tab]');
+      if (inspTabBtn && SSP.view.mode === 'editor') {
+        SSP.editor.inspectorTab = inspTabBtn.getAttribute('data-insp-tab');
+        var inspBodyEl = document.getElementById('insp-body');
+        if (inspBodyEl && SSP.editor.selBlock !== null) {
+          inspBodyEl.innerHTML = buildInspContent(SSP.editor.wfBlocks[SSP.editor.selBlock], SSP.editor.selBlock);
+        }
         return;
       }
 
