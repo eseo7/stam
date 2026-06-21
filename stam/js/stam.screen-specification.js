@@ -2433,9 +2433,9 @@
       switchView('template');
       renderTemplateView();
     });
-    /* P8-A: 정적 Template Starter Card의 Primary CTA → 기존 template view 진입(동일 동작) */
-    var starterBtn = document.getElementById('ss-starter-cta');
-    if (starterBtn) starterBtn.addEventListener('click', function() {
+    /* P8-S: 기존 프리셋 보기 CTA → 기존 template view 진입 */
+    var existingTplBtn = document.getElementById('ss-existing-template-cta');
+    if (existingTplBtn) existingTplBtn.addEventListener('click', function() {
       switchView('template');
       renderTemplateView();
     });
