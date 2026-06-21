@@ -3886,3 +3886,328 @@ select.ss-ed-inp:focus,
   border-color: rgba(255,255,255,.1);
   background: rgba(255,255,255,.03);
 }
+
+/* ── Step 3: Page Template card grid ── */
+.ss-ptpl-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.ss-ptpl-card {
+  background: var(--bg-sur2);
+  border: 1.5px solid var(--bd);
+  border-radius: 8px;
+  padding: 14px 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 150ms, background 150ms, box-shadow 150ms;
+  width: 100%;
+}
+
+.ss-ptpl-card:hover {
+  border-color: color-mix(in srgb, var(--brand) 35%, transparent);
+  background: color-mix(in srgb, var(--brand) 4%, var(--bg-sur2));
+}
+
+.ss-ptpl-card.is-active {
+  border-color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 8%, var(--bg-sur2));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 12%, transparent);
+}
+
+.ss-ptpl-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--t1);
+  margin-bottom: 3px;
+  line-height: 1.3;
+}
+
+.ss-ptpl-card.is-active .ss-ptpl-name { color: var(--brand); }
+
+.ss-ptpl-tgt {
+  font-size: 11px;
+  color: var(--t3);
+  margin-bottom: 8px;
+}
+
+.ss-ptpl-meta {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.ss-ptpl-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--brand) 10%, transparent);
+  color: var(--brand);
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.ss-ptpl-desc {
+  font-size: 12px;
+  color: var(--t3);
+  line-height: 1.55;
+  margin-bottom: 10px;
+}
+
+.ss-ptpl-sl {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--t3);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.ss-ptpl-si {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--t2);
+  margin-bottom: 3px;
+}
+
+.ss-ptpl-si::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--t3);
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .ss-ptpl-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .ss-ptpl-grid { grid-template-columns: 1fr; }
+}
+
+[data-theme="dark"] .ss-ptpl-card {
+  background: rgba(255,255,255,.04);
+  border-color: rgba(255,255,255,.1);
+}
+
+[data-theme="dark"] .ss-ptpl-card:hover {
+  border-color: #8B7FF8;
+  background: rgba(139,127,248,.08);
+}
+
+[data-theme="dark"] .ss-ptpl-card.is-active {
+  border-color: #8B7FF8;
+  background: rgba(139,127,248,.07);
+  box-shadow: 0 0 0 3px rgba(139,127,248,.18);
+}
+
+[data-theme="dark"] .ss-ptpl-card.is-active .ss-ptpl-name { color: #8B7FF8; }
+
+[data-theme="dark"] .ss-ptpl-tag {
+  background: rgba(139,127,248,.12);
+  color: #8B7FF8;
+  border-color: rgba(139,127,248,.18);
+}
+
+/* ── Step 4: Basic Info form layout ── */
+.ss-s4-wrap {
+  display: grid;
+  grid-template-columns: 1fr 268px;
+  gap: 20px;
+  align-items: start;
+  margin-bottom: 8px;
+}
+
+.ss-fgrp { margin-bottom: 14px; }
+
+.ss-flbl {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--t2);
+  margin-bottom: 5px;
+}
+
+.ss-req { color: #ef4444; margin-left: 2px; }
+
+.ss-fhint {
+  font-size: 10.5px;
+  color: var(--t3);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+.ss-finp {
+  width: 100%;
+  padding: 8px 11px;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  color: var(--t1);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.ss-finp:focus {
+  border-color: color-mix(in srgb, var(--brand) 50%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 12%, transparent);
+}
+
+.ss-finp::placeholder { color: var(--t3); }
+
+.ss-finp-ta {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.ss-frow2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Status radio buttons */
+.ss-st-radios {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.ss-st-r {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur2);
+  font-size: 12px;
+  color: var(--t2);
+  transition: all 150ms;
+}
+
+.ss-st-r input { display: none; }
+
+.ss-st-r:has(input:checked) {
+  border-color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 10%, var(--bg-sur2));
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.ss-st-r:hover { border-color: color-mix(in srgb, var(--brand) 30%, transparent); }
+
+/* Summary panel */
+.ss-sum-panel {
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  padding: 16px 14px;
+  position: sticky;
+  top: 64px;
+}
+
+.ss-sum-ttl {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--t2);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--bd);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.ss-sum-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: flex-start;
+}
+
+.ss-sum-lbl {
+  font-size: 10px;
+  color: var(--t3);
+  width: 80px;
+  flex-shrink: 0;
+  padding-top: 1px;
+  line-height: 1.5;
+}
+
+.ss-sum-val {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--t1);
+  flex: 1;
+  line-height: 1.4;
+}
+
+.ss-sum-div {
+  margin: 10px 0;
+  border: none;
+  border-top: 1px solid var(--bd);
+}
+
+.ss-sum-note {
+  font-size: 10.5px;
+  color: var(--t3);
+  line-height: 1.6;
+  padding: 8px 10px;
+  background: color-mix(in srgb, var(--brand) 5%, transparent);
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--brand) 10%, transparent);
+  margin-top: 4px;
+}
+
+@media (max-width: 800px) {
+  .ss-s4-wrap { grid-template-columns: 1fr; }
+  .ss-sum-panel { position: static; }
+  .ss-frow2 { grid-template-columns: 1fr; }
+}
+
+[data-theme="dark"] .ss-finp {
+  background: rgba(255,255,255,.05);
+  border-color: rgba(255,255,255,.12);
+}
+
+[data-theme="dark"] .ss-finp:focus {
+  border-color: rgba(139,127,248,.5);
+  box-shadow: 0 0 0 2px rgba(139,127,248,.12);
+}
+
+[data-theme="dark"] .ss-st-r {
+  background: rgba(255,255,255,.04);
+  border-color: rgba(255,255,255,.1);
+}
+
+[data-theme="dark"] .ss-st-r:has(input:checked) {
+  border-color: #8B7FF8;
+  background: rgba(139,127,248,.1);
+  color: #8B7FF8;
+}
+
+[data-theme="dark"] .ss-sum-panel {
+  background: rgba(255,255,255,.03);
+  border-color: rgba(255,255,255,.1);
+}
+
+[data-theme="dark"] .ss-sum-div { border-color: rgba(255,255,255,.08); }
+
+[data-theme="dark"] .ss-sum-note {
+  background: rgba(139,127,248,.08);
+  border-color: rgba(139,127,248,.14);
+}

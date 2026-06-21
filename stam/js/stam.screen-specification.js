@@ -1487,11 +1487,35 @@
       '</div>';
   }
 
-  /* ── Create View Step 3: Page Template (placeholder) ── */
+  /* ── Create View Step 3: Page Template selection ── */
+  var CREATE_PAGE_TEMPLATE_LIST = [
+    { id: 'dashboard',  name: '대시보드',
+      desc: '주요 지표·현황 요약·빠른 링크로 구성되는 홈/대시보드 화면',
+      sections: ['KPI 카드', '차트 영역', '최근 활동', '빠른 실행'],
+      structure: { useSearch: false, useTable: true, useStatusChip: true, useRowAction: false, useEmpty: false } },
+    { id: 'list-search', name: '목록 / 검색',
+      desc: '검색 조건 + 결과 테이블로 구성되는 일반 목록·조회 화면',
+      sections: ['검색 영역', '필터', '결과 테이블', '페이지네이션'],
+      structure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true } },
+    { id: 'reg-form', name: '등록 / 수정 폼',
+      desc: '입력 필드와 저장 액션으로 구성되는 폼 화면',
+      sections: ['폼 섹션', '유효성 안내', '액션 버튼'],
+      structure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false } },
+    { id: 'settings', name: '설정',
+      desc: '항목별 설정값을 관리하고 저장하는 설정 화면',
+      sections: ['설정 그룹', '설정 항목', '저장 버튼'],
+      structure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false } }
+  ];
+
   function renderCreateStep3() {
     var el = document.getElementById('ss-template-view');
     if (!el) return;
     SSP.createStep = 3;
+    if (!SSP.pageTemplate) SSP.pageTemplate = CREATE_PAGE_TEMPLATE_LIST[0].id;
+    var sel = SSP.pageTemplate;
+    var svcObj = findServiceTypeById(SSP.serviceType || 'branding');
+    var svcName = svcObj.name;
+    var areaName = (SSP.frontAdmin === 'admin') ? 'Admin' : 'Front';
 
     el.innerHTML =
       '<div class="ss-create-inner">' +
@@ -1521,14 +1545,22 @@
           '</div>' +
         '</div>' +
         '<div class="ss-create-sec-hdr">' +
-          '<h3 class="ss-create-sec-title">Page Template 선택</h3>' +
+          '<h3 class="ss-create-sec-title">Page Template을 선택하세요</h3>' +
           '<p class="ss-create-sec-desc">선택한 서비스 유형과 화면 영역에 맞는 Page Template을 선택합니다.</p>' +
         '</div>' +
-        '<div class="ss-step3-placeholder">' +
-          '<div class="ss-step3-ic">' +
-            svgIc('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/>', 36) +
-          '</div>' +
-          '<p class="ss-step3-msg">Page Template 선택 화면은 다음 작업에서 구성됩니다.</p>' +
+        '<div class="ss-ptpl-grid">' +
+          CREATE_PAGE_TEMPLATE_LIST.map(function(t) {
+            return '<button type="button" class="ss-ptpl-card' + (t.id === sel ? ' is-active' : '') + '" data-ss-ptpl="' + t.id + '">' +
+              '<div class="ss-ptpl-name">' + t.name + '</div>' +
+              '<div class="ss-ptpl-tgt">' + svcName + ' · ' + areaName + '</div>' +
+              '<div class="ss-ptpl-meta">' +
+                '<span class="ss-ptpl-tag">섹션 ' + t.sections.length + '개</span>' +
+              '</div>' +
+              '<div class="ss-ptpl-desc">' + t.desc + '</div>' +
+              '<div class="ss-ptpl-sl">기본 포함 섹션</div>' +
+              t.sections.map(function(s) { return '<div class="ss-ptpl-si">' + s + '</div>'; }).join('') +
+            '</button>';
+          }).join('') +
         '</div>' +
         '<div class="ss-create-foot">' +
           '<div class="ss-create-foot-l">' +
@@ -1537,8 +1569,115 @@
             '</button>' +
           '</div>' +
           '<div class="ss-create-foot-r">' +
-            '<button type="button" class="ss-create-btn is-primary" data-ssv-action="create-next" disabled>' +
+            '<button type="button" class="ss-create-btn is-primary" data-ssv-action="create-next">' +
               '다음 단계 ' + svgIc('<polyline points="9 18 15 12 9 6"/>', 13) +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  /* ── Create View Step 4: Basic Info + Summary ── */
+  function renderCreateStep4() {
+    var el = document.getElementById('ss-template-view');
+    if (!el) return;
+    SSP.createStep = 4;
+    var svcObj = findServiceTypeById(SSP.serviceType || 'branding');
+    var svcName = svcObj.name;
+    var areaName = (SSP.frontAdmin === 'admin') ? 'Admin' : 'Front';
+    var ptpl = (function() {
+      for (var i = 0; i < CREATE_PAGE_TEMPLATE_LIST.length; i++) {
+        if (CREATE_PAGE_TEMPLATE_LIST[i].id === SSP.pageTemplate) return CREATE_PAGE_TEMPLATE_LIST[i];
+      }
+      return CREATE_PAGE_TEMPLATE_LIST[0];
+    }());
+    var idNum = SS_SEQ < 10 ? '0' + SS_SEQ : '' + SS_SEQ;
+    var defaultId = SSP.step4ScreenId || ('SCR-' + idNum);
+
+    el.innerHTML =
+      '<div class="ss-create-inner">' +
+        '<div class="ss-create-hdr">' +
+          '<h2 class="ss-create-title">새 화면설계서 작성</h2>' +
+          '<p class="ss-create-sub">설계 대상 서비스 유형과 화면 영역을 선택한 뒤, Page Template을 기준으로 화면설계서를 시작합니다.</p>' +
+        '</div>' +
+        '<div class="ss-create-steps" role="list" aria-label="작성 단계">' +
+          '<div class="ss-step is-done" role="listitem">' +
+            '<span class="ss-step-num">' + SS_STEP_CHK + '</span>' +
+            '<span class="ss-step-label">서비스 유형</span>' +
+          '</div>' +
+          '<span class="ss-step-sep" aria-hidden="true"></span>' +
+          '<div class="ss-step is-done" role="listitem">' +
+            '<span class="ss-step-num">' + SS_STEP_CHK + '</span>' +
+            '<span class="ss-step-label">Front / Admin</span>' +
+          '</div>' +
+          '<span class="ss-step-sep" aria-hidden="true"></span>' +
+          '<div class="ss-step is-done" role="listitem">' +
+            '<span class="ss-step-num">' + SS_STEP_CHK + '</span>' +
+            '<span class="ss-step-label">Page Template</span>' +
+          '</div>' +
+          '<span class="ss-step-sep" aria-hidden="true"></span>' +
+          '<div class="ss-step is-active" role="listitem">' +
+            '<span class="ss-step-num">4</span>' +
+            '<span class="ss-step-label">기본 정보</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="ss-create-sec-hdr">' +
+          '<h3 class="ss-create-sec-title">기본 정보를 입력하세요</h3>' +
+          '<p class="ss-create-sec-desc">화면설계서의 기본 정보를 입력하면 편집기에서 바로 작업을 시작할 수 있습니다.</p>' +
+        '</div>' +
+        '<div class="ss-s4-wrap">' +
+          '<div class="ss-s4-form">' +
+            '<div class="ss-frow2">' +
+              '<div class="ss-fgrp">' +
+                '<label class="ss-flbl" for="ss-s4-screen-id">화면 ID</label>' +
+                '<input type="text" id="ss-s4-screen-id" class="ss-finp" value="' + defaultId + '" placeholder="SCR-00" autocomplete="off">' +
+                '<p class="ss-fhint">자동 부여됩니다. 필요시 수정 가능합니다.</p>' +
+              '</div>' +
+              '<div class="ss-fgrp">' +
+                '<label class="ss-flbl" for="ss-s4-screen-name">화면명 <span class="ss-req">*</span></label>' +
+                '<input type="text" id="ss-s4-screen-name" class="ss-finp" placeholder="화면명을 입력하세요" autocomplete="off">' +
+              '</div>' +
+            '</div>' +
+            '<div class="ss-fgrp">' +
+              '<label class="ss-flbl" for="ss-s4-biz-area">비즈니스 영역</label>' +
+              '<input type="text" id="ss-s4-biz-area" class="ss-finp" placeholder="예: 회원 관리, 주문 처리" autocomplete="off">' +
+            '</div>' +
+            '<div class="ss-fgrp">' +
+              '<label class="ss-flbl">초기 작성 상태</label>' +
+              '<div class="ss-st-radios">' +
+                '<label class="ss-st-r"><input type="radio" name="ss-s4-status" value="writing" checked> 작성 중</label>' +
+                '<label class="ss-st-r"><input type="radio" name="ss-s4-status" value="done"> 작성완료</label>' +
+                '<label class="ss-st-r"><input type="radio" name="ss-s4-status" value="review"> 검토대기</label>' +
+              '</div>' +
+            '</div>' +
+            '<div class="ss-fgrp">' +
+              '<label class="ss-flbl" for="ss-s4-memo">메모</label>' +
+              '<textarea id="ss-s4-memo" class="ss-finp ss-finp-ta" placeholder="화면 작성 시 참고할 내용을 입력하세요 (선택사항)"></textarea>' +
+            '</div>' +
+          '</div>' +
+          '<div class="ss-sum-panel">' +
+            '<div class="ss-sum-ttl">작성 요약</div>' +
+            '<div class="ss-sum-row"><span class="ss-sum-lbl">서비스 유형</span><span class="ss-sum-val">' + svcName + '</span></div>' +
+            '<div class="ss-sum-row"><span class="ss-sum-lbl">화면 영역</span><span class="ss-sum-val">' + areaName + '</span></div>' +
+            '<div class="ss-sum-row"><span class="ss-sum-lbl">Page Template</span><span class="ss-sum-val">' + ptpl.name + '</span></div>' +
+            '<hr class="ss-sum-div">' +
+            '<div class="ss-sum-row" style="flex-direction:column;gap:4px">' +
+              '<span class="ss-sum-lbl" style="width:auto">포함 섹션</span>' +
+              '<span class="ss-sum-val" style="font-size:11px;font-weight:400;color:var(--t2)">' + ptpl.sections.join(' · ') + '</span>' +
+            '</div>' +
+            '<hr class="ss-sum-div">' +
+            '<div class="ss-sum-note">입력 완료 후 편집기에서 화면 구성 및 주석을 작성합니다.</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="ss-create-foot">' +
+          '<div class="ss-create-foot-l">' +
+            '<button type="button" class="ss-create-btn" data-ssv-action="create-prev">' +
+              svgIc('<polyline points="15 18 9 12 15 6"/>', 13) + ' 이전' +
+            '</button>' +
+          '</div>' +
+          '<div class="ss-create-foot-r">' +
+            '<button type="button" class="ss-create-btn is-primary" data-ssv-action="create-next">' +
+              '완료 및 편집기 열기 ' + svgIc('<polyline points="9 18 15 12 9 6"/>', 13) +
             '</button>' +
           '</div>' +
         '</div>' +
@@ -2269,6 +2408,15 @@
         return;
       }
 
+      /* Page Template card selection (create view step 3) */
+      var ptplCard = e.target.closest('[data-ss-ptpl]');
+      if (ptplCard && SSP.view.mode === 'template') {
+        SSP.pageTemplate = ptplCard.getAttribute('data-ss-ptpl');
+        document.querySelectorAll('[data-ss-ptpl]').forEach(function(c) { c.classList.remove('is-active'); });
+        ptplCard.classList.add('is-active');
+        return;
+      }
+
       /* ssv-action routing */
       var actionBtn = e.target.closest('[data-ssv-action]');
       if (!actionBtn) return;
@@ -2318,6 +2466,44 @@
           renderCreateStep2();
         } else if (curStep === 2) {
           renderCreateStep3();
+        } else if (curStep === 3) {
+          renderCreateStep4();
+        } else if (curStep === 4) {
+          var nameEl = document.getElementById('ss-s4-screen-name');
+          if (nameEl && !nameEl.value.trim()) {
+            nameEl.focus();
+            nameEl.style.outline = '2px solid #ef4444';
+            setTimeout(function() { nameEl.style.outline = ''; }, 2000);
+            return;
+          }
+          var ptpl4 = (function() {
+            for (var i = 0; i < CREATE_PAGE_TEMPLATE_LIST.length; i++) {
+              if (CREATE_PAGE_TEMPLATE_LIST[i].id === SSP.pageTemplate) return CREATE_PAGE_TEMPLATE_LIST[i];
+            }
+            return CREATE_PAGE_TEMPLATE_LIST[0];
+          }());
+          var tplObj = {
+            id: 'ptpl-' + ptpl4.id,
+            name: ptpl4.name,
+            screenType: ptpl4.id === 'list-search' ? 'list' : ptpl4.id === 'reg-form' ? 'form' : 'main',
+            defaultStructure: ptpl4.structure,
+            items: ptpl4.sections
+          };
+          createDraftFromTemplate(tplObj, SSP.frontAdmin || 'front', SSP.serviceType || 'branding');
+          if (SSP.draft) {
+            var snEl4 = document.getElementById('ss-s4-screen-name');
+            var sidEl4 = document.getElementById('ss-s4-screen-id');
+            var baEl4 = document.getElementById('ss-s4-biz-area');
+            var mEl4 = document.getElementById('ss-s4-memo');
+            var stEl4 = document.querySelector('[name="ss-s4-status"]:checked');
+            if (snEl4) SSP.draft.screenName = snEl4.value.trim();
+            if (sidEl4 && sidEl4.value.trim()) SSP.draft.screenId = sidEl4.value.trim();
+            if (baEl4) SSP.draft.bizArea = baEl4.value.trim();
+            if (mEl4) SSP.draft.memo = mEl4.value.trim();
+            if (stEl4) SSP.draft.wst = stEl4.value;
+          }
+          switchView('editor');
+          renderEditorView();
         }
 
       } else if (act === 'create-prev') {
@@ -2331,6 +2517,8 @@
           renderTemplateView();
         } else if (curStep === 3) {
           renderCreateStep2();
+        } else if (curStep === 4) {
+          renderCreateStep3();
         }
       }
     });
@@ -2600,6 +2788,8 @@
     if (regBtn) regBtn.addEventListener('click', function() {
       SSP.serviceType = null;
       SSP.frontAdmin = null;
+      SSP.pageTemplate = null;
+      SSP.step4ScreenId = null;
       SSP.createStep = null;
       switchView('template');
       renderTemplateView();
