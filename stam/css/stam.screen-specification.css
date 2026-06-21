@@ -4840,6 +4840,16 @@ select.ss-ed-inp:focus,
 .pmf-blk-name { font-size: 11px; font-weight: 600; color: var(--t2); margin-bottom: 3px; }
 .pmf-blk-lines { display: flex; flex-direction: column; gap: 3px; }
 .pmf-bline { height: 6px; border-radius: 3px; background: var(--bg-sur2); }
+.pmf-blk-desc {
+  font-size: 10px;
+  color: var(--t3);
+  font-style: italic;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* RIGHT: Description (45%) */
 .prev-desc-col { flex: 1; overflow-y: auto; display: flex; flex-direction: column; scrollbar-width: thin; }
@@ -4902,6 +4912,42 @@ select.ss-ed-inp:focus,
 .dflbl { font-weight: 700; color: var(--t3); flex-shrink: 0; min-width: 52px; }
 .dfval { color: var(--t2); }
 .dfempty { color: rgba(245,158,11,.75); font-style: italic; }
+
+/* full-width desc field (설명 row spans both columns) */
+.desc-field-full { grid-column: 1 / -1; }
+
+/* ── Check Point section (bottom of Description column) ── */
+.pv-checkpoint {
+  flex-shrink: 0;
+  border-top: 1px solid var(--bd);
+  padding: 10px 14px 12px;
+  background: var(--bg-sur);
+}
+.pvc-hdr {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--t2);
+  margin-bottom: 8px;
+}
+.pvc-hdr svg { flex-shrink: 0; opacity: .65; }
+.pvc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.pvc-item { display: flex; align-items: center; gap: 7px; font-size: 10.5px; }
+.pvc-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.pvc-ok  { background: var(--pass, #22c55e); }
+.pvc-ng  { background: var(--warn, #f59e0b); }
+.pvc-lbl { flex: 1; color: var(--t2); }
+.pvc-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.pvcb-ok { background: rgba(34,197,94,.1); color: var(--pass, #22c55e); border: 1px solid rgba(34,197,94,.2); }
+.pvcb-ng { background: rgba(245,158,11,.1); color: var(--warn, #f59e0b); border: 1px solid rgba(245,158,11,.2); }
 
 /* Preview Footer */
 .prev-ftr {
