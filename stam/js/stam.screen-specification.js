@@ -1353,13 +1353,8 @@
     el.innerHTML =
       '<div class="ss-create-inner">' +
         '<div class="ss-create-hdr">' +
-          '<button type="button" class="ss-create-back" data-ssv-action="list">' +
-            svgIc('<polyline points="15 18 9 12 15 6"/>', 14) + ' 목록으로' +
-          '</button>' +
-          '<div class="ss-create-hdr-body">' +
-            '<h2 class="ss-create-title">새 화면설계서 작성</h2>' +
-            '<p class="ss-create-sub">설계 대상 서비스 유형과 화면 영역을 선택한 뒤, Page Template을 기준으로 화면설계서를 시작합니다.</p>' +
-          '</div>' +
+          '<h2 class="ss-create-title">새 화면설계서 작성</h2>' +
+          '<p class="ss-create-sub">설계 대상 서비스 유형과 화면 영역을 선택한 뒤, Page Template을 기준으로 화면설계서를 시작합니다.</p>' +
         '</div>' +
         '<div class="ss-create-steps" role="list" aria-label="작성 단계">' +
           '<div class="ss-step is-active" role="listitem">' +
@@ -1436,13 +1431,8 @@
     el.innerHTML =
       '<div class="ss-create-inner">' +
         '<div class="ss-create-hdr">' +
-          '<button type="button" class="ss-create-back" data-ssv-action="list">' +
-            svgIc('<polyline points="15 18 9 12 15 6"/>', 14) + ' 목록으로' +
-          '</button>' +
-          '<div class="ss-create-hdr-body">' +
-            '<h2 class="ss-create-title">새 화면설계서 작성</h2>' +
-            '<p class="ss-create-sub">설계 대상 서비스 유형과 화면 영역을 선택한 뒤, Page Template을 기준으로 화면설계서를 시작합니다.</p>' +
-          '</div>' +
+          '<h2 class="ss-create-title">새 화면설계서 작성</h2>' +
+          '<p class="ss-create-sub">설계 대상 서비스 유형과 화면 영역을 선택한 뒤, Page Template을 기준으로 화면설계서를 시작합니다.</p>' +
         '</div>' +
         '<div class="ss-create-steps" role="list" aria-label="작성 단계">' +
           '<div class="ss-step is-done" role="listitem">' +
@@ -1506,13 +1496,8 @@
     el.innerHTML =
       '<div class="ss-create-inner">' +
         '<div class="ss-create-hdr">' +
-          '<button type="button" class="ss-create-back" data-ssv-action="list">' +
-            svgIc('<polyline points="15 18 9 12 15 6"/>', 14) + ' 목록으로' +
-          '</button>' +
-          '<div class="ss-create-hdr-body">' +
-            '<h2 class="ss-create-title">새 화면설계서 작성</h2>' +
-            '<p class="ss-create-sub">설계 대상 서비스 유형과 화면 영역을 선택한 뒤, Page Template을 기준으로 화면설계서를 시작합니다.</p>' +
-          '</div>' +
+          '<h2 class="ss-create-title">새 화면설계서 작성</h2>' +
+          '<p class="ss-create-sub">설계 대상 서비스 유형과 화면 영역을 선택한 뒤, Page Template을 기준으로 화면설계서를 시작합니다.</p>' +
         '</div>' +
         '<div class="ss-create-steps" role="list" aria-label="작성 단계">' +
           '<div class="ss-step is-done" role="listitem">' +
