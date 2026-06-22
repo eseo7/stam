@@ -1703,41 +1703,503 @@
       '</div>';
   }
 
-  /* ── Create View Step 3: Page Template selection ── */
-  var CREATE_PAGE_TEMPLATE_LIST = [
-    { id: 'dashboard',  name: '대시보드',
-      desc: '주요 지표·현황 요약·빠른 링크로 구성되는 홈/대시보드 화면',
-      sections: ['KPI 카드', '차트 영역', '최근 활동', '빠른 실행'],
-      structure: { useSearch: false, useTable: true, useStatusChip: true, useRowAction: false, useEmpty: false } },
-    { id: 'list-search', name: '목록 / 검색',
-      desc: '검색 조건 + 결과 테이블로 구성되는 일반 목록·조회 화면',
-      sections: ['검색 영역', '필터', '결과 테이블', '페이지네이션'],
-      structure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true } },
-    { id: 'reg-form', name: '등록 / 수정 폼',
-      desc: '입력 필드와 저장 액션으로 구성되는 폼 화면',
-      sections: ['폼 섹션', '유효성 안내', '액션 버튼'],
-      structure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false } },
-    { id: 'settings', name: '설정',
-      desc: '항목별 설정값을 관리하고 저장하는 설정 화면',
-      sections: ['설정 그룹', '설정 항목', '저장 버튼'],
-      structure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false } }
+  /* ── Create View Step 3: Page Template Catalog (P8-E)
+   * 4 categories: app-admin | website-public | domain-preset | custom-blank
+   * Domain Preset → Core Template 위에 얹는 예시 (baseTemplateId 사용)
+   * 각 템플릿은 향후 Inspector 입력 후보 / Check Point 후보를 hint로 노출
+   * (실제 Inspector / DB 저장은 이번 범위 아님 — UI 체험용 hint)
+   * ───────────────────────────────────────────────────────── */
+  var SS_TPL_CATEGORIES = [
+    { id: 'app-admin',     name: 'App / Admin' },
+    { id: 'website-public', name: 'Website / Public' },
+    { id: 'domain-preset', name: 'Domain Preset' },
+    { id: 'custom-blank',  name: 'Custom / Blank' }
   ];
+
+  var TPL_STRUCT_NONE = { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false };
+  var TPL_STRUCT_LIST = { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true };
+
+  var CREATE_PAGE_TEMPLATE_LIST = [
+    /* ── A. App / Admin Core Templates ── */
+    { id: 'dashboard', category: 'app-admin', name: 'Dashboard', screenType: 'main',
+      purpose: '주요 지표·현황 요약·빠른 링크 중심의 운영 홈',
+      desc: 'KPI 카드·차트·최근 활동을 한 화면에서 빠르게 파악합니다.',
+      sections: ['KPI 카드', '차트 영역', '최근 활동', '빠른 실행'],
+      structure: { useSearch: false, useTable: true, useStatusChip: true, useRowAction: false, useEmpty: false },
+      userInputs: ['표시할 KPI 항목', '차트 종류'],
+      checkpointHints: ['KPI 우선순위가 명확한가', '데이터 새로고침 주기'],
+      inspectorFieldHints: ['KPI 카드 - 표시 항목', '차트 - 데이터 출처 (향후)'],
+      decisionStatus: 'recommended' },
+    { id: 'list-search', category: 'app-admin', name: 'List / Search', screenType: 'list',
+      purpose: '검색 조건 + 결과 테이블로 구성되는 일반 목록·조회',
+      desc: '검색·필터·결과 테이블·행 액션이 결합된 가장 자주 쓰이는 패턴입니다.',
+      sections: ['검색 영역', '필터', '결과 테이블', '행 액션', '페이지네이션'],
+      structure: TPL_STRUCT_LIST,
+      userInputs: ['검색 조건', '테이블 컬럼', '행 액션'],
+      checkpointHints: ['빈 결과 안내 문구', '권한별 행 액션 노출 규칙'],
+      inspectorFieldHints: ['컬럼별 정렬·표시 규칙', '행 액션 - 연결 화면 (향후)'],
+      decisionStatus: 'recommended' },
+    { id: 'detail-drawer', category: 'app-admin', name: 'Detail / Drawer', screenType: 'detail',
+      purpose: '항목의 상세 정보·이력·처리 액션을 보여주는 상세 화면',
+      desc: '기본 정보·처리 이력·관련 항목을 탭/섹션으로 정리해 표시합니다.',
+      sections: ['기본 정보', '상태 chip', '처리 이력', '관련 항목', '액션 버튼'],
+      structure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false },
+      userInputs: ['표시 항목 구성', '액션 버튼 종류'],
+      checkpointHints: ['상태 chip 색상 기준', '권한별 액션 노출'],
+      inspectorFieldHints: ['처리 이력 - 데이터 출처 (향후)'],
+      decisionStatus: 'recommended' },
+    { id: 'create-edit-form', category: 'app-admin', name: 'Create / Edit Form', screenType: 'form',
+      purpose: '항목 등록·수정 입력을 처리하는 폼 화면',
+      desc: '입력 필드·유효성·저장 액션이 결합된 입력 폼입니다.',
+      sections: ['폼 섹션', '필수 항목 표시', '유효성 안내', '저장/취소 액션'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['폼 필드 구성', '필수 항목 지정'],
+      checkpointHints: ['필수값 안내 문구', '저장 후 이동 흐름'],
+      inspectorFieldHints: ['필드별 유효성 규칙 (향후)'],
+      decisionStatus: 'recommended' },
+    { id: 'settings', category: 'app-admin', name: 'Settings', screenType: 'form',
+      purpose: '항목별 설정값을 관리·저장하는 설정 화면',
+      desc: '설정 그룹·항목·저장 액션 구조의 환경설정 화면입니다.',
+      sections: ['설정 그룹', '설정 항목', '저장 버튼'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['설정 그룹·항목 구성'],
+      checkpointHints: ['설정 변경 시 영향 범위 안내'],
+      inspectorFieldHints: ['설정 항목 - 기본값 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'approval-review', category: 'app-admin', name: 'Approval / Review', screenType: 'list',
+      purpose: '검토·승인·반려 워크플로우 처리 화면',
+      desc: '대기 항목 목록과 승인/반려 처리·이력을 한 화면에서 관리합니다.',
+      sections: ['대기 항목 목록', '상태 chip', '승인·반려 액션', '처리 이력'],
+      structure: TPL_STRUCT_LIST,
+      userInputs: ['상태 종류', '권한별 액션'],
+      checkpointHints: ['반려 사유 입력 규칙', '권한별 승인 단계'],
+      inspectorFieldHints: ['승인 단계 - 권한 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'tree-hierarchy', category: 'app-admin', name: 'Tree / Hierarchy', screenType: 'list',
+      purpose: '계층 구조 데이터를 트리로 탐색·관리',
+      desc: '좌측 트리 + 우측 상세 패널 구조로 계층 항목을 관리합니다.',
+      sections: ['트리 탐색', '선택 항목 상세', '추가·삭제 액션'],
+      structure: { useSearch: true, useTable: false, useStatusChip: false, useRowAction: true, useEmpty: false },
+      userInputs: ['트리 depth 정책', '노드 액션'],
+      checkpointHints: ['이동/삭제 시 영향 안내'],
+      inspectorFieldHints: ['노드 - 표시 규칙 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'calendar-timeline', category: 'app-admin', name: 'Calendar / Gantt / Timeline', screenType: 'main',
+      purpose: '일정·스케줄·타임라인을 시각화하는 화면',
+      desc: '월/주/일 단위 캘린더 또는 간트 뷰로 일정을 표시합니다.',
+      sections: ['뷰 전환', '일정 그리드', '일정 상세 팝오버', '필터'],
+      structure: { useSearch: true, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false },
+      userInputs: ['표시 일정 종류', '뷰 전환 옵션'],
+      checkpointHints: ['겹치는 일정 표시 규칙'],
+      inspectorFieldHints: ['일정 - 색상 규칙 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'kanban-board', category: 'app-admin', name: 'Kanban / Board', screenType: 'main',
+      purpose: '상태별 컬럼으로 작업을 시각화하는 보드',
+      desc: '상태 컬럼·카드 드래그·필터로 작업 진행을 관리합니다.',
+      sections: ['상태 컬럼', '작업 카드', '필터·검색', '카드 상세 드로어'],
+      structure: { useSearch: true, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: true },
+      userInputs: ['상태 컬럼 정의', '카드 표시 필드'],
+      checkpointHints: ['상태 이동 시 권한·알림'],
+      inspectorFieldHints: ['카드 - 표시 필드 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'file-attachment', category: 'app-admin', name: 'File / Attachment', screenType: 'list',
+      purpose: '첨부 파일 업로드·관리·다운로드 화면',
+      desc: '파일 업로드 영역과 첨부 목록·다운로드 액션을 결합합니다.',
+      sections: ['업로드 영역', '파일 목록', '다운로드/삭제 액션', '용량 안내'],
+      structure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true },
+      userInputs: ['허용 확장자·용량'],
+      checkpointHints: ['용량 초과 안내', '권한별 삭제 노출'],
+      inspectorFieldHints: ['업로드 - 허용 규칙 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'report-chart', category: 'app-admin', name: 'Report / Chart', screenType: 'main',
+      purpose: '리포트·차트·지표 시각화 중심 화면',
+      desc: '조건별 필터와 차트·요약 표를 결합한 리포트 화면입니다.',
+      sections: ['조건 필터', '요약 카드', '차트 그룹', '상세 표'],
+      structure: { useSearch: true, useTable: true, useStatusChip: false, useRowAction: false, useEmpty: false },
+      userInputs: ['리포트 조건', '차트 종류'],
+      checkpointHints: ['데이터 갱신 주기', '내보내기 형식'],
+      inspectorFieldHints: ['차트 - 데이터 출처 (향후)'],
+      decisionStatus: 'draft' },
+
+    /* ── B. Website / Public Core Templates ── */
+    { id: 'homepage-main', category: 'website-public', name: 'Homepage / Main', screenType: 'main',
+      purpose: '브랜드·서비스의 첫인상을 만드는 홈페이지 메인',
+      desc: '히어로·퀵 링크·콘텐츠 카드·뉴스·푸터를 결합한 가장 일반적인 메인 페이지 구성입니다.',
+      sections: ['Global Header', 'Hero Visual / Rolling Banner', 'Quick Link / CTA', 'Accordion / Tab Section', '2x2 Card Grid', '1x4 Image + Text Cards', 'Promotion / Event', 'News / Media', 'Family Site / Related Channel', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['브랜드 카피', '대표 이미지/배너', '주요 CTA 링크'],
+      checkpointHints: ['히어로 카피 길이', '모바일 노출 우선 섹션'],
+      inspectorFieldHints: ['Hero - 배경/카피 (향후)', 'Card Grid - 항목 (향후)'],
+      featured: true,
+      decisionStatus: 'recommended' },
+    { id: 'landing-page', category: 'website-public', name: 'Landing Page', screenType: 'main',
+      purpose: '캠페인·이벤트 전용 단일 랜딩 화면',
+      desc: '한 가지 목적·CTA에 집중하는 1페이지 랜딩 구성입니다.',
+      sections: ['Hero', '핵심 메시지', '특징/혜택 섹션', 'Social Proof', 'CTA Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['캠페인 메시지', 'CTA 링크'],
+      checkpointHints: ['단일 CTA 우선순위'],
+      inspectorFieldHints: ['CTA - 링크 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'brand-about', category: 'website-public', name: 'Brand / About', screenType: 'detail',
+      purpose: '브랜드·기업·서비스 소개 페이지',
+      desc: '브랜드 스토리·연혁·구성원·CI를 정리해 보여줍니다.',
+      sections: ['브랜드 스토리', '비전·미션', '연혁', '구성원', 'CI/BI'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['브랜드 카피', '연혁 항목'],
+      checkpointHints: ['공식 표기 일관성'],
+      inspectorFieldHints: ['연혁 - 항목 데이터 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'promotion-event', category: 'website-public', name: 'Promotion / Event', screenType: 'list',
+      purpose: '프로모션·이벤트 안내·참여 페이지',
+      desc: '이벤트 배너·기간·참여 폼·진행 상태를 안내합니다.',
+      sections: ['Hero 배너', '이벤트 개요', '진행 기간', '참여 폼/링크', '유의사항'],
+      structure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false },
+      userInputs: ['이벤트 카피', '참여 링크'],
+      checkpointHints: ['종료 일자 안내'],
+      inspectorFieldHints: ['이벤트 - 일정 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'content-news-hub', category: 'website-public', name: 'Content / News Hub', screenType: 'list',
+      purpose: '뉴스·미디어·콘텐츠 허브 페이지',
+      desc: '카테고리 탭·피처드 콘텐츠·목록·페이지네이션 구조입니다.',
+      sections: ['카테고리 탭', 'Featured 콘텐츠', '콘텐츠 카드 목록', '페이지네이션'],
+      structure: { useSearch: true, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: true },
+      userInputs: ['카테고리 구성'],
+      checkpointHints: ['Featured 선정 기준'],
+      inspectorFieldHints: ['콘텐츠 - 출처 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'faq-accordion', category: 'website-public', name: 'FAQ / Accordion', screenType: 'list',
+      purpose: '자주 묻는 질문·아코디언 안내 페이지',
+      desc: '카테고리·검색·아코디언 항목 구조의 FAQ 페이지입니다.',
+      sections: ['카테고리 탭', '검색', '아코디언 목록', '문의 CTA'],
+      structure: { useSearch: true, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: true },
+      userInputs: ['FAQ 카테고리'],
+      checkpointHints: ['검색어 미일치 시 안내'],
+      inspectorFieldHints: ['FAQ 항목 - 출처 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'gallery-card-grid', category: 'website-public', name: 'Gallery / Card Grid', screenType: 'list',
+      purpose: '이미지·카드 그리드 갤러리 페이지',
+      desc: '필터·정렬·반응형 그리드의 갤러리 구조입니다.',
+      sections: ['필터', '정렬', '카드 그리드', '더보기'],
+      structure: { useSearch: true, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: true },
+      userInputs: ['카테고리·정렬'],
+      checkpointHints: ['이미지 비율 일관성'],
+      inspectorFieldHints: ['카드 - 표시 필드 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'service-portal-home', category: 'website-public', name: 'Service Portal Home', screenType: 'main',
+      purpose: '서비스 포털 진입 화면',
+      desc: '서비스 카드·바로가기·공지·로그인을 결합한 포털 홈입니다.',
+      sections: ['Header', '서비스 카드', '공지', '바로가기', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['서비스 카드 목록', '공지'],
+      checkpointHints: ['로그인 전후 노출 차이'],
+      inspectorFieldHints: ['서비스 카드 - 링크 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'product-service-detail', category: 'website-public', name: 'Product / Service Detail', screenType: 'detail',
+      purpose: '상품·서비스 소개 상세 페이지',
+      desc: '대표 이미지·설명·기능·FAQ·CTA를 결합한 상세 구성입니다.',
+      sections: ['Hero', '주요 기능', '가격/플랜', 'FAQ', 'CTA'],
+      structure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false },
+      userInputs: ['상품 카피', '기능 목록'],
+      checkpointHints: ['가격 표기 일관성'],
+      inspectorFieldHints: ['상품 - 데이터 출처 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'reservation-entry', category: 'website-public', name: 'Reservation Entry', screenType: 'form',
+      purpose: '예약·신청 진입 화면',
+      desc: '서비스 선택·일정·예약 폼 진입을 안내합니다.',
+      sections: ['Hero', '서비스 선택', '일정 선택', '예약 폼 CTA'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['서비스 종류', '예약 단계'],
+      checkpointHints: ['진입 단계별 안내'],
+      inspectorFieldHints: ['예약 - 단계 정의 (향후)'],
+      decisionStatus: 'draft' },
+
+    /* ── C. Domain Presets (Core Template 위에 얹는 예시) ── */
+    { id: 'preset-hotel-resort', category: 'domain-preset', name: 'Hotel / Resort', screenType: 'main',
+      baseTemplateId: 'homepage-main', presetName: 'Hotel / Resort', domainType: 'hotel',
+      purpose: '호텔·리조트 홈페이지 기본 구성 (Homepage / Main 기반)',
+      desc: '예약·룸 소개·다이닝·시설·이벤트 섹션이 강조된 호텔 홈 예시입니다.',
+      sections: ['Global Header', 'Hero (객실/리조트)', '예약 Quick CTA', '룸 소개 Card Grid', '다이닝·시설', '프로모션', 'News / Notice', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['브랜드 카피', '대표 객실 이미지', '예약 링크'],
+      checkpointHints: ['예약 CTA 우선순위'],
+      inspectorFieldHints: ['룸 - 표시 필드 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-commerce', category: 'domain-preset', name: 'Commerce', screenType: 'main',
+      baseTemplateId: 'homepage-main', presetName: 'Commerce', domainType: 'commerce',
+      purpose: '커머스 홈 기본 구성 (Homepage / Main 기반)',
+      desc: '추천 상품·기획전·배너·카테고리 진입 중심의 커머스 홈 예시입니다.',
+      sections: ['Header', 'Hero 배너', '카테고리 Quick', '추천 상품 Grid', '기획전', '신상품', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['상품 데이터 종류', '추천 정책'],
+      checkpointHints: ['상품 카드 표기 일관성'],
+      inspectorFieldHints: ['상품 - 데이터 출처 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-membership', category: 'domain-preset', name: 'Membership', screenType: 'main',
+      baseTemplateId: 'homepage-main', presetName: 'Membership', domainType: 'membership',
+      purpose: '멤버십 서비스 홈 (Homepage / Main 기반)',
+      desc: '회원 등급·혜택·가입 CTA를 강조한 멤버십 홈 예시입니다.',
+      sections: ['Header', 'Hero (멤버십 혜택)', '등급 카드', '혜택 안내', '가입 CTA', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['등급 정의', '혜택 항목'],
+      checkpointHints: ['등급별 혜택 비교 명확성'],
+      inspectorFieldHints: ['등급 - 표시 필드 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-reservation', category: 'domain-preset', name: 'Reservation', screenType: 'main',
+      baseTemplateId: 'reservation-entry', presetName: 'Reservation', domainType: 'reservation',
+      purpose: '예약·신청 전용 화면 (Reservation Entry 기반)',
+      desc: '예약 진입·일정·신청 폼 흐름의 예약 도메인 구성입니다.',
+      sections: ['Hero', '예약 가능 서비스', '일정 선택', '예약 폼 CTA'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['예약 종류'],
+      checkpointHints: ['예약 단계 안내'],
+      inspectorFieldHints: ['예약 - 단계 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-recruitment', category: 'domain-preset', name: 'Recruitment', screenType: 'main',
+      baseTemplateId: 'homepage-main', presetName: 'Recruitment', domainType: 'recruitment',
+      purpose: '채용 홈 (Homepage / Main 기반)',
+      desc: '채용 공고·인재상·복지·지원 CTA를 강조한 채용 홈 예시입니다.',
+      sections: ['Header', 'Hero (인재상)', '채용 공고', '복지', '지원 CTA', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['인재상 카피', '공고 종류'],
+      checkpointHints: ['지원 마감 표기'],
+      inspectorFieldHints: ['공고 - 데이터 출처 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-ir', category: 'domain-preset', name: 'IR', screenType: 'main',
+      baseTemplateId: 'homepage-main', presetName: 'IR', domainType: 'ir',
+      purpose: 'IR(투자정보) 홈 (Homepage / Main 기반)',
+      desc: '재무 하이라이트·공시·자료 다운로드를 강조한 IR 홈 예시입니다.',
+      sections: ['Header', 'Hero', '재무 하이라이트', '공시', '자료실', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['공시 종류', '자료 항목'],
+      checkpointHints: ['공시 갱신 주기'],
+      inspectorFieldHints: ['자료 - 출처 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-esg', category: 'domain-preset', name: 'ESG', screenType: 'main',
+      baseTemplateId: 'homepage-main', presetName: 'ESG', domainType: 'esg',
+      purpose: 'ESG 정보 공개 홈 (Homepage / Main 기반)',
+      desc: '환경·사회·지배구조 영역별 활동·리포트를 강조한 ESG 홈 예시입니다.',
+      sections: ['Header', 'Hero', 'E (환경)', 'S (사회)', 'G (지배구조)', '리포트 다운로드', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['ESG 영역별 카피'],
+      checkpointHints: ['리포트 PDF 링크 일관성'],
+      inspectorFieldHints: ['리포트 - 파일 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-customer-support', category: 'domain-preset', name: 'Customer Support', screenType: 'list',
+      baseTemplateId: 'faq-accordion', presetName: 'Customer Support', domainType: 'cs',
+      purpose: '고객지원 페이지 (FAQ / Accordion 기반)',
+      desc: '문의 안내·자주 묻는 질문·1:1 문의 진입을 결합한 고객지원 구성입니다.',
+      sections: ['카테고리 탭', '검색', 'FAQ 아코디언', '1:1 문의 CTA', '운영 시간 안내'],
+      structure: { useSearch: true, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: true },
+      userInputs: ['문의 채널'],
+      checkpointHints: ['응대 시간 표기'],
+      inspectorFieldHints: ['FAQ - 출처 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-content-banner-mgmt', category: 'domain-preset', name: 'Content / Banner Management', screenType: 'list',
+      baseTemplateId: 'list-search', presetName: 'Content / Banner Management', domainType: 'cms',
+      purpose: '콘텐츠·배너 관리 Admin (List / Search 기반)',
+      desc: '노출 기간·상태·순서를 관리하는 콘텐츠/배너 관리자 예시입니다.',
+      sections: ['검색 영역', '결과 테이블 (제목·노출 기간·순서)', '노출 상태 chip', '수정/삭제 액션'],
+      structure: TPL_STRUCT_LIST,
+      userInputs: ['콘텐츠 유형', '노출 기간'],
+      checkpointHints: ['겹치는 노출 기간 처리'],
+      inspectorFieldHints: ['콘텐츠 - 노출 규칙 (향후)'],
+      decisionStatus: 'experimental' },
+
+    /* ── D. Custom / Blank ── */
+    { id: 'blank-page', category: 'custom-blank', name: 'Blank Page', screenType: 'form',
+      purpose: '아무 구조도 없이 직접 설계',
+      desc: '빈 캔버스에서 처음부터 자유롭게 설계합니다.',
+      sections: ['(직접 구성)'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['직접 구성'],
+      checkpointHints: ['기본 구조 누락 확인'],
+      inspectorFieldHints: [],
+      decisionStatus: 'draft' },
+    { id: 'section-builder-starter', category: 'custom-blank', name: 'Section Builder Starter', screenType: 'main',
+      purpose: '섹션 단위로 직접 조립하는 시작점',
+      desc: '최소 Header·Footer만 포함한 섹션 빌더용 시작 템플릿입니다.',
+      sections: ['Header', '(섹션 추가)', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['추가 섹션 구성'],
+      checkpointHints: ['섹션 간 시각 위계'],
+      inspectorFieldHints: [],
+      decisionStatus: 'draft' },
+    { id: 'admin-blank', category: 'custom-blank', name: 'Admin Blank', screenType: 'list',
+      purpose: 'Admin 기본 토글만 제공하는 빈 화면',
+      desc: '검색·테이블·행 액션 토글을 직접 켜며 구성합니다.',
+      sections: ['(직접 구성)'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['검색/테이블 토글'],
+      checkpointHints: ['권한 노출 규칙'],
+      inspectorFieldHints: [],
+      decisionStatus: 'draft' },
+    { id: 'website-blank', category: 'custom-blank', name: 'Website Blank', screenType: 'main',
+      purpose: 'Header·Footer만 포함한 빈 웹페이지',
+      desc: '최소 글로벌 영역만 두고 본문을 직접 채웁니다.',
+      sections: ['Global Header', '(본문 직접 구성)', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['본문 섹션 구성'],
+      checkpointHints: ['글로벌 영역 일관성'],
+      inspectorFieldHints: [],
+      decisionStatus: 'draft' }
+  ];
+
+  function getTemplatesByCategory(catId) {
+    var out = [];
+    for (var i = 0; i < CREATE_PAGE_TEMPLATE_LIST.length; i++) {
+      if (CREATE_PAGE_TEMPLATE_LIST[i].category === catId) out.push(CREATE_PAGE_TEMPLATE_LIST[i]);
+    }
+    return out;
+  }
+
+  function getTemplateById(tid) {
+    for (var i = 0; i < CREATE_PAGE_TEMPLATE_LIST.length; i++) {
+      if (CREATE_PAGE_TEMPLATE_LIST[i].id === tid) return CREATE_PAGE_TEMPLATE_LIST[i];
+    }
+    return null;
+  }
+
+  function getEffectiveTemplate(tid) {
+    /* Domain preset → baseTemplateId 의 sections/structure는 본인 항목을 우선 사용,
+     * base는 metadata 추적용으로만 사용 */
+    return getTemplateById(tid) || CREATE_PAGE_TEMPLATE_LIST[0];
+  }
+
+  function defaultCategoryForContext() {
+    /* Front + branding/community/reservation → website-public 기본 추천,
+     * 그 외 → app-admin */
+    if (SSP.frontAdmin === 'front') {
+      var st = SSP.serviceType;
+      if (st === 'branding' || st === 'community' || st === 'reservation') return 'website-public';
+    }
+    return 'app-admin';
+  }
+
+  function ssTplStatusLabel(s) {
+    if (s === 'recommended') return '추천';
+    if (s === 'experimental') return '시범';
+    return '기본';
+  }
+
+  function buildMiniWireframe(tpl) {
+    /* 카테고리·screenType에 따라 간단한 CSS-only mini wireframe 출력 */
+    if (!tpl) return '';
+    var rows = [];
+    var cat = tpl.category;
+    if (cat === 'website-public' || cat === 'domain-preset') {
+      rows = [
+        { cls: 'mw-header',  lbl: 'Header' },
+        { cls: 'mw-hero',    lbl: 'Hero' },
+        { cls: 'mw-quick',   lbl: 'Quick Link' },
+        { cls: 'mw-tab',     lbl: 'Tab / Accordion' },
+        { cls: 'mw-grid22',  lbl: '2x2 Card Grid' },
+        { cls: 'mw-row14',   lbl: '1x4 Image + Text' },
+        { cls: 'mw-news',    lbl: 'News / Event' },
+        { cls: 'mw-footer',  lbl: 'Footer' }
+      ];
+    } else if (cat === 'custom-blank') {
+      rows = [
+        { cls: 'mw-header',  lbl: 'Header (선택)' },
+        { cls: 'mw-blank',   lbl: '(직접 구성)' },
+        { cls: 'mw-footer',  lbl: 'Footer (선택)' }
+      ];
+    } else {
+      /* app-admin */
+      rows = [
+        { cls: 'mw-summary', lbl: 'Top Summary' },
+        { cls: 'mw-toolbar', lbl: 'Toolbar' },
+        { cls: 'mw-table',   lbl: 'Table / List' },
+        { cls: 'mw-drawer',  lbl: 'Drawer / Detail' }
+      ];
+    }
+    return '<div class="ss-mini-wire" aria-hidden="true">' +
+      rows.map(function(r) {
+        return '<div class="ss-mini-wire-row ' + r.cls + '"><span>' + r.lbl + '</span></div>';
+      }).join('') +
+    '</div>';
+  }
+
+  function renderTemplateDetailPanel(tpl) {
+    if (!tpl) return '';
+    var base = tpl.baseTemplateId ? getTemplateById(tpl.baseTemplateId) : null;
+    var statusCls = 'is-' + (tpl.decisionStatus || 'draft');
+    return '<div class="ss-tpl-detail-inner">' +
+      '<div class="ss-tpl-detail-hd">' +
+        '<div class="ss-tpl-detail-name">' + tpl.name + '</div>' +
+        '<div class="ss-tpl-detail-tags">' +
+          '<span class="ss-tpl-chip ss-tpl-chip-kind">' + (tpl.screenType || 'page') + '</span>' +
+          '<span class="ss-tpl-chip ss-tpl-chip-status ' + statusCls + '">' + ssTplStatusLabel(tpl.decisionStatus) + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ss-tpl-detail-purpose">' + (tpl.purpose || tpl.desc || '') + '</div>' +
+      (base ? '<div class="ss-tpl-detail-base">기반 Core Template · ' + base.name + '</div>' : '') +
+      '<div class="ss-tpl-detail-sec">' +
+        '<div class="ss-tpl-detail-lbl">기본 섹션</div>' +
+        '<div class="ss-tpl-detail-list">' +
+          (tpl.sections || []).map(function(s) { return '<span class="ss-tpl-detail-li">' + s + '</span>'; }).join('') +
+        '</div>' +
+      '</div>' +
+      (tpl.userInputs && tpl.userInputs.length ? (
+        '<div class="ss-tpl-detail-sec">' +
+          '<div class="ss-tpl-detail-lbl">사용자가 입력할 항목</div>' +
+          '<div class="ss-tpl-detail-list">' +
+            tpl.userInputs.map(function(s) { return '<span class="ss-tpl-detail-li">' + s + '</span>'; }).join('') +
+          '</div>' +
+        '</div>'
+      ) : '') +
+      (tpl.checkpointHints && tpl.checkpointHints.length ? (
+        '<div class="ss-tpl-detail-sec">' +
+          '<div class="ss-tpl-detail-lbl">검토 전 확인할 항목</div>' +
+          '<div class="ss-tpl-detail-list">' +
+            tpl.checkpointHints.map(function(s) { return '<span class="ss-tpl-detail-li">' + s + '</span>'; }).join('') +
+          '</div>' +
+        '</div>'
+      ) : '') +
+      (tpl.inspectorFieldHints && tpl.inspectorFieldHints.length ? (
+        '<div class="ss-tpl-detail-sec ss-tpl-detail-future">' +
+          '<div class="ss-tpl-detail-lbl">향후 Inspector 입력 후보</div>' +
+          '<div class="ss-tpl-detail-list">' +
+            tpl.inspectorFieldHints.map(function(s) { return '<span class="ss-tpl-detail-li ss-tpl-detail-li-future">' + s + '</span>'; }).join('') +
+          '</div>' +
+          '<div class="ss-tpl-detail-fnote">실제 입력 화면은 이번 단계에서는 제공되지 않습니다.</div>' +
+        '</div>'
+      ) : '') +
+      '<div class="ss-tpl-detail-sec">' +
+        '<div class="ss-tpl-detail-lbl">Mini Wireframe</div>' +
+        buildMiniWireframe(tpl) +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderTemplateDetail() {
+    var box = document.getElementById('ss-tpl-detail');
+    if (!box) return;
+    var tpl = getTemplateById(SSP.pageTemplate);
+    box.innerHTML = tpl ? renderTemplateDetailPanel(tpl) : '';
+  }
 
   function renderCreateStep3() {
     var el = document.getElementById('ss-template-view');
     if (!el) return;
     SSP.createStep = 3;
-    if (!SSP.pageTemplate) SSP.pageTemplate = CREATE_PAGE_TEMPLATE_LIST[0].id;
+    if (!SSP.templateCategory) SSP.templateCategory = defaultCategoryForContext();
+    var catId = SSP.templateCategory;
+    var tplsInCat = getTemplatesByCategory(catId);
+
+    /* selected template: 카테고리 내 항목 유지, 아니면 첫 항목 */
+    var existing = SSP.pageTemplate ? getTemplateById(SSP.pageTemplate) : null;
+    if (!existing || existing.category !== catId) {
+      var featured = tplsInCat.filter(function(t) { return t.featured; })[0];
+      SSP.pageTemplate = (featured || tplsInCat[0] || CREATE_PAGE_TEMPLATE_LIST[0]).id;
+    }
     var sel = SSP.pageTemplate;
-    var svcObj = findServiceTypeById(SSP.serviceType || 'branding');
-    var svcName = svcObj.name;
-    var areaName = (SSP.frontAdmin === 'admin') ? 'Admin' : 'Front';
 
     el.innerHTML =
       '<div class="ss-create-inner">' +
         '<div class="ss-create-hdr">' +
           '<h2 class="ss-create-title">새 화면설계서 작성</h2>' +
-          '<p class="ss-create-sub">설계 대상 서비스 유형과 화면 영역을 선택한 뒤, Page Template을 기준으로 화면설계서를 시작합니다.</p>' +
+          '<p class="ss-create-sub">어떤 화면을 설계할까요? 템플릿은 시작점입니다. 실제 서비스에 맞는 문구, 링크, 조건, 데이터 출처는 이후 작성 단계에서 입력합니다.</p>' +
         '</div>' +
         '<div class="ss-create-steps" role="list" aria-label="작성 단계">' +
           '<div class="ss-step is-done" role="listitem">' +
@@ -1760,23 +2222,37 @@
             '<span class="ss-step-label">기본 정보</span>' +
           '</div>' +
         '</div>' +
-        '<div class="ss-create-sec-hdr">' +
-          '<h3 class="ss-create-sec-title">Page Template을 선택하세요</h3>' +
-          '<p class="ss-create-sec-desc">선택한 서비스 유형과 화면 영역에 맞는 Page Template을 선택합니다.</p>' +
-        '</div>' +
-        '<div class="ss-ptpl-grid">' +
-          CREATE_PAGE_TEMPLATE_LIST.map(function(t) {
-            return '<button type="button" class="ss-ptpl-card' + (t.id === sel ? ' is-active' : '') + '" data-ss-ptpl="' + t.id + '">' +
-              '<div class="ss-ptpl-name">' + t.name + '</div>' +
-              '<div class="ss-ptpl-tgt">' + svcName + ' · ' + areaName + '</div>' +
-              '<div class="ss-ptpl-meta">' +
-                '<span class="ss-ptpl-tag">섹션 ' + t.sections.length + '개</span>' +
-              '</div>' +
-              '<div class="ss-ptpl-desc">' + t.desc + '</div>' +
-              '<div class="ss-ptpl-sl">기본 포함 섹션</div>' +
-              t.sections.map(function(s) { return '<div class="ss-ptpl-si">' + s + '</div>'; }).join('') +
-            '</button>';
+        '<div class="ss-tpl-tabs" role="tablist" aria-label="템플릿 카테고리">' +
+          SS_TPL_CATEGORIES.map(function(c) {
+            return '<button type="button" role="tab" class="ss-tpl-tab' + (c.id === catId ? ' is-active' : '') + '" data-ss-tplcat="' + c.id + '" aria-selected="' + (c.id === catId) + '">' + c.name + '</button>';
           }).join('') +
+        '</div>' +
+        '<div class="ss-tpl-split">' +
+          '<div class="ss-tpl-cards" id="ss-tpl-cards">' +
+            tplsInCat.map(function(t) {
+              var base = t.baseTemplateId ? getTemplateById(t.baseTemplateId) : null;
+              var statusCls = 'is-' + (t.decisionStatus || 'draft');
+              return '<button type="button" class="ss-tpl-card ss-ptpl-card' + (t.id === sel ? ' is-active' : '') + (t.featured ? ' is-featured' : '') + '" data-ss-ptpl="' + t.id + '">' +
+                (t.featured ? '<span class="ss-tpl-featured">추천</span>' : '') +
+                '<div class="ss-tpl-card-hd">' +
+                  '<div class="ss-ptpl-name">' + t.name + '</div>' +
+                  '<span class="ss-tpl-chip ss-tpl-chip-kind">' + (t.screenType || 'page') + '</span>' +
+                '</div>' +
+                '<div class="ss-ptpl-desc">' + (t.purpose || t.desc) + '</div>' +
+                (base ? '<div class="ss-tpl-card-base">기반 · ' + base.name + '</div>' : '') +
+                '<div class="ss-tpl-card-secs">' +
+                  (t.sections || []).slice(0, 6).map(function(s) { return '<span class="ss-tpl-card-sec">' + s + '</span>'; }).join('') +
+                '</div>' +
+                '<div class="ss-tpl-card-foot">' +
+                  '<span class="ss-tpl-card-userin">입력 항목 ' + ((t.userInputs || []).length) + '개</span>' +
+                  '<span class="ss-tpl-chip ss-tpl-chip-status ' + statusCls + '">' + ssTplStatusLabel(t.decisionStatus) + '</span>' +
+                '</div>' +
+              '</button>';
+            }).join('') +
+          '</div>' +
+          '<aside class="ss-tpl-detail" id="ss-tpl-detail" aria-live="polite">' +
+            renderTemplateDetailPanel(getTemplateById(sel)) +
+          '</aside>' +
         '</div>' +
         '<div class="ss-create-foot">' +
           '<div class="ss-create-foot-l">' +
@@ -1792,6 +2268,7 @@
         '</div>' +
       '</div>';
   }
+
 
   /* ── Create View Step 4: Basic Info + Summary ── */
   function renderCreateStep4() {
@@ -2994,12 +3471,24 @@
         return;
       }
 
+      /* Template Category tab (create view step 3) */
+      var tplCatBtn = e.target.closest('[data-ss-tplcat]');
+      if (tplCatBtn && SSP.view.mode === 'template') {
+        var nextCat = tplCatBtn.getAttribute('data-ss-tplcat');
+        if (nextCat !== SSP.templateCategory) {
+          SSP.templateCategory = nextCat;
+          renderCreateStep3();
+        }
+        return;
+      }
+
       /* Page Template card selection (create view step 3) */
       var ptplCard = e.target.closest('[data-ss-ptpl]');
       if (ptplCard && SSP.view.mode === 'template') {
         SSP.pageTemplate = ptplCard.getAttribute('data-ss-ptpl');
         document.querySelectorAll('[data-ss-ptpl]').forEach(function(c) { c.classList.remove('is-active'); });
         ptplCard.classList.add('is-active');
+        renderTemplateDetail();
         return;
       }
 
@@ -3244,20 +3733,47 @@
             setTimeout(function() { nameEl.style.outline = ''; }, 2000);
             return;
           }
-          var ptpl4 = (function() {
-            for (var i = 0; i < CREATE_PAGE_TEMPLATE_LIST.length; i++) {
-              if (CREATE_PAGE_TEMPLATE_LIST[i].id === SSP.pageTemplate) return CREATE_PAGE_TEMPLATE_LIST[i];
-            }
-            return CREATE_PAGE_TEMPLATE_LIST[0];
-          }());
+          var ptpl4 = getEffectiveTemplate(SSP.pageTemplate);
           var tplObj = {
             id: 'ptpl-' + ptpl4.id,
             name: ptpl4.name,
-            screenType: ptpl4.id === 'list-search' ? 'list' : ptpl4.id === 'reg-form' ? 'form' : 'main',
-            defaultStructure: ptpl4.structure,
+            screenType: ptpl4.screenType || 'main',
+            defaultStructure: ptpl4.structure || TPL_STRUCT_NONE,
             items: ptpl4.sections
           };
           createDraftFromTemplate(tplObj, SSP.frontAdmin || 'front', SSP.serviceType || 'branding');
+          /* Augment draft with rich template metadata (P8-E)
+           * — DB는 구현하지 않지만, 향후 저장 가능한 구조화 object로 포함 */
+          if (SSP.draft) {
+            SSP.draft.templateId = ptpl4.id;
+            SSP.draft.templateCategory = ptpl4.category;
+            SSP.draft.pageKind = ptpl4.screenType;
+            SSP.draft.userInputHints = (ptpl4.userInputs || []).slice();
+            SSP.draft.checkpointHints = (ptpl4.checkpointHints || []).slice();
+            SSP.draft.inspectorFieldHints = (ptpl4.inspectorFieldHints || []).slice();
+            SSP.draft.templateSections = (ptpl4.sections || []).slice();
+            if (ptpl4.baseTemplateId) {
+              SSP.draft.baseTemplateId = ptpl4.baseTemplateId;
+              SSP.draft.presetName = ptpl4.presetName || ptpl4.name;
+              SSP.draft.domainType = ptpl4.domainType || '';
+            }
+            /* Website/Public 또는 Domain Preset 템플릿 — sections 기반으로 components 생성 (WIREFRAME_PRESETS에 없을 때) */
+            if ((!SSP.draft.components || !SSP.draft.components.length) &&
+                (ptpl4.category === 'website-public' || ptpl4.category === 'domain-preset') &&
+                ptpl4.sections && ptpl4.sections.length) {
+              SSP.draft.components = ptpl4.sections.map(function(sName, si) {
+                return {
+                  id: 'sec-' + si,
+                  type: 'section',
+                  name: sName,
+                  enabled: true,
+                  description: '템플릿 기본 섹션 — 선택 후 서비스에 맞게 문구와 링크를 수정할 수 있습니다.',
+                  props: {}
+                };
+              });
+              SSP.previewModel = buildPreviewModelFromDraft(SSP.draft);
+            }
+          }
           if (SSP.draft) {
             var snEl4 = document.getElementById('ss-s4-screen-name');
             var sidEl4 = document.getElementById('ss-s4-screen-id');
@@ -3635,6 +4151,7 @@
       SSP.serviceType    = null;
       SSP.frontAdmin     = null;
       SSP.pageTemplate   = null;
+      SSP.templateCategory = null;
       SSP.step4ScreenId  = null;
       SSP.createStep     = null;
       SSP.activeRecordId = null;
