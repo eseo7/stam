@@ -1703,6 +1703,175 @@
       '</div>';
   }
 
+  /* ── Full Screen Component Library Catalog v1 (PR #202 보정)
+   * Single source of truth for left-side Component Library.
+   * Templates reference these via libraryId — they don't invent new elements.
+   * Variants (Card Grid 1x4 / 2x2 등)은 별도 항목으로 만들지 말고 layoutVariant 사용.
+   * 실제 Inspector 입력 UI 는 이번 범위 아님 — inspectorHints 만 후보 명세.
+   * ───────────────────────────────────────────────────────── */
+  var SCREEN_LIBRARY_GROUPS = [
+    { id: 'used',              name: '현재 화면에서 사용 중', isUsed: true },
+    { id: 'website-sections',  name: 'Website Sections' },
+    { id: 'app-admin-blocks',  name: 'App / Admin Blocks' },
+    { id: 'layout',            name: 'Layout' },
+    { id: 'text',              name: 'Text / Content' },
+    { id: 'media',             name: 'Media' },
+    { id: 'input',             name: 'Form / Input' },
+    { id: 'data',              name: 'Data Display' },
+    { id: 'navigation',        name: 'Navigation' },
+    { id: 'feedback',          name: 'Feedback / State' },
+    { id: 'custom',            name: 'Custom' }
+  ];
+
+  /* libraryId 규칙: lib.<group>.<slug>  */
+  var SCREEN_LIBRARY_CATALOG = [
+    /* A. Layout Primitives */
+    { libraryId: 'lib.layout.container',       name: 'Container',       category: 'layout',   type: 'layout' },
+    { libraryId: 'lib.layout.grid',            name: 'Grid',            category: 'layout',   type: 'layout', variants: ['1x1','1x2','1x3','1x4','2x2','2x3','3x1'], defaultVariant: '2x2' },
+    { libraryId: 'lib.layout.flex-row',        name: 'Flex Row',        category: 'layout',   type: 'layout' },
+    { libraryId: 'lib.layout.stack',           name: 'Stack',           category: 'layout',   type: 'layout' },
+    { libraryId: 'lib.layout.divider',         name: 'Divider',         category: 'layout',   type: 'layout' },
+    { libraryId: 'lib.layout.spacer',          name: 'Spacer',          category: 'layout',   type: 'layout' },
+    { libraryId: 'lib.layout.section-wrapper', name: 'Section Wrapper', category: 'layout',   type: 'layout' },
+    { libraryId: 'lib.layout.scroll-area',     name: 'Scroll Area',     category: 'layout',   type: 'layout' },
+
+    /* B. Text / Content */
+    { libraryId: 'lib.text.title',         name: 'Title',           category: 'text', type: 'text' },
+    { libraryId: 'lib.text.body',          name: 'Body Text',       category: 'text', type: 'text' },
+    { libraryId: 'lib.text.label',         name: 'Label',           category: 'text', type: 'text' },
+    { libraryId: 'lib.text.helper',        name: 'Helper Text',     category: 'text', type: 'text' },
+    { libraryId: 'lib.text.link',          name: 'Link Text',       category: 'text', type: 'text' },
+    { libraryId: 'lib.text.description-list', name: 'Description List', category: 'text', type: 'text' },
+
+    /* C. Media */
+    { libraryId: 'lib.media.image',        name: 'Image',           category: 'media', type: 'media' },
+    { libraryId: 'lib.media.video',        name: 'Video',           category: 'media', type: 'media' },
+    { libraryId: 'lib.media.icon',         name: 'Icon',            category: 'media', type: 'media' },
+    { libraryId: 'lib.media.thumbnail',    name: 'Thumbnail',       category: 'media', type: 'media' },
+    { libraryId: 'lib.media.banner-image', name: 'Banner Image',    category: 'media', type: 'media' },
+
+    /* D. Form / Input */
+    { libraryId: 'lib.input.text',         name: 'Text Input',      category: 'input', type: 'input', inspectorHints: ['라벨', '필수', '플레이스홀더', '유효성'] },
+    { libraryId: 'lib.input.textarea',     name: 'Textarea',        category: 'input', type: 'input' },
+    { libraryId: 'lib.input.select',       name: 'Select',          category: 'input', type: 'input' },
+    { libraryId: 'lib.input.checkbox',     name: 'Checkbox',        category: 'input', type: 'input' },
+    { libraryId: 'lib.input.radio',        name: 'Radio',           category: 'input', type: 'input' },
+    { libraryId: 'lib.input.date',         name: 'Date Picker',     category: 'input', type: 'input' },
+    { libraryId: 'lib.input.file-upload',  name: 'File Upload',     category: 'input', type: 'input' },
+    { libraryId: 'lib.input.search',       name: 'Search Input',    category: 'input', type: 'input' },
+
+    /* E. Data Display */
+    { libraryId: 'lib.data.table',          name: 'Table',           category: 'data', type: 'data' },
+    { libraryId: 'lib.data.list',           name: 'List',            category: 'data', type: 'data' },
+    { libraryId: 'lib.data.card',           name: 'Card',            category: 'data', type: 'data' },
+    { libraryId: 'lib.data.kpi-card-group', name: 'KPI Card Group',  category: 'data', type: 'data', variants: ['1x3','1x4','2x2'], defaultVariant: '1x4', defaultProps: { itemsCount: 4 } },
+    { libraryId: 'lib.data.chart',          name: 'Chart',           category: 'data', type: 'data' },
+    { libraryId: 'lib.data.status-badge',   name: 'Status Badge',    category: 'data', type: 'data' },
+    { libraryId: 'lib.data.timeline',       name: 'Timeline',        category: 'data', type: 'data' },
+    { libraryId: 'lib.data.calendar',       name: 'Calendar',        category: 'data', type: 'data' },
+    { libraryId: 'lib.data.gantt',          name: 'Gantt',           category: 'data', type: 'data' },
+    { libraryId: 'lib.data.kanban-card',    name: 'Kanban Card',     category: 'data', type: 'data' },
+    { libraryId: 'lib.data.attachment-list',name: 'Attachment List', category: 'data', type: 'data' },
+
+    /* F. Navigation */
+    { libraryId: 'lib.navigation.gnb',               name: 'GNB',              category: 'navigation', type: 'navigation' },
+    { libraryId: 'lib.navigation.lnb',               name: 'LNB',              category: 'navigation', type: 'navigation' },
+    { libraryId: 'lib.navigation.tabs',              name: 'Tabs',             category: 'navigation', type: 'navigation' },
+    { libraryId: 'lib.navigation.breadcrumb',        name: 'Breadcrumb',       category: 'navigation', type: 'navigation' },
+    { libraryId: 'lib.navigation.pagination',        name: 'Pagination',       category: 'navigation', type: 'navigation' },
+    { libraryId: 'lib.navigation.accordion',         name: 'Accordion',        category: 'navigation', type: 'navigation' },
+    { libraryId: 'lib.navigation.quick-link-group',  name: 'Quick Link Group', category: 'navigation', type: 'navigation', variants: ['1x3','1x4','2x4'], defaultVariant: '1x4' },
+    { libraryId: 'lib.navigation.anchor-menu',       name: 'Anchor Menu',      category: 'navigation', type: 'navigation' },
+    { libraryId: 'lib.navigation.footer-menu',       name: 'Footer Menu',      category: 'navigation', type: 'navigation' },
+
+    /* G. Website Sections */
+    { libraryId: 'lib.website.global-header',          name: 'Global Header',          category: 'website-sections', type: 'section', inspectorHints: ['로고', '메뉴', '검색'] },
+    { libraryId: 'lib.website.hero-visual',            name: 'Hero Visual',            category: 'website-sections', type: 'section', variants: ['static', 'rolling'], defaultVariant: 'rolling', inspectorHints: ['배경 이미지', '카피', 'CTA 링크'] },
+    { libraryId: 'lib.website.banner-group',           name: 'Banner Group',           category: 'website-sections', type: 'section', variants: ['1x1','1x2','1x3'], defaultVariant: '1x3', defaultProps: { displayMode: 'static' } },
+    { libraryId: 'lib.website.quick-link-cta',         name: 'Quick Link / CTA',       category: 'website-sections', type: 'section', variants: ['1x3','1x4','2x4'], defaultVariant: '1x4' },
+    { libraryId: 'lib.website.disclosure-section',     name: 'Disclosure Section',     category: 'website-sections', type: 'section', variants: ['accordion','tab'], defaultVariant: 'accordion' },
+    { libraryId: 'lib.website.card-grid',               name: 'Card Grid',              category: 'website-sections', type: 'section', variants: ['1x1','1x2','1x3','2x1','2x2','2x3','3x1','1x4'], defaultVariant: '2x2', defaultProps: { columns: 2, rows: 2 }, inspectorHints: ['카드 항목', '제목', '설명', '이미지', '링크'] },
+    { libraryId: 'lib.website.image-text-section',     name: 'Image + Text Section',   category: 'website-sections', type: 'section', variants: ['1x1','1x2','1x3','1x4'], defaultVariant: '1x4' },
+    { libraryId: 'lib.website.promotion-event-section',name: 'Promotion / Event',      category: 'website-sections', type: 'section' },
+    { libraryId: 'lib.website.news-media-section',     name: 'News / Media',           category: 'website-sections', type: 'section' },
+    { libraryId: 'lib.website.service-product-section',name: 'Service / Product',      category: 'website-sections', type: 'section' },
+    { libraryId: 'lib.website.brand-story-section',    name: 'Brand Story',            category: 'website-sections', type: 'section' },
+    { libraryId: 'lib.website.gallery-section',        name: 'Gallery Section',        category: 'website-sections', type: 'section' },
+    { libraryId: 'lib.website.faq-section',            name: 'FAQ Section',            category: 'website-sections', type: 'section' },
+    { libraryId: 'lib.website.family-site',            name: 'Family Site',            category: 'website-sections', type: 'section' },
+    { libraryId: 'lib.website.footer',                  name: 'Footer',                 category: 'website-sections', type: 'section' },
+
+    /* H. App / Admin Blocks */
+    { libraryId: 'lib.admin.summary-strip',          name: 'Summary Strip',           category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.kpi-card-group',         name: 'KPI Card Group',          category: 'app-admin-blocks', type: 'block', variants: ['1x3','1x4','2x2'], defaultVariant: '1x4', defaultProps: { itemsCount: 4 } },
+    { libraryId: 'lib.admin.search-filter-bar',      name: 'Search / Filter Bar',     category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.toolbar',                name: 'Toolbar',                 category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.result-table',           name: 'Result Table',            category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.detail-drawer-summary', name: 'Detail Drawer Summary',   category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.create-edit-form',       name: 'Create / Edit Form',      category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.approval-panel',         name: 'Approval Panel',          category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.review-history',         name: 'Review History',          category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.comment-panel',          name: 'Comment Panel',           category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.attachment-section',     name: 'Attachment Section',      category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.empty-state',            name: 'Empty State',             category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.error-state',            name: 'Error State',             category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.loading-state',          name: 'Loading State',           category: 'app-admin-blocks', type: 'block' },
+
+    /* I. Feedback / State */
+    { libraryId: 'lib.feedback.toast',          name: 'Toast',            category: 'feedback', type: 'feedback' },
+    { libraryId: 'lib.feedback.alert',          name: 'Alert',            category: 'feedback', type: 'feedback' },
+    { libraryId: 'lib.feedback.confirm',        name: 'Confirm',          category: 'feedback', type: 'feedback' },
+    { libraryId: 'lib.feedback.modal',          name: 'Modal',            category: 'feedback', type: 'feedback' },
+    { libraryId: 'lib.feedback.drawer',         name: 'Drawer',           category: 'feedback', type: 'feedback' },
+    { libraryId: 'lib.feedback.empty-result',   name: 'Empty Result',     category: 'feedback', type: 'feedback' },
+    { libraryId: 'lib.feedback.error-message',  name: 'Error Message',    category: 'feedback', type: 'feedback' },
+    { libraryId: 'lib.feedback.loading-skeleton', name: 'Loading Skeleton', category: 'feedback', type: 'feedback' },
+
+    /* J. Custom */
+    { libraryId: 'lib.custom.section',          name: 'Custom Section',    category: 'custom', type: 'custom' },
+    { libraryId: 'lib.custom.block',            name: 'Custom Block',      category: 'custom', type: 'custom' },
+    { libraryId: 'lib.custom.field-group',      name: 'Custom Field Group',category: 'custom', type: 'custom' }
+  ];
+
+  function getLibraryItem(libraryId) {
+    for (var i = 0; i < SCREEN_LIBRARY_CATALOG.length; i++) {
+      if (SCREEN_LIBRARY_CATALOG[i].libraryId === libraryId) return SCREEN_LIBRARY_CATALOG[i];
+    }
+    return null;
+  }
+
+  function getLibraryItemsByCategory(catId) {
+    var out = [];
+    for (var i = 0; i < SCREEN_LIBRARY_CATALOG.length; i++) {
+      if (SCREEN_LIBRARY_CATALOG[i].category === catId) out.push(SCREEN_LIBRARY_CATALOG[i]);
+    }
+    return out;
+  }
+
+  function buildBlockFromLibraryItem(libItem, opts) {
+    opts = opts || {};
+    var item = (typeof libItem === 'string') ? getLibraryItem(libItem) : libItem;
+    if (!item) return null;
+    var props = Object.assign({}, item.defaultProps || {}, opts.props || {});
+    return {
+      id: opts.id || ('block-' + Date.now() + '-' + Math.floor(Math.random() * 1000)),
+      libraryId: item.libraryId,
+      type: item.type,
+      category: item.category,
+      name: opts.label || item.name,
+      label: opts.label || item.name,
+      layoutVariant: opts.layoutVariant || item.defaultVariant || null,
+      props: props,
+      desc: opts.description || '화면 구성 요소',
+      visible: true,
+      imp: 'm',
+      display: { condition: '항상 표시', roles: ['전체 사용자'], editableBy: ['작성자', 'PM'] },
+      action: { primary: '미정', link: '미연결', event: '클릭' },
+      data: { source: '미정', required: false, validation: '미입력', emptyState: '표시 필요', errorState: '표시 필요' },
+      status: 'draft'
+    };
+  }
+
   /* ── Create View Step 3: Page Template Catalog (P8-E)
    * 4 categories: app-admin | website-public | domain-preset | custom-blank
    * Domain Preset → Core Template 위에 얹는 예시 (baseTemplateId 사용)
@@ -1725,6 +1894,12 @@
       purpose: '주요 지표·현황 요약·빠른 링크 중심의 운영 홈',
       desc: 'KPI 카드·차트·최근 활동을 한 화면에서 빠르게 파악합니다.',
       sections: ['KPI 카드', '차트 영역', '최근 활동', '빠른 실행'],
+      defaultSections: [
+        { libraryId: 'lib.admin.kpi-card-group', label: 'KPI Card Group', layoutVariant: '1x4', props: { itemsCount: 4 } },
+        { libraryId: 'lib.data.chart',           label: 'Chart' },
+        { libraryId: 'lib.data.list',            label: '최근 활동' },
+        { libraryId: 'lib.navigation.quick-link-group', label: '빠른 실행', layoutVariant: '1x3' }
+      ],
       structure: { useSearch: false, useTable: true, useStatusChip: true, useRowAction: false, useEmpty: false },
       userInputs: ['표시할 KPI 항목', '차트 종류'],
       checkpointHints: ['KPI 우선순위가 명확한가', '데이터 새로고침 주기'],
@@ -1734,6 +1909,13 @@
       purpose: '검색 조건 + 결과 테이블로 구성되는 일반 목록·조회',
       desc: '검색·필터·결과 테이블·행 액션이 결합된 가장 자주 쓰이는 패턴입니다.',
       sections: ['검색 영역', '필터', '결과 테이블', '행 액션', '페이지네이션'],
+      defaultSections: [
+        { libraryId: 'lib.admin.search-filter-bar', label: '검색 / 필터' },
+        { libraryId: 'lib.admin.toolbar',           label: 'Toolbar' },
+        { libraryId: 'lib.admin.result-table',      label: '결과 테이블' },
+        { libraryId: 'lib.navigation.pagination',   label: 'Pagination' },
+        { libraryId: 'lib.admin.empty-state',       label: 'Empty State' }
+      ],
       structure: TPL_STRUCT_LIST,
       userInputs: ['검색 조건', '테이블 컬럼', '행 액션'],
       checkpointHints: ['빈 결과 안내 문구', '권한별 행 액션 노출 규칙'],
@@ -1743,6 +1925,12 @@
       purpose: '항목의 상세 정보·이력·처리 액션을 보여주는 상세 화면',
       desc: '기본 정보·처리 이력·관련 항목을 탭/섹션으로 정리해 표시합니다.',
       sections: ['기본 정보', '상태 chip', '처리 이력', '관련 항목', '액션 버튼'],
+      defaultSections: [
+        { libraryId: 'lib.admin.detail-drawer-summary', label: '기본 정보' },
+        { libraryId: 'lib.data.status-badge',           label: '상태 chip' },
+        { libraryId: 'lib.admin.review-history',        label: '처리 이력' },
+        { libraryId: 'lib.data.list',                   label: '관련 항목' }
+      ],
       structure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false },
       userInputs: ['표시 항목 구성', '액션 버튼 종류'],
       checkpointHints: ['상태 chip 색상 기준', '권한별 액션 노출'],
@@ -1752,6 +1940,10 @@
       purpose: '항목 등록·수정 입력을 처리하는 폼 화면',
       desc: '입력 필드·유효성·저장 액션이 결합된 입력 폼입니다.',
       sections: ['폼 섹션', '필수 항목 표시', '유효성 안내', '저장/취소 액션'],
+      defaultSections: [
+        { libraryId: 'lib.admin.create-edit-form', label: '폼 섹션' },
+        { libraryId: 'lib.admin.toolbar',          label: '저장/취소 액션' }
+      ],
       structure: TPL_STRUCT_NONE,
       userInputs: ['폼 필드 구성', '필수 항목 지정'],
       checkpointHints: ['필수값 안내 문구', '저장 후 이동 흐름'],
@@ -1826,6 +2018,18 @@
       purpose: '브랜드·서비스의 첫인상을 만드는 홈페이지 메인',
       desc: '히어로·퀵 링크·콘텐츠 카드·뉴스·푸터를 결합한 가장 일반적인 메인 페이지 구성입니다.',
       sections: ['Global Header', 'Hero Visual / Rolling Banner', 'Quick Link / CTA', 'Accordion / Tab Section', '2x2 Card Grid', '1x4 Image + Text Cards', 'Promotion / Event', 'News / Media', 'Family Site / Related Channel', 'Footer'],
+      defaultSections: [
+        { libraryId: 'lib.website.global-header',           label: 'Global Header' },
+        { libraryId: 'lib.website.hero-visual',             label: 'Hero Visual / Rolling Banner', layoutVariant: 'rolling' },
+        { libraryId: 'lib.website.quick-link-cta',          label: 'Quick Link / CTA', layoutVariant: '1x4' },
+        { libraryId: 'lib.website.disclosure-section',      label: 'Accordion / Tab Section', layoutVariant: 'accordion' },
+        { libraryId: 'lib.website.card-grid',                label: 'Card Grid', layoutVariant: '2x2', props: { columns: 2, rows: 2 } },
+        { libraryId: 'lib.website.image-text-section',      label: 'Image + Text Section', layoutVariant: '1x4' },
+        { libraryId: 'lib.website.promotion-event-section', label: 'Promotion / Event' },
+        { libraryId: 'lib.website.news-media-section',      label: 'News / Media' },
+        { libraryId: 'lib.website.family-site',             label: 'Family Site / Related Channel' },
+        { libraryId: 'lib.website.footer',                   label: 'Footer' }
+      ],
       structure: TPL_STRUCT_NONE,
       userInputs: ['브랜드 카피', '대표 이미지/배너', '주요 CTA 링크'],
       checkpointHints: ['히어로 카피 길이', '모바일 노출 우선 섹션'],
@@ -1920,6 +2124,16 @@
       purpose: '호텔·리조트 홈페이지 기본 구성 (Homepage / Main 기반)',
       desc: '예약·룸 소개·다이닝·시설·이벤트 섹션이 강조된 호텔 홈 예시입니다.',
       sections: ['Global Header', 'Hero (객실/리조트)', '예약 Quick CTA', '룸 소개 Card Grid', '다이닝·시설', '프로모션', 'News / Notice', 'Footer'],
+      defaultSections: [
+        { libraryId: 'lib.website.global-header',          label: 'Global Header' },
+        { libraryId: 'lib.website.hero-visual',            label: 'Hero (객실/리조트)', layoutVariant: 'rolling' },
+        { libraryId: 'lib.website.quick-link-cta',         label: '예약 Quick CTA', layoutVariant: '1x3' },
+        { libraryId: 'lib.website.card-grid',              label: '룸 소개 Card Grid', layoutVariant: '2x3', props: { columns: 3, rows: 2 } },
+        { libraryId: 'lib.website.image-text-section',     label: '다이닝·시설', layoutVariant: '1x2' },
+        { libraryId: 'lib.website.promotion-event-section',label: '프로모션' },
+        { libraryId: 'lib.website.news-media-section',     label: 'News / Notice' },
+        { libraryId: 'lib.website.footer',                  label: 'Footer' }
+      ],
       structure: TPL_STRUCT_NONE,
       userInputs: ['브랜드 카피', '대표 객실 이미지', '예약 링크'],
       checkpointHints: ['예약 CTA 우선순위'],
@@ -2038,6 +2252,11 @@
       purpose: 'Header·Footer만 포함한 빈 웹페이지',
       desc: '최소 글로벌 영역만 두고 본문을 직접 채웁니다.',
       sections: ['Global Header', '(본문 직접 구성)', 'Footer'],
+      defaultSections: [
+        { libraryId: 'lib.website.global-header', label: 'Global Header' },
+        { libraryId: 'lib.layout.section-wrapper', label: '(본문 직접 구성)' },
+        { libraryId: 'lib.website.footer',         label: 'Footer' }
+      ],
       structure: TPL_STRUCT_NONE,
       userInputs: ['본문 섹션 구성'],
       checkpointHints: ['글로벌 영역 일관성'],
@@ -2873,98 +3092,209 @@
   }
 
   /* ── Editor Workbench Helpers (P12/P13/P14) ── */
+  /* 기존 공통 Library 카테고리 — 삭제하지 않고 유지.
+   * 각 item 에 libraryId 를 연결하여 Full Library Catalog 와 매핑한다. */
   var WB_COMP_CATS = [
     {
-      id: 'layout', name: '레이아웃',
+      id: 'layout', name: '레이아웃 (기본)',
       items: [
-        { id: 'container',   name: '컨테이너',  blockName: '컨테이너 영역' },
-        { id: 'grid',        name: '그리드',     blockName: '그리드 레이아웃' },
-        { id: 'flex-row',    name: '플렉스 행',  blockName: '가로 정렬 영역' },
-        { id: 'stack',       name: '스택',       blockName: '세로 정렬 영역' },
-        { id: 'divider',     name: '디바이더',   blockName: '구분선' },
-        { id: 'scroll-area', name: '스크롤 영역', blockName: '스크롤 콘텐츠 영역' }
+        { id: 'container',   libraryId: 'lib.layout.container',   name: '컨테이너',  blockName: '컨테이너 영역' },
+        { id: 'grid',        libraryId: 'lib.layout.grid',        name: '그리드',     blockName: '그리드 레이아웃' },
+        { id: 'flex-row',    libraryId: 'lib.layout.flex-row',    name: '플렉스 행',  blockName: '가로 정렬 영역' },
+        { id: 'stack',       libraryId: 'lib.layout.stack',       name: '스택',       blockName: '세로 정렬 영역' },
+        { id: 'divider',     libraryId: 'lib.layout.divider',     name: '디바이더',   blockName: '구분선' },
+        { id: 'scroll-area', libraryId: 'lib.layout.scroll-area', name: '스크롤 영역', blockName: '스크롤 콘텐츠 영역' }
       ]
     },
     {
-      id: 'text', name: '텍스트',
+      id: 'text', name: '텍스트 (기본)',
       items: [
-        { id: 'title',     name: '제목',       blockName: '화면 제목' },
-        { id: 'body',      name: '본문',       blockName: '본문 텍스트' },
-        { id: 'label',     name: '라벨',       blockName: '필드 라벨' },
-        { id: 'help',      name: '도움말',     blockName: '도움말 문구' },
-        { id: 'link-text', name: '링크 텍스트', blockName: '텍스트 링크' }
+        { id: 'title',     libraryId: 'lib.text.title',  name: '제목',       blockName: '화면 제목' },
+        { id: 'body',      libraryId: 'lib.text.body',   name: '본문',       blockName: '본문 텍스트' },
+        { id: 'label',     libraryId: 'lib.text.label',  name: '라벨',       blockName: '필드 라벨' },
+        { id: 'help',      libraryId: 'lib.text.helper', name: '도움말',     blockName: '도움말 문구' },
+        { id: 'link-text', libraryId: 'lib.text.link',   name: '링크 텍스트', blockName: '텍스트 링크' }
       ]
     },
     {
-      id: 'content', name: '콘텐츠',
+      id: 'content', name: '콘텐츠 (기본)',
       items: [
-        { id: 'image',     name: '이미지',  blockName: '이미지 영역' },
-        { id: 'video',     name: '비디오',  blockName: '비디오 영역' },
-        { id: 'card',      name: '카드',    blockName: '카드 영역' },
-        { id: 'banner',    name: '배너',    blockName: '배너 영역' },
-        { id: 'icon',      name: '아이콘',  blockName: '아이콘 표시' },
-        { id: 'thumbnail', name: '썸네일', blockName: '썸네일 목록' }
+        { id: 'image',     libraryId: 'lib.media.image',        name: '이미지',  blockName: '이미지 영역' },
+        { id: 'video',     libraryId: 'lib.media.video',        name: '비디오',  blockName: '비디오 영역' },
+        { id: 'card',      libraryId: 'lib.data.card',          name: '카드',    blockName: '카드 영역' },
+        { id: 'banner',    libraryId: 'lib.media.banner-image', name: '배너',    blockName: '배너 영역' },
+        { id: 'icon',      libraryId: 'lib.media.icon',         name: '아이콘',  blockName: '아이콘 표시' },
+        { id: 'thumbnail', libraryId: 'lib.media.thumbnail',    name: '썸네일', blockName: '썸네일 목록' }
       ]
     },
     {
-      id: 'input', name: '입력',
+      id: 'input', name: '입력 (기본)',
       items: [
-        { id: 'text-input',   name: '텍스트 입력', blockName: '텍스트 입력 필드' },
-        { id: 'select',       name: '셀렉트',      blockName: '선택 입력' },
-        { id: 'checkbox',     name: '체크박스',    blockName: '체크박스 그룹' },
-        { id: 'radio',        name: '라디오',      blockName: '라디오 그룹' },
-        { id: 'toggle',       name: '토글',        blockName: '토글 스위치' },
-        { id: 'date',         name: '날짜 선택',   blockName: '날짜 선택 필드' },
-        { id: 'file-upload',  name: '파일 업로드', blockName: '파일 업로드 영역' }
+        { id: 'text-input',   libraryId: 'lib.input.text',       name: '텍스트 입력', blockName: '텍스트 입력 필드' },
+        { id: 'select',       libraryId: 'lib.input.select',     name: '셀렉트',      blockName: '선택 입력' },
+        { id: 'checkbox',     libraryId: 'lib.input.checkbox',   name: '체크박스',    blockName: '체크박스 그룹' },
+        { id: 'radio',        libraryId: 'lib.input.radio',      name: '라디오',      blockName: '라디오 그룹' },
+        { id: 'toggle',                                          name: '토글',        blockName: '토글 스위치' },
+        { id: 'date',         libraryId: 'lib.input.date',       name: '날짜 선택',   blockName: '날짜 선택 필드' },
+        { id: 'file-upload',  libraryId: 'lib.input.file-upload',name: '파일 업로드', blockName: '파일 업로드 영역' }
       ]
     },
     {
-      id: 'data', name: '데이터',
+      id: 'data', name: '데이터 (기본)',
       items: [
-        { id: 'table',      name: '데이터 테이블', blockName: '결과 테이블' },
-        { id: 'list',       name: '리스트',        blockName: '목록 리스트' },
-        { id: 'pagination', name: '페이지네이션',  blockName: '페이지네이션' },
-        { id: 'filter',     name: '필터',          blockName: '필터 영역' },
-        { id: 'search',     name: '검색',          blockName: '검색 조건' }
+        { id: 'table',      libraryId: 'lib.data.table',           name: '데이터 테이블', blockName: '결과 테이블' },
+        { id: 'list',       libraryId: 'lib.data.list',            name: '리스트',        blockName: '목록 리스트' },
+        { id: 'pagination', libraryId: 'lib.navigation.pagination',name: '페이지네이션',  blockName: '페이지네이션' },
+        { id: 'filter',                                            name: '필터',          blockName: '필터 영역' },
+        { id: 'search',     libraryId: 'lib.input.search',         name: '검색',          blockName: '검색 조건' }
       ]
     },
     {
-      id: 'state', name: '상태',
+      id: 'state', name: '상태 (기본)',
       items: [
-        { id: 'status-chip', name: '상태 chip', blockName: '상태 표시' },
-        { id: 'badge',       name: '배지',      blockName: '배지 표시' },
-        { id: 'progress',    name: '진행 상태', blockName: '진행 상태 표시' },
-        { id: 'alert',       name: '알림',      blockName: '알림 메시지' },
-        { id: 'empty',       name: '빈 상태',   blockName: '빈 결과 안내' }
+        { id: 'status-chip', libraryId: 'lib.data.status-badge', name: '상태 chip', blockName: '상태 표시' },
+        { id: 'badge',       libraryId: 'lib.data.status-badge', name: '배지',      blockName: '배지 표시' },
+        { id: 'progress',                                        name: '진행 상태', blockName: '진행 상태 표시' },
+        { id: 'alert',       libraryId: 'lib.feedback.alert',    name: '알림',      blockName: '알림 메시지' },
+        { id: 'empty',       libraryId: 'lib.admin.empty-state', name: '빈 상태',   blockName: '빈 결과 안내' }
       ]
     },
     {
       id: 'common', name: '공통 참조',
       items: [
-        { id: 'gnb',    name: 'GNB',    blockName: '공통 GNB' },
-        { id: 'footer', name: 'Footer', blockName: '공통 Footer' },
-        { id: 'modal',  name: 'Modal',  blockName: '확인 모달' },
-        { id: 'toast',  name: 'Toast',  blockName: '토스트 알림' }
+        { id: 'gnb',    libraryId: 'lib.navigation.gnb',  name: 'GNB',    blockName: '공통 GNB' },
+        { id: 'footer', libraryId: 'lib.website.footer',  name: 'Footer', blockName: '공통 Footer' },
+        { id: 'modal',  libraryId: 'lib.feedback.modal',  name: 'Modal',  blockName: '확인 모달' },
+        { id: 'toast',  libraryId: 'lib.feedback.toast',  name: 'Toast',  blockName: '토스트 알림' }
       ]
     }
   ];
 
   var _wfDragIdx = null;
 
+  /* PR #202 보정: 현재 화면에서 사용 중인 libraryId 추출 */
+  function collectUsedLibraryIds() {
+    var blocks = (SSP.editor && SSP.editor.wfBlocks) ? SSP.editor.wfBlocks : [];
+    var seen = {};
+    var out = [];
+    blocks.forEach(function(b) {
+      var lid = b && b.libraryId;
+      if (!lid || seen[lid]) return;
+      seen[lid] = true;
+      var item = getLibraryItem(lid);
+      if (item) out.push({ libraryId: lid, name: item.name, category: item.category, type: item.type });
+    });
+    return out;
+  }
+
+  function buildLibGroupItems(items) {
+    return items.map(function(item) {
+      var libId = item.libraryId || '';
+      var dataset =
+        ' data-comp-cat="' + (item._catId || item.category) + '"' +
+        ' data-comp-id="' + (item.id || libId.replace(/^lib\./, '').replace(/\./g, '-')) + '"' +
+        ' data-comp-name="' + (item.blockName || item.name || '') + '"' +
+        (libId ? ' data-lib-id="' + libId + '"' : '') +
+        (item.defaultVariant ? ' data-lib-variant="' + item.defaultVariant + '"' : '');
+      var variantBadge = item.defaultVariant
+        ? '<span class="ss-lib-variant">' + item.defaultVariant + '</span>'
+        : '';
+      return '<div class="comp-item ss-lib-item' + (item._isUsed ? ' is-used' : '') + '"' + dataset + ' title="클릭하여 블록 추가">' +
+        '<span class="ci-dot"></span>' +
+        '<span class="ci-name">' + (item.name || libId) + '</span>' +
+        variantBadge +
+        (item._isUsed ? '<span class="ss-lib-badge">사용 중</span>' : '<span class="ci-add">+</span>') +
+      '</div>';
+    }).join('');
+  }
+
   function buildCompLib() {
     if (!SSP.editor.compLibOpenCats) {
       SSP.editor.compLibOpenCats = {};
-      WB_COMP_CATS.forEach(function(c) { SSP.editor.compLibOpenCats[c.id] = true; });
     }
-    return WB_COMP_CATS.map(function(cat) {
+    /* 기본 open 상태 결정 */
+    var ensureDefault = function(catId, def) {
+      if (SSP.editor.compLibOpenCats[catId] === undefined) SSP.editor.compLibOpenCats[catId] = def;
+    };
+
+    var html = '';
+
+    /* 1) 현재 화면에서 사용 중 — wfBlocks 의 libraryId 기반 */
+    var used = collectUsedLibraryIds();
+    ensureDefault('used', true);
+    if (used.length) {
+      var usedOpen = SSP.editor.compLibOpenCats['used'] !== false;
+      html += '<div class="comp-cat ss-lib-group ss-lib-used' + (usedOpen ? ' open' : '') + '" data-cat-id="used">' +
+        '<div class="cc-hdr">현재 화면에서 사용 중' +
+          '<span class="ss-lib-meta">' + used.length + '</span>' +
+          '<svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>' +
+        '</div>' +
+        '<div class="cc-items">' +
+          buildLibGroupItems(used.map(function(u) {
+            var item = getLibraryItem(u.libraryId) || {};
+            return Object.assign({}, item, { _catId: 'used', _isUsed: true });
+          })) +
+        '</div>' +
+      '</div>';
+    }
+
+    /* 2) Website Sections (Full Library) */
+    var webSecItems = getLibraryItemsByCategory('website-sections');
+    ensureDefault('website-sections', true);
+    var wsOpen = SSP.editor.compLibOpenCats['website-sections'] !== false;
+    html += '<div class="comp-cat ss-lib-group' + (wsOpen ? ' open' : '') + '" data-cat-id="website-sections">' +
+      '<div class="cc-hdr">Website Sections' +
+        '<span class="ss-lib-meta">' + webSecItems.length + '</span>' +
+        '<svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>' +
+      '</div>' +
+      '<div class="cc-items">' + buildLibGroupItems(webSecItems.map(function(it) { return Object.assign({}, it, { _catId: 'website-sections' }); })) + '</div>' +
+    '</div>';
+
+    /* 3) App / Admin Blocks (Full Library) */
+    var aabItems = getLibraryItemsByCategory('app-admin-blocks');
+    ensureDefault('app-admin-blocks', true);
+    var aabOpen = SSP.editor.compLibOpenCats['app-admin-blocks'] !== false;
+    html += '<div class="comp-cat ss-lib-group' + (aabOpen ? ' open' : '') + '" data-cat-id="app-admin-blocks">' +
+      '<div class="cc-hdr">App / Admin Blocks' +
+        '<span class="ss-lib-meta">' + aabItems.length + '</span>' +
+        '<svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>' +
+      '</div>' +
+      '<div class="cc-items">' + buildLibGroupItems(aabItems.map(function(it) { return Object.assign({}, it, { _catId: 'app-admin-blocks' }); })) + '</div>' +
+    '</div>';
+
+    /* 4) Navigation / Feedback / Custom — Full Library 추가 카테고리 */
+    ['navigation', 'feedback', 'custom'].forEach(function(catId) {
+      var items = getLibraryItemsByCategory(catId);
+      if (!items.length) return;
+      var labelMap = { 'navigation': 'Navigation', 'feedback': 'Feedback / State', 'custom': 'Custom' };
+      ensureDefault(catId, catId === 'navigation');
+      var open = SSP.editor.compLibOpenCats[catId] !== false;
+      html += '<div class="comp-cat ss-lib-group' + (open ? ' open' : '') + '" data-cat-id="' + catId + '">' +
+        '<div class="cc-hdr">' + labelMap[catId] +
+          '<span class="ss-lib-meta">' + items.length + '</span>' +
+          '<svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>' +
+        '</div>' +
+        '<div class="cc-items">' + buildLibGroupItems(items.map(function(it) { return Object.assign({}, it, { _catId: catId }); })) + '</div>' +
+      '</div>';
+    });
+
+    /* 5) 기존 공통 Library (legacy) — 삭제하지 않고 유지 */
+    WB_COMP_CATS.forEach(function(cat) {
+      ensureDefault(cat.id, cat.id === 'common');
       var isOpen = SSP.editor.compLibOpenCats[cat.id] !== false;
-      return '<div class="comp-cat' + (isOpen ? ' open' : '') + '" data-cat-id="' + cat.id + '">' +
+      html += '<div class="comp-cat ss-lib-group' + (isOpen ? ' open' : '') + '" data-cat-id="' + cat.id + '">' +
         '<div class="cc-hdr">' + cat.name +
+          '<span class="ss-lib-meta">' + cat.items.length + '</span>' +
           '<svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>' +
         '</div>' +
         '<div class="cc-items">' +
           cat.items.map(function(item) {
-            return '<div class="comp-item" data-comp-cat="' + cat.id + '" data-comp-id="' + item.id + '" data-comp-name="' + item.blockName + '" title="클릭하여 블록 추가">' +
+            return '<div class="comp-item ss-lib-item"' +
+              ' data-comp-cat="' + cat.id + '"' +
+              ' data-comp-id="' + item.id + '"' +
+              ' data-comp-name="' + item.blockName + '"' +
+              (item.libraryId ? ' data-lib-id="' + item.libraryId + '"' : '') +
+              ' title="클릭하여 블록 추가">' +
               '<span class="ci-dot"></span>' +
               '<span class="ci-name">' + item.name + '</span>' +
               '<span class="ci-add">+</span>' +
@@ -2972,7 +3302,9 @@
           }).join('') +
         '</div>' +
       '</div>';
-    }).join('');
+    });
+
+    return html;
   }
 
   function buildWfBlocks(blocks, selIdx) {
@@ -3133,9 +3465,25 @@
     if (!ptpl) ptpl = CREATE_PAGE_TEMPLATE_LIST[0];
 
     if (!SSP.editor.wfBlocks || !SSP.editor.wfBlocks.length) {
-      SSP.editor.wfBlocks = ptpl.sections.map(function(s) {
-        return { name: s, desc: '화면 구성 요소', visible: true, imp: 'm' };
-      });
+      /* PR #202 보정: 템플릿 defaultSections 가 있으면 libraryId 바인딩으로 생성 */
+      if (ptpl.defaultSections && ptpl.defaultSections.length) {
+        SSP.editor.wfBlocks = ptpl.defaultSections.map(function(s, si) {
+          var libItem = getLibraryItem(s.libraryId);
+          var block = libItem
+            ? buildBlockFromLibraryItem(libItem, {
+                id: 'block-tpl-' + si,
+                label: s.label || libItem.name,
+                layoutVariant: s.layoutVariant || libItem.defaultVariant || null,
+                props: s.props || {}
+              })
+            : { id: 'block-tpl-' + si, name: s.label || s.libraryId || '섹션', label: s.label || '', libraryId: s.libraryId || null, layoutVariant: s.layoutVariant || null, props: s.props || {}, desc: '화면 구성 요소', visible: true, imp: 'm' };
+          return block;
+        });
+      } else {
+        SSP.editor.wfBlocks = ptpl.sections.map(function(s) {
+          return { name: s, label: s, libraryId: null, layoutVariant: null, props: {}, desc: '화면 구성 요소', visible: true, imp: 'm' };
+        });
+      }
     }
     if (SSP.editor.selBlock === undefined) SSP.editor.selBlock = null;
     if (!SSP.editor.inspectorTab) SSP.editor.inspectorTab = 'props';
@@ -3497,19 +3845,34 @@
       if (compItem && SSP.view.mode === 'editor') {
         var clBodyBefore = document.querySelector('.cl-body');
         var clScrollTop = clBodyBefore ? clBodyBefore.scrollTop : 0;
-        var newBlock = {
-          id: 'block-' + Date.now(),
-          type: compItem.getAttribute('data-comp-id'),
-          category: compItem.getAttribute('data-comp-cat'),
-          name: compItem.getAttribute('data-comp-name') || compItem.getAttribute('data-comp-id'),
-          desc: '화면 구성 요소',
-          visible: true,
-          imp: 'm',
-          display: { condition: '항상 표시', roles: ['전체 사용자'], editableBy: ['작성자', 'PM'] },
-          action: { primary: '미정', link: '미연결', event: '클릭' },
-          data: { source: '미정', required: false, validation: '미입력', emptyState: '표시 필요', errorState: '표시 필요' },
-          status: 'draft'
-        };
+        var clickLibId = compItem.getAttribute('data-lib-id');
+        var clickVariant = compItem.getAttribute('data-lib-variant');
+        var libItemForClick = clickLibId ? getLibraryItem(clickLibId) : null;
+        var newBlock;
+        if (libItemForClick) {
+          newBlock = buildBlockFromLibraryItem(libItemForClick, {
+            label: compItem.getAttribute('data-comp-name') || libItemForClick.name,
+            layoutVariant: clickVariant || libItemForClick.defaultVariant || null
+          });
+        } else {
+          newBlock = {
+            id: 'block-' + Date.now(),
+            type: compItem.getAttribute('data-comp-id'),
+            category: compItem.getAttribute('data-comp-cat'),
+            name: compItem.getAttribute('data-comp-name') || compItem.getAttribute('data-comp-id'),
+            label: compItem.getAttribute('data-comp-name') || compItem.getAttribute('data-comp-id'),
+            libraryId: null,
+            layoutVariant: null,
+            props: {},
+            desc: '화면 구성 요소',
+            visible: true,
+            imp: 'm',
+            display: { condition: '항상 표시', roles: ['전체 사용자'], editableBy: ['작성자', 'PM'] },
+            action: { primary: '미정', link: '미연결', event: '클릭' },
+            data: { source: '미정', required: false, validation: '미입력', emptyState: '표시 필요', errorState: '표시 필요' },
+            status: 'draft'
+          };
+        }
         SSP.editor.wfBlocks.push(newBlock);
         SSP.editor.selBlock = SSP.editor.wfBlocks.length - 1;
         SSP.editor.inspectorTab = 'props';
@@ -3757,21 +4120,44 @@
               SSP.draft.presetName = ptpl4.presetName || ptpl4.name;
               SSP.draft.domainType = ptpl4.domainType || '';
             }
-            /* Website/Public 또는 Domain Preset 템플릿 — sections 기반으로 components 생성 (WIREFRAME_PRESETS에 없을 때) */
-            if ((!SSP.draft.components || !SSP.draft.components.length) &&
-                (ptpl4.category === 'website-public' || ptpl4.category === 'domain-preset') &&
-                ptpl4.sections && ptpl4.sections.length) {
-              SSP.draft.components = ptpl4.sections.map(function(sName, si) {
-                return {
-                  id: 'sec-' + si,
-                  type: 'section',
-                  name: sName,
-                  enabled: true,
-                  description: '템플릿 기본 섹션 — 선택 후 서비스에 맞게 문구와 링크를 수정할 수 있습니다.',
-                  props: {}
-                };
-              });
-              SSP.previewModel = buildPreviewModelFromDraft(SSP.draft);
+            /* PR #202 보정: defaultSections (libraryId 바인딩) 가 있으면 우선 사용,
+             * 없으면 sections 문자열 기반 fallback */
+            if (!SSP.draft.components || !SSP.draft.components.length) {
+              if (ptpl4.defaultSections && ptpl4.defaultSections.length) {
+                SSP.draft.components = ptpl4.defaultSections.map(function(s, si) {
+                  var libItem = getLibraryItem(s.libraryId) || {};
+                  return {
+                    id: 'sec-' + si,
+                    libraryId: s.libraryId || null,
+                    type: libItem.type || 'section',
+                    category: libItem.category || 'website-sections',
+                    name: s.label || libItem.name || s.libraryId,
+                    label: s.label || libItem.name || '',
+                    layoutVariant: s.layoutVariant || libItem.defaultVariant || null,
+                    props: Object.assign({}, libItem.defaultProps || {}, s.props || {}),
+                    enabled: true,
+                    description: '템플릿 기본 섹션 — 선택 후 서비스에 맞게 문구와 링크를 수정할 수 있습니다.'
+                  };
+                });
+                SSP.previewModel = buildPreviewModelFromDraft(SSP.draft);
+              } else if ((ptpl4.category === 'website-public' || ptpl4.category === 'domain-preset') &&
+                         ptpl4.sections && ptpl4.sections.length) {
+                SSP.draft.components = ptpl4.sections.map(function(sName, si) {
+                  return {
+                    id: 'sec-' + si,
+                    libraryId: null,
+                    type: 'section',
+                    category: 'website-sections',
+                    name: sName,
+                    label: sName,
+                    layoutVariant: null,
+                    props: {},
+                    enabled: true,
+                    description: '템플릿 기본 섹션 — 선택 후 서비스에 맞게 문구와 링크를 수정할 수 있습니다.'
+                  };
+                });
+                SSP.previewModel = buildPreviewModelFromDraft(SSP.draft);
+              }
             }
           }
           if (SSP.draft) {
