@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang='ko' data-theme='dark'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1.0'>
+<title>STAM Screen Specification — Claude Design New UI Source Audit v1</title>
+<link rel='icon' href='../assets/brand/stam/stam_favicon.ico' type='image/x-icon'>
+<link rel='stylesheet' href='../assets/fonts/s-core-dream/s-core-dream.css'>
+<link rel='stylesheet' href='../css/stam.tokens.css'>
+<link rel='stylesheet' href='../css/stam.shell.css'>
+<link rel='stylesheet' href='../css/stam.components.css'>
+<link rel='stylesheet' href='../css/stam.docs.css'>
+<style>
+:root{--bg:#07111f;--card:rgba(255,255,255,.055);--card2:rgba(255,255,255,.085);--line:rgba(148,163,184,.24);--text:#e5edf8;--muted:#93a4bb;--accent:#7dd3fc;--good:#86efac;--warn:#facc15;--bad:#fca5a5;--purple:#c4b5fd}
+[data-theme='light']{--bg:#f7f9fc;--card:#fff;--card2:#f0f5fb;--line:#d9e2ef;--text:#162033;--muted:#63738a;--accent:#0ea5e9;--good:#16a34a;--warn:#b45309;--bad:#dc2626;--purple:#7c3aed}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'S-Core Dream',system-ui,sans-serif;line-height:1.65}
+.top{position:sticky;top:0;z-index:20;display:flex;gap:12px;align-items:center;padding:12px 28px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px)}
+.top a{color:var(--text);text-decoration:none}
+.logo{font-weight:800;display:flex;align-items:center;gap:8px}
+.logo img{width:26px;height:26px}
+.sp{flex:1}
+.btn,.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 10px;font-size:11px;color:var(--muted);text-decoration:none}
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px;max-width:1580px;margin:0 auto;padding:28px}
+.toc{position:sticky;top:72px;align-self:start;border:1px solid var(--line);background:var(--card);border-radius:22px;padding:16px;max-height:calc(100vh - 100px);overflow-y:auto}
+.toc h2{margin:0 0 8px;font-size:13px}
+.toc a{display:block;padding:7px 10px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:11.5px}
+.toc a:hover{background:var(--card2);color:var(--text)}
+.hero,.sec{border:1px solid var(--line);background:var(--card);border-radius:26px;padding:24px;margin-bottom:18px}
+.hero{background:linear-gradient(135deg,var(--card2),var(--card))}
+h1{margin:0;font-size:30px;line-height:1.18;letter-spacing:-.04em}
+h2{margin:0;font-size:21px;letter-spacing:-.025em}
+h3{margin:0 0 6px;font-size:14px}
+.lead{max-width:980px;margin:14px 0 0;color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:11px;background:var(--card);color:var(--muted)}
+.chip.ok{color:var(--good);border-color:color-mix(in srgb,var(--good) 35%,var(--line))}
+.chip.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 35%,var(--line))}
+.chip.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 35%,var(--line))}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+.metric{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:15px}
+.metric b{display:block;font-size:24px}
+.metric span{display:block;margin-top:5px;font-size:12px;color:var(--muted)}
+.head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.no{display:inline-flex;width:34px;height:34px;align-items:center;justify-content:center;border-radius:12px;background:var(--card2);font-weight:900;color:var(--accent);font-size:13px;flex-shrink:0}
+.grid{display:grid;gap:12px}
+.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card,.note,.rule{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:15px}
+.card p,.note,.rule span{margin:0;color:var(--muted);font-size:12.5px}
+.card ul,.note ul{margin:6px 0 0;padding-left:16px;color:var(--muted);font-size:12.5px}
+.card ul li,.note ul li{margin-bottom:3px}
+.rule b{display:block;font-size:13px;margin-bottom:4px}
+.rule.ok b{color:var(--good)}
+.rule.warn b{color:var(--warn)}
+.rule.bad b{color:var(--bad)}
+.note.info{border-color:color-mix(in srgb,var(--accent) 30%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--card))}
+.note.warn{border-color:color-mix(in srgb,var(--warn) 30%,var(--line));background:color-mix(in srgb,var(--warn) 6%,var(--card))}
+.note.good{border-color:color-mix(in srgb,var(--good) 30%,var(--line));background:color-mix(in srgb,var(--good) 6%,var(--card))}
+.table{overflow:auto;border:1px solid var(--line);border-radius:16px;-webkit-overflow-scrolling:touch}
+.table table{width:100%;border-collapse:collapse;min-width:680px}
+.table.wide table{min-width:1040px}
+.table th,.table td{border-bottom:1px solid var(--line);padding:9px 11px;text-align:left;font-size:11.5px;vertical-align:top}
+.table th{background:var(--card2);color:var(--muted);white-space:nowrap;position:sticky;top:0}
+.table td b{font-weight:800}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10.5px;border:1px solid var(--line);color:var(--muted)}
+.tag.ok{color:var(--good);border-color:color-mix(in srgb,var(--good) 35%,var(--line))}
+.tag.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 35%,var(--line))}
+.tag.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 35%,var(--line))}
+.tag.pp{color:var(--purple);border-color:color-mix(in srgb,var(--purple) 35%,var(--line))}
+code,kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;background:var(--card2);padding:1px 6px;border-radius:6px;color:var(--text)}
+.kv{display:grid;grid-template-columns:140px minmax(0,1fr);gap:6px 12px;font-size:12.5px;color:var(--muted)}
+.kv b{color:var(--text);font-weight:700}
+@media (max-width:960px){
+  .shell{grid-template-columns:1fr;padding:18px}
+  .toc{position:static;max-height:none}
+  .c2,.c3,.c4{grid-template-columns:1fr}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<header class='top'>
+  <a href='STAM-Docs-Index.html' class='logo'><img src='../assets/brand/stam/stam_icon_primary_transparent.png' alt='STAM'>STAM Docs</a>
+  <span class='pill'>P8-R</span>
+  <span class='pill'>Audit · v1</span>
+  <div class='sp'></div>
+  <a class='btn' href='STAM-Docs-Index.html'>← Docs Index</a>
+</header>
+
+<div class='shell'>
+
+  <aside class='toc'>
+    <h2>목차</h2>
+    <a href='#s01'>01 · Executive Summary</a>
+    <a href='#s02'>02 · Current Product Baseline</a>
+    <a href='#s03'>03 · New UI Source Candidates</a>
+    <a href='#s04'>04 · Confirmed New UI Source</a>
+    <a href='#s05'>05 · Product vs New UI 비교</a>
+    <a href='#s06'>06 · Keep / Absorb / Replace</a>
+    <a href='#s07'>07 · Migration Scope</a>
+    <a href='#s08'>08 · Risk Map</a>
+    <a href='#s09'>09 · Recommended PR Split</a>
+    <a href='#s10'>10 · URL Policy</a>
+    <a href='#s11'>11 · Audit Conclusion</a>
+    <a href='#s12'>12 · QA Checklist</a>
+  </aside>
+
+  <main>
+
+    <!-- HERO -->
+    <section class='hero'>
+      <div class='chips'>
+        <span class='chip'>P8-R</span>
+        <span class='chip'>Screen Specification</span>
+        <span class='chip ok'>Docs-only</span>
+        <span class='chip'>main HEAD <code>0d86821</code></span>
+      </div>
+      <h1>Screen Specification — Claude Design New UI Source Audit v1</h1>
+      <p class='lead'>현재 <code>stam/pages/boards/screen-specification.html</code> 제품이 “클디(Claude Design) 신규 UI 전체 적용본”인지 확인하고, 신규 UI 원본·현재 제품·후속 이식 범위를 정리한 audit 문서입니다. 본 문서는 <b>docs-only</b>이며, 제품 파일은 수정하지 않습니다.</p>
+      <div class='metrics'>
+        <div class='metric'><b>0d86821</b><span>최신 main commit (PR #199)</span></div>
+        <div class='metric'><b>18 PR</b><span>#181~#199 신규 UI 이식 시리즈</span></div>
+        <div class='metric'><b>1 OPEN</b><span>PR #197 inspector 너비 보정</span></div>
+        <div class='metric'><b>3,644</b><span>screen-specification.js LOC</span></div>
+      </div>
+    </section>
+
+    <!-- 01 Executive Summary -->
+    <section class='sec' id='s01'>
+      <div class='head'><span class='no'>01</span><h2>Executive Summary</h2><span class='tag ok'>결론 확정</span></div>
+      <div class='grid c2'>
+        <div class='note good'>
+          <b>현재 제품은 “신규 UI 전체 적용본”에 매우 근접</b>
+          <ul>
+            <li>새 화면설계서 작성 진입은 <b>Wizard 4단계</b> 만 노출 (구 template view 경로 제거됨)</li>
+            <li>Editor는 <b>3-Panel</b> (Component Library + Wireframe Canvas + Inspector 4탭) 적용</li>
+            <li>Preview는 <b>55/45 Mockup + Description + Check Point</b> 패널 적용 (PR #188 + #198)</li>
+            <li>PR #199 sticky footer 보정 완료, PR #177 starter card는 #181에서 제거</li>
+          </ul>
+        </div>
+        <div class='note warn'>
+          <b>다만 다음 한 가지 잔여 차이 존재</b>
+          <ul>
+            <li><b>PR #197 OPEN</b> — Inspector 패널 너비를 <code>274px</code> 고정에서 <code>clamp(274px, 27vw, 440px)</code>로 보정 (2줄 CSS)</li>
+            <li>1366px 이하에서 Inspector가 좁아 사용자가 “옛 UI 같다”고 느낄 가능성 가장 큰 영역</li>
+            <li>병합 후 List 페이지 chrome (header/strip/toolbar/table/drawer)은 신규 UI 범위가 아니라는 점도 인식 필요</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 Current Product Baseline -->
+    <section class='sec' id='s02'>
+      <div class='head'><span class='no'>02</span><h2>Current Product Baseline</h2><span class='tag'>실측 기반</span></div>
+      <div class='grid c2'>
+        <div class='card'>
+          <h3>제품 파일</h3>
+          <div class='kv'>
+            <span>HTML</span><b><code>stam/pages/boards/screen-specification.html</code> (218 LOC)</b>
+            <span>CSS</span><b><code>stam/css/stam.screen-specification.css</code> (5,121 LOC)</b>
+            <span>JS</span><b><code>stam/js/stam.screen-specification.js</code> (3,644 LOC)</b>
+            <span>제품 URL</span><b><code>https://stam-design-staging.web.app/pages/boards/screen-specification.html</code></b>
+          </div>
+        </div>
+        <div class='card'>
+          <h3>현재 화면 흐름</h3>
+          <ul>
+            <li><b>List View</b> — header / strip / toolbar / table / drawer (기존 list-first 기준)</li>
+            <li><b>Wizard</b> (등록 진입) — Step1 서비스 유형 → Step2 Front/Admin → Step3 Page Template → Step4 기본 정보</li>
+            <li><b>Editor View</b> — Component Library · Wireframe Canvas · Inspector 4탭</li>
+            <li><b>Preview View</b> — Mockup · Description · Check Point</li>
+          </ul>
+        </div>
+      </div>
+      <div class='grid c3' style='margin-top:14px'>
+        <div class='card'>
+          <h3>JS 주요 renderer</h3>
+          <ul>
+            <li><code>renderTemplateView</code> (Step1) · <code>renderCreateStep2/3/4</code></li>
+            <li><code>renderEditorView</code> + <code>buildCompLib</code> · <code>buildWfBlocks</code> · <code>buildInspContent</code></li>
+            <li><code>renderPreviewView</code> + <code>buildMockup</code> · <code>buildPreviewItems</code></li>
+            <li><code>renderDw</code>/<code>renderDetail</code>/<code>renderRegister</code>/<code>renderEdit</code> (list drawer)</li>
+          </ul>
+        </div>
+        <div class='card'>
+          <h3>최근 PR 반영 상태</h3>
+          <ul>
+            <li>PR #177 Starter Card — <b>#181에서 제거됨</b> (Wizard 진입으로 통합)</li>
+            <li>PR #198 Annotated Preview — <b>적용됨</b> (Description fallback / Check Point / escHtml)</li>
+            <li>PR #199 Sticky Footer Fix — <b>적용됨</b> (<code>--bg-base</code> 토큰, z-index 20, box-shadow, safe-area)</li>
+          </ul>
+        </div>
+        <div class='card'>
+          <h3>“여전히 옛 UI처럼 보이는” 가능 사유</h3>
+          <ul>
+            <li><b>Inspector 너비 274px 고정</b> — PR #197 OPEN, 1366px 이하에서 비율 어색</li>
+            <li>List 페이지 chrome은 신규 UI 범위 외 — 사용자가 List를 기준으로 판단 가능</li>
+            <li>Editor 일부 탭 입력 컨트롤이 <code>readonly</code> skeleton 상태</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 New UI Source Candidates -->
+    <section class='sec' id='s03'>
+      <div class='head'><span class='no'>03</span><h2>Claude Design New UI Source Candidates</h2><span class='tag'>repo 실측</span></div>
+      <div class='table wide'>
+        <table>
+          <thead><tr><th>후보</th><th>유형</th><th>실재 여부</th><th>이식 적합도</th><th>제품과의 관계</th></tr></thead>
+          <tbody>
+            <tr><td><b>PR #181</b> replace old template entry with new flow create screen</td><td>merged PR</td><td><span class='tag ok'>존재</span></td><td>핵심</td><td>구 template 진입 제거 → Wizard 4단계 적용</td></tr>
+            <tr><td><b>PR #187</b> new flow template editor preview baseline</td><td>merged PR</td><td><span class='tag ok'>존재</span></td><td>핵심</td><td>Editor / Preview 기준선 도입</td></tr>
+            <tr><td><b>PR #188</b> replace editor preview with claude design baseline</td><td>merged PR</td><td><span class='tag ok'>존재</span></td><td>핵심</td><td>“클디 디자인 베이스라인” 직접 적용</td></tr>
+            <tr><td><b>PR #189</b> align editor library and enable block drag drop</td><td>merged PR</td><td><span class='tag ok'>존재</span></td><td>핵심</td><td>Library 정렬 + Wireframe 드래그</td></tr>
+            <tr><td><b>PR #190</b> improve wireframe drag handle affordance</td><td>merged PR</td><td><span class='tag ok'>존재</span></td><td>보강</td><td>드래그 핸들 시각 보정</td></tr>
+            <tr><td><b>PR #191</b> add library block insertion and inspector tab skeletons</td><td>merged PR</td><td><span class='tag ok'>존재</span></td><td>핵심</td><td>Inspector 4탭 skeleton</td></tr>
+            <tr><td><b>PR #197</b> widen inspector and rebalance 3-panel layout</td><td><span class='tag warn'>OPEN PR</span></td><td><span class='tag warn'>미병합</span></td><td>핵심</td><td>Inspector 너비 보정 (2줄 CSS, <code>clamp()</code>)</td></tr>
+            <tr><td><b>STAM-Screen-Specification-New-Flow-Baseline.html</b></td><td>doc</td><td><span class='tag ok'>존재</span></td><td>기준</td><td>Wizard 4단계 + Editor + Preview 시각 기준</td></tr>
+            <tr><td><b>STAM-Screen-Template-Selector-UX-Flow-Prototype-v1.html</b></td><td>doc</td><td><span class='tag ok'>존재</span></td><td>참고</td><td>구 Selector Prototype, PR #177 모태</td></tr>
+            <tr><td><b>STAM-Screen-Template-Top-3-Drawer-Preview-v1.html</b></td><td>doc</td><td><span class='tag ok'>존재</span></td><td>참고</td><td>Top-3 Drawer Preview 안</td></tr>
+            <tr><td><b>STAM-Screen-Template-Top-10-Detail-Pack-v1.html</b></td><td>doc</td><td><span class='tag ok'>존재</span></td><td>참고</td><td>구조형 Top-10 카탈로그 (현재 4-템플릿 grid와 미연계)</td></tr>
+            <tr><td><b>STAM-Screen-Specification-Preview-UX-Guide-v1.html</b></td><td>doc</td><td><span class='tag ok'>존재</span></td><td>기준</td><td>Preview 2-panel + Check Point 가이드</td></tr>
+            <tr><td><b>STAM-Screen-Specification-Visual-Annotation-Template-Preview-v1.html</b></td><td>doc</td><td><span class='tag ok'>존재</span></td><td>기준</td><td>번호 주석 / Annotation 템플릿</td></tr>
+            <tr><td>별도 “claude-design / new-ui” 브랜치 또는 prototype HTML</td><td>branch/file</td><td><span class='tag bad'>미발견</span></td><td>—</td><td>repo 전체 검색 결과 0건 (<code>claude-design</code> / <code>newui</code> / <code>신규 UI</code> / <code>클디</code> 모두 0 매치)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 04 Confirmed Source -->
+    <section class='sec' id='s04'>
+      <div class='head'><span class='no'>04</span><h2>Confirmed New UI Source</h2><span class='tag ok'>식별 완료</span></div>
+      <div class='note info'>
+        <b>“클디 신규 UI”의 실질 원본은 별도 prototype 파일이 아니라, PR 시리즈 <code>#181 → #187 → #188 → #189 → #190 → #191</code> 의 merge 결과 자체입니다.</b>
+        <ul>
+          <li>PR #188 제목에 “claude design baseline” 이 명시되어 있고, 이 PR이 Editor·Preview 의 시각/구조 베이스라인을 직접 도입함</li>
+          <li>해당 결과는 현 제품 파일 (<code>screen-specification.html / .css / .js</code>) 에 이미 반영되어 main 에 존재</li>
+          <li>repo 내에 “별도 신규 UI prototype HTML” 또는 <code>claude-design</code> 브랜치는 발견되지 않음 (검증 grep: 0 매치)</li>
+          <li>잔여 단 하나의 미반영 항목: <b>PR #197 (OPEN)</b> Inspector 너비 보정</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 05 Comparison -->
+    <section class='sec' id='s05'>
+      <div class='head'><span class='no'>05</span><h2>Current Product vs New UI Comparison</h2><span class='tag'>view-by-view</span></div>
+      <div class='table wide'>
+        <table>
+          <thead><tr><th>비교 항목</th><th>현재 제품 상태</th><th>신규 UI 기준</th><th>판정</th></tr></thead>
+          <tbody>
+            <tr><td>페이지 헤더</td><td>List 기존 chrome 유지</td><td>신규 UI 범위 외</td><td><span class='tag ok'>해당 없음</span></td></tr>
+            <tr><td>Wizard Stepper</td><td>4단계 / is-done · is-active · check 아이콘</td><td>New-Flow-Baseline 4단계와 일치</td><td><span class='tag ok'>일치</span></td></tr>
+            <tr><td>Page Template 카드</td><td><code>ss-ptpl-card</code> 4종 (대시보드 / 목록·검색 / 등록·수정 / 설정)</td><td>Top-10 Detail Pack은 더 광범위, 현재는 4종 preset</td><td><span class='tag warn'>부분 일치</span></td></tr>
+            <tr><td>Editor Layout</td><td>3-Panel — Component Library · Wireframe · Inspector(4탭)</td><td>일치</td><td><span class='tag ok'>일치</span></td></tr>
+            <tr><td>Inspector 너비</td><td>274px 고정</td><td><code>clamp(274px,27vw,440px)</code> 권장 (PR #197)</td><td><span class='tag warn'>차이</span></td></tr>
+            <tr><td>Preview Layout</td><td>55/45 Mockup · Description · Check Point</td><td>Preview UX Guide 와 일치</td><td><span class='tag ok'>일치</span></td></tr>
+            <tr><td>Wireframe</td><td>번호 블록 + 드래그 핸들 + 숨김/위/아래/삭제</td><td>일치</td><td><span class='tag ok'>일치</span></td></tr>
+            <tr><td>Description 패널</td><td>완료/미작성 상태, fallback, escHtml 적용</td><td>일치 (PR #198)</td><td><span class='tag ok'>일치</span></td></tr>
+            <tr><td>Check Point</td><td><code>pv-checkpoint</code> 패널 노출</td><td>일치 (PR #198)</td><td><span class='tag ok'>일치</span></td></tr>
+            <tr><td>Drawer 구조</td><td>List 행 상세 drawer (기존)</td><td>Drawer 신규 UI 범위 외</td><td><span class='tag ok'>해당 없음</span></td></tr>
+            <tr><td>Footer CTA</td><td><code>ss-create-foot</code> sticky + 불투명 배경 (PR #199)</td><td>일치</td><td><span class='tag ok'>일치</span></td></tr>
+            <tr><td>모바일/좁은 화면</td><td>768px / 430px 미디어쿼리 적용</td><td>일치, 다만 Inspector 비례 추가 조정 여지</td><td><span class='tag warn'>경미한 차이</span></td></tr>
+            <tr><td>라이트/다크</td><td>두 테마 모두 적용</td><td>일치</td><td><span class='tag ok'>일치</span></td></tr>
+            <tr><td>저장/데이터 연동</td><td>In-memory <code>SSP.savedItems</code> (Demo)</td><td>실제 저장은 후속 별도 결정 항목</td><td><span class='tag pp'>후속 결정</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 06 Keep / Absorb / Replace -->
+    <section class='sec' id='s06'>
+      <div class='head'><span class='no'>06</span><h2>Keep / Absorb / Replace Decision</h2><span class='tag'>판단</span></div>
+      <div class='grid c2'>
+        <div class='rule ok'><b>PR #199 Sticky Footer Fix — 유지</b><span>토큰 정의 누락 (<code>var(--bg)</code> → <code>var(--bg-base)</code>) 해결. 회귀 위험 없음.</span></div>
+        <div class='rule ok'><b>PR #198 Annotated Preview — 유지</b><span>escHtml + Check Point + fallback. Preview UX Guide 및 Visual Annotation 문서와 일치.</span></div>
+        <div class='rule warn'><b>PR #177 Starter Card — 이미 흡수/제거</b><span>PR #181에서 Starter Card와 <code>ss-starter*</code> CSS 모두 제거되어 Wizard 진입으로 통합. 추가 조치 없음.</span></div>
+        <div class='rule warn'><b>구 domain preset (서비스 유형 기반)</b><span>유지. 구조형 Top-10 카탈로그와의 매핑은 후속(PR-F)에서 별도 판단.</span></div>
+        <div class='rule ok'><b>기존 editor / preview 기능</b><span>유지. 신규 UI 가 이미 동일 renderer 에 반영되어 별도 재배치 불필요.</span></div>
+        <div class='rule warn'><b>List 페이지 chrome</b><span>유지. 신규 UI 범위 외. 사용자 요청 시 별도 PR-G 로 분리.</span></div>
+      </div>
+    </section>
+
+    <!-- 07 Migration Scope -->
+    <section class='sec' id='s07'>
+      <div class='head'><span class='no'>07</span><h2>Product Migration Scope</h2><span class='tag'>잔여 범위</span></div>
+      <div class='grid c2'>
+        <div class='card'><h3>Scope A — Inspector 너비 보정</h3><p>PR #197 머지. CSS 2줄. 즉시 효과 큼.</p></div>
+        <div class='card'><h3>Scope B — Editor 빈 상태 / 캔버스 상단 정리</h3><p><code>wfBlocks.length === 0</code> 일 때 placeholder 텍스트를 빈 상태 CTA 로 보강.</p></div>
+        <div class='card'><h3>Scope C — Inspector 입력 활성화</h3><p>표시/권한·액션/연결·데이터/검증 탭의 readonly 컨트롤을 편집 가능하게 전환. Check Point 카운터 실작동.</p></div>
+        <div class='card'><h3>Scope D — Library 드래그 인서트</h3><p>현재 click-to-append 지원, drag-from-library 추가.</p></div>
+        <div class='card'><h3>Scope E — Template 변경 시 데이터 보존</h3><p><code>editor-change-template</code> 시 block 데이터 유지 여부 확인 다이얼로그.</p></div>
+        <div class='card'><h3>Scope F — Top-10 카탈로그 매핑</h3><p>구조형 Top-10 카탈로그와 현재 4-템플릿 preset의 매핑 정책 정리.</p></div>
+        <div class='card'><h3>Scope G — 저장 / Board Builder 연계</h3><p>In-memory 저장을 실제 영속화로 전환할지 별도 결정. 본 audit 범위 외.</p></div>
+        <div class='card'><h3>Scope H — List 페이지 chrome (선택)</h3><p>사용자가 원할 때만 별도 PR. 본 audit 의 신규 UI 정의 범위 외.</p></div>
+      </div>
+    </section>
+
+    <!-- 08 Risk Map -->
+    <section class='sec' id='s08'>
+      <div class='head'><span class='no'>08</span><h2>Risk Map</h2><span class='tag warn'>승인 필요 영역 표시</span></div>
+      <div class='table wide'>
+        <table>
+          <thead><tr><th>Scope</th><th>변경 성격</th><th>JS 영향</th><th>저장/데이터 영향</th><th>모바일 영향</th><th>사전 승인</th></tr></thead>
+          <tbody>
+            <tr><td>A · Inspector 너비</td><td>CSS-only</td><td>없음</td><td>없음</td><td>유리</td><td><span class='tag ok'>불필요</span></td></tr>
+            <tr><td>B · Editor 빈 상태</td><td>HTML/CSS 소폭</td><td>renderer 1곳</td><td>없음</td><td>중간</td><td><span class='tag ok'>불필요</span></td></tr>
+            <tr><td>C · Inspector 입력 활성화</td><td>HTML/JS</td><td>있음</td><td>임시 상태 모델 필요</td><td>중간</td><td><span class='tag warn'>필요</span></td></tr>
+            <tr><td>D · Library 드래그 인서트</td><td>JS 이벤트</td><td>있음</td><td>없음</td><td>제한</td><td><span class='tag warn'>필요</span></td></tr>
+            <tr><td>E · Template 변경 보존</td><td>JS view 전환</td><td>있음</td><td>임시 상태 영향</td><td>중간</td><td><span class='tag warn'>필요</span></td></tr>
+            <tr><td>F · Top-10 매핑</td><td>데이터 모델 정의</td><td>있음</td><td>설계 변경</td><td>제한</td><td><span class='tag bad'>필수</span></td></tr>
+            <tr><td>G · 저장/Board Builder</td><td>저장 로직</td><td>있음</td><td>크게 영향</td><td>제한</td><td><span class='tag bad'>필수</span></td></tr>
+            <tr><td>H · List 페이지 chrome</td><td>HTML/CSS</td><td>제한</td><td>없음</td><td>큼</td><td><span class='tag warn'>필요</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 09 Recommended PR Split -->
+    <section class='sec' id='s09'>
+      <div class='head'><span class='no'>09</span><h2>Recommended PR Split</h2><span class='tag'>후속 PR 제안</span></div>
+      <div class='grid c2'>
+        <div class='card'>
+          <h3>PR-A · Inspector clamp() 보정 (= PR #197 머지)</h3>
+          <ul>
+            <li>목적: Inspector 너비 1366px 비례 보정</li>
+            <li>예상 파일: <code>stam/css/stam.screen-specification.css</code> (2줄)</li>
+            <li>금지: JS / HTML / 저장 / 데이터</li>
+            <li>검증: 1366 / 1024 / 768 / 430px 비례 확인</li>
+            <li>리스크: 매우 낮음</li>
+            <li>merge/deploy: <b>사용자 승인 후</b></li>
+          </ul>
+        </div>
+        <div class='card'>
+          <h3>PR-B · Editor 빈 상태 / Canvas top</h3>
+          <ul>
+            <li>목적: <code>wfBlocks.length === 0</code> 시 빈 상태 CTA</li>
+            <li>예상 파일: js renderer 1곳 + CSS</li>
+            <li>금지: 저장 / Firestore / nav-data / board-field-schema</li>
+            <li>리스크: 낮음</li>
+            <li>merge/deploy: <b>사용자 승인 후</b></li>
+          </ul>
+        </div>
+        <div class='card'>
+          <h3>PR-C · Inspector 탭 입력 활성화</h3>
+          <ul>
+            <li>목적: 4탭 readonly 컨트롤 → 편집 가능</li>
+            <li>예상 파일: js renderer + CSS</li>
+            <li>금지: 저장 로직 / Firestore / API</li>
+            <li>리스크: 중간 (Check Point 카운터 연계)</li>
+            <li>merge/deploy: <b>사용자 승인 후</b></li>
+          </ul>
+        </div>
+        <div class='card'>
+          <h3>PR-D · Library drag-from-library</h3>
+          <ul>
+            <li>목적: 드래그-드롭 인서트 추가</li>
+            <li>예상 파일: js + CSS</li>
+            <li>금지: 저장 / 데이터 모델</li>
+            <li>리스크: 중간</li>
+            <li>merge/deploy: <b>사용자 승인 후</b></li>
+          </ul>
+        </div>
+        <div class='card'>
+          <h3>PR-E · Template 변경 보존 다이얼로그</h3>
+          <ul>
+            <li>목적: <code>editor-change-template</code> 시 block 데이터 유지 옵션</li>
+            <li>예상 파일: js</li>
+            <li>금지: 저장 / Firestore</li>
+            <li>리스크: 중간</li>
+            <li>merge/deploy: <b>사용자 승인 후</b></li>
+          </ul>
+        </div>
+        <div class='card'>
+          <h3>PR-F · Top-10 카탈로그 매핑</h3>
+          <ul>
+            <li>목적: 4-템플릿 preset ↔ Top-10 카탈로그 매핑 정책</li>
+            <li>예상 파일: js 데이터 정의 + docs</li>
+            <li>금지: nav-data / board-field-schema / 저장</li>
+            <li>리스크: 큼 (데이터 모델 결정)</li>
+            <li>merge/deploy: <b>설계 승인 후 별도</b></li>
+          </ul>
+        </div>
+        <div class='card'>
+          <h3>PR-G · 저장 / Board Builder 연계 (별도 보류)</h3>
+          <ul>
+            <li>목적: 영속화 모델 결정 후 진행</li>
+            <li>금지: 본 audit 범위 외 — <b>별도 기획/승인 필요</b></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 URL Policy -->
+    <section class='sec' id='s10'>
+      <div class='head'><span class='no'>10</span><h2>URL Policy</h2><span class='tag bad'>중요</span></div>
+      <div class='note warn'>
+        <b>Firebase Hosting public root는 <code>stam/</code> 입니다.</b>
+        <ul>
+          <li>repo 경로의 leading <code>stam/</code> 은 staging URL 에서 <b>제거</b>합니다.</li>
+          <li>예: repo <code>stam/pages/boards/screen-specification.html</code> → URL <code>https://stam-design-staging.web.app/pages/boards/screen-specification.html</code></li>
+          <li><code>/stam/pages/...</code> 형태의 URL 은 <b>잘못된 경로</b> 입니다.</li>
+          <li>완료 보고 / 문서 / PR 본문에서 QA URL 에 <code>/stam/</code> 를 붙이지 않습니다.</li>
+        </ul>
+      </div>
+      <div class='grid c2' style='margin-top:14px'>
+        <div class='card'><h3>제품 URL</h3><p><code>https://stam-design-staging.web.app/pages/boards/screen-specification.html</code></p></div>
+        <div class='card'><h3>Docs Index URL</h3><p><code>https://stam-design-staging.web.app/docs/STAM-Docs-Index.html</code></p></div>
+      </div>
+    </section>
+
+    <!-- 11 Audit Conclusion -->
+    <section class='sec' id='s11'>
+      <div class='head'><span class='no'>11</span><h2>Audit Conclusion</h2><span class='tag ok'>결론</span></div>
+      <div class='note good'>
+        <ul>
+          <li><b>현재 제품은 “Claude Design 신규 UI 전체 적용본”의 실질적 완성 상태에 도달</b>해 있습니다. Wizard·Editor·Preview 모두 신규 UI 가 적용되어 있고, 구 진입 경로는 제거되었습니다.</li>
+          <li>“클디 신규 UI 원본”은 별도 prototype HTML 이 아니라 <b>PR 시리즈 #181 → #187 → #188 → #189 → #190 → #191</b> 의 merge 결과 자체입니다. 별도 <code>claude-design</code>/<code>newui</code> 브랜치는 repo 내 존재하지 않습니다.</li>
+          <li>다음 실제 이식 PR 의 최우선 후보는 <b>PR-A (PR #197 머지)</b> — Inspector 너비 보정으로, 사용자가 “옛 UI 같다”고 느낄 가능성이 가장 큰 차이를 해소합니다.</li>
+          <li>승인 필수 영역: <b>Scope C / D / E / F / G / H</b> — 본 audit 결과 후 별도 승인 필요.</li>
+          <li>제품 변경은 본 audit 에서 진행하지 않습니다. merge/deploy 는 사용자 승인 전까지 보류합니다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 12 QA Checklist -->
+    <section class='sec' id='s12'>
+      <div class='head'><span class='no'>12</span><h2>QA Checklist</h2><span class='tag ok'>docs-only</span></div>
+      <div class='grid c2'>
+        <div class='note good'>
+          <b>변경 범위</b>
+          <ul>
+            <li>docs-only · 2 파일 (신규 audit 문서 + Docs Index 카드 1개 추가)</li>
+            <li>제품 파일 (<code>stam/pages/**</code>) 변경 없음</li>
+            <li><code>stam/css/**</code> · <code>stam/js/**</code> 변경 없음</li>
+            <li><code>stam.nav-data.js</code> · <code>stam.board-field-schema.js</code> 변경 없음</li>
+            <li>App Shell · Left Nav · Topbar · Board Builder 변경 없음</li>
+            <li>Firebase / GitHub Actions / 저장 로직 / Firestore / API / fetch / localStorage 변경 없음</li>
+          </ul>
+        </div>
+        <div class='note info'>
+          <b>문서 검증</b>
+          <ul>
+            <li>실제 존재 파일만 링크 (미존재 후보는 표 안에 텍스트로만 기재)</li>
+            <li>QA URL 에 <code>/stam/</code> 중복 없음</li>
+            <li>외부 CDN / iframe / 신규 JS 없음</li>
+            <li>S-Core Dream 자체서빙 폰트 사용</li>
+            <li>다크/라이트 토큰 동시 정의</li>
+            <li>HTML 태그 밸런스 점검 완료</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src='../js/stam.theme.js'></script>
+</body>
+</html>

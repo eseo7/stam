@@ -2750,6 +2750,11 @@
     return html || '<div class="ss-pv-empty">입력된 구조가 없습니다. 편집기에서 화면 구조를 작성한 뒤 다시 확인하세요.</div>';
   }
 
+  function escHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
   function renderPreviewView() {
     var d = SSP.draft;
     if (!d) return;
@@ -2763,9 +2768,14 @@
 
     var mockBodyHtml = visBlocks.map(function(b, i) {
       var num = i < 9 ? '0' + (i + 1) : '' + (i + 1);
+      var hasDescFilled = b.desc && b.desc !== '화면 구성 요소';
+      var descSnip = hasDescFilled
+        ? '<div class="pmf-blk-desc">' + escHtml(b.desc.substring(0, 50)) + (b.desc.length > 50 ? '…' : '') + '</div>'
+        : '';
       return '<div class="pmf-blk" data-pv-idx="' + i + '">' +
         '<div class="pmf-badge">' + num + '</div>' +
-        '<div class="pmf-blk-name">' + (b.name || '블록') + '</div>' +
+        '<div class="pmf-blk-name">' + (escHtml(b.name) || '블록') + '</div>' +
+        descSnip +
         '<div class="pmf-blk-lines">' +
           '<div class="pmf-bline" style="width:' + (55 + (i % 3) * 10) + '%"></div>' +
           '<div class="pmf-bline" style="width:' + (35 + (i % 4) * 8) + '%"></div>' +
@@ -2782,15 +2792,15 @@
       return '<div class="desc-item" data-pv-idx="' + i + '">' +
         '<div class="desc-item-top">' +
           '<div class="desc-num">' + num + '</div>' +
-          '<div class="desc-item-name">' + (b.name || '블록') + '</div>' +
+          '<div class="desc-item-name">' + (escHtml(b.name) || '블록') + '</div>' +
           '<div class="desc-st ' + (hasDesc ? 'dst-ok' : 'dst-miss') + '">' + (hasDesc ? '완료' : '미작성') + '</div>' +
         '</div>' +
         '<div class="desc-fields">' +
-          '<div class="desc-field"><span class="dflbl">설명</span><span class="' + (hasDesc ? 'dfval' : 'dfempty') + '">' + (b.desc || '미입력') + '</span></div>' +
+          '<div class="desc-field desc-field-full"><span class="dflbl">설명</span><span class="' + (hasDesc ? 'dfval' : 'dfempty') + '">' + (escHtml(b.desc) || '설명 미입력 — 이 영역의 목적과 표시 조건을 작성하세요.') + '</span></div>' +
           '<div class="desc-field"><span class="dflbl">중요도</span><span class="dfval">' + (b.imp === 'h' ? '높음' : b.imp === 'l' ? '낮음' : '중간') + '</span></div>' +
-          '<div class="desc-field"><span class="dflbl">표시 조건</span><span class="' + (disp.condition ? 'dfval' : 'dfempty') + '">' + (disp.condition || '미입력') + '</span></div>' +
-          '<div class="desc-field"><span class="dflbl">연결 화면</span><span class="' + (act.link && act.link !== '미연결' ? 'dfval' : 'dfempty') + '">' + (act.link || '미연결') + '</span></div>' +
-          '<div class="desc-field"><span class="dflbl">데이터 출처</span><span class="' + (dat.source && dat.source !== '미정' ? 'dfval' : 'dfempty') + '">' + (dat.source || '미정') + '</span></div>' +
+          '<div class="desc-field"><span class="dflbl">표시 조건</span><span class="' + (disp.condition ? 'dfval' : 'dfempty') + '">' + (escHtml(disp.condition) || '조건 미입력') + '</span></div>' +
+          '<div class="desc-field"><span class="dflbl">연결 화면</span><span class="' + (act.link && act.link !== '미연결' ? 'dfval' : 'dfempty') + '">' + (escHtml(act.link) || '미연결') + '</span></div>' +
+          '<div class="desc-field"><span class="dflbl">데이터 출처</span><span class="' + (dat.source && dat.source !== '미정' ? 'dfval' : 'dfempty') + '">' + (escHtml(dat.source) || '미정') + '</span></div>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -2802,10 +2812,38 @@
           '필수 미작성 항목 ' + missCnt + '개</div>'
       : '';
 
+    var totalBlocks = visBlocks.length;
+    var descOkCnt = totalBlocks - missCnt;
+    var condOkCnt = visBlocks.filter(function(b) { return b.display && b.display.condition; }).length;
+    var linkOkCnt = visBlocks.filter(function(b) { return b.action && b.action.link && b.action.link !== '미연결'; }).length;
+    var purposeOk = !!(d.purpose && d.purpose.trim());
+    var cpItems = [
+      { label: '화면 목적 기술', ok: purposeOk, badge: purposeOk ? '완료' : '미입력' },
+      { label: '블록 설명 작성', ok: descOkCnt === totalBlocks && totalBlocks > 0, badge: descOkCnt + ' / ' + totalBlocks },
+      { label: '표시 조건 지정', ok: condOkCnt === totalBlocks && totalBlocks > 0, badge: condOkCnt + ' / ' + totalBlocks },
+      { label: '연결 화면 지정', ok: linkOkCnt === totalBlocks && totalBlocks > 0, badge: linkOkCnt + ' / ' + totalBlocks },
+    ];
+    var checkPointHtml =
+      '<div class="pv-checkpoint">' +
+        '<div class="pvc-hdr">' +
+          svgIc('<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>', 13) +
+          'Check Point' +
+        '</div>' +
+        '<ul class="pvc-list">' +
+          cpItems.map(function(ci) {
+            return '<li class="pvc-item">' +
+              '<span class="pvc-dot ' + (ci.ok ? 'pvc-ok' : 'pvc-ng') + '"></span>' +
+              '<span class="pvc-lbl">' + ci.label + '</span>' +
+              '<span class="pvc-badge ' + (ci.ok ? 'pvcb-ok' : 'pvcb-ng') + '">' + ci.badge + '</span>' +
+            '</li>';
+          }).join('') +
+        '</ul>' +
+      '</div>';
+
     el.innerHTML =
       '<div class="prev-hdr">' +
-        '<span class="prev-hdr-id">' + (d.screenId || '') + '</span>' +
-        '<span class="prev-hdr-name">' + (d.screenName || '제목 없음') + '</span>' +
+        '<span class="prev-hdr-id">' + (escHtml(d.screenId) || '') + '</span>' +
+        '<span class="prev-hdr-name">' + (escHtml(d.screenName) || '제목 없음') + '</span>' +
         '<span class="prev-hdr-chip phc-draft">초안</span>' +
         '<span class="prev-hdr-meta">작성자: 나 · ' + today + '</span>' +
         '<div class="prev-hdr-sp"></div>' +
@@ -2830,6 +2868,7 @@
             '</div>' +
           '</div>' +
           '<div id="prev-desc-body" style="flex:1;overflow-y:auto;scrollbar-width:thin">' + descItemsHtml + '</div>' +
+          checkPointHtml +
         '</div>' +
       '</div>' +
       '<div class="prev-ftr">' +
