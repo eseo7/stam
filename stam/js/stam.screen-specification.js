@@ -1848,11 +1848,530 @@
     return out;
   }
 
+  /* ────────────────────────────────────────────────────────────
+   * Library Definition Layer v1 (PR #202 보정)
+   * libraryId → 의미·용도·입력 후보·variant 설명 메타데이터.
+   * 실제 Inspector 입력 UI 구현은 이번 범위 아님 — 정의/설명/속성 후보까지만.
+   * ──────────────────────────────────────────────────────────── */
+  var LIBRARY_VARIANT_HINTS = {
+    '1x1':     '단일 대표 콘텐츠를 강조해서 보여줄 때 사용',
+    '1x2':     '좌우 2개 항목을 비교하거나 나란히 배치',
+    '1x3':     '3개 핵심 항목을 가로로 나열',
+    '1x4':     '4개 항목을 가로로 균형 있게 배치',
+    '2x1':     '2개 항목을 세로로 쌓아 표시',
+    '2x2':     '4개 주요 항목을 균형 있게 표시',
+    '2x3':     '6개 항목을 2행 3열 그리드로 묶음',
+    '2x4':     '8개 항목을 2행 4열 그리드로 묶음',
+    '3x1':     '3개 항목을 가로 3열로 배치',
+    'static':  '정적 단일 노출',
+    'rolling': '슬라이드/롤링 자동 전환',
+    'accordion': '아코디언 접힘/펼침 방식',
+    'tab':     '탭 전환 방식'
+  };
+
+  function defaultVariantDefinitions(item) {
+    if (!item || !item.variants) return [];
+    return item.variants.map(function(v) {
+      return { id: v, label: v, description: LIBRARY_VARIANT_HINTS[v] || '' };
+    });
+  }
+
+  var LIBRARY_DEFINITIONS = {
+    /* Website Sections — 우선 상세 정의 */
+    'lib.website.global-header': {
+      definitionLevel: 'section',
+      description: '로고·메뉴·검색·로그인 등 사이트 전역에서 일관되게 보이는 상단 영역입니다.',
+      purpose: '사용자가 어디서든 동일하게 사이트 전체 구조를 인식하고 이동할 수 있게 합니다.',
+      useCases: ['홈페이지', '브랜드 소개', '서비스 포털 홈', '회원 진입 화면'],
+      notRecommendedFor: ['랜딩 단일 페이지', '모달/팝업 화면'],
+      slots: ['로고', '주메뉴', '서브메뉴', '검색', '로그인/회원'],
+      editableFields: ['로고 이미지', '주메뉴 항목', '검색 노출 여부', '로그인 버튼 노출'],
+      examples: ['STAM Global Header', '호텔 그룹 통합 헤더'],
+      previewBehavior: '상단 가로 전체 영역에 로고·메뉴·우측 보조 영역으로 표시됩니다.'
+    },
+    'lib.website.hero-visual': {
+      definitionLevel: 'section',
+      description: '대형 이미지·카피·CTA로 첫인상을 만드는 메인 비주얼 섹션입니다.',
+      purpose: '브랜드/서비스의 핵심 메시지와 진입 행동을 유도합니다.',
+      useCases: ['홈페이지', '랜딩 페이지', '브랜드 캠페인'],
+      notRecommendedFor: ['데이터 중심 관리 화면', '상세 정보 페이지'],
+      slots: ['배경 이미지/영상', '메인 카피', '서브 카피', 'CTA 버튼'],
+      editableFields: ['배경 이미지', '메인 카피', 'CTA 라벨', 'CTA 링크', '슬라이드 자동 전환 여부'],
+      examples: ['브랜드 메인 비주얼', '시즌 캠페인 히어로'],
+      previewBehavior: '큰 비주얼 영역과 중앙/좌측 카피, 하단 CTA 버튼으로 표시됩니다.',
+      variantDefinitions: [
+        { id: 'static',  label: 'Static',  description: '고정 단일 비주얼' },
+        { id: 'rolling', label: 'Rolling', description: '여러 비주얼을 자동 전환하는 슬라이드' }
+      ]
+    },
+    'lib.website.banner-group': {
+      definitionLevel: 'section',
+      description: '여러 배너를 가로/세로로 묶어 보여주는 영역입니다.',
+      purpose: '동시 진행 중인 프로모션·캠페인·공지를 한곳에서 노출합니다.',
+      useCases: ['홈페이지', '프로모션 페이지', '서비스 진입 화면'],
+      notRecommendedFor: ['상세 정보 페이지', '폼 화면'],
+      slots: ['이미지', '제목', '서브 카피', '링크'],
+      editableFields: ['배너 항목', '이미지', '링크', '노출 기간', '정렬 방식'],
+      examples: ['홈 메인 배너 3종', '시즌 프로모션 배너'],
+      previewBehavior: '동일한 비율의 배너 카드가 layoutVariant 기준으로 정렬됩니다.'
+    },
+    'lib.website.quick-link-cta': {
+      definitionLevel: 'section',
+      description: '사용자가 자주 가는 페이지로 빠르게 이동하는 링크 묶음입니다.',
+      purpose: '대표 진입점·핵심 액션을 한곳에 모아 이동을 단축합니다.',
+      useCases: ['홈페이지', '서비스 포털 홈', '예약/신청 메인'],
+      notRecommendedFor: ['단일 목적 랜딩'],
+      slots: ['아이콘', '라벨', '링크'],
+      editableFields: ['링크 항목', '아이콘', '라벨', '이동 경로', '강조 여부'],
+      examples: ['예약 / 멤버십 / 객실보기 / 다이닝'],
+      previewBehavior: '가로 정렬된 아이콘+라벨 카드로 표시됩니다.'
+    },
+    'lib.website.disclosure-section': {
+      definitionLevel: 'section',
+      description: '항목을 펼치고 접거나 탭으로 전환하며 보여주는 섹션입니다.',
+      purpose: '많은 정보를 컴팩트하게 정리해서 사용자가 필요한 것만 펼쳐 보게 합니다.',
+      useCases: ['FAQ', '서비스 소개의 상세 정보', '약관/정책', '예약 안내'],
+      notRecommendedFor: ['단일 짧은 설명', '카피 한 줄'],
+      slots: ['제목', '본문', '아이콘'],
+      editableFields: ['항목 제목', '항목 본문', '기본 펼침 여부', '전환 방식 (탭/아코디언)'],
+      examples: ['예약 안내 아코디언', '서비스 영역 탭'],
+      previewBehavior: 'accordion 또는 tab 형태로 항목 헤더와 본문 영역이 표시됩니다.',
+      variantDefinitions: [
+        { id: 'accordion', label: 'Accordion', description: '클릭 시 펼치고 접는 방식' },
+        { id: 'tab',       label: 'Tab',       description: '탭 전환으로 항목 본문 교체' }
+      ]
+    },
+    'lib.website.card-grid': {
+      definitionLevel: 'section',
+      description: '주요 서비스나 콘텐츠를 카드 형태로 묶어 그리드로 보여줍니다.',
+      purpose: '여러 항목을 시각적으로 균등하게 비교·탐색할 수 있게 합니다.',
+      useCases: ['홈페이지 주요 서비스', '상품/콘텐츠 목록', '룸/객실 소개'],
+      notRecommendedFor: ['단일 강조 콘텐츠', '폼 입력 화면'],
+      slots: ['이미지', '제목', '설명', 'CTA', '링크'],
+      editableFields: ['카드 항목', '카드 제목', '카드 설명', '카드 이미지', '카드 링크', '노출 조건'],
+      examples: ['주요 서비스 2x2', '룸 소개 2x3', '카드 1x4'],
+      previewBehavior: 'layoutVariant 의 행×열 기준으로 동일 비율 카드가 정렬됩니다.'
+    },
+    'lib.website.image-text-section': {
+      definitionLevel: 'section',
+      description: '이미지와 텍스트를 짝지어 설명하는 섹션입니다.',
+      purpose: '핵심 메시지를 시각 자료와 함께 설명해 이해도를 높입니다.',
+      useCases: ['서비스 소개', '브랜드 가치 소개', '기능 소개'],
+      notRecommendedFor: ['이미지 없는 단순 텍스트', '데이터 테이블 화면'],
+      slots: ['이미지', '제목', '본문', '링크'],
+      editableFields: ['항목 이미지', '항목 제목', '항목 본문', '링크', '이미지 위치 (좌/우)'],
+      examples: ['1x4 핵심 가치 4개', '1x2 다이닝·시설'],
+      previewBehavior: '이미지와 텍스트가 짝을 이루어 layoutVariant 기준으로 정렬됩니다.'
+    },
+    'lib.website.promotion-event-section': {
+      definitionLevel: 'section',
+      description: '진행 중인 프로모션·이벤트를 강조해서 보여주는 섹션입니다.',
+      purpose: '한정 혜택·캠페인 참여를 유도합니다.',
+      useCases: ['홈페이지', '프로모션/이벤트 페이지'],
+      notRecommendedFor: ['상시 정보 안내'],
+      slots: ['배너', '제목', '기간', '혜택 요약', '참여 CTA'],
+      editableFields: ['프로모션 항목', '기간', '혜택 카피', '참여 링크'],
+      examples: ['시즌 이벤트', '멤버십 가입 프로모션'],
+      previewBehavior: '강조 배너와 함께 기간/CTA 가 포함된 카드로 표시됩니다.'
+    },
+    'lib.website.news-media-section': {
+      definitionLevel: 'section',
+      description: '뉴스·미디어·보도자료를 짧게 요약해서 보여주는 섹션입니다.',
+      purpose: '최신 활동·소식을 노출하고 상세로 이동하게 합니다.',
+      useCases: ['홈페이지', '브랜드 소개', 'IR'],
+      notRecommendedFor: ['상세 본문 페이지'],
+      slots: ['카테고리', '제목', '날짜', '요약', '링크'],
+      editableFields: ['표시 개수', '카테고리 필터', '정렬 방식'],
+      examples: ['최신 보도자료 4개', '주요 공지'],
+      previewBehavior: '제목·날짜 위주의 목록 형태로 표시됩니다.'
+    },
+    'lib.website.service-product-section': {
+      definitionLevel: 'section',
+      description: '핵심 상품 또는 서비스를 묶어 소개하는 섹션입니다.',
+      purpose: '대표 서비스/상품을 강조해 진입을 유도합니다.',
+      useCases: ['서비스 포털 홈', '상품 페이지', '랜딩'],
+      notRecommendedFor: ['관리자 데이터 화면'],
+      slots: ['이미지', '제목', '설명', 'CTA'],
+      editableFields: ['항목 구성', '카피', 'CTA 링크'],
+      examples: ['대표 객실 3종', '인기 서비스 4종'],
+      previewBehavior: '카드/이미지+텍스트 형태로 정렬됩니다.'
+    },
+    'lib.website.brand-story-section': {
+      definitionLevel: 'section',
+      description: '브랜드의 배경·철학·핵심 메시지를 설명하는 소개 섹션입니다.',
+      purpose: '회사나 서비스의 정체성과 신뢰 요소를 전달합니다.',
+      useCases: ['회사소개', '브랜드 소개', '호텔/리조트 소개', '서비스 소개'],
+      notRecommendedFor: ['단기 이벤트 홍보', '단순 배너', '공지 목록'],
+      slots: ['제목', '본문', '대표 이미지', 'CTA 버튼', '보조 링크'],
+      editableFields: ['섹션 제목', '소개 문구', '대표 이미지', 'CTA 라벨', 'CTA 링크', '노출 조건'],
+      examples: ['파르나스 브랜드 소개', '호텔 철학 소개', '서비스 가치 소개'],
+      previewBehavior: '대표 제목과 설명, 이미지 영역을 가진 소개 섹션으로 표시됩니다.'
+    },
+    'lib.website.gallery-section': {
+      definitionLevel: 'section',
+      description: '사진·이미지·작품을 그리드로 보여주는 섹션입니다.',
+      purpose: '시각 자료 중심 콘텐츠를 한눈에 탐색할 수 있게 합니다.',
+      useCases: ['갤러리', '시설 소개', '포트폴리오'],
+      notRecommendedFor: ['텍스트 중심 콘텐츠'],
+      slots: ['썸네일', '캡션'],
+      editableFields: ['이미지 항목', '캡션', '정렬 방식'],
+      examples: ['시설 이미지 8장', '브랜드 포트폴리오'],
+      previewBehavior: '동일 비율 썸네일이 격자로 표시됩니다.'
+    },
+    'lib.website.faq-section': {
+      definitionLevel: 'section',
+      description: '자주 묻는 질문을 카테고리·아코디언 형태로 정리한 섹션입니다.',
+      purpose: '사용자가 스스로 빠르게 답을 찾도록 돕습니다.',
+      useCases: ['FAQ', '고객지원', '서비스 안내'],
+      notRecommendedFor: ['홍보 페이지'],
+      slots: ['질문', '답변', '카테고리'],
+      editableFields: ['FAQ 항목', '카테고리', '검색 노출 여부'],
+      examples: ['예약 FAQ', '멤버십 FAQ'],
+      previewBehavior: '카테고리 탭 + 아코디언 형식으로 표시됩니다.'
+    },
+    'lib.website.family-site': {
+      definitionLevel: 'section',
+      description: '관계사·계열사·관련 채널 링크를 모아 보여주는 영역입니다.',
+      purpose: '브랜드 생태계 내 다른 사이트로의 이동을 제공합니다.',
+      useCases: ['홈페이지 하단', '브랜드 그룹 페이지'],
+      notRecommendedFor: ['단일 서비스 단독 페이지'],
+      slots: ['사이트명', '링크'],
+      editableFields: ['관계사 목록', '링크', '정렬'],
+      examples: ['파르나스 패밀리 사이트 모음'],
+      previewBehavior: '드롭다운 또는 가로 링크 목록으로 표시됩니다.'
+    },
+    'lib.website.footer': {
+      definitionLevel: 'section',
+      description: '사이트 정보·정책·연락처·SNS 등을 정리하는 하단 영역입니다.',
+      purpose: '필수 정보와 정책 페이지로의 이동을 일관되게 제공합니다.',
+      useCases: ['모든 공개 페이지', '서비스 포털'],
+      notRecommendedFor: ['단일 모달', '풀스크린 캠페인 페이지'],
+      slots: ['사이트 정보', '정책 링크', 'SNS', '연락처', '저작권'],
+      editableFields: ['회사 정보', '정책 링크 목록', 'SNS 채널', '저작권 문구'],
+      examples: ['브랜드 통합 푸터'],
+      previewBehavior: '하단 가로 전체 영역에 정보 그룹과 저작권 라인이 표시됩니다.'
+    },
+
+    /* App / Admin Blocks */
+    'lib.admin.summary-strip': {
+      definitionLevel: 'block',
+      description: '핵심 지표·현재 상태를 한 줄로 요약해서 표시합니다.',
+      purpose: '사용자가 현재 화면의 핵심 정보를 즉시 인지하게 합니다.',
+      useCases: ['관리 대시보드', '목록 화면 상단', '상세 화면 상단'],
+      notRecommendedFor: ['풀스크린 갤러리'],
+      slots: ['지표 카드', '상태 chip'],
+      editableFields: ['표시할 지표 항목'],
+      examples: ['오늘 신청 12 / 처리 8 / 대기 4'],
+      previewBehavior: '상단 가로 한 줄에 작은 지표 카드가 나열됩니다.'
+    },
+    'lib.admin.search-filter-bar': {
+      definitionLevel: 'block',
+      description: '검색 조건과 필터를 입력하는 영역입니다.',
+      purpose: '사용자가 원하는 데이터를 좁혀서 조회할 수 있게 합니다.',
+      useCases: ['목록/검색 화면', '관리 목록', '주문 관리'],
+      notRecommendedFor: ['단일 상세 화면', '폼 화면'],
+      slots: ['검색 input', '필터 select', '날짜 범위', '조회 버튼'],
+      editableFields: ['검색 조건 항목', '입력 타입', '필수 여부', '기본값'],
+      examples: ['주문 조회 검색바'],
+      previewBehavior: '한 줄/여러 줄의 입력 컨트롤이 가로 배치됩니다.'
+    },
+    'lib.admin.toolbar': {
+      definitionLevel: 'block',
+      description: '주요 액션 버튼을 모은 영역입니다.',
+      purpose: '추가/저장/내보내기 등 화면 단위 행동을 한곳에 노출합니다.',
+      useCases: ['목록 상단', '상세 화면 상단', '폼 화면 하단'],
+      notRecommendedFor: ['콘텐츠 본문', '홍보 페이지'],
+      slots: ['주요 액션', '보조 액션', '메뉴'],
+      editableFields: ['액션 항목', '권한 별 노출'],
+      examples: ['등록 / 내보내기 / 삭제'],
+      previewBehavior: '버튼 그룹이 가로 정렬되어 표시됩니다.'
+    },
+    'lib.admin.result-table': {
+      definitionLevel: 'block',
+      description: '목록 결과를 표 형태로 표시합니다.',
+      purpose: '여러 항목을 비교 가능한 컬럼으로 정렬해서 보여줍니다.',
+      useCases: ['목록/검색', '관리 화면', '리포트 상세'],
+      notRecommendedFor: ['홍보 페이지', '랜딩'],
+      slots: ['컬럼 헤더', '데이터 행', '행 액션'],
+      editableFields: ['컬럼 정의', '정렬 가능 여부', '행 액션 항목'],
+      examples: ['주문 목록 테이블'],
+      previewBehavior: '컬럼 헤더와 데이터 행으로 구성된 표가 표시됩니다.'
+    },
+    'lib.admin.detail-drawer-summary': {
+      definitionLevel: 'block',
+      description: '상세 화면 상단에서 기본 정보를 요약 표시하는 영역입니다.',
+      purpose: '항목의 핵심 식별 정보를 빠르게 확인하게 합니다.',
+      useCases: ['상세 / 드로어'],
+      notRecommendedFor: ['홈/랜딩'],
+      slots: ['제목', '식별자', '상태 chip', '주요 메타'],
+      editableFields: ['표시 항목', '상태 chip 규칙'],
+      examples: ['주문 상세 요약'],
+      previewBehavior: '상단에 정렬된 메타 정보 라인으로 표시됩니다.'
+    },
+    'lib.admin.create-edit-form': {
+      definitionLevel: 'block',
+      description: '항목 등록·수정 입력 영역입니다.',
+      purpose: '필요한 데이터를 정확히 입력하게 합니다.',
+      useCases: ['등록 폼', '수정 폼', '신청 폼'],
+      notRecommendedFor: ['홍보 페이지'],
+      slots: ['폼 섹션', '필수 항목 표시', '유효성 안내', '액션 버튼'],
+      editableFields: ['폼 필드 구성', '필수 여부', '유효성 규칙', '저장 후 이동 흐름'],
+      examples: ['상품 등록 폼', '신청 폼'],
+      previewBehavior: '라벨/입력 페어가 세로로 정렬됩니다.'
+    },
+    'lib.admin.approval-panel': {
+      definitionLevel: 'block',
+      description: '승인/반려 처리를 위한 패널입니다.',
+      purpose: '검토 권한자가 항목을 승인 또는 반려할 수 있게 합니다.',
+      useCases: ['승인 처리', '검토 워크플로우'],
+      notRecommendedFor: ['공개 페이지'],
+      slots: ['승인 액션', '반려 액션', '사유 입력', '권한자 표시'],
+      editableFields: ['승인 단계 정의', '권한자 역할', '반려 사유 옵션'],
+      examples: ['휴가 신청 승인 패널'],
+      previewBehavior: '승인/반려 버튼과 사유 입력 영역으로 표시됩니다.'
+    },
+    'lib.admin.review-history': {
+      definitionLevel: 'block',
+      description: '항목의 변경·검토·승인 이력을 시간순으로 보여줍니다.',
+      purpose: '누가 언제 무엇을 처리했는지 추적합니다.',
+      useCases: ['상세 화면', '감사 로그'],
+      notRecommendedFor: ['홈/랜딩'],
+      slots: ['타임라인 항목', '작성자', '시간', '상태'],
+      editableFields: ['표시 이력 범위', '필터'],
+      examples: ['주문 처리 이력'],
+      previewBehavior: '세로 타임라인 형식으로 표시됩니다.'
+    },
+    'lib.admin.comment-panel': {
+      definitionLevel: 'block',
+      description: '담당자 간 코멘트·메모를 주고받는 영역입니다.',
+      purpose: '항목 단위로 소통과 메모를 누적합니다.',
+      useCases: ['상세 / 드로어', '승인 패널 동반'],
+      notRecommendedFor: ['홍보 페이지'],
+      slots: ['코멘트 목록', '입력 영역', '액션 버튼'],
+      editableFields: ['멘션 가능 역할', '편집 가능 여부'],
+      examples: ['주문 처리 메모'],
+      previewBehavior: '하단 입력 영역과 위로 누적되는 코멘트 카드 목록으로 표시됩니다.'
+    },
+    'lib.admin.attachment-section': {
+      definitionLevel: 'block',
+      description: '첨부 파일을 업로드·관리·다운로드하는 영역입니다.',
+      purpose: '항목과 함께 관리해야 할 파일을 한곳에 모읍니다.',
+      useCases: ['상세 / 드로어', '폼 화면'],
+      notRecommendedFor: ['홍보 페이지'],
+      slots: ['업로드 영역', '파일 목록', '다운로드 액션'],
+      editableFields: ['허용 확장자', '최대 용량', '권한'],
+      examples: ['결재 첨부 영역'],
+      previewBehavior: '업로드 드롭존과 파일 카드/리스트로 표시됩니다.'
+    },
+    'lib.admin.empty-state': {
+      definitionLevel: 'state',
+      description: '데이터가 없거나 조회 결과가 비었을 때 보여주는 안내 상태입니다.',
+      purpose: '비어 있음을 명확히 알리고 다음 행동을 안내합니다.',
+      useCases: ['목록 결과 0건', '신규 진입 화면'],
+      notRecommendedFor: ['데이터가 있는 화면'],
+      slots: ['아이콘', '제목', '안내 문구', '액션 버튼'],
+      editableFields: ['안내 문구', '권장 액션'],
+      examples: ['검색 결과 없음 안내'],
+      previewBehavior: '아이콘과 안내 문구가 중앙 정렬로 표시됩니다.'
+    },
+    'lib.admin.error-state': {
+      definitionLevel: 'state',
+      description: '오류가 발생했을 때 보여주는 안내 상태입니다.',
+      purpose: '문제 상황을 인지시키고 복구 방법을 안내합니다.',
+      useCases: ['API 실패 시', '권한 부족 시'],
+      notRecommendedFor: ['정상 상태 화면'],
+      slots: ['아이콘', '제목', '오류 안내', '재시도 액션'],
+      editableFields: ['안내 문구', '재시도 동작'],
+      examples: ['로딩 실패 안내'],
+      previewBehavior: '경고 톤의 아이콘과 안내 문구가 표시됩니다.'
+    },
+    'lib.admin.loading-state': {
+      definitionLevel: 'state',
+      description: '데이터 로딩 중 임을 알리는 상태입니다.',
+      purpose: '사용자가 결과를 기다리는 동안의 인지 부담을 줄입니다.',
+      useCases: ['데이터 페치 동안', '느린 작업 중'],
+      notRecommendedFor: ['정적 콘텐츠'],
+      slots: ['스피너 또는 스켈레톤'],
+      editableFields: ['표시 형식 (스피너/스켈레톤)'],
+      examples: ['표 로딩 스켈레톤'],
+      previewBehavior: '회색 스켈레톤 또는 중앙 스피너로 표시됩니다.'
+    },
+    'lib.admin.kpi-card-group': {
+      definitionLevel: 'block',
+      description: '핵심 지표(KPI) 를 카드 묶음으로 보여줍니다.',
+      purpose: '핵심 숫자·변화를 한눈에 파악하게 합니다.',
+      useCases: ['관리 대시보드', '리포트'],
+      notRecommendedFor: ['홍보 페이지'],
+      slots: ['지표 라벨', '수치', '변화량', '단위'],
+      editableFields: ['지표 항목', '단위', '변화량 표시 방식'],
+      examples: ['오늘 신청 / 처리 / 대기 / 반려 4개'],
+      previewBehavior: '동일 크기 카드가 layoutVariant 기준으로 정렬됩니다.'
+    },
+
+    /* Navigation */
+    'lib.navigation.gnb': {
+      definitionLevel: 'component',
+      description: '사이트 전역 메뉴 (Global Navigation Bar) 입니다.',
+      purpose: '전역 정보 구조를 노출하고 모든 화면에서 동일한 이동 경로를 제공합니다.',
+      useCases: ['모든 공개 페이지'],
+      slots: ['로고', '주메뉴', '서브메뉴'],
+      editableFields: ['메뉴 항목', '활성 표시 규칙']
+    },
+    'lib.navigation.lnb': {
+      definitionLevel: 'component',
+      description: '특정 영역 좌측 메뉴 (Local Navigation Bar) 입니다.',
+      purpose: '현재 섹션 내 하위 메뉴 이동을 제공합니다.',
+      useCases: ['관리 화면', '서비스 세부 영역'],
+      slots: ['그룹 라벨', '하위 메뉴']
+    },
+    'lib.navigation.tabs': {
+      definitionLevel: 'component',
+      description: '같은 위치에서 콘텐츠를 전환하는 탭 컴포넌트입니다.',
+      purpose: '연관된 정보 그룹을 같은 영역에서 전환합니다.',
+      useCases: ['상세 화면', '설정', 'FAQ'],
+      slots: ['탭 라벨', '탭 본문']
+    },
+    'lib.navigation.breadcrumb': {
+      definitionLevel: 'component',
+      description: '상위→현재 위치를 단계별로 보여주는 경로 표시입니다.',
+      purpose: '사용자가 현재 위치와 이동 경로를 파악하게 합니다.',
+      useCases: ['상세 화면', '하위 페이지'],
+      slots: ['상위 경로 링크', '현재 페이지']
+    },
+    'lib.navigation.pagination': {
+      definitionLevel: 'component',
+      description: '여러 페이지를 이동할 수 있는 페이지네이션입니다.',
+      purpose: '대량 결과를 페이지 단위로 탐색하게 합니다.',
+      useCases: ['목록', '검색 결과'],
+      slots: ['이전/다음', '페이지 번호']
+    },
+    'lib.navigation.accordion': {
+      definitionLevel: 'component',
+      description: '항목을 접고 펼칠 수 있는 아코디언 컴포넌트입니다.',
+      purpose: '많은 정보를 간결하게 정리하고 필요한 부분만 펼쳐 보게 합니다.',
+      useCases: ['FAQ', '안내 페이지'],
+      slots: ['헤더', '본문']
+    },
+    'lib.navigation.quick-link-group': {
+      definitionLevel: 'component',
+      description: '주요 위치로 빠르게 이동할 수 있는 링크 카드 그룹입니다.',
+      purpose: '자주 사용하는 진입점을 한곳에 노출합니다.',
+      useCases: ['홈', '서비스 포털 홈'],
+      slots: ['아이콘', '라벨', '링크'],
+      editableFields: ['링크 항목', '아이콘', '강조 여부']
+    },
+    'lib.navigation.anchor-menu': {
+      definitionLevel: 'component',
+      description: '같은 페이지 내 섹션으로 이동하는 앵커 메뉴입니다.',
+      purpose: '긴 페이지 내 빠른 이동을 제공합니다.',
+      useCases: ['긴 단일 페이지', '브랜드 소개', '서비스 소개']
+    },
+    'lib.navigation.footer-menu': {
+      definitionLevel: 'component',
+      description: '하단 영역에 정리되는 정책·약관·고객지원 링크 그룹입니다.',
+      purpose: '필수 보조 정보로의 진입을 일관되게 제공합니다.',
+      useCases: ['모든 공개 페이지'],
+      slots: ['링크 그룹', '저작권']
+    }
+  };
+
+  function buildDefaultLibraryDefinition(item) {
+    /* 정의 누락 항목용 fallback */
+    var nm = item.name;
+    var typeLabel = (item.type || 'component');
+    var description;
+    if (item.category === 'website-sections') {
+      description = nm + ' — 페이지를 구성하는 섹션 단위 요소입니다.';
+    } else if (item.category === 'app-admin-blocks') {
+      description = nm + ' — 관리/운영 화면에서 자주 쓰는 블록입니다.';
+    } else if (item.category === 'navigation') {
+      description = nm + ' — 화면 간 이동을 돕는 내비게이션 요소입니다.';
+    } else if (item.category === 'input') {
+      description = nm + ' — 사용자 입력을 받는 폼 요소입니다.';
+    } else if (item.category === 'data') {
+      description = nm + ' — 데이터를 표시하는 요소입니다.';
+    } else if (item.category === 'feedback') {
+      description = nm + ' — 사용자에게 상태/피드백을 전달합니다.';
+    } else if (item.category === 'layout') {
+      description = nm + ' — 화면 영역을 구분/정렬하는 레이아웃 요소입니다.';
+    } else if (item.category === 'text') {
+      description = nm + ' — 문구·텍스트 표시 요소입니다.';
+    } else if (item.category === 'media') {
+      description = nm + ' — 이미지·미디어 표시 요소입니다.';
+    } else if (item.category === 'custom') {
+      description = nm + ' — 직접 정의하는 사용자 정의 요소입니다.';
+    } else {
+      description = nm + ' — 화면 구성 요소입니다.';
+    }
+    return {
+      definitionLevel: typeLabel === 'section' ? 'section'
+        : typeLabel === 'block' ? 'block'
+        : typeLabel === 'feedback' ? 'state'
+        : typeLabel === 'layout' || typeLabel === 'text' || typeLabel === 'media' ? 'primitive'
+        : 'component',
+      description: description,
+      purpose: '',
+      useCases: [],
+      notRecommendedFor: [],
+      slots: [],
+      editableFields: (item.inspectorHints || []).slice(),
+      examples: [],
+      previewBehavior: ''
+    };
+  }
+
+  function getLibraryDefinition(libraryId) {
+    var item = getLibraryItem(libraryId);
+    if (!item) return null;
+    var def = LIBRARY_DEFINITIONS[libraryId] || {};
+    var base = buildDefaultLibraryDefinition(item);
+    /* explicit 값 우선, 없으면 base fallback */
+    var merged = Object.assign({}, base, def);
+    if (!merged.variantDefinitions || !merged.variantDefinitions.length) {
+      merged.variantDefinitions = defaultVariantDefinitions(item);
+    }
+    return merged;
+  }
+
+  function getLibraryDescription(libraryId) {
+    var def = getLibraryDefinition(libraryId);
+    return def ? def.description : '';
+  }
+
+  function getLibraryEditableFields(libraryId) {
+    var def = getLibraryDefinition(libraryId);
+    return def && def.editableFields ? def.editableFields.slice() : [];
+  }
+
+  function getLibraryDefinitionForBlock(block) {
+    if (!block || !block.libraryId) return null;
+    return getLibraryDefinition(block.libraryId);
+  }
+
+  function getLibraryVariantLabel(libraryId, layoutVariant) {
+    if (!layoutVariant) return '';
+    var def = getLibraryDefinition(libraryId);
+    if (!def || !def.variantDefinitions) return layoutVariant;
+    for (var i = 0; i < def.variantDefinitions.length; i++) {
+      if (def.variantDefinitions[i].id === layoutVariant) return def.variantDefinitions[i].label || layoutVariant;
+    }
+    return layoutVariant;
+  }
+
+  function definitionLevelLabel(lvl) {
+    var map = { primitive: 'Primitive', component: 'Component', section: 'Section', block: 'Block', state: 'State', custom: 'Custom' };
+    return map[lvl] || 'Component';
+  }
+
+  function getLibraryItemById(libraryId) { return getLibraryItem(libraryId); }
+
   function buildBlockFromLibraryItem(libItem, opts) {
     opts = opts || {};
     var item = (typeof libItem === 'string') ? getLibraryItem(libItem) : libItem;
     if (!item) return null;
+    var def = getLibraryDefinition(item.libraryId);
     var props = Object.assign({}, item.defaultProps || {}, opts.props || {});
+    var description = opts.description || (def && def.description) || (item.name + ' — 화면 구성 요소');
     return {
       id: opts.id || ('block-' + Date.now() + '-' + Math.floor(Math.random() * 1000)),
       libraryId: item.libraryId,
@@ -1862,7 +2381,7 @@
       label: opts.label || item.name,
       layoutVariant: opts.layoutVariant || item.defaultVariant || null,
       props: props,
-      desc: opts.description || '화면 구성 요소',
+      desc: description,
       visible: true,
       imp: 'm',
       display: { condition: '항상 표시', roles: ['전체 사용자'], editableBy: ['작성자', 'PM'] },
@@ -2049,6 +2568,13 @@
       purpose: '브랜드·기업·서비스 소개 페이지',
       desc: '브랜드 스토리·연혁·구성원·CI를 정리해 보여줍니다.',
       sections: ['브랜드 스토리', '비전·미션', '연혁', '구성원', 'CI/BI'],
+      defaultSections: [
+        { libraryId: 'lib.website.brand-story-section', label: '브랜드 스토리' },
+        { libraryId: 'lib.website.image-text-section',  label: '비전·미션', layoutVariant: '1x2' },
+        { libraryId: 'lib.data.timeline',                label: '연혁' },
+        { libraryId: 'lib.website.card-grid',            label: '구성원', layoutVariant: '2x3', props: { columns: 3, rows: 2 } },
+        { libraryId: 'lib.website.gallery-section',      label: 'CI / BI' }
+      ],
       structure: TPL_STRUCT_NONE,
       userInputs: ['브랜드 카피', '연혁 항목'],
       checkpointHints: ['공식 표기 일관성'],
@@ -3190,20 +3716,34 @@
   function buildLibGroupItems(items) {
     return items.map(function(item) {
       var libId = item.libraryId || '';
+      var def = libId ? getLibraryDefinition(libId) : null;
       var dataset =
         ' data-comp-cat="' + (item._catId || item.category) + '"' +
         ' data-comp-id="' + (item.id || libId.replace(/^lib\./, '').replace(/\./g, '-')) + '"' +
         ' data-comp-name="' + (item.blockName || item.name || '') + '"' +
         (libId ? ' data-lib-id="' + libId + '"' : '') +
         (item.defaultVariant ? ' data-lib-variant="' + item.defaultVariant + '"' : '');
+      var hasVariants = !!(item.variants && item.variants.length);
       var variantBadge = item.defaultVariant
-        ? '<span class="ss-lib-variant">' + item.defaultVariant + '</span>'
+        ? '<span class="ss-lib-variant" title="기본 variant ' + item.defaultVariant + '">' + item.defaultVariant + '</span>'
+        : (hasVariants ? '<span class="ss-lib-variant ss-lib-variant--any" title="변형 지원">Variants</span>' : '');
+      var lvl = def && def.definitionLevel ? def.definitionLevel : null;
+      var lvlChip = lvl
+        ? '<span class="ss-lib-lvl ss-lib-lvl-' + lvl + '">' + definitionLevelLabel(lvl) + '</span>'
         : '';
-      return '<div class="comp-item ss-lib-item' + (item._isUsed ? ' is-used' : '') + '"' + dataset + ' title="클릭하여 블록 추가">' +
-        '<span class="ci-dot"></span>' +
-        '<span class="ci-name">' + (item.name || libId) + '</span>' +
-        variantBadge +
-        (item._isUsed ? '<span class="ss-lib-badge">사용 중</span>' : '<span class="ci-add">+</span>') +
+      var desc = (def && def.description) ? def.description : '';
+      var descLine = desc
+        ? '<div class="ss-lib-item-desc">' + desc + '</div>'
+        : '';
+      return '<div class="comp-item ss-lib-item' + (item._isUsed ? ' is-used' : '') + (descLine ? ' has-desc' : '') + '"' + dataset + ' title="' + (desc || (item.blockName || item.name || '')) + '">' +
+        '<div class="ss-lib-item-row">' +
+          '<span class="ci-dot"></span>' +
+          '<span class="ci-name">' + (item.name || libId) + '</span>' +
+          lvlChip +
+          variantBadge +
+          (item._isUsed ? '<span class="ss-lib-badge">사용 중</span>' : '<span class="ci-add">+</span>') +
+        '</div>' +
+        descLine +
       '</div>';
     }).join('');
   }
@@ -3364,14 +3904,70 @@
     '</div>';
   }
 
+  function buildLibDefPanel(block) {
+    var def = getLibraryDefinitionForBlock(block);
+    if (!def) {
+      return '<div class="ss-libdef-empty">' +
+        '<div class="ss-libdef-empty-msg">이 블록은 Library 정의에 연결되지 않았습니다.</div>' +
+        '<div class="ss-libdef-empty-sub">템플릿이나 라이브러리에서 추가된 항목이면 자동으로 정의가 연결됩니다.</div>' +
+      '</div>';
+    }
+    var libItem = getLibraryItem(block.libraryId) || {};
+    var lvl = def.definitionLevel || 'component';
+    var variantLine = '';
+    if (def.variantDefinitions && def.variantDefinitions.length) {
+      variantLine = '<div class="ss-libdef-sec"><div class="ss-libdef-lbl">지원 variant</div>' +
+        '<div class="ss-libdef-vars">' +
+        def.variantDefinitions.map(function(v) {
+          var isActive = v.id === block.layoutVariant;
+          return '<div class="ss-libdef-var' + (isActive ? ' is-active' : '') + '">' +
+            '<span class="ss-libdef-var-id">' + v.label + '</span>' +
+            (v.description ? '<span class="ss-libdef-var-desc">' + v.description + '</span>' : '') +
+          '</div>';
+        }).join('') +
+        '</div></div>';
+    }
+    var blockOf = function(label, items) {
+      if (!items || !items.length) return '';
+      return '<div class="ss-libdef-sec"><div class="ss-libdef-lbl">' + label + '</div>' +
+        '<div class="ss-libdef-list">' +
+          items.map(function(s) { return '<span class="ss-libdef-li">' + s + '</span>'; }).join('') +
+        '</div></div>';
+    };
+    return '<div class="ss-libdef">' +
+      '<div class="ss-libdef-hd">' +
+        '<div class="ss-libdef-name">' + (libItem.name || block.name || '') + '</div>' +
+        '<span class="ss-libdef-lvl ss-libdef-lvl-' + lvl + '">' + definitionLevelLabel(lvl) + '</span>' +
+      '</div>' +
+      (def.description ? '<div class="ss-libdef-desc">' + def.description + '</div>' : '') +
+      (def.purpose ? '<div class="ss-libdef-purpose">' + def.purpose + '</div>' : '') +
+      blockOf('주로 쓰는 화면', def.useCases) +
+      blockOf('포함 요소', def.slots) +
+      blockOf('주요 입력 항목', def.editableFields) +
+      blockOf('사용 예시', def.examples) +
+      variantLine +
+      (def.previewBehavior ? '<div class="ss-libdef-sec"><div class="ss-libdef-lbl">Preview 표시 방식</div>' +
+        '<div class="ss-libdef-pv">' + def.previewBehavior + '</div></div>' : '') +
+      blockOf('사용하지 않는 게 좋은 상황', def.notRecommendedFor) +
+      '<div class="ss-libdef-fnote">읽기 전용 정의 — 실제 입력 UI 는 후속 작업에서 제공됩니다.</div>' +
+    '</div>';
+  }
+
   function buildInspContent(block, idx) {
     if (!block) return buildInspEmpty();
-    var tab = SSP.editor.inspectorTab || 'props';
+    var hasLibDef = !!(block.libraryId && getLibraryDefinition(block.libraryId));
+    if (!SSP.editor.inspectorTab) {
+      SSP.editor.inspectorTab = hasLibDef ? 'def' : 'props';
+    }
+    var tab = SSP.editor.inspectorTab;
+    if (tab === 'def' && !hasLibDef) tab = 'props';
     var nm = (block.name || '').replace(/"/g, '&quot;');
     var dc = (block.desc || '').replace(/"/g, '&quot;');
 
     var panelHtml = '';
-    if (tab === 'props') {
+    if (tab === 'def') {
+      panelHtml = buildLibDefPanel(block);
+    } else if (tab === 'props') {
       panelHtml =
         '<div class="if"><div class="iflbl">컴포넌트명</div>' +
           '<input class="ifinp" data-insp-field="name" data-wf-idx="' + idx + '" value="' + nm + '"></div>' +
@@ -3441,6 +4037,7 @@
 
     return '<div class="insp-content">' +
       '<div class="insp-tabs">' +
+        (hasLibDef ? '<button type="button" class="insp-tab' + (tab === 'def' ? ' on' : '') + '" data-insp-tab="def">정의</button>' : '') +
         '<button type="button" class="insp-tab' + (tab === 'props'  ? ' on' : '') + '" data-insp-tab="props">속성</button>' +
         '<button type="button" class="insp-tab' + (tab === 'vis'    ? ' on' : '') + '" data-insp-tab="vis">표시/권한</button>' +
         '<button type="button" class="insp-tab' + (tab === 'action' ? ' on' : '') + '" data-insp-tab="action">액션/연결</button>' +
@@ -3486,7 +4083,7 @@
       }
     }
     if (SSP.editor.selBlock === undefined) SSP.editor.selBlock = null;
-    if (!SSP.editor.inspectorTab) SSP.editor.inspectorTab = 'props';
+    /* inspectorTab default 는 buildInspContent 가 block.libraryId 기준으로 결정 */
 
     var groupLabel = (d.templateGroup === 'admin' || SSP.frontAdmin === 'admin') ? 'Admin' : 'Front';
     var svcName = d.serviceTypeName || '';
@@ -3875,7 +4472,7 @@
         }
         SSP.editor.wfBlocks.push(newBlock);
         SSP.editor.selBlock = SSP.editor.wfBlocks.length - 1;
-        SSP.editor.inspectorTab = 'props';
+        SSP.editor.inspectorTab = newBlock.libraryId ? 'def' : 'props';
         renderEditorView();
         requestAnimationFrame(function() {
           var clBodyAfter = document.querySelector('.cl-body');
@@ -3939,6 +4536,11 @@
       if (wfBlock && SSP.view.mode === 'editor' && !e.target.closest('[data-wf-act]')) {
         var wbIdx = parseInt(wfBlock.getAttribute('data-wf-idx'), 10);
         SSP.editor.selBlock = (SSP.editor.selBlock === wbIdx) ? null : wbIdx;
+        /* 새 블록 선택 시 default tab 을 libraryId 기준으로 재설정 */
+        if (SSP.editor.selBlock !== null) {
+          var selB = SSP.editor.wfBlocks[SSP.editor.selBlock];
+          SSP.editor.inspectorTab = (selB && selB.libraryId && getLibraryDefinition(selB.libraryId)) ? 'def' : 'props';
+        }
         document.querySelectorAll('.wf-block').forEach(function(bl, i) {
           bl.classList.toggle('sel', i === SSP.editor.selBlock);
         });

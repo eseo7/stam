@@ -5567,3 +5567,180 @@ select.ss-ed-inp:focus,
 @media (max-width: 430px) {
   .ss-lib-variant { display: none; }
 }
+
+/* ────────────────────────────────────────────────────────────────
+ * Library Definition Layer v1 — 좌측 라이브러리 카드 보강 + 우측 Inspector 정의 패널
+ * ──────────────────────────────────────────────────────────────── */
+.ss-lib-item.has-desc {
+  flex-direction: column;
+  align-items: stretch;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+.ss-lib-item-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+.ss-lib-item-row .ci-name { flex: 1 1 auto; min-width: 0; }
+.ss-lib-item-desc {
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: var(--t3);
+  margin-top: 3px;
+  padding-left: 14px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.ss-lib-lvl {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  color: var(--t3);
+  letter-spacing: .02em;
+}
+.ss-lib-lvl-section { background: color-mix(in srgb, var(--brand) 12%, transparent); border-color: color-mix(in srgb, var(--brand) 22%, transparent); color: var(--brand, #8B7FF8); }
+.ss-lib-lvl-block   { background: color-mix(in srgb, #22C55E 14%, transparent); border-color: color-mix(in srgb, #22C55E 26%, transparent); color: #16A34A; }
+.ss-lib-lvl-state   { background: color-mix(in srgb, #F59E0B 14%, transparent); border-color: color-mix(in srgb, #F59E0B 26%, transparent); color: #B45309; }
+.ss-lib-lvl-primitive { background: color-mix(in srgb, #64748B 14%, transparent); border-color: color-mix(in srgb, #64748B 26%, transparent); color: #475569; }
+.ss-lib-variant--any { font-size: 9.5px; opacity: 0.85; }
+
+[data-theme="dark"] .ss-lib-lvl { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.1); color: rgba(255,255,255,.55); }
+[data-theme="dark"] .ss-lib-lvl-section { background: rgba(139,127,248,.14); border-color: rgba(139,127,248,.24); color: #B7AEFF; }
+[data-theme="dark"] .ss-lib-lvl-block { background: rgba(34,197,94,.16); border-color: rgba(34,197,94,.28); color: #4ADE80; }
+[data-theme="dark"] .ss-lib-lvl-state { background: rgba(245,158,11,.16); border-color: rgba(245,158,11,.28); color: #FBBF24; }
+[data-theme="dark"] .ss-lib-lvl-primitive { background: rgba(148,163,184,.16); border-color: rgba(148,163,184,.28); color: #94A3B8; }
+
+/* Inspector 정의 패널 */
+.ss-libdef {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 2px 4px;
+}
+.ss-libdef-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.ss-libdef-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--t1);
+}
+.ss-libdef-lvl {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  color: var(--t3);
+  letter-spacing: .02em;
+}
+.ss-libdef-lvl-section { background: color-mix(in srgb, var(--brand) 12%, transparent); border-color: color-mix(in srgb, var(--brand) 22%, transparent); color: var(--brand, #8B7FF8); }
+.ss-libdef-lvl-block { background: color-mix(in srgb, #22C55E 14%, transparent); border-color: color-mix(in srgb, #22C55E 26%, transparent); color: #16A34A; }
+.ss-libdef-lvl-state { background: color-mix(in srgb, #F59E0B 14%, transparent); border-color: color-mix(in srgb, #F59E0B 26%, transparent); color: #B45309; }
+.ss-libdef-lvl-primitive { background: color-mix(in srgb, #64748B 14%, transparent); border-color: color-mix(in srgb, #64748B 26%, transparent); color: #475569; }
+.ss-libdef-desc {
+  font-size: 12px;
+  color: var(--t2);
+  line-height: 1.55;
+}
+.ss-libdef-purpose {
+  font-size: 11.5px;
+  color: var(--t3);
+  line-height: 1.5;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: var(--bg-sur);
+  border: 1px dashed var(--bd);
+}
+.ss-libdef-sec { margin-top: 4px; }
+.ss-libdef-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 5px;
+}
+.ss-libdef-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.ss-libdef-li {
+  font-size: 11px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  color: var(--t2);
+}
+.ss-libdef-pv {
+  font-size: 11.5px;
+  color: var(--t2);
+  line-height: 1.5;
+}
+.ss-libdef-vars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ss-libdef-var {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 4px 8px;
+  border-radius: 5px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+}
+.ss-libdef-var.is-active {
+  border-color: var(--brand, #8B7FF8);
+  background: color-mix(in srgb, var(--brand) 8%, var(--bg-sur));
+}
+.ss-libdef-var-id {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--t1);
+  min-width: 48px;
+}
+.ss-libdef-var-desc {
+  font-size: 11px;
+  color: var(--t3);
+  line-height: 1.4;
+}
+.ss-libdef-fnote {
+  font-size: 10.5px;
+  color: var(--t3);
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--bd);
+}
+.ss-libdef-empty { padding: 12px 8px; }
+.ss-libdef-empty-msg { font-size: 12px; color: var(--t2); margin-bottom: 4px; }
+.ss-libdef-empty-sub { font-size: 11px; color: var(--t3); }
+
+[data-theme="dark"] .ss-libdef-purpose { background: rgba(255,255,255,.04); }
+[data-theme="dark"] .ss-libdef-li { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08); }
+[data-theme="dark"] .ss-libdef-var { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08); }
+[data-theme="dark"] .ss-libdef-var.is-active { border-color: #8B7FF8; background: rgba(139,127,248,.08); }
+[data-theme="dark"] .ss-libdef-lvl { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.1); color: rgba(255,255,255,.55); }
+[data-theme="dark"] .ss-libdef-lvl-section { background: rgba(139,127,248,.14); border-color: rgba(139,127,248,.24); color: #B7AEFF; }
+[data-theme="dark"] .ss-libdef-lvl-block { background: rgba(34,197,94,.16); border-color: rgba(34,197,94,.28); color: #4ADE80; }
+[data-theme="dark"] .ss-libdef-lvl-state { background: rgba(245,158,11,.16); border-color: rgba(245,158,11,.28); color: #FBBF24; }
+[data-theme="dark"] .ss-libdef-lvl-primitive { background: rgba(148,163,184,.16); border-color: rgba(148,163,184,.28); color: #94A3B8; }
+
+@media (max-width: 430px) {
+  .ss-lib-lvl { display: none; }
+  .ss-lib-item-desc { -webkit-line-clamp: 1; padding-left: 12px; }
+}
