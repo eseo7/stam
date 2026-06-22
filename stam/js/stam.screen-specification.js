@@ -2272,6 +2272,544 @@
       purpose: '필수 보조 정보로의 진입을 일관되게 제공합니다.',
       useCases: ['모든 공개 페이지'],
       slots: ['링크 그룹', '저작권']
+    },
+
+    /* Layout Primitives */
+    'lib.layout.container': {
+      definitionLevel: 'primitive',
+      description: '여러 요소를 감싸는 기본 컨테이너 영역입니다.',
+      purpose: '영역 구분·패딩·스타일 적용을 위한 기본 래퍼입니다.',
+      useCases: ['모든 화면'],
+      notRecommendedFor: [],
+      slots: ['하위 요소'],
+      editableFields: ['너비', '최대 너비', '여백'],
+      examples: ['콘텐츠 중앙 정렬 래퍼'],
+      previewBehavior: '빈 사각 영역으로 표시됩니다.'
+    },
+    'lib.layout.grid': {
+      definitionLevel: 'primitive',
+      description: '여러 요소를 행/열 기준으로 배치하는 그리드 레이아웃입니다.',
+      purpose: '균등한 격자 구조로 항목을 정렬합니다.',
+      useCases: ['카드 그룹', '이미지 갤러리', '서비스 목록'],
+      notRecommendedFor: ['단일 요소'],
+      slots: ['그리드 셀'],
+      editableFields: ['열 수', '행 수', '간격'],
+      examples: ['2x2 카드 그룹', '3열 갤러리'],
+      previewBehavior: '동일 크기 셀이 격자로 표시됩니다.',
+      variantDefinitions: [
+        { id: '1x2', label: '1x2', description: '좌우 2개 항목을 나란히 배치' },
+        { id: '1x3', label: '1x3', description: '가로 3개 항목 나열' },
+        { id: '1x4', label: '1x4', description: '가로 4개 항목 균등 배치' },
+        { id: '2x2', label: '2x2', description: '2행 2열 4개 항목' },
+        { id: '2x3', label: '2x3', description: '2행 3열 6개 항목' },
+        { id: '3x1', label: '3x1', description: '3열 1행 배치' }
+      ]
+    },
+    'lib.layout.flex-row': {
+      definitionLevel: 'primitive',
+      description: '요소를 가로로 나란히 배치하는 플렉스 행입니다.',
+      purpose: '여러 요소를 수평으로 정렬합니다.',
+      useCases: ['버튼 그룹', '아이콘+텍스트', '헤더 내부'],
+      slots: ['하위 요소'],
+      editableFields: ['정렬', '간격', '줄 바꿈 여부'],
+      examples: ['버튼 행', '태그 행'],
+      previewBehavior: '요소들이 가로로 나열된 행으로 표시됩니다.'
+    },
+    'lib.layout.stack': {
+      definitionLevel: 'primitive',
+      description: '요소를 세로로 쌓아 배치하는 스택입니다.',
+      purpose: '여러 요소를 수직으로 정렬합니다.',
+      useCases: ['폼 필드 그룹', '카드 내부', '섹션 본문'],
+      slots: ['하위 요소'],
+      editableFields: ['간격', '정렬'],
+      examples: ['라벨 + 입력 + 도움말'],
+      previewBehavior: '요소들이 세로로 쌓인 열로 표시됩니다.'
+    },
+    'lib.layout.divider': {
+      definitionLevel: 'primitive',
+      description: '콘텐츠 그룹을 시각적으로 분리하는 구분선입니다.',
+      purpose: '섹션이나 항목 사이를 명확하게 구분합니다.',
+      useCases: ['섹션 구분', '목록 항목 사이', '폼 섹션 사이'],
+      notRecommendedFor: ['페이지 최상단/최하단'],
+      slots: [],
+      editableFields: ['색상', '굵기', '방향 (가로/세로)', '여백'],
+      examples: ['섹션 구분선'],
+      previewBehavior: '가로 또는 세로 선 하나로 표시됩니다.'
+    },
+    'lib.layout.spacer': {
+      definitionLevel: 'primitive',
+      description: '요소 사이 여백을 조절하는 스페이서입니다.',
+      purpose: '레이아웃 간격을 정밀하게 조정합니다.',
+      useCases: ['섹션 사이 간격', '요소 간격 조절'],
+      slots: [],
+      editableFields: ['높이', '너비'],
+      examples: ['섹션 간 40px 여백'],
+      previewBehavior: '빈 여백 영역으로 표시됩니다.'
+    },
+    'lib.layout.section-wrapper': {
+      definitionLevel: 'primitive',
+      description: '섹션 영역을 감싸는 래퍼입니다.',
+      purpose: '섹션 단위 레이아웃 제어와 스타일 적용을 위한 그룹입니다.',
+      useCases: ['페이지 섹션', '콘텐츠 블록'],
+      slots: ['섹션 콘텐츠'],
+      editableFields: ['배경색', '패딩', '최대 너비'],
+      examples: ['전체 너비 그레이 배경 섹션'],
+      previewBehavior: '배경과 여백이 적용된 사각 영역으로 표시됩니다.'
+    },
+    'lib.layout.scroll-area': {
+      definitionLevel: 'primitive',
+      description: '스크롤 가능한 콘텐츠 영역입니다.',
+      purpose: '고정 크기 안에서 넘치는 콘텐츠를 스크롤로 탐색하게 합니다.',
+      useCases: ['긴 목록', '채팅 목록', '사이드 패널'],
+      slots: ['스크롤 콘텐츠'],
+      editableFields: ['최대 높이', '스크롤 방향'],
+      examples: ['드로어 내 스크롤 목록'],
+      previewBehavior: '스크롤 가능한 박스 영역으로 표시됩니다.'
+    },
+
+    /* Text / Content */
+    'lib.text.title': {
+      definitionLevel: 'primitive',
+      description: '화면 또는 섹션의 제목 텍스트입니다.',
+      purpose: '영역의 주제와 계층 구조를 명확히 합니다.',
+      useCases: ['화면 제목', '섹션 제목', '카드 제목'],
+      slots: [],
+      editableFields: ['텍스트', '계층 (H1~H4)', '정렬'],
+      examples: ['페이지 제목', '섹션 헤딩'],
+      previewBehavior: '굵고 큰 텍스트로 표시됩니다.'
+    },
+    'lib.text.body': {
+      definitionLevel: 'primitive',
+      description: '본문 내용 텍스트입니다.',
+      purpose: '상세 설명이나 안내 내용을 전달합니다.',
+      useCases: ['섹션 설명', '카드 본문', '안내 문구'],
+      slots: [],
+      editableFields: ['텍스트', '줄 수 제한', '정렬'],
+      examples: ['서비스 소개 본문'],
+      previewBehavior: '일반 크기 본문 텍스트로 표시됩니다.'
+    },
+    'lib.text.label': {
+      definitionLevel: 'primitive',
+      description: '입력 항목이나 항목에 붙는 라벨입니다.',
+      purpose: '입력 필드·값의 의미를 명확히 표시합니다.',
+      useCases: ['폼 라벨', '항목 라벨', '뱃지 텍스트'],
+      slots: [],
+      editableFields: ['텍스트', '필수 표시 여부'],
+      examples: ['이름 라벨', '필수(*)'],
+      previewBehavior: '작은 크기의 굵은 텍스트로 표시됩니다.'
+    },
+    'lib.text.helper': {
+      definitionLevel: 'primitive',
+      description: '입력 안내나 오류를 알리는 보조 텍스트입니다.',
+      purpose: '사용자가 올바르게 입력하도록 안내합니다.',
+      useCases: ['폼 안내 문구', '오류 메시지', '힌트 텍스트'],
+      slots: [],
+      editableFields: ['텍스트', '상태 (안내/오류/성공)'],
+      examples: ['이메일 형식 안내', '필수 항목 오류'],
+      previewBehavior: '입력 필드 하단의 작은 보조 텍스트로 표시됩니다.'
+    },
+    'lib.text.link': {
+      definitionLevel: 'primitive',
+      description: '클릭하면 이동하는 링크 텍스트입니다.',
+      purpose: '다른 화면이나 외부 페이지로 이동을 제공합니다.',
+      useCases: ['인라인 링크', 'CTA 텍스트 링크', '더보기'],
+      slots: [],
+      editableFields: ['텍스트', '링크 경로', '새 탭 여부'],
+      examples: ['자세히 보기', '관련 링크'],
+      previewBehavior: '밑줄이 있는 컬러 텍스트로 표시됩니다.'
+    },
+    'lib.text.description-list': {
+      definitionLevel: 'primitive',
+      description: '항목명과 설명을 쌍으로 나열하는 설명 목록입니다.',
+      purpose: '여러 항목의 속성을 키-값 형태로 정리합니다.',
+      useCases: ['상세 정보 목록', '사양 표', '주요 항목 요약'],
+      slots: ['항목명', '항목 값'],
+      editableFields: ['항목 목록', '레이아웃 (가로/세로)'],
+      examples: ['상세 스펙 항목', '주문 정보 요약'],
+      previewBehavior: '라벨-값 쌍이 줄지어 표시됩니다.'
+    },
+
+    /* Media */
+    'lib.media.image': {
+      definitionLevel: 'primitive',
+      description: '이미지를 표시하는 기본 요소입니다.',
+      purpose: '시각 자료를 화면에 나타냅니다.',
+      useCases: ['모든 화면의 이미지 영역'],
+      slots: [],
+      editableFields: ['이미지 파일', '대체 텍스트', '비율'],
+      examples: ['상품 이미지', '배경 이미지'],
+      previewBehavior: '이미지 비율을 유지한 박스로 표시됩니다.'
+    },
+    'lib.media.video': {
+      definitionLevel: 'primitive',
+      description: '영상을 재생하는 영역입니다.',
+      purpose: '동영상 콘텐츠를 화면에서 직접 재생하게 합니다.',
+      useCases: ['브랜드 소개 영상', '제품 설명 영상', '배경 영상'],
+      slots: [],
+      editableFields: ['영상 URL', '자동 재생', '음소거', '컨트롤 표시'],
+      examples: ['홈 배경 영상', '소개 클립'],
+      previewBehavior: '재생 버튼이 있는 영상 영역으로 표시됩니다.'
+    },
+    'lib.media.icon': {
+      definitionLevel: 'primitive',
+      description: '아이콘을 표시하는 요소입니다.',
+      purpose: '빠른 인식을 위한 시각 기호를 나타냅니다.',
+      useCases: ['버튼 아이콘', '메뉴 아이콘', '상태 아이콘'],
+      slots: [],
+      editableFields: ['아이콘 종류', '크기', '색상'],
+      examples: ['검색 아이콘', '닫기 아이콘'],
+      previewBehavior: '작은 SVG 도형으로 표시됩니다.'
+    },
+    'lib.media.thumbnail': {
+      definitionLevel: 'primitive',
+      description: '작은 이미지 썸네일입니다.',
+      purpose: '콘텐츠를 미리 보여주는 대표 이미지 역할을 합니다.',
+      useCases: ['카드 이미지', '목록 아이템 이미지', '갤러리 셀'],
+      slots: [],
+      editableFields: ['이미지', '크기', '비율', '대체 텍스트'],
+      examples: ['상품 카드 썸네일', '갤러리 이미지'],
+      previewBehavior: '고정 비율의 작은 이미지 박스로 표시됩니다.'
+    },
+    'lib.media.banner-image': {
+      definitionLevel: 'primitive',
+      description: '배너 목적의 가로로 긴 대형 이미지입니다.',
+      purpose: '프로모션·공지·브랜딩을 위한 시각 강조 이미지를 표시합니다.',
+      useCases: ['배너 영역', 'Hero 배경', '이벤트 안내'],
+      slots: [],
+      editableFields: ['이미지', '링크', '대체 텍스트'],
+      examples: ['홈 메인 배너', '이벤트 배너'],
+      previewBehavior: '넓고 낮은 비율의 이미지 영역으로 표시됩니다.'
+    },
+
+    /* Form / Input */
+    'lib.input.text': {
+      definitionLevel: 'component',
+      description: '한 줄 텍스트를 입력하는 기본 입력 필드입니다.',
+      purpose: '이름·이메일 등 단순 텍스트 입력을 받습니다.',
+      useCases: ['폼 필드', '검색 입력', '설정값 입력'],
+      notRecommendedFor: ['긴 문장 입력', '여러 줄 입력'],
+      slots: ['라벨', '입력 영역', '보조 텍스트'],
+      editableFields: ['라벨', '플레이스홀더', '필수 여부', '최대 길이', '유효성 규칙'],
+      examples: ['이름 입력', '이메일 입력'],
+      previewBehavior: '라벨과 테두리 박스 입력 영역으로 표시됩니다.'
+    },
+    'lib.input.textarea': {
+      definitionLevel: 'component',
+      description: '여러 줄 텍스트를 입력하는 입력 영역입니다.',
+      purpose: '긴 설명·코멘트·메모를 입력받습니다.',
+      useCases: ['코멘트 입력', '상세 설명 입력', '요청 사유'],
+      notRecommendedFor: ['한 줄 짧은 값 입력'],
+      slots: ['라벨', '입력 영역'],
+      editableFields: ['라벨', '플레이스홀더', '최소/최대 줄 수', '필수 여부'],
+      examples: ['검토 의견 입력', '메모 작성'],
+      previewBehavior: '여러 줄 높이의 텍스트 입력 박스로 표시됩니다.'
+    },
+    'lib.input.select': {
+      definitionLevel: 'component',
+      description: '목록에서 하나를 선택하는 드롭다운 입력입니다.',
+      purpose: '미리 정해진 옵션 중 하나를 선택받습니다.',
+      useCases: ['상태 선택', '카테고리 선택', '담당자 선택'],
+      notRecommendedFor: ['자유 입력이 필요한 경우'],
+      slots: ['라벨', '드롭다운 목록'],
+      editableFields: ['라벨', '옵션 목록', '기본값', '필수 여부'],
+      examples: ['상태 드롭다운', '카테고리 선택'],
+      previewBehavior: '라벨과 드롭다운 화살표가 있는 입력 박스로 표시됩니다.'
+    },
+    'lib.input.checkbox': {
+      definitionLevel: 'component',
+      description: '여러 항목을 동시에 선택할 수 있는 체크박스입니다.',
+      purpose: '다중 선택 또는 동의를 받습니다.',
+      useCases: ['약관 동의', '다중 조건 선택', '일괄 선택'],
+      notRecommendedFor: ['하나만 선택해야 하는 경우'],
+      slots: ['라벨', '체크 아이콘'],
+      editableFields: ['라벨', '기본 선택 여부', '필수 여부'],
+      examples: ['약관 동의 체크', '항목 다중 선택'],
+      previewBehavior: '작은 사각 박스와 라벨로 표시됩니다.'
+    },
+    'lib.input.radio': {
+      definitionLevel: 'component',
+      description: '여러 옵션 중 하나만 선택하는 라디오 버튼입니다.',
+      purpose: '상호 배타적 선택을 받습니다.',
+      useCases: ['성별 선택', '결제 방법 선택', '단일 옵션 선택'],
+      notRecommendedFor: ['다중 선택이 필요한 경우'],
+      slots: ['라디오 버튼', '라벨'],
+      editableFields: ['라벨 목록', '기본 선택 값'],
+      examples: ['결제 수단 선택', '중요도 선택'],
+      previewBehavior: '원형 버튼과 라벨이 가로 나열된 그룹으로 표시됩니다.'
+    },
+    'lib.input.date': {
+      definitionLevel: 'component',
+      description: '날짜를 선택하는 날짜 입력 필드입니다.',
+      purpose: '날짜 또는 날짜 범위를 입력받습니다.',
+      useCases: ['날짜 조회 조건', '기간 설정', '일정 입력'],
+      slots: ['라벨', '날짜 입력 영역', '달력 팝업'],
+      editableFields: ['라벨', '날짜 범위 허용', '최소/최대 날짜', '기본값'],
+      examples: ['조회 기간 설정', '예약 날짜 선택'],
+      previewBehavior: '달력 아이콘이 있는 날짜 입력 박스로 표시됩니다.'
+    },
+    'lib.input.file-upload': {
+      definitionLevel: 'component',
+      description: '파일을 선택하거나 드래그해서 업로드하는 입력 영역입니다.',
+      purpose: '첨부 파일·이미지 업로드를 받습니다.',
+      useCases: ['첨부 파일 등록', '이미지 업로드', '문서 제출'],
+      slots: ['드롭존', '파일 선택 버튼', '업로드된 파일 목록'],
+      editableFields: ['허용 확장자', '최대 용량', '다중 파일 여부', '필수 여부'],
+      examples: ['결재 서류 첨부', '프로필 이미지 업로드'],
+      previewBehavior: '드래그 안내 문구가 있는 점선 박스로 표시됩니다.'
+    },
+    'lib.input.search': {
+      definitionLevel: 'component',
+      description: '검색어를 입력하는 검색 입력 필드입니다.',
+      purpose: '사용자가 검색어를 입력해 결과를 조회하게 합니다.',
+      useCases: ['사이트 검색', '목록 검색', '항목 빠른 찾기'],
+      slots: ['검색 아이콘', '입력 영역', '초기화 버튼'],
+      editableFields: ['플레이스홀더', '자동완성 여부', '검색 버튼 노출'],
+      examples: ['통합 검색바', '목록 내 검색'],
+      previewBehavior: '검색 아이콘과 입력 영역이 결합된 바로 표시됩니다.'
+    },
+
+    /* Data Display */
+    'lib.data.table': {
+      definitionLevel: 'component',
+      description: '데이터를 컬럼과 행으로 정리한 표입니다.',
+      purpose: '여러 항목을 비교 가능한 구조로 표시합니다.',
+      useCases: ['목록 조회', '데이터 비교', '결과 표시'],
+      notRecommendedFor: ['이미지 중심 콘텐츠', '홍보 페이지'],
+      slots: ['컬럼 헤더', '데이터 행', '정렬 컨트롤'],
+      editableFields: ['컬럼 정의', '정렬 가능 여부', '고정 컬럼'],
+      examples: ['회원 목록 테이블', '주문 내역 표'],
+      previewBehavior: '컬럼 헤더와 데이터 행이 있는 표로 표시됩니다.'
+    },
+    'lib.data.list': {
+      definitionLevel: 'component',
+      description: '항목을 세로로 나열하는 목록입니다.',
+      purpose: '여러 항목을 간결하게 나열해서 보여줍니다.',
+      useCases: ['공지 목록', '최근 활동', '알림 목록'],
+      slots: ['목록 항목'],
+      editableFields: ['항목 내용', '구분선 여부', '더보기 버튼'],
+      examples: ['최근 주문 목록', '공지사항 목록'],
+      previewBehavior: '구분선이 있는 항목 목록으로 표시됩니다.'
+    },
+    'lib.data.card': {
+      definitionLevel: 'component',
+      description: '데이터를 카드 형태로 표시하는 요소입니다.',
+      purpose: '이미지·제목·설명을 카드 틀에 담아 보여줍니다.',
+      useCases: ['상품 카드', '서비스 카드', '사용자 카드'],
+      slots: ['이미지', '제목', '설명', '액션'],
+      editableFields: ['카드 내용', '이미지', '링크', '액션 버튼'],
+      examples: ['상품 카드', '직원 프로필 카드'],
+      previewBehavior: '이미지와 텍스트가 결합된 카드 박스로 표시됩니다.'
+    },
+    'lib.data.kpi-card-group': {
+      definitionLevel: 'component',
+      description: '핵심 지표(KPI)를 카드 묶음으로 보여줍니다.',
+      purpose: '대시보드에서 핵심 수치를 한눈에 파악하게 합니다.',
+      useCases: ['대시보드', '통계 요약', '현황 파악'],
+      notRecommendedFor: ['홍보 페이지', '상세 설명 화면'],
+      slots: ['지표 라벨', '수치', '변화량', '아이콘'],
+      editableFields: ['지표 항목', '단위', '변화량 표시 방식', '색상 규칙'],
+      examples: ['오늘 방문자 / 매출 / 전환율 / 신규 회원'],
+      previewBehavior: 'layoutVariant 기준으로 동일 크기 지표 카드가 정렬됩니다.',
+      variantDefinitions: [
+        { id: '1x3', label: '1x3', description: '3개 핵심 지표 가로 나열' },
+        { id: '1x4', label: '1x4', description: '4개 핵심 지표 균등 배치' },
+        { id: '2x2', label: '2x2', description: '4개 지표를 2행 2열로 배치' }
+      ]
+    },
+    'lib.data.chart': {
+      definitionLevel: 'component',
+      description: '데이터를 시각적 차트로 표현하는 영역입니다.',
+      purpose: '수치와 추세를 한눈에 파악하게 합니다.',
+      useCases: ['대시보드', '리포트', '분석 화면'],
+      notRecommendedFor: ['홍보 페이지', '단순 목록'],
+      slots: ['차트 영역', '범례', '툴팁'],
+      editableFields: ['차트 종류', '데이터 출처', '색상 팔레트', '기간 범위'],
+      examples: ['월별 매출 막대 차트', '방문자 추세 라인 차트'],
+      previewBehavior: '차트 유형에 따른 그래프 영역으로 표시됩니다.'
+    },
+    'lib.data.status-badge': {
+      definitionLevel: 'component',
+      description: '상태를 색상과 텍스트로 나타내는 뱃지입니다.',
+      purpose: '항목의 현재 상태를 빠르게 인식하게 합니다.',
+      useCases: ['목록 상태 표시', '주문 상태', '검토 상태'],
+      slots: ['상태 텍스트'],
+      editableFields: ['상태 값', '색상 규칙', '크기'],
+      examples: ['승인 완료 (초록)', '대기 중 (노랑)', '반려 (빨강)'],
+      previewBehavior: '색상이 있는 소형 뱃지 칩으로 표시됩니다.'
+    },
+    'lib.data.timeline': {
+      definitionLevel: 'component',
+      description: '시간순 이벤트를 세로 타임라인으로 표시합니다.',
+      purpose: '사건의 흐름과 순서를 시각적으로 전달합니다.',
+      useCases: ['연혁', '처리 이력', '이벤트 흐름'],
+      notRecommendedFor: ['현재 단일 상태만 표시'],
+      slots: ['타임라인 포인트', '날짜', '설명'],
+      editableFields: ['항목 목록', '날짜', '설명', '아이콘'],
+      examples: ['회사 연혁', '주문 처리 이력'],
+      previewBehavior: '세로 선에 포인트가 붙은 타임라인 형태로 표시됩니다.'
+    },
+    'lib.data.calendar': {
+      definitionLevel: 'component',
+      description: '날짜와 일정을 달력 형태로 표시합니다.',
+      purpose: '월·주·일 단위로 일정을 시각화합니다.',
+      useCases: ['일정 관리', '예약 현황', '이벤트 달력'],
+      notRecommendedFor: ['단순 날짜 선택 (Date Picker 사용)'],
+      slots: ['날짜 셀', '일정 이벤트', '뷰 전환'],
+      editableFields: ['뷰 모드 (월/주/일)', '일정 색상 규칙', '이벤트 클릭 액션'],
+      examples: ['예약 현황 월별 달력', '업무 일정 관리'],
+      previewBehavior: '달력 격자와 이벤트 표시가 포함된 레이아웃으로 표시됩니다.'
+    },
+    'lib.data.gantt': {
+      definitionLevel: 'component',
+      description: '작업 일정을 간트 차트로 표시합니다.',
+      purpose: '프로젝트 작업의 기간과 진행 현황을 시각화합니다.',
+      useCases: ['WBS 관리', '프로젝트 일정', '작업 현황'],
+      notRecommendedFor: ['단순 목록 조회'],
+      slots: ['작업 행', '타임라인 바', '기간 헤더'],
+      editableFields: ['작업 항목', '기간', '진행률', '담당자'],
+      examples: ['프로젝트 WBS 간트'],
+      previewBehavior: '좌측 작업 목록과 우측 타임바 그리드로 표시됩니다.'
+    },
+    'lib.data.kanban-card': {
+      definitionLevel: 'component',
+      description: '작업을 상태 컬럼으로 분류해 관리하는 칸반 카드입니다.',
+      purpose: '상태별 작업 흐름과 진행 현황을 시각화합니다.',
+      useCases: ['작업 관리', '이슈 트래킹', '프로세스 관리'],
+      notRecommendedFor: ['단순 테이블 조회'],
+      slots: ['상태 컬럼', '카드 항목', '드래그 핸들'],
+      editableFields: ['상태 정의', '카드 필드 구성', '담당자', '우선순위'],
+      examples: ['작업 칸반', '이슈 보드'],
+      previewBehavior: '가로로 나열된 상태 컬럼과 카드 목록으로 표시됩니다.'
+    },
+    'lib.data.attachment-list': {
+      definitionLevel: 'component',
+      description: '첨부 파일 목록을 표시하는 영역입니다.',
+      purpose: '항목에 연결된 파일을 한눈에 확인하고 다운로드하게 합니다.',
+      useCases: ['상세 화면 첨부', '결재 서류 목록'],
+      slots: ['파일명', '파일 크기', '다운로드 버튼'],
+      editableFields: ['파일 목록', '다운로드 권한', '삭제 권한'],
+      examples: ['계약서 첨부 목록', '결재 서류 파일'],
+      previewBehavior: '파일 아이콘·이름·크기·다운로드 버튼이 행으로 나열됩니다.'
+    },
+
+    /* Feedback / State */
+    'lib.feedback.toast': {
+      definitionLevel: 'state',
+      description: '작업 완료·오류를 화면 끝에 잠깐 알리는 알림입니다.',
+      purpose: '사용자 액션 결과를 비침투적으로 전달합니다.',
+      useCases: ['저장 완료', '오류 발생', '복사 완료'],
+      notRecommendedFor: ['중요한 확인이 필요한 경우 (Confirm 사용)'],
+      slots: ['아이콘', '메시지', '닫기 버튼'],
+      editableFields: ['메시지', '유형 (성공/오류/정보)', '표시 시간'],
+      examples: ['저장되었습니다.', '오류가 발생했습니다.'],
+      previewBehavior: '화면 우측 하단 또는 상단에 작은 알림 카드로 표시됩니다.'
+    },
+    'lib.feedback.alert': {
+      definitionLevel: 'state',
+      description: '중요한 정보·경고를 강조하는 알림 박스입니다.',
+      purpose: '사용자가 놓치지 않아야 할 안내를 화면 내에서 강조합니다.',
+      useCases: ['시스템 공지', '작업 주의 안내', '오류 요약'],
+      notRecommendedFor: ['일반 안내 문구'],
+      slots: ['아이콘', '제목', '내용', '닫기'],
+      editableFields: ['유형 (정보/경고/오류/성공)', '제목', '내용', '닫기 가능 여부'],
+      examples: ['시스템 점검 공지', '필수 항목 누락 안내'],
+      previewBehavior: '색상 배경의 알림 박스로 화면 내 인라인 표시됩니다.'
+    },
+    'lib.feedback.confirm': {
+      definitionLevel: 'state',
+      description: '사용자 확인을 요청하는 다이얼로그입니다.',
+      purpose: '되돌리기 어려운 작업 전 사용자에게 의도를 확인합니다.',
+      useCases: ['삭제 확인', '제출 확인', '이동 확인'],
+      notRecommendedFor: ['단순 안내 (Alert 사용)'],
+      slots: ['제목', '내용', '확인 버튼', '취소 버튼'],
+      editableFields: ['제목', '내용', '확인 버튼 텍스트', '취소 버튼 텍스트'],
+      examples: ['삭제하시겠습니까?', '제출 전 마지막 확인'],
+      previewBehavior: '화면 중앙에 모달 형태로 표시됩니다.'
+    },
+    'lib.feedback.modal': {
+      definitionLevel: 'state',
+      description: '현재 화면 위에 뜨는 레이어 팝업입니다.',
+      purpose: '추가 정보 입력이나 상세 확인이 필요할 때 현재 컨텍스트를 유지하며 표시합니다.',
+      useCases: ['상세 정보 팝업', '빠른 편집', '이미지 뷰어'],
+      notRecommendedFor: ['단순 확인 (Confirm 사용)', '긴 폼 (별도 화면 권장)'],
+      slots: ['헤더', '본문', '액션 버튼', '닫기'],
+      editableFields: ['크기', '제목', '내용', '버튼 구성'],
+      examples: ['이미지 상세 팝업', '간단 편집 팝업'],
+      previewBehavior: '딤드 배경 위 중앙 레이어로 표시됩니다.'
+    },
+    'lib.feedback.drawer': {
+      definitionLevel: 'state',
+      description: '화면 측면에서 슬라이드되는 상세 패널입니다.',
+      purpose: '목록에서 항목 상세를 현재 화면을 유지하며 표시합니다.',
+      useCases: ['목록 상세 보기', '필터 설정', '항목 편집'],
+      notRecommendedFor: ['복잡한 멀티 스텝 폼'],
+      slots: ['헤더', '스크롤 가능 본문', '하단 액션'],
+      editableFields: ['폭', '열리는 방향', '오버레이 클릭 닫기 여부'],
+      examples: ['주문 상세 드로어', '필터 패널'],
+      previewBehavior: '우측 또는 좌측에서 슬라이드되는 패널로 표시됩니다.'
+    },
+    'lib.feedback.empty-result': {
+      definitionLevel: 'state',
+      description: '검색 결과나 목록이 비었을 때 안내하는 상태입니다.',
+      purpose: '결과 없음을 명확히 알리고 다음 행동을 안내합니다.',
+      useCases: ['검색 결과 없음', '목록 0건', '필터 해당 없음'],
+      slots: ['아이콘', '제목', '안내 문구', '액션'],
+      editableFields: ['안내 문구', '권장 액션', '아이콘'],
+      examples: ['검색 결과가 없습니다.', '등록된 항목이 없습니다.'],
+      previewBehavior: '아이콘과 안내 문구가 중앙 정렬로 표시됩니다.'
+    },
+    'lib.feedback.error-message': {
+      definitionLevel: 'state',
+      description: '오류 내용을 알리는 메시지 영역입니다.',
+      purpose: '발생한 오류와 해결 방법을 안내합니다.',
+      useCases: ['API 오류', '권한 없음', '유효성 오류 요약'],
+      slots: ['아이콘', '오류 코드', '메시지', '재시도 액션'],
+      editableFields: ['오류 메시지', '재시도 가능 여부'],
+      examples: ['데이터를 불러오지 못했습니다.'],
+      previewBehavior: '경고 색상의 메시지 박스로 표시됩니다.'
+    },
+    'lib.feedback.loading-skeleton': {
+      definitionLevel: 'state',
+      description: '데이터 로딩 중 콘텐츠 자리를 채우는 스켈레톤입니다.',
+      purpose: '로딩 중 레이아웃 이동을 줄이고 체감 속도를 개선합니다.',
+      useCases: ['목록 로딩', '카드 로딩', '대시보드 로딩'],
+      notRecommendedFor: ['즉시 로드되는 정적 콘텐츠'],
+      slots: ['스켈레톤 셀'],
+      editableFields: ['스켈레톤 행 수', '형태 (텍스트/카드/테이블)'],
+      examples: ['테이블 행 로딩 스켈레톤', '카드 그리드 스켈레톤'],
+      previewBehavior: '회색 애니메이션 블록이 콘텐츠 위치에 표시됩니다.'
+    },
+
+    /* Custom */
+    'lib.custom.section': {
+      definitionLevel: 'custom',
+      description: '팀이 직접 구성하는 커스텀 섹션입니다.',
+      purpose: '표준 라이브러리에 없는 고유 섹션을 정의합니다.',
+      useCases: ['프로젝트 특화 섹션', '실험적 레이아웃'],
+      slots: ['자유 구성 요소'],
+      editableFields: ['섹션 명', '구성 요소'],
+      examples: ['프로젝트 전용 통계 섹션'],
+      previewBehavior: '커스텀 레이아웃으로 자유롭게 표시됩니다.'
+    },
+    'lib.custom.block': {
+      definitionLevel: 'custom',
+      description: '팀이 직접 구성하는 커스텀 블록입니다.',
+      purpose: '표준에 없는 반복 블록을 직접 정의합니다.',
+      useCases: ['프로젝트 고유 UI 블록'],
+      slots: ['자유 구성 요소'],
+      editableFields: ['블록 명', '구성 요소'],
+      examples: ['프로젝트 전용 요약 카드'],
+      previewBehavior: '커스텀 블록으로 표시됩니다.'
+    },
+    'lib.custom.field-group': {
+      definitionLevel: 'custom',
+      description: '팀이 직접 구성하는 커스텀 입력 필드 그룹입니다.',
+      purpose: '폼에서 반복 사용되는 고유 필드 조합을 정의합니다.',
+      useCases: ['복잡한 입력 섹션', '폼 내 반복 필드 묶음'],
+      slots: ['입력 필드'],
+      editableFields: ['필드 구성', '필드 라벨'],
+      examples: ['주소 입력 그룹', '결제 정보 그룹'],
+      previewBehavior: '관련 입력 필드가 묶인 그룹으로 표시됩니다.'
     }
   };
 
@@ -3864,7 +4402,7 @@
         '</div>' +
         '<div class="wf-body">' +
           '<div class="wf-bname">' + (b.name || '블록명') + '</div>' +
-          '<div class="wf-bdesc">' + (b.desc || '화면 구성 요소') + '</div>' +
+          '<div class="wf-bdesc">' + ((b.libraryId ? getLibraryDescription(b.libraryId) : '') || b.desc || '') + '</div>' +
         '</div>' +
         '<div class="wf-acts">' +
           '<button type="button" class="wf-act" data-wf-act="toggle" data-wf-idx="' + i + '" title="표시/숨기기">' + svgIc(eyeIc, 13) + '</button>' +
