@@ -471,7 +471,21 @@
       });
     });
     if (!html) {
-      html = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--t3)">조건에 맞는 화면설계서가 없습니다.</td></tr>';
+      var hasFilter = !!(S.srch || (S.q && S.q !== 'all') || S.F.wst || S.F.rst || S.F.ast || S.F.type || S.F.grpId || S.F.img);
+      var emptyCard = hasFilter
+        ? buildEmptyCard({
+            iconPath: '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+            title: '조건에 맞는 화면설계서가 없습니다.',
+            desc: '검색어나 필터를 줄이거나 초기화하고 다시 확인하세요.',
+            actions: [{ label: '필터 초기화', action: 'ss-empty-reset-filter', primary: true }]
+          })
+        : buildEmptyCard({
+            iconPath: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>',
+            title: '아직 작성된 화면설계서가 없습니다.',
+            desc: '템플릿을 선택해 화면설계서 초안을 만들고, 화면 목적과 구성 블록을 채워보세요.',
+            actions: [{ label: '템플릿으로 작성', action: 'template', primary: true }]
+          });
+      html = '<tr><td colspan="9" style="padding:0;background:transparent;border:0">' + emptyCard + '</td></tr>';
     }
     var tbody = document.getElementById('ss-tbody');
     if (tbody) tbody.innerHTML = html;
@@ -2298,7 +2312,12 @@
       '<div class="ss-wireframe-body">' +
         (previewModel && previewModel.items && previewModel.items.length
           ? previewModel.items.map(renderWireframeItem).join('')
-          : '<div class="ss-wireframe-empty">구조가 없습니다.</div>') +
+          : buildEmptyCard({
+              modifier: 'ss-empty-card--inline',
+              iconPath: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>',
+              title: '화면 구성 블록이 비어 있습니다.',
+              desc: '왼쪽 컴포넌트 라이브러리에서 블록을 추가하거나, 템플릿 기본 구성을 다시 선택하세요.'
+            })) +
       '</div>' +
       '<div class="ss-wireframe-title-bar"><span class="ss-wf-screen-name">' + sName + '</span></div>';
   }
@@ -2511,8 +2530,28 @@
   function buildInspEmpty() {
     return '<div class="insp-empty">' +
       '<div class="insp-ico">' + svgIc('<rect x="3" y="3" width="18" height="18" rx="3"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="14" y2="12"/><line x1="8" y1="16" x2="11" y2="16"/>', 18) + '</div>' +
-      '<div class="insp-em-msg">컴포넌트를 선택하세요</div>' +
-      '<div class="insp-em-sub">블록을 클릭하면 속성, 표시/권한,<br>액션/연결 정보를 편집할 수 있습니다.</div>' +
+      '<div class="insp-em-msg">편집할 블록을 선택하세요</div>' +
+      '<div class="insp-em-sub">가운데 Wireframe에서 블록을 선택하면<br>설명, 표시 조건, 연결 화면을 입력할 수 있습니다.</div>' +
+    '</div>';
+  }
+
+  /* ── Shared empty-state card builder ── */
+  function buildEmptyCard(opts) {
+    opts = opts || {};
+    var iconPath = opts.iconPath || '<rect x="3" y="3" width="18" height="18" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/>';
+    var actions = '';
+    if (opts.actions && opts.actions.length) {
+      actions = '<div class="ss-empty-actions">' + opts.actions.map(function(a) {
+        var cls = 'ss-empty-btn' + (a.primary ? ' is-primary' : '');
+        var attrs = a.action ? ' data-ssv-action="' + a.action + '"' : '';
+        return '<button type="button" class="' + cls + '"' + attrs + '>' + escHtml(a.label) + '</button>';
+      }).join('') + '</div>';
+    }
+    return '<div class="ss-empty-card' + (opts.modifier ? ' ' + opts.modifier : '') + '" role="status">' +
+      '<div class="ss-empty-ico">' + svgIc(iconPath, 22) + '</div>' +
+      '<div class="ss-empty-title">' + escHtml(opts.title || '') + '</div>' +
+      (opts.desc ? '<div class="ss-empty-desc">' + escHtml(opts.desc) + '</div>' : '') +
+      actions +
     '</div>';
   }
 
@@ -2747,7 +2786,13 @@
         html += '<div class="ss-pv-empty">' + m + ' 조건에 맞는 결과가 없습니다.</div>';
       }
     });
-    return html || '<div class="ss-pv-empty">입력된 구조가 없습니다. 편집기에서 화면 구조를 작성한 뒤 다시 확인하세요.</div>';
+    return html || buildEmptyCard({
+      modifier: 'ss-empty-card--inline',
+      iconPath: '<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',
+      title: 'Preview에 표시할 블록이 없습니다.',
+      desc: 'Editor에서 화면 구성 블록을 추가한 뒤 Preview를 다시 확인하세요.',
+      actions: [{ label: 'Editor로 이동', action: 'editor', primary: true }]
+    });
   }
 
   function escHtml(s) {
@@ -2781,7 +2826,12 @@
           '<div class="pmf-bline" style="width:' + (35 + (i % 4) * 8) + '%"></div>' +
         '</div>' +
       '</div>';
-    }).join('') || '<div style="padding:20px;text-align:center;font-size:12px;color:var(--t3)">화면 구성 블록이 없습니다.</div>';
+    }).join('') || buildEmptyCard({
+      modifier: 'ss-empty-card--inline ss-empty-card--compact',
+      iconPath: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>',
+      title: 'Preview에 표시할 블록이 없습니다.',
+      desc: 'Editor에서 화면 구성 블록을 추가한 뒤 Preview를 다시 확인하세요.'
+    });
 
     var descItemsHtml = visBlocks.map(function(b, i) {
       var num = i < 9 ? '0' + (i + 1) : '' + (i + 1);
@@ -3095,6 +3145,15 @@
       if (act === 'list') {
         SSP.draft = null;
         switchView('list');
+        renderStrip();
+        renderTable();
+
+      } else if (act === 'ss-empty-reset-filter') {
+        S.q = 'all';
+        S.srch = '';
+        S.F = { wst: '', rst: '', ast: '', type: '', grpId: '', img: '' };
+        var srchEl = document.getElementById('ss-srch');
+        if (srchEl) srchEl.value = '';
         renderStrip();
         renderTable();
 
