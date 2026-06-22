@@ -3532,7 +3532,7 @@ select.ss-ed-inp:focus,
 /* Outer container reuses ss-template-view; no own max-width — parent handles it */
 .ss-create-inner {
   width: 100%;
-  padding: 28px 0 80px;
+  padding: 28px 0 96px;
 }
 
 /* Header row: title + sub (no back button) */
@@ -3733,13 +3733,14 @@ select.ss-ed-inp:focus,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px var(--content-pad-x, 32px);
-  background: var(--bg);
+  padding: 12px var(--content-pad-x, 32px) calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg-base, var(--bg-sur, #fff));
   border-top: 1px solid var(--bd);
   margin-top: 32px;
   margin-left: calc(-1 * var(--content-pad-x, 32px));
   margin-right: calc(-1 * var(--content-pad-x, 32px));
-  z-index: 10;
+  z-index: 20;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, .06);
 }
 
 .ss-create-foot-l,
@@ -3842,8 +3843,9 @@ select.ss-ed-inp:focus,
   color: #8B7FF8;
 }
 [data-theme="dark"] .ss-create-foot {
-  background: var(--bg);
+  background: var(--bg-base, #13161D);
   border-color: rgba(255,255,255,.1);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, .30);
 }
 
 /* ── Create View: 2-card grid (Step 2) ── */
