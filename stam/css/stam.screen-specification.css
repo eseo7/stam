@@ -5119,3 +5119,87 @@ select.ss-ed-inp:focus,
 [data-theme="dark"] .insp-panel::-webkit-scrollbar-thumb,
 [data-theme="dark"] .prev-mock-col::-webkit-scrollbar-thumb,
 [data-theme="dark"] .prev-desc-col::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); }
+
+/* ── Shared empty-state card (screen-specification scope) ── */
+.screen-spec-page .ss-empty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 36px 24px;
+  margin: 16px auto;
+  max-width: 420px;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+}
+.screen-spec-page .ss-empty-card--inline {
+  margin: 12px;
+  padding: 28px 20px;
+  background: var(--bg-sur2);
+}
+.screen-spec-page .ss-empty-card--compact {
+  padding: 20px 16px;
+  gap: 4px;
+}
+.screen-spec-page .ss-empty-ico {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+.screen-spec-page .ss-empty-card--inline .ss-empty-ico { background: var(--bg-sur); }
+.screen-spec-page .ss-empty-ico svg { width: 22px; height: 22px; color: var(--t3); }
+.screen-spec-page .ss-empty-card--compact .ss-empty-ico { width: 36px; height: 36px; margin-bottom: 4px; }
+.screen-spec-page .ss-empty-card--compact .ss-empty-ico svg { width: 18px; height: 18px; }
+.screen-spec-page .ss-empty-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--t1);
+  line-height: 1.5;
+}
+.screen-spec-page .ss-empty-desc {
+  font-size: 12px;
+  color: var(--t3);
+  line-height: 1.6;
+  max-width: 320px;
+}
+.screen-spec-page .ss-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.screen-spec-page .ss-empty-btn {
+  appearance: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--bd);
+  background: var(--bg-sur);
+  color: var(--t2);
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms;
+}
+.screen-spec-page .ss-empty-btn:hover { background: var(--bg-sur2); }
+.screen-spec-page .ss-empty-btn.is-primary {
+  background: var(--stam, #8B7FF8);
+  border-color: var(--stam, #8B7FF8);
+  color: #fff;
+}
+.screen-spec-page .ss-empty-btn.is-primary:hover { filter: brightness(0.95); }
+@media (max-width: 480px) {
+  .screen-spec-page .ss-empty-card { padding: 24px 16px; margin: 12px; }
+  .screen-spec-page .ss-empty-title { font-size: 12.5px; }
+  .screen-spec-page .ss-empty-desc { font-size: 11.5px; }
+  .screen-spec-page .ss-empty-btn { width: 100%; }
+}
