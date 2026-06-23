@@ -5280,13 +5280,18 @@
             status: 'draft'
           };
         }
-        SSP.editor.wfBlocks.push(newBlock);
-        SSP.editor.selBlock = SSP.editor.wfBlocks.length - 1;
+        var insertIdx = (SSP.editor.selBlock !== null && SSP.editor.selBlock >= 0)
+          ? SSP.editor.selBlock + 1
+          : SSP.editor.wfBlocks.length;
+        SSP.editor.wfBlocks.splice(insertIdx, 0, newBlock);
+        SSP.editor.selBlock = insertIdx;
         SSP.editor.inspectorTab = newBlock.libraryId ? 'def' : 'props';
         renderEditorView();
         requestAnimationFrame(function() {
           var clBodyAfter = document.querySelector('.cl-body');
           if (clBodyAfter) clBodyAfter.scrollTop = clScrollTop;
+          var newBlkEl = document.querySelector('.wf-block[data-wf-idx="' + insertIdx + '"]');
+          if (newBlkEl) newBlkEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         });
         return;
       }
