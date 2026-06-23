@@ -5051,6 +5051,131 @@ select.ss-ed-inp:focus,
   white-space: nowrap;
 }
 
+/* ══════════════════════════════════════════════════════════
+   Preview Mock-Frame Shape Blocks (PR-B fix)
+   ══════════════════════════════════════════════════════════ */
+
+/* Shaped block — badge floats to top-left */
+.pmf-blk--shaped { padding-bottom: 7px; }
+.pmf-blk--shaped .pmf-badge { top: 11px; transform: none; }
+.pmf-blk--shaped .pmf-blk-name { margin-bottom: 5px; }
+
+/* Base shape container */
+.pmf-shape { width: 100%; border-radius: 4px; overflow: hidden; }
+
+/* Shared placeholder color helpers */
+.pmf-s-ln { height: 7px; background: rgba(0,0,0,.12); border-radius: 2px; width: 85%; margin-bottom: 4px; }
+.pmf-s-ln--h { width: 65%; height: 11px; background: rgba(0,0,0,.2); margin-bottom: 5px; }
+.pmf-s-ln--s { width: 55%; background: rgba(0,0,0,.07); }
+
+/* ── Global Header ── */
+.pmf-shape--header {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 6px;
+  background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 4px;
+  height: 28px;
+}
+.pmf-s-logo { width: 36px; height: 9px; background: var(--stam,#8B7FF8); border-radius: 2px; opacity: .5; flex-shrink: 0; }
+.pmf-s-nav { display: flex; gap: 4px; flex: 1; }
+.pmf-s-nav span { width: 20px; height: 7px; background: var(--bg-sur3,var(--bg-sur2)); border-radius: 2px; }
+.pmf-s-utils { display: flex; gap: 4px; }
+.pmf-s-utils span { width: 10px; height: 10px; background: var(--bg-sur3,var(--bg-sur2)); border-radius: 50%; }
+
+/* ── Hero Visual ── */
+.pmf-shape--hero {
+  height: 80px;
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  border-radius: 4px;
+  display: flex; align-items: center;
+  padding: 0 12px;
+}
+.pmf-s-hero-inner { display: flex; flex-direction: column; gap: 0; }
+.pmf-s-cta-ph { width: 46px; height: 18px; background: rgba(84,81,232,.65); border-radius: 3px; margin-top: 5px; }
+.pmf-s-dots { display: flex; gap: 4px; justify-content: center; margin-top: 5px; }
+.pmf-dot { width: 5px; height: 5px; border-radius: 50%; background: #c7d2fe; display: inline-block; flex-shrink: 0; }
+.pmf-dot--on { background: #5451E8; }
+
+/* ── Banner Group ── */
+.pmf-shape--banner { display: grid; gap: 4px; }
+.pmf-s-bn-cell { height: 44px; background: var(--bg-sur2); border: 1.5px dashed var(--bd); border-radius: 3px; }
+
+/* ── Quick Link / CTA ── */
+.pmf-shape--quick-link { display: grid; gap: 4px; }
+.pmf-s-ql-item {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 5px 3px;
+  background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 4px;
+}
+.pmf-s-ql-ic { width: 18px; height: 18px; border-radius: 50%; background: #e0e7ff; flex-shrink: 0; }
+.pmf-s-ql-lb { width: 22px; height: 5px; background: var(--bg-sur3,var(--bd)); border-radius: 2px; }
+
+/* ── Disclosure (Accordion / Tab) ── */
+.pmf-shape--disclosure { border: 1px solid var(--bd); border-radius: 4px; overflow: hidden; }
+.pmf-s-acc-row {
+  height: 26px; background: var(--bg-sur2);
+  border-bottom: 1px solid var(--bd);
+  position: relative;
+}
+.pmf-s-acc-row:last-child { border-bottom: none; }
+.pmf-s-acc-row::before {
+  content: ''; position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+  width: 40px; height: 6px; background: var(--bd); border-radius: 2px;
+}
+.pmf-s-acc-row::after {
+  content: ''; position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 8px; height: 5px; background: var(--bd); border-radius: 1px;
+}
+.pmf-s-tab-bar { display: flex; border-bottom: 2px solid var(--bd); }
+.pmf-s-tab { flex: 1; height: 24px; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+.pmf-s-tab--on { background: rgba(84,81,232,.08); border-bottom-color: var(--stam,#8B7FF8); }
+.pmf-s-tab-body { height: 36px; background: var(--bg-sur2); }
+
+/* ── Card Grid ── */
+.pmf-shape--card-grid { display: grid; gap: 4px; }
+.pmf-s-card { background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 3px; overflow: hidden; }
+.pmf-s-card-img { height: 34px; background: var(--bg-sur3,var(--bd)); }
+.pmf-s-card-ln { height: 6px; background: var(--bd); border-radius: 2px; margin: 5px 5px 3px; width: 70%; }
+
+/* ── Image + Text Section ── */
+.pmf-shape--img-text { display: grid; gap: 5px; }
+.pmf-s-it-item { display: flex; flex-direction: column; gap: 3px; }
+.pmf-s-it-img { height: 36px; background: var(--bg-sur3,var(--bd)); border-radius: 3px; }
+.pmf-s-it-ln { height: 6px; background: var(--bd); border-radius: 2px; width: 85%; }
+.pmf-s-it-ln--s { width: 58%; background: var(--bg-sur2); }
+
+/* ── Promotion / Event ── */
+.pmf-shape--promo {
+  display: flex; gap: 8px; align-items: center;
+  background: linear-gradient(90deg, #fef3c7 0%, #fde68a 55%, #fef3c7 100%);
+  border-radius: 4px; padding: 8px 8px;
+}
+.pmf-s-promo-img { width: 48px; height: 38px; background: rgba(180,130,0,.2); border-radius: 3px; flex-shrink: 0; }
+.pmf-s-promo-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+
+/* ── News / Media ── */
+.pmf-shape--news { display: flex; flex-direction: column; gap: 4px; }
+.pmf-s-news-row {
+  display: flex; gap: 6px; align-items: center;
+  padding: 4px 5px;
+  background: var(--bg-sur2); border-radius: 3px;
+}
+.pmf-s-news-th { width: 34px; height: 26px; background: var(--bg-sur3,var(--bd)); border-radius: 2px; flex-shrink: 0; }
+.pmf-s-news-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+
+/* ── Family Site ── */
+.pmf-shape--family { display: flex; gap: 4px; }
+.pmf-s-fam-item { flex: 1; height: 22px; background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 3px; }
+
+/* ── Footer ── */
+.pmf-shape--footer {
+  background: var(--bg-sur2); border: 1px solid var(--bd); border-radius: 4px;
+  padding: 7px 8px; display: flex; flex-direction: column; gap: 4px;
+}
+.pmf-s-footer-logo { width: 36px; height: 8px; background: var(--bd); border-radius: 2px; }
+.pmf-s-footer-links { display: flex; gap: 5px; }
+.pmf-s-footer-links span { width: 24px; height: 6px; background: var(--bd); border-radius: 2px; }
+.pmf-s-footer-copy { width: 80px; height: 5px; background: var(--bd); border-radius: 2px; opacity: .5; }
+
 /* RIGHT: Description (45%) */
 .prev-desc-col { flex: 1; overflow-y: auto; display: flex; flex-direction: column; scrollbar-width: thin; }
 .prev-desc-col::-webkit-scrollbar { width: 3px; }

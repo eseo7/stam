@@ -4895,6 +4895,135 @@
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  /* ── Preview mock-frame shape helper ── */
+  function buildPmfBlockShape(b) {
+    var lid = b.libraryId || null;
+    var lv  = b.layoutVariant || null;
+    var g   = parseVariantGrid(lv);
+    var nm  = (b.name || b.label || '');
+    var cells, i;
+
+    /* name-based fallback when libraryId is absent */
+    if (!lid) {
+      if (/hero/i.test(nm))                                       lid = 'lib.website.hero-visual';
+      else if (/card.?grid|카드.?그리드/i.test(nm))               lid = 'lib.website.card-grid';
+      else if (/image.{0,8}text|이미지.{0,5}텍스트/i.test(nm))   lid = 'lib.website.image-text-section';
+      else if (/quick.?link|빠른.?링크/i.test(nm))               lid = 'lib.website.quick-link-cta';
+      else if (/footer|푸터/i.test(nm))                           lid = 'lib.website.footer';
+      else if (/banner|배너/i.test(nm))                           lid = 'lib.website.banner-group';
+      else if (/accordion|faq|자주|disclosure/i.test(nm))         lid = 'lib.website.disclosure-section';
+      else if (/global.?header|header|헤더/i.test(nm))            lid = 'lib.website.global-header';
+      else if (/news|뉴스|media|미디어/i.test(nm))                 lid = 'lib.website.news-media-section';
+      else if (/promo|event|기획전|프로모/i.test(nm))              lid = 'lib.website.promotion-event-section';
+      else if (/family|관련.?사이트/i.test(nm))                   lid = 'lib.website.family-site';
+    }
+    if (!lid) return null;
+
+    var attrs = ' data-pmf-lid="' + lid + '"' + (lv ? ' data-pmf-lv="' + lv + '"' : '');
+
+    if (lid === 'lib.website.global-header' || lid === 'lib.navigation.gnb') {
+      return '<div class="pmf-shape pmf-shape--header"' + attrs + '>' +
+        '<div class="pmf-s-logo"></div>' +
+        '<div class="pmf-s-nav"><span></span><span></span><span></span><span></span></div>' +
+        '<div class="pmf-s-utils"><span></span><span></span></div>' +
+        '</div>';
+    }
+
+    if (lid === 'lib.website.hero-visual') {
+      var hdots = (lv === 'rolling')
+        ? '<div class="pmf-s-dots"><span class="pmf-dot pmf-dot--on"></span><span class="pmf-dot"></span><span class="pmf-dot"></span></div>'
+        : '';
+      return '<div class="pmf-shape pmf-shape--hero"' + attrs + '>' +
+        '<div class="pmf-s-hero-inner">' +
+          '<div class="pmf-s-ln pmf-s-ln--h"></div><div class="pmf-s-ln"></div><div class="pmf-s-cta-ph"></div>' +
+        '</div>' +
+        '</div>' + hdots;
+    }
+
+    if (lid === 'lib.website.banner-group') {
+      var bCols = g ? g.cols : 3;
+      cells = '';
+      for (i = 0; i < bCols; i++) cells += '<div class="pmf-s-bn-cell"></div>';
+      return '<div class="pmf-shape pmf-shape--banner"' + attrs +
+        ' style="grid-template-columns:repeat(' + bCols + ',1fr)">' + cells + '</div>';
+    }
+
+    if (lid === 'lib.website.quick-link-cta' || lid === 'lib.navigation.quick-link-group') {
+      var qlG = g || { rows: 1, cols: 4 };
+      cells = '';
+      for (i = 0; i < Math.min(qlG.rows * qlG.cols, 8); i++) {
+        cells += '<div class="pmf-s-ql-item"><div class="pmf-s-ql-ic"></div><div class="pmf-s-ql-lb"></div></div>';
+      }
+      return '<div class="pmf-shape pmf-shape--quick-link"' + attrs +
+        ' style="grid-template-columns:repeat(' + qlG.cols + ',1fr)">' + cells + '</div>';
+    }
+
+    if (lid === 'lib.website.disclosure-section') {
+      if (lv === 'tab') {
+        return '<div class="pmf-shape pmf-shape--disclosure"' + attrs + '>' +
+          '<div class="pmf-s-tab-bar"><span class="pmf-s-tab pmf-s-tab--on"></span><span class="pmf-s-tab"></span><span class="pmf-s-tab"></span></div>' +
+          '<div class="pmf-s-tab-body"></div>' +
+          '</div>';
+      }
+      return '<div class="pmf-shape pmf-shape--disclosure"' + attrs + '>' +
+        '<div class="pmf-s-acc-row"></div><div class="pmf-s-acc-row"></div><div class="pmf-s-acc-row"></div>' +
+        '</div>';
+    }
+
+    if (lid === 'lib.website.card-grid') {
+      var cgCols = (b.props && b.props.columns) ? b.props.columns : (g ? g.cols : 2);
+      var cgRows = (b.props && b.props.rows)    ? b.props.rows    : (g ? g.rows : 2);
+      cells = '';
+      for (i = 0; i < Math.min(cgCols * cgRows, 12); i++) {
+        cells += '<div class="pmf-s-card"><div class="pmf-s-card-img"></div><div class="pmf-s-card-ln"></div></div>';
+      }
+      return '<div class="pmf-shape pmf-shape--card-grid"' + attrs +
+        ' style="grid-template-columns:repeat(' + cgCols + ',1fr)">' + cells + '</div>';
+    }
+
+    if (lid === 'lib.website.image-text-section') {
+      var itG = g || { rows: 1, cols: 4 };
+      cells = '';
+      for (i = 0; i < Math.min(itG.rows * itG.cols, 8); i++) {
+        cells += '<div class="pmf-s-it-item"><div class="pmf-s-it-img"></div><div class="pmf-s-it-ln"></div><div class="pmf-s-it-ln pmf-s-it-ln--s"></div></div>';
+      }
+      return '<div class="pmf-shape pmf-shape--img-text"' + attrs +
+        ' style="grid-template-columns:repeat(' + itG.cols + ',1fr)">' + cells + '</div>';
+    }
+
+    if (lid === 'lib.website.promotion-event-section') {
+      return '<div class="pmf-shape pmf-shape--promo"' + attrs + '>' +
+        '<div class="pmf-s-promo-img"></div>' +
+        '<div class="pmf-s-promo-info"><div class="pmf-s-ln pmf-s-ln--h"></div><div class="pmf-s-ln"></div></div>' +
+        '</div>';
+    }
+
+    if (lid === 'lib.website.news-media-section') {
+      cells = '';
+      for (i = 0; i < 3; i++) {
+        cells += '<div class="pmf-s-news-row"><div class="pmf-s-news-th"></div>' +
+          '<div class="pmf-s-news-info"><div class="pmf-s-ln"></div><div class="pmf-s-ln pmf-s-ln--s"></div></div></div>';
+      }
+      return '<div class="pmf-shape pmf-shape--news"' + attrs + '>' + cells + '</div>';
+    }
+
+    if (lid === 'lib.website.family-site') {
+      cells = '';
+      for (i = 0; i < 5; i++) cells += '<div class="pmf-s-fam-item"></div>';
+      return '<div class="pmf-shape pmf-shape--family"' + attrs + '>' + cells + '</div>';
+    }
+
+    if (lid === 'lib.website.footer' || lid === 'lib.navigation.footer-menu') {
+      return '<div class="pmf-shape pmf-shape--footer"' + attrs + '>' +
+        '<div class="pmf-s-footer-logo"></div>' +
+        '<div class="pmf-s-footer-links"><span></span><span></span><span></span></div>' +
+        '<div class="pmf-s-footer-copy"></div>' +
+        '</div>';
+    }
+
+    return null;
+  }
+
   function renderPreviewView() {
     var d = SSP.draft;
     if (!d) return;
@@ -4908,6 +5037,14 @@
 
     var mockBodyHtml = visBlocks.map(function(b, i) {
       var num = i < 9 ? '0' + (i + 1) : '' + (i + 1);
+      var shape = buildPmfBlockShape(b);
+      if (shape) {
+        return '<div class="pmf-blk pmf-blk--shaped" data-pv-idx="' + i + '">' +
+          '<div class="pmf-badge">' + num + '</div>' +
+          '<div class="pmf-blk-name">' + (escHtml(b.name) || '블록') + '</div>' +
+          shape +
+        '</div>';
+      }
       var hasDescFilled = b.desc && b.desc !== '화면 구성 요소';
       var descSnip = hasDescFilled
         ? '<div class="pmf-blk-desc">' + escHtml(b.desc.substring(0, 50)) + (b.desc.length > 50 ? '…' : '') + '</div>'
