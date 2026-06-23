@@ -4626,6 +4626,63 @@
     '</div>';
   }
 
+  /* Returns block-specific prop field definitions for the Inspector "속성" tab */
+  function getInspectorPropsFields(block) {
+    var lid = block.libraryId || null;
+    var nm  = block.name || block.label || '';
+    if (!lid) {
+      if (/hero/i.test(nm))                                       lid = 'lib.website.hero-visual';
+      else if (/card.?grid|카드.?그리드/i.test(nm))               lid = 'lib.website.card-grid';
+      else if (/image.{0,8}text|이미지.{0,5}텍스트/i.test(nm))   lid = 'lib.website.image-text-section';
+      else if (/quick.?link|빠른.?링크/i.test(nm))               lid = 'lib.website.quick-link-cta';
+      else if (/footer|푸터/i.test(nm))                           lid = 'lib.website.footer';
+      else if (/global.?header|header|헤더/i.test(nm))            lid = 'lib.website.global-header';
+    }
+    var p = block.props || {};
+    if (lid === 'lib.website.hero-visual') {
+      return [
+        { key: 'mainCopy',       label: '메인 카피',        type: 'text',     store: 'props', placeholder: '브랜드의 첫인상을 만드는 카피' },
+        { key: 'subCopy',        label: '서브 카피',        type: 'text',     store: 'props', placeholder: '서비스 핵심 메시지를 설명합니다.' },
+        { key: 'ctaLabel',       label: 'CTA 라벨',         type: 'text',     store: 'props', placeholder: '자세히 보기' },
+        { key: 'ctaUrl',         label: 'CTA 링크',         type: 'text',     store: 'props', placeholder: '' },
+        { key: 'backgroundNote', label: '배경/이미지 설명', type: 'text',     store: 'props', placeholder: '대표 이미지 또는 캠페인 비주얼' },
+        { key: 'showIndicator',  label: '인디케이터 표시',  type: 'checkbox', store: 'props', checked: p.showIndicator !== false }
+      ];
+    }
+    if (lid === 'lib.website.card-grid') {
+      return [
+        { key: 'columns', label: '열 수', type: 'number', store: 'props', min: 1, max: 6, placeholder: '2' },
+        { key: 'rows',    label: '행 수', type: 'number', store: 'props', min: 1, max: 6, placeholder: '2' }
+      ];
+    }
+    if (lid === 'lib.website.image-text-section') {
+      return [
+        { key: 'itemCount', label: '항목 수', type: 'number', store: 'props', min: 1, max: 8, placeholder: '4' }
+      ];
+    }
+    if (lid === 'lib.website.quick-link-cta' || lid === 'lib.navigation.quick-link-group') {
+      return [
+        { key: 'itemCount', label: '링크 항목 수', type: 'number', store: 'props', min: 1, max: 8, placeholder: '4' },
+        { key: 'ctaLabel',  label: 'CTA 라벨',     type: 'text',   store: 'props', placeholder: '바로가기' },
+        { key: 'ctaUrl',    label: 'CTA 링크',     type: 'text',   store: 'props', placeholder: '' }
+      ];
+    }
+    if (lid === 'lib.website.global-header' || lid === 'lib.navigation.gnb') {
+      return [
+        { key: 'logoText',   label: '로고 텍스트', type: 'text',     store: 'props', placeholder: 'BRAND' },
+        { key: 'showSearch', label: '검색 표시',   type: 'checkbox', store: 'props', checked: p.showSearch !== false },
+        { key: 'showLogin',  label: '로그인 표시', type: 'checkbox', store: 'props', checked: p.showLogin  !== false }
+      ];
+    }
+    if (lid === 'lib.website.footer' || lid === 'lib.navigation.footer-menu') {
+      return [
+        { key: 'footerNote', label: 'Footer 문구',    type: 'text', store: 'props', placeholder: '회사 소개, 이용약관 등' },
+        { key: 'copyright',  label: 'Copyright 문구', type: 'text', store: 'props', placeholder: 'ⓒ 2024 Company. All rights reserved.' }
+      ];
+    }
+    return [];
+  }
+
   function buildInspContent(block, idx) {
     if (!block) return buildInspEmpty();
     var hasLibDef = !!(block.libraryId && getLibraryDefinition(block.libraryId));
@@ -4654,6 +4711,33 @@
             '<label class="iri"><input type="radio" name="insp-imp-' + idx + '" value="l"' + (block.imp === 'l' ? ' checked' : '') + '><span class="imp-l">낮음</span> 선택 또는 보조 영역</label>' +
           '</div>' +
         '</div>';
+      var extraFields = getInspectorPropsFields(block);
+      if (extraFields.length) {
+        panelHtml += '<div class="ifdiv"></div><div class="ifsec-lbl">컴포넌트 속성</div>';
+        extraFields.forEach(function(f) {
+          var rawVal = (block.props && block.props[f.key] !== undefined) ? block.props[f.key] : '';
+          if (f.type === 'checkbox') {
+            var isChecked = (block.props && block.props[f.key] !== undefined) ? !!block.props[f.key] : (f.checked !== undefined ? f.checked : true);
+            panelHtml +=
+              '<div class="if if--inline">' +
+                '<label class="if-ck-wrap">' +
+                  '<input type="checkbox" class="ifinp-ck" data-insp-field="' + f.key + '" data-insp-store="' + f.store + '" data-wf-idx="' + idx + '"' + (isChecked ? ' checked' : '') + '>' +
+                  '<span class="iflbl if-ck-lbl">' + f.label + '</span>' +
+                '</label>' +
+              '</div>';
+          } else {
+            var qVal = String(rawVal).replace(/"/g, '&quot;');
+            var qPh  = (f.placeholder || '').replace(/"/g, '&quot;');
+            panelHtml +=
+              '<div class="if"><div class="iflbl">' + f.label + '</div>' +
+                '<input class="ifinp" type="' + (f.type === 'number' ? 'number' : 'text') + '"' +
+                  (f.type === 'number' ? ' min="' + (f.min || 1) + '" max="' + (f.max || 99) + '"' : '') +
+                  ' data-insp-field="' + f.key + '" data-insp-store="' + f.store + '" data-wf-idx="' + idx + '"' +
+                  ' value="' + qVal + '" placeholder="' + qPh + '">' +
+              '</div>';
+          }
+        });
+      }
     } else if (tab === 'vis') {
       var disp = block.display || {};
       var condVal = disp.condition || '항상 표시';
@@ -4930,7 +5014,8 @@
     }
 
     if (lid === 'lib.website.hero-visual') {
-      var hdots = (lv === 'rolling')
+      var showDots = (lv === 'rolling') || !!(b.props && b.props.showIndicator);
+      var hdots = showDots
         ? '<div class="pmf-s-dots"><span class="pmf-dot pmf-dot--on"></span><span class="pmf-dot"></span><span class="pmf-dot"></span></div>'
         : '';
       return '<div class="pmf-shape pmf-shape--hero"' + attrs + '>' +
@@ -5638,6 +5723,19 @@
         var impIdx = parseInt(impRadio.getAttribute('name').replace('insp-imp-', ''), 10);
         if (SSP.editor.wfBlocks[impIdx]) SSP.editor.wfBlocks[impIdx].imp = impRadio.value;
       }
+      /* Inspector checkbox fields (change event) */
+      var inspCk = e.target.closest('input[type="checkbox"][data-insp-field]');
+      if (inspCk && SSP.editor.wfBlocks) {
+        var ckIdx   = parseInt(inspCk.getAttribute('data-wf-idx'), 10);
+        var ckField = inspCk.getAttribute('data-insp-field');
+        var ckStore = inspCk.getAttribute('data-insp-store') || null;
+        if (SSP.editor.wfBlocks[ckIdx]) {
+          var ckBlk = SSP.editor.wfBlocks[ckIdx];
+          if (ckStore === 'props') { ckBlk.props = ckBlk.props || {}; ckBlk.props[ckField] = inspCk.checked; }
+          else { ckBlk[ckField] = inspCk.checked; }
+          markPreviewDirty();
+        }
+      }
     });
 
     /* Input events → mark preview dirty + inspector field sync */
@@ -5645,14 +5743,34 @@
       if (SSP.view.mode !== 'editor' || !SSP.draft) return;
       if (e.target.closest('.ss-ed-inp')) { markPreviewDirty(); }
       var inspInp = e.target.closest('[data-insp-field]');
-      if (inspInp && SSP.editor.wfBlocks) {
-        var iIdx = parseInt(inspInp.getAttribute('data-wf-idx'), 10);
+      if (inspInp && SSP.editor.wfBlocks && inspInp.type !== 'checkbox') {
+        var iIdx   = parseInt(inspInp.getAttribute('data-wf-idx'), 10);
         var iField = inspInp.getAttribute('data-insp-field');
+        var iStore = inspInp.getAttribute('data-insp-store') || null;
         if (SSP.editor.wfBlocks[iIdx]) {
-          SSP.editor.wfBlocks[iIdx][iField] = inspInp.value;
-          var canvasSel = '.wf-block[data-wf-idx="' + iIdx + '"] .wf-b' + (iField === 'name' ? 'name' : 'desc');
-          var canvasEl = document.querySelector(canvasSel);
-          if (canvasEl) canvasEl.textContent = inspInp.value;
+          var blk = SSP.editor.wfBlocks[iIdx];
+          if (iStore === 'props') {
+            blk.props = blk.props || {};
+            blk.props[iField] = inspInp.value;
+          } else if (iStore === 'display') {
+            blk.display = blk.display || {};
+            blk.display[iField] = inspInp.value;
+          } else if (iStore === 'action') {
+            blk.action = blk.action || {};
+            blk.action[iField] = inspInp.value;
+          } else if (iStore === 'data') {
+            blk.data = blk.data || {};
+            blk.data[iField] = inspInp.value;
+          } else {
+            blk[iField] = inspInp.value;
+            /* live-update canvas for name / desc */
+            if (iField === 'name' || iField === 'desc') {
+              var canvasSel = '.wf-block[data-wf-idx="' + iIdx + '"] .wf-b' + (iField === 'name' ? 'name' : 'desc');
+              var canvasEl = document.querySelector(canvasSel);
+              if (canvasEl) canvasEl.textContent = inspInp.value;
+            }
+          }
+          markPreviewDirty();
         }
       }
     });
