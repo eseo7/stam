@@ -3776,7 +3776,7 @@
       /* component-based wireframe (preset templates) */
       draft.components.forEach(function(cmp) {
         if (cmp.enabled !== false) {
-          items.push({ n: n++, name: cmp.name, type: cmp.type, value: cmp.description || '', props: cmp.props || {}, _cmpId: cmp.id });
+          items.push({ n: n++, name: cmp.name, type: cmp.type, value: cmp.description || '', props: cmp.props || {}, _cmpId: cmp.id, libraryId: cmp.libraryId || null, layoutVariant: cmp.layoutVariant || null });
         }
       });
     } else {
@@ -3820,9 +3820,139 @@
     renderWireframePreview(SSP.previewModel);
   }
 
+  /* ── Wireframe renderer helpers (library-id based shapes) ── */
+  function parseVariantGrid(variant) {
+    if (!variant) return null;
+    var m = /^(\d+)x(\d+)$/.exec(variant);
+    return m ? { rows: parseInt(m[1], 10), cols: parseInt(m[2], 10) } : null;
+  }
+
+  function renderWireframeByLibraryId(item, marker) {
+    var lid = item.libraryId;
+    var lv = item.layoutVariant || null;
+    var g = parseVariantGrid(lv);
+    var desc = item.value ? '<div class="ss-wf-cmp-desc">' + item.value + '</div>' : '';
+    var attrs = ' data-library-id="' + lid + '"' + (lv ? ' data-layout-variant="' + lv + '"' : '');
+    var cells, i;
+
+    if (lid === 'lib.website.global-header' || lid === 'lib.navigation.gnb') {
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--global-header"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-gh-bar"><span class="ss-wf-gh-logo"></span>' +
+        '<span class="ss-wf-gh-nav"><span></span><span></span><span></span><span></span><span></span></span>' +
+        '<span class="ss-wf-gh-utils"><span></span><span></span></span></div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.hero-visual') {
+      var dots = (lv === 'rolling')
+        ? '<div class="ss-wf-hero-dots"><span class="ss-wf-dot ss-wf-dot--on"></span><span class="ss-wf-dot"></span><span class="ss-wf-dot"></span></div>'
+        : '';
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--hero"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-hero-area"><div class="ss-wf-hero-copy">' +
+        '<div class="ss-wf-hero-ln ss-wf-hero-ln--h"></div><div class="ss-wf-hero-ln"></div><div class="ss-wf-hero-cta-ph"></div>' +
+        '</div></div>' + dots + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.banner-group') {
+      var bCols = g ? g.cols : 3;
+      cells = '';
+      for (i = 0; i < bCols; i++) cells += '<div class="ss-wf-bn-cell"></div>';
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--banner-group"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-bn-grid" style="grid-template-columns:repeat(' + bCols + ',1fr)">' +
+        cells + '</div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.quick-link-cta' || lid === 'lib.navigation.quick-link-group') {
+      var qlG = g || { rows: 1, cols: 4 };
+      var qlTotal = qlG.rows * qlG.cols;
+      cells = '';
+      for (i = 0; i < Math.min(qlTotal, 8); i++) {
+        cells += '<div class="ss-wf-ql-item"><div class="ss-wf-ql-icon"></div><div class="ss-wf-ql-lbl"></div></div>';
+      }
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--quick-link"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-ql-grid" style="grid-template-columns:repeat(' + qlG.cols + ',1fr)">' +
+        cells + '</div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.disclosure-section') {
+      var discBody;
+      if (lv === 'tab') {
+        discBody = '<div class="ss-wf-disc-tabs"><span class="ss-wf-disc-tab ss-wf-disc-tab--on"></span><span class="ss-wf-disc-tab"></span><span class="ss-wf-disc-tab"></span></div><div class="ss-wf-disc-pane"></div>';
+      } else {
+        discBody = '<div class="ss-wf-disc-acc"><div class="ss-wf-disc-row"></div><div class="ss-wf-disc-row"></div><div class="ss-wf-disc-row"></div></div>';
+      }
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--disclosure"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body">' + discBody + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.card-grid') {
+      var cgCols = (item.props && item.props.columns) ? item.props.columns : (g ? g.cols : 2);
+      var cgRows = (item.props && item.props.rows) ? item.props.rows : (g ? g.rows : 2);
+      cells = '';
+      for (i = 0; i < Math.min(cgCols * cgRows, 12); i++) {
+        cells += '<div class="ss-wf-cg-card"><div class="ss-wf-cg-img"></div><div class="ss-wf-cg-info"></div></div>';
+      }
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--card-grid"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-cg-grid" style="grid-template-columns:repeat(' + cgCols + ',1fr)">' +
+        cells + '</div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.image-text-section') {
+      var itG = g || { rows: 1, cols: 4 };
+      cells = '';
+      for (i = 0; i < Math.min(itG.rows * itG.cols, 8); i++) {
+        cells += '<div class="ss-wf-it-item"><div class="ss-wf-it-img"></div><div class="ss-wf-it-txt">' +
+          '<div class="ss-wf-it-ln"></div><div class="ss-wf-it-ln ss-wf-it-ln--s"></div></div></div>';
+      }
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--img-text"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-it-grid" style="grid-template-columns:repeat(' + itG.cols + ',1fr)">' +
+        cells + '</div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.promotion-event-section') {
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--promo-event"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-promo-strip"><div class="ss-wf-promo-thumb"></div>' +
+        '<div class="ss-wf-promo-info"><div class="ss-wf-promo-ln ss-wf-promo-ln--h"></div><div class="ss-wf-promo-ln"></div></div>' +
+        '</div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.news-media-section') {
+      cells = '';
+      for (i = 0; i < 3; i++) {
+        cells += '<div class="ss-wf-news-row"><div class="ss-wf-news-thumb"></div>' +
+          '<div class="ss-wf-news-info"><div class="ss-wf-news-ln"></div><div class="ss-wf-news-ln ss-wf-news-ln--s"></div></div></div>';
+      }
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--news"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-news-list">' + cells + '</div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.family-site') {
+      cells = '';
+      for (i = 0; i < 5; i++) cells += '<div class="ss-wf-fam-item"></div>';
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--family"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-fam-row">' + cells + '</div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.footer' || lid === 'lib.navigation.footer-menu') {
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--footer"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-footer-bar">' +
+        '<div class="ss-wf-footer-row ss-wf-footer-row--logo"><span class="ss-wf-footer-logo-ph"></span></div>' +
+        '<div class="ss-wf-footer-row ss-wf-footer-row--links"><span></span><span></span><span></span><span></span></div>' +
+        '<div class="ss-wf-footer-row ss-wf-footer-row--copy"><span class="ss-wf-footer-copy-ph"></span></div>' +
+        '</div>' + desc + '</div></div>';
+    }
+
+    /* generic fallback for any other libraryId */
+    return '<div class="ss-wf-block ss-wf-lib"' + attrs + '>' + marker +
+      '<div class="ss-wf-lib-body"><div class="ss-wf-generic-inner">' +
+      '<span class="ss-wf-generic-name">' + (item.name || lid) + '</span>' +
+      (item.value ? '<span class="ss-wf-cmp-desc">' + item.value + '</span>' : '') +
+      '</div></div></div>';
+  }
+
   /* ── Wireframe renderer ── */
   function renderWireframeItem(item) {
     var marker = '<span class="ss-wf-marker">' + item.n + '</span>';
+    if (item.libraryId) return renderWireframeByLibraryId(item, marker);
     var conds, cols, acts;
     switch (item.type) {
       case 'title':
