@@ -4644,7 +4644,7 @@
         { key: 'mainCopy',       label: '메인 카피',        type: 'text',     store: 'props', placeholder: '브랜드의 첫인상을 만드는 카피' },
         { key: 'subCopy',        label: '서브 카피',        type: 'text',     store: 'props', placeholder: '서비스 핵심 메시지를 설명합니다.' },
         { key: 'ctaLabel',       label: 'CTA 라벨',         type: 'text',     store: 'props', placeholder: '자세히 보기' },
-        { key: 'ctaUrl',         label: 'CTA 링크',         type: 'text',     store: 'props', placeholder: '' },
+        { key: 'ctaUrl',         label: 'CTA 링크',         type: 'text',     store: 'props', placeholder: 'https://example.com' },
         { key: 'backgroundNote', label: '배경/이미지 설명', type: 'text',     store: 'props', placeholder: '대표 이미지 또는 캠페인 비주얼' },
         { key: 'showIndicator',  label: '인디케이터 표시',  type: 'checkbox', store: 'props', checked: p.showIndicator !== false }
       ];
@@ -4664,7 +4664,7 @@
       return [
         { key: 'itemCount', label: '링크 항목 수', type: 'number', store: 'props', min: 1, max: 8, placeholder: '4' },
         { key: 'ctaLabel',  label: 'CTA 라벨',     type: 'text',   store: 'props', placeholder: '바로가기' },
-        { key: 'ctaUrl',    label: 'CTA 링크',     type: 'text',   store: 'props', placeholder: '' }
+        { key: 'ctaUrl',    label: 'CTA 링크',     type: 'text',   store: 'props', placeholder: 'https://example.com' }
       ];
     }
     if (lid === 'lib.website.global-header' || lid === 'lib.navigation.gnb') {
@@ -5006,10 +5006,13 @@
     var attrs = ' data-pmf-lid="' + lid + '"' + (lv ? ' data-pmf-lv="' + lv + '"' : '');
 
     if (lid === 'lib.website.global-header' || lid === 'lib.navigation.gnb') {
+      var hdShowSearch = !b.props || b.props.showSearch !== false;
+      var hdShowLogin  = !b.props || b.props.showLogin  !== false;
+      var hdUtils = (hdShowSearch ? '<span></span>' : '') + (hdShowLogin ? '<span></span>' : '');
       return '<div class="pmf-shape pmf-shape--header"' + attrs + '>' +
         '<div class="pmf-s-logo"></div>' +
         '<div class="pmf-s-nav"><span></span><span></span><span></span><span></span></div>' +
-        '<div class="pmf-s-utils"><span></span><span></span></div>' +
+        (hdUtils ? '<div class="pmf-s-utils">' + hdUtils + '</div>' : '') +
         '</div>';
     }
 
@@ -5034,9 +5037,11 @@
     }
 
     if (lid === 'lib.website.quick-link-cta' || lid === 'lib.navigation.quick-link-group') {
-      var qlG = g || { rows: 1, cols: 4 };
+      var qlItemCount = (b.props && b.props.itemCount) ? Math.min(parseInt(b.props.itemCount, 10) || 4, 8) : null;
+      var qlG = qlItemCount ? { rows: 1, cols: Math.min(qlItemCount, 4) } : (g || { rows: 1, cols: 4 });
+      var qlTotal = qlItemCount !== null ? qlItemCount : qlG.rows * qlG.cols;
       cells = '';
-      for (i = 0; i < Math.min(qlG.rows * qlG.cols, 8); i++) {
+      for (i = 0; i < Math.min(qlTotal, 8); i++) {
         cells += '<div class="pmf-s-ql-item"><div class="pmf-s-ql-ic"></div><div class="pmf-s-ql-lb"></div></div>';
       }
       return '<div class="pmf-shape pmf-shape--quick-link"' + attrs +
@@ -5067,9 +5072,11 @@
     }
 
     if (lid === 'lib.website.image-text-section') {
-      var itG = g || { rows: 1, cols: 4 };
+      var itItemCount = (b.props && b.props.itemCount) ? Math.min(parseInt(b.props.itemCount, 10) || 4, 8) : null;
+      var itG = itItemCount ? { rows: 1, cols: Math.min(itItemCount, 4) } : (g || { rows: 1, cols: 4 });
+      var itTotal = itItemCount !== null ? itItemCount : itG.rows * itG.cols;
       cells = '';
-      for (i = 0; i < Math.min(itG.rows * itG.cols, 8); i++) {
+      for (i = 0; i < Math.min(itTotal, 8); i++) {
         cells += '<div class="pmf-s-it-item"><div class="pmf-s-it-img"></div><div class="pmf-s-it-ln"></div><div class="pmf-s-it-ln pmf-s-it-ln--s"></div></div>';
       }
       return '<div class="pmf-shape pmf-shape--img-text"' + attrs +
