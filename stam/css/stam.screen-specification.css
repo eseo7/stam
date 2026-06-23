@@ -2358,7 +2358,7 @@ select.ss-ed-inp:focus,
 
 /* ── Preview View ── */
 .ss-preview-view {
-  flex: 1 0 auto;
+  min-height: 100%;
   background: var(--bg-base);
 }
 
@@ -4928,9 +4928,10 @@ select.ss-ed-inp:focus,
 .ss-preview-view {
   display: flex;
   flex-direction: column;
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   height: auto;
   min-height: 0;
+  overflow: hidden;
   background: var(--bg-base);
 }
 
@@ -5276,6 +5277,9 @@ select.ss-ed-inp:focus,
   background: var(--bg-sur);
   border-top: 1px solid var(--bd);
   flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
 }
 .prev-ftr-sp { flex: 1; }
 .prev-missing { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--warn, #f59e0b); }
