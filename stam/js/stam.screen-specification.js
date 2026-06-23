@@ -5000,6 +5000,17 @@
       else if (/news|뉴스|media|미디어/i.test(nm))                 lid = 'lib.website.news-media-section';
       else if (/promo|event|기획전|프로모/i.test(nm))              lid = 'lib.website.promotion-event-section';
       else if (/family|관련.?사이트/i.test(nm))                   lid = 'lib.website.family-site';
+      /* App / Admin fallbacks */
+      else if (/search|filter|검색|필터/i.test(nm))               lid = 'lib.admin.search-filter-bar';
+      else if (/toolbar|툴바/i.test(nm))                           lid = 'lib.admin.toolbar';
+      else if (/\b(table|테이블|result|결과)\b/i.test(nm))         lid = 'lib.admin.result-table';
+      else if (/pagination|페이지네이션/i.test(nm))                 lid = 'lib.navigation.pagination';
+      else if (/empty|empty.?state|빈.?(화면|상태)?/i.test(nm))    lid = 'lib.admin.empty-state';
+      else if (/\b(form|폼|입력)\b/i.test(nm))                     lid = 'lib.admin.create-edit-form';
+      else if (/drawer|detail|상세/i.test(nm))                     lid = 'lib.admin.detail-drawer-summary';
+      else if (/\btab|탭|segmented/i.test(nm))                     lid = 'lib.navigation.tabs';
+      else if (/status|badge|chip|상태/i.test(nm))                 lid = 'lib.data.status-badge';
+      else if (/kpi|summary.?strip|summary/i.test(nm))             lid = 'lib.admin.summary-strip';
     }
     if (!lid) return null;
 
@@ -5104,6 +5115,139 @@
         '<div class="pmf-s-footer-links"><span></span><span></span><span></span></div>' +
         '<div class="pmf-s-footer-copy"></div>' +
         '</div>';
+    }
+
+    /* ── App / Admin skeleton shapes ── */
+
+    if (lid === 'lib.admin.search-filter-bar') {
+      return '<div class="pmf-shape pmf-shape--search-filter"' + attrs + '>' +
+        '<div class="pmf-s-sf-row">' +
+          '<div class="pmf-s-sf-inp"></div>' +
+          '<div class="pmf-s-sf-chips">' +
+            '<span class="pmf-s-sf-chip"></span>' +
+            '<span class="pmf-s-sf-chip"></span>' +
+            '<span class="pmf-s-sf-chip"></span>' +
+          '</div>' +
+          '<div class="pmf-s-sf-btn"></div>' +
+        '</div>' +
+        '</div>';
+    }
+
+    if (lid === 'lib.admin.toolbar') {
+      return '<div class="pmf-shape pmf-shape--toolbar"' + attrs + '>' +
+        '<div class="pmf-s-tb-left"><div class="pmf-s-tb-title"></div></div>' +
+        '<div class="pmf-s-tb-right">' +
+          '<div class="pmf-s-tb-btn"></div>' +
+          '<div class="pmf-s-tb-btn pmf-s-tb-btn--pri"></div>' +
+        '</div>' +
+        '</div>';
+    }
+
+    if (lid === 'lib.admin.result-table' || lid === 'lib.data.table') {
+      var rtRows = '';
+      for (i = 0; i < 3; i++) {
+        rtRows += '<div class="pmf-s-rt-row">' +
+          '<span class="pmf-s-rt-chk"></span>' +
+          '<span class="pmf-s-rt-cell pmf-s-rt-cell--wide"></span>' +
+          '<span class="pmf-s-rt-cell"></span>' +
+          '<span class="pmf-s-rt-cell"></span>' +
+          '<span class="pmf-s-rt-chip"></span>' +
+        '</div>';
+      }
+      return '<div class="pmf-shape pmf-shape--result-table"' + attrs + '>' +
+        '<div class="pmf-s-rt-head">' +
+          '<span class="pmf-s-rt-chk"></span>' +
+          '<span class="pmf-s-rt-hcol pmf-s-rt-hcol--wide"></span>' +
+          '<span class="pmf-s-rt-hcol"></span>' +
+          '<span class="pmf-s-rt-hcol"></span>' +
+          '<span class="pmf-s-rt-hcol"></span>' +
+        '</div>' +
+        rtRows +
+        '</div>';
+    }
+
+    if (lid === 'lib.navigation.pagination') {
+      return '<div class="pmf-shape pmf-shape--pagination"' + attrs + '>' +
+        '<div class="pmf-s-pg-row">' +
+          '<span class="pmf-s-pg-btn"></span>' +
+          '<span class="pmf-s-pg-num pmf-s-pg-num--on"></span>' +
+          '<span class="pmf-s-pg-num"></span>' +
+          '<span class="pmf-s-pg-num"></span>' +
+          '<span class="pmf-s-pg-btn"></span>' +
+        '</div>' +
+        '</div>';
+    }
+
+    if (lid === 'lib.admin.empty-state' || lid === 'lib.admin.error-state') {
+      return '<div class="pmf-shape pmf-shape--empty-state"' + attrs + '>' +
+        '<div class="pmf-s-es-icon"></div>' +
+        '<div class="pmf-s-es-line pmf-s-es-line--h"></div>' +
+        '<div class="pmf-s-es-line"></div>' +
+        '<div class="pmf-s-es-cta"></div>' +
+        '</div>';
+    }
+
+    if (lid === 'lib.admin.create-edit-form') {
+      return '<div class="pmf-shape pmf-shape--form"' + attrs + '>' +
+        '<div class="pmf-s-fm-row"><span class="pmf-s-fm-lbl"></span><span class="pmf-s-fm-inp"></span></div>' +
+        '<div class="pmf-s-fm-row"><span class="pmf-s-fm-lbl"></span><span class="pmf-s-fm-inp pmf-s-fm-sel"></span></div>' +
+        '<div class="pmf-s-fm-row"><span class="pmf-s-fm-lbl"></span><span class="pmf-s-fm-inp pmf-s-fm-ta"></span></div>' +
+        '<div class="pmf-s-fm-row"><span class="pmf-s-fm-lbl"></span><span class="pmf-s-fm-inp"></span></div>' +
+        '</div>';
+    }
+
+    if (lid === 'lib.admin.detail-drawer-summary') {
+      return '<div class="pmf-shape pmf-shape--drawer"' + attrs + '>' +
+        '<div class="pmf-s-dr-title"></div>' +
+        '<div class="pmf-s-dr-meta"><span></span><span></span><span></span></div>' +
+        '<div class="pmf-s-dr-card"></div>' +
+        '<div class="pmf-s-dr-card"></div>' +
+        '<div class="pmf-s-dr-actions"><span class="pmf-s-dr-act"></span><span class="pmf-s-dr-act pmf-s-dr-act--pri"></span></div>' +
+        '</div>';
+    }
+
+    if (lid === 'lib.navigation.tabs') {
+      return '<div class="pmf-shape pmf-shape--tabs"' + attrs + '>' +
+        '<div class="pmf-s-tab-bar">' +
+          '<span class="pmf-s-tab pmf-s-tab--on"></span>' +
+          '<span class="pmf-s-tab"></span>' +
+          '<span class="pmf-s-tab"></span>' +
+        '</div>' +
+        '<div class="pmf-s-tab-pane">' +
+          '<div class="pmf-s-tp-ln"></div>' +
+          '<div class="pmf-s-tp-ln pmf-s-tp-ln--s"></div>' +
+        '</div>' +
+        '</div>';
+    }
+
+    if (lid === 'lib.data.status-badge') {
+      return '<div class="pmf-shape pmf-shape--chip-group"' + attrs + '>' +
+        '<div class="pmf-s-cg-row">' +
+          '<span class="pmf-s-cg-chip pmf-s-cg-chip--a"></span>' +
+          '<span class="pmf-s-cg-chip pmf-s-cg-chip--b"></span>' +
+          '<span class="pmf-s-cg-chip pmf-s-cg-chip--c"></span>' +
+          '<span class="pmf-s-cg-chip pmf-s-cg-chip--d"></span>' +
+        '</div>' +
+        '</div>';
+    }
+
+    if (lid === 'lib.admin.summary-strip') {
+      var ssItems = '';
+      for (i = 0; i < 4; i++) {
+        ssItems += '<div class="pmf-s-ss-item"><div class="pmf-s-ss-val"></div><div class="pmf-s-ss-lbl"></div></div>';
+      }
+      return '<div class="pmf-shape pmf-shape--summary-strip"' + attrs + '>' + ssItems + '</div>';
+    }
+
+    if (lid === 'lib.admin.kpi-card-group' || lid === 'lib.data.kpi-card-group') {
+      var kpiCnt = (b.props && b.props.itemsCount) ? b.props.itemsCount : (g ? g.cols : 4);
+      if (kpiCnt > 4) kpiCnt = 4;
+      var kpiCells = '';
+      for (i = 0; i < kpiCnt; i++) {
+        kpiCells += '<div class="pmf-s-kpi-card"><div class="pmf-s-kpi-num"></div><div class="pmf-s-kpi-lbl"></div></div>';
+      }
+      return '<div class="pmf-shape pmf-shape--kpi-cards"' + attrs +
+        ' style="grid-template-columns:repeat(' + kpiCnt + ',1fr)">' + kpiCells + '</div>';
     }
 
     return null;
