@@ -1036,7 +1036,7 @@
   /* ── State ── */
   var SSP = {
     view: { mode: 'list' },
-    editor: { mode: 'create', activeId: null, previewDirty: false, previewAppliedAt: null, wfBlocks: [], selBlock: null, compLibOpenCats: null, selectedBlockId: null },
+    editor: { mode: 'create', activeId: null, previewDirty: false, previewAppliedAt: null, wfBlocks: [], selBlock: null, compLibOpenCats: null },
     detailDrawer: { open: false, activeId: null },
     serviceType: 'branding',
     templateTab: 'front',
@@ -1507,7 +1507,6 @@
     SSP.editor.activeId = null;
     SSP.editor.previewDirty = false;
     SSP.editor.previewAppliedAt = null;
-    SSP.editor.selectedBlockId = null;
     SSP.previewModel = buildPreviewModelFromDraft(SSP.draft);
   }
 
@@ -4060,22 +4059,6 @@
     }
   }
 
-  function renderWireframeItemWithId(item) {
-    var html = renderWireframeItem(item);
-    if (!item._cmpId) return html;
-    var isSelected = SSP.editor.selectedBlockId === item._cmpId;
-    var selCls = isSelected ? ' wf-block--selected' : '';
-    return html.replace('<div class="ss-wf-block',
-      '<div data-wf-block-id="' + item._cmpId + '" class="ss-wf-block' + selCls);
-  }
-
-  function indexOfComponent(blockId) {
-    if (!SSP.draft || !SSP.draft.components) return -1;
-    for (var i = 0; i < SSP.draft.components.length; i++) {
-      if (SSP.draft.components[i].id === blockId) return i;
-    }
-    return -1;
-  }
 
   function renderWireframePreview(previewModel) {
     var el = document.getElementById('ss-live-wireframe');
@@ -4093,7 +4076,7 @@
       '<div class="ss-wireframe-note">현재 적용된 draft 기준 · 실제 데이터 아님</div>' +
       '<div class="ss-wireframe-body">' +
         (previewModel && previewModel.items && previewModel.items.length
-          ? previewModel.items.map(renderWireframeItemWithId).join('')
+          ? previewModel.items.map(renderWireframeItem).join('')
           : buildEmptyCard({
               modifier: 'ss-empty-card--inline',
               iconPath: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>',
@@ -4607,75 +4590,6 @@
     '</div>';
   }
 
-  /* ── Block Inspector (right panel when a draft.components block is selected) ── */
-  function renderBlockInspector(blockId) {
-    var panel = document.getElementById('ss-editor-form-panel');
-    if (!panel) return;
-
-    var idx = indexOfComponent(blockId);
-    if (idx === -1) {
-      SSP.editor.selectedBlockId = null;
-      if (SSP.draft) renderEditorFormPanel(SSP.draft);
-      return;
-    }
-    var cmp = SSP.draft.components[idx];
-
-    var propsHtml = '';
-    if (cmp.props) {
-      if (cmp.props.importance !== undefined) {
-        propsHtml +=
-          '<div class="ss-wfi-row">' +
-            '<label class="ss-wfi-lbl">중요도</label>' +
-            '<select class="ss-wfi-select" data-wfi-field="props.importance">' +
-              '<option value="high"' + (cmp.props.importance === 'high' ? ' selected' : '') + '>높음</option>' +
-              '<option value="medium"' + (cmp.props.importance === 'medium' ? ' selected' : '') + '>중간</option>' +
-              '<option value="low"' + (cmp.props.importance === 'low' ? ' selected' : '') + '>낮음</option>' +
-            '</select>' +
-          '</div>';
-      }
-      if (cmp.props.columns !== undefined) {
-        propsHtml +=
-          '<div class="ss-wfi-row">' +
-            '<label class="ss-wfi-lbl">컬럼 수</label>' +
-            '<input type="number" class="ss-wfi-input" data-wfi-field="props.columns" value="' + escHtml(String(cmp.props.columns)) + '" min="1" max="12">' +
-          '</div>';
-      }
-    }
-
-    panel.innerHTML =
-      '<div class="ss-wf-inspector" id="ss-wf-inspector">' +
-        '<div class="ss-wfi-head">' +
-          '<div class="ss-wfi-head-info">' +
-            '<span class="ss-wfi-badge">' + escHtml(cmp.type) + '</span>' +
-            '<span class="ss-wfi-name">' + escHtml(cmp.name) + '</span>' +
-          '</div>' +
-          '<button type="button" class="ss-wfi-close" data-wfi-action="close" aria-label="닫기">' +
-            svgIc('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>', 14) +
-          '</button>' +
-        '</div>' +
-        '<div class="ss-wfi-body">' +
-          '<div class="ss-wfi-row ss-wfi-row--toggle">' +
-            '<span class="ss-wfi-lbl">블록 활성화</span>' +
-            '<label class="ss-ed-toggle-sw">' +
-              '<input type="checkbox" data-wfi-field="enabled"' + (cmp.enabled !== false ? ' checked' : '') + '>' +
-              '<span class="ss-ed-toggle-track"></span>' +
-              '<span class="ss-ed-toggle-knob"></span>' +
-            '</label>' +
-          '</div>' +
-          '<div class="ss-wfi-row">' +
-            '<label class="ss-wfi-lbl" for="ss-wfi-desc">설명</label>' +
-            '<textarea id="ss-wfi-desc" class="ss-wfi-textarea" data-wfi-field="description" rows="4" placeholder="이 블록의 역할을 설명합니다.">' + escHtml(cmp.description || '') + '</textarea>' +
-          '</div>' +
-          propsHtml +
-        '</div>' +
-        '<div class="ss-wfi-foot">' +
-          '<button type="button" class="ss-wfi-back" data-wfi-action="close">' +
-            svgIc('<polyline points="15 18 9 12 15 6"/>', 12) + ' 화면 정보로 돌아가기' +
-          '</button>' +
-        '</div>' +
-      '</div>';
-  }
-
   /* ── Editor View (split orchestrator) ── */
   function renderEditorView() {
     var d = SSP.draft;
@@ -5159,6 +5073,9 @@
         }
         return;
       }
+
+      /* Inspector panel — clicks inside must never deselect or toggle block selection */
+      if (e.target.closest('.inspector')) return;
 
       /* Wireframe block selection → update inspector */
       var wfBlock = e.target.closest('[data-wf-idx]');
@@ -5818,85 +5735,6 @@
     updateSelBar();
   }
 
-  /* ── Wireframe Inspector ── */
-  function initWireframeInspector() {
-    var split = document.getElementById('ss-editor-split');
-    if (!split) return;
-
-    /* Block click in wireframe panel */
-    split.addEventListener('click', function(e) {
-      if (SSP.view.mode !== 'editor' || !SSP.draft) return;
-
-      /* Inspector action buttons (close / back) — handle first, never deselect on inspector clicks */
-      var wfiAction = e.target.closest('[data-wfi-action]');
-      if (wfiAction) {
-        if (wfiAction.getAttribute('data-wfi-action') === 'close') {
-          SSP.editor.selectedBlockId = null;
-          var wf = document.getElementById('ss-live-wireframe');
-          if (wf) {
-            wf.querySelectorAll('.wf-block--selected').forEach(function(b) {
-              b.classList.remove('wf-block--selected');
-            });
-          }
-          renderEditorFormPanel(SSP.draft);
-        }
-        return;
-      }
-
-      /* Any click inside the inspector panel — do nothing (preserve selection) */
-      if (e.target.closest('#ss-wf-inspector')) return;
-
-      /* Wireframe block click */
-      var block = e.target.closest('[data-wf-block-id]');
-      var wfEl = document.getElementById('ss-live-wireframe');
-      if (block && wfEl && wfEl.contains(block)) {
-        /* Persist form state before first switch to inspector */
-        if (!SSP.editor.selectedBlockId) collectDraftFromEditor();
-
-        var blockId = block.getAttribute('data-wf-block-id');
-        SSP.editor.selectedBlockId = blockId;
-
-        wfEl.querySelectorAll('[data-wf-block-id]').forEach(function(b) {
-          b.classList.toggle('wf-block--selected', b === block);
-        });
-
-        renderBlockInspector(blockId);
-      }
-    });
-
-    /* Inspector field change — update draft.components in-place, no full re-render */
-    split.addEventListener('change', function(e) {
-      if (SSP.view.mode !== 'editor' || !SSP.editor.selectedBlockId) return;
-      if (!e.target.closest('#ss-wf-inspector')) return;
-      var field = e.target.getAttribute('data-wfi-field');
-      if (!field) return;
-      var idx = indexOfComponent(SSP.editor.selectedBlockId);
-      if (idx === -1) return;
-      var cmp = SSP.draft.components[idx];
-      if (field === 'enabled') {
-        cmp.enabled = e.target.checked;
-      } else if (field.indexOf('props.') === 0) {
-        cmp.props = cmp.props || {};
-        cmp.props[field.slice(6)] = e.target.value;
-      }
-      markPreviewDirty();
-    });
-
-    /* Inspector textarea input — update description live */
-    split.addEventListener('input', function(e) {
-      if (SSP.view.mode !== 'editor' || !SSP.editor.selectedBlockId) return;
-      if (!e.target.closest('#ss-wf-inspector')) return;
-      var field = e.target.getAttribute('data-wfi-field');
-      if (field === 'description') {
-        var idx = indexOfComponent(SSP.editor.selectedBlockId);
-        if (idx !== -1) {
-          SSP.draft.components[idx].description = e.target.value;
-          markPreviewDirty();
-        }
-      }
-    });
-  }
-
   document.addEventListener('DOMContentLoaded', function () {
     initNav();
     initStrip();
@@ -5910,7 +5748,6 @@
     initViewEvents();
     initEscapeKey();
     initCustomSelect();
-    initWireframeInspector();
     initAll();
   });
 
