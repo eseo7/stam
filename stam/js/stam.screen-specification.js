@@ -143,6 +143,10 @@
     return '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
   }
 
+  function escHtml(str) {
+    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   function wChip(v, h) {
     var x = WST[v] || WST.writing;
     return '<span class="ss-chip ' + x.cls + '"' + (h ? ' style="height:23px;font-size:12px"' : '') + '>' + x.lbl + '</span>';
@@ -1703,41 +1707,1786 @@
       '</div>';
   }
 
-  /* ── Create View Step 3: Page Template selection ── */
-  var CREATE_PAGE_TEMPLATE_LIST = [
-    { id: 'dashboard',  name: '대시보드',
-      desc: '주요 지표·현황 요약·빠른 링크로 구성되는 홈/대시보드 화면',
-      sections: ['KPI 카드', '차트 영역', '최근 활동', '빠른 실행'],
-      structure: { useSearch: false, useTable: true, useStatusChip: true, useRowAction: false, useEmpty: false } },
-    { id: 'list-search', name: '목록 / 검색',
-      desc: '검색 조건 + 결과 테이블로 구성되는 일반 목록·조회 화면',
-      sections: ['검색 영역', '필터', '결과 테이블', '페이지네이션'],
-      structure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true } },
-    { id: 'reg-form', name: '등록 / 수정 폼',
-      desc: '입력 필드와 저장 액션으로 구성되는 폼 화면',
-      sections: ['폼 섹션', '유효성 안내', '액션 버튼'],
-      structure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false } },
-    { id: 'settings', name: '설정',
-      desc: '항목별 설정값을 관리하고 저장하는 설정 화면',
-      sections: ['설정 그룹', '설정 항목', '저장 버튼'],
-      structure: { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false } }
+  /* ── Full Screen Component Library Catalog v1 (PR #202 보정)
+   * Single source of truth for left-side Component Library.
+   * Templates reference these via libraryId — they don't invent new elements.
+   * Variants (Card Grid 1x4 / 2x2 등)은 별도 항목으로 만들지 말고 layoutVariant 사용.
+   * 실제 Inspector 입력 UI 는 이번 범위 아님 — inspectorHints 만 후보 명세.
+   * ───────────────────────────────────────────────────────── */
+  var SCREEN_LIBRARY_GROUPS = [
+    { id: 'used',              name: '현재 화면에서 사용 중', isUsed: true },
+    { id: 'website-sections',  name: 'Website Sections' },
+    { id: 'app-admin-blocks',  name: 'App / Admin Blocks' },
+    { id: 'layout',            name: 'Layout' },
+    { id: 'text',              name: 'Text / Content' },
+    { id: 'media',             name: 'Media' },
+    { id: 'input',             name: 'Form / Input' },
+    { id: 'data',              name: 'Data Display' },
+    { id: 'navigation',        name: 'Navigation' },
+    { id: 'feedback',          name: 'Feedback / State' },
+    { id: 'custom',            name: 'Custom' }
   ];
+
+  /* libraryId 규칙: lib.<group>.<slug>  */
+  var SCREEN_LIBRARY_CATALOG = [
+    /* A. Layout Primitives */
+    { libraryId: 'lib.layout.container',       name: 'Container',       category: 'layout',   type: 'layout' },
+    { libraryId: 'lib.layout.grid',            name: 'Grid',            category: 'layout',   type: 'layout', variants: ['1x1','1x2','1x3','1x4','2x2','2x3','3x1'], defaultVariant: '2x2' },
+    { libraryId: 'lib.layout.flex-row',        name: 'Flex Row',        category: 'layout',   type: 'layout' },
+    { libraryId: 'lib.layout.stack',           name: 'Stack',           category: 'layout',   type: 'layout' },
+    { libraryId: 'lib.layout.divider',         name: 'Divider',         category: 'layout',   type: 'layout' },
+    { libraryId: 'lib.layout.spacer',          name: 'Spacer',          category: 'layout',   type: 'layout' },
+    { libraryId: 'lib.layout.section-wrapper', name: 'Section Wrapper', category: 'layout',   type: 'layout' },
+    { libraryId: 'lib.layout.scroll-area',     name: 'Scroll Area',     category: 'layout',   type: 'layout' },
+
+    /* B. Text / Content */
+    { libraryId: 'lib.text.title',         name: 'Title',           category: 'text', type: 'text' },
+    { libraryId: 'lib.text.body',          name: 'Body Text',       category: 'text', type: 'text' },
+    { libraryId: 'lib.text.label',         name: 'Label',           category: 'text', type: 'text' },
+    { libraryId: 'lib.text.helper',        name: 'Helper Text',     category: 'text', type: 'text' },
+    { libraryId: 'lib.text.link',          name: 'Link Text',       category: 'text', type: 'text' },
+    { libraryId: 'lib.text.description-list', name: 'Description List', category: 'text', type: 'text' },
+
+    /* C. Media */
+    { libraryId: 'lib.media.image',        name: 'Image',           category: 'media', type: 'media' },
+    { libraryId: 'lib.media.video',        name: 'Video',           category: 'media', type: 'media' },
+    { libraryId: 'lib.media.icon',         name: 'Icon',            category: 'media', type: 'media' },
+    { libraryId: 'lib.media.thumbnail',    name: 'Thumbnail',       category: 'media', type: 'media' },
+    { libraryId: 'lib.media.banner-image', name: 'Banner Image',    category: 'media', type: 'media' },
+
+    /* D. Form / Input */
+    { libraryId: 'lib.input.text',         name: 'Text Input',      category: 'input', type: 'input', inspectorHints: ['라벨', '필수', '플레이스홀더', '유효성'] },
+    { libraryId: 'lib.input.textarea',     name: 'Textarea',        category: 'input', type: 'input' },
+    { libraryId: 'lib.input.select',       name: 'Select',          category: 'input', type: 'input' },
+    { libraryId: 'lib.input.checkbox',     name: 'Checkbox',        category: 'input', type: 'input' },
+    { libraryId: 'lib.input.radio',        name: 'Radio',           category: 'input', type: 'input' },
+    { libraryId: 'lib.input.date',         name: 'Date Picker',     category: 'input', type: 'input' },
+    { libraryId: 'lib.input.file-upload',  name: 'File Upload',     category: 'input', type: 'input' },
+    { libraryId: 'lib.input.search',       name: 'Search Input',    category: 'input', type: 'input' },
+
+    /* E. Data Display */
+    { libraryId: 'lib.data.table',          name: 'Table',           category: 'data', type: 'data' },
+    { libraryId: 'lib.data.list',           name: 'List',            category: 'data', type: 'data' },
+    { libraryId: 'lib.data.card',           name: 'Card',            category: 'data', type: 'data' },
+    { libraryId: 'lib.data.kpi-card-group', name: 'KPI Card Group',  category: 'data', type: 'data', variants: ['1x3','1x4','2x2'], defaultVariant: '1x4', defaultProps: { itemsCount: 4 } },
+    { libraryId: 'lib.data.chart',          name: 'Chart',           category: 'data', type: 'data' },
+    { libraryId: 'lib.data.status-badge',   name: 'Status Badge',    category: 'data', type: 'data' },
+    { libraryId: 'lib.data.timeline',       name: 'Timeline',        category: 'data', type: 'data' },
+    { libraryId: 'lib.data.calendar',       name: 'Calendar',        category: 'data', type: 'data' },
+    { libraryId: 'lib.data.gantt',          name: 'Gantt',           category: 'data', type: 'data' },
+    { libraryId: 'lib.data.kanban-card',    name: 'Kanban Card',     category: 'data', type: 'data' },
+    { libraryId: 'lib.data.attachment-list',name: 'Attachment List', category: 'data', type: 'data' },
+
+    /* F. Navigation */
+    { libraryId: 'lib.navigation.gnb',               name: 'GNB',              category: 'navigation', type: 'navigation' },
+    { libraryId: 'lib.navigation.lnb',               name: 'LNB',              category: 'navigation', type: 'navigation' },
+    { libraryId: 'lib.navigation.tabs',              name: 'Tabs',             category: 'navigation', type: 'navigation' },
+    { libraryId: 'lib.navigation.breadcrumb',        name: 'Breadcrumb',       category: 'navigation', type: 'navigation' },
+    { libraryId: 'lib.navigation.pagination',        name: 'Pagination',       category: 'navigation', type: 'navigation' },
+    { libraryId: 'lib.navigation.accordion',         name: 'Accordion',        category: 'navigation', type: 'navigation' },
+    { libraryId: 'lib.navigation.quick-link-group',  name: 'Quick Link Group', category: 'navigation', type: 'navigation', variants: ['1x3','1x4','2x4'], defaultVariant: '1x4' },
+    { libraryId: 'lib.navigation.anchor-menu',       name: 'Anchor Menu',      category: 'navigation', type: 'navigation' },
+    { libraryId: 'lib.navigation.footer-menu',       name: 'Footer Menu',      category: 'navigation', type: 'navigation' },
+
+    /* G. Website Sections */
+    { libraryId: 'lib.website.global-header',          name: 'Global Header',          category: 'website-sections', type: 'section', inspectorHints: ['로고', '메뉴', '검색'] },
+    { libraryId: 'lib.website.hero-visual',            name: 'Hero Visual',            category: 'website-sections', type: 'section', variants: ['static', 'rolling'], defaultVariant: 'rolling', inspectorHints: ['배경 이미지', '카피', 'CTA 링크'] },
+    { libraryId: 'lib.website.banner-group',           name: 'Banner Group',           category: 'website-sections', type: 'section', variants: ['1x1','1x2','1x3'], defaultVariant: '1x3', defaultProps: { displayMode: 'static' } },
+    { libraryId: 'lib.website.quick-link-cta',         name: 'Quick Link / CTA',       category: 'website-sections', type: 'section', variants: ['1x3','1x4','2x4'], defaultVariant: '1x4' },
+    { libraryId: 'lib.website.disclosure-section',     name: 'Disclosure Section',     category: 'website-sections', type: 'section', variants: ['accordion','tab'], defaultVariant: 'accordion' },
+    { libraryId: 'lib.website.card-grid',               name: 'Card Grid',              category: 'website-sections', type: 'section', variants: ['1x1','1x2','1x3','2x1','2x2','2x3','3x1','1x4'], defaultVariant: '2x2', defaultProps: { columns: 2, rows: 2 }, inspectorHints: ['카드 항목', '제목', '설명', '이미지', '링크'] },
+    { libraryId: 'lib.website.image-text-section',     name: 'Image + Text Section',   category: 'website-sections', type: 'section', variants: ['1x1','1x2','1x3','1x4'], defaultVariant: '1x4' },
+    { libraryId: 'lib.website.promotion-event-section',name: 'Promotion / Event',      category: 'website-sections', type: 'section' },
+    { libraryId: 'lib.website.news-media-section',     name: 'News / Media',           category: 'website-sections', type: 'section' },
+    { libraryId: 'lib.website.service-product-section',name: 'Service / Product',      category: 'website-sections', type: 'section' },
+    { libraryId: 'lib.website.brand-story-section',    name: 'Brand Story',            category: 'website-sections', type: 'section' },
+    { libraryId: 'lib.website.gallery-section',        name: 'Gallery Section',        category: 'website-sections', type: 'section' },
+    { libraryId: 'lib.website.faq-section',            name: 'FAQ Section',            category: 'website-sections', type: 'section' },
+    { libraryId: 'lib.website.family-site',            name: 'Family Site',            category: 'website-sections', type: 'section' },
+    { libraryId: 'lib.website.footer',                  name: 'Footer',                 category: 'website-sections', type: 'section' },
+
+    /* H. App / Admin Blocks */
+    { libraryId: 'lib.admin.summary-strip',          name: 'Summary Strip',           category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.kpi-card-group',         name: 'KPI Card Group',          category: 'app-admin-blocks', type: 'block', variants: ['1x3','1x4','2x2'], defaultVariant: '1x4', defaultProps: { itemsCount: 4 } },
+    { libraryId: 'lib.admin.search-filter-bar',      name: 'Search / Filter Bar',     category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.toolbar',                name: 'Toolbar',                 category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.result-table',           name: 'Result Table',            category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.detail-drawer-summary', name: 'Detail Drawer Summary',   category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.create-edit-form',       name: 'Create / Edit Form',      category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.approval-panel',         name: 'Approval Panel',          category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.review-history',         name: 'Review History',          category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.comment-panel',          name: 'Comment Panel',           category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.attachment-section',     name: 'Attachment Section',      category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.empty-state',            name: 'Empty State',             category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.error-state',            name: 'Error State',             category: 'app-admin-blocks', type: 'block' },
+    { libraryId: 'lib.admin.loading-state',          name: 'Loading State',           category: 'app-admin-blocks', type: 'block' },
+
+    /* I. Feedback / State */
+    { libraryId: 'lib.feedback.toast',          name: 'Toast',            category: 'feedback', type: 'feedback' },
+    { libraryId: 'lib.feedback.alert',          name: 'Alert',            category: 'feedback', type: 'feedback' },
+    { libraryId: 'lib.feedback.confirm',        name: 'Confirm',          category: 'feedback', type: 'feedback' },
+    { libraryId: 'lib.feedback.modal',          name: 'Modal',            category: 'feedback', type: 'feedback' },
+    { libraryId: 'lib.feedback.drawer',         name: 'Drawer',           category: 'feedback', type: 'feedback' },
+    { libraryId: 'lib.feedback.empty-result',   name: 'Empty Result',     category: 'feedback', type: 'feedback' },
+    { libraryId: 'lib.feedback.error-message',  name: 'Error Message',    category: 'feedback', type: 'feedback' },
+    { libraryId: 'lib.feedback.loading-skeleton', name: 'Loading Skeleton', category: 'feedback', type: 'feedback' },
+
+    /* J. Custom */
+    { libraryId: 'lib.custom.section',          name: 'Custom Section',    category: 'custom', type: 'custom' },
+    { libraryId: 'lib.custom.block',            name: 'Custom Block',      category: 'custom', type: 'custom' },
+    { libraryId: 'lib.custom.field-group',      name: 'Custom Field Group',category: 'custom', type: 'custom' }
+  ];
+
+  function getLibraryItem(libraryId) {
+    for (var i = 0; i < SCREEN_LIBRARY_CATALOG.length; i++) {
+      if (SCREEN_LIBRARY_CATALOG[i].libraryId === libraryId) return SCREEN_LIBRARY_CATALOG[i];
+    }
+    return null;
+  }
+
+  function getLibraryItemsByCategory(catId) {
+    var out = [];
+    for (var i = 0; i < SCREEN_LIBRARY_CATALOG.length; i++) {
+      if (SCREEN_LIBRARY_CATALOG[i].category === catId) out.push(SCREEN_LIBRARY_CATALOG[i]);
+    }
+    return out;
+  }
+
+  /* ────────────────────────────────────────────────────────────
+   * Library Definition Layer v1 (PR #202 보정)
+   * libraryId → 의미·용도·입력 후보·variant 설명 메타데이터.
+   * 실제 Inspector 입력 UI 구현은 이번 범위 아님 — 정의/설명/속성 후보까지만.
+   * ──────────────────────────────────────────────────────────── */
+  var LIBRARY_VARIANT_HINTS = {
+    '1x1':     '단일 대표 콘텐츠를 강조해서 보여줄 때 사용',
+    '1x2':     '좌우 2개 항목을 비교하거나 나란히 배치',
+    '1x3':     '3개 핵심 항목을 가로로 나열',
+    '1x4':     '4개 항목을 가로로 균형 있게 배치',
+    '2x1':     '2개 항목을 세로로 쌓아 표시',
+    '2x2':     '4개 주요 항목을 균형 있게 표시',
+    '2x3':     '6개 항목을 2행 3열 그리드로 묶음',
+    '2x4':     '8개 항목을 2행 4열 그리드로 묶음',
+    '3x1':     '3개 항목을 가로 3열로 배치',
+    'static':  '정적 단일 노출',
+    'rolling': '슬라이드/롤링 자동 전환',
+    'accordion': '아코디언 접힘/펼침 방식',
+    'tab':     '탭 전환 방식'
+  };
+
+  function defaultVariantDefinitions(item) {
+    if (!item || !item.variants) return [];
+    return item.variants.map(function(v) {
+      return { id: v, label: v, description: LIBRARY_VARIANT_HINTS[v] || '' };
+    });
+  }
+
+  var LIBRARY_DEFINITIONS = {
+    /* Website Sections — 우선 상세 정의 */
+    'lib.website.global-header': {
+      definitionLevel: 'section',
+      description: '로고·메뉴·검색·로그인 등 사이트 전역에서 일관되게 보이는 상단 영역입니다.',
+      purpose: '사용자가 어디서든 동일하게 사이트 전체 구조를 인식하고 이동할 수 있게 합니다.',
+      useCases: ['홈페이지', '브랜드 소개', '서비스 포털 홈', '회원 진입 화면'],
+      notRecommendedFor: ['랜딩 단일 페이지', '모달/팝업 화면'],
+      slots: ['로고', '주메뉴', '서브메뉴', '검색', '로그인/회원'],
+      editableFields: ['로고 이미지', '주메뉴 항목', '검색 노출 여부', '로그인 버튼 노출'],
+      examples: ['STAM Global Header', '호텔 그룹 통합 헤더'],
+      previewBehavior: '상단 가로 전체 영역에 로고·메뉴·우측 보조 영역으로 표시됩니다.'
+    },
+    'lib.website.hero-visual': {
+      definitionLevel: 'section',
+      description: '대형 이미지·카피·CTA로 첫인상을 만드는 메인 비주얼 섹션입니다.',
+      purpose: '브랜드/서비스의 핵심 메시지와 진입 행동을 유도합니다.',
+      useCases: ['홈페이지', '랜딩 페이지', '브랜드 캠페인'],
+      notRecommendedFor: ['데이터 중심 관리 화면', '상세 정보 페이지'],
+      slots: ['배경 이미지/영상', '메인 카피', '서브 카피', 'CTA 버튼'],
+      editableFields: ['배경 이미지', '메인 카피', 'CTA 라벨', 'CTA 링크', '슬라이드 자동 전환 여부'],
+      examples: ['브랜드 메인 비주얼', '시즌 캠페인 히어로'],
+      previewBehavior: '큰 비주얼 영역과 중앙/좌측 카피, 하단 CTA 버튼으로 표시됩니다.',
+      variantDefinitions: [
+        { id: 'static',  label: 'Static',  description: '고정 단일 비주얼' },
+        { id: 'rolling', label: 'Rolling', description: '여러 비주얼을 자동 전환하는 슬라이드' }
+      ]
+    },
+    'lib.website.banner-group': {
+      definitionLevel: 'section',
+      description: '여러 배너를 가로/세로로 묶어 보여주는 영역입니다.',
+      purpose: '동시 진행 중인 프로모션·캠페인·공지를 한곳에서 노출합니다.',
+      useCases: ['홈페이지', '프로모션 페이지', '서비스 진입 화면'],
+      notRecommendedFor: ['상세 정보 페이지', '폼 화면'],
+      slots: ['이미지', '제목', '서브 카피', '링크'],
+      editableFields: ['배너 항목', '이미지', '링크', '노출 기간', '정렬 방식'],
+      examples: ['홈 메인 배너 3종', '시즌 프로모션 배너'],
+      previewBehavior: '동일한 비율의 배너 카드가 layoutVariant 기준으로 정렬됩니다.'
+    },
+    'lib.website.quick-link-cta': {
+      definitionLevel: 'section',
+      description: '사용자가 자주 가는 페이지로 빠르게 이동하는 링크 묶음입니다.',
+      purpose: '대표 진입점·핵심 액션을 한곳에 모아 이동을 단축합니다.',
+      useCases: ['홈페이지', '서비스 포털 홈', '예약/신청 메인'],
+      notRecommendedFor: ['단일 목적 랜딩'],
+      slots: ['아이콘', '라벨', '링크'],
+      editableFields: ['링크 항목', '아이콘', '라벨', '이동 경로', '강조 여부'],
+      examples: ['예약 / 멤버십 / 객실보기 / 다이닝'],
+      previewBehavior: '가로 정렬된 아이콘+라벨 카드로 표시됩니다.'
+    },
+    'lib.website.disclosure-section': {
+      definitionLevel: 'section',
+      description: '항목을 펼치고 접거나 탭으로 전환하며 보여주는 섹션입니다.',
+      purpose: '많은 정보를 컴팩트하게 정리해서 사용자가 필요한 것만 펼쳐 보게 합니다.',
+      useCases: ['FAQ', '서비스 소개의 상세 정보', '약관/정책', '예약 안내'],
+      notRecommendedFor: ['단일 짧은 설명', '카피 한 줄'],
+      slots: ['제목', '본문', '아이콘'],
+      editableFields: ['항목 제목', '항목 본문', '기본 펼침 여부', '전환 방식 (탭/아코디언)'],
+      examples: ['예약 안내 아코디언', '서비스 영역 탭'],
+      previewBehavior: 'accordion 또는 tab 형태로 항목 헤더와 본문 영역이 표시됩니다.',
+      variantDefinitions: [
+        { id: 'accordion', label: 'Accordion', description: '클릭 시 펼치고 접는 방식' },
+        { id: 'tab',       label: 'Tab',       description: '탭 전환으로 항목 본문 교체' }
+      ]
+    },
+    'lib.website.card-grid': {
+      definitionLevel: 'section',
+      description: '주요 서비스나 콘텐츠를 카드 형태로 묶어 그리드로 보여줍니다.',
+      purpose: '여러 항목을 시각적으로 균등하게 비교·탐색할 수 있게 합니다.',
+      useCases: ['홈페이지 주요 서비스', '상품/콘텐츠 목록', '룸/객실 소개'],
+      notRecommendedFor: ['단일 강조 콘텐츠', '폼 입력 화면'],
+      slots: ['이미지', '제목', '설명', 'CTA', '링크'],
+      editableFields: ['카드 항목', '카드 제목', '카드 설명', '카드 이미지', '카드 링크', '노출 조건'],
+      examples: ['주요 서비스 2x2', '룸 소개 2x3', '카드 1x4'],
+      previewBehavior: 'layoutVariant 의 행×열 기준으로 동일 비율 카드가 정렬됩니다.'
+    },
+    'lib.website.image-text-section': {
+      definitionLevel: 'section',
+      description: '이미지와 텍스트를 짝지어 설명하는 섹션입니다.',
+      purpose: '핵심 메시지를 시각 자료와 함께 설명해 이해도를 높입니다.',
+      useCases: ['서비스 소개', '브랜드 가치 소개', '기능 소개'],
+      notRecommendedFor: ['이미지 없는 단순 텍스트', '데이터 테이블 화면'],
+      slots: ['이미지', '제목', '본문', '링크'],
+      editableFields: ['항목 이미지', '항목 제목', '항목 본문', '링크', '이미지 위치 (좌/우)'],
+      examples: ['1x4 핵심 가치 4개', '1x2 다이닝·시설'],
+      previewBehavior: '이미지와 텍스트가 짝을 이루어 layoutVariant 기준으로 정렬됩니다.'
+    },
+    'lib.website.promotion-event-section': {
+      definitionLevel: 'section',
+      description: '진행 중인 프로모션·이벤트를 강조해서 보여주는 섹션입니다.',
+      purpose: '한정 혜택·캠페인 참여를 유도합니다.',
+      useCases: ['홈페이지', '프로모션/이벤트 페이지'],
+      notRecommendedFor: ['상시 정보 안내'],
+      slots: ['배너', '제목', '기간', '혜택 요약', '참여 CTA'],
+      editableFields: ['프로모션 항목', '기간', '혜택 카피', '참여 링크'],
+      examples: ['시즌 이벤트', '멤버십 가입 프로모션'],
+      previewBehavior: '강조 배너와 함께 기간/CTA 가 포함된 카드로 표시됩니다.'
+    },
+    'lib.website.news-media-section': {
+      definitionLevel: 'section',
+      description: '뉴스·미디어·보도자료를 짧게 요약해서 보여주는 섹션입니다.',
+      purpose: '최신 활동·소식을 노출하고 상세로 이동하게 합니다.',
+      useCases: ['홈페이지', '브랜드 소개', 'IR'],
+      notRecommendedFor: ['상세 본문 페이지'],
+      slots: ['카테고리', '제목', '날짜', '요약', '링크'],
+      editableFields: ['표시 개수', '카테고리 필터', '정렬 방식'],
+      examples: ['최신 보도자료 4개', '주요 공지'],
+      previewBehavior: '제목·날짜 위주의 목록 형태로 표시됩니다.'
+    },
+    'lib.website.service-product-section': {
+      definitionLevel: 'section',
+      description: '핵심 상품 또는 서비스를 묶어 소개하는 섹션입니다.',
+      purpose: '대표 서비스/상품을 강조해 진입을 유도합니다.',
+      useCases: ['서비스 포털 홈', '상품 페이지', '랜딩'],
+      notRecommendedFor: ['관리자 데이터 화면'],
+      slots: ['이미지', '제목', '설명', 'CTA'],
+      editableFields: ['항목 구성', '카피', 'CTA 링크'],
+      examples: ['대표 객실 3종', '인기 서비스 4종'],
+      previewBehavior: '카드/이미지+텍스트 형태로 정렬됩니다.'
+    },
+    'lib.website.brand-story-section': {
+      definitionLevel: 'section',
+      description: '브랜드의 배경·철학·핵심 메시지를 설명하는 소개 섹션입니다.',
+      purpose: '회사나 서비스의 정체성과 신뢰 요소를 전달합니다.',
+      useCases: ['회사소개', '브랜드 소개', '호텔/리조트 소개', '서비스 소개'],
+      notRecommendedFor: ['단기 이벤트 홍보', '단순 배너', '공지 목록'],
+      slots: ['제목', '본문', '대표 이미지', 'CTA 버튼', '보조 링크'],
+      editableFields: ['섹션 제목', '소개 문구', '대표 이미지', 'CTA 라벨', 'CTA 링크', '노출 조건'],
+      examples: ['파르나스 브랜드 소개', '호텔 철학 소개', '서비스 가치 소개'],
+      previewBehavior: '대표 제목과 설명, 이미지 영역을 가진 소개 섹션으로 표시됩니다.'
+    },
+    'lib.website.gallery-section': {
+      definitionLevel: 'section',
+      description: '사진·이미지·작품을 그리드로 보여주는 섹션입니다.',
+      purpose: '시각 자료 중심 콘텐츠를 한눈에 탐색할 수 있게 합니다.',
+      useCases: ['갤러리', '시설 소개', '포트폴리오'],
+      notRecommendedFor: ['텍스트 중심 콘텐츠'],
+      slots: ['썸네일', '캡션'],
+      editableFields: ['이미지 항목', '캡션', '정렬 방식'],
+      examples: ['시설 이미지 8장', '브랜드 포트폴리오'],
+      previewBehavior: '동일 비율 썸네일이 격자로 표시됩니다.'
+    },
+    'lib.website.faq-section': {
+      definitionLevel: 'section',
+      description: '자주 묻는 질문을 카테고리·아코디언 형태로 정리한 섹션입니다.',
+      purpose: '사용자가 스스로 빠르게 답을 찾도록 돕습니다.',
+      useCases: ['FAQ', '고객지원', '서비스 안내'],
+      notRecommendedFor: ['홍보 페이지'],
+      slots: ['질문', '답변', '카테고리'],
+      editableFields: ['FAQ 항목', '카테고리', '검색 노출 여부'],
+      examples: ['예약 FAQ', '멤버십 FAQ'],
+      previewBehavior: '카테고리 탭 + 아코디언 형식으로 표시됩니다.'
+    },
+    'lib.website.family-site': {
+      definitionLevel: 'section',
+      description: '관계사·계열사·관련 채널 링크를 모아 보여주는 영역입니다.',
+      purpose: '브랜드 생태계 내 다른 사이트로의 이동을 제공합니다.',
+      useCases: ['홈페이지 하단', '브랜드 그룹 페이지'],
+      notRecommendedFor: ['단일 서비스 단독 페이지'],
+      slots: ['사이트명', '링크'],
+      editableFields: ['관계사 목록', '링크', '정렬'],
+      examples: ['파르나스 패밀리 사이트 모음'],
+      previewBehavior: '드롭다운 또는 가로 링크 목록으로 표시됩니다.'
+    },
+    'lib.website.footer': {
+      definitionLevel: 'section',
+      description: '사이트 정보·정책·연락처·SNS 등을 정리하는 하단 영역입니다.',
+      purpose: '필수 정보와 정책 페이지로의 이동을 일관되게 제공합니다.',
+      useCases: ['모든 공개 페이지', '서비스 포털'],
+      notRecommendedFor: ['단일 모달', '풀스크린 캠페인 페이지'],
+      slots: ['사이트 정보', '정책 링크', 'SNS', '연락처', '저작권'],
+      editableFields: ['회사 정보', '정책 링크 목록', 'SNS 채널', '저작권 문구'],
+      examples: ['브랜드 통합 푸터'],
+      previewBehavior: '하단 가로 전체 영역에 정보 그룹과 저작권 라인이 표시됩니다.'
+    },
+
+    /* App / Admin Blocks */
+    'lib.admin.summary-strip': {
+      definitionLevel: 'block',
+      description: '핵심 지표·현재 상태를 한 줄로 요약해서 표시합니다.',
+      purpose: '사용자가 현재 화면의 핵심 정보를 즉시 인지하게 합니다.',
+      useCases: ['관리 대시보드', '목록 화면 상단', '상세 화면 상단'],
+      notRecommendedFor: ['풀스크린 갤러리'],
+      slots: ['지표 카드', '상태 chip'],
+      editableFields: ['표시할 지표 항목'],
+      examples: ['오늘 신청 12 / 처리 8 / 대기 4'],
+      previewBehavior: '상단 가로 한 줄에 작은 지표 카드가 나열됩니다.'
+    },
+    'lib.admin.search-filter-bar': {
+      definitionLevel: 'block',
+      description: '검색 조건과 필터를 입력하는 영역입니다.',
+      purpose: '사용자가 원하는 데이터를 좁혀서 조회할 수 있게 합니다.',
+      useCases: ['목록/검색 화면', '관리 목록', '주문 관리'],
+      notRecommendedFor: ['단일 상세 화면', '폼 화면'],
+      slots: ['검색 input', '필터 select', '날짜 범위', '조회 버튼'],
+      editableFields: ['검색 조건 항목', '입력 타입', '필수 여부', '기본값'],
+      examples: ['주문 조회 검색바'],
+      previewBehavior: '한 줄/여러 줄의 입력 컨트롤이 가로 배치됩니다.'
+    },
+    'lib.admin.toolbar': {
+      definitionLevel: 'block',
+      description: '주요 액션 버튼을 모은 영역입니다.',
+      purpose: '추가/저장/내보내기 등 화면 단위 행동을 한곳에 노출합니다.',
+      useCases: ['목록 상단', '상세 화면 상단', '폼 화면 하단'],
+      notRecommendedFor: ['콘텐츠 본문', '홍보 페이지'],
+      slots: ['주요 액션', '보조 액션', '메뉴'],
+      editableFields: ['액션 항목', '권한 별 노출'],
+      examples: ['등록 / 내보내기 / 삭제'],
+      previewBehavior: '버튼 그룹이 가로 정렬되어 표시됩니다.'
+    },
+    'lib.admin.result-table': {
+      definitionLevel: 'block',
+      description: '목록 결과를 표 형태로 표시합니다.',
+      purpose: '여러 항목을 비교 가능한 컬럼으로 정렬해서 보여줍니다.',
+      useCases: ['목록/검색', '관리 화면', '리포트 상세'],
+      notRecommendedFor: ['홍보 페이지', '랜딩'],
+      slots: ['컬럼 헤더', '데이터 행', '행 액션'],
+      editableFields: ['컬럼 정의', '정렬 가능 여부', '행 액션 항목'],
+      examples: ['주문 목록 테이블'],
+      previewBehavior: '컬럼 헤더와 데이터 행으로 구성된 표가 표시됩니다.'
+    },
+    'lib.admin.detail-drawer-summary': {
+      definitionLevel: 'block',
+      description: '상세 화면 상단에서 기본 정보를 요약 표시하는 영역입니다.',
+      purpose: '항목의 핵심 식별 정보를 빠르게 확인하게 합니다.',
+      useCases: ['상세 / 드로어'],
+      notRecommendedFor: ['홈/랜딩'],
+      slots: ['제목', '식별자', '상태 chip', '주요 메타'],
+      editableFields: ['표시 항목', '상태 chip 규칙'],
+      examples: ['주문 상세 요약'],
+      previewBehavior: '상단에 정렬된 메타 정보 라인으로 표시됩니다.'
+    },
+    'lib.admin.create-edit-form': {
+      definitionLevel: 'block',
+      description: '항목 등록·수정 입력 영역입니다.',
+      purpose: '필요한 데이터를 정확히 입력하게 합니다.',
+      useCases: ['등록 폼', '수정 폼', '신청 폼'],
+      notRecommendedFor: ['홍보 페이지'],
+      slots: ['폼 섹션', '필수 항목 표시', '유효성 안내', '액션 버튼'],
+      editableFields: ['폼 필드 구성', '필수 여부', '유효성 규칙', '저장 후 이동 흐름'],
+      examples: ['상품 등록 폼', '신청 폼'],
+      previewBehavior: '라벨/입력 페어가 세로로 정렬됩니다.'
+    },
+    'lib.admin.approval-panel': {
+      definitionLevel: 'block',
+      description: '승인/반려 처리를 위한 패널입니다.',
+      purpose: '검토 권한자가 항목을 승인 또는 반려할 수 있게 합니다.',
+      useCases: ['승인 처리', '검토 워크플로우'],
+      notRecommendedFor: ['공개 페이지'],
+      slots: ['승인 액션', '반려 액션', '사유 입력', '권한자 표시'],
+      editableFields: ['승인 단계 정의', '권한자 역할', '반려 사유 옵션'],
+      examples: ['휴가 신청 승인 패널'],
+      previewBehavior: '승인/반려 버튼과 사유 입력 영역으로 표시됩니다.'
+    },
+    'lib.admin.review-history': {
+      definitionLevel: 'block',
+      description: '항목의 변경·검토·승인 이력을 시간순으로 보여줍니다.',
+      purpose: '누가 언제 무엇을 처리했는지 추적합니다.',
+      useCases: ['상세 화면', '감사 로그'],
+      notRecommendedFor: ['홈/랜딩'],
+      slots: ['타임라인 항목', '작성자', '시간', '상태'],
+      editableFields: ['표시 이력 범위', '필터'],
+      examples: ['주문 처리 이력'],
+      previewBehavior: '세로 타임라인 형식으로 표시됩니다.'
+    },
+    'lib.admin.comment-panel': {
+      definitionLevel: 'block',
+      description: '담당자 간 코멘트·메모를 주고받는 영역입니다.',
+      purpose: '항목 단위로 소통과 메모를 누적합니다.',
+      useCases: ['상세 / 드로어', '승인 패널 동반'],
+      notRecommendedFor: ['홍보 페이지'],
+      slots: ['코멘트 목록', '입력 영역', '액션 버튼'],
+      editableFields: ['멘션 가능 역할', '편집 가능 여부'],
+      examples: ['주문 처리 메모'],
+      previewBehavior: '하단 입력 영역과 위로 누적되는 코멘트 카드 목록으로 표시됩니다.'
+    },
+    'lib.admin.attachment-section': {
+      definitionLevel: 'block',
+      description: '첨부 파일을 업로드·관리·다운로드하는 영역입니다.',
+      purpose: '항목과 함께 관리해야 할 파일을 한곳에 모읍니다.',
+      useCases: ['상세 / 드로어', '폼 화면'],
+      notRecommendedFor: ['홍보 페이지'],
+      slots: ['업로드 영역', '파일 목록', '다운로드 액션'],
+      editableFields: ['허용 확장자', '최대 용량', '권한'],
+      examples: ['결재 첨부 영역'],
+      previewBehavior: '업로드 드롭존과 파일 카드/리스트로 표시됩니다.'
+    },
+    'lib.admin.empty-state': {
+      definitionLevel: 'state',
+      description: '데이터가 없거나 조회 결과가 비었을 때 보여주는 안내 상태입니다.',
+      purpose: '비어 있음을 명확히 알리고 다음 행동을 안내합니다.',
+      useCases: ['목록 결과 0건', '신규 진입 화면'],
+      notRecommendedFor: ['데이터가 있는 화면'],
+      slots: ['아이콘', '제목', '안내 문구', '액션 버튼'],
+      editableFields: ['안내 문구', '권장 액션'],
+      examples: ['검색 결과 없음 안내'],
+      previewBehavior: '아이콘과 안내 문구가 중앙 정렬로 표시됩니다.'
+    },
+    'lib.admin.error-state': {
+      definitionLevel: 'state',
+      description: '오류가 발생했을 때 보여주는 안내 상태입니다.',
+      purpose: '문제 상황을 인지시키고 복구 방법을 안내합니다.',
+      useCases: ['API 실패 시', '권한 부족 시'],
+      notRecommendedFor: ['정상 상태 화면'],
+      slots: ['아이콘', '제목', '오류 안내', '재시도 액션'],
+      editableFields: ['안내 문구', '재시도 동작'],
+      examples: ['로딩 실패 안내'],
+      previewBehavior: '경고 톤의 아이콘과 안내 문구가 표시됩니다.'
+    },
+    'lib.admin.loading-state': {
+      definitionLevel: 'state',
+      description: '데이터 로딩 중 임을 알리는 상태입니다.',
+      purpose: '사용자가 결과를 기다리는 동안의 인지 부담을 줄입니다.',
+      useCases: ['데이터 페치 동안', '느린 작업 중'],
+      notRecommendedFor: ['정적 콘텐츠'],
+      slots: ['스피너 또는 스켈레톤'],
+      editableFields: ['표시 형식 (스피너/스켈레톤)'],
+      examples: ['표 로딩 스켈레톤'],
+      previewBehavior: '회색 스켈레톤 또는 중앙 스피너로 표시됩니다.'
+    },
+    'lib.admin.kpi-card-group': {
+      definitionLevel: 'block',
+      description: '핵심 지표(KPI) 를 카드 묶음으로 보여줍니다.',
+      purpose: '핵심 숫자·변화를 한눈에 파악하게 합니다.',
+      useCases: ['관리 대시보드', '리포트'],
+      notRecommendedFor: ['홍보 페이지'],
+      slots: ['지표 라벨', '수치', '변화량', '단위'],
+      editableFields: ['지표 항목', '단위', '변화량 표시 방식'],
+      examples: ['오늘 신청 / 처리 / 대기 / 반려 4개'],
+      previewBehavior: '동일 크기 카드가 layoutVariant 기준으로 정렬됩니다.'
+    },
+
+    /* Navigation */
+    'lib.navigation.gnb': {
+      definitionLevel: 'component',
+      description: '사이트 전역 메뉴 (Global Navigation Bar) 입니다.',
+      purpose: '전역 정보 구조를 노출하고 모든 화면에서 동일한 이동 경로를 제공합니다.',
+      useCases: ['모든 공개 페이지'],
+      slots: ['로고', '주메뉴', '서브메뉴'],
+      editableFields: ['메뉴 항목', '활성 표시 규칙']
+    },
+    'lib.navigation.lnb': {
+      definitionLevel: 'component',
+      description: '특정 영역 좌측 메뉴 (Local Navigation Bar) 입니다.',
+      purpose: '현재 섹션 내 하위 메뉴 이동을 제공합니다.',
+      useCases: ['관리 화면', '서비스 세부 영역'],
+      slots: ['그룹 라벨', '하위 메뉴']
+    },
+    'lib.navigation.tabs': {
+      definitionLevel: 'component',
+      description: '같은 위치에서 콘텐츠를 전환하는 탭 컴포넌트입니다.',
+      purpose: '연관된 정보 그룹을 같은 영역에서 전환합니다.',
+      useCases: ['상세 화면', '설정', 'FAQ'],
+      slots: ['탭 라벨', '탭 본문']
+    },
+    'lib.navigation.breadcrumb': {
+      definitionLevel: 'component',
+      description: '상위→현재 위치를 단계별로 보여주는 경로 표시입니다.',
+      purpose: '사용자가 현재 위치와 이동 경로를 파악하게 합니다.',
+      useCases: ['상세 화면', '하위 페이지'],
+      slots: ['상위 경로 링크', '현재 페이지']
+    },
+    'lib.navigation.pagination': {
+      definitionLevel: 'component',
+      description: '여러 페이지를 이동할 수 있는 페이지네이션입니다.',
+      purpose: '대량 결과를 페이지 단위로 탐색하게 합니다.',
+      useCases: ['목록', '검색 결과'],
+      slots: ['이전/다음', '페이지 번호']
+    },
+    'lib.navigation.accordion': {
+      definitionLevel: 'component',
+      description: '항목을 접고 펼칠 수 있는 아코디언 컴포넌트입니다.',
+      purpose: '많은 정보를 간결하게 정리하고 필요한 부분만 펼쳐 보게 합니다.',
+      useCases: ['FAQ', '안내 페이지'],
+      slots: ['헤더', '본문']
+    },
+    'lib.navigation.quick-link-group': {
+      definitionLevel: 'component',
+      description: '주요 위치로 빠르게 이동할 수 있는 링크 카드 그룹입니다.',
+      purpose: '자주 사용하는 진입점을 한곳에 노출합니다.',
+      useCases: ['홈', '서비스 포털 홈'],
+      slots: ['아이콘', '라벨', '링크'],
+      editableFields: ['링크 항목', '아이콘', '강조 여부']
+    },
+    'lib.navigation.anchor-menu': {
+      definitionLevel: 'component',
+      description: '같은 페이지 내 섹션으로 이동하는 앵커 메뉴입니다.',
+      purpose: '긴 페이지 내 빠른 이동을 제공합니다.',
+      useCases: ['긴 단일 페이지', '브랜드 소개', '서비스 소개']
+    },
+    'lib.navigation.footer-menu': {
+      definitionLevel: 'component',
+      description: '하단 영역에 정리되는 정책·약관·고객지원 링크 그룹입니다.',
+      purpose: '필수 보조 정보로의 진입을 일관되게 제공합니다.',
+      useCases: ['모든 공개 페이지'],
+      slots: ['링크 그룹', '저작권']
+    },
+
+    /* Layout Primitives */
+    'lib.layout.container': {
+      definitionLevel: 'primitive',
+      description: '여러 요소를 감싸는 기본 컨테이너 영역입니다.',
+      purpose: '영역 구분·패딩·스타일 적용을 위한 기본 래퍼입니다.',
+      useCases: ['모든 화면'],
+      notRecommendedFor: [],
+      slots: ['하위 요소'],
+      editableFields: ['너비', '최대 너비', '여백'],
+      examples: ['콘텐츠 중앙 정렬 래퍼'],
+      previewBehavior: '빈 사각 영역으로 표시됩니다.'
+    },
+    'lib.layout.grid': {
+      definitionLevel: 'primitive',
+      description: '여러 요소를 행/열 기준으로 배치하는 그리드 레이아웃입니다.',
+      purpose: '균등한 격자 구조로 항목을 정렬합니다.',
+      useCases: ['카드 그룹', '이미지 갤러리', '서비스 목록'],
+      notRecommendedFor: ['단일 요소'],
+      slots: ['그리드 셀'],
+      editableFields: ['열 수', '행 수', '간격'],
+      examples: ['2x2 카드 그룹', '3열 갤러리'],
+      previewBehavior: '동일 크기 셀이 격자로 표시됩니다.',
+      variantDefinitions: [
+        { id: '1x2', label: '1x2', description: '좌우 2개 항목을 나란히 배치' },
+        { id: '1x3', label: '1x3', description: '가로 3개 항목 나열' },
+        { id: '1x4', label: '1x4', description: '가로 4개 항목 균등 배치' },
+        { id: '2x2', label: '2x2', description: '2행 2열 4개 항목' },
+        { id: '2x3', label: '2x3', description: '2행 3열 6개 항목' },
+        { id: '3x1', label: '3x1', description: '3열 1행 배치' }
+      ]
+    },
+    'lib.layout.flex-row': {
+      definitionLevel: 'primitive',
+      description: '요소를 가로로 나란히 배치하는 플렉스 행입니다.',
+      purpose: '여러 요소를 수평으로 정렬합니다.',
+      useCases: ['버튼 그룹', '아이콘+텍스트', '헤더 내부'],
+      slots: ['하위 요소'],
+      editableFields: ['정렬', '간격', '줄 바꿈 여부'],
+      examples: ['버튼 행', '태그 행'],
+      previewBehavior: '요소들이 가로로 나열된 행으로 표시됩니다.'
+    },
+    'lib.layout.stack': {
+      definitionLevel: 'primitive',
+      description: '요소를 세로로 쌓아 배치하는 스택입니다.',
+      purpose: '여러 요소를 수직으로 정렬합니다.',
+      useCases: ['폼 필드 그룹', '카드 내부', '섹션 본문'],
+      slots: ['하위 요소'],
+      editableFields: ['간격', '정렬'],
+      examples: ['라벨 + 입력 + 도움말'],
+      previewBehavior: '요소들이 세로로 쌓인 열로 표시됩니다.'
+    },
+    'lib.layout.divider': {
+      definitionLevel: 'primitive',
+      description: '콘텐츠 그룹을 시각적으로 분리하는 구분선입니다.',
+      purpose: '섹션이나 항목 사이를 명확하게 구분합니다.',
+      useCases: ['섹션 구분', '목록 항목 사이', '폼 섹션 사이'],
+      notRecommendedFor: ['페이지 최상단/최하단'],
+      slots: [],
+      editableFields: ['색상', '굵기', '방향 (가로/세로)', '여백'],
+      examples: ['섹션 구분선'],
+      previewBehavior: '가로 또는 세로 선 하나로 표시됩니다.'
+    },
+    'lib.layout.spacer': {
+      definitionLevel: 'primitive',
+      description: '요소 사이 여백을 조절하는 스페이서입니다.',
+      purpose: '레이아웃 간격을 정밀하게 조정합니다.',
+      useCases: ['섹션 사이 간격', '요소 간격 조절'],
+      slots: [],
+      editableFields: ['높이', '너비'],
+      examples: ['섹션 간 40px 여백'],
+      previewBehavior: '빈 여백 영역으로 표시됩니다.'
+    },
+    'lib.layout.section-wrapper': {
+      definitionLevel: 'primitive',
+      description: '섹션 영역을 감싸는 래퍼입니다.',
+      purpose: '섹션 단위 레이아웃 제어와 스타일 적용을 위한 그룹입니다.',
+      useCases: ['페이지 섹션', '콘텐츠 블록'],
+      slots: ['섹션 콘텐츠'],
+      editableFields: ['배경색', '패딩', '최대 너비'],
+      examples: ['전체 너비 그레이 배경 섹션'],
+      previewBehavior: '배경과 여백이 적용된 사각 영역으로 표시됩니다.'
+    },
+    'lib.layout.scroll-area': {
+      definitionLevel: 'primitive',
+      description: '스크롤 가능한 콘텐츠 영역입니다.',
+      purpose: '고정 크기 안에서 넘치는 콘텐츠를 스크롤로 탐색하게 합니다.',
+      useCases: ['긴 목록', '채팅 목록', '사이드 패널'],
+      slots: ['스크롤 콘텐츠'],
+      editableFields: ['최대 높이', '스크롤 방향'],
+      examples: ['드로어 내 스크롤 목록'],
+      previewBehavior: '스크롤 가능한 박스 영역으로 표시됩니다.'
+    },
+
+    /* Text / Content */
+    'lib.text.title': {
+      definitionLevel: 'primitive',
+      description: '화면 또는 섹션의 제목 텍스트입니다.',
+      purpose: '영역의 주제와 계층 구조를 명확히 합니다.',
+      useCases: ['화면 제목', '섹션 제목', '카드 제목'],
+      slots: [],
+      editableFields: ['텍스트', '계층 (H1~H4)', '정렬'],
+      examples: ['페이지 제목', '섹션 헤딩'],
+      previewBehavior: '굵고 큰 텍스트로 표시됩니다.'
+    },
+    'lib.text.body': {
+      definitionLevel: 'primitive',
+      description: '본문 내용 텍스트입니다.',
+      purpose: '상세 설명이나 안내 내용을 전달합니다.',
+      useCases: ['섹션 설명', '카드 본문', '안내 문구'],
+      slots: [],
+      editableFields: ['텍스트', '줄 수 제한', '정렬'],
+      examples: ['서비스 소개 본문'],
+      previewBehavior: '일반 크기 본문 텍스트로 표시됩니다.'
+    },
+    'lib.text.label': {
+      definitionLevel: 'primitive',
+      description: '입력 항목이나 항목에 붙는 라벨입니다.',
+      purpose: '입력 필드·값의 의미를 명확히 표시합니다.',
+      useCases: ['폼 라벨', '항목 라벨', '뱃지 텍스트'],
+      slots: [],
+      editableFields: ['텍스트', '필수 표시 여부'],
+      examples: ['이름 라벨', '필수(*)'],
+      previewBehavior: '작은 크기의 굵은 텍스트로 표시됩니다.'
+    },
+    'lib.text.helper': {
+      definitionLevel: 'primitive',
+      description: '입력 안내나 오류를 알리는 보조 텍스트입니다.',
+      purpose: '사용자가 올바르게 입력하도록 안내합니다.',
+      useCases: ['폼 안내 문구', '오류 메시지', '힌트 텍스트'],
+      slots: [],
+      editableFields: ['텍스트', '상태 (안내/오류/성공)'],
+      examples: ['이메일 형식 안내', '필수 항목 오류'],
+      previewBehavior: '입력 필드 하단의 작은 보조 텍스트로 표시됩니다.'
+    },
+    'lib.text.link': {
+      definitionLevel: 'primitive',
+      description: '클릭하면 이동하는 링크 텍스트입니다.',
+      purpose: '다른 화면이나 외부 페이지로 이동을 제공합니다.',
+      useCases: ['인라인 링크', 'CTA 텍스트 링크', '더보기'],
+      slots: [],
+      editableFields: ['텍스트', '링크 경로', '새 탭 여부'],
+      examples: ['자세히 보기', '관련 링크'],
+      previewBehavior: '밑줄이 있는 컬러 텍스트로 표시됩니다.'
+    },
+    'lib.text.description-list': {
+      definitionLevel: 'primitive',
+      description: '항목명과 설명을 쌍으로 나열하는 설명 목록입니다.',
+      purpose: '여러 항목의 속성을 키-값 형태로 정리합니다.',
+      useCases: ['상세 정보 목록', '사양 표', '주요 항목 요약'],
+      slots: ['항목명', '항목 값'],
+      editableFields: ['항목 목록', '레이아웃 (가로/세로)'],
+      examples: ['상세 스펙 항목', '주문 정보 요약'],
+      previewBehavior: '라벨-값 쌍이 줄지어 표시됩니다.'
+    },
+
+    /* Media */
+    'lib.media.image': {
+      definitionLevel: 'primitive',
+      description: '이미지를 표시하는 기본 요소입니다.',
+      purpose: '시각 자료를 화면에 나타냅니다.',
+      useCases: ['모든 화면의 이미지 영역'],
+      slots: [],
+      editableFields: ['이미지 파일', '대체 텍스트', '비율'],
+      examples: ['상품 이미지', '배경 이미지'],
+      previewBehavior: '이미지 비율을 유지한 박스로 표시됩니다.'
+    },
+    'lib.media.video': {
+      definitionLevel: 'primitive',
+      description: '영상을 재생하는 영역입니다.',
+      purpose: '동영상 콘텐츠를 화면에서 직접 재생하게 합니다.',
+      useCases: ['브랜드 소개 영상', '제품 설명 영상', '배경 영상'],
+      slots: [],
+      editableFields: ['영상 URL', '자동 재생', '음소거', '컨트롤 표시'],
+      examples: ['홈 배경 영상', '소개 클립'],
+      previewBehavior: '재생 버튼이 있는 영상 영역으로 표시됩니다.'
+    },
+    'lib.media.icon': {
+      definitionLevel: 'primitive',
+      description: '아이콘을 표시하는 요소입니다.',
+      purpose: '빠른 인식을 위한 시각 기호를 나타냅니다.',
+      useCases: ['버튼 아이콘', '메뉴 아이콘', '상태 아이콘'],
+      slots: [],
+      editableFields: ['아이콘 종류', '크기', '색상'],
+      examples: ['검색 아이콘', '닫기 아이콘'],
+      previewBehavior: '작은 SVG 도형으로 표시됩니다.'
+    },
+    'lib.media.thumbnail': {
+      definitionLevel: 'primitive',
+      description: '작은 이미지 썸네일입니다.',
+      purpose: '콘텐츠를 미리 보여주는 대표 이미지 역할을 합니다.',
+      useCases: ['카드 이미지', '목록 아이템 이미지', '갤러리 셀'],
+      slots: [],
+      editableFields: ['이미지', '크기', '비율', '대체 텍스트'],
+      examples: ['상품 카드 썸네일', '갤러리 이미지'],
+      previewBehavior: '고정 비율의 작은 이미지 박스로 표시됩니다.'
+    },
+    'lib.media.banner-image': {
+      definitionLevel: 'primitive',
+      description: '배너 목적의 가로로 긴 대형 이미지입니다.',
+      purpose: '프로모션·공지·브랜딩을 위한 시각 강조 이미지를 표시합니다.',
+      useCases: ['배너 영역', 'Hero 배경', '이벤트 안내'],
+      slots: [],
+      editableFields: ['이미지', '링크', '대체 텍스트'],
+      examples: ['홈 메인 배너', '이벤트 배너'],
+      previewBehavior: '넓고 낮은 비율의 이미지 영역으로 표시됩니다.'
+    },
+
+    /* Form / Input */
+    'lib.input.text': {
+      definitionLevel: 'component',
+      description: '한 줄 텍스트를 입력하는 기본 입력 필드입니다.',
+      purpose: '이름·이메일 등 단순 텍스트 입력을 받습니다.',
+      useCases: ['폼 필드', '검색 입력', '설정값 입력'],
+      notRecommendedFor: ['긴 문장 입력', '여러 줄 입력'],
+      slots: ['라벨', '입력 영역', '보조 텍스트'],
+      editableFields: ['라벨', '플레이스홀더', '필수 여부', '최대 길이', '유효성 규칙'],
+      examples: ['이름 입력', '이메일 입력'],
+      previewBehavior: '라벨과 테두리 박스 입력 영역으로 표시됩니다.'
+    },
+    'lib.input.textarea': {
+      definitionLevel: 'component',
+      description: '여러 줄 텍스트를 입력하는 입력 영역입니다.',
+      purpose: '긴 설명·코멘트·메모를 입력받습니다.',
+      useCases: ['코멘트 입력', '상세 설명 입력', '요청 사유'],
+      notRecommendedFor: ['한 줄 짧은 값 입력'],
+      slots: ['라벨', '입력 영역'],
+      editableFields: ['라벨', '플레이스홀더', '최소/최대 줄 수', '필수 여부'],
+      examples: ['검토 의견 입력', '메모 작성'],
+      previewBehavior: '여러 줄 높이의 텍스트 입력 박스로 표시됩니다.'
+    },
+    'lib.input.select': {
+      definitionLevel: 'component',
+      description: '목록에서 하나를 선택하는 드롭다운 입력입니다.',
+      purpose: '미리 정해진 옵션 중 하나를 선택받습니다.',
+      useCases: ['상태 선택', '카테고리 선택', '담당자 선택'],
+      notRecommendedFor: ['자유 입력이 필요한 경우'],
+      slots: ['라벨', '드롭다운 목록'],
+      editableFields: ['라벨', '옵션 목록', '기본값', '필수 여부'],
+      examples: ['상태 드롭다운', '카테고리 선택'],
+      previewBehavior: '라벨과 드롭다운 화살표가 있는 입력 박스로 표시됩니다.'
+    },
+    'lib.input.checkbox': {
+      definitionLevel: 'component',
+      description: '여러 항목을 동시에 선택할 수 있는 체크박스입니다.',
+      purpose: '다중 선택 또는 동의를 받습니다.',
+      useCases: ['약관 동의', '다중 조건 선택', '일괄 선택'],
+      notRecommendedFor: ['하나만 선택해야 하는 경우'],
+      slots: ['라벨', '체크 아이콘'],
+      editableFields: ['라벨', '기본 선택 여부', '필수 여부'],
+      examples: ['약관 동의 체크', '항목 다중 선택'],
+      previewBehavior: '작은 사각 박스와 라벨로 표시됩니다.'
+    },
+    'lib.input.radio': {
+      definitionLevel: 'component',
+      description: '여러 옵션 중 하나만 선택하는 라디오 버튼입니다.',
+      purpose: '상호 배타적 선택을 받습니다.',
+      useCases: ['성별 선택', '결제 방법 선택', '단일 옵션 선택'],
+      notRecommendedFor: ['다중 선택이 필요한 경우'],
+      slots: ['라디오 버튼', '라벨'],
+      editableFields: ['라벨 목록', '기본 선택 값'],
+      examples: ['결제 수단 선택', '중요도 선택'],
+      previewBehavior: '원형 버튼과 라벨이 가로 나열된 그룹으로 표시됩니다.'
+    },
+    'lib.input.date': {
+      definitionLevel: 'component',
+      description: '날짜를 선택하는 날짜 입력 필드입니다.',
+      purpose: '날짜 또는 날짜 범위를 입력받습니다.',
+      useCases: ['날짜 조회 조건', '기간 설정', '일정 입력'],
+      slots: ['라벨', '날짜 입력 영역', '달력 팝업'],
+      editableFields: ['라벨', '날짜 범위 허용', '최소/최대 날짜', '기본값'],
+      examples: ['조회 기간 설정', '예약 날짜 선택'],
+      previewBehavior: '달력 아이콘이 있는 날짜 입력 박스로 표시됩니다.'
+    },
+    'lib.input.file-upload': {
+      definitionLevel: 'component',
+      description: '파일을 선택하거나 드래그해서 업로드하는 입력 영역입니다.',
+      purpose: '첨부 파일·이미지 업로드를 받습니다.',
+      useCases: ['첨부 파일 등록', '이미지 업로드', '문서 제출'],
+      slots: ['드롭존', '파일 선택 버튼', '업로드된 파일 목록'],
+      editableFields: ['허용 확장자', '최대 용량', '다중 파일 여부', '필수 여부'],
+      examples: ['결재 서류 첨부', '프로필 이미지 업로드'],
+      previewBehavior: '드래그 안내 문구가 있는 점선 박스로 표시됩니다.'
+    },
+    'lib.input.search': {
+      definitionLevel: 'component',
+      description: '검색어를 입력하는 검색 입력 필드입니다.',
+      purpose: '사용자가 검색어를 입력해 결과를 조회하게 합니다.',
+      useCases: ['사이트 검색', '목록 검색', '항목 빠른 찾기'],
+      slots: ['검색 아이콘', '입력 영역', '초기화 버튼'],
+      editableFields: ['플레이스홀더', '자동완성 여부', '검색 버튼 노출'],
+      examples: ['통합 검색바', '목록 내 검색'],
+      previewBehavior: '검색 아이콘과 입력 영역이 결합된 바로 표시됩니다.'
+    },
+
+    /* Data Display */
+    'lib.data.table': {
+      definitionLevel: 'component',
+      description: '데이터를 컬럼과 행으로 정리한 표입니다.',
+      purpose: '여러 항목을 비교 가능한 구조로 표시합니다.',
+      useCases: ['목록 조회', '데이터 비교', '결과 표시'],
+      notRecommendedFor: ['이미지 중심 콘텐츠', '홍보 페이지'],
+      slots: ['컬럼 헤더', '데이터 행', '정렬 컨트롤'],
+      editableFields: ['컬럼 정의', '정렬 가능 여부', '고정 컬럼'],
+      examples: ['회원 목록 테이블', '주문 내역 표'],
+      previewBehavior: '컬럼 헤더와 데이터 행이 있는 표로 표시됩니다.'
+    },
+    'lib.data.list': {
+      definitionLevel: 'component',
+      description: '항목을 세로로 나열하는 목록입니다.',
+      purpose: '여러 항목을 간결하게 나열해서 보여줍니다.',
+      useCases: ['공지 목록', '최근 활동', '알림 목록'],
+      slots: ['목록 항목'],
+      editableFields: ['항목 내용', '구분선 여부', '더보기 버튼'],
+      examples: ['최근 주문 목록', '공지사항 목록'],
+      previewBehavior: '구분선이 있는 항목 목록으로 표시됩니다.'
+    },
+    'lib.data.card': {
+      definitionLevel: 'component',
+      description: '데이터를 카드 형태로 표시하는 요소입니다.',
+      purpose: '이미지·제목·설명을 카드 틀에 담아 보여줍니다.',
+      useCases: ['상품 카드', '서비스 카드', '사용자 카드'],
+      slots: ['이미지', '제목', '설명', '액션'],
+      editableFields: ['카드 내용', '이미지', '링크', '액션 버튼'],
+      examples: ['상품 카드', '직원 프로필 카드'],
+      previewBehavior: '이미지와 텍스트가 결합된 카드 박스로 표시됩니다.'
+    },
+    'lib.data.kpi-card-group': {
+      definitionLevel: 'component',
+      description: '핵심 지표(KPI)를 카드 묶음으로 보여줍니다.',
+      purpose: '대시보드에서 핵심 수치를 한눈에 파악하게 합니다.',
+      useCases: ['대시보드', '통계 요약', '현황 파악'],
+      notRecommendedFor: ['홍보 페이지', '상세 설명 화면'],
+      slots: ['지표 라벨', '수치', '변화량', '아이콘'],
+      editableFields: ['지표 항목', '단위', '변화량 표시 방식', '색상 규칙'],
+      examples: ['오늘 방문자 / 매출 / 전환율 / 신규 회원'],
+      previewBehavior: 'layoutVariant 기준으로 동일 크기 지표 카드가 정렬됩니다.',
+      variantDefinitions: [
+        { id: '1x3', label: '1x3', description: '3개 핵심 지표 가로 나열' },
+        { id: '1x4', label: '1x4', description: '4개 핵심 지표 균등 배치' },
+        { id: '2x2', label: '2x2', description: '4개 지표를 2행 2열로 배치' }
+      ]
+    },
+    'lib.data.chart': {
+      definitionLevel: 'component',
+      description: '데이터를 시각적 차트로 표현하는 영역입니다.',
+      purpose: '수치와 추세를 한눈에 파악하게 합니다.',
+      useCases: ['대시보드', '리포트', '분석 화면'],
+      notRecommendedFor: ['홍보 페이지', '단순 목록'],
+      slots: ['차트 영역', '범례', '툴팁'],
+      editableFields: ['차트 종류', '데이터 출처', '색상 팔레트', '기간 범위'],
+      examples: ['월별 매출 막대 차트', '방문자 추세 라인 차트'],
+      previewBehavior: '차트 유형에 따른 그래프 영역으로 표시됩니다.'
+    },
+    'lib.data.status-badge': {
+      definitionLevel: 'component',
+      description: '상태를 색상과 텍스트로 나타내는 뱃지입니다.',
+      purpose: '항목의 현재 상태를 빠르게 인식하게 합니다.',
+      useCases: ['목록 상태 표시', '주문 상태', '검토 상태'],
+      slots: ['상태 텍스트'],
+      editableFields: ['상태 값', '색상 규칙', '크기'],
+      examples: ['승인 완료 (초록)', '대기 중 (노랑)', '반려 (빨강)'],
+      previewBehavior: '색상이 있는 소형 뱃지 칩으로 표시됩니다.'
+    },
+    'lib.data.timeline': {
+      definitionLevel: 'component',
+      description: '시간순 이벤트를 세로 타임라인으로 표시합니다.',
+      purpose: '사건의 흐름과 순서를 시각적으로 전달합니다.',
+      useCases: ['연혁', '처리 이력', '이벤트 흐름'],
+      notRecommendedFor: ['현재 단일 상태만 표시'],
+      slots: ['타임라인 포인트', '날짜', '설명'],
+      editableFields: ['항목 목록', '날짜', '설명', '아이콘'],
+      examples: ['회사 연혁', '주문 처리 이력'],
+      previewBehavior: '세로 선에 포인트가 붙은 타임라인 형태로 표시됩니다.'
+    },
+    'lib.data.calendar': {
+      definitionLevel: 'component',
+      description: '날짜와 일정을 달력 형태로 표시합니다.',
+      purpose: '월·주·일 단위로 일정을 시각화합니다.',
+      useCases: ['일정 관리', '예약 현황', '이벤트 달력'],
+      notRecommendedFor: ['단순 날짜 선택 (Date Picker 사용)'],
+      slots: ['날짜 셀', '일정 이벤트', '뷰 전환'],
+      editableFields: ['뷰 모드 (월/주/일)', '일정 색상 규칙', '이벤트 클릭 액션'],
+      examples: ['예약 현황 월별 달력', '업무 일정 관리'],
+      previewBehavior: '달력 격자와 이벤트 표시가 포함된 레이아웃으로 표시됩니다.'
+    },
+    'lib.data.gantt': {
+      definitionLevel: 'component',
+      description: '작업 일정을 간트 차트로 표시합니다.',
+      purpose: '프로젝트 작업의 기간과 진행 현황을 시각화합니다.',
+      useCases: ['WBS 관리', '프로젝트 일정', '작업 현황'],
+      notRecommendedFor: ['단순 목록 조회'],
+      slots: ['작업 행', '타임라인 바', '기간 헤더'],
+      editableFields: ['작업 항목', '기간', '진행률', '담당자'],
+      examples: ['프로젝트 WBS 간트'],
+      previewBehavior: '좌측 작업 목록과 우측 타임바 그리드로 표시됩니다.'
+    },
+    'lib.data.kanban-card': {
+      definitionLevel: 'component',
+      description: '작업을 상태 컬럼으로 분류해 관리하는 칸반 카드입니다.',
+      purpose: '상태별 작업 흐름과 진행 현황을 시각화합니다.',
+      useCases: ['작업 관리', '이슈 트래킹', '프로세스 관리'],
+      notRecommendedFor: ['단순 테이블 조회'],
+      slots: ['상태 컬럼', '카드 항목', '드래그 핸들'],
+      editableFields: ['상태 정의', '카드 필드 구성', '담당자', '우선순위'],
+      examples: ['작업 칸반', '이슈 보드'],
+      previewBehavior: '가로로 나열된 상태 컬럼과 카드 목록으로 표시됩니다.'
+    },
+    'lib.data.attachment-list': {
+      definitionLevel: 'component',
+      description: '첨부 파일 목록을 표시하는 영역입니다.',
+      purpose: '항목에 연결된 파일을 한눈에 확인하고 다운로드하게 합니다.',
+      useCases: ['상세 화면 첨부', '결재 서류 목록'],
+      slots: ['파일명', '파일 크기', '다운로드 버튼'],
+      editableFields: ['파일 목록', '다운로드 권한', '삭제 권한'],
+      examples: ['계약서 첨부 목록', '결재 서류 파일'],
+      previewBehavior: '파일 아이콘·이름·크기·다운로드 버튼이 행으로 나열됩니다.'
+    },
+
+    /* Feedback / State */
+    'lib.feedback.toast': {
+      definitionLevel: 'state',
+      description: '작업 완료·오류를 화면 끝에 잠깐 알리는 알림입니다.',
+      purpose: '사용자 액션 결과를 비침투적으로 전달합니다.',
+      useCases: ['저장 완료', '오류 발생', '복사 완료'],
+      notRecommendedFor: ['중요한 확인이 필요한 경우 (Confirm 사용)'],
+      slots: ['아이콘', '메시지', '닫기 버튼'],
+      editableFields: ['메시지', '유형 (성공/오류/정보)', '표시 시간'],
+      examples: ['저장되었습니다.', '오류가 발생했습니다.'],
+      previewBehavior: '화면 우측 하단 또는 상단에 작은 알림 카드로 표시됩니다.'
+    },
+    'lib.feedback.alert': {
+      definitionLevel: 'state',
+      description: '중요한 정보·경고를 강조하는 알림 박스입니다.',
+      purpose: '사용자가 놓치지 않아야 할 안내를 화면 내에서 강조합니다.',
+      useCases: ['시스템 공지', '작업 주의 안내', '오류 요약'],
+      notRecommendedFor: ['일반 안내 문구'],
+      slots: ['아이콘', '제목', '내용', '닫기'],
+      editableFields: ['유형 (정보/경고/오류/성공)', '제목', '내용', '닫기 가능 여부'],
+      examples: ['시스템 점검 공지', '필수 항목 누락 안내'],
+      previewBehavior: '색상 배경의 알림 박스로 화면 내 인라인 표시됩니다.'
+    },
+    'lib.feedback.confirm': {
+      definitionLevel: 'state',
+      description: '사용자 확인을 요청하는 다이얼로그입니다.',
+      purpose: '되돌리기 어려운 작업 전 사용자에게 의도를 확인합니다.',
+      useCases: ['삭제 확인', '제출 확인', '이동 확인'],
+      notRecommendedFor: ['단순 안내 (Alert 사용)'],
+      slots: ['제목', '내용', '확인 버튼', '취소 버튼'],
+      editableFields: ['제목', '내용', '확인 버튼 텍스트', '취소 버튼 텍스트'],
+      examples: ['삭제하시겠습니까?', '제출 전 마지막 확인'],
+      previewBehavior: '화면 중앙에 모달 형태로 표시됩니다.'
+    },
+    'lib.feedback.modal': {
+      definitionLevel: 'state',
+      description: '현재 화면 위에 뜨는 레이어 팝업입니다.',
+      purpose: '추가 정보 입력이나 상세 확인이 필요할 때 현재 컨텍스트를 유지하며 표시합니다.',
+      useCases: ['상세 정보 팝업', '빠른 편집', '이미지 뷰어'],
+      notRecommendedFor: ['단순 확인 (Confirm 사용)', '긴 폼 (별도 화면 권장)'],
+      slots: ['헤더', '본문', '액션 버튼', '닫기'],
+      editableFields: ['크기', '제목', '내용', '버튼 구성'],
+      examples: ['이미지 상세 팝업', '간단 편집 팝업'],
+      previewBehavior: '딤드 배경 위 중앙 레이어로 표시됩니다.'
+    },
+    'lib.feedback.drawer': {
+      definitionLevel: 'state',
+      description: '화면 측면에서 슬라이드되는 상세 패널입니다.',
+      purpose: '목록에서 항목 상세를 현재 화면을 유지하며 표시합니다.',
+      useCases: ['목록 상세 보기', '필터 설정', '항목 편집'],
+      notRecommendedFor: ['복잡한 멀티 스텝 폼'],
+      slots: ['헤더', '스크롤 가능 본문', '하단 액션'],
+      editableFields: ['폭', '열리는 방향', '오버레이 클릭 닫기 여부'],
+      examples: ['주문 상세 드로어', '필터 패널'],
+      previewBehavior: '우측 또는 좌측에서 슬라이드되는 패널로 표시됩니다.'
+    },
+    'lib.feedback.empty-result': {
+      definitionLevel: 'state',
+      description: '검색 결과나 목록이 비었을 때 안내하는 상태입니다.',
+      purpose: '결과 없음을 명확히 알리고 다음 행동을 안내합니다.',
+      useCases: ['검색 결과 없음', '목록 0건', '필터 해당 없음'],
+      slots: ['아이콘', '제목', '안내 문구', '액션'],
+      editableFields: ['안내 문구', '권장 액션', '아이콘'],
+      examples: ['검색 결과가 없습니다.', '등록된 항목이 없습니다.'],
+      previewBehavior: '아이콘과 안내 문구가 중앙 정렬로 표시됩니다.'
+    },
+    'lib.feedback.error-message': {
+      definitionLevel: 'state',
+      description: '오류 내용을 알리는 메시지 영역입니다.',
+      purpose: '발생한 오류와 해결 방법을 안내합니다.',
+      useCases: ['API 오류', '권한 없음', '유효성 오류 요약'],
+      slots: ['아이콘', '오류 코드', '메시지', '재시도 액션'],
+      editableFields: ['오류 메시지', '재시도 가능 여부'],
+      examples: ['데이터를 불러오지 못했습니다.'],
+      previewBehavior: '경고 색상의 메시지 박스로 표시됩니다.'
+    },
+    'lib.feedback.loading-skeleton': {
+      definitionLevel: 'state',
+      description: '데이터 로딩 중 콘텐츠 자리를 채우는 스켈레톤입니다.',
+      purpose: '로딩 중 레이아웃 이동을 줄이고 체감 속도를 개선합니다.',
+      useCases: ['목록 로딩', '카드 로딩', '대시보드 로딩'],
+      notRecommendedFor: ['즉시 로드되는 정적 콘텐츠'],
+      slots: ['스켈레톤 셀'],
+      editableFields: ['스켈레톤 행 수', '형태 (텍스트/카드/테이블)'],
+      examples: ['테이블 행 로딩 스켈레톤', '카드 그리드 스켈레톤'],
+      previewBehavior: '회색 애니메이션 블록이 콘텐츠 위치에 표시됩니다.'
+    },
+
+    /* Custom */
+    'lib.custom.section': {
+      definitionLevel: 'custom',
+      description: '팀이 직접 구성하는 커스텀 섹션입니다.',
+      purpose: '표준 라이브러리에 없는 고유 섹션을 정의합니다.',
+      useCases: ['프로젝트 특화 섹션', '실험적 레이아웃'],
+      slots: ['자유 구성 요소'],
+      editableFields: ['섹션 명', '구성 요소'],
+      examples: ['프로젝트 전용 통계 섹션'],
+      previewBehavior: '커스텀 레이아웃으로 자유롭게 표시됩니다.'
+    },
+    'lib.custom.block': {
+      definitionLevel: 'custom',
+      description: '팀이 직접 구성하는 커스텀 블록입니다.',
+      purpose: '표준에 없는 반복 블록을 직접 정의합니다.',
+      useCases: ['프로젝트 고유 UI 블록'],
+      slots: ['자유 구성 요소'],
+      editableFields: ['블록 명', '구성 요소'],
+      examples: ['프로젝트 전용 요약 카드'],
+      previewBehavior: '커스텀 블록으로 표시됩니다.'
+    },
+    'lib.custom.field-group': {
+      definitionLevel: 'custom',
+      description: '팀이 직접 구성하는 커스텀 입력 필드 그룹입니다.',
+      purpose: '폼에서 반복 사용되는 고유 필드 조합을 정의합니다.',
+      useCases: ['복잡한 입력 섹션', '폼 내 반복 필드 묶음'],
+      slots: ['입력 필드'],
+      editableFields: ['필드 구성', '필드 라벨'],
+      examples: ['주소 입력 그룹', '결제 정보 그룹'],
+      previewBehavior: '관련 입력 필드가 묶인 그룹으로 표시됩니다.'
+    }
+  };
+
+  function buildDefaultLibraryDefinition(item) {
+    /* 정의 누락 항목용 fallback */
+    var nm = item.name;
+    var typeLabel = (item.type || 'component');
+    var description;
+    if (item.category === 'website-sections') {
+      description = nm + ' — 페이지를 구성하는 섹션 단위 요소입니다.';
+    } else if (item.category === 'app-admin-blocks') {
+      description = nm + ' — 관리/운영 화면에서 자주 쓰는 블록입니다.';
+    } else if (item.category === 'navigation') {
+      description = nm + ' — 화면 간 이동을 돕는 내비게이션 요소입니다.';
+    } else if (item.category === 'input') {
+      description = nm + ' — 사용자 입력을 받는 폼 요소입니다.';
+    } else if (item.category === 'data') {
+      description = nm + ' — 데이터를 표시하는 요소입니다.';
+    } else if (item.category === 'feedback') {
+      description = nm + ' — 사용자에게 상태/피드백을 전달합니다.';
+    } else if (item.category === 'layout') {
+      description = nm + ' — 화면 영역을 구분/정렬하는 레이아웃 요소입니다.';
+    } else if (item.category === 'text') {
+      description = nm + ' — 문구·텍스트 표시 요소입니다.';
+    } else if (item.category === 'media') {
+      description = nm + ' — 이미지·미디어 표시 요소입니다.';
+    } else if (item.category === 'custom') {
+      description = nm + ' — 직접 정의하는 사용자 정의 요소입니다.';
+    } else {
+      description = nm + ' — 화면 구성 요소입니다.';
+    }
+    return {
+      definitionLevel: typeLabel === 'section' ? 'section'
+        : typeLabel === 'block' ? 'block'
+        : typeLabel === 'feedback' ? 'state'
+        : typeLabel === 'layout' || typeLabel === 'text' || typeLabel === 'media' ? 'primitive'
+        : 'component',
+      description: description,
+      purpose: '',
+      useCases: [],
+      notRecommendedFor: [],
+      slots: [],
+      editableFields: (item.inspectorHints || []).slice(),
+      examples: [],
+      previewBehavior: ''
+    };
+  }
+
+  function getLibraryDefinition(libraryId) {
+    var item = getLibraryItem(libraryId);
+    if (!item) return null;
+    var def = LIBRARY_DEFINITIONS[libraryId] || {};
+    var base = buildDefaultLibraryDefinition(item);
+    /* explicit 값 우선, 없으면 base fallback */
+    var merged = Object.assign({}, base, def);
+    if (!merged.variantDefinitions || !merged.variantDefinitions.length) {
+      merged.variantDefinitions = defaultVariantDefinitions(item);
+    }
+    return merged;
+  }
+
+  function getLibraryDescription(libraryId) {
+    var def = getLibraryDefinition(libraryId);
+    return def ? def.description : '';
+  }
+
+  function getLibraryEditableFields(libraryId) {
+    var def = getLibraryDefinition(libraryId);
+    return def && def.editableFields ? def.editableFields.slice() : [];
+  }
+
+  function getLibraryDefinitionForBlock(block) {
+    if (!block || !block.libraryId) return null;
+    return getLibraryDefinition(block.libraryId);
+  }
+
+  function getLibraryVariantLabel(libraryId, layoutVariant) {
+    if (!layoutVariant) return '';
+    var def = getLibraryDefinition(libraryId);
+    if (!def || !def.variantDefinitions) return layoutVariant;
+    for (var i = 0; i < def.variantDefinitions.length; i++) {
+      if (def.variantDefinitions[i].id === layoutVariant) return def.variantDefinitions[i].label || layoutVariant;
+    }
+    return layoutVariant;
+  }
+
+  function definitionLevelLabel(lvl) {
+    var map = { primitive: 'Primitive', component: 'Component', section: 'Section', block: 'Block', state: 'State', custom: 'Custom' };
+    return map[lvl] || 'Component';
+  }
+
+  function getLibraryItemById(libraryId) { return getLibraryItem(libraryId); }
+
+  function buildBlockFromLibraryItem(libItem, opts) {
+    opts = opts || {};
+    var item = (typeof libItem === 'string') ? getLibraryItem(libItem) : libItem;
+    if (!item) return null;
+    var def = getLibraryDefinition(item.libraryId);
+    var props = Object.assign({}, item.defaultProps || {}, opts.props || {});
+    var description = opts.description || (def && def.description) || (item.name + ' — 화면 구성 요소');
+    return {
+      id: opts.id || ('block-' + Date.now() + '-' + Math.floor(Math.random() * 1000)),
+      libraryId: item.libraryId,
+      type: item.type,
+      category: item.category,
+      name: opts.label || item.name,
+      label: opts.label || item.name,
+      layoutVariant: opts.layoutVariant || item.defaultVariant || null,
+      props: props,
+      desc: description,
+      visible: true,
+      imp: 'm',
+      display: { condition: '항상 표시', roles: ['전체 사용자'], editableBy: ['작성자', 'PM'] },
+      action: { primary: '미정', link: '미연결', event: '클릭' },
+      data: { source: '미정', required: false, validation: '미입력', emptyState: '표시 필요', errorState: '표시 필요' },
+      status: 'draft'
+    };
+  }
+
+  /* ── Create View Step 3: Page Template Catalog (P8-E)
+   * 4 categories: app-admin | website-public | domain-preset | custom-blank
+   * Domain Preset → Core Template 위에 얹는 예시 (baseTemplateId 사용)
+   * 각 템플릿은 향후 Inspector 입력 후보 / Check Point 후보를 hint로 노출
+   * (실제 Inspector / DB 저장은 이번 범위 아님 — UI 체험용 hint)
+   * ───────────────────────────────────────────────────────── */
+  var SS_TPL_CATEGORIES = [
+    { id: 'app-admin',     name: 'App / Admin' },
+    { id: 'website-public', name: 'Website / Public' },
+    { id: 'domain-preset', name: 'Domain Preset' },
+    { id: 'custom-blank',  name: 'Custom / Blank' }
+  ];
+
+  var TPL_STRUCT_NONE = { useSearch: false, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: false };
+  var TPL_STRUCT_LIST = { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true };
+
+  var CREATE_PAGE_TEMPLATE_LIST = [
+    /* ── A. App / Admin Core Templates ── */
+    { id: 'dashboard', category: 'app-admin', name: 'Dashboard', screenType: 'main',
+      purpose: '주요 지표·현황 요약·빠른 링크 중심의 운영 홈',
+      desc: 'KPI 카드·차트·최근 활동을 한 화면에서 빠르게 파악합니다.',
+      sections: ['KPI 카드', '차트 영역', '최근 활동', '빠른 실행'],
+      defaultSections: [
+        { libraryId: 'lib.admin.kpi-card-group', label: 'KPI Card Group', layoutVariant: '1x4', props: { itemsCount: 4 } },
+        { libraryId: 'lib.data.chart',           label: 'Chart' },
+        { libraryId: 'lib.data.list',            label: '최근 활동' },
+        { libraryId: 'lib.navigation.quick-link-group', label: '빠른 실행', layoutVariant: '1x3' }
+      ],
+      structure: { useSearch: false, useTable: true, useStatusChip: true, useRowAction: false, useEmpty: false },
+      userInputs: ['표시할 KPI 항목', '차트 종류'],
+      checkpointHints: ['KPI 우선순위가 명확한가', '데이터 새로고침 주기'],
+      inspectorFieldHints: ['KPI 카드 - 표시 항목', '차트 - 데이터 출처 (향후)'],
+      decisionStatus: 'recommended' },
+    { id: 'list-search', category: 'app-admin', name: 'List / Search', screenType: 'list',
+      purpose: '검색 조건 + 결과 테이블로 구성되는 일반 목록·조회',
+      desc: '검색·필터·결과 테이블·행 액션이 결합된 가장 자주 쓰이는 패턴입니다.',
+      sections: ['검색 영역', '필터', '결과 테이블', '행 액션', '페이지네이션'],
+      defaultSections: [
+        { libraryId: 'lib.admin.search-filter-bar', label: '검색 / 필터' },
+        { libraryId: 'lib.admin.toolbar',           label: 'Toolbar' },
+        { libraryId: 'lib.admin.result-table',      label: '결과 테이블' },
+        { libraryId: 'lib.navigation.pagination',   label: 'Pagination' },
+        { libraryId: 'lib.admin.empty-state',       label: 'Empty State' }
+      ],
+      structure: TPL_STRUCT_LIST,
+      userInputs: ['검색 조건', '테이블 컬럼', '행 액션'],
+      checkpointHints: ['빈 결과 안내 문구', '권한별 행 액션 노출 규칙'],
+      inspectorFieldHints: ['컬럼별 정렬·표시 규칙', '행 액션 - 연결 화면 (향후)'],
+      decisionStatus: 'recommended' },
+    { id: 'detail-drawer', category: 'app-admin', name: 'Detail / Drawer', screenType: 'detail',
+      purpose: '항목의 상세 정보·이력·처리 액션을 보여주는 상세 화면',
+      desc: '기본 정보·처리 이력·관련 항목을 탭/섹션으로 정리해 표시합니다.',
+      sections: ['기본 정보', '상태 chip', '처리 이력', '관련 항목', '액션 버튼'],
+      defaultSections: [
+        { libraryId: 'lib.admin.detail-drawer-summary', label: '기본 정보' },
+        { libraryId: 'lib.data.status-badge',           label: '상태 chip' },
+        { libraryId: 'lib.admin.review-history',        label: '처리 이력' },
+        { libraryId: 'lib.data.list',                   label: '관련 항목' }
+      ],
+      structure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false },
+      userInputs: ['표시 항목 구성', '액션 버튼 종류'],
+      checkpointHints: ['상태 chip 색상 기준', '권한별 액션 노출'],
+      inspectorFieldHints: ['처리 이력 - 데이터 출처 (향후)'],
+      decisionStatus: 'recommended' },
+    { id: 'create-edit-form', category: 'app-admin', name: 'Create / Edit Form', screenType: 'form',
+      purpose: '항목 등록·수정 입력을 처리하는 폼 화면',
+      desc: '입력 필드·유효성·저장 액션이 결합된 입력 폼입니다.',
+      sections: ['폼 섹션', '필수 항목 표시', '유효성 안내', '저장/취소 액션'],
+      defaultSections: [
+        { libraryId: 'lib.admin.create-edit-form', label: '폼 섹션' },
+        { libraryId: 'lib.admin.toolbar',          label: '저장/취소 액션' }
+      ],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['폼 필드 구성', '필수 항목 지정'],
+      checkpointHints: ['필수값 안내 문구', '저장 후 이동 흐름'],
+      inspectorFieldHints: ['필드별 유효성 규칙 (향후)'],
+      decisionStatus: 'recommended' },
+    { id: 'settings', category: 'app-admin', name: 'Settings', screenType: 'form',
+      purpose: '항목별 설정값을 관리·저장하는 설정 화면',
+      desc: '설정 그룹·항목·저장 액션 구조의 환경설정 화면입니다.',
+      sections: ['설정 그룹', '설정 항목', '저장 버튼'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['설정 그룹·항목 구성'],
+      checkpointHints: ['설정 변경 시 영향 범위 안내'],
+      inspectorFieldHints: ['설정 항목 - 기본값 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'approval-review', category: 'app-admin', name: 'Approval / Review', screenType: 'list',
+      purpose: '검토·승인·반려 워크플로우 처리 화면',
+      desc: '대기 항목 목록과 승인/반려 처리·이력을 한 화면에서 관리합니다.',
+      sections: ['대기 항목 목록', '상태 chip', '승인·반려 액션', '처리 이력'],
+      structure: TPL_STRUCT_LIST,
+      userInputs: ['상태 종류', '권한별 액션'],
+      checkpointHints: ['반려 사유 입력 규칙', '권한별 승인 단계'],
+      inspectorFieldHints: ['승인 단계 - 권한 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'tree-hierarchy', category: 'app-admin', name: 'Tree / Hierarchy', screenType: 'list',
+      purpose: '계층 구조 데이터를 트리로 탐색·관리',
+      desc: '좌측 트리 + 우측 상세 패널 구조로 계층 항목을 관리합니다.',
+      sections: ['트리 탐색', '선택 항목 상세', '추가·삭제 액션'],
+      structure: { useSearch: true, useTable: false, useStatusChip: false, useRowAction: true, useEmpty: false },
+      userInputs: ['트리 depth 정책', '노드 액션'],
+      checkpointHints: ['이동/삭제 시 영향 안내'],
+      inspectorFieldHints: ['노드 - 표시 규칙 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'calendar-timeline', category: 'app-admin', name: 'Calendar / Gantt / Timeline', screenType: 'main',
+      purpose: '일정·스케줄·타임라인을 시각화하는 화면',
+      desc: '월/주/일 단위 캘린더 또는 간트 뷰로 일정을 표시합니다.',
+      sections: ['뷰 전환', '일정 그리드', '일정 상세 팝오버', '필터'],
+      structure: { useSearch: true, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false },
+      userInputs: ['표시 일정 종류', '뷰 전환 옵션'],
+      checkpointHints: ['겹치는 일정 표시 규칙'],
+      inspectorFieldHints: ['일정 - 색상 규칙 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'kanban-board', category: 'app-admin', name: 'Kanban / Board', screenType: 'main',
+      purpose: '상태별 컬럼으로 작업을 시각화하는 보드',
+      desc: '상태 컬럼·카드 드래그·필터로 작업 진행을 관리합니다.',
+      sections: ['상태 컬럼', '작업 카드', '필터·검색', '카드 상세 드로어'],
+      structure: { useSearch: true, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: true },
+      userInputs: ['상태 컬럼 정의', '카드 표시 필드'],
+      checkpointHints: ['상태 이동 시 권한·알림'],
+      inspectorFieldHints: ['카드 - 표시 필드 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'file-attachment', category: 'app-admin', name: 'File / Attachment', screenType: 'list',
+      purpose: '첨부 파일 업로드·관리·다운로드 화면',
+      desc: '파일 업로드 영역과 첨부 목록·다운로드 액션을 결합합니다.',
+      sections: ['업로드 영역', '파일 목록', '다운로드/삭제 액션', '용량 안내'],
+      structure: { useSearch: true, useTable: true, useStatusChip: true, useRowAction: true, useEmpty: true },
+      userInputs: ['허용 확장자·용량'],
+      checkpointHints: ['용량 초과 안내', '권한별 삭제 노출'],
+      inspectorFieldHints: ['업로드 - 허용 규칙 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'report-chart', category: 'app-admin', name: 'Report / Chart', screenType: 'main',
+      purpose: '리포트·차트·지표 시각화 중심 화면',
+      desc: '조건별 필터와 차트·요약 표를 결합한 리포트 화면입니다.',
+      sections: ['조건 필터', '요약 카드', '차트 그룹', '상세 표'],
+      structure: { useSearch: true, useTable: true, useStatusChip: false, useRowAction: false, useEmpty: false },
+      userInputs: ['리포트 조건', '차트 종류'],
+      checkpointHints: ['데이터 갱신 주기', '내보내기 형식'],
+      inspectorFieldHints: ['차트 - 데이터 출처 (향후)'],
+      decisionStatus: 'draft' },
+
+    /* ── B. Website / Public Core Templates ── */
+    { id: 'homepage-main', category: 'website-public', name: 'Homepage / Main', screenType: 'main',
+      purpose: '브랜드·서비스의 첫인상을 만드는 홈페이지 메인',
+      desc: '히어로·퀵 링크·콘텐츠 카드·뉴스·푸터를 결합한 가장 일반적인 메인 페이지 구성입니다.',
+      sections: ['Global Header', 'Hero Visual / Rolling Banner', 'Quick Link / CTA', 'Accordion / Tab Section', '2x2 Card Grid', '1x4 Image + Text Cards', 'Promotion / Event', 'News / Media', 'Family Site / Related Channel', 'Footer'],
+      defaultSections: [
+        { libraryId: 'lib.website.global-header',           label: 'Global Header' },
+        { libraryId: 'lib.website.hero-visual',             label: 'Hero Visual / Rolling Banner', layoutVariant: 'rolling' },
+        { libraryId: 'lib.website.quick-link-cta',          label: 'Quick Link / CTA', layoutVariant: '1x4' },
+        { libraryId: 'lib.website.disclosure-section',      label: 'Accordion / Tab Section', layoutVariant: 'accordion' },
+        { libraryId: 'lib.website.card-grid',                label: 'Card Grid', layoutVariant: '2x2', props: { columns: 2, rows: 2 } },
+        { libraryId: 'lib.website.image-text-section',      label: 'Image + Text Section', layoutVariant: '1x4' },
+        { libraryId: 'lib.website.promotion-event-section', label: 'Promotion / Event' },
+        { libraryId: 'lib.website.news-media-section',      label: 'News / Media' },
+        { libraryId: 'lib.website.family-site',             label: 'Family Site / Related Channel' },
+        { libraryId: 'lib.website.footer',                   label: 'Footer' }
+      ],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['브랜드 카피', '대표 이미지/배너', '주요 CTA 링크'],
+      checkpointHints: ['히어로 카피 길이', '모바일 노출 우선 섹션'],
+      inspectorFieldHints: ['Hero - 배경/카피 (향후)', 'Card Grid - 항목 (향후)'],
+      featured: true,
+      decisionStatus: 'recommended' },
+    { id: 'landing-page', category: 'website-public', name: 'Landing Page', screenType: 'main',
+      purpose: '캠페인·이벤트 전용 단일 랜딩 화면',
+      desc: '한 가지 목적·CTA에 집중하는 1페이지 랜딩 구성입니다.',
+      sections: ['Hero', '핵심 메시지', '특징/혜택 섹션', 'Social Proof', 'CTA Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['캠페인 메시지', 'CTA 링크'],
+      checkpointHints: ['단일 CTA 우선순위'],
+      inspectorFieldHints: ['CTA - 링크 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'brand-about', category: 'website-public', name: 'Brand / About', screenType: 'detail',
+      purpose: '브랜드·기업·서비스 소개 페이지',
+      desc: '브랜드 스토리·연혁·구성원·CI를 정리해 보여줍니다.',
+      sections: ['브랜드 스토리', '비전·미션', '연혁', '구성원', 'CI/BI'],
+      defaultSections: [
+        { libraryId: 'lib.website.brand-story-section', label: '브랜드 스토리' },
+        { libraryId: 'lib.website.image-text-section',  label: '비전·미션', layoutVariant: '1x2' },
+        { libraryId: 'lib.data.timeline',                label: '연혁' },
+        { libraryId: 'lib.website.card-grid',            label: '구성원', layoutVariant: '2x3', props: { columns: 3, rows: 2 } },
+        { libraryId: 'lib.website.gallery-section',      label: 'CI / BI' }
+      ],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['브랜드 카피', '연혁 항목'],
+      checkpointHints: ['공식 표기 일관성'],
+      inspectorFieldHints: ['연혁 - 항목 데이터 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'promotion-event', category: 'website-public', name: 'Promotion / Event', screenType: 'list',
+      purpose: '프로모션·이벤트 안내·참여 페이지',
+      desc: '이벤트 배너·기간·참여 폼·진행 상태를 안내합니다.',
+      sections: ['Hero 배너', '이벤트 개요', '진행 기간', '참여 폼/링크', '유의사항'],
+      structure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false },
+      userInputs: ['이벤트 카피', '참여 링크'],
+      checkpointHints: ['종료 일자 안내'],
+      inspectorFieldHints: ['이벤트 - 일정 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'content-news-hub', category: 'website-public', name: 'Content / News Hub', screenType: 'list',
+      purpose: '뉴스·미디어·콘텐츠 허브 페이지',
+      desc: '카테고리 탭·피처드 콘텐츠·목록·페이지네이션 구조입니다.',
+      sections: ['카테고리 탭', 'Featured 콘텐츠', '콘텐츠 카드 목록', '페이지네이션'],
+      structure: { useSearch: true, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: true },
+      userInputs: ['카테고리 구성'],
+      checkpointHints: ['Featured 선정 기준'],
+      inspectorFieldHints: ['콘텐츠 - 출처 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'faq-accordion', category: 'website-public', name: 'FAQ / Accordion', screenType: 'list',
+      purpose: '자주 묻는 질문·아코디언 안내 페이지',
+      desc: '카테고리·검색·아코디언 항목 구조의 FAQ 페이지입니다.',
+      sections: ['카테고리 탭', '검색', '아코디언 목록', '문의 CTA'],
+      structure: { useSearch: true, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: true },
+      userInputs: ['FAQ 카테고리'],
+      checkpointHints: ['검색어 미일치 시 안내'],
+      inspectorFieldHints: ['FAQ 항목 - 출처 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'gallery-card-grid', category: 'website-public', name: 'Gallery / Card Grid', screenType: 'list',
+      purpose: '이미지·카드 그리드 갤러리 페이지',
+      desc: '필터·정렬·반응형 그리드의 갤러리 구조입니다.',
+      sections: ['필터', '정렬', '카드 그리드', '더보기'],
+      structure: { useSearch: true, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: true },
+      userInputs: ['카테고리·정렬'],
+      checkpointHints: ['이미지 비율 일관성'],
+      inspectorFieldHints: ['카드 - 표시 필드 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'service-portal-home', category: 'website-public', name: 'Service Portal Home', screenType: 'main',
+      purpose: '서비스 포털 진입 화면',
+      desc: '서비스 카드·바로가기·공지·로그인을 결합한 포털 홈입니다.',
+      sections: ['Header', '서비스 카드', '공지', '바로가기', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['서비스 카드 목록', '공지'],
+      checkpointHints: ['로그인 전후 노출 차이'],
+      inspectorFieldHints: ['서비스 카드 - 링크 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'product-service-detail', category: 'website-public', name: 'Product / Service Detail', screenType: 'detail',
+      purpose: '상품·서비스 소개 상세 페이지',
+      desc: '대표 이미지·설명·기능·FAQ·CTA를 결합한 상세 구성입니다.',
+      sections: ['Hero', '주요 기능', '가격/플랜', 'FAQ', 'CTA'],
+      structure: { useSearch: false, useTable: false, useStatusChip: true, useRowAction: false, useEmpty: false },
+      userInputs: ['상품 카피', '기능 목록'],
+      checkpointHints: ['가격 표기 일관성'],
+      inspectorFieldHints: ['상품 - 데이터 출처 (향후)'],
+      decisionStatus: 'draft' },
+    { id: 'reservation-entry', category: 'website-public', name: 'Reservation Entry', screenType: 'form',
+      purpose: '예약·신청 진입 화면',
+      desc: '서비스 선택·일정·예약 폼 진입을 안내합니다.',
+      sections: ['Hero', '서비스 선택', '일정 선택', '예약 폼 CTA'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['서비스 종류', '예약 단계'],
+      checkpointHints: ['진입 단계별 안내'],
+      inspectorFieldHints: ['예약 - 단계 정의 (향후)'],
+      decisionStatus: 'draft' },
+
+    /* ── C. Domain Presets (Core Template 위에 얹는 예시) ── */
+    { id: 'preset-hotel-resort', category: 'domain-preset', name: 'Hotel / Resort', screenType: 'main',
+      baseTemplateId: 'homepage-main', presetName: 'Hotel / Resort', domainType: 'hotel',
+      purpose: '호텔·리조트 홈페이지 기본 구성 (Homepage / Main 기반)',
+      desc: '예약·룸 소개·다이닝·시설·이벤트 섹션이 강조된 호텔 홈 예시입니다.',
+      sections: ['Global Header', 'Hero (객실/리조트)', '예약 Quick CTA', '룸 소개 Card Grid', '다이닝·시설', '프로모션', 'News / Notice', 'Footer'],
+      defaultSections: [
+        { libraryId: 'lib.website.global-header',          label: 'Global Header' },
+        { libraryId: 'lib.website.hero-visual',            label: 'Hero (객실/리조트)', layoutVariant: 'rolling' },
+        { libraryId: 'lib.website.quick-link-cta',         label: '예약 Quick CTA', layoutVariant: '1x3' },
+        { libraryId: 'lib.website.card-grid',              label: '룸 소개 Card Grid', layoutVariant: '2x3', props: { columns: 3, rows: 2 } },
+        { libraryId: 'lib.website.image-text-section',     label: '다이닝·시설', layoutVariant: '1x2' },
+        { libraryId: 'lib.website.promotion-event-section',label: '프로모션' },
+        { libraryId: 'lib.website.news-media-section',     label: 'News / Notice' },
+        { libraryId: 'lib.website.footer',                  label: 'Footer' }
+      ],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['브랜드 카피', '대표 객실 이미지', '예약 링크'],
+      checkpointHints: ['예약 CTA 우선순위'],
+      inspectorFieldHints: ['룸 - 표시 필드 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-commerce', category: 'domain-preset', name: 'Commerce', screenType: 'main',
+      baseTemplateId: 'homepage-main', presetName: 'Commerce', domainType: 'commerce',
+      purpose: '커머스 홈 기본 구성 (Homepage / Main 기반)',
+      desc: '추천 상품·기획전·배너·카테고리 진입 중심의 커머스 홈 예시입니다.',
+      sections: ['Header', 'Hero 배너', '카테고리 Quick', '추천 상품 Grid', '기획전', '신상품', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['상품 데이터 종류', '추천 정책'],
+      checkpointHints: ['상품 카드 표기 일관성'],
+      inspectorFieldHints: ['상품 - 데이터 출처 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-membership', category: 'domain-preset', name: 'Membership', screenType: 'main',
+      baseTemplateId: 'homepage-main', presetName: 'Membership', domainType: 'membership',
+      purpose: '멤버십 서비스 홈 (Homepage / Main 기반)',
+      desc: '회원 등급·혜택·가입 CTA를 강조한 멤버십 홈 예시입니다.',
+      sections: ['Header', 'Hero (멤버십 혜택)', '등급 카드', '혜택 안내', '가입 CTA', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['등급 정의', '혜택 항목'],
+      checkpointHints: ['등급별 혜택 비교 명확성'],
+      inspectorFieldHints: ['등급 - 표시 필드 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-reservation', category: 'domain-preset', name: 'Reservation', screenType: 'main',
+      baseTemplateId: 'reservation-entry', presetName: 'Reservation', domainType: 'reservation',
+      purpose: '예약·신청 전용 화면 (Reservation Entry 기반)',
+      desc: '예약 진입·일정·신청 폼 흐름의 예약 도메인 구성입니다.',
+      sections: ['Hero', '예약 가능 서비스', '일정 선택', '예약 폼 CTA'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['예약 종류'],
+      checkpointHints: ['예약 단계 안내'],
+      inspectorFieldHints: ['예약 - 단계 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-recruitment', category: 'domain-preset', name: 'Recruitment', screenType: 'main',
+      baseTemplateId: 'homepage-main', presetName: 'Recruitment', domainType: 'recruitment',
+      purpose: '채용 홈 (Homepage / Main 기반)',
+      desc: '채용 공고·인재상·복지·지원 CTA를 강조한 채용 홈 예시입니다.',
+      sections: ['Header', 'Hero (인재상)', '채용 공고', '복지', '지원 CTA', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['인재상 카피', '공고 종류'],
+      checkpointHints: ['지원 마감 표기'],
+      inspectorFieldHints: ['공고 - 데이터 출처 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-ir', category: 'domain-preset', name: 'IR', screenType: 'main',
+      baseTemplateId: 'homepage-main', presetName: 'IR', domainType: 'ir',
+      purpose: 'IR(투자정보) 홈 (Homepage / Main 기반)',
+      desc: '재무 하이라이트·공시·자료 다운로드를 강조한 IR 홈 예시입니다.',
+      sections: ['Header', 'Hero', '재무 하이라이트', '공시', '자료실', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['공시 종류', '자료 항목'],
+      checkpointHints: ['공시 갱신 주기'],
+      inspectorFieldHints: ['자료 - 출처 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-esg', category: 'domain-preset', name: 'ESG', screenType: 'main',
+      baseTemplateId: 'homepage-main', presetName: 'ESG', domainType: 'esg',
+      purpose: 'ESG 정보 공개 홈 (Homepage / Main 기반)',
+      desc: '환경·사회·지배구조 영역별 활동·리포트를 강조한 ESG 홈 예시입니다.',
+      sections: ['Header', 'Hero', 'E (환경)', 'S (사회)', 'G (지배구조)', '리포트 다운로드', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['ESG 영역별 카피'],
+      checkpointHints: ['리포트 PDF 링크 일관성'],
+      inspectorFieldHints: ['리포트 - 파일 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-customer-support', category: 'domain-preset', name: 'Customer Support', screenType: 'list',
+      baseTemplateId: 'faq-accordion', presetName: 'Customer Support', domainType: 'cs',
+      purpose: '고객지원 페이지 (FAQ / Accordion 기반)',
+      desc: '문의 안내·자주 묻는 질문·1:1 문의 진입을 결합한 고객지원 구성입니다.',
+      sections: ['카테고리 탭', '검색', 'FAQ 아코디언', '1:1 문의 CTA', '운영 시간 안내'],
+      structure: { useSearch: true, useTable: false, useStatusChip: false, useRowAction: false, useEmpty: true },
+      userInputs: ['문의 채널'],
+      checkpointHints: ['응대 시간 표기'],
+      inspectorFieldHints: ['FAQ - 출처 (향후)'],
+      decisionStatus: 'experimental' },
+    { id: 'preset-content-banner-mgmt', category: 'domain-preset', name: 'Content / Banner Management', screenType: 'list',
+      baseTemplateId: 'list-search', presetName: 'Content / Banner Management', domainType: 'cms',
+      purpose: '콘텐츠·배너 관리 Admin (List / Search 기반)',
+      desc: '노출 기간·상태·순서를 관리하는 콘텐츠/배너 관리자 예시입니다.',
+      sections: ['검색 영역', '결과 테이블 (제목·노출 기간·순서)', '노출 상태 chip', '수정/삭제 액션'],
+      structure: TPL_STRUCT_LIST,
+      userInputs: ['콘텐츠 유형', '노출 기간'],
+      checkpointHints: ['겹치는 노출 기간 처리'],
+      inspectorFieldHints: ['콘텐츠 - 노출 규칙 (향후)'],
+      decisionStatus: 'experimental' },
+
+    /* ── D. Custom / Blank ── */
+    { id: 'blank-page', category: 'custom-blank', name: 'Blank Page', screenType: 'form',
+      purpose: '아무 구조도 없이 직접 설계',
+      desc: '빈 캔버스에서 처음부터 자유롭게 설계합니다.',
+      sections: ['(직접 구성)'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['직접 구성'],
+      checkpointHints: ['기본 구조 누락 확인'],
+      inspectorFieldHints: [],
+      decisionStatus: 'draft' },
+    { id: 'section-builder-starter', category: 'custom-blank', name: 'Section Builder Starter', screenType: 'main',
+      purpose: '섹션 단위로 직접 조립하는 시작점',
+      desc: '최소 Header·Footer만 포함한 섹션 빌더용 시작 템플릿입니다.',
+      sections: ['Header', '(섹션 추가)', 'Footer'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['추가 섹션 구성'],
+      checkpointHints: ['섹션 간 시각 위계'],
+      inspectorFieldHints: [],
+      decisionStatus: 'draft' },
+    { id: 'admin-blank', category: 'custom-blank', name: 'Admin Blank', screenType: 'list',
+      purpose: 'Admin 기본 토글만 제공하는 빈 화면',
+      desc: '검색·테이블·행 액션 토글을 직접 켜며 구성합니다.',
+      sections: ['(직접 구성)'],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['검색/테이블 토글'],
+      checkpointHints: ['권한 노출 규칙'],
+      inspectorFieldHints: [],
+      decisionStatus: 'draft' },
+    { id: 'website-blank', category: 'custom-blank', name: 'Website Blank', screenType: 'main',
+      purpose: 'Header·Footer만 포함한 빈 웹페이지',
+      desc: '최소 글로벌 영역만 두고 본문을 직접 채웁니다.',
+      sections: ['Global Header', '(본문 직접 구성)', 'Footer'],
+      defaultSections: [
+        { libraryId: 'lib.website.global-header', label: 'Global Header' },
+        { libraryId: 'lib.layout.section-wrapper', label: '(본문 직접 구성)' },
+        { libraryId: 'lib.website.footer',         label: 'Footer' }
+      ],
+      structure: TPL_STRUCT_NONE,
+      userInputs: ['본문 섹션 구성'],
+      checkpointHints: ['글로벌 영역 일관성'],
+      inspectorFieldHints: [],
+      decisionStatus: 'draft' }
+  ];
+
+  function getTemplatesByCategory(catId) {
+    var out = [];
+    for (var i = 0; i < CREATE_PAGE_TEMPLATE_LIST.length; i++) {
+      if (CREATE_PAGE_TEMPLATE_LIST[i].category === catId) out.push(CREATE_PAGE_TEMPLATE_LIST[i]);
+    }
+    return out;
+  }
+
+  function getTemplateById(tid) {
+    for (var i = 0; i < CREATE_PAGE_TEMPLATE_LIST.length; i++) {
+      if (CREATE_PAGE_TEMPLATE_LIST[i].id === tid) return CREATE_PAGE_TEMPLATE_LIST[i];
+    }
+    return null;
+  }
+
+  function getEffectiveTemplate(tid) {
+    /* Domain preset → baseTemplateId 의 sections/structure는 본인 항목을 우선 사용,
+     * base는 metadata 추적용으로만 사용 */
+    return getTemplateById(tid) || CREATE_PAGE_TEMPLATE_LIST[0];
+  }
+
+  function defaultCategoryForContext() {
+    /* Front + branding/community/reservation → website-public 기본 추천,
+     * 그 외 → app-admin */
+    if (SSP.frontAdmin === 'front') {
+      var st = SSP.serviceType;
+      if (st === 'branding' || st === 'community' || st === 'reservation') return 'website-public';
+    }
+    return 'app-admin';
+  }
+
+  function ssTplStatusLabel(s) {
+    if (s === 'recommended') return '추천';
+    if (s === 'experimental') return '시범';
+    return '기본';
+  }
+
+  function buildMiniWireframe(tpl) {
+    /* 카테고리·screenType에 따라 간단한 CSS-only mini wireframe 출력 */
+    if (!tpl) return '';
+    var rows = [];
+    var cat = tpl.category;
+    if (cat === 'website-public' || cat === 'domain-preset') {
+      rows = [
+        { cls: 'mw-header',  lbl: 'Header' },
+        { cls: 'mw-hero',    lbl: 'Hero' },
+        { cls: 'mw-quick',   lbl: 'Quick Link' },
+        { cls: 'mw-tab',     lbl: 'Tab / Accordion' },
+        { cls: 'mw-grid22',  lbl: '2x2 Card Grid' },
+        { cls: 'mw-row14',   lbl: '1x4 Image + Text' },
+        { cls: 'mw-news',    lbl: 'News / Event' },
+        { cls: 'mw-footer',  lbl: 'Footer' }
+      ];
+    } else if (cat === 'custom-blank') {
+      rows = [
+        { cls: 'mw-header',  lbl: 'Header (선택)' },
+        { cls: 'mw-blank',   lbl: '(직접 구성)' },
+        { cls: 'mw-footer',  lbl: 'Footer (선택)' }
+      ];
+    } else {
+      /* app-admin */
+      rows = [
+        { cls: 'mw-summary', lbl: 'Top Summary' },
+        { cls: 'mw-toolbar', lbl: 'Toolbar' },
+        { cls: 'mw-table',   lbl: 'Table / List' },
+        { cls: 'mw-drawer',  lbl: 'Drawer / Detail' }
+      ];
+    }
+    return '<div class="ss-mini-wire" aria-hidden="true">' +
+      rows.map(function(r) {
+        return '<div class="ss-mini-wire-row ' + r.cls + '"><span>' + r.lbl + '</span></div>';
+      }).join('') +
+    '</div>';
+  }
+
+  function renderTemplateDetailPanel(tpl) {
+    if (!tpl) return '';
+    var base = tpl.baseTemplateId ? getTemplateById(tpl.baseTemplateId) : null;
+    var statusCls = 'is-' + (tpl.decisionStatus || 'draft');
+    return '<div class="ss-tpl-detail-inner">' +
+      '<div class="ss-tpl-detail-hd">' +
+        '<div class="ss-tpl-detail-name">' + tpl.name + '</div>' +
+        '<div class="ss-tpl-detail-tags">' +
+          '<span class="ss-tpl-chip ss-tpl-chip-kind">' + (tpl.screenType || 'page') + '</span>' +
+          '<span class="ss-tpl-chip ss-tpl-chip-status ' + statusCls + '">' + ssTplStatusLabel(tpl.decisionStatus) + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ss-tpl-detail-purpose">' + (tpl.purpose || tpl.desc || '') + '</div>' +
+      (base ? '<div class="ss-tpl-detail-base">기반 Core Template · ' + base.name + '</div>' : '') +
+      '<div class="ss-tpl-detail-sec">' +
+        '<div class="ss-tpl-detail-lbl">기본 섹션</div>' +
+        '<div class="ss-tpl-detail-list">' +
+          (tpl.sections || []).map(function(s) { return '<span class="ss-tpl-detail-li">' + s + '</span>'; }).join('') +
+        '</div>' +
+      '</div>' +
+      (tpl.userInputs && tpl.userInputs.length ? (
+        '<div class="ss-tpl-detail-sec">' +
+          '<div class="ss-tpl-detail-lbl">사용자가 입력할 항목</div>' +
+          '<div class="ss-tpl-detail-list">' +
+            tpl.userInputs.map(function(s) { return '<span class="ss-tpl-detail-li">' + s + '</span>'; }).join('') +
+          '</div>' +
+        '</div>'
+      ) : '') +
+      (tpl.checkpointHints && tpl.checkpointHints.length ? (
+        '<div class="ss-tpl-detail-sec">' +
+          '<div class="ss-tpl-detail-lbl">검토 전 확인할 항목</div>' +
+          '<div class="ss-tpl-detail-list">' +
+            tpl.checkpointHints.map(function(s) { return '<span class="ss-tpl-detail-li">' + s + '</span>'; }).join('') +
+          '</div>' +
+        '</div>'
+      ) : '') +
+      (tpl.inspectorFieldHints && tpl.inspectorFieldHints.length ? (
+        '<div class="ss-tpl-detail-sec ss-tpl-detail-future">' +
+          '<div class="ss-tpl-detail-lbl">향후 Inspector 입력 후보</div>' +
+          '<div class="ss-tpl-detail-list">' +
+            tpl.inspectorFieldHints.map(function(s) { return '<span class="ss-tpl-detail-li ss-tpl-detail-li-future">' + s + '</span>'; }).join('') +
+          '</div>' +
+          '<div class="ss-tpl-detail-fnote">실제 입력 화면은 이번 단계에서는 제공되지 않습니다.</div>' +
+        '</div>'
+      ) : '') +
+      '<div class="ss-tpl-detail-sec">' +
+        '<div class="ss-tpl-detail-lbl">Mini Wireframe</div>' +
+        buildMiniWireframe(tpl) +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderTemplateDetail() {
+    var box = document.getElementById('ss-tpl-detail');
+    if (!box) return;
+    var tpl = getTemplateById(SSP.pageTemplate);
+    box.innerHTML = tpl ? renderTemplateDetailPanel(tpl) : '';
+  }
 
   function renderCreateStep3() {
     var el = document.getElementById('ss-template-view');
     if (!el) return;
     SSP.createStep = 3;
-    if (!SSP.pageTemplate) SSP.pageTemplate = CREATE_PAGE_TEMPLATE_LIST[0].id;
+    if (!SSP.templateCategory) SSP.templateCategory = defaultCategoryForContext();
+    var catId = SSP.templateCategory;
+    var tplsInCat = getTemplatesByCategory(catId);
+
+    /* selected template: 카테고리 내 항목 유지, 아니면 첫 항목 */
+    var existing = SSP.pageTemplate ? getTemplateById(SSP.pageTemplate) : null;
+    if (!existing || existing.category !== catId) {
+      var featured = tplsInCat.filter(function(t) { return t.featured; })[0];
+      SSP.pageTemplate = (featured || tplsInCat[0] || CREATE_PAGE_TEMPLATE_LIST[0]).id;
+    }
     var sel = SSP.pageTemplate;
-    var svcObj = findServiceTypeById(SSP.serviceType || 'branding');
-    var svcName = svcObj.name;
-    var areaName = (SSP.frontAdmin === 'admin') ? 'Admin' : 'Front';
 
     el.innerHTML =
       '<div class="ss-create-inner">' +
         '<div class="ss-create-hdr">' +
           '<h2 class="ss-create-title">새 화면설계서 작성</h2>' +
-          '<p class="ss-create-sub">설계 대상 서비스 유형과 화면 영역을 선택한 뒤, Page Template을 기준으로 화면설계서를 시작합니다.</p>' +
+          '<p class="ss-create-sub">어떤 화면을 설계할까요? 템플릿은 시작점입니다. 실제 서비스에 맞는 문구, 링크, 조건, 데이터 출처는 이후 작성 단계에서 입력합니다.</p>' +
         '</div>' +
         '<div class="ss-create-steps" role="list" aria-label="작성 단계">' +
           '<div class="ss-step is-done" role="listitem">' +
@@ -1760,23 +3509,37 @@
             '<span class="ss-step-label">기본 정보</span>' +
           '</div>' +
         '</div>' +
-        '<div class="ss-create-sec-hdr">' +
-          '<h3 class="ss-create-sec-title">Page Template을 선택하세요</h3>' +
-          '<p class="ss-create-sec-desc">선택한 서비스 유형과 화면 영역에 맞는 Page Template을 선택합니다.</p>' +
-        '</div>' +
-        '<div class="ss-ptpl-grid">' +
-          CREATE_PAGE_TEMPLATE_LIST.map(function(t) {
-            return '<button type="button" class="ss-ptpl-card' + (t.id === sel ? ' is-active' : '') + '" data-ss-ptpl="' + t.id + '">' +
-              '<div class="ss-ptpl-name">' + t.name + '</div>' +
-              '<div class="ss-ptpl-tgt">' + svcName + ' · ' + areaName + '</div>' +
-              '<div class="ss-ptpl-meta">' +
-                '<span class="ss-ptpl-tag">섹션 ' + t.sections.length + '개</span>' +
-              '</div>' +
-              '<div class="ss-ptpl-desc">' + t.desc + '</div>' +
-              '<div class="ss-ptpl-sl">기본 포함 섹션</div>' +
-              t.sections.map(function(s) { return '<div class="ss-ptpl-si">' + s + '</div>'; }).join('') +
-            '</button>';
+        '<div class="ss-tpl-tabs" role="tablist" aria-label="템플릿 카테고리">' +
+          SS_TPL_CATEGORIES.map(function(c) {
+            return '<button type="button" role="tab" class="ss-tpl-tab' + (c.id === catId ? ' is-active' : '') + '" data-ss-tplcat="' + c.id + '" aria-selected="' + (c.id === catId) + '">' + c.name + '</button>';
           }).join('') +
+        '</div>' +
+        '<div class="ss-tpl-split">' +
+          '<div class="ss-tpl-cards" id="ss-tpl-cards">' +
+            tplsInCat.map(function(t) {
+              var base = t.baseTemplateId ? getTemplateById(t.baseTemplateId) : null;
+              var statusCls = 'is-' + (t.decisionStatus || 'draft');
+              return '<button type="button" class="ss-tpl-card ss-ptpl-card' + (t.id === sel ? ' is-active' : '') + (t.featured ? ' is-featured' : '') + '" data-ss-ptpl="' + t.id + '">' +
+                (t.featured ? '<span class="ss-tpl-featured">추천</span>' : '') +
+                '<div class="ss-tpl-card-hd">' +
+                  '<div class="ss-ptpl-name">' + t.name + '</div>' +
+                  '<span class="ss-tpl-chip ss-tpl-chip-kind">' + (t.screenType || 'page') + '</span>' +
+                '</div>' +
+                '<div class="ss-ptpl-desc">' + (t.purpose || t.desc) + '</div>' +
+                (base ? '<div class="ss-tpl-card-base">기반 · ' + base.name + '</div>' : '') +
+                '<div class="ss-tpl-card-secs">' +
+                  (t.sections || []).slice(0, 6).map(function(s) { return '<span class="ss-tpl-card-sec">' + s + '</span>'; }).join('') +
+                '</div>' +
+                '<div class="ss-tpl-card-foot">' +
+                  '<span class="ss-tpl-card-userin">입력 항목 ' + ((t.userInputs || []).length) + '개</span>' +
+                  '<span class="ss-tpl-chip ss-tpl-chip-status ' + statusCls + '">' + ssTplStatusLabel(t.decisionStatus) + '</span>' +
+                '</div>' +
+              '</button>';
+            }).join('') +
+          '</div>' +
+          '<aside class="ss-tpl-detail" id="ss-tpl-detail" aria-live="polite">' +
+            renderTemplateDetailPanel(getTemplateById(sel)) +
+          '</aside>' +
         '</div>' +
         '<div class="ss-create-foot">' +
           '<div class="ss-create-foot-l">' +
@@ -1792,6 +3555,7 @@
         '</div>' +
       '</div>';
   }
+
 
   /* ── Create View Step 4: Basic Info + Summary ── */
   function renderCreateStep4() {
@@ -2012,7 +3776,7 @@
       /* component-based wireframe (preset templates) */
       draft.components.forEach(function(cmp) {
         if (cmp.enabled !== false) {
-          items.push({ n: n++, name: cmp.name, type: cmp.type, value: cmp.description || '', props: cmp.props || {} });
+          items.push({ n: n++, name: cmp.name, type: cmp.type, value: cmp.description || '', props: cmp.props || {}, _cmpId: cmp.id, libraryId: cmp.libraryId || null, layoutVariant: cmp.layoutVariant || null });
         }
       });
     } else {
@@ -2056,9 +3820,139 @@
     renderWireframePreview(SSP.previewModel);
   }
 
+  /* ── Wireframe renderer helpers (library-id based shapes) ── */
+  function parseVariantGrid(variant) {
+    if (!variant) return null;
+    var m = /^(\d+)x(\d+)$/.exec(variant);
+    return m ? { rows: parseInt(m[1], 10), cols: parseInt(m[2], 10) } : null;
+  }
+
+  function renderWireframeByLibraryId(item, marker) {
+    var lid = item.libraryId;
+    var lv = item.layoutVariant || null;
+    var g = parseVariantGrid(lv);
+    var desc = item.value ? '<div class="ss-wf-cmp-desc">' + item.value + '</div>' : '';
+    var attrs = ' data-library-id="' + lid + '"' + (lv ? ' data-layout-variant="' + lv + '"' : '');
+    var cells, i;
+
+    if (lid === 'lib.website.global-header' || lid === 'lib.navigation.gnb') {
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--global-header"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-gh-bar"><span class="ss-wf-gh-logo"></span>' +
+        '<span class="ss-wf-gh-nav"><span></span><span></span><span></span><span></span><span></span></span>' +
+        '<span class="ss-wf-gh-utils"><span></span><span></span></span></div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.hero-visual') {
+      var dots = (lv === 'rolling')
+        ? '<div class="ss-wf-hero-dots"><span class="ss-wf-dot ss-wf-dot--on"></span><span class="ss-wf-dot"></span><span class="ss-wf-dot"></span></div>'
+        : '';
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--hero"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-hero-area"><div class="ss-wf-hero-copy">' +
+        '<div class="ss-wf-hero-ln ss-wf-hero-ln--h"></div><div class="ss-wf-hero-ln"></div><div class="ss-wf-hero-cta-ph"></div>' +
+        '</div></div>' + dots + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.banner-group') {
+      var bCols = g ? g.cols : 3;
+      cells = '';
+      for (i = 0; i < bCols; i++) cells += '<div class="ss-wf-bn-cell"></div>';
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--banner-group"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-bn-grid" style="grid-template-columns:repeat(' + bCols + ',1fr)">' +
+        cells + '</div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.quick-link-cta' || lid === 'lib.navigation.quick-link-group') {
+      var qlG = g || { rows: 1, cols: 4 };
+      var qlTotal = qlG.rows * qlG.cols;
+      cells = '';
+      for (i = 0; i < Math.min(qlTotal, 8); i++) {
+        cells += '<div class="ss-wf-ql-item"><div class="ss-wf-ql-icon"></div><div class="ss-wf-ql-lbl"></div></div>';
+      }
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--quick-link"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-ql-grid" style="grid-template-columns:repeat(' + qlG.cols + ',1fr)">' +
+        cells + '</div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.disclosure-section') {
+      var discBody;
+      if (lv === 'tab') {
+        discBody = '<div class="ss-wf-disc-tabs"><span class="ss-wf-disc-tab ss-wf-disc-tab--on"></span><span class="ss-wf-disc-tab"></span><span class="ss-wf-disc-tab"></span></div><div class="ss-wf-disc-pane"></div>';
+      } else {
+        discBody = '<div class="ss-wf-disc-acc"><div class="ss-wf-disc-row"></div><div class="ss-wf-disc-row"></div><div class="ss-wf-disc-row"></div></div>';
+      }
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--disclosure"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body">' + discBody + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.card-grid') {
+      var cgCols = (item.props && item.props.columns) ? item.props.columns : (g ? g.cols : 2);
+      var cgRows = (item.props && item.props.rows) ? item.props.rows : (g ? g.rows : 2);
+      cells = '';
+      for (i = 0; i < Math.min(cgCols * cgRows, 12); i++) {
+        cells += '<div class="ss-wf-cg-card"><div class="ss-wf-cg-img"></div><div class="ss-wf-cg-info"></div></div>';
+      }
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--card-grid"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-cg-grid" style="grid-template-columns:repeat(' + cgCols + ',1fr)">' +
+        cells + '</div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.image-text-section') {
+      var itG = g || { rows: 1, cols: 4 };
+      cells = '';
+      for (i = 0; i < Math.min(itG.rows * itG.cols, 8); i++) {
+        cells += '<div class="ss-wf-it-item"><div class="ss-wf-it-img"></div><div class="ss-wf-it-txt">' +
+          '<div class="ss-wf-it-ln"></div><div class="ss-wf-it-ln ss-wf-it-ln--s"></div></div></div>';
+      }
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--img-text"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-it-grid" style="grid-template-columns:repeat(' + itG.cols + ',1fr)">' +
+        cells + '</div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.promotion-event-section') {
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--promo-event"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-promo-strip"><div class="ss-wf-promo-thumb"></div>' +
+        '<div class="ss-wf-promo-info"><div class="ss-wf-promo-ln ss-wf-promo-ln--h"></div><div class="ss-wf-promo-ln"></div></div>' +
+        '</div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.news-media-section') {
+      cells = '';
+      for (i = 0; i < 3; i++) {
+        cells += '<div class="ss-wf-news-row"><div class="ss-wf-news-thumb"></div>' +
+          '<div class="ss-wf-news-info"><div class="ss-wf-news-ln"></div><div class="ss-wf-news-ln ss-wf-news-ln--s"></div></div></div>';
+      }
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--news"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-news-list">' + cells + '</div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.family-site') {
+      cells = '';
+      for (i = 0; i < 5; i++) cells += '<div class="ss-wf-fam-item"></div>';
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--family"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-fam-row">' + cells + '</div>' + desc + '</div></div>';
+    }
+
+    if (lid === 'lib.website.footer' || lid === 'lib.navigation.footer-menu') {
+      return '<div class="ss-wf-block ss-wf-lib ss-wf-lib--footer"' + attrs + '>' + marker +
+        '<div class="ss-wf-lib-body"><div class="ss-wf-footer-bar">' +
+        '<div class="ss-wf-footer-row ss-wf-footer-row--logo"><span class="ss-wf-footer-logo-ph"></span></div>' +
+        '<div class="ss-wf-footer-row ss-wf-footer-row--links"><span></span><span></span><span></span><span></span></div>' +
+        '<div class="ss-wf-footer-row ss-wf-footer-row--copy"><span class="ss-wf-footer-copy-ph"></span></div>' +
+        '</div>' + desc + '</div></div>';
+    }
+
+    /* generic fallback for any other libraryId */
+    return '<div class="ss-wf-block ss-wf-lib"' + attrs + '>' + marker +
+      '<div class="ss-wf-lib-body"><div class="ss-wf-generic-inner">' +
+      '<span class="ss-wf-generic-name">' + (item.name || lid) + '</span>' +
+      (item.value ? '<span class="ss-wf-cmp-desc">' + item.value + '</span>' : '') +
+      '</div></div></div>';
+  }
+
   /* ── Wireframe renderer ── */
   function renderWireframeItem(item) {
     var marker = '<span class="ss-wf-marker">' + item.n + '</span>';
+    if (item.libraryId) return renderWireframeByLibraryId(item, marker);
     var conds, cols, acts;
     switch (item.type) {
       case 'title':
@@ -2295,6 +4189,7 @@
     }
   }
 
+
   function renderWireframePreview(previewModel) {
     var el = document.getElementById('ss-live-wireframe');
     if (!el) return;
@@ -2396,98 +4291,223 @@
   }
 
   /* ── Editor Workbench Helpers (P12/P13/P14) ── */
+  /* 기존 공통 Library 카테고리 — 삭제하지 않고 유지.
+   * 각 item 에 libraryId 를 연결하여 Full Library Catalog 와 매핑한다. */
   var WB_COMP_CATS = [
     {
-      id: 'layout', name: '레이아웃',
+      id: 'layout', name: '레이아웃 (기본)',
       items: [
-        { id: 'container',   name: '컨테이너',  blockName: '컨테이너 영역' },
-        { id: 'grid',        name: '그리드',     blockName: '그리드 레이아웃' },
-        { id: 'flex-row',    name: '플렉스 행',  blockName: '가로 정렬 영역' },
-        { id: 'stack',       name: '스택',       blockName: '세로 정렬 영역' },
-        { id: 'divider',     name: '디바이더',   blockName: '구분선' },
-        { id: 'scroll-area', name: '스크롤 영역', blockName: '스크롤 콘텐츠 영역' }
+        { id: 'container',   libraryId: 'lib.layout.container',   name: '컨테이너',  blockName: '컨테이너 영역' },
+        { id: 'grid',        libraryId: 'lib.layout.grid',        name: '그리드',     blockName: '그리드 레이아웃' },
+        { id: 'flex-row',    libraryId: 'lib.layout.flex-row',    name: '플렉스 행',  blockName: '가로 정렬 영역' },
+        { id: 'stack',       libraryId: 'lib.layout.stack',       name: '스택',       blockName: '세로 정렬 영역' },
+        { id: 'divider',     libraryId: 'lib.layout.divider',     name: '디바이더',   blockName: '구분선' },
+        { id: 'scroll-area', libraryId: 'lib.layout.scroll-area', name: '스크롤 영역', blockName: '스크롤 콘텐츠 영역' }
       ]
     },
     {
-      id: 'text', name: '텍스트',
+      id: 'text', name: '텍스트 (기본)',
       items: [
-        { id: 'title',     name: '제목',       blockName: '화면 제목' },
-        { id: 'body',      name: '본문',       blockName: '본문 텍스트' },
-        { id: 'label',     name: '라벨',       blockName: '필드 라벨' },
-        { id: 'help',      name: '도움말',     blockName: '도움말 문구' },
-        { id: 'link-text', name: '링크 텍스트', blockName: '텍스트 링크' }
+        { id: 'title',     libraryId: 'lib.text.title',  name: '제목',       blockName: '화면 제목' },
+        { id: 'body',      libraryId: 'lib.text.body',   name: '본문',       blockName: '본문 텍스트' },
+        { id: 'label',     libraryId: 'lib.text.label',  name: '라벨',       blockName: '필드 라벨' },
+        { id: 'help',      libraryId: 'lib.text.helper', name: '도움말',     blockName: '도움말 문구' },
+        { id: 'link-text', libraryId: 'lib.text.link',   name: '링크 텍스트', blockName: '텍스트 링크' }
       ]
     },
     {
-      id: 'content', name: '콘텐츠',
+      id: 'content', name: '콘텐츠 (기본)',
       items: [
-        { id: 'image',     name: '이미지',  blockName: '이미지 영역' },
-        { id: 'video',     name: '비디오',  blockName: '비디오 영역' },
-        { id: 'card',      name: '카드',    blockName: '카드 영역' },
-        { id: 'banner',    name: '배너',    blockName: '배너 영역' },
-        { id: 'icon',      name: '아이콘',  blockName: '아이콘 표시' },
-        { id: 'thumbnail', name: '썸네일', blockName: '썸네일 목록' }
+        { id: 'image',     libraryId: 'lib.media.image',        name: '이미지',  blockName: '이미지 영역' },
+        { id: 'video',     libraryId: 'lib.media.video',        name: '비디오',  blockName: '비디오 영역' },
+        { id: 'card',      libraryId: 'lib.data.card',          name: '카드',    blockName: '카드 영역' },
+        { id: 'banner',    libraryId: 'lib.media.banner-image', name: '배너',    blockName: '배너 영역' },
+        { id: 'icon',      libraryId: 'lib.media.icon',         name: '아이콘',  blockName: '아이콘 표시' },
+        { id: 'thumbnail', libraryId: 'lib.media.thumbnail',    name: '썸네일', blockName: '썸네일 목록' }
       ]
     },
     {
-      id: 'input', name: '입력',
+      id: 'input', name: '입력 (기본)',
       items: [
-        { id: 'text-input',   name: '텍스트 입력', blockName: '텍스트 입력 필드' },
-        { id: 'select',       name: '셀렉트',      blockName: '선택 입력' },
-        { id: 'checkbox',     name: '체크박스',    blockName: '체크박스 그룹' },
-        { id: 'radio',        name: '라디오',      blockName: '라디오 그룹' },
-        { id: 'toggle',       name: '토글',        blockName: '토글 스위치' },
-        { id: 'date',         name: '날짜 선택',   blockName: '날짜 선택 필드' },
-        { id: 'file-upload',  name: '파일 업로드', blockName: '파일 업로드 영역' }
+        { id: 'text-input',   libraryId: 'lib.input.text',       name: '텍스트 입력', blockName: '텍스트 입력 필드' },
+        { id: 'select',       libraryId: 'lib.input.select',     name: '셀렉트',      blockName: '선택 입력' },
+        { id: 'checkbox',     libraryId: 'lib.input.checkbox',   name: '체크박스',    blockName: '체크박스 그룹' },
+        { id: 'radio',        libraryId: 'lib.input.radio',      name: '라디오',      blockName: '라디오 그룹' },
+        { id: 'toggle',                                          name: '토글',        blockName: '토글 스위치' },
+        { id: 'date',         libraryId: 'lib.input.date',       name: '날짜 선택',   blockName: '날짜 선택 필드' },
+        { id: 'file-upload',  libraryId: 'lib.input.file-upload',name: '파일 업로드', blockName: '파일 업로드 영역' }
       ]
     },
     {
-      id: 'data', name: '데이터',
+      id: 'data', name: '데이터 (기본)',
       items: [
-        { id: 'table',      name: '데이터 테이블', blockName: '결과 테이블' },
-        { id: 'list',       name: '리스트',        blockName: '목록 리스트' },
-        { id: 'pagination', name: '페이지네이션',  blockName: '페이지네이션' },
-        { id: 'filter',     name: '필터',          blockName: '필터 영역' },
-        { id: 'search',     name: '검색',          blockName: '검색 조건' }
+        { id: 'table',      libraryId: 'lib.data.table',           name: '데이터 테이블', blockName: '결과 테이블' },
+        { id: 'list',       libraryId: 'lib.data.list',            name: '리스트',        blockName: '목록 리스트' },
+        { id: 'pagination', libraryId: 'lib.navigation.pagination',name: '페이지네이션',  blockName: '페이지네이션' },
+        { id: 'filter',                                            name: '필터',          blockName: '필터 영역' },
+        { id: 'search',     libraryId: 'lib.input.search',         name: '검색',          blockName: '검색 조건' }
       ]
     },
     {
-      id: 'state', name: '상태',
+      id: 'state', name: '상태 (기본)',
       items: [
-        { id: 'status-chip', name: '상태 chip', blockName: '상태 표시' },
-        { id: 'badge',       name: '배지',      blockName: '배지 표시' },
-        { id: 'progress',    name: '진행 상태', blockName: '진행 상태 표시' },
-        { id: 'alert',       name: '알림',      blockName: '알림 메시지' },
-        { id: 'empty',       name: '빈 상태',   blockName: '빈 결과 안내' }
+        { id: 'status-chip', libraryId: 'lib.data.status-badge', name: '상태 chip', blockName: '상태 표시' },
+        { id: 'badge',       libraryId: 'lib.data.status-badge', name: '배지',      blockName: '배지 표시' },
+        { id: 'progress',                                        name: '진행 상태', blockName: '진행 상태 표시' },
+        { id: 'alert',       libraryId: 'lib.feedback.alert',    name: '알림',      blockName: '알림 메시지' },
+        { id: 'empty',       libraryId: 'lib.admin.empty-state', name: '빈 상태',   blockName: '빈 결과 안내' }
       ]
     },
     {
       id: 'common', name: '공통 참조',
       items: [
-        { id: 'gnb',    name: 'GNB',    blockName: '공통 GNB' },
-        { id: 'footer', name: 'Footer', blockName: '공통 Footer' },
-        { id: 'modal',  name: 'Modal',  blockName: '확인 모달' },
-        { id: 'toast',  name: 'Toast',  blockName: '토스트 알림' }
+        { id: 'gnb',    libraryId: 'lib.navigation.gnb',  name: 'GNB',    blockName: '공통 GNB' },
+        { id: 'footer', libraryId: 'lib.website.footer',  name: 'Footer', blockName: '공통 Footer' },
+        { id: 'modal',  libraryId: 'lib.feedback.modal',  name: 'Modal',  blockName: '확인 모달' },
+        { id: 'toast',  libraryId: 'lib.feedback.toast',  name: 'Toast',  blockName: '토스트 알림' }
       ]
     }
   ];
 
   var _wfDragIdx = null;
 
+  /* PR #202 보정: 현재 화면에서 사용 중인 libraryId 추출 */
+  function collectUsedLibraryIds() {
+    var blocks = (SSP.editor && SSP.editor.wfBlocks) ? SSP.editor.wfBlocks : [];
+    var seen = {};
+    var out = [];
+    blocks.forEach(function(b) {
+      var lid = b && b.libraryId;
+      if (!lid || seen[lid]) return;
+      seen[lid] = true;
+      var item = getLibraryItem(lid);
+      if (item) out.push({ libraryId: lid, name: item.name, category: item.category, type: item.type });
+    });
+    return out;
+  }
+
+  function buildLibGroupItems(items) {
+    return items.map(function(item) {
+      var libId = item.libraryId || '';
+      var def = libId ? getLibraryDefinition(libId) : null;
+      var dataset =
+        ' data-comp-cat="' + (item._catId || item.category) + '"' +
+        ' data-comp-id="' + (item.id || libId.replace(/^lib\./, '').replace(/\./g, '-')) + '"' +
+        ' data-comp-name="' + (item.blockName || item.name || '') + '"' +
+        (libId ? ' data-lib-id="' + libId + '"' : '') +
+        (item.defaultVariant ? ' data-lib-variant="' + item.defaultVariant + '"' : '');
+      var hasVariants = !!(item.variants && item.variants.length);
+      var variantBadge = item.defaultVariant
+        ? '<span class="ss-lib-variant" title="기본 variant ' + item.defaultVariant + '">' + item.defaultVariant + '</span>'
+        : (hasVariants ? '<span class="ss-lib-variant ss-lib-variant--any" title="변형 지원">Variants</span>' : '');
+      var lvl = def && def.definitionLevel ? def.definitionLevel : null;
+      var lvlChip = lvl
+        ? '<span class="ss-lib-lvl ss-lib-lvl-' + lvl + '">' + definitionLevelLabel(lvl) + '</span>'
+        : '';
+      var desc = (def && def.description) ? def.description : '';
+      var descLine = desc
+        ? '<div class="ss-lib-item-desc">' + desc + '</div>'
+        : '';
+      return '<div class="comp-item ss-lib-item' + (item._isUsed ? ' is-used' : '') + (descLine ? ' has-desc' : '') + '"' + dataset + ' title="' + (desc || (item.blockName || item.name || '')) + '">' +
+        '<div class="ss-lib-item-row">' +
+          '<span class="ci-dot"></span>' +
+          '<span class="ci-name">' + (item.name || libId) + '</span>' +
+          lvlChip +
+          variantBadge +
+          (item._isUsed ? '<span class="ss-lib-badge">사용 중</span>' : '<span class="ci-add">+</span>') +
+        '</div>' +
+        descLine +
+      '</div>';
+    }).join('');
+  }
+
   function buildCompLib() {
     if (!SSP.editor.compLibOpenCats) {
       SSP.editor.compLibOpenCats = {};
-      WB_COMP_CATS.forEach(function(c) { SSP.editor.compLibOpenCats[c.id] = true; });
     }
-    return WB_COMP_CATS.map(function(cat) {
+    /* 기본 open 상태 결정 */
+    var ensureDefault = function(catId, def) {
+      if (SSP.editor.compLibOpenCats[catId] === undefined) SSP.editor.compLibOpenCats[catId] = def;
+    };
+
+    var html = '';
+
+    /* 1) 현재 화면에서 사용 중 — wfBlocks 의 libraryId 기반 */
+    var used = collectUsedLibraryIds();
+    ensureDefault('used', true);
+    if (used.length) {
+      var usedOpen = SSP.editor.compLibOpenCats['used'] !== false;
+      html += '<div class="comp-cat ss-lib-group ss-lib-used' + (usedOpen ? ' open' : '') + '" data-cat-id="used">' +
+        '<div class="cc-hdr">현재 화면에서 사용 중' +
+          '<span class="ss-lib-meta">' + used.length + '</span>' +
+          '<svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>' +
+        '</div>' +
+        '<div class="cc-items">' +
+          buildLibGroupItems(used.map(function(u) {
+            var item = getLibraryItem(u.libraryId) || {};
+            return Object.assign({}, item, { _catId: 'used', _isUsed: true });
+          })) +
+        '</div>' +
+      '</div>';
+    }
+
+    /* 2) Website Sections (Full Library) */
+    var webSecItems = getLibraryItemsByCategory('website-sections');
+    ensureDefault('website-sections', true);
+    var wsOpen = SSP.editor.compLibOpenCats['website-sections'] !== false;
+    html += '<div class="comp-cat ss-lib-group' + (wsOpen ? ' open' : '') + '" data-cat-id="website-sections">' +
+      '<div class="cc-hdr">Website Sections' +
+        '<span class="ss-lib-meta">' + webSecItems.length + '</span>' +
+        '<svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>' +
+      '</div>' +
+      '<div class="cc-items">' + buildLibGroupItems(webSecItems.map(function(it) { return Object.assign({}, it, { _catId: 'website-sections' }); })) + '</div>' +
+    '</div>';
+
+    /* 3) App / Admin Blocks (Full Library) */
+    var aabItems = getLibraryItemsByCategory('app-admin-blocks');
+    ensureDefault('app-admin-blocks', true);
+    var aabOpen = SSP.editor.compLibOpenCats['app-admin-blocks'] !== false;
+    html += '<div class="comp-cat ss-lib-group' + (aabOpen ? ' open' : '') + '" data-cat-id="app-admin-blocks">' +
+      '<div class="cc-hdr">App / Admin Blocks' +
+        '<span class="ss-lib-meta">' + aabItems.length + '</span>' +
+        '<svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>' +
+      '</div>' +
+      '<div class="cc-items">' + buildLibGroupItems(aabItems.map(function(it) { return Object.assign({}, it, { _catId: 'app-admin-blocks' }); })) + '</div>' +
+    '</div>';
+
+    /* 4) Navigation / Feedback / Custom — Full Library 추가 카테고리 */
+    ['navigation', 'feedback', 'custom'].forEach(function(catId) {
+      var items = getLibraryItemsByCategory(catId);
+      if (!items.length) return;
+      var labelMap = { 'navigation': 'Navigation', 'feedback': 'Feedback / State', 'custom': 'Custom' };
+      ensureDefault(catId, catId === 'navigation');
+      var open = SSP.editor.compLibOpenCats[catId] !== false;
+      html += '<div class="comp-cat ss-lib-group' + (open ? ' open' : '') + '" data-cat-id="' + catId + '">' +
+        '<div class="cc-hdr">' + labelMap[catId] +
+          '<span class="ss-lib-meta">' + items.length + '</span>' +
+          '<svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>' +
+        '</div>' +
+        '<div class="cc-items">' + buildLibGroupItems(items.map(function(it) { return Object.assign({}, it, { _catId: catId }); })) + '</div>' +
+      '</div>';
+    });
+
+    /* 5) 기존 공통 Library (legacy) — 삭제하지 않고 유지 */
+    WB_COMP_CATS.forEach(function(cat) {
+      ensureDefault(cat.id, cat.id === 'common');
       var isOpen = SSP.editor.compLibOpenCats[cat.id] !== false;
-      return '<div class="comp-cat' + (isOpen ? ' open' : '') + '" data-cat-id="' + cat.id + '">' +
+      html += '<div class="comp-cat ss-lib-group' + (isOpen ? ' open' : '') + '" data-cat-id="' + cat.id + '">' +
         '<div class="cc-hdr">' + cat.name +
+          '<span class="ss-lib-meta">' + cat.items.length + '</span>' +
           '<svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>' +
         '</div>' +
         '<div class="cc-items">' +
           cat.items.map(function(item) {
-            return '<div class="comp-item" data-comp-cat="' + cat.id + '" data-comp-id="' + item.id + '" data-comp-name="' + item.blockName + '" title="클릭하여 블록 추가">' +
+            return '<div class="comp-item ss-lib-item"' +
+              ' data-comp-cat="' + cat.id + '"' +
+              ' data-comp-id="' + item.id + '"' +
+              ' data-comp-name="' + item.blockName + '"' +
+              (item.libraryId ? ' data-lib-id="' + item.libraryId + '"' : '') +
+              ' title="클릭하여 블록 추가">' +
               '<span class="ci-dot"></span>' +
               '<span class="ci-name">' + item.name + '</span>' +
               '<span class="ci-add">+</span>' +
@@ -2495,7 +4515,9 @@
           }).join('') +
         '</div>' +
       '</div>';
-    }).join('');
+    });
+
+    return html;
   }
 
   function buildWfBlocks(blocks, selIdx) {
@@ -2515,7 +4537,7 @@
         '</div>' +
         '<div class="wf-body">' +
           '<div class="wf-bname">' + (b.name || '블록명') + '</div>' +
-          '<div class="wf-bdesc">' + (b.desc || '화면 구성 요소') + '</div>' +
+          '<div class="wf-bdesc">' + ((b.libraryId ? getLibraryDescription(b.libraryId) : '') || b.desc || '') + '</div>' +
         '</div>' +
         '<div class="wf-acts">' +
           '<button type="button" class="wf-act" data-wf-act="toggle" data-wf-idx="' + i + '" title="표시/숨기기">' + svgIc(eyeIc, 13) + '</button>' +
@@ -2555,14 +4577,70 @@
     '</div>';
   }
 
+  function buildLibDefPanel(block) {
+    var def = getLibraryDefinitionForBlock(block);
+    if (!def) {
+      return '<div class="ss-libdef-empty">' +
+        '<div class="ss-libdef-empty-msg">이 블록은 Library 정의에 연결되지 않았습니다.</div>' +
+        '<div class="ss-libdef-empty-sub">템플릿이나 라이브러리에서 추가된 항목이면 자동으로 정의가 연결됩니다.</div>' +
+      '</div>';
+    }
+    var libItem = getLibraryItem(block.libraryId) || {};
+    var lvl = def.definitionLevel || 'component';
+    var variantLine = '';
+    if (def.variantDefinitions && def.variantDefinitions.length) {
+      variantLine = '<div class="ss-libdef-sec"><div class="ss-libdef-lbl">지원 variant</div>' +
+        '<div class="ss-libdef-vars">' +
+        def.variantDefinitions.map(function(v) {
+          var isActive = v.id === block.layoutVariant;
+          return '<div class="ss-libdef-var' + (isActive ? ' is-active' : '') + '">' +
+            '<span class="ss-libdef-var-id">' + v.label + '</span>' +
+            (v.description ? '<span class="ss-libdef-var-desc">' + v.description + '</span>' : '') +
+          '</div>';
+        }).join('') +
+        '</div></div>';
+    }
+    var blockOf = function(label, items) {
+      if (!items || !items.length) return '';
+      return '<div class="ss-libdef-sec"><div class="ss-libdef-lbl">' + label + '</div>' +
+        '<div class="ss-libdef-list">' +
+          items.map(function(s) { return '<span class="ss-libdef-li">' + s + '</span>'; }).join('') +
+        '</div></div>';
+    };
+    return '<div class="ss-libdef">' +
+      '<div class="ss-libdef-hd">' +
+        '<div class="ss-libdef-name">' + (libItem.name || block.name || '') + '</div>' +
+        '<span class="ss-libdef-lvl ss-libdef-lvl-' + lvl + '">' + definitionLevelLabel(lvl) + '</span>' +
+      '</div>' +
+      (def.description ? '<div class="ss-libdef-desc">' + def.description + '</div>' : '') +
+      (def.purpose ? '<div class="ss-libdef-purpose">' + def.purpose + '</div>' : '') +
+      blockOf('주로 쓰는 화면', def.useCases) +
+      blockOf('포함 요소', def.slots) +
+      blockOf('주요 입력 항목', def.editableFields) +
+      blockOf('사용 예시', def.examples) +
+      variantLine +
+      (def.previewBehavior ? '<div class="ss-libdef-sec"><div class="ss-libdef-lbl">Preview 표시 방식</div>' +
+        '<div class="ss-libdef-pv">' + def.previewBehavior + '</div></div>' : '') +
+      blockOf('사용하지 않는 게 좋은 상황', def.notRecommendedFor) +
+      '<div class="ss-libdef-fnote">읽기 전용 정의 — 실제 입력 UI 는 후속 작업에서 제공됩니다.</div>' +
+    '</div>';
+  }
+
   function buildInspContent(block, idx) {
     if (!block) return buildInspEmpty();
-    var tab = SSP.editor.inspectorTab || 'props';
+    var hasLibDef = !!(block.libraryId && getLibraryDefinition(block.libraryId));
+    if (!SSP.editor.inspectorTab) {
+      SSP.editor.inspectorTab = hasLibDef ? 'def' : 'props';
+    }
+    var tab = SSP.editor.inspectorTab;
+    if (tab === 'def' && !hasLibDef) tab = 'props';
     var nm = (block.name || '').replace(/"/g, '&quot;');
     var dc = (block.desc || '').replace(/"/g, '&quot;');
 
     var panelHtml = '';
-    if (tab === 'props') {
+    if (tab === 'def') {
+      panelHtml = buildLibDefPanel(block);
+    } else if (tab === 'props') {
       panelHtml =
         '<div class="if"><div class="iflbl">컴포넌트명</div>' +
           '<input class="ifinp" data-insp-field="name" data-wf-idx="' + idx + '" value="' + nm + '"></div>' +
@@ -2632,6 +4710,7 @@
 
     return '<div class="insp-content">' +
       '<div class="insp-tabs">' +
+        (hasLibDef ? '<button type="button" class="insp-tab' + (tab === 'def' ? ' on' : '') + '" data-insp-tab="def">정의</button>' : '') +
         '<button type="button" class="insp-tab' + (tab === 'props'  ? ' on' : '') + '" data-insp-tab="props">속성</button>' +
         '<button type="button" class="insp-tab' + (tab === 'vis'    ? ' on' : '') + '" data-insp-tab="vis">표시/권한</button>' +
         '<button type="button" class="insp-tab' + (tab === 'action' ? ' on' : '') + '" data-insp-tab="action">액션/연결</button>' +
@@ -2656,12 +4735,28 @@
     if (!ptpl) ptpl = CREATE_PAGE_TEMPLATE_LIST[0];
 
     if (!SSP.editor.wfBlocks || !SSP.editor.wfBlocks.length) {
-      SSP.editor.wfBlocks = ptpl.sections.map(function(s) {
-        return { name: s, desc: '화면 구성 요소', visible: true, imp: 'm' };
-      });
+      /* PR #202 보정: 템플릿 defaultSections 가 있으면 libraryId 바인딩으로 생성 */
+      if (ptpl.defaultSections && ptpl.defaultSections.length) {
+        SSP.editor.wfBlocks = ptpl.defaultSections.map(function(s, si) {
+          var libItem = getLibraryItem(s.libraryId);
+          var block = libItem
+            ? buildBlockFromLibraryItem(libItem, {
+                id: 'block-tpl-' + si,
+                label: s.label || libItem.name,
+                layoutVariant: s.layoutVariant || libItem.defaultVariant || null,
+                props: s.props || {}
+              })
+            : { id: 'block-tpl-' + si, name: s.label || s.libraryId || '섹션', label: s.label || '', libraryId: s.libraryId || null, layoutVariant: s.layoutVariant || null, props: s.props || {}, desc: '화면 구성 요소', visible: true, imp: 'm' };
+          return block;
+        });
+      } else {
+        SSP.editor.wfBlocks = ptpl.sections.map(function(s) {
+          return { name: s, label: s, libraryId: null, layoutVariant: null, props: {}, desc: '화면 구성 요소', visible: true, imp: 'm' };
+        });
+      }
     }
     if (SSP.editor.selBlock === undefined) SSP.editor.selBlock = null;
-    if (!SSP.editor.inspectorTab) SSP.editor.inspectorTab = 'props';
+    /* inspectorTab default 는 buildInspContent 가 block.libraryId 기준으로 결정 */
 
     var groupLabel = (d.templateGroup === 'admin' || SSP.frontAdmin === 'admin') ? 'Admin' : 'Front';
     var svcName = d.serviceTypeName || '';
@@ -2800,6 +4895,135 @@
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  /* ── Preview mock-frame shape helper ── */
+  function buildPmfBlockShape(b) {
+    var lid = b.libraryId || null;
+    var lv  = b.layoutVariant || null;
+    var g   = parseVariantGrid(lv);
+    var nm  = (b.name || b.label || '');
+    var cells, i;
+
+    /* name-based fallback when libraryId is absent */
+    if (!lid) {
+      if (/hero/i.test(nm))                                       lid = 'lib.website.hero-visual';
+      else if (/card.?grid|카드.?그리드/i.test(nm))               lid = 'lib.website.card-grid';
+      else if (/image.{0,8}text|이미지.{0,5}텍스트/i.test(nm))   lid = 'lib.website.image-text-section';
+      else if (/quick.?link|빠른.?링크/i.test(nm))               lid = 'lib.website.quick-link-cta';
+      else if (/footer|푸터/i.test(nm))                           lid = 'lib.website.footer';
+      else if (/banner|배너/i.test(nm))                           lid = 'lib.website.banner-group';
+      else if (/accordion|faq|자주|disclosure/i.test(nm))         lid = 'lib.website.disclosure-section';
+      else if (/global.?header|header|헤더/i.test(nm))            lid = 'lib.website.global-header';
+      else if (/news|뉴스|media|미디어/i.test(nm))                 lid = 'lib.website.news-media-section';
+      else if (/promo|event|기획전|프로모/i.test(nm))              lid = 'lib.website.promotion-event-section';
+      else if (/family|관련.?사이트/i.test(nm))                   lid = 'lib.website.family-site';
+    }
+    if (!lid) return null;
+
+    var attrs = ' data-pmf-lid="' + lid + '"' + (lv ? ' data-pmf-lv="' + lv + '"' : '');
+
+    if (lid === 'lib.website.global-header' || lid === 'lib.navigation.gnb') {
+      return '<div class="pmf-shape pmf-shape--header"' + attrs + '>' +
+        '<div class="pmf-s-logo"></div>' +
+        '<div class="pmf-s-nav"><span></span><span></span><span></span><span></span></div>' +
+        '<div class="pmf-s-utils"><span></span><span></span></div>' +
+        '</div>';
+    }
+
+    if (lid === 'lib.website.hero-visual') {
+      var hdots = (lv === 'rolling')
+        ? '<div class="pmf-s-dots"><span class="pmf-dot pmf-dot--on"></span><span class="pmf-dot"></span><span class="pmf-dot"></span></div>'
+        : '';
+      return '<div class="pmf-shape pmf-shape--hero"' + attrs + '>' +
+        '<div class="pmf-s-hero-inner">' +
+          '<div class="pmf-s-ln pmf-s-ln--h"></div><div class="pmf-s-ln"></div><div class="pmf-s-cta-ph"></div>' +
+        '</div>' +
+        '</div>' + hdots;
+    }
+
+    if (lid === 'lib.website.banner-group') {
+      var bCols = g ? g.cols : 3;
+      cells = '';
+      for (i = 0; i < bCols; i++) cells += '<div class="pmf-s-bn-cell"></div>';
+      return '<div class="pmf-shape pmf-shape--banner"' + attrs +
+        ' style="grid-template-columns:repeat(' + bCols + ',1fr)">' + cells + '</div>';
+    }
+
+    if (lid === 'lib.website.quick-link-cta' || lid === 'lib.navigation.quick-link-group') {
+      var qlG = g || { rows: 1, cols: 4 };
+      cells = '';
+      for (i = 0; i < Math.min(qlG.rows * qlG.cols, 8); i++) {
+        cells += '<div class="pmf-s-ql-item"><div class="pmf-s-ql-ic"></div><div class="pmf-s-ql-lb"></div></div>';
+      }
+      return '<div class="pmf-shape pmf-shape--quick-link"' + attrs +
+        ' style="grid-template-columns:repeat(' + qlG.cols + ',1fr)">' + cells + '</div>';
+    }
+
+    if (lid === 'lib.website.disclosure-section') {
+      if (lv === 'tab') {
+        return '<div class="pmf-shape pmf-shape--disclosure"' + attrs + '>' +
+          '<div class="pmf-s-tab-bar"><span class="pmf-s-tab pmf-s-tab--on"></span><span class="pmf-s-tab"></span><span class="pmf-s-tab"></span></div>' +
+          '<div class="pmf-s-tab-body"></div>' +
+          '</div>';
+      }
+      return '<div class="pmf-shape pmf-shape--disclosure"' + attrs + '>' +
+        '<div class="pmf-s-acc-row"></div><div class="pmf-s-acc-row"></div><div class="pmf-s-acc-row"></div>' +
+        '</div>';
+    }
+
+    if (lid === 'lib.website.card-grid') {
+      var cgCols = (b.props && b.props.columns) ? b.props.columns : (g ? g.cols : 2);
+      var cgRows = (b.props && b.props.rows)    ? b.props.rows    : (g ? g.rows : 2);
+      cells = '';
+      for (i = 0; i < Math.min(cgCols * cgRows, 12); i++) {
+        cells += '<div class="pmf-s-card"><div class="pmf-s-card-img"></div><div class="pmf-s-card-ln"></div></div>';
+      }
+      return '<div class="pmf-shape pmf-shape--card-grid"' + attrs +
+        ' style="grid-template-columns:repeat(' + cgCols + ',1fr)">' + cells + '</div>';
+    }
+
+    if (lid === 'lib.website.image-text-section') {
+      var itG = g || { rows: 1, cols: 4 };
+      cells = '';
+      for (i = 0; i < Math.min(itG.rows * itG.cols, 8); i++) {
+        cells += '<div class="pmf-s-it-item"><div class="pmf-s-it-img"></div><div class="pmf-s-it-ln"></div><div class="pmf-s-it-ln pmf-s-it-ln--s"></div></div>';
+      }
+      return '<div class="pmf-shape pmf-shape--img-text"' + attrs +
+        ' style="grid-template-columns:repeat(' + itG.cols + ',1fr)">' + cells + '</div>';
+    }
+
+    if (lid === 'lib.website.promotion-event-section') {
+      return '<div class="pmf-shape pmf-shape--promo"' + attrs + '>' +
+        '<div class="pmf-s-promo-img"></div>' +
+        '<div class="pmf-s-promo-info"><div class="pmf-s-ln pmf-s-ln--h"></div><div class="pmf-s-ln"></div></div>' +
+        '</div>';
+    }
+
+    if (lid === 'lib.website.news-media-section') {
+      cells = '';
+      for (i = 0; i < 3; i++) {
+        cells += '<div class="pmf-s-news-row"><div class="pmf-s-news-th"></div>' +
+          '<div class="pmf-s-news-info"><div class="pmf-s-ln"></div><div class="pmf-s-ln pmf-s-ln--s"></div></div></div>';
+      }
+      return '<div class="pmf-shape pmf-shape--news"' + attrs + '>' + cells + '</div>';
+    }
+
+    if (lid === 'lib.website.family-site') {
+      cells = '';
+      for (i = 0; i < 5; i++) cells += '<div class="pmf-s-fam-item"></div>';
+      return '<div class="pmf-shape pmf-shape--family"' + attrs + '>' + cells + '</div>';
+    }
+
+    if (lid === 'lib.website.footer' || lid === 'lib.navigation.footer-menu') {
+      return '<div class="pmf-shape pmf-shape--footer"' + attrs + '>' +
+        '<div class="pmf-s-footer-logo"></div>' +
+        '<div class="pmf-s-footer-links"><span></span><span></span><span></span></div>' +
+        '<div class="pmf-s-footer-copy"></div>' +
+        '</div>';
+    }
+
+    return null;
+  }
+
   function renderPreviewView() {
     var d = SSP.draft;
     if (!d) return;
@@ -2813,6 +5037,14 @@
 
     var mockBodyHtml = visBlocks.map(function(b, i) {
       var num = i < 9 ? '0' + (i + 1) : '' + (i + 1);
+      var shape = buildPmfBlockShape(b);
+      if (shape) {
+        return '<div class="pmf-blk pmf-blk--shaped" data-pv-idx="' + i + '">' +
+          '<div class="pmf-badge">' + num + '</div>' +
+          '<div class="pmf-blk-name">' + (escHtml(b.name) || '블록') + '</div>' +
+          shape +
+        '</div>';
+      }
       var hasDescFilled = b.desc && b.desc !== '화면 구성 요소';
       var descSnip = hasDescFilled
         ? '<div class="pmf-blk-desc">' + escHtml(b.desc.substring(0, 50)) + (b.desc.length > 50 ? '…' : '') + '</div>'
@@ -2994,12 +5226,24 @@
         return;
       }
 
+      /* Template Category tab (create view step 3) */
+      var tplCatBtn = e.target.closest('[data-ss-tplcat]');
+      if (tplCatBtn && SSP.view.mode === 'template') {
+        var nextCat = tplCatBtn.getAttribute('data-ss-tplcat');
+        if (nextCat !== SSP.templateCategory) {
+          SSP.templateCategory = nextCat;
+          renderCreateStep3();
+        }
+        return;
+      }
+
       /* Page Template card selection (create view step 3) */
       var ptplCard = e.target.closest('[data-ss-ptpl]');
       if (ptplCard && SSP.view.mode === 'template') {
         SSP.pageTemplate = ptplCard.getAttribute('data-ss-ptpl');
         document.querySelectorAll('[data-ss-ptpl]').forEach(function(c) { c.classList.remove('is-active'); });
         ptplCard.classList.add('is-active');
+        renderTemplateDetail();
         return;
       }
 
@@ -3008,26 +5252,46 @@
       if (compItem && SSP.view.mode === 'editor') {
         var clBodyBefore = document.querySelector('.cl-body');
         var clScrollTop = clBodyBefore ? clBodyBefore.scrollTop : 0;
-        var newBlock = {
-          id: 'block-' + Date.now(),
-          type: compItem.getAttribute('data-comp-id'),
-          category: compItem.getAttribute('data-comp-cat'),
-          name: compItem.getAttribute('data-comp-name') || compItem.getAttribute('data-comp-id'),
-          desc: '화면 구성 요소',
-          visible: true,
-          imp: 'm',
-          display: { condition: '항상 표시', roles: ['전체 사용자'], editableBy: ['작성자', 'PM'] },
-          action: { primary: '미정', link: '미연결', event: '클릭' },
-          data: { source: '미정', required: false, validation: '미입력', emptyState: '표시 필요', errorState: '표시 필요' },
-          status: 'draft'
-        };
-        SSP.editor.wfBlocks.push(newBlock);
-        SSP.editor.selBlock = SSP.editor.wfBlocks.length - 1;
-        SSP.editor.inspectorTab = 'props';
+        var clickLibId = compItem.getAttribute('data-lib-id');
+        var clickVariant = compItem.getAttribute('data-lib-variant');
+        var libItemForClick = clickLibId ? getLibraryItem(clickLibId) : null;
+        var newBlock;
+        if (libItemForClick) {
+          newBlock = buildBlockFromLibraryItem(libItemForClick, {
+            label: compItem.getAttribute('data-comp-name') || libItemForClick.name,
+            layoutVariant: clickVariant || libItemForClick.defaultVariant || null
+          });
+        } else {
+          newBlock = {
+            id: 'block-' + Date.now(),
+            type: compItem.getAttribute('data-comp-id'),
+            category: compItem.getAttribute('data-comp-cat'),
+            name: compItem.getAttribute('data-comp-name') || compItem.getAttribute('data-comp-id'),
+            label: compItem.getAttribute('data-comp-name') || compItem.getAttribute('data-comp-id'),
+            libraryId: null,
+            layoutVariant: null,
+            props: {},
+            desc: '화면 구성 요소',
+            visible: true,
+            imp: 'm',
+            display: { condition: '항상 표시', roles: ['전체 사용자'], editableBy: ['작성자', 'PM'] },
+            action: { primary: '미정', link: '미연결', event: '클릭' },
+            data: { source: '미정', required: false, validation: '미입력', emptyState: '표시 필요', errorState: '표시 필요' },
+            status: 'draft'
+          };
+        }
+        var insertIdx = (SSP.editor.selBlock !== null && SSP.editor.selBlock >= 0)
+          ? SSP.editor.selBlock + 1
+          : SSP.editor.wfBlocks.length;
+        SSP.editor.wfBlocks.splice(insertIdx, 0, newBlock);
+        SSP.editor.selBlock = insertIdx;
+        SSP.editor.inspectorTab = newBlock.libraryId ? 'def' : 'props';
         renderEditorView();
         requestAnimationFrame(function() {
           var clBodyAfter = document.querySelector('.cl-body');
           if (clBodyAfter) clBodyAfter.scrollTop = clScrollTop;
+          var newBlkEl = document.querySelector('.wf-block[data-wf-idx="' + insertIdx + '"]');
+          if (newBlkEl) newBlkEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         });
         return;
       }
@@ -3082,11 +5346,19 @@
         return;
       }
 
+      /* Inspector panel — clicks inside must never deselect or toggle block selection */
+      if (e.target.closest('.inspector')) return;
+
       /* Wireframe block selection → update inspector */
       var wfBlock = e.target.closest('[data-wf-idx]');
       if (wfBlock && SSP.view.mode === 'editor' && !e.target.closest('[data-wf-act]')) {
         var wbIdx = parseInt(wfBlock.getAttribute('data-wf-idx'), 10);
         SSP.editor.selBlock = (SSP.editor.selBlock === wbIdx) ? null : wbIdx;
+        /* 새 블록 선택 시 default tab 을 libraryId 기준으로 재설정 */
+        if (SSP.editor.selBlock !== null) {
+          var selB = SSP.editor.wfBlocks[SSP.editor.selBlock];
+          SSP.editor.inspectorTab = (selB && selB.libraryId && getLibraryDefinition(selB.libraryId)) ? 'def' : 'props';
+        }
         document.querySelectorAll('.wf-block').forEach(function(bl, i) {
           bl.classList.toggle('sel', i === SSP.editor.selBlock);
         });
@@ -3244,20 +5516,70 @@
             setTimeout(function() { nameEl.style.outline = ''; }, 2000);
             return;
           }
-          var ptpl4 = (function() {
-            for (var i = 0; i < CREATE_PAGE_TEMPLATE_LIST.length; i++) {
-              if (CREATE_PAGE_TEMPLATE_LIST[i].id === SSP.pageTemplate) return CREATE_PAGE_TEMPLATE_LIST[i];
-            }
-            return CREATE_PAGE_TEMPLATE_LIST[0];
-          }());
+          var ptpl4 = getEffectiveTemplate(SSP.pageTemplate);
           var tplObj = {
             id: 'ptpl-' + ptpl4.id,
             name: ptpl4.name,
-            screenType: ptpl4.id === 'list-search' ? 'list' : ptpl4.id === 'reg-form' ? 'form' : 'main',
-            defaultStructure: ptpl4.structure,
+            screenType: ptpl4.screenType || 'main',
+            defaultStructure: ptpl4.structure || TPL_STRUCT_NONE,
             items: ptpl4.sections
           };
           createDraftFromTemplate(tplObj, SSP.frontAdmin || 'front', SSP.serviceType || 'branding');
+          /* Augment draft with rich template metadata (P8-E)
+           * — DB는 구현하지 않지만, 향후 저장 가능한 구조화 object로 포함 */
+          if (SSP.draft) {
+            SSP.draft.templateId = ptpl4.id;
+            SSP.draft.templateCategory = ptpl4.category;
+            SSP.draft.pageKind = ptpl4.screenType;
+            SSP.draft.userInputHints = (ptpl4.userInputs || []).slice();
+            SSP.draft.checkpointHints = (ptpl4.checkpointHints || []).slice();
+            SSP.draft.inspectorFieldHints = (ptpl4.inspectorFieldHints || []).slice();
+            SSP.draft.templateSections = (ptpl4.sections || []).slice();
+            if (ptpl4.baseTemplateId) {
+              SSP.draft.baseTemplateId = ptpl4.baseTemplateId;
+              SSP.draft.presetName = ptpl4.presetName || ptpl4.name;
+              SSP.draft.domainType = ptpl4.domainType || '';
+            }
+            /* PR #202 보정: defaultSections (libraryId 바인딩) 가 있으면 우선 사용,
+             * 없으면 sections 문자열 기반 fallback */
+            if (!SSP.draft.components || !SSP.draft.components.length) {
+              if (ptpl4.defaultSections && ptpl4.defaultSections.length) {
+                SSP.draft.components = ptpl4.defaultSections.map(function(s, si) {
+                  var libItem = getLibraryItem(s.libraryId) || {};
+                  return {
+                    id: 'sec-' + si,
+                    libraryId: s.libraryId || null,
+                    type: libItem.type || 'section',
+                    category: libItem.category || 'website-sections',
+                    name: s.label || libItem.name || s.libraryId,
+                    label: s.label || libItem.name || '',
+                    layoutVariant: s.layoutVariant || libItem.defaultVariant || null,
+                    props: Object.assign({}, libItem.defaultProps || {}, s.props || {}),
+                    enabled: true,
+                    description: '템플릿 기본 섹션 — 선택 후 서비스에 맞게 문구와 링크를 수정할 수 있습니다.'
+                  };
+                });
+                SSP.previewModel = buildPreviewModelFromDraft(SSP.draft);
+              } else if ((ptpl4.category === 'website-public' || ptpl4.category === 'domain-preset') &&
+                         ptpl4.sections && ptpl4.sections.length) {
+                SSP.draft.components = ptpl4.sections.map(function(sName, si) {
+                  return {
+                    id: 'sec-' + si,
+                    libraryId: null,
+                    type: 'section',
+                    category: 'website-sections',
+                    name: sName,
+                    label: sName,
+                    layoutVariant: null,
+                    props: {},
+                    enabled: true,
+                    description: '템플릿 기본 섹션 — 선택 후 서비스에 맞게 문구와 링크를 수정할 수 있습니다.'
+                  };
+                });
+                SSP.previewModel = buildPreviewModelFromDraft(SSP.draft);
+              }
+            }
+          }
           if (SSP.draft) {
             var snEl4 = document.getElementById('ss-s4-screen-name');
             var sidEl4 = document.getElementById('ss-s4-screen-id');
@@ -3635,6 +5957,7 @@
       SSP.serviceType    = null;
       SSP.frontAdmin     = null;
       SSP.pageTemplate   = null;
+      SSP.templateCategory = null;
       SSP.step4ScreenId  = null;
       SSP.createStep     = null;
       SSP.activeRecordId = null;
