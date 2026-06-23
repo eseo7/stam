@@ -5752,3 +5752,202 @@ select.ss-ed-inp:focus,
   .ss-lib-lvl { display: none; }
   .ss-lib-item-desc { -webkit-line-clamp: 1; padding-left: 12px; }
 }
+
+/* ── Wireframe block selection ── */
+.ss-wf-block {
+  cursor: pointer;
+  transition: outline 0.1s, box-shadow 0.1s;
+}
+.ss-wf-block:hover {
+  outline: 1.5px solid #5451E8;
+  outline-offset: 1px;
+}
+.ss-wf-block.wf-block--selected {
+  outline: 2px solid #5451E8;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 4px rgba(84,81,232,.10);
+}
+
+/* ── Block Inspector panel ── */
+.ss-wf-inspector {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.ss-wfi-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--b1, #e5e7eb);
+  background: var(--bg1, #f9fafb);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.ss-wfi-head-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ss-wfi-badge {
+  flex-shrink: 0;
+  padding: 2px 7px;
+  background: #ede9fe;
+  color: #5451E8;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+
+.ss-wfi-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--t1, #111827);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ss-wfi-close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--t3, #9ca3af);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+}
+.ss-wfi-close:hover {
+  background: var(--bg2, #f3f4f6);
+  color: var(--t1, #111827);
+}
+
+.ss-wfi-body {
+  flex: 1 1 0;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ss-wfi-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ss-wfi-row--toggle {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: var(--bg1, #f9fafb);
+  border-radius: 6px;
+  border: 1px solid var(--b1, #e5e7eb);
+}
+
+.ss-wfi-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--t2, #6b7280);
+  letter-spacing: .02em;
+}
+
+.ss-wfi-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid var(--b1, #e5e7eb);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--t1, #111827);
+  background: var(--bg0, #fff);
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+}
+.ss-wfi-textarea:focus {
+  outline: none;
+  border-color: #5451E8;
+  box-shadow: 0 0 0 2px rgba(84,81,232,.12);
+}
+
+.ss-wfi-select,
+.ss-wfi-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  border: 1px solid var(--b1, #e5e7eb);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--t1, #111827);
+  background: var(--bg0, #fff);
+  font-family: inherit;
+}
+.ss-wfi-select:focus,
+.ss-wfi-input:focus {
+  outline: none;
+  border-color: #5451E8;
+  box-shadow: 0 0 0 2px rgba(84,81,232,.12);
+}
+
+.ss-wfi-foot {
+  flex-shrink: 0;
+  padding: 12px 20px;
+  border-top: 1px solid var(--b1, #e5e7eb);
+  background: var(--bg1, #f9fafb);
+}
+
+.ss-wfi-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  color: var(--t2, #6b7280);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+.ss-wfi-back:hover {
+  color: #5451E8;
+}
+
+/* Dark mode */
+[data-theme="dark"] .ss-wf-block:hover {
+  outline-color: #8B7FF8;
+}
+[data-theme="dark"] .ss-wf-block.wf-block--selected {
+  outline-color: #8B7FF8;
+  box-shadow: 0 0 0 4px rgba(139,127,248,.15);
+}
+[data-theme="dark"] .ss-wfi-badge {
+  background: rgba(139,127,248,.18);
+  color: #8B7FF8;
+}
+[data-theme="dark"] .ss-wfi-textarea:focus,
+[data-theme="dark"] .ss-wfi-select:focus,
+[data-theme="dark"] .ss-wfi-input:focus {
+  border-color: #8B7FF8;
+  box-shadow: 0 0 0 2px rgba(139,127,248,.18);
+}
+[data-theme="dark"] .ss-wfi-back:hover {
+  color: #8B7FF8;
+}
