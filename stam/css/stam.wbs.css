@@ -3770,3 +3770,46 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
  *  넘어가지 않도록 stacking context 확립 */
 .wbs-gantt-modal-body .wbs-gtl-row     { isolation: isolate; }
 .wbs-gantt-modal-body .wbs-gtl-track   { isolation: isolate; }
+
+/* ============================================================
+ * 33. WBS Product Flow Closeout Marker (PR #209)
+ *
+ *   본 섹션은 코드 동작에 영향을 주지 않는 문서용 주석입니다.
+ *   PR #206 → #207 → #208 흐름으로 정리한 WBS 화면의 마감 상태를
+ *   소스 안에 명시적으로 기록하여, 이후 작업이 무엇을 깨면 안 되는지
+ *   한눈에 알 수 있게 합니다.
+ *
+ *   - PR #206: WBS UX 정렬 (drawer footer / Focus View / 헤더·필터바
+ *              버튼 정렬, 다크/라이트 토큰화)
+ *   - PR #207: source normalization (HTML inline style 0건,
+ *              버튼 class 정리, wbs-pct/ wbs-gtl-left/ wbs-gtl-w
+ *              utility 도입, broken class 보정)
+ *   - PR #208: Gantt & Group header polish (sticky month/week
+ *              header, today line z-index, 1px seam 마스킹,
+ *              다크 톤 보정, 반응형 가드)
+ *   - PR #209: QA closeout — 코드 변경 없음 (본 마커만).
+ *              아래 invariant 들은 다음 PR 에서 절대 깨지면 안 됩니다.
+ *
+ *   유지해야 할 source invariant (wbs.html 기준):
+ *     • `<style`           0건
+ *     • `style=`           0건
+ *     • `" wbs-`           0건 (closing quote 뒤 utility 토큰 없음)
+ *     • `class="…" wbs-`   0건
+ *     • orphan `wbs-pct-N"` 0건
+ *
+ *   유지해야 할 동작 컨트랙트:
+ *     • drawer footer 슬롯 순서:
+ *         detail [timestamp] [전체보기] [수정]
+ *         edit   [취소] [임시저장] [전체보기] (auto) [저장]
+ *         create [취소] [임시저장] [전체보기] (auto) [등록]
+ *     • Focus View header: [← 목록으로] [수정] [닫기 ✕]
+ *     • Focus View footer: [← 목록으로 돌아가기]
+ *     • Gantt 모달 sticky: month z:11, week z:10 (top:25), today z:4
+ *     • JS hook id/class (wbs-reg-btn, wbs-delete-btn, wbs-gantt-ctrl-btn,
+ *       wbs-all-grp-btn, wbs-gantt-fullview-btn, wbs-fv-back-btn,
+ *       wbs-fv-edit-trigger, wbs-fv-x-btn, wbs-fv-foot-back,
+ *       wbs-gantt-modal-close, wbs-fp-clear, wbs-fp-apply,
+ *       wbs-filter-open-btn, data-focus-toggle, data-focus-exit,
+ *       wbs-fv-trigger-btn, wbs-drawer-edit-btn, wbs-drawer-cancel-btn,
+ *       wbs-drawer-close-btn) 19종 모두 wbs.html 에 존재.
+ * ============================================================ */
