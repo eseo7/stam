@@ -6300,3 +6300,88 @@ select.ss-ed-inp:focus,
 [data-theme="dark"] .ss-wfi-back:hover {
   color: #8B7FF8;
 }
+
+/* ============================================================
+ * SECTION 99-A. Drawer footer button sizing (moved from HTML head)
+ *   원본: stam/pages/boards/screen-specification.html <style> 블록
+ *   PR #210 closeout 에서 inline <style> 제거 후 이관.
+ *   WBS Drawer와 동일한 .stam-btn md sizing 을 적용한다.
+ * ============================================================ */
+.screen-spec-page .ss-dw-foot .stam-btn {
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+  line-height: 1;
+  border-radius: var(--r-md);
+}
+.screen-spec-page .ss-dw-foot .stam-btn.ss-dw-btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--btn-primary-bg);
+}
+.screen-spec-page .ss-dw-foot .stam-btn.ss-dw-btn-primary:hover {
+  background: var(--btn-primary-bg-hover);
+  border-color: var(--btn-primary-bg-hover);
+}
+
+/* ============================================================
+ * SECTION 99-B. Screen Specification Product Flow Closeout Marker (PR #210)
+ *
+ *   본 섹션은 코드 동작에 영향을 주지 않는 문서용 주석입니다.
+ *   PR #185 → #186 → #187 → #188 → ... → #205 흐름으로 정리한
+ *   화면설계서 화면의 마감 상태를 소스 안에 기록합니다.
+ *
+ *   주요 PR 흐름 요약
+ *     - #185~#194: New flow create 단계 / step bar / sticky footer
+ *     - #195~#197: Editor scrollbar 통합, 3-panel 폭 균형
+ *     - #198~#201: Empty state 가이드 / annotated preview
+ *     - #202: Page template selector, Full Library catalog,
+ *             Layout shapes, Insert-after-selection
+ *     - #203: Internal scroll container 제거 (단일 viewport)
+ *     - #204: Inspector input binding v1
+ *     - #205: Inspector input QA polish (placeholder / dark / 3-panel
+ *             responsive / preview shape props)
+ *     - #210: QA closeout — inline <style> 제거 + closeout marker
+ *
+ *   유지해야 할 source baseline (screen-specification.html)
+ *     • `<style` 블록: 0건 (PR #210에서 제거됨)
+ *     • 잔존 `style=`: 16건 (모두 의도된 idiomatic 용도)
+ *         - `<col style="width:Npx">` × 8: 테이블 컬럼 폭(<col>이 표준 위치)
+ *         - `style="display:none"` × 5: JS 가 토글하는 view/tab 상태
+ *         - `style="position:relative"` × 1: filter-wrap 위치 앵커
+ *         - `style="color:var(--t3);flex-shrink:0"` × 1: SVG 인라인
+ *         - 신규 inline style 추가 금지. 위 카운트가 늘어나면 회귀.
+ *
+ *   유지해야 할 동작 contract
+ *     • Page Header: stam-board-header / stam-board-action-btn 표준
+ *     • Toolbar: search / filter (stam-board-filter-trigger) / sep /
+ *                삭제 (stam-board-count + stam-page-btn 페이지네이션)
+ *     • View 전환: ss-template-view / ss-editor-view / ss-preview-view
+ *                  3가지 view 모두 `display:none` 으로 초기화 후 JS
+ *                  토글. 추가 view 도입 시 동일 패턴 따를 것.
+ *     • Drawer: ss-dw-tabs (탭) + ss-dw-foot (footer)
+ *               footer .stam-btn md sizing (height 32, padding 0 12,
+ *               radius r-md). primary variant는 .ss-dw-btn-primary.
+ *     • Editor 3-panel: comp-lib / wireframe / inspector — PR #197/#202
+ *                       폭 비율 유지. 단일 viewport 정책(PR #203) 유지.
+ *     • Inspector input: PR #204/#205 placeholder / dark / dirty/ok
+ *                        chip 동작 유지. selection 닫힘 가드 유지.
+ *     • Preview shape: PR #205 props 반영 (showSearch/showLogin/
+ *                      itemCount) 동작 유지.
+ *     • Library 추가: 선택 block 바로 아래에 삽입(PR #202).
+ *
+ *   JS hook id 보존 목록 (screen-specification.html → js)
+ *     ss-sstrip, ss-sstrip-meta, ss-search, ss-filter-btn, ss-filter-cnt,
+ *     ss-fpop, ss-filter-reset, ss-filter-apply, ss-del-btn-lbl,
+ *     ss-table-outer, ss-table-scroll, ss-tfoot-info, ss-pgb (×2),
+ *     ss-dlg-overlay, ss-dlg-title, ss-dw-tabs, ss-template-view,
+ *     ss-editor-view, ss-preview-view 등 — 다음 PR 에서 제거 금지.
+ *
+ *   금지 사항
+ *     • inline <style> 블록 재도입 금지
+ *     • style= 카운트 신규 증가 금지
+ *     • App Shell / Topbar / Left Nav / nav-data / shell.js 변경 금지
+ *     • 신규 fetch / Firebase / Firestore / localStorage 등 신규 추가 금지
+ *     • 신규 메뉴 / 신규 화면 경로 / 신규 데이터 모델 금지
+ * ============================================================ */
