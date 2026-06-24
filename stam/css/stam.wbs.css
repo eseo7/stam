@@ -3370,3 +3370,169 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
   padding: 0 4px;
 }
 
+
+/* ============================================================
+ * 30. WBS Source Normalization Utilities (PR #207)
+ *   목적: wbs.html 안의 inline style을 모두 class로 옮기기 위한
+ *   WBS 전용 토큰화 유틸리티. 모든 클래스는 `wbs-` prefix를
+ *   사용하며 다른 페이지에 영향을 주지 않는다.
+ *
+ *   섹션 구성:
+ *     30-A. WBS Progress Width Utilities (.wbs-pct-N)
+ *     30-B. WBS Gantt Position Utilities (.wbs-gtl-left-NN / .wbs-gtl-w-NN)
+ *     30-C. WBS Group Tone Classes      (.wbs-grp-ico--*)
+ *     30-D. WBS Drawer Source Cleanup   (text, avatar, badge, prog)
+ *     30-E. WBS Mobile Bar Tone         (.wbs-m-bar-fill--*)
+ *     30-F. WBS Button Alignment        (page header / drawer footer)
+ * ============================================================ */
+
+/* ---- 30-A. WBS Progress Width Utilities --------------------- */
+/* 사용처: .wbs-gsum-grp-fill / .wbs-grp-prog-fill / .wbs-m-bar-fill /
+ *         .wbs-prog-fill / .wbs-gsum-prog > i / .wbs-gtl-fill 등
+ *         width:N% inline style를 대체. */
+.wbs-pct-0   { width: 0%   !important; }
+.wbs-pct-35  { width: 35%  !important; }
+.wbs-pct-40  { width: 40%  !important; }
+.wbs-pct-52  { width: 52%  !important; }
+.wbs-pct-65  { width: 65%  !important; }
+.wbs-pct-100 { width: 100% !important; }
+
+/* ---- 30-B. WBS Gantt Position Utilities --------------------- */
+/* 사용처: .wbs-gtl-bar (left+width), .wbs-gtl-today (left)
+ *         class 이름 끝 숫자는 백분율 반올림값. 실제 left/width
+ *         값은 아래 정의에 정확히 기록한다. */
+.wbs-gtl-left-00 { left: 0%;     }
+.wbs-gtl-left-04 { left: 4.4%;   }
+.wbs-gtl-left-10 { left: 9.9%;   }
+.wbs-gtl-left-15 { left: 15.4%;  }
+.wbs-gtl-left-26 { left: 26.4%;  }
+.wbs-gtl-left-30 { left: 29.7%;  }
+.wbs-gtl-left-34 { left: 34.1%;  }
+.wbs-gtl-left-38 { left: 38.5%;  }
+.wbs-gtl-left-41 { left: 41%;    } /* today marker */
+.wbs-gtl-left-44 { left: 44%;    }
+.wbs-gtl-left-49 { left: 49.5%;  }
+.wbs-gtl-left-54 { left: 54.9%;  }
+.wbs-gtl-left-60 { left: 60.4%;  }
+.wbs-gtl-left-67 { left: 67%;    }
+.wbs-gtl-left-82 { left: 82.4%;  }
+.wbs-gtl-left-87 { left: 87.9%;  }
+
+.wbs-gtl-w-04 { width: 4.4%;  }
+.wbs-gtl-w-08 { width: 8.8%;  }
+.wbs-gtl-w-09 { width: 9.9%;  }
+.wbs-gtl-w-12 { width: 12.1%; }
+.wbs-gtl-w-13 { width: 13.2%; }
+.wbs-gtl-w-14 { width: 14.3%; }
+.wbs-gtl-w-16 { width: 16.5%; }
+.wbs-gtl-w-17 { width: 17.6%; }
+.wbs-gtl-w-22 { width: 22%;   }
+.wbs-gtl-w-23 { width: 23.1%; }
+.wbs-gtl-w-26 { width: 26.4%; }
+.wbs-gtl-w-27 { width: 27.5%; }
+.wbs-gtl-w-33 { width: 33%;   }
+
+/* gantt week lhdr compact font — 1개 셀에서만 사용 */
+.wbs-gtl-lhdr--compact { font-size: 9px; }
+
+/* ---- 30-C. WBS Group Tone Classes --------------------------- */
+/* 사용처: .wbs-grp-ico — 기능그룹별 색상/폰트 사이즈
+ *         단어 길이에 따른 폰트 사이즈 보정 포함 */
+.wbs-grp-ico--analysis {
+  background: var(--g-a-bg);
+  color: var(--g-a);
+}
+.wbs-grp-ico--design {
+  background: var(--g-b-bg);
+  color: var(--g-b);
+  font-size: 9px;
+}
+.wbs-grp-ico--build {
+  background: var(--fail-bg);
+  color: var(--fail);
+  font-size: 8.5px;
+}
+.wbs-grp-ico--review {
+  background: var(--g-d-bg);
+  color: var(--g-d);
+  font-size: 9px;
+}
+.wbs-grp-ico--test {
+  background: var(--g-e-bg);
+  color: var(--g-e);
+  font-size: 9px;
+}
+.wbs-grp-ico--open {
+  background: var(--purple-bg);
+  color: var(--purple);
+  font-size: 8.5px;
+}
+
+/* ---- 30-D. WBS Drawer Source Cleanup ------------------------ */
+/* 사용처: drawer summary text 색상, avatar 소형, 댓글 badge,
+ *         in-progress section 의 .wbs-prog full-fill 등 */
+
+/* 텍스트 톤 (drawer summary / iv / pct label) */
+.wbs-text--fail   { color: var(--fail); }
+.wbs-text--muted  { color: var(--t3);   }
+.wbs-text--bold   { font-weight: 700;   }
+.wbs-text--normal { font-weight: 400;   }
+
+/* drawer summary 안 wbs-av-dot 소형 변형 */
+.wbs-av-dot--sm {
+  width: 18px;
+  height: 18px;
+  font-size: 8px;
+  flex-shrink: 0;
+}
+
+/* drawer comment "내가 단 댓글" avatar — stam 톤 */
+.wbs-dw-cmt-av--me {
+  background: var(--stam-soft);
+  color: var(--stam);
+}
+
+/* drawer comment count badge */
+.wbs-badge-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  margin-left: 3px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--bg-sur3);
+  color: var(--t3);
+  font-family: var(--font) !important;
+}
+
+/* in-progress section의 .wbs-prog 가 row를 모두 채우게 강제 */
+.wbs-prog--full {
+  flex: 1;
+  max-width: none;
+}
+
+/* ---- 30-E. WBS Mobile Bar Tone ------------------------------ */
+/* 사용처: .wbs-m-bar-fill 배경 색 — 진행 상태 별 */
+.wbs-m-bar-fill--pass { background: var(--pass); }
+.wbs-m-bar-fill--fail { background: var(--fail); }
+.wbs-m-bar-fill--warn { background: var(--warn); }
+
+/* ---- 30-F. WBS Button Alignment ----------------------------- */
+/* PR #207에서 wbs.html 의 버튼 class 혼재를 정리한다.
+ *
+ * 정리 기준:
+ *   - 페이지 상단 액션 버튼은 .stam-board-header / .stam-board-action-btn
+ *     공통 (.is-primary / .is-secondary) 기준만 사용한다.
+ *     .wbs-btn / .wbs-btn-primary / .stam-btn / .stam-btn-primary 와
+ *     중복 부여하지 않는다.
+ *   - 필터바 / 일반 액션은 .wbs-btn 그대로 유지 (WBS 전용 작은 toolbar
+ *     버튼 사이즈/톤 — stam-board-action-btn 과 padding 1px 차이로
+ *     기존 화면 폭을 변경하지 않기 위함).
+ *   - drawer footer / Focus View 헤더는 BEM .stam-btn--md/--primary/
+ *     --secondary/--ghost 만 사용한다.
+ *
+ * 기존 CSS (.wbs-btn, .wbs-btn-primary, .wbs-drawer-footer .stam-btn,
+ * .wbs-fv-head-actions .stam-btn …) 는 그대로 둔다. stam.wbs.js 가 동적
+ * 렌더하는 '<button class="wbs-btn wbs-btn-primary">…' 마크업과 호환
+ * 유지해야 하기 때문 (line 731 / 741). */
