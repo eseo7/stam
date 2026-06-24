@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Mobile Core Workflow Baseline v1</title>
+<link rel="icon" href="../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.buttons.css">
+<link rel="stylesheet" href="../css/stam.mobile-core-workflow.css">
+</head>
+<body class="mcw-page">
+
+<div class="mcw-wrap">
+
+  <!-- ======================================================== 1. Hero -->
+  <section class="mcw-hero" aria-labelledby="mcw-hero-title">
+    <span class="mcw-hero-eyebrow">MOBILE BASELINE · v1 · PR #211</span>
+    <h1 id="mcw-hero-title" class="mcw-hero-title">STAM 모바일 핵심 업무 흐름 1차 기준</h1>
+    <p class="mcw-hero-sub">
+      편집-heavy 화면을 모바일에서 완성하려는 시안이 아닙니다. 모바일에서 실무자가 가장 자주 확인하는
+      <strong>업무 요약 · 검토 · 승인 · 알림 · 변경이력 확인</strong> 흐름을 우선 적용 기준으로 정리한 정적 Preview 입니다.
+      WBS 전체 테이블이나 화면설계서 편집기 같은 영역은 모바일에 그대로 옮기지 않고,
+      <em>요약 카드 + 검토 CTA + 데스크톱 연결 링크</em> 형태로 제공합니다.
+    </p>
+    <div class="mcw-hero-meta">
+      <span class="mcw-hero-pill is-brand">Preview 전용</span>
+      <span class="mcw-hero-pill">정적 HTML</span>
+      <span class="mcw-hero-pill">JS 없음</span>
+      <span class="mcw-hero-pill">외부 CDN 없음</span>
+      <span class="mcw-hero-pill">Light / Dark</span>
+      <span class="mcw-hero-pill">390 / 430 / 768 / 1366</span>
+    </div>
+  </section>
+
+  <!-- ======================================================== 2. Principles -->
+  <section class="mcw-section" aria-labelledby="mcw-s2">
+    <div class="mcw-sec-head">
+      <span class="mcw-sec-num">1</span>
+      <h2 id="mcw-s2" class="mcw-sec-title">모바일 기준선 원칙</h2>
+      <span class="mcw-sec-sub">모바일에서 PC 화면을 축소하지 않습니다.</span>
+    </div>
+    <div class="mcw-sec-body">
+      <ul class="mcw-list">
+        <li><strong>지금 무엇을 봐야 하는지가 첫 화면에서 즉시 보여야</strong> 합니다. 카드 3~5개로 요약하고 숫자/상태 중심으로 표시합니다.</li>
+        <li><strong>편집보다 확인</strong>이 우선입니다. CTA 는 <em>검토하기 / 승인 보기 / 댓글 확인 / 변경 확인</em> 같은 동사로 구성합니다.</li>
+        <li>WBS 전체 테이블 / 화면설계서 편집기 같은 영역은 모바일에서 완전 편집하지 않고 <strong>전체 보기 → 데스크톱</strong> CTA 로 분기합니다.</li>
+        <li>업무 우선순위는 위에서 아래로 자연스럽게 떨어져야 합니다 — <em>오늘 마감 · 지연 · 검토 요청 · 승인 대기 · 댓글 멘션</em> 순.</li>
+        <li>한국형 업무 문구를 사용합니다 — 검토 요청 / 승인 대기 / 오늘 마감 / 댓글 멘션 / 변경 확인 필요 / 지연 작업 / 전체 보기 등.</li>
+        <li>STAM 토큰과 S-Core Dream 폰트만 사용합니다. 외부 CDN / 신규 JS / 신규 메뉴 / 신규 데이터 모델 없음.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ======================================================== 3. Device frame + Project Overview -->
+  <section class="mcw-section" aria-labelledby="mcw-s3">
+    <div class="mcw-sec-head">
+      <span class="mcw-sec-num">2</span>
+      <h2 id="mcw-s3" class="mcw-sec-title">프로젝트 요약 (Project Overview)</h2>
+      <span class="mcw-sec-sub">모바일 첫 화면: 프로젝트 컨텍스트 + KPI 5개</span>
+    </div>
+    <div class="mcw-sec-body">
+      <div class="mcw-deck">
+
+        <!-- Device preview -->
+        <div class="mcw-deck-aside">
+          <div class="mcw-device" aria-label="모바일 프레임 — 프로젝트 요약">
+            <div class="mcw-device-screen">
+              <div class="mcw-device-topbar">
+                <span class="mcw-device-topbar-l">STAM</span>
+                <span class="mcw-device-topbar-r">파르나스호텔</span>
+              </div>
+              <div class="mcw-device-body">
+                <div class="mcw-card">
+                  <div class="mcw-card-head">
+                    <span class="mcw-card-title">파르나스 리뉴얼 구축</span>
+                    <span class="mcw-chip is-info">진행중</span>
+                  </div>
+                  <div class="mcw-card-sub">설계 단계 · PM 이서연 · 업데이트 오늘 10:42</div>
+                </div>
+                <div class="mcw-card-grid">
+                  <div class="mcw-card">
+                    <div class="mcw-card-title">전체 진행률</div>
+                    <div class="mcw-card-val">42<small>%</small></div>
+                  </div>
+                  <div class="mcw-card is-warn">
+                    <div class="mcw-card-title">오늘 할 일</div>
+                    <div class="mcw-card-val">5<small>건</small></div>
+                  </div>
+                  <div class="mcw-card is-fail">
+                    <div class="mcw-card-title">지연 작업</div>
+                    <div class="mcw-card-val">1<small>건</small></div>
+                  </div>
+                  <div class="mcw-card is-pass">
+                    <div class="mcw-card-title">완료</div>
+                    <div class="mcw-card-val">6<small>건</small></div>
+                  </div>
+                </div>
+                <div class="mcw-card">
+                  <div class="mcw-card-head">
+                    <span class="mcw-card-title">검토 요청</span>
+                    <span class="mcw-chip is-warn">대기 3</span>
+                  </div>
+                  <div class="mcw-card-sub">승인 대기 2 · 댓글 멘션 5</div>
+                </div>
+              </div>
+              <div class="mcw-bottom-mock">
+                <div class="mcw-bm-item is-active">
+                  <span class="mcw-bm-ico">홈</span>
+                  <span class="mcw-bm-label">할 일</span>
+                </div>
+                <div class="mcw-bm-item">
+                  <span class="mcw-bm-ico">검</span>
+                  <span class="mcw-bm-label">검토</span>
+                </div>
+                <div class="mcw-bm-item">
+                  <span class="mcw-bm-ico">알</span>
+                  <span class="mcw-bm-label">알림</span>
+                </div>
+                <div class="mcw-bm-item">
+                  <span class="mcw-bm-ico">프</span>
+                  <span class="mcw-bm-label">프로젝트</span>
+                </div>
+              </div>
+            </div>
+            <div class="mcw-device-label">390 / 430 phone preview</div>
+          </div>
+        </div>
+
+        <!-- Spec content -->
+        <div>
+          <div class="mcw-card-grid">
+            <div class="mcw-card"><div class="mcw-card-title">프로젝트명</div><div class="mcw-card-val">파르나스 리뉴얼 구축</div></div>
+            <div class="mcw-card"><div class="mcw-card-title">고객사</div><div class="mcw-card-val">파르나스호텔</div></div>
+            <div class="mcw-card"><div class="mcw-card-title">단계</div><div class="mcw-card-val">설계</div></div>
+            <div class="mcw-card"><div class="mcw-card-title">전체 진행률</div><div class="mcw-card-val">42<small>%</small></div></div>
+            <div class="mcw-card is-warn"><div class="mcw-card-title">오늘 할 일</div><div class="mcw-card-val">5<small>건</small></div></div>
+            <div class="mcw-card"><div class="mcw-card-title">검토 요청</div><div class="mcw-card-val">3<small>건</small></div></div>
+            <div class="mcw-card"><div class="mcw-card-title">승인 대기</div><div class="mcw-card-val">2<small>건</small></div></div>
+            <div class="mcw-card is-fail"><div class="mcw-card-title">지연/리스크</div><div class="mcw-card-val">1<small>건</small></div></div>
+            <div class="mcw-card"><div class="mcw-card-title">최근 업데이트</div><div class="mcw-card-val">오늘 10:42</div></div>
+          </div>
+          <p class="mcw-sec-sub">
+            모바일 첫 화면은 위 9 칸 중 가장 시급한 3 칸(오늘 할 일 · 검토 요청 · 지연)을 카드로,
+            나머지 6 칸은 상단 컨텍스트와 KPI strip 으로 흡수합니다. 상세 편집 진입 버튼보다
+            <em>확인 / 검토 CTA</em> 를 우선합니다.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== 4. My Action Queue -->
+  <section class="mcw-section" aria-labelledby="mcw-s4">
+    <div class="mcw-sec-head">
+      <span class="mcw-sec-num">3</span>
+      <h2 id="mcw-s4" class="mcw-sec-title">My Action Queue — 내 작업 우선순위</h2>
+      <span class="mcw-sec-sub">검토 / 승인 / 멘션 / 마감 5종, 위에서 아래로 자연 우선순위</span>
+    </div>
+    <div class="mcw-sec-body">
+      <div class="mcw-queue">
+
+        <div class="mcw-queue-item">
+          <span class="mcw-queue-ico is-fail">!</span>
+          <div class="mcw-queue-text">
+            <div class="mcw-queue-title">오늘 마감 작업 2건</div>
+            <div class="mcw-queue-meta">WBS-007 / WBS-008 · 마감 18:00</div>
+          </div>
+          <span class="mcw-queue-cta is-primary">바로 보기</span>
+        </div>
+
+        <div class="mcw-queue-item">
+          <span class="mcw-queue-ico is-warn">⚠</span>
+          <div class="mcw-queue-text">
+            <div class="mcw-queue-title">지연 작업 1건</div>
+            <div class="mcw-queue-meta">WBS-007 · 계획일 +2일 초과</div>
+          </div>
+          <span class="mcw-queue-cta">확인하기</span>
+        </div>
+
+        <div class="mcw-queue-item">
+          <span class="mcw-queue-ico">검</span>
+          <div class="mcw-queue-text">
+            <div class="mcw-queue-title">검토 요청 3건</div>
+            <div class="mcw-queue-meta">화면설계서 2 · 요구사항 1</div>
+          </div>
+          <span class="mcw-queue-cta">검토하기</span>
+        </div>
+
+        <div class="mcw-queue-item">
+          <span class="mcw-queue-ico">승</span>
+          <div class="mcw-queue-text">
+            <div class="mcw-queue-title">승인 대기 2건</div>
+            <div class="mcw-queue-meta">화면설계서 1 · 변경 요청 1</div>
+          </div>
+          <span class="mcw-queue-cta">승인 보기</span>
+        </div>
+
+        <div class="mcw-queue-item">
+          <span class="mcw-queue-ico">@</span>
+          <div class="mcw-queue-text">
+            <div class="mcw-queue-title">댓글 멘션 5건</div>
+            <div class="mcw-queue-meta">최근 24시간 / 미확인</div>
+          </div>
+          <span class="mcw-queue-cta">댓글 확인</span>
+        </div>
+
+        <div class="mcw-queue-item">
+          <span class="mcw-queue-ico is-pass">✓</span>
+          <div class="mcw-queue-text">
+            <div class="mcw-queue-title">변경 확인 필요 4건</div>
+            <div class="mcw-queue-meta">화면설계서 수정 3 · 일정 변경 1</div>
+          </div>
+          <span class="mcw-queue-cta">변경 확인</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== 5. WBS Summary -->
+  <section class="mcw-section" aria-labelledby="mcw-s5">
+    <div class="mcw-sec-head">
+      <span class="mcw-sec-num">4</span>
+      <h2 id="mcw-s5" class="mcw-sec-title">WBS 요약 — 모바일 보기</h2>
+      <span class="mcw-sec-sub">전체 테이블을 모바일에 옮기지 않음. 요약 + 내 담당 + 데스크톱 연결</span>
+    </div>
+    <div class="mcw-sec-body">
+      <div class="mcw-card-grid">
+        <div class="mcw-card"><div class="mcw-card-title">전체 작업</div><div class="mcw-card-val">17<small>건</small></div></div>
+        <div class="mcw-card is-info"><div class="mcw-card-title">진행중</div><div class="mcw-card-val">2<small>건</small></div></div>
+        <div class="mcw-card is-fail"><div class="mcw-card-title">지연</div><div class="mcw-card-val">1<small>건</small></div></div>
+        <div class="mcw-card is-pass"><div class="mcw-card-title">완료</div><div class="mcw-card-val">6<small>건</small></div></div>
+        <div class="mcw-card is-warn"><div class="mcw-card-title">이번 주 마감</div><div class="mcw-card-val">2<small>건</small></div></div>
+        <div class="mcw-card"><div class="mcw-card-title">내 담당</div><div class="mcw-card-val">4<small>건</small></div></div>
+      </div>
+      <div class="mcw-queue">
+        <div class="mcw-queue-item">
+          <span class="mcw-queue-ico is-fail">!</span>
+          <div class="mcw-queue-text">
+            <div class="mcw-queue-title">WBS-007 · WBS 목록 화면 기준 설계</div>
+            <div class="mcw-queue-meta">설계 · 이서연 · 06-01 ~ 06-05 · 지연 +2일</div>
+          </div>
+          <span class="mcw-queue-cta is-primary">확인하기</span>
+        </div>
+        <div class="mcw-queue-item">
+          <span class="mcw-queue-ico is-warn">▶</span>
+          <div class="mcw-queue-text">
+            <div class="mcw-queue-title">WBS-008 · WBS Drawer 구조 분리</div>
+            <div class="mcw-queue-meta">설계 · 클로드 · 06-04 ~ 06-08 · 진행 40%</div>
+          </div>
+          <span class="mcw-queue-cta">검토하기</span>
+        </div>
+      </div>
+      <p class="mcw-sec-sub">
+        전체 WBS 테이블 / 간트차트는 모바일에서 직접 편집하지 않습니다.
+      </p>
+      <a class="mcw-link" href="../pages/boards/wbs.html">
+        전체 WBS 보기 (데스크톱 권장) <span class="mcw-link-arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ======================================================== 6. Screen Spec Review -->
+  <section class="mcw-section" aria-labelledby="mcw-s6">
+    <div class="mcw-sec-head">
+      <span class="mcw-sec-num">5</span>
+      <h2 id="mcw-s6" class="mcw-sec-title">화면설계서 검토 요약</h2>
+      <span class="mcw-sec-sub">모바일은 검토 / 상태 확인 / 코멘트 / 승인 흐름 중심</span>
+    </div>
+    <div class="mcw-sec-body">
+      <div class="mcw-card-grid">
+        <div class="mcw-card is-warn"><div class="mcw-card-title">검토 대기</div><div class="mcw-card-val">3<small>건</small></div></div>
+        <div class="mcw-card is-fail"><div class="mcw-card-title">수정 요청 있음</div><div class="mcw-card-val">2<small>건</small></div></div>
+        <div class="mcw-card is-pass"><div class="mcw-card-title">승인 완료</div><div class="mcw-card-val">8<small>건</small></div></div>
+        <div class="mcw-card"><div class="mcw-card-title">템플릿 초안</div><div class="mcw-card-val">5<small>건</small></div></div>
+      </div>
+      <div class="mcw-queue">
+        <div class="mcw-queue-item">
+          <span class="mcw-queue-ico is-warn">검</span>
+          <div class="mcw-queue-text">
+            <div class="mcw-queue-title">SS-014 · 회원가입 화면 v2</div>
+            <div class="mcw-queue-meta">검토 대기 · 요청자 이서연 · 06-05</div>
+          </div>
+          <span class="mcw-queue-cta is-primary">검토하기</span>
+        </div>
+        <div class="mcw-queue-item">
+          <span class="mcw-queue-ico is-fail">수</span>
+          <div class="mcw-queue-text">
+            <div class="mcw-queue-title">SS-011 · 상품 상세 화면</div>
+            <div class="mcw-queue-meta">수정 요청 · 댓글 3</div>
+          </div>
+          <span class="mcw-queue-cta">댓글 확인</span>
+        </div>
+      </div>
+      <p class="mcw-sec-sub">
+        모바일에서 템플릿 편집기 / Inspector 입력 / Library 추가 동작은 제공하지 않습니다.
+        승인 흐름과 코멘트 확인만 모바일 1차 기준 범위.
+      </p>
+      <a class="mcw-link" href="../pages/boards/screen-specification.html">
+        전체 화면설계서 보기 (데스크톱 권장) <span class="mcw-link-arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ======================================================== 7. Notification / Change Timeline -->
+  <section class="mcw-section" aria-labelledby="mcw-s7">
+    <div class="mcw-sec-head">
+      <span class="mcw-sec-num">6</span>
+      <h2 id="mcw-s7" class="mcw-sec-title">알림 · 댓글 · 변경이력 타임라인</h2>
+      <span class="mcw-sec-sub">최근 24시간 · 시간 / 유형 / 대상 / 요약 / CTA</span>
+    </div>
+    <div class="mcw-sec-body">
+      <div class="mcw-tl">
+
+        <div class="mcw-tl-item">
+          <div class="mcw-tl-time">방금 전</div>
+          <div class="mcw-tl-dot-col"><span class="mcw-tl-dot is-fail"></span></div>
+          <div class="mcw-tl-text">
+            <div class="mcw-tl-title">WBS 지연 변경 · WBS-007</div>
+            <div class="mcw-tl-sub">계획일 06-05 → 실제 +2일 초과 (자동 감지)</div>
+            <span class="mcw-tl-cta">확인하기</span>
+          </div>
+        </div>
+
+        <div class="mcw-tl-item">
+          <div class="mcw-tl-time">12분 전</div>
+          <div class="mcw-tl-dot-col"><span class="mcw-tl-dot is-warn"></span></div>
+          <div class="mcw-tl-text">
+            <div class="mcw-tl-title">검토 요청 알림 · SS-014</div>
+            <div class="mcw-tl-sub">요청자 이서연 — 회원가입 화면 v2 검토 요청</div>
+            <span class="mcw-tl-cta">검토하기</span>
+          </div>
+        </div>
+
+        <div class="mcw-tl-item">
+          <div class="mcw-tl-time">1시간 전</div>
+          <div class="mcw-tl-dot-col"><span class="mcw-tl-dot"></span></div>
+          <div class="mcw-tl-text">
+            <div class="mcw-tl-title">댓글 멘션 · WBS-008</div>
+            <div class="mcw-tl-sub">@나 — “Drawer 구조 분리 PR 어디까지 진행됐나요?”</div>
+            <span class="mcw-tl-cta">댓글 확인</span>
+          </div>
+        </div>
+
+        <div class="mcw-tl-item">
+          <div class="mcw-tl-time">3시간 전</div>
+          <div class="mcw-tl-dot-col"><span class="mcw-tl-dot is-pass"></span></div>
+          <div class="mcw-tl-text">
+            <div class="mcw-tl-title">승인 상태 변경 · SS-006</div>
+            <div class="mcw-tl-sub">상태 검토중 → 승인완료 (승인자 강팀장)</div>
+            <span class="mcw-tl-cta">변경 확인</span>
+          </div>
+        </div>
+
+        <div class="mcw-tl-item">
+          <div class="mcw-tl-time">어제</div>
+          <div class="mcw-tl-dot-col"><span class="mcw-tl-dot"></span></div>
+          <div class="mcw-tl-text">
+            <div class="mcw-tl-title">화면설계서 수정 요청 · SS-011</div>
+            <div class="mcw-tl-sub">검토자 의견 3건 — 헤더 / 결제 단계 / 에러 메시지</div>
+            <span class="mcw-tl-cta">변경 확인</span>
+          </div>
+        </div>
+
+      </div>
+      <p class="mcw-sec-sub">
+        변경이력은 <strong>Undo 가 아니라 Recovery / 확인 관점</strong>으로 유지합니다.
+        모바일에서 되돌리기 동작은 제공하지 않고, 어떤 변화가 있었는지 확인하고
+        필요 시 데스크톱 화면으로 이동하는 흐름.
+      </p>
+    </div>
+  </section>
+
+  <!-- ======================================================== 8. Bottom action -->
+  <section class="mcw-section" aria-labelledby="mcw-s8">
+    <div class="mcw-sec-head">
+      <span class="mcw-sec-num">7</span>
+      <h2 id="mcw-s8" class="mcw-sec-title">Bottom Action / Sticky 영역 기준</h2>
+      <span class="mcw-sec-sub">4 탭 + 선택적 floating primary CTA — Preview 시안만</span>
+    </div>
+    <div class="mcw-sec-body">
+      <ul class="mcw-list">
+        <li><strong>4 탭 고정</strong> — 할 일 · 검토 · 알림 · 프로젝트. 메뉴 추가 / nav-data 수정은 본 PR 범위가 아닙니다.</li>
+        <li>활성 탭은 STAM 브랜드 색, 나머지는 <code>--t3</code>. 활성 표시 외 hover / pressed 별도 처리 없음.</li>
+        <li>Floating primary CTA 는 0~1개. “새 작업 / 새 검토 요청” 같은 명확한 1차 행동에만 사용.</li>
+        <li>실제 App Shell bottom nav 구현은 본 PR 에서 하지 않습니다. nav-data / shell.js / nav-render 변경 금지.</li>
+      </ul>
+      <div class="mcw-deck">
+        <div class="mcw-deck-aside">
+          <div class="mcw-device" aria-label="모바일 프레임 — Bottom action 예시">
+            <div class="mcw-device-screen">
+              <div class="mcw-device-topbar">
+                <span class="mcw-device-topbar-l">검토</span>
+                <span class="mcw-device-topbar-r">대기 3</span>
+              </div>
+              <div class="mcw-device-body">
+                <div class="mcw-card"><div class="mcw-card-title">SS-014 · 회원가입 v2</div><div class="mcw-card-sub">검토 대기 · 06-05</div></div>
+                <div class="mcw-card"><div class="mcw-card-title">SS-011 · 상품 상세</div><div class="mcw-card-sub">수정 요청 · 댓글 3</div></div>
+                <div class="mcw-card"><div class="mcw-card-title">WBS-008 · Drawer 분리</div><div class="mcw-card-sub">진행 40% · 06-08 마감</div></div>
+              </div>
+              <span class="mcw-fab" aria-hidden="true">＋</span>
+              <div class="mcw-bottom-mock">
+                <div class="mcw-bm-item">
+                  <span class="mcw-bm-ico">홈</span>
+                  <span class="mcw-bm-label">할 일</span>
+                </div>
+                <div class="mcw-bm-item is-active">
+                  <span class="mcw-bm-ico">검</span>
+                  <span class="mcw-bm-label">검토</span>
+                </div>
+                <div class="mcw-bm-item">
+                  <span class="mcw-bm-ico">알</span>
+                  <span class="mcw-bm-label">알림</span>
+                </div>
+                <div class="mcw-bm-item">
+                  <span class="mcw-bm-ico">프</span>
+                  <span class="mcw-bm-label">프로젝트</span>
+                </div>
+              </div>
+            </div>
+            <div class="mcw-device-label">검토 탭 + FAB</div>
+          </div>
+        </div>
+        <div>
+          <div class="mcw-contract">
+            <strong>Bottom action contract.</strong>
+            본 시안은 모바일 4 탭 + 선택적 FAB 의 <em>시각 기준선</em> 만 보여줍니다.
+            App Shell / Topbar / Left Nav / nav-data 변경은 본 PR 범위가 아니며,
+            실제 모바일 bottom nav 적용은 별도 PR 에서 진행합니다.
+            현재 상태에서는 데스크톱 좌측 메뉴(po-sidebar) 와 충돌하지 않도록 본 시안만 docs 안에서 격리되어 있습니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== 9. Responsive QA -->
+  <section class="mcw-section" aria-labelledby="mcw-s9">
+    <div class="mcw-sec-head">
+      <span class="mcw-sec-num">8</span>
+      <h2 id="mcw-s9" class="mcw-sec-title">반응형 QA 기준</h2>
+      <span class="mcw-sec-sub">390 / 430 / 768 / 1366 + Light / Dark</span>
+    </div>
+    <div class="mcw-sec-body">
+      <ul class="mcw-list mcw-list--check">
+        <li><strong>390 / 430</strong> — 모바일 첫 화면 카드 4~5개가 한 화면에 보임. 카드 grid 1열로 자연 wrap. 텍스트 잘림 없음.</li>
+        <li><strong>768</strong> — 디바이스 프레임 + 스펙 2열 유지. 폭이 좁아져도 카드 grid 2열 유지.</li>
+        <li><strong>1366</strong> — 좌측 디바이스(스티키 240px) + 우측 스펙. content max 1320px, 좌우 24px padding.</li>
+        <li><strong>Light / Dark</strong> — `var(--bg-base / --bg-sur / --bg-sur2 / --bg-sur3 / --t1 / --t2 / --t3 / --bd / --stam / --stam-soft)` 토큰만 사용. 다크모드 추가 polish 일부 보강.</li>
+        <li><strong>console</strong> — JS 없음. CSS import 만 4개 (S-Core Dream / tokens / components / buttons / mobile-core-workflow). console red error 발생 가능성 없음.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ======================================================== 10. Contract -->
+  <section class="mcw-section" aria-labelledby="mcw-s10">
+    <div class="mcw-sec-head">
+      <span class="mcw-sec-num">9</span>
+      <h2 id="mcw-s10" class="mcw-sec-title">보존해야 할 contract</h2>
+      <span class="mcw-sec-sub">후속 PR 에서 본 시안을 실제 화면으로 옮길 때 지켜야 할 기준</span>
+    </div>
+    <div class="mcw-sec-body">
+      <div class="mcw-contract">
+        <strong>구성 contract.</strong>
+        프로젝트 요약 → My Action Queue → WBS 요약 → 화면설계서 검토 → 알림 / 변경이력 → Bottom action
+        순서를 모바일 첫 화면 우선 순위로 유지합니다. WBS / 화면설계서 의 모바일 표현은
+        <em>요약 카드 + 핵심 리스트 + 데스크톱 연결 링크</em> 패턴만 유지합니다.
+      </div>
+      <div class="mcw-contract">
+        <strong>문구 contract.</strong>
+        검토 요청 / 승인 대기 / 오늘 마감 / 댓글 멘션 / 변경 확인 필요 / 지연 작업 / 전체 보기 /
+        검토하기 / 승인 보기 / 댓글 확인 / 변경 확인 / 확인하기 — 한국형 업무 동사 톤 유지.
+        “MVP” 표현은 사용하지 않음. “1차 기준 / 우선 적용 / 모바일 핵심 업무 흐름” 표현 유지.
+      </div>
+      <div class="mcw-contract">
+        <strong>기술 contract.</strong>
+        외부 CDN / 신규 JS / 신규 fetch / Firebase / Firestore / localStorage / sessionStorage /
+        indexedDB / XMLHttpRequest 신규 추가 없음. WBS / 화면설계서 closeout 파일
+        (wbs.html · stam.wbs.css · screen-specification.html · stam.screen-specification.css)
+        무변경. App Shell / Topbar / Left Nav / nav-data / shell.js / nav-render /
+        topbar-render / project-context-render 무변경. 신규 메뉴 / 화면 경로 / 데이터 모델 미추가.
+      </div>
+      <div class="mcw-contract">
+        <strong>WBS / 화면설계서 연결.</strong>
+        본 Preview 안의 데스크톱 진입 링크는 실제 production 경로
+        <code>../pages/boards/wbs.html</code> 과 <code>../pages/boards/screen-specification.html</code>
+        를 가리킵니다. docs 위치 기준 상대 경로이며, 새 화면 경로를 추가하지 않습니다.
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== Footer note -->
+  <p class="mcw-sec-sub" aria-hidden="true">
+    STAM Mobile Core Workflow Baseline v1 · PR #211 · 정적 Preview · 외부 CDN 없음 · JS 없음
+  </p>
+
+</div><!-- /.mcw-wrap -->
+
+</body>
+</html>
