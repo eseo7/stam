@@ -3536,3 +3536,180 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
  * .wbs-fv-head-actions .stam-btn …) 는 그대로 둔다. stam.wbs.js 가 동적
  * 렌더하는 '<button class="wbs-btn wbs-btn-primary">…' 마크업과 호환
  * 유지해야 하기 때문 (line 731 / 741). */
+
+/* ============================================================
+ * 31. WBS Detail Polish (PR #208)
+ *
+ *   목적: PR #207 source normalization 기준선을 유지한 채
+ *   일정 요약 타임라인 / 전체 간트차트 모달 / 그룹 헤더
+ *   영역의 시각 디테일을 다듬는다. 기존 rule은 그대로 두고
+ *   override 위주로 layer.
+ *
+ *   섹션:
+ *     31-A. Schedule Summary Timeline
+ *     31-B. Full Gantt Modal — sticky headers / depth / legend
+ *     31-C. Group Header — accessibility / spacing
+ *     31-D. Mobile / narrow-screen guards (1366 / 768 / 430)
+ * ============================================================ */
+
+/* ---- 31-A. Schedule Summary Timeline ------------------------ */
+
+/* 일정 요약 헤더: 1366 좁은 폭에서 타이틀이 줄바꿈되지 않도록
+ *   .wbs-gantt-meta 가 줄어들 수 있게 min-width 0 명시.
+ *   타이틀과 메타 사이에 가벼운 dot 구분을 넣어 위계 강조. */
+.wbs-gantt-head {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+.wbs-gantt-head .wbs-gantt-title { flex-shrink: 0; }
+.wbs-gantt-head .wbs-gantt-meta {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wbs-gantt-head .wbs-gantt-fullview-btn {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* Summary 6 칸: 화면이 좁아질 때 수직 리듬이 무너지지 않도록
+ *   최소 높이 보장 + 텍스트 위계 미세 보정. */
+.wbs-gsum-cell {
+  min-height: 64px;
+  justify-content: center;
+}
+.wbs-gsum-label {
+  letter-spacing: .05em;
+}
+.wbs-gsum-val {
+  margin-top: 1px;
+}
+.wbs-gsum-prog {
+  margin-top: 6px;
+}
+
+/* 그룹 진행률 줄: row hover 시 progress fill 톤이 사라지지 않도록
+ *   배경 변화에 dim 처리하지 않음 — 가독성 우선. */
+.wbs-gsum-grp-row {
+  min-height: 32px;
+}
+.wbs-gsum-grp-bar {
+  min-width: 120px;
+}
+.wbs-gsum-grp-track {
+  flex: 1;
+  min-width: 80px;
+}
+
+[data-theme="dark"] .wbs-gsum-grp-row.is-delay { background: rgba(255,66,66,.06); }
+[data-theme="dark"] .wbs-gsum-grp-row.is-delay:hover { background: rgba(255,66,66,.10); }
+
+/* ---- 31-B. Full Gantt Modal -------------------------------- */
+
+/* 모달 내부 month/week 헤더 sticky — 세로 스크롤 시에도
+ *   기간 컨텍스트가 사라지지 않게 한다. */
+.wbs-gantt-modal-body .wbs-gtl-month-row {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: var(--bg-sur2);
+}
+.wbs-gantt-modal-body .wbs-gtl-week-row {
+  position: sticky;
+  top: 28px; /* month-row 높이 기준 */
+  z-index: 3;
+  background: var(--bg-sur2);
+  border-bottom: 1px solid var(--bd);
+}
+
+/* Bar 깊이감: 다크모드에서 bar 가 배경에 너무 묻히지 않게 미세 stroke */
+[data-theme="dark"] .wbs-gtl-bar.gb-done  { border: 1px solid rgba(0,191,64,.30); }
+[data-theme="dark"] .wbs-gtl-bar.gb-prog  { border: 1px solid rgba(84,81,232,.32); }
+[data-theme="dark"] .wbs-gtl-bar.gb-wait  { background: rgba(255,255,255,.04); }
+[data-theme="dark"] .wbs-gtl-bar.gb-hold  { border-color: rgba(245,158,11,.65); }
+
+/* 오늘선: 약간 강해진 톤(.85) — 다크모드 대비 보장 */
+.wbs-gtl-today { opacity: .85; }
+[data-theme="dark"] .wbs-gtl-today {
+  background: var(--stam);
+  box-shadow: 0 0 4px rgba(84,81,232,.45);
+}
+
+/* 라벨 컬럼과 타임라인 컬럼 구분선 — 다크모드에서도 또렷하게 */
+.wbs-gtl-label {
+  background: var(--bg-sur);
+}
+[data-theme="dark"] .wbs-gtl-label {
+  background: var(--bg-sur2);
+  border-right-color: var(--bd-s);
+}
+
+/* Legend: 모달 하단에 sticky 처럼 보이도록 보더 안정화 */
+.wbs-gantt-modal-body .wbs-legend {
+  flex-wrap: wrap;
+  row-gap: 4px;
+  padding: 9px 14px;
+}
+
+/* ---- 31-C. Group Header ------------------------------------ */
+
+/* 토글 버튼: 키보드 포커스 표시 추가(접근성) */
+.wbs-grp-toggle-btn:focus-visible {
+  outline: 2px solid var(--stam);
+  outline-offset: 1px;
+}
+
+/* 그룹 헤더 내부 정렬 안정화 — 한 줄 안에 chip / progress 가
+ *   답답하지 않게 gap 조정 + 줄바꿈 안전판 */
+.wbs-grp-hdr-inner {
+  gap: 10px;
+  row-gap: 6px;
+  flex-wrap: wrap;
+}
+.wbs-grp-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wbs-grp-stats {
+  gap: 6px;
+}
+
+/* 그룹 진행률 cell — 1366 폭에서 라벨/bar 둘 다 보이게 */
+.wbs-grp-prog-cell { min-width: 140px; }
+.wbs-grp-hdr-inner .wbs-grp-progress {
+  flex: 0 0 auto;
+  min-width: 160px;
+}
+
+/* ---- 31-D. Narrow-screen guards ---------------------------- */
+
+/* 1366: 일정 요약 6칸이 너무 작아지지 않게 — gsum padding 미세 축소 */
+@media (max-width: 1366px) {
+  .wbs-gsum-cell { padding: 9px 12px; }
+  .wbs-gsum-val  { font-size: 17px; }
+}
+
+/* 768: 그룹 헤더 내부 / gantt summary 컬럼 정리 (깨짐 방지) */
+@media (max-width: 768px) {
+  .wbs-gantt-head .wbs-gantt-meta { white-space: normal; }
+  .wbs-gsum-grp-hdr,
+  .wbs-gsum-grp-row {
+    grid-template-columns: 1.4fr .9fr .5fr .7fr 1.1fr;
+    gap: 6px;
+  }
+  .wbs-grp-hdr-inner .wbs-grp-progress { min-width: 100px; }
+  .wbs-grp-prog-cell { min-width: 100px; }
+}
+
+/* 430: WBS 모바일 핵심은 깨짐 방지만 — 그룹 헤더 토글/이름은
+ *   유지하고 progress bar/cell은 컬럼 흐름이 자연 wrap 되도록 허용 */
+@media (max-width: 480px) {
+  .wbs-gantt-head { padding: 8px 12px; }
+  .wbs-gsum-val { font-size: 15px; }
+  .wbs-grp-hdr-inner { gap: 6px; }
+  .wbs-grp-hdr-inner .wbs-grp-progress { min-width: 0; flex: 1 1 100%; }
+}
