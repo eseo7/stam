@@ -3713,3 +3713,60 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
   .wbs-grp-hdr-inner { gap: 6px; }
   .wbs-grp-hdr-inner .wbs-grp-progress { min-width: 0; flex: 1 1 100%; }
 }
+
+/* ============================================================
+ * 32. WBS Gantt Sticky-Header Fix (PR #208 followup)
+ *
+ *   문제:
+ *     - 오늘선(.wbs-gtl-today, z:5)이 sticky month/week header(z:4,3)
+ *       위로 침범
+ *     - month-row 와 week-row 사이로 1px gap 발생(body grid가 비침)
+ *
+ *   해결:
+ *     a) sticky header 들의 z-index 를 today line 보다 확실히 위로
+ *        (z:11, z:10). today line 자체는 그대로(z:5).
+ *     b) 두 sticky row 모두 완전 불투명 배경 보장
+ *        (background-clip: padding-box, var(--bg-sur2))
+ *     c) week-row 의 top 을 month-row 실측 높이(26px)에 맞추되,
+ *        seam 1px overlap 으로 grid 비침 차단
+ *     d) modal 안에서는 today line z-index 를 4 로 강등 — 어떤 경우
+ *        에도 header 보다 절대 위로 가지 않음
+ * ============================================================ */
+
+/* a + b + c — month/week sticky header 안정화 */
+.wbs-gantt-modal-body .wbs-gtl-month-row {
+  position: sticky;
+  top: 0;
+  z-index: 11;                       /* > today (5) */
+  min-height: 26px;
+  background: var(--bg-sur2);
+  background-clip: padding-box;      /* 보더 영역으로 배경 안 새게 */
+  isolation: isolate;                /* 자식 z-index 가 외부 위로 못 가게 */
+}
+.wbs-gantt-modal-body .wbs-gtl-week-row {
+  position: sticky;
+  top: 25px;                         /* month-row 26px - 1px overlap */
+  z-index: 10;                       /* > today (5), < month (11) */
+  min-height: 22px;
+  background: var(--bg-sur2);
+  background-clip: padding-box;
+  border-top: 1px solid var(--bd);   /* month-row 와의 seam line 명시 */
+  box-shadow: 0 -1px 0 var(--bg-sur2); /* sub-pixel gap 마스킹 */
+  isolation: isolate;
+}
+
+/* 라이트 다크 동일하게 완전 불투명 보장 */
+[data-theme="light"] .wbs-gantt-modal-body .wbs-gtl-month-row,
+[data-theme="light"] .wbs-gantt-modal-body .wbs-gtl-week-row,
+[data-theme="dark"]  .wbs-gantt-modal-body .wbs-gtl-month-row,
+[data-theme="dark"]  .wbs-gantt-modal-body .wbs-gtl-week-row {
+  background-color: var(--bg-sur2);
+}
+
+/* d — 모달 내부 today line z-index 강등 (header 위로 절대 못 가게) */
+.wbs-gantt-modal-body .wbs-gtl-today { z-index: 4; }
+
+/* track 영역 자체 isolation — today line 이 sticky header 평면을
+ *  넘어가지 않도록 stacking context 확립 */
+.wbs-gantt-modal-body .wbs-gtl-row     { isolation: isolate; }
+.wbs-gantt-modal-body .wbs-gtl-track   { isolation: isolate; }
