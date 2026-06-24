@@ -17,26 +17,6 @@
   <link rel="stylesheet" href="../../css/stam.custom-select.css">
   <link rel="stylesheet" href="../../css/stam.board-filter.css">
   <link rel="stylesheet" href="../../css/stam.wbs.css">
-  <style>
-    /* Drawer footer: .stam-btn md sizing/variants win over legacy JS hook classes */
-    .wbs-drawer-footer .stam-btn {
-      box-sizing: border-box;
-      height: 32px;
-      padding: 0 12px;
-      font-size: 13px;
-      line-height: 1;
-      border-radius: var(--r-md);
-    }
-    .wbs-drawer-footer .stam-btn.wbs-btn-primary {
-      background: var(--btn-primary-bg);
-      color: var(--btn-primary-text);
-      border-color: var(--btn-primary-bg);
-    }
-    .wbs-drawer-footer .stam-btn.wbs-btn-primary:hover {
-      background: var(--btn-primary-bg-hover);
-      border-color: var(--btn-primary-bg-hover);
-    }
-  </style>
 </head>
 <body>
 
@@ -312,7 +292,7 @@
             <button class="wbs-btn" type="button" id="wbs-all-grp-btn">그룹 전체 접기</button>
             <button class="wbs-btn" type="button">컬럼 설정</button>
             <button class="wbs-btn" type="button" data-focus-toggle>Focus View</button>
-            <button class="wbs-filter-reset" type="button" style="margin-left:auto">초기화</button>
+            <button class="wbs-filter-reset" type="button">초기화</button>
             <div class="wbs-filter-divider"></div>
             <button class="wbs-toggle-btn" id="wbs-my-btn" type="button" title="내 담당 작업만 보기">내 담당</button>
             <button class="wbs-toggle-btn wbs-toggle-risk" id="wbs-risk-btn" type="button" title="지연·리스크·이슈 작업만 보기">리스크</button>
@@ -348,8 +328,8 @@
               </div>
             </div>
             <div class="wbs-fv-head-actions">
-              <button class="wbs-btn wbs-btn-primary" id="wbs-fv-edit-trigger" type="button">수정</button>
-              <button class="wbs-btn" id="wbs-fv-back-btn" type="button">← 목록으로</button>
+              <button class="stam-btn stam-btn--md stam-btn--secondary" id="wbs-fv-back-btn" type="button">← 목록으로</button>
+              <button class="stam-btn stam-btn--md stam-btn--primary wbs-btn-primary" id="wbs-fv-edit-trigger" type="button">수정</button>
               <button class="wbs-drawer-close" id="wbs-fv-x-btn" type="button" aria-label="닫기">✕</button>
             </div>
           </div>
@@ -1397,27 +1377,28 @@
           <!-- ===== FOOTER (공통 Shell) ===== -->
           <div class="wbs-drawer-footer">
 
-            <!-- detail slot -->
+            <!-- detail slot: [timestamp] [전체보기] [수정] -->
             <div class="wbs-detail-footer-slot">
               <span class="wbs-dw-detail-timestamp">최종 변경 2026-06-07 10:42</span>
-              <button class="wbs-btn wbs-drawer-edit-btn" type="button">수정</button>
+              <span class="wbs-footer-spacer"></span>
               <button class="stam-btn stam-btn--md stam-btn--ghost wbs-fv-trigger-btn" type="button">전체 보기</button>
+              <button class="stam-btn stam-btn--md stam-btn--primary wbs-btn-primary wbs-drawer-edit-btn" type="button">수정</button>
             </div>
 
-            <!-- edit slot -->
+            <!-- edit slot: [취소] [임시저장] [전체보기] (auto) [저장] -->
             <div class="wbs-edit-footer-slot">
               <button class="stam-btn stam-btn--md stam-btn--secondary wbs-drawer-cancel-btn" type="button">취소</button>
-              <button class="wbs-btn" type="button">임시저장</button>
+              <button class="stam-btn stam-btn--md stam-btn--ghost" type="button">임시저장</button>
               <button class="stam-btn stam-btn--md stam-btn--ghost wbs-fv-trigger-btn" type="button">전체 보기</button>
-              <button class="stam-btn stam-btn--md stam-btn--primary wbs-btn-primary" type="button" style="margin-left:auto">저장</button>
+              <button class="stam-btn stam-btn--md stam-btn--primary wbs-btn-primary wbs-footer-end" type="button">저장</button>
             </div>
 
-            <!-- create slot -->
+            <!-- create slot: [취소] [임시저장] [전체보기] (auto) [등록] -->
             <div class="wbs-create-footer-slot">
               <button class="stam-btn stam-btn--md stam-btn--secondary wbs-drawer-close-btn" type="button">취소</button>
-              <button class="wbs-btn" type="button">임시저장</button>
+              <button class="stam-btn stam-btn--md stam-btn--ghost" type="button">임시저장</button>
               <button class="stam-btn stam-btn--md stam-btn--ghost wbs-fv-trigger-btn" type="button">전체 보기</button>
-              <button class="stam-btn stam-btn--md stam-btn--primary wbs-btn-primary" type="button" style="margin-left:auto">등록</button>
+              <button class="stam-btn stam-btn--md stam-btn--primary wbs-btn-primary wbs-footer-end" type="button">등록</button>
             </div>
 
           </div><!-- /.wbs-drawer-footer -->

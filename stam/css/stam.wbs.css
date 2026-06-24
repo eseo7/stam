@@ -745,7 +745,17 @@
 
 /* ============================================================
  * 7. WBS Table
+ *   PR #206: single-viewport policy — only .wbs-tbl-inner owns horizontal
+ *   scroll; .wbs-table-zone never adds padding/border (zone is just a flow
+ *   container so the table card spans the full --content-max width).
  * ============================================================ */
+.wbs-table-zone {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
 .wbs-tbl-wrap {
   position: relative;
   background: var(--bg-sur);
@@ -991,7 +1001,8 @@
 .wbs-date.late { color: var(--fail); font-weight: 700; }
 .wbs-link-chip {
   display: inline-flex;
-  padding: 1px 6px;
+  align-items: center;
+  padding: 1px 7px;
   border-radius: 3px;
   font-size: 10px;
   font-weight: 600;
@@ -1000,6 +1011,16 @@
   font-family: var(--font);
   margin-right: 3px;
   white-space: nowrap;
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.wbs-link-chip:hover {
+  background: var(--stam-soft);
+  color: var(--stam);
+}
+.wbs-link-chip:focus-visible {
+  outline: 2px solid var(--stam);
+  outline-offset: 1px;
 }
 .wbs-issue-dot {
   display: inline-block;
@@ -1225,6 +1246,28 @@
   flex: 0 0 auto;            /* footer 고정 — grow/shrink 차단 */
   background: var(--bg-sur2);
 }
+/* Drawer footer: .stam-btn md sizing/variants win over legacy JS hook classes
+   (moved from wbs.html inline <style> in PR #206) */
+.wbs-drawer-footer .stam-btn {
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+  line-height: 1;
+  border-radius: var(--r-md);
+}
+.wbs-drawer-footer .stam-btn.wbs-btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--btn-primary-bg);
+}
+.wbs-drawer-footer .stam-btn.wbs-btn-primary:hover {
+  background: var(--btn-primary-bg-hover);
+  border-color: var(--btn-primary-bg-hover);
+}
+/* Footer primary action sticks to the right edge regardless of slot */
+.wbs-drawer-footer .wbs-footer-spacer { flex: 1 1 auto; }
+.wbs-drawer-footer .wbs-footer-end    { margin-left: auto; }
 
 /* ============================================================
  * 9. Mobile
@@ -2138,12 +2181,30 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
   box-shadow: 0 0 0 2px var(--stam-soft);
 }
 .wbs-drawer-form-textarea { resize: vertical; min-height: 60px; }
+/* placeholder tone aligned with screen-specification (PR #205) */
+.wbs-drawer-form-input::placeholder,
+.wbs-drawer-form-textarea::placeholder {
+  color: var(--t3);
+  opacity: 1;
+}
+.wbs-drawer-form-input:disabled,
+.wbs-drawer-form-select:disabled,
+.wbs-drawer-form-textarea:disabled {
+  background: var(--bg-sur2);
+  color: var(--t3);
+  cursor: not-allowed;
+}
 [data-theme="dark"] .wbs-drawer-form-input,
 [data-theme="dark"] .wbs-drawer-form-select,
 [data-theme="dark"] .wbs-drawer-form-textarea {
   background: var(--bg-sur2);
   border-color: var(--bd);
   color: var(--t1);
+}
+[data-theme="dark"] .wbs-drawer-form-input::placeholder,
+[data-theme="dark"] .wbs-drawer-form-textarea::placeholder {
+  color: var(--t3);
+  opacity: .85;
 }
 
 /* ============================================================
@@ -2217,6 +2278,24 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
   align-items: flex-start;
   gap: 6px;
   flex-shrink: 0;
+}
+/* Focus View header: align .stam-btn sizing with drawer-footer baseline */
+.wbs-fv-head-actions .stam-btn {
+  box-sizing: border-box;
+  height: 30px;
+  padding: 0 12px;
+  font-size: 12.5px;
+  line-height: 1;
+  border-radius: var(--r-md);
+}
+.wbs-fv-head-actions .stam-btn.wbs-btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-color: var(--btn-primary-bg);
+}
+.wbs-fv-head-actions .stam-btn.wbs-btn-primary:hover {
+  background: var(--btn-primary-bg-hover);
+  border-color: var(--btn-primary-bg-hover);
 }
 .wbs-fv-body {
   display: grid;
