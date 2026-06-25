@@ -20,7 +20,7 @@
   </div>
   <a href="../STAM-Component-Guide.html" class="doc-nav-back">← Component Guide</a>
   <span class="doc-nav-title">Form Guide</span>
-  <span class="doc-nav-pill"><span class="dot"></span>v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>1차 상세 기준</span>
   <div class="doc-nav-sp"></div>
   <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
 </nav>
@@ -555,6 +555,11 @@
       <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Form Examples</a></li>
       <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Accessibility</a></li>
       <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>QA Checklist</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Form vs Dialog vs Drawer</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Label / Copy</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Required / Optional</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>Mobile</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>Related Guides</a></li>
     </ul>
   </aside>
 
@@ -1416,6 +1421,216 @@
               <a href="STAM-Button-Guide.html" class="rel-link">Button Guide</a>
               <a href="STAM-Dialog-Guide.html" class="rel-link">Dialog Guide</a>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ S12 Form vs Dialog vs Drawer ═══ -->
+      <section id="s12" class="sec" data-screen-label="12 Form vs Dialog vs Drawer">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Form vs Dialog vs Drawer — 무엇을 쓸 것인가</span>
+          <span class="sbadge guide">1차 상세 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">선택 기준</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>상황</th>
+                <th>Form</th>
+                <th>Dialog</th>
+                <th>Drawer</th>
+                <th>전용 화면</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>짧은 확인 / 단일 결정</td>
+                <td>X</td>
+                <td>O</td>
+                <td>X</td>
+                <td>X</td>
+              </tr>
+              <tr>
+                <td>1~2개 필드 입력</td>
+                <td>O (form 영역 자체)</td>
+                <td>제한적 — 입력이 늘면 Drawer로</td>
+                <td>O</td>
+                <td>X</td>
+              </tr>
+              <tr>
+                <td>여러 필드 등록 / 수정 (5~15)</td>
+                <td>O (form 자체)</td>
+                <td>X</td>
+                <td>O — 우선 사용</td>
+                <td>X</td>
+              </tr>
+              <tr>
+                <td>긴 본문 작성 / 대량 입력</td>
+                <td>O (form 자체)</td>
+                <td>X</td>
+                <td>X</td>
+                <td>O — 전용 화면</td>
+              </tr>
+              <tr>
+                <td>위험 액션 확인 (삭제 · 반려)</td>
+                <td>X</td>
+                <td>O</td>
+                <td>X</td>
+                <td>X</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ibox info">
+            Form은 “입력 구조 자체”의 기준이다. Form이 어디에 담길지(Dialog · Drawer · 전용 화면)는 입력 규모와 결정의 성격으로 정한다. 저장 / 검토 요청 / 승인 같은 결과 행동의 위계와 문구는 Button Guide와 Dialog Guide를 따른다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ S13 Label / Copy ═══ -->
+      <section id="s13" class="sec" data-screen-label="13 Label / Copy">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Label / Placeholder / Help / Error — 문구 기준</span>
+          <span class="sbadge guide">1차 상세 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">원칙</p>
+          <ul class="blist">
+            <li>Label은 항상 의미가 명확해야 한다. 입력 대상이 무엇인지 한 눈에 알 수 있게 작성한다.</li>
+            <li>Placeholder는 Label을 대체하지 않는다. Placeholder는 입력 예시 또는 형식만 보여주고, 의미는 Label이 책임진다.</li>
+            <li>Help text는 입력 규칙 · 예시 · 제약을 설명한다. 짧고 구체적으로 쓴다.</li>
+            <li>Error message는 “무엇이 잘못되었는지 + 어떻게 고치는지”를 모두 알려준다. 단순 “오류”는 금지.</li>
+            <li>같은 화면에서 “입력하세요”만 반복하는 placeholder는 의미 없는 노이즈다.</li>
+          </ul>
+
+          <div class="dd-grid">
+            <div class="dd-card do">
+              <div class="dd-hdr"><span class="dd-dot"></span>좋은 Label 예</div>
+              <ul class="dd-list">
+                <li>화면명</li>
+                <li>담당자</li>
+                <li>완료 예정일</li>
+                <li>검토 요청 사유</li>
+                <li>권한 그룹</li>
+                <li>요구사항 ID</li>
+              </ul>
+            </div>
+            <div class="dd-card dont">
+              <div class="dd-hdr"><span class="dd-dot"></span>피해야 할 Label 예</div>
+              <ul class="dd-list">
+                <li>값</li>
+                <li>내용</li>
+                <li>입력</li>
+                <li>선택</li>
+                <li>기타</li>
+                <li>정보</li>
+              </ul>
+            </div>
+          </div>
+
+          <p class="sub">Error message 예</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>상황</th>
+                <th>좋은 문구</th>
+                <th>피해야 할 문구</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>필수값 누락</td>
+                <td>화면명을 입력해 주세요.</td>
+                <td>오류 / 필수값 / 입력 오류</td>
+              </tr>
+              <tr>
+                <td>형식 오류</td>
+                <td>날짜는 YYYY-MM-DD 형식으로 입력해 주세요.</td>
+                <td>잘못된 형식입니다</td>
+              </tr>
+              <tr>
+                <td>길이 초과</td>
+                <td>화면명은 60자 이내로 입력해 주세요. (현재 84자)</td>
+                <td>너무 깁니다</td>
+              </tr>
+              <tr>
+                <td>서버 검증 실패</td>
+                <td>같은 ID가 이미 있어요. 다른 ID를 사용해 주세요.</td>
+                <td>오류가 발생했습니다</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ═══ S14 Required / Optional ═══ -->
+      <section id="s14" class="sec" data-screen-label="14 Required / Optional">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Required / Optional — 필수 · 선택 표시 기준</span>
+          <span class="sbadge guide">1차 상세 기준</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>필수값은 명확히 표시한다. (별표 또는 “필수” 라벨 등 한 가지 방식을 일관되게 사용)</li>
+            <li>Optional 표시를 모든 필드에 남발하지 않는다. 대부분이 선택값인 화면이라면 필수만 표기한다.</li>
+            <li>필수 / 선택 표시 방식은 한 화면 / 한 가이드 안에서 한 가지로 일관되어야 한다.</li>
+            <li>저장 버튼 disabled만으로 필수값 누락을 설명하지 않는다. 어떤 필드가 비었는지 즉시 알 수 있어야 한다.</li>
+            <li>스크린리더가 필수 상태를 인지할 수 있게 한다 (예: <code>aria-required</code> 또는 label 보조).</li>
+          </ul>
+
+          <div class="ibox warn">
+            <strong>핵심 원칙</strong>
+            “필수값 누락은 저장 실패가 아니라 입력 시점에 알린다.” 사용자가 저장 버튼을 눌렀을 때 비로소 알게 되는 패턴은 피한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ S15 Mobile ═══ -->
+      <section id="s15" class="sec" data-screen-label="15 Mobile">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">Mobile / Narrow Width — 모바일 기준</span>
+          <span class="sbadge guide">1차 상세 기준</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>430px 이하에서는 1열 stack을 우선한다. 좁은 폭에서 2열 / 3열을 억지로 유지하지 않는다.</li>
+            <li>Label과 input이 겹치거나 잘리지 않도록 line-height와 폭을 확보한다.</li>
+            <li>select · date · 숫자 input 등 가상 키보드와 상호작용하는 컨트롤은 터치 영역을 충분히 확보한다 (권장 44px).</li>
+            <li>오류 메시지가 화면 밖으로 밀리지 않도록 한다. 긴 메시지는 줄바꿈을 허용한다.</li>
+            <li>하단 고정 저장 버튼은 모바일 가상 키보드에 가려질 수 있다. Drawer 또는 sticky footer의 동작 기준을 함께 점검한다.</li>
+            <li>긴 form은 섹션 단위로 묶고, 상단에 진행 위치를 인지할 수 있는 보조 정보를 둔다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ═══ S16 Related Guides ═══ -->
+      <section id="s16" class="sec" data-screen-label="16 Related Guides">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
+          <span class="sec-title">Related Guides — 관련 가이드</span>
+          <span class="sbadge guide">진입 허브</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">관련 문서</p>
+          <div class="rel-links">
+            <a href="../STAM-Docs-Index.html" class="rel-link">← Docs Index</a>
+            <a href="../STAM-Component-Guide.html" class="rel-link">← Component Guide</a>
+            <a href="../STAM-UI-Baseline-Guide.html" class="rel-link">UI Baseline Guide</a>
+            <a href="STAM-Button-Guide.html" class="rel-link">Button Guide</a>
+            <a href="STAM-Icon-Guide.html" class="rel-link">Icon Guide</a>
+            <a href="STAM-Dialog-Guide.html" class="rel-link">Dialog Guide</a>
+            <a href="STAM-Drawer-Guide.html" class="rel-link">Drawer Guide</a>
+            <a href="STAM-Table-Guide.html" class="rel-link">Table Guide</a>
+            <a href="STAM-Topbar-Guide.html" class="rel-link">Topbar Guide</a>
+          </div>
+
+          <div class="ibox info">
+            본 Form Guide는 1차 상세 기준이다. 후속 PR에서 토큰 매핑(<code>STAM-Form-Token-Mapping-v1</code>) · CSS 구현 매핑 · 실제 제품 폼 적용 현황과 정합화한다.
           </div>
         </div>
       </section>
