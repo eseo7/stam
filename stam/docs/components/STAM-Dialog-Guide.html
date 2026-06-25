@@ -20,7 +20,7 @@
   </div>
   <a href="../STAM-Component-Guide.html" class="doc-nav-back">← Component Guide</a>
   <span class="doc-nav-title">Dialog Guide</span>
-  <span class="doc-nav-pill"><span class="dot"></span>v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>1차 상세 기준</span>
   <div class="doc-nav-sp"></div>
   <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
 </nav>
@@ -474,6 +474,10 @@
       <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Dialog Examples</a></li>
       <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Accessibility</a></li>
       <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>QA Checklist</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Dialog vs Drawer</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Copy / Message</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Mobile</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Related Guides</a></li>
     </ul>
   </aside>
 
@@ -1068,6 +1072,188 @@
               <a href="../STAM-Component-Guide.html" class="rel-link">← Component Guide</a>
               <a href="STAM-Button-Guide.html" class="rel-link">Button Guide</a>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ S10 Dialog vs Drawer ═══ -->
+      <section id="s10" class="sec" data-screen-label="10 Dialog vs Drawer">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Dialog vs Drawer — 무엇을 쓸 것인가</span>
+          <span class="sbadge guide">1차 상세 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">선택 기준</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>상황</th>
+                <th>Dialog</th>
+                <th>Drawer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>짧은 확인 / 단일 결정</td>
+                <td>O — 흐름을 잠시 멈추고 결정</td>
+                <td>X — 결정을 위해 별도 영역을 열 필요 없음</td>
+              </tr>
+              <tr>
+                <td>위험 액션 확인 (삭제 · 반려 · 권한 제거)</td>
+                <td>O — 사용자의 명시적 확인을 받는다</td>
+                <td>X</td>
+              </tr>
+              <tr>
+                <td>오류 / 경고 메시지 (다음 행동 필요)</td>
+                <td>O — 진행을 막고 행동을 묻는다</td>
+                <td>X — 단순 안내라면 banner / toast로 충분</td>
+              </tr>
+              <tr>
+                <td>상세 보기</td>
+                <td>X</td>
+                <td>O — 본문 · 메타 · 이력 등 정보를 풍부하게</td>
+              </tr>
+              <tr>
+                <td>등록 / 수정 폼</td>
+                <td>X — 필드 1~2개 초과면 dialog 금지</td>
+                <td>O — 여러 필드 · 검증 · 임시저장 흐름</td>
+              </tr>
+              <tr>
+                <td>검토 / 연결 정보 탐색</td>
+                <td>X</td>
+                <td>O — 긴 내용 스크롤과 사이드 탐색</td>
+              </tr>
+              <tr>
+                <td>한 번의 결정 + 사유 / 메모 입력</td>
+                <td>X — 입력이 들어가면 Drawer 또는 전용 화면 우선</td>
+                <td>O — 입력 + 검토 흐름은 Drawer에서</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ibox warn">
+            <strong>핵심 원칙</strong>
+            “입력 필드가 늘어나면 Dialog가 아니다.” 저장·등록·승인 사유 같이 입력이 필요한 흐름은 Drawer 또는 전용 화면을 사용한다. Dialog는 한 번의 명시적 결정에만 쓴다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ S11 Copy / Message ═══ -->
+      <section id="s11" class="sec" data-screen-label="11 Copy / Message">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Copy / Message — 한국형 업무 문구 기준</span>
+          <span class="sbadge guide">1차 상세 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">제목 / 본문 / 버튼 원칙</p>
+          <ul class="blist">
+            <li>제목은 결과 중심으로 작성한다. “요구사항을 삭제할까요?”, “검토 요청을 보낼까요?”, “변경사항을 저장하지 않고 닫을까요?”</li>
+            <li>본문은 영향과 다음 행동을 설명한다. 무엇이 바뀌고 무엇을 잃는지를 명확히 한다.</li>
+            <li>위험 액션은 본문에 대상 / 영향 / 복구 가능 여부를 포함한다. 예: “이 요구사항과 연결된 화면설계서 3건의 연결이 해제됩니다. 복구할 수 없습니다.”</li>
+            <li>버튼 문구는 짧고 명확한 동사로 쓰고, 결과가 즉시 드러나야 한다.</li>
+          </ul>
+
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>유형</th>
+                <th>제목 예</th>
+                <th>버튼</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Confirm</td>
+                <td>변경사항을 저장하지 않고 닫을까요?</td>
+                <td>취소 / 닫기</td>
+              </tr>
+              <tr>
+                <td>Destructive</td>
+                <td>요구사항을 삭제할까요?</td>
+                <td>취소 / 요구사항 삭제</td>
+              </tr>
+              <tr>
+                <td>Approval</td>
+                <td>검토 요청을 보낼까요?</td>
+                <td>취소 / 검토 요청</td>
+              </tr>
+              <tr>
+                <td>Reject</td>
+                <td>검토를 반려할까요?</td>
+                <td>취소 / 반려</td>
+              </tr>
+              <tr>
+                <td>Error</td>
+                <td>저장하지 못했어요</td>
+                <td>닫기 / 다시 시도</td>
+              </tr>
+              <tr>
+                <td>Info</td>
+                <td>이번 변경이 다른 화면에 영향을 줄 수 있어요</td>
+                <td>확인 (단일)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p class="sub">피해야 할 문구</p>
+          <ul class="blist">
+            <li>“정말 진행하시겠습니까?” / “확인하시겠습니까?” / “처리하시겠습니까?”</li>
+            <li>“OK” / “Submit” / “실행”</li>
+            <li>대상 없는 “삭제하시겠습니까?” — 무엇을 삭제하는지 알 수 없음</li>
+            <li>같은 화면에서 의미가 다른 “확인”의 반복 사용</li>
+            <li>기술 오류 코드만 노출하고 다음 행동을 제시하지 않는 메시지</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ═══ S12 Mobile ═══ -->
+      <section id="s12" class="sec" data-screen-label="12 Mobile">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Mobile / Narrow Width — 모바일 기준</span>
+          <span class="sbadge guide">1차 상세 기준</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>430px 폭에서 dialog는 화면 안에 들어와야 한다. 좌우 여백을 확보하고, 본문이 길면 dialog 내부에서 세로 스크롤이 동작해야 한다.</li>
+            <li>footer 버튼이 한 줄에 들어오지 않으면 stack(세로 적층)을 허용한다. Primary는 위쪽(또는 stack 기준의 마지막)에 둔다.</li>
+            <li>Destructive 버튼은 다른 버튼과 충분한 간격을 두어 실수 클릭을 방지한다. Cancel과 Destructive가 붙어 있지 않게 한다.</li>
+            <li>모바일에서 overlay click 닫기는 신중히 사용한다. Destructive / Approval dialog는 overlay click으로 닫히지 않도록 제한한다.</li>
+            <li>입력이 필요한 dialog는 모바일에서 가상 키보드가 본문을 가리기 쉽다. 입력이 있는 흐름은 Drawer 또는 전용 화면을 사용한다.</li>
+            <li>버튼 터치 영역은 최소 44px를 권장한다. icon-only 닫기 버튼도 hit area는 44px 이상을 유지한다.</li>
+          </ul>
+
+          <div class="ibox info">
+            본 기준은 “모바일에서 dialog가 어떻게 동작해야 하는가”에 대한 원칙이다. 실제 CSS / 미디어쿼리는 본 PR에서 추가하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ S13 Related Guides ═══ -->
+      <section id="s13" class="sec" data-screen-label="13 Related Guides">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Related Guides — 관련 가이드</span>
+          <span class="sbadge guide">진입 허브</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">관련 문서</p>
+          <div class="rel-links">
+            <a href="../STAM-Docs-Index.html" class="rel-link">← Docs Index</a>
+            <a href="../STAM-Component-Guide.html" class="rel-link">← Component Guide</a>
+            <a href="../STAM-UI-Baseline-Guide.html" class="rel-link">UI Baseline Guide</a>
+            <a href="STAM-Button-Guide.html" class="rel-link">Button Guide</a>
+            <a href="STAM-Icon-Guide.html" class="rel-link">Icon Guide</a>
+            <a href="STAM-Form-Guide.html" class="rel-link">Form Guide</a>
+            <a href="STAM-Drawer-Guide.html" class="rel-link">Drawer Guide</a>
+            <a href="STAM-Table-Guide.html" class="rel-link">Table Guide</a>
+            <a href="STAM-Topbar-Guide.html" class="rel-link">Topbar Guide</a>
+          </div>
+
+          <div class="ibox info">
+            본 Dialog Guide는 1차 상세 기준이다. 후속 PR에서 토큰 매핑(<code>STAM-Dialog-Token-Mapping-v1</code>) · CSS 구현 매핑 · 실제 제품 적용 현황과 정합화한다.
           </div>
         </div>
       </section>
