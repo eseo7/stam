@@ -20,7 +20,7 @@
   </div>
   <a href="../STAM-Component-Guide.html" class="doc-nav-back">← Component Guide</a>
   <span class="doc-nav-title">Table Guide</span>
-  <span class="doc-nav-pill"><span class="dot"></span>v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>1차 상세 기준</span>
   <div class="doc-nav-sp"></div>
   <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
 </nav>
@@ -414,7 +414,7 @@ html, body { overflow-x: hidden; }
   <aside class="guide-toc">
     <div class="toc-hdr">
       <span class="toc-brand">Table Guide</span>
-      <span class="toc-ver-pill">v1</span>
+      <span class="toc-ver-pill">1차 상세 기준</span>
     </div>
     <ul class="toc-list">
       <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
@@ -430,7 +430,9 @@ html, body { overflow-x: hidden; }
       <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Examples</a></li>
       <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Accessibility</a></li>
       <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>QA Checklist</a></li>
-      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Related Links</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Drawer / Focus View</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>Density / Mobile</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>Related Links</a></li>
     </ul>
   </aside>
 
@@ -1392,10 +1394,95 @@ html, body { overflow-x: hidden; }
         </div>
       </section>
 
-      <!-- ────────────── S14 Related Links ────────────── -->
-      <section id="s14" class="sec" data-screen-label="14 Related Links">
+      <!-- ────────────── S14 Drawer / Focus View ────────────── -->
+      <section id="s14" class="sec" data-screen-label="14 Drawer / Focus View">
         <div class="sec-hdr">
           <span class="sec-n">14</span>
+          <span class="sec-title">Drawer 연결 / Focus View / 전체보기 기준</span>
+          <span class="sbadge guide">1차 상세 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">행 클릭 → Drawer 연결</p>
+          <ul class="blist">
+            <li>행 클릭의 기본 결과는 상세 보기 Drawer를 여는 것이다. 행 안의 액션 버튼 클릭과는 분리한다. (행 클릭 = 상세, 액션 버튼 클릭 = 즉시 동작)</li>
+            <li>Drawer header / body / footer 구조와 footer action 순서는 <code>Drawer Guide</code> 기준을 따른다. 본 가이드에서 별도 정의하지 않는다.</li>
+            <li>등록 / 수정 / 검토 Drawer 흐름은 모두 Drawer Guide를 따른다. Table 안에서 별도 폼을 만들지 않는다.</li>
+            <li>삭제 · 반려 · 권한 제거 같은 위험 액션은 행 액션 또는 Drawer footer에서 즉시 실행하지 않는다. <code>Dialog Guide</code> 확인을 거친다.</li>
+          </ul>
+
+          <p class="sub">Focus View / 전체보기</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>모드</th>
+                <th>역할</th>
+                <th>전환 기준</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>기본 목록</td>
+                <td>핵심 컬럼만 노출. 행 클릭 = Drawer 상세.</td>
+                <td>최초 진입 / 일반 탐색.</td>
+              </tr>
+              <tr>
+                <td>전체보기 (Drawer 내)</td>
+                <td>상세 Drawer를 전체 영역으로 확장. 긴 본문 / 첨부 / 이력 등을 넓게 본다.</td>
+                <td>Drawer footer의 <code>[전체 보기]</code> 액션으로 전환. 닫으면 목록 맥락으로 복귀.</td>
+              </tr>
+              <tr>
+                <td>Focus View (목록)</td>
+                <td>컬럼 많은 화면(WBS 등)에서 본문 영역에 집중한다. 좌측 네비 / 보조 panel을 접고 테이블 가로폭을 확보한다.</td>
+                <td>화면별 Focus View 토글 또는 UI Baseline Guide S10 기준.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ibox info">
+            테이블 가로 스크롤 · Focus View 기준은 <a href="../STAM-UI-Baseline-Guide.html#s10">Baseline Guide S10 Focus View</a>를 참조한다. 본 가이드는 “행 클릭 / 액션 분리 + Drawer 연결 + 전체보기 전환” 관점에서 보완한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S15 Density / Mobile ────────────── -->
+      <section id="s15" class="sec" data-screen-label="15 Density / Mobile">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">High Density / Mobile — 고밀도 · 모바일 기준</span>
+          <span class="sbadge guide">1차 상세 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">High Density Table</p>
+          <ul class="blist">
+            <li>WBS · 요구사항 · 화면설계서 목록처럼 컬럼이 많은 화면은 기본 목록 / 전체보기 / Focus View 기준을 분리한다. 한 화면에서 모든 컬럼을 동시에 강제하지 않는다.</li>
+            <li>긴 컬럼명은 줄임표 처리하고, 전체 텍스트는 tooltip 또는 행 클릭 → Drawer에서 확인한다.</li>
+            <li>긴 값(예: 긴 제목 / 긴 description)은 셀 내부에서 1줄 줄임표 처리한다. 셀이 자유롭게 세로로 늘어나지 않게 한다.</li>
+            <li>빈 값은 “—” 등 일관된 placeholder를 사용한다. 빈 셀을 그대로 두지 않는다.</li>
+            <li>숨김 컬럼 / 권한별 액션 노출은 사용자 권한에 맞춰 결정한다. 권한 없는 액션은 노출하지 않거나 disabled + 이유를 함께 보여준다.</li>
+            <li>행 액션이 5개를 넘기면 더보기 메뉴로 묶는 것을 권장한다. 행 안이 액션 아이콘으로 가득 차지 않게 한다.</li>
+            <li>가로 스크롤은 테이블 컨테이너 내부로 한정한다. 페이지 전체에 가로 스크롤이 발생하지 않게 한다.</li>
+          </ul>
+
+          <p class="sub">Mobile / Narrow Width (430px 이하)</p>
+          <ul class="blist">
+            <li>모든 컬럼을 억지로 유지하지 않는다. 핵심 컬럼(제목 · 상태 · 담당자 · 일자 등)을 우선하고 보조 정보는 행 클릭 → Drawer 또는 row detail 영역으로 옮긴다.</li>
+            <li>행 액션은 텍스트 버튼보다 icon button / 더보기를 우선한다. icon-only 버튼은 <code>Icon Guide</code>의 라벨 / hit area 기준을 따른다.</li>
+            <li>filter / search / sort 컨트롤은 폭이 좁아지면 stack 또는 sheet 형태로 전환한다. toolbar 한 줄에 억지로 유지하지 않는다.</li>
+            <li>가로 스크롤은 테이블 내부에서만 동작한다. 페이지 전체에 가로 스크롤이 발생하지 않게 한다.</li>
+            <li>고정 footer / 저장 버튼은 가상 키보드에 가려질 수 있다. 입력 흐름이 있다면 <code>Drawer Guide</code> 기준을 따른다.</li>
+          </ul>
+
+          <div class="ibox warn">
+            <strong>핵심 원칙</strong>
+            “모바일에서 보이는 것을 줄이는 것이 아니라, 중요한 것만 우선 보이게 하는 것이다.” 보조 정보는 사라지지 않고 Drawer / row detail로 이동한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S16 Related Links ────────────── -->
+      <section id="s16" class="sec" data-screen-label="16 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
           <span class="sec-title">Related Links — 관련 문서</span>
         </div>
         <div class="sec-body">
@@ -1440,6 +1527,27 @@ html, body { overflow-x: hidden; }
               <div class="rel-body">
                 <div class="rel-title">Drawer Guide</div>
                 <div class="rel-sub">행 클릭 상세 패널</div>
+              </div>
+            </a>
+            <a href="STAM-Icon-Guide.html" class="rel-card">
+              <div class="rel-ico">Ico</div>
+              <div class="rel-body">
+                <div class="rel-title">Icon Guide</div>
+                <div class="rel-sub">행 액션 icon button 기준</div>
+              </div>
+            </a>
+            <a href="STAM-Topbar-Guide.html" class="rel-card">
+              <div class="rel-ico">Top</div>
+              <div class="rel-body">
+                <div class="rel-title">Topbar Guide</div>
+                <div class="rel-sub">목록 외 화면 맥락</div>
+              </div>
+            </a>
+            <a href="../STAM-UI-Baseline-Guide.html" class="rel-card">
+              <div class="rel-ico">BG</div>
+              <div class="rel-body">
+                <div class="rel-title">UI Baseline Guide</div>
+                <div class="rel-sub">S10 Focus View 기준</div>
               </div>
             </a>
           </div>
