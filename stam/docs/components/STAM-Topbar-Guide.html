@@ -20,7 +20,7 @@
   </div>
   <a href="../STAM-Component-Guide.html" class="doc-nav-back">← Component Guide</a>
   <span class="doc-nav-title">Topbar Guide</span>
-  <span class="doc-nav-pill"><span class="dot"></span>v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>1차 상세 기준</span>
   <div class="doc-nav-sp"></div>
   <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
 </nav>
@@ -330,7 +330,7 @@ html, body { overflow-x: hidden; }
   <aside class="guide-toc">
     <div class="toc-hdr">
       <span class="toc-brand">Topbar Guide</span>
-      <span class="toc-ver-pill">v1</span>
+      <span class="toc-ver-pill">1차 상세 기준</span>
     </div>
     <ul class="toc-list">
       <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
@@ -345,7 +345,10 @@ html, body { overflow-x: hidden; }
       <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Examples</a></li>
       <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Accessibility</a></li>
       <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>QA Checklist</a></li>
-      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Related Links</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Product vs Docs Nav</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Title / Context / Badge</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>Refresh / Permission</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>Related Links</a></li>
     </ul>
   </aside>
 
@@ -961,10 +964,120 @@ html, body { overflow-x: hidden; }
         </div>
       </section>
 
-      <!-- ────────────── S13 Related Links ────────────── -->
-      <section id="s13" class="sec" data-screen-label="13 Related Links">
+      <!-- ────────────── S13 Product Topbar vs Docs Nav ────────────── -->
+      <section id="s13" class="sec" data-screen-label="13 Product vs Docs Nav">
         <div class="sec-hdr">
           <span class="sec-n">13</span>
+          <span class="sec-title">Product Topbar vs Docs Nav — 역할 분리</span>
+          <span class="sbadge guide">1차 상세 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">두 가지 Topbar는 역할이 다르다</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>구분</th>
+                <th>Product Topbar (제품 화면)</th>
+                <th>Docs Nav (가이드/문서)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>역할</td>
+                <td>현재 화면명 · 프로젝트/워크스페이스 컨텍스트 · 상태 · 주요 액션 노출</td>
+                <td>문서 이동(← Component Guide / Docs Index) · 버전·상태 배지 · 다크모드 토글 등 문서 탐색 보조</td>
+              </tr>
+              <tr>
+                <td>주요 컨트롤</td>
+                <td>화면 제목, 프로젝트 선택, 상태 badge, Primary CTA 1, 보조 액션 2~3, 사용자 메뉴</td>
+                <td>back link, 가이드 제목, 버전 pill, 다크모드 토글</td>
+              </tr>
+              <tr>
+                <td>위험 액션</td>
+                <td>즉시 실행하지 않음. 삭제 · 권한 제거는 Dialog Guide 확인 위임</td>
+                <td>없음</td>
+              </tr>
+              <tr>
+                <td>혼용 여부</td>
+                <td colspan="2">두 Topbar 패턴을 혼용하지 않는다. 제품 화면에 docs nav 모양을, docs 문서에 product topbar 모양을 끼워넣지 않는다.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ibox info">
+            본 가이드의 본문 섹션(S01~S12)은 주로 <strong>Product Topbar</strong>에 대한 기준이다. Docs Nav는 본 문서를 포함한 가이드 페이지 상단의 <code>doc-nav</code> 영역을 의미하며 별도 확장하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S14 Title / Context / Badge ────────────── -->
+      <section id="s14" class="sec" data-screen-label="14 Title / Context / Badge">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Title · Breadcrumb · Project Context · Status / Env Badge</span>
+          <span class="sbadge guide">1차 상세 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Title / Breadcrumb / Context</p>
+          <ul class="blist">
+            <li>현재 화면명은 Topbar의 핵심 텍스트로 가장 먼저 인식되어야 한다. 너무 길면 줄임표 처리하고 전체 텍스트는 tooltip으로 보여준다.</li>
+            <li>Breadcrumb은 화면 깊이가 2단계 이상일 때 노출한다. 1단계 화면에는 두지 않는다.</li>
+            <li>Breadcrumb은 “이동 가능한 경로”만 노출한다. 단순 라벨을 breadcrumb처럼 보이게 두지 않는다.</li>
+            <li>화면 제목과 breadcrumb은 같은 정보를 중복으로 강조하지 않는다.</li>
+          </ul>
+
+          <p class="sub">Project / Workspace Context</p>
+          <ul class="blist">
+            <li>프로젝트 / 워크스페이스 컨텍스트는 Topbar 좌측 또는 화면 제목 근처에 일관된 위치로 둔다. 화면마다 위치를 바꾸지 않는다.</li>
+            <li>프로젝트 전환은 명시적 컨트롤(드롭다운 / 선택 메뉴)로 제공한다. URL hack 또는 hover only로 노출하지 않는다.</li>
+            <li>현재 컨텍스트가 무엇인지 텍스트로 명확히 보여준다. 색상만으로 구분하지 않는다.</li>
+          </ul>
+
+          <p class="sub">Status / Environment Badge</p>
+          <ul class="blist">
+            <li>화면 상태(예: 작성중 · 검토중 · 승인됨 · 보관됨)는 chip / badge로 명확히 보여준다. 색상 + 텍스트를 함께 사용한다.</li>
+            <li>환경 배지(staging / preview / production)는 운영 환경 식별이 필요한 경우에만 노출한다. 사용자 일반 흐름에는 가벼운 형태로 둔다.</li>
+            <li>위험한 환경(예: production)에서는 배지가 다른 환경과 시각적으로 구분되어야 한다.</li>
+            <li>같은 badge 색상을 서로 다른 의미로 재사용하지 않는다. 의미와 색상의 매핑을 일관되게 유지한다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ────────────── S15 Refresh / Permission ────────────── -->
+      <section id="s15" class="sec" data-screen-label="15 Refresh / Permission">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">Refresh · Permission / Visibility</span>
+          <span class="sbadge guide">1차 상세 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Refresh / Reload 기준</p>
+          <ul class="blist">
+            <li>“새로고침”은 브라우저 기본 새로고침을 기본으로 한다. Topbar에 별도 강제 새로고침 CTA를 두지 않는다.</li>
+            <li>하드 새로고침, Service Worker unregister, storage clear, URL query cache busting 같은 파괴적 동작은 본 Topbar 기준에 포함하지 않는다.</li>
+            <li>캐시 / 배포 확인용 새로고침이 필요한 경우 별도 운영·개발자용 액션으로 분리한다. 일반 사용자 Topbar CTA로 노출하지 않는다.</li>
+            <li>“새로고침” 버튼이 필요한 데이터 영역(예: 실시간 상태 표)이면 Topbar가 아닌 해당 toolbar / panel 내부에 두고 영향 범위를 한정한다.</li>
+          </ul>
+
+          <p class="sub">Permission / Visibility</p>
+          <ul class="blist">
+            <li>권한이 없는 액션은 Topbar에 노출하지 않는 것을 기본으로 한다. 노출이 필요하면 disabled + 이유 안내를 함께 제공한다.</li>
+            <li>관리자 전용 / 운영 전용 액션은 일반 사용자 Topbar에 섞어 두지 않는다. 별도 진입 경로로 분리한다.</li>
+            <li>위험 액션은 단순 권한 체크로 끝나지 않고 Dialog Guide 확인 절차와 함께 사용한다.</li>
+            <li>화면 상태(읽기 전용 / 수정 가능)에 따라 Primary CTA가 disabled / hidden / 다른 라벨로 바뀔 수 있다. 변경 기준을 화면 간 일관되게 유지한다.</li>
+          </ul>
+
+          <div class="ibox warn">
+            <strong>핵심 원칙</strong>
+            “Topbar는 사용자가 가장 자주 보는 영역이다. 위험 액션 · 파괴적 새로고침 · 권한 없는 액션은 여기에 두지 않는다.”
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S16 Related Links ────────────── -->
+      <section id="s16" class="sec" data-screen-label="16 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
           <span class="sec-title">Related Links — 관련 문서</span>
           <span class="sbadge done">완료</span>
         </div>
@@ -1024,6 +1137,13 @@ html, body { overflow-x: hidden; }
               <div class="rel-body">
                 <div class="rel-title">Dialog Guide</div>
                 <div class="rel-sub">로그아웃 확인 등</div>
+              </div>
+            </a>
+            <a class="rel-card" href="STAM-Form-Guide.html">
+              <div class="rel-ico">FM</div>
+              <div class="rel-body">
+                <div class="rel-title">Form Guide</div>
+                <div class="rel-sub">검색·필터 입력 기준</div>
               </div>
             </a>
           </div>
