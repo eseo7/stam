@@ -20,7 +20,7 @@
   </div>
   <a href="../STAM-Component-Guide.html" class="doc-nav-back">← Component Guide</a>
   <span class="doc-nav-title">Drawer Guide</span>
-  <span class="doc-nav-pill"><span class="dot"></span>v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>1차 상세 기준</span>
   <div class="doc-nav-sp"></div>
   <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
 </nav>
@@ -339,7 +339,7 @@
   <aside class="guide-toc">
     <div class="toc-hdr">
       <span class="toc-brand">Drawer Guide</span>
-      <span class="toc-ver-pill">v1</span>
+      <span class="toc-ver-pill">1차 상세 기준</span>
     </div>
     <ul class="toc-list">
       <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
@@ -354,7 +354,9 @@
       <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Examples</a></li>
       <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Accessibility</a></li>
       <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>QA Checklist</a></li>
-      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Related Links</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Drawer vs Dialog vs Page</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Mobile</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>Related Links</a></li>
     </ul>
   </aside>
 
@@ -1219,10 +1221,112 @@
         </div>
       </section>
 
-      <!-- ────────────── S13 Related Links ────────────── -->
-      <section id="s13" class="sec" data-screen-label="13 Related Links">
+      <!-- ────────────── S13 Drawer vs Dialog vs Page ────────────── -->
+      <section id="s13" class="sec" data-screen-label="13 Drawer vs Dialog vs Page">
         <div class="sec-hdr">
           <span class="sec-n">13</span>
+          <span class="sec-title">Drawer vs Dialog vs Page — 무엇을 쓸 것인가</span>
+          <span class="sbadge guide">1차 상세 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">선택 기준</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>상황</th>
+                <th>Drawer</th>
+                <th>Dialog</th>
+                <th>Page</th>
+                <th>Inline</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>목록 행 상세 보기 / 메타·이력 탐색</td>
+                <td>O — 우선</td>
+                <td>X</td>
+                <td>X</td>
+                <td>X</td>
+              </tr>
+              <tr>
+                <td>등록 / 수정 폼 (필드 5~15)</td>
+                <td>O</td>
+                <td>X</td>
+                <td>X</td>
+                <td>X</td>
+              </tr>
+              <tr>
+                <td>연결 정보 / 검토 이력 탐색</td>
+                <td>O</td>
+                <td>X</td>
+                <td>X</td>
+                <td>X</td>
+              </tr>
+              <tr>
+                <td>짧은 확인 / 삭제 · 반려 확인</td>
+                <td>X</td>
+                <td>O</td>
+                <td>X</td>
+                <td>X</td>
+              </tr>
+              <tr>
+                <td>오류 / 경고 (다음 행동 필요)</td>
+                <td>X</td>
+                <td>O</td>
+                <td>X</td>
+                <td>X</td>
+              </tr>
+              <tr>
+                <td>복잡한 편집 / 화면설계서 / 대량 입력</td>
+                <td>X</td>
+                <td>X</td>
+                <td>O — 전용 화면 / split editor</td>
+                <td>X</td>
+              </tr>
+              <tr>
+                <td>단순 필터 / 토글 / 빠른 상태 보기</td>
+                <td>X</td>
+                <td>X</td>
+                <td>X</td>
+                <td>O</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ibox info">
+            Drawer는 “목록 맥락을 유지하면서 상세 · 입력 · 탐색하는” 패턴이다. 짧은 결정은 Dialog, 복잡한 편집은 전용 화면(Page), 가벼운 보기 전환은 inline으로 분리한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S14 Mobile ────────────── -->
+      <section id="s14" class="sec" data-screen-label="14 Mobile">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Mobile / Narrow Width — 모바일 기준</span>
+          <span class="sbadge guide">1차 상세 기준</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>430px 폭에서는 Drawer가 거의 full-screen에 가깝게 동작할 수 있다. 별도 overlay 폭을 강제하지 않는다.</li>
+            <li>footer 버튼은 stack 또는 2열까지만 허용한다. 3개 이상이 한 줄에 들어가지 않으면 stack 한다.</li>
+            <li>Drawer body scroll과 page background scroll이 동시에 흔들리지 않도록 body 스크롤만 활성화한다.</li>
+            <li>close / back action은 명확히 노출한다. 모바일에서는 상단 close 아이콘 + 좌측 back 액션을 함께 두는 패턴을 권장한다.</li>
+            <li>입력 중 가상 키보드가 footer를 가릴 수 있다. 폼이 길면 sticky footer가 본문 입력을 가리지 않게 조정한다.</li>
+            <li>다중 컬럼 폼은 1열로 stack 한다. 좁은 폭에서 2열을 억지로 유지하지 않는다.</li>
+            <li>위험 액션은 하단 고정 단독 CTA로 배치하지 않는다. 실수 클릭 방지를 위해 Cancel과 충분한 간격 또는 Dialog 확인 단계를 둔다.</li>
+          </ul>
+
+          <div class="ibox info">
+            본 기준은 “모바일에서 Drawer가 어떻게 동작해야 하는가”에 대한 원칙이다. 실제 CSS · 미디어쿼리는 본 PR에서 추가하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────── S15 Related Links ────────────── -->
+      <section id="s15" class="sec" data-screen-label="15 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
           <span class="sec-title">Related Links — 관련 문서</span>
         </div>
         <div class="sec-body">
@@ -1260,6 +1364,34 @@
               <div class="rel-body">
                 <div class="rel-title">Form Guide</div>
                 <div class="rel-sub">필드·유효성·에러 기준</div>
+              </div>
+            </a>
+            <a href="STAM-Icon-Guide.html" class="rel-card">
+              <div class="rel-ico">Ico</div>
+              <div class="rel-body">
+                <div class="rel-title">Icon Guide</div>
+                <div class="rel-sub">close · 상태 아이콘 기준</div>
+              </div>
+            </a>
+            <a href="STAM-Table-Guide.html" class="rel-card">
+              <div class="rel-ico">Tbl</div>
+              <div class="rel-body">
+                <div class="rel-title">Table Guide</div>
+                <div class="rel-sub">목록 ↔ Drawer 연결 기준</div>
+              </div>
+            </a>
+            <a href="STAM-Topbar-Guide.html" class="rel-card">
+              <div class="rel-ico">Top</div>
+              <div class="rel-body">
+                <div class="rel-title">Topbar Guide</div>
+                <div class="rel-sub">Drawer 외부 화면 맥락</div>
+              </div>
+            </a>
+            <a href="../STAM-UI-Baseline-Guide.html" class="rel-card">
+              <div class="rel-ico">BG</div>
+              <div class="rel-body">
+                <div class="rel-title">UI Baseline Guide</div>
+                <div class="rel-sub">S12 Drawer Standard 기준</div>
               </div>
             </a>
           </div>
