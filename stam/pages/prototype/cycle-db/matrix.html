@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>STAM Project Cycle DB Prototype — Traceability Matrix</title>
+<title>STAM Project Cycle DB Prototype — 요구사항 누락 검증표</title>
 <link rel="icon" href="../../../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
 <link rel="stylesheet" href="../../../assets/fonts/s-core-dream/s-core-dream.css">
 <link rel="stylesheet" href="../../../css/stam.tokens.css">
@@ -20,7 +20,7 @@
     <img src="../../../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
     <span>STAM</span>
   </div>
-  <span class="doc-nav-title">Cycle DB · Traceability Matrix</span>
+  <span class="doc-nav-title">Cycle DB · 요구사항 누락 검증표</span>
   <span class="doc-nav-pill"><span class="dot"></span>Prototype</span>
   <span class="doc-nav-pill"><span class="dot"></span>Local IndexedDB</span>
   <div class="doc-nav-sp"></div>
@@ -33,68 +33,97 @@
     <div class="guide-content">
 
       <div class="ibox info">
-        <strong>Project Cycle DB — Traceability Matrix (Local Prototype)</strong>
-        한 사이클(요구사항 → 기능정의 → 메뉴/화면 → WBS → 화면설계서 → 테스트)을 IndexedDB 에 저장하고 연결 상태를 조회한다.
-        <strong>시드 생성</strong> 후 새로고침해도 데이터가 유지되면 로컬 영속 저장이 검증된 것이다.
+        <strong>요구사항 누락 검증표</strong>
+        고객 요구사항이 기능정의, 메뉴/화면, WBS, 화면설계서, 테스트 시나리오까지 이어졌는지 확인합니다.
         <span class="sbadge guide">Local IndexedDB</span>
         <span class="sbadge lock">No Firebase</span>
-        <span class="sbadge plan">One Cycle</span>
+        <span class="sbadge plan">실험 화면</span>
       </div>
 
-      <!-- Actions -->
-      <section class="sec" data-screen-label="액션">
+      <div class="ibox warn">
+        <strong>이 화면은 무엇을 보는 화면인가요?</strong>
+        이 화면은 요구사항별 산출물 연결 상태를 확인하는 <strong>실험 화면</strong>입니다.
+        게시판이 연결됐는지를 보는 것이 아니라, <strong>고객 요구사항이 납품 산출물까지 빠짐없이 내려갔는지</strong> 확인합니다.
+        <strong>REQ-001</strong>은 대부분의 산출물이 연결된 예시이고, <strong>REQ-002</strong>는 산출물 연결이 누락된 위험 항목 예시입니다.
+        시드 생성 → 새로고침 후 유지 확인 → 초기화 순서로 테스트하세요.
+        데이터는 중앙 DB가 아니라 <strong>현재 브라우저의 IndexedDB</strong>에 저장됩니다.
+      </div>
+
+      <!-- 검증 순서 -->
+      <section class="sec" data-screen-label="검증 순서">
         <div class="sec-hdr">
           <span class="sec-n">▸</span>
-          <span class="sec-title">Actions</span>
+          <span class="sec-title">검증 순서</span>
           <span class="sbadge guide">Local</span>
         </div>
         <div class="sec-body">
+          <ul class="blist">
+            <li><strong>① 시드 생성</strong>: 샘플 요구사항과 산출물 연결 데이터를 만듭니다.</li>
+            <li><strong>② 새로고침</strong>: 데이터가 브라우저 로컬 DB에 유지되는지 확인합니다.</li>
+            <li><strong>③ 초기화</strong>: 로컬 DB에 저장된 prototype 데이터를 삭제합니다.</li>
+          </ul>
           <p class="mcrd-body">
-            <button class="stam-btn stam-btn--primary stam-btn--md" id="btn-seed" type="button">시드 생성 (한 사이클)</button>
-            <button class="stam-btn stam-btn--secondary stam-btn--md" id="btn-reload" type="button">다시 조회</button>
-            <button class="stam-btn stam-btn--danger stam-btn--md" id="btn-reset" type="button">초기화</button>
+            <button class="stam-btn stam-btn--primary stam-btn--md" id="btn-seed" type="button">① 시드 생성</button>
+            <button class="stam-btn stam-btn--secondary stam-btn--md" id="btn-reload" type="button">② 새로고침(다시 조회)</button>
+            <button class="stam-btn stam-btn--danger stam-btn--md" id="btn-reset" type="button">③ 초기화</button>
             <a class="stam-btn stam-btn--ghost stam-btn--md" href="index.html">← 허브로</a>
           </p>
-          <div class="ibox warn" id="proto-status">초기화 중…</div>
+          <div class="ibox warn" id="proto-status">불러오는 중…</div>
         </div>
       </section>
 
-      <!-- Summary -->
+      <!-- 요구사항 연결 요약 -->
       <section class="sec" data-screen-label="요약">
         <div class="sec-hdr">
           <span class="sec-n">▸</span>
-          <span class="sec-title">Matrix Summary</span>
-          <span class="sbadge guide">Dashboard</span>
+          <span class="sec-title">요구사항 연결 요약</span>
+          <span class="sbadge guide">Summary</span>
         </div>
         <div class="sec-body">
           <div class="meta-row" id="proto-summary"></div>
         </div>
       </section>
 
-      <!-- Matrix -->
-      <section class="sec" data-screen-label="매트릭스">
+      <!-- 요구사항 누락 검증표 -->
+      <section class="sec" data-screen-label="검증표">
         <div class="sec-hdr">
           <span class="sec-n">▸</span>
-          <span class="sec-title">Traceability Matrix</span>
+          <span class="sec-title">요구사항 누락 검증표</span>
           <span class="sbadge lock">Computed</span>
         </div>
         <div class="sec-body">
-          <p class="mcrd-body">행 = 요구사항, 열 = 산출물 단계. 셀 상태는 실제 link 로 계산한다.
-            <span class="sbadge done">Linked</span> <span class="sbadge plan">Review Needed</span>
-            <span class="sbadge guide">Draft</span> <span class="mono">Missing</span> 으로 표시된다.
-            Missing 은 저장하지 않고 기대 link 대비 계산 결과다.</p>
+          <p class="mcrd-body">행은 요구사항이고, 열은 요구사항에서 파생되어야 할 산출물 단계입니다.
+            <strong>연결됨</strong>은 해당 산출물이 존재한다는 뜻입니다.
+            <strong>연결 누락</strong>은 아직 해당 산출물이 만들어지지 않았거나 연결되지 않았다는 뜻입니다.
+            <strong>검토 필요/초안</strong>은 연결은 됐지만 아직 확정 전이라는 뜻입니다.</p>
+          <p class="mcrd-body">
+            <span class="sbadge done">연결됨(Linked)</span>
+            <span class="sbadge plan">검토 필요(Review Needed)</span>
+            <span class="sbadge guide">초안(Draft)</span>
+            <span class="mono">연결 누락(Missing)</span>
+            — 연결 누락은 저장하지 않고 기대 연결 대비 계산한 결과입니다.</p>
+          <ul class="blist">
+            <li><strong>REQ-001 로그인 2차 인증</strong>: 기능정의, 화면, WBS, 화면설계서, 테스트까지 대부분 연결된 예시입니다.</li>
+            <li><strong>REQ-002 권한 관리</strong>: 고객 요구사항은 있지만 아직 산출물 연결이 누락된 위험 항목 예시입니다.</li>
+          </ul>
           <div id="proto-matrix"></div>
+          <div class="ibox info">
+            <strong>이 표의 목적</strong>
+            이 표의 목적은 게시판 연결 자체가 아니라 <strong>요구사항 누락 방지</strong>입니다.
+            고객이 말한 요구사항이 기능정의, 화면, 작업, 설계, 테스트까지 이어졌는지 확인합니다.
+          </div>
         </div>
       </section>
 
-      <!-- Changes -->
-      <section class="sec" data-screen-label="변경이력">
+      <!-- 변경 기록 (보조) -->
+      <section class="sec" data-screen-label="변경 기록">
         <div class="sec-hdr">
           <span class="sec-n">▸</span>
-          <span class="sec-title">Change Log (최소 기록)</span>
-          <span class="sbadge plan">Audit</span>
+          <span class="sec-title">변경 기록</span>
+          <span class="sbadge plan">보조</span>
         </div>
         <div class="sec-body">
+          <p class="mcrd-body">시드 생성과 산출물 연결이 어떤 순서로 기록됐는지 확인하는 보조 영역입니다.</p>
           <div id="proto-changes"></div>
         </div>
       </section>

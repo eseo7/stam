@@ -17,14 +17,15 @@
     });
   }
 
-  // linkStatus -> 표시 배지 (기존 docs/component class 만 사용)
+  // linkStatus -> 표시 배지 (한글 우선 · 영문 병기, 기존 docs/component class 만 사용)
+  // status 키(logic)는 그대로 두고 표시 텍스트만 한글화한다.
   function statusCell(status) {
-    if (!status || status === 'missing') return '<span class="mono">Missing</span>';
-    if (status === 'linked') return '<span class="sbadge done">Linked</span>';
-    if (status === 'reviewNeeded') return '<span class="sbadge plan">Review Needed</span>';
-    if (status === 'draft') return '<span class="sbadge guide">Draft</span>';
-    if (status === 'changed') return '<span class="sbadge lock">Changed</span>';
-    if (status === 'outOfScope') return '<span class="mono">Out of Scope</span>';
+    if (!status || status === 'missing') return '<span class="mono">연결 누락(Missing)</span>';
+    if (status === 'linked') return '<span class="sbadge done">연결됨(Linked)</span>';
+    if (status === 'reviewNeeded') return '<span class="sbadge plan">검토 필요(Review Needed)</span>';
+    if (status === 'draft') return '<span class="sbadge guide">초안(Draft)</span>';
+    if (status === 'changed') return '<span class="sbadge lock">변경됨(Changed)</span>';
+    if (status === 'outOfScope') return '<span class="mono">범위 외(Out of Scope)</span>';
     return '<span class="mono">' + esc(status) + '</span>';
   }
 
@@ -85,11 +86,12 @@
     var artifacts = data.artifacts, links = data.links, changes = data.changes;
     var hasData = artifacts.length > 0;
 
-    // status line
+    // status line (사용자 확인용 — projectId 는 보조 정보로 낮춤)
     $('proto-status').innerHTML = hasData
-      ? 'projectId <code>' + esc(PID) + '</code> · artifacts <strong>' + artifacts.length +
-        '</strong> · links <strong>' + links.length + '</strong> · changes <strong>' + changes.length + '</strong>'
-      : '저장된 데이터 없음 — <strong>시드 생성</strong>을 눌러 한 사이클을 만드세요.';
+      ? '저장된 산출물 <strong>' + artifacts.length + '</strong>개 · 연결 정보 <strong>' + links.length +
+        '</strong>개 · 변경 기록 <strong>' + changes.length + '</strong>건 ' +
+        '<span class="mono">(projectId ' + esc(PID) + ')</span>'
+      : '아직 저장된 데이터가 없습니다 — <strong>① 시드 생성</strong>을 눌러 샘플 요구사항과 산출물 연결을 만드세요.';
 
     var reqs = artifacts.filter(function (a) { return a.artifactType === 'requirement'; });
     var map = indexLinks(links);
@@ -111,18 +113,18 @@
 
     $('proto-summary').innerHTML =
       cell('전체 요구사항', reqs.length) +
-      cell('연결 완료', fullyLinked) +
-      cell('누락 연결', missingCount) +
+      cell('주요 산출물 연결됨', fullyLinked) +
+      cell('산출물 누락', missingCount) +
       cell('검토 필요', reviewCount) +
       cell('변경 영향', changedCount) +
-      cell('전체 artifact', artifacts.length);
+      cell('전체 산출물', artifacts.length);
 
     // matrix table
     if (!reqs.length) {
       $('proto-matrix').innerHTML = '<p class="mcrd-body">표시할 요구사항이 없습니다.</p>';
     } else {
-      var head = '<thead><tr><th>Requirement</th><th>Functional Definition</th><th>Menu / Screen</th>' +
-        '<th>WBS</th><th>Screen Specification</th><th>Test Scenario</th><th>Review</th></tr></thead>';
+      var head = '<thead><tr><th>요구사항</th><th>기능정의</th><th>메뉴/화면</th>' +
+        '<th>WBS</th><th>화면설계서</th><th>테스트 시나리오</th><th>검토 상태</th></tr></thead>';
       var body = rows.map(function (r) {
         var wbsCell = statusCell(r.wbs) + (r.wbsCount > 1 ? ' <span class="mono">(' + r.wbsCount + ')</span>' : '');
         return '<tr>' +
@@ -138,19 +140,19 @@
       $('proto-matrix').innerHTML = '<table class="stbl">' + head + '<tbody>' + body + '</tbody></table>';
     }
 
-    // changes
+    // changes (변경 기록 — 보조 영역)
     if (!changes.length) {
-      $('proto-changes').innerHTML = '<p class="mcrd-body">변경 이력 없음.</p>';
+      $('proto-changes').innerHTML = '<p class="mcrd-body">변경 기록 없음.</p>';
     } else {
       var recent = changes.slice(-8).reverse();
-      $('proto-changes').innerHTML = '<table class="stbl"><thead><tr><th>at</th><th>artifactId</th>' +
-        '<th>changeType</th><th>field</th><th>after</th></tr></thead><tbody>' +
+      $('proto-changes').innerHTML = '<table class="stbl"><thead><tr><th>시각</th><th>산출물</th>' +
+        '<th>유형</th><th>항목</th><th>내용</th></tr></thead><tbody>' +
         recent.map(function (c) {
           return '<tr><td class="mono">' + esc((c.at || '').replace('T', ' ').slice(0, 19)) + '</td>' +
             '<td>' + esc(c.artifactId) + '</td><td>' + esc(c.changeType) + '</td>' +
             '<td>' + esc(c.field) + '</td><td>' + esc(c.after) + '</td></tr>';
         }).join('') + '</tbody></table>' +
-        '<p class="mcrd-body">총 변경 이력 ' + changes.length + '건 (최근 8건 표시).</p>';
+        '<p class="mcrd-body">총 변경 기록 ' + changes.length + '건 (최근 8건 표시).</p>';
     }
   }
 
