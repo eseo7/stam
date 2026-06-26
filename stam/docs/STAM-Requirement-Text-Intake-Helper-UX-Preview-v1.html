@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Requirement Text Intake Helper UX Preview v1</title>
+<link rel="icon" href="../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Requirement Text Intake Helper</span>
+  <span class="doc-nav-pill"><span class="dot"></span>UX Preview v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>2026-06-26</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Text Intake Helper</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Purpose</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Scope Boundary — AI 없는 1차 범위</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>User Scenario</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Text Intake Flow Overview</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Step 1 — Upload / Paste Text</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Step 2 — Source Preview &amp; Preservation</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Step 3 — Rule-based Block Split</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Step 4 — Manual Select / Merge / Split</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Step 5 — Create Requirement Draft</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Draft Result in Requirement Board</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Source Traceability</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>What the System Can and Cannot Do</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>AI Requirement Extraction — 후속 확장</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Guardrails</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>Relationship with Excel Import Builder</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>1차 핵심 범위</a></li>
+      <li class="toc-item"><a href="#s17"><span class="toc-n">17</span>후속 확장 범위</a></li>
+      <li class="toc-item"><a href="#s18"><span class="toc-n">18</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Hero / Status Summary ── -->
+      <div class="ibox info">
+        <strong>STAM Requirement Text Intake Helper UX Preview v1</strong>
+        자유 텍스트 / 메모 / 회의록 / 메일 형태의 요구사항을 사람이 요구사항 Draft 로 만들기 쉽게 돕는
+        <strong>수동 보조(Manual Helper)</strong> UX Preview. 시스템은 원문을 “이해”하지 않으며, 줄바꿈 / 문단 / 번호 / 불릿 같은
+        <strong>Rule-based block split</strong> 기준으로 블록을 나눠 보여줄 뿐이다. 요구사항 생성은 항상 <strong>사용자 검토 후</strong> 이루어지고,
+        모든 결과는 확정 데이터가 아니라 <strong>Draft</strong> 다. AI / NLP 기반 자동 추출은 <strong>후속 확장 범위</strong>로만 표기한다.
+        <span class="sbadge guide">UX Preview</span>
+        <span class="sbadge lock">Text Intake</span>
+        <span class="sbadge plan">Manual Helper</span>
+        <span class="sbadge done">No Backend</span>
+      </div>
+
+      <div class="flow-row">
+        <span class="fbox">텍스트 업로드/붙여넣기</span><span class="farr">→</span>
+        <span class="fbox">원문 보존</span><span class="farr">→</span>
+        <span class="fbox">Rule-based 블록 분리</span><span class="farr">→</span>
+        <span class="fbox">사용자 선택/병합/분리/수정</span><span class="farr">→</span>
+        <span class="fbox end">요구사항 Draft 생성</span>
+      </div>
+
+      <div class="meta-row">
+        <div class="meta-cell"><span class="meta-k">Document</span><span class="meta-v">Requirement Text Intake Helper UX Preview v1</span></div>
+        <div class="meta-cell"><span class="meta-k">Type</span><span class="meta-v">UX Preview / 수동 보조</span></div>
+        <div class="meta-cell"><span class="meta-k">Scope</span><span class="meta-v">Docs Only · No Backend · No AI</span></div>
+        <div class="meta-cell"><span class="meta-k">분리 방식</span><span class="meta-v">Rule-based block split</span></div>
+        <div class="meta-cell"><span class="meta-k">결과 상태</span><span class="meta-v">Imported Draft / Review Needed</span></div>
+        <div class="meta-cell"><span class="meta-k">Date</span><span class="meta-v code">2026-06-26</span></div>
+      </div>
+
+      <!-- ── 01 Purpose ── -->
+      <section id="s01" class="sec" data-screen-label="01 Purpose">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Purpose — 이 문서의 목적</span>
+          <span class="sbadge guide">Preview Baseline</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">이 문서는 자유 텍스트 형태의 요구사항(메모 · 회의록 · 메일 등)을 사람이 요구사항 Draft 로 만들기 쉽게 돕는
+            <strong>수동 보조 UX</strong> 를 정의한다. 이것을 “자동 분석 솔루션”처럼 과장하지 않는다. 시스템은 원문을 의미적으로 이해하지 않으며,
+            Rule-based block split(빈 줄 / 번호 / 불릿 / 제목 기준)으로 블록을 나누고, <strong>사용자가 선택 · 병합 · 분리 · 수정</strong>해
+            요구사항 Draft 를 만드는 흐름을 돕는다.</p>
+          <ul class="blist">
+            <li>흐름: <strong>텍스트 업로드 → 원문 보존 → 문단/번호/불릿 기준 블록 분리 → 사용자가 선택/병합/분리/수정 → 요구사항 Draft 생성</strong></li>
+            <li>자동 생성 결과는 절대 <strong>확정 데이터가 아니다</strong>. 모든 결과는 <code>Imported Draft</code> / <code>Review Needed</code> 상태로 생성한다.</li>
+            <li>AI / NLP 기반 요구사항 자동 추출은 <strong>후속 확장 범위</strong>로만 표기한다(13장).</li>
+            <li>텍스트 업로드만으로 새 게시판을 자동 생성하지 않는다. 새 게시판 생성은 사용자가 명시적으로 선택·승인할 때만 가능하다.</li>
+            <li>이 Preview 는 후속 실제 구현의 기준 화면으로 사용한다.</li>
+          </ul>
+          <div class="ibox warn">
+            <strong>반복 명시</strong>
+            이 화면이 만드는 것은 <strong>Draft(초안) 데이터</strong>이지 확정 데이터가 아니다. 사람이 검토하고 승인해야 실제 요구사항이 된다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 02 Scope Boundary ── -->
+      <section id="s02" class="sec" data-screen-label="02 Scope Boundary">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Scope Boundary — AI 없는 1차 범위</span>
+          <span class="sbadge lock">Boundary</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>1차 범위는 AI 없는 수동 보조다</strong>
+            AI 없이 자유 텍스트를 정확히 의미 분석하는 것은 1차 범위가 아니다. 시스템은 원문을 “이해”하지 않는다.
+            시스템이 할 수 있는 것은 줄바꿈 / 문단 / 번호 / 불릿 / 간단한 패턴 기준으로 블록을 나누고, 사용자가 요구사항으로 만들 수 있게 돕는 것뿐이다.
+          </div>
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">1차 범위 (이번 Preview)</span>
+              <ul class="blist">
+                <li>원문 보존</li>
+                <li>Rule-based block split</li>
+                <li>사용자 선택 / 병합 / 분리 / 수정</li>
+                <li>사용자 검토 후 요구사항 Draft 생성</li>
+                <li>source traceability</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">1차 범위가 아닌 것 (후속 확장)</span>
+              <ul class="blist bad">
+                <li>원문의 의미 이해</li>
+                <li>요구사항 자동 확정</li>
+                <li>정책 / 질문 / 제약 자동 분류 확정</li>
+                <li>AI 요구사항 자동 추출</li>
+                <li>새 게시판 자동 생성</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 03 User Scenario ── -->
+      <section id="s03" class="sec" data-screen-label="03 User Scenario">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">User Scenario — 실무 시나리오</span>
+          <span class="sbadge guide">Scenario</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">엑셀처럼 정형화되지 않은 요구사항도 흔하다. 회의록 · 메일 · 메모 텍스트를 그대로 붙여넣고, 사람이 골라 Draft 로 만든다.</p>
+          <div class="flow-row">
+            <span class="fbox">회의록/메일/메모 확보</span><span class="farr">→</span>
+            <span class="fbox">STAM 에 붙여넣기/업로드</span><span class="farr">→</span>
+            <span class="fbox">원문 그대로 보존</span><span class="farr">→</span>
+            <span class="fbox">Rule-based 블록으로 표시</span>
+          </div>
+          <div class="flow-row">
+            <span class="fbox">기획자가 요구사항이 될 블록 선택</span><span class="farr">→</span>
+            <span class="fbox">병합/분리/수정</span><span class="farr">→</span>
+            <span class="fbox end">요구사항 Draft 생성 (Review Needed)</span>
+          </div>
+          <div class="ibox warn">
+            <strong>핵심</strong>
+            시스템은 “이 문장이 요구사항이다”를 판단하지 않는다. 어떤 블록이 요구사항인지는 <strong>사람이 결정</strong>한다.
+            시스템은 블록을 보기 좋게 나눠주고, 선택한 블록을 Draft 로 옮기는 작업을 돕는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 04 Text Intake Flow Overview ── -->
+      <section id="s04" class="sec" data-screen-label="04 Flow Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Text Intake Flow Overview — 단계 구성</span>
+          <span class="sbadge guide">Flow</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">Text Intake Helper 는 5단계로 구성한다. 모든 단계는 원문 보존과 사람 검토를 전제로 한다.</p>
+          <div class="flow-row">
+            <span class="fbox">1 업로드/붙여넣기</span><span class="farr">→</span>
+            <span class="fbox">2 원문 보존</span><span class="farr">→</span>
+            <span class="fbox">3 Rule-based 블록 분리</span><span class="farr">→</span>
+            <span class="fbox">4 선택/병합/분리/수정</span><span class="farr">→</span>
+            <span class="fbox end">5 요구사항 Draft 생성</span>
+          </div>
+          <table class="stbl">
+            <thead><tr><th>단계</th><th>화면 목적</th><th>사용자 행동</th><th>시스템 역할 (이해 아님)</th></tr></thead>
+            <tbody>
+              <tr><td>1 업로드/붙여넣기</td><td>텍스트 입력</td><td>txt/md 업로드 또는 붙여넣기</td><td>텍스트 받기</td></tr>
+              <tr><td>2 원문 보존</td><td>원문 그대로 표시</td><td>원문 확인</td><td>line number / block id 부여</td></tr>
+              <tr><td>3 Rule-based 블록 분리</td><td>블록 후보 표시</td><td>분리 기준 선택</td><td>빈 줄/번호/불릿/제목 기준 분리</td></tr>
+              <tr><td>4 선택/병합/분리/수정</td><td>블록 가공</td><td>선택·병합·분리·수정</td><td>사용자 편집 반영</td></tr>
+              <tr><td>5 Draft 생성</td><td>요구사항 초안 생성</td><td>Draft 생성 확정</td><td>Review Needed 상태로 생성</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 05 Step 1 Upload / Paste ── -->
+      <section id="s05" class="sec" data-screen-label="05 Step 1 Upload/Paste">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Step 1 — Text File Upload / Paste Text</span>
+          <span class="sbadge plan">Step 1</span>
+        </div>
+        <div class="sec-body">
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">입력 영역</span>
+              <ul class="blist">
+                <li>큰 텍스트 붙여넣기 영역 (Paste Text)</li>
+                <li>파일 업로드 (Drag &amp; Drop)</li>
+                <li>붙여넣기 / 업로드 모두 동일하게 원문으로 취급</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">지원 입력</span>
+              <ul class="blist">
+                <li><code>.txt</code> — 우선 적용 범위</li>
+                <li><code>.md</code> — 우선 적용 범위</li>
+                <li>pasted text — 우선 적용 범위</li>
+                <li><code>.docx</code> / <code>.pdf</code> parsing — 후속 확장 범위</li>
+              </ul>
+            </div>
+          </div>
+          <div class="ibox warn">
+            <strong>주의</strong>
+            이 화면은 실제 파일 parsing 구현이 아니라 <strong>Preview 기준</strong>이다. <code>.docx</code> / <code>.pdf</code> 추출은 후속 확장 범위로만 표기하며,
+            실제 파싱 / Storage 업로드 / AI API 호출은 수행하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 06 Step 2 Source Preview & Preservation ── -->
+      <section id="s06" class="sec" data-screen-label="06 Step 2 Source Preview">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Step 2 — Source Preview and Preservation</span>
+          <span class="sbadge plan">Step 2</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">원문은 가공 전·후 항상 그대로 보존한다. 원문 패널은 전체 텍스트와 함께 라인 번호 / 블록 id / 원본 파일을 표시한다.</p>
+          <table class="stbl">
+            <thead><tr><th>line</th><th>blockId</th><th>원문 (preserved)</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td class="mono">blk-001</td><td>[회의록] 2026-06-20 고객 킥오프</td></tr>
+              <tr><td>3</td><td class="mono">blk-002</td><td>1. 로그인은 2차 인증(OTP)을 지원해야 한다.</td></tr>
+              <tr><td>4</td><td class="mono">blk-003</td><td>2. 관리자 권한과 일반 권한을 구분한다.</td></tr>
+              <tr><td>6</td><td class="mono">blk-004</td><td>- 게시판 목록은 검색/필터가 필요함</td></tr>
+              <tr><td>7</td><td class="mono">blk-005</td><td>* (질문) 외부 연동 범위는 협의 필요</td></tr>
+            </tbody>
+          </table>
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">원문 보존 패널 구성</span>
+              <ul class="blist">
+                <li>원문 전체 (수정 없이 보존)</li>
+                <li>line number</li>
+                <li>paragraph / block id</li>
+                <li>source file</li>
+              </ul>
+            </div>
+            <div class="ibox info">
+              <strong>보존 원칙</strong>
+              사용자가 블록을 병합·분리·수정해도 <strong>원문은 변경하지 않는다</strong>. Draft 는 원문 블록을 참조(reference)하며,
+              원본 라인 범위와 block id 를 함께 보존한다.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 07 Step 3 Rule-based Block Split ── -->
+      <section id="s07" class="sec" data-screen-label="07 Step 3 Block Split">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Step 3 — Rule-based Block Split</span>
+          <span class="sbadge lock">Rule-based</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox warn">
+            <strong>자동 의미 분석이 아니다</strong>
+            이 단계는 텍스트의 의미를 해석하지 않는다. 줄바꿈 / 번호 / 불릿 / 제목 같은 <strong>형식 패턴</strong>만으로 블록 경계를 제안한다.
+            “요구사항인지”는 판단하지 않으며, 그 판단은 다음 단계에서 사람이 한다.
+          </div>
+          <table class="stbl">
+            <thead><tr><th>분리 기준</th><th>패턴 예</th><th>동작</th></tr></thead>
+            <tbody>
+              <tr><td>빈 줄 기준</td><td>연속 줄바꿈 / 빈 줄</td><td>문단 단위 분리</td></tr>
+              <tr><td>번호 기준</td><td><code>1.</code> <code>2)</code> <code>(3)</code></td><td>번호 항목 단위 분리</td></tr>
+              <tr><td>bullet 기준</td><td><code>-</code> <code>*</code> <code>·</code></td><td>불릿 항목 단위 분리</td></tr>
+              <tr><td>제목/섹션 기준</td><td><code>#</code> 머리글 / <code>[제목]</code></td><td>섹션 경계 표시</td></tr>
+            </tbody>
+          </table>
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">분리 결과 (블록 후보)</span>
+              <ul class="blist">
+                <li>blk-002 — “로그인은 2차 인증(OTP)…” (번호)</li>
+                <li>blk-003 — “관리자 권한과 일반 권한…” (번호)</li>
+                <li>blk-004 — “게시판 목록은 검색/필터…” (불릿)</li>
+                <li>blk-005 — “(질문) 외부 연동 범위…” (불릿)</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">사용자 조정</span>
+              <ul class="blist">
+                <li>분리 기준 on/off 토글</li>
+                <li>잘못 나뉜 블록 병합</li>
+                <li>한 블록을 여러 블록으로 분리</li>
+                <li>블록 경계 직접 수정</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 08 Step 4 Manual Select / Merge / Split ── -->
+      <section id="s08" class="sec" data-screen-label="08 Step 4 Manual Edit">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Step 4 — Manual Select / Merge / Split</span>
+          <span class="sbadge plan">Step 4</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">사람이 블록별로 액션을 선택한다. 시스템은 사용자의 선택을 반영할 뿐, 어떤 블록이 요구사항인지 자동으로 확정하지 않는다.</p>
+          <table class="stbl">
+            <thead><tr><th>blockId</th><th>원문 블록</th><th>사용자 액션</th><th>결과</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">blk-002</td><td>로그인은 2차 인증(OTP)을 지원해야 한다</td><td>요구사항 Draft 생성</td><td>Draft 후보</td></tr>
+              <tr><td class="mono">blk-003</td><td>관리자 권한과 일반 권한을 구분한다</td><td>요구사항 Draft 생성</td><td>Draft 후보</td></tr>
+              <tr><td class="mono">blk-004</td><td>게시판 목록은 검색/필터가 필요함</td><td>기존 Draft에 병합</td><td>blk-002에 병합</td></tr>
+              <tr><td class="mono">blk-005</td><td>(질문) 외부 연동 범위는 협의 필요</td><td>메모로 보관</td><td>요구사항 아님 / 메모</td></tr>
+              <tr><td class="mono">blk-006</td><td>(머리말) 회의 참석자 명단</td><td>무시</td><td>제외</td></tr>
+            </tbody>
+          </table>
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">블록별 액션</span>
+              <ul class="blist">
+                <li>요구사항 Draft 생성</li>
+                <li>기존 Draft에 병합</li>
+                <li>블록 분리</li>
+                <li>블록 병합</li>
+                <li>메모로 보관</li>
+                <li>무시</li>
+              </ul>
+            </div>
+            <div class="ibox info">
+              <strong>사람이 결정한다</strong>
+              질문 / 정책 / 제약처럼 보이는 블록도 시스템이 자동 분류·확정하지 않는다. 사용자가 “요구사항 / 메모 / 무시”를 직접 정한다.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 09 Step 5 Create Requirement Draft ── -->
+      <section id="s09" class="sec" data-screen-label="09 Step 5 Create Draft">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Step 5 — Create Requirement Draft</span>
+          <span class="sbadge plan">Step 5</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">선택한 블록으로 요구사항 Draft 를 만든다. 임시 제목은 첫 문장 기반 또는 사용자 입력이며, 대부분의 필드는 미지정으로 둘 수 있다.</p>
+          <table class="stbl">
+            <thead><tr><th>필드</th><th>값 / 기본값</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td><code>title</code></td><td>첫 문장 기반 임시 제목 또는 사용자 입력</td><td>의미 분석 아님 · 첫 문장 절단</td></tr>
+              <tr><td><code>description</code></td><td>원문 블록 기반</td><td>원문 블록 텍스트 보존</td></tr>
+              <tr><td><code>priority</code></td><td>미지정 가능</td><td>사용자 검토 후 지정</td></tr>
+              <tr><td><code>status</code></td><td>미지정 가능</td><td>사용자 검토 후 지정</td></tr>
+              <tr><td><code>owner</code></td><td>미지정 가능</td><td>사용자 검토 후 지정</td></tr>
+              <tr><td><code>reviewStatus</code></td><td><code>Review Needed</code></td><td>항상 검토 필요로 생성</td></tr>
+              <tr><td><code>sourceType</code></td><td><code>Text Intake</code></td><td>출처 = 텍스트 인테이크</td></tr>
+              <tr><td><code>extractionMode</code></td><td><code>Rule-based / Manual</code></td><td>AI 아님 명시</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox warn">
+            <strong>Draft 데이터임을 명시</strong>
+            생성 결과는 확정 데이터가 아니라 <strong>Draft</strong> 다. <code>title</code> 은 의미 분석 결과가 아니라 첫 문장 기반 임시값이며,
+            <code>priority</code> / <code>status</code> / <code>owner</code> 는 미지정으로 둘 수 있다. 확정은 사람 승인을 거친다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 10 Draft Result in Requirement Board ── -->
+      <section id="s10" class="sec" data-screen-label="10 Draft Result">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Draft Result in Requirement Board</span>
+          <span class="sbadge done">Result</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">생성된 Draft 는 요구사항 게시판에 “초안 / 미검토 / Text Intake 출처” 상태로 들어간다. 원본 텍스트 위치가 함께 보존된다.</p>
+          <table class="stbl">
+            <thead><tr><th>요구사항(임시 제목)</th><th>상태</th><th>출처</th><th>extractionMode</th><th>원본 라인</th></tr></thead>
+            <tbody>
+              <tr><td>로그인 2차 인증(OTP) 지원</td><td>Review Needed</td><td>Text Intake</td><td>Rule-based / Manual</td><td>3</td></tr>
+              <tr><td>관리자/일반 권한 구분</td><td>Review Needed</td><td>Text Intake</td><td>Rule-based / Manual</td><td>4</td></tr>
+            </tbody>
+          </table>
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">상태 체계</span>
+              <ul class="blist">
+                <li>Imported Draft — 초안 / 미검토</li>
+                <li>Review Needed — 검토 필요</li>
+                <li>Confirmed — 사람 승인 완료</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">상세 Drawer</span>
+              <ul class="blist">
+                <li>요구사항 상세에 <strong>source traceability</strong> 섹션 노출</li>
+                <li>원본 파일 / 라인 범위 / block id 표시</li>
+                <li>원문 텍스트(sourceText) 보존</li>
+              </ul>
+            </div>
+          </div>
+          <div class="ibox warn">
+            <strong>게시판 자동 생성 없음</strong>
+            텍스트 업로드만으로 새 게시판을 자동 생성하지 않는다. 새 게시판 생성은 사용자가 명시적으로 선택·승인할 때만 가능하다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 11 Source Traceability ── -->
+      <section id="s11" class="sec" data-screen-label="11 Source Traceability">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Source Traceability — 원본 추적 메타</span>
+          <span class="sbadge lock">Traceability</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">Text Intake 로 생성된 모든 Draft 는 아래 메타를 보존한다. 원본 추적(source traceability)은 선택이 아니라 필수다.</p>
+          <table class="stbl">
+            <thead><tr><th>메타</th><th>의미</th><th>예시</th></tr></thead>
+            <tbody>
+              <tr><td><code>sourceFile</code></td><td>원본 파일명 / 입력 출처</td><td>kickoff_meeting_2026.txt</td></tr>
+              <tr><td><code>sourceText</code></td><td>원문 블록 텍스트 (보존)</td><td>로그인은 2차 인증(OTP)을…</td></tr>
+              <tr><td><code>sourceLineStart</code></td><td>원본 시작 라인</td><td>3</td></tr>
+              <tr><td><code>sourceLineEnd</code></td><td>원본 끝 라인</td><td>3</td></tr>
+              <tr><td><code>sourceBlockId</code></td><td>블록 식별자</td><td class="mono">blk-002</td></tr>
+              <tr><td><code>importBatchId</code></td><td>인테이크 배치 식별자</td><td class="mono">txt_20260626_01</td></tr>
+              <tr><td><code>createdBy</code></td><td>생성 수행자</td><td>기획자 A</td></tr>
+              <tr><td><code>createdAt</code></td><td>생성 시각</td><td>2026-06-26 15:10</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox info">
+            <strong>역할</strong>
+            어느 파일 · 어느 라인 · 어느 블록에서 어떤 원문으로 만들어졌는지를 복원 가능하게 한다.
+            원문을 변경하지 않고 참조만 보존하므로, 후속 검토·수정 시에도 출처를 추적할 수 있다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 12 What the System Can and Cannot Do ── -->
+      <section id="s12" class="sec" data-screen-label="12 Can / Cannot">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">What the System Can and Cannot Do — 제한사항</span>
+          <span class="sbadge lock">Limits</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <thead><tr><th>가능한 것 (Can)</th><th>불가능한 것 / 하지 않는 것 (Cannot)</th></tr></thead>
+            <tbody>
+              <tr><td>원문 보존</td><td>원문의 의미 이해</td></tr>
+              <tr><td>줄바꿈/번호/불릿/제목 기준 문단 분리</td><td>요구사항 자동 확정</td></tr>
+              <tr><td>사용자가 선택해서 Draft 생성</td><td>정책 / 질문 / 제약 자동 분류 확정</td></tr>
+              <tr><td>블록 병합 / 분리 / 수정 반영</td><td>새 게시판 자동 생성</td></tr>
+              <tr><td>source traceability 보존</td><td>“자동 분석으로 요구사항을 정확히 추출”</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox warn">
+            <strong>과장 금지</strong>
+            이 화면은 “자동 분석 솔루션”이 아니다. 시스템은 원문을 이해하지 않으며, Rule-based 형식 분리와 사용자 편집을 돕는 <strong>수동 보조 도구</strong>다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 13 AI Requirement Extraction (후속 확장) ── -->
+      <section id="s13" class="sec" data-screen-label="13 AI Extraction (후속)">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">AI Requirement Extraction — 후속 확장</span>
+          <span class="sbadge plan">Follow-up Only</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>AI 자동 추출은 후속 확장 범위로만 표기한다</strong>
+            아래 항목은 이번 1차 범위에 포함하지 않는다. AI / NLP 연동 후 단계적 구현으로만 다루며, 이번 Preview 에서는 구현·확정하지 않는다.
+          </div>
+          <ul class="blist">
+            <li>요구사항 후보 자동 추출 — <strong>후속 확장</strong></li>
+            <li>정책 / 질문 / 제약 분류 — <strong>후속 확장</strong></li>
+            <li>필드 후보 자동 채움 — <strong>후속 확장</strong></li>
+            <li>기능정의 초안 생성 — <strong>후속 확장</strong></li>
+          </ul>
+          <div class="ibox warn">
+            <strong>조건부 표현 원칙</strong>
+            “자동 분석”이라는 표현을 쓰더라도 반드시 <strong>“후속 확장”</strong> 또는 <strong>“AI 연동 후”</strong>로 제한한다.
+            AI 연동 후에도 결과는 Draft 로 생성하고 사람 승인을 전제로 한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 14 Guardrails ── -->
+      <section id="s14" class="sec" data-screen-label="14 Guardrails">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Guardrails — 가드레일</span>
+          <span class="sbadge lock">Guardrails</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>AI 없이 자유 텍스트를 정확히 의미 분석하는 것은 1차 범위가 아니다.</li>
+            <li>시스템은 원문을 이해하지 않는다 (Rule-based 형식 분리만).</li>
+            <li>자동 생성 결과는 절대 확정 데이터가 아니다.</li>
+            <li>모든 결과는 Imported Draft / Review Needed 상태로 생성한다.</li>
+            <li>AI Requirement Extraction 은 후속 확장 범위로만 표기한다.</li>
+            <li>텍스트 업로드만으로 새 게시판을 자동 생성하지 않는다.</li>
+            <li>새 게시판 생성은 사용자가 명시적으로 선택·승인할 때만 가능하다.</li>
+            <li>원문은 변경하지 않고 보존한다 (source traceability 필수).</li>
+            <li>“자동 분석으로 요구사항을 정확히 추출한다”는 과장 표현을 쓰지 않는다.</li>
+            <li>실제 파일 parsing / AI API / Storage / DB / API 는 이 단계에서 구현하지 않는다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── 15 Relationship with Excel Import Builder ── -->
+      <section id="s15" class="sec" data-screen-label="15 vs Import Builder">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">Relationship with Excel Import Builder</span>
+          <span class="sbadge guide">Mapping</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">Text Intake Helper 와 Excel Import Builder 는 둘 다 요구사항 게시판의 Draft 진입 경로이며, 입력 형태와 분리 방식이 다르다.</p>
+          <table class="stbl">
+            <thead><tr><th>구분</th><th>Excel Import Builder</th><th>Text Intake Helper</th></tr></thead>
+            <tbody>
+              <tr><td>입력</td><td>정형 엑셀 (.xlsx/.xls)</td><td>자유 텍스트 (.txt/.md/paste)</td></tr>
+              <tr><td>분리 단위</td><td>컬럼/행</td><td>Rule-based 블록</td></tr>
+              <tr><td>매핑</td><td>표준 필드 / customFields</td><td>블록 → description 중심</td></tr>
+              <tr><td>의미 분석</td><td>아님 (컬럼 매핑)</td><td>아님 (형식 분리)</td></tr>
+              <tr><td>결과</td><td>Draft Import</td><td>Imported Draft / Review Needed</td></tr>
+              <tr><td>도착지</td><td>요구사항 게시판</td><td>요구사항 게시판</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox info">
+            <strong>공통 원칙</strong>
+            두 경로 모두 결과는 확정 데이터가 아니라 Draft 이며, source traceability 를 보존하고, 사람 승인을 전제로 한다.
+            기존 요구사항 화면(<code>stam/pages/boards/requirements.html</code>)은 유지하며 이번 PR 에서 변경하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 16 1차 핵심 범위 ── -->
+      <section id="s16" class="sec" data-screen-label="16 1차 핵심 범위">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
+          <span class="sec-title">1차 핵심 범위 — 우선 적용 범위</span>
+          <span class="sbadge done">Core Scope</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">초기 제품 기준으로 이번 Preview 가 정의하는 1차 핵심 범위.</p>
+          <ul class="blist">
+            <li>텍스트 업로드 / 붙여넣기 UX</li>
+            <li>원문 보존 UX (line / blockId / sourceFile)</li>
+            <li>Rule-based block split UX</li>
+            <li>블록 선택 / 병합 / 분리 / 수정 UX</li>
+            <li>사용자 검토 후 요구사항 Draft 생성 UX</li>
+            <li>Source traceability UX</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── 17 후속 확장 범위 ── -->
+      <section id="s17" class="sec" data-screen-label="17 후속 확장 범위">
+        <div class="sec-hdr">
+          <span class="sec-n">17</span>
+          <span class="sec-title">후속 확장 범위 — 단계적 구현</span>
+          <span class="sbadge plan">Follow-up</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">1차 핵심 범위 이후 단계적으로 확장할 항목. 모두 후속 확장으로만 표기한다.</p>
+          <ul class="blist">
+            <li>AI 요구사항 후보 자동 추출</li>
+            <li>정책 / 질문 / 제약 자동 분류</li>
+            <li>필드 후보 자동 채움</li>
+            <li>기능정의 초안 생성</li>
+            <li>.docx / .pdf 텍스트 추출</li>
+            <li>회의록/메일 커넥터 연동</li>
+            <li>중복/유사 블록 비교</li>
+            <li>인테이크 배치 비교 / rollback</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── 18 Related Links ── -->
+      <section id="s18" class="sec" data-screen-label="18 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">18</span>
+          <span class="sec-title">Related Links — 관련 문서·화면</span>
+          <span class="sbadge guide">Links</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">repo 실제 경로 기준의 관련 기준 문서 및 제품 화면.</p>
+          <ul class="blist">
+            <li><a href="STAM-Project-Cycle-Automation-v1.html">STAM Project Cycle Automation v1</a> — 제품 중심축 / 한 사이클 자동화 기준</li>
+            <li><a href="STAM-Requirement-Import-Builder-UX-Preview-v1.html">STAM Requirement Import Builder UX Preview v1</a> — 엑셀 Import Draft 경로</li>
+            <li><a href="STAM-Docs-Usage-Criteria-Matrix-v1.html">STAM Docs Usage Criteria Matrix v1</a> — docs 핵심/보조/보류 분류</li>
+            <li><a href="STAM-Product-Screen-Implementation-Gate-v1.html">Product Screen Implementation Gate v1</a> — 제품 화면 변경 Gate</li>
+            <li><a href="STAM-Component-Guide.html">Component Guide</a> — 공통 컴포넌트 기준</li>
+            <li><a href="STAM-UI-Baseline-Guide.html">UI Baseline Guide</a> — UI 시각·레이아웃·토큰 기준</li>
+            <li><a href="../pages/boards/requirements.html">요구사항정의서 (제품 화면)</a> — Text Intake Draft 도착 화면</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
