@@ -1,16 +1,20 @@
 /* ============================================================================
- * STAM Project Cycle DB Prototype — Requirement Import 화면 로직
+ * STAM Project Cycle DB Prototype — Requirement Import 화면 로직 (v2 저장)
  * ----------------------------------------------------------------------------
- * 요구사항 표 데이터(TSV/CSV 붙여넣기 또는 샘플)를 가져와 generator 로 6개 게시판
- * 초안 데이터 + 링크 + 변경기록을 만들고, 기존 CycleRepo(LocalRepo)로 저장한다.
- * 게시판은 이미 존재한다는 전제 — 이 화면은 "데이터 생성 자동화"만 검증한다.
- * 모든 생성물은 초안(draft) / 검토 필요(Review Needed).
+ * 요구사항 표 데이터(Excel/TSV/CSV 또는 샘플)를 가져와 generator 로 6개 게시판
+ * 초안 데이터 + 링크 + 변경기록을 만들고, Local Core DB v2(STAM_CORE.db)의
+ * 게시판별 store 에 저장한다(통합 artifacts 아님). import 이력(importBatches/
+ * importRows)도 함께 기록하고, 생성물에 importBatchId/importRowId/requirementId 를
+ * 보존한다. 게시판은 이미 존재한다는 전제 — 이 화면은 "데이터 생성 자동화"만 검증.
+ * 모든 생성물은 초안(draft) / 검토 필요(Review Needed). 자동 seed/clear 없음.
  * ==========================================================================*/
 (function () {
   'use strict';
 
-  var repo = window.STAM_CYCLE && window.STAM_CYCLE.LocalRepo;
   var gen = window.STAM_CYCLE && window.STAM_CYCLE.generator;
+  var core = window.STAM_CORE || {};
+  var db = core.db;          // v2 Local Core DB (게시판별 store)
+  var schema = core.schema;  // v2 논리 구조 상수
   var PID = (window.STAM_CYCLE && window.STAM_CYCLE.PROJECT_ID) || 'proto-proj-001';
 
   var TYPE_LABEL = {
@@ -42,9 +46,9 @@
     var text = $('imp-input').value;
     var parsed = gen.parseTable(text);
     var v = gen.validate(parsed);
-    return repo.listArtifacts(PID).then(function (existing) {
+    return db.listRecords('requirements', PID).then(function (existing) {
       var existIds = {};
-      existing.forEach(function (a) { if (a.artifactType === 'requirement') existIds[a.artifactId] = true; });
+      existing.forEach(function (a) { var rid = a.requirementId || a.id; if (rid) existIds[rid] = true; });
       var dupExisting = parsed.rows.filter(function (r) { return r.requirementId && existIds[r.requirementId]; })
         .map(function (r) { return { row: r.__row, requirementId: r.requirementId }; });
 
@@ -99,50 +103,110 @@
         return;
       }
       var bid = batchId();
+
+      // 1) import 이력: 원본 row 마다 importRows (reqId → importRowId 매핑)
+      var rowIdOf = {};
+      var importRows = valid.map(function (r) {
+        var rid = bid + '-row' + (r.__row || 0);
+        rowIdOf[r.requirementId] = rid;
+        return {
+          importRowId: rid, importBatchId: bid, projectId: PID,
+          requirementId: r.requirementId, sourceRow: r.__row,
+          raw: {
+            requirementId: r.requirementId, title: r.title, description: r.description || '',
+            priority: r.priority || '', actor: r.actor || '',
+            requirementType: r.requirementType || '', sourceNote: r.sourceNote || ''
+          },
+          status: schema.STATUS.ACTIVE
+        };
+      });
+
+      // 2) generator 재사용 — 요구사항 1건당 생성 개수/링크 기준 그대로 유지
       var out = gen.generate(valid, PID, bid);
 
-      var p = repo.saveProject ? repo.saveProject({ projectId: PID, name: 'Prototype Cycle Project', createdAt: new Date().toISOString(), createdBy: 'prototype-user' }) : Promise.resolve();
-      return Promise.resolve(p)
-        .then(function () { return Promise.all(out.artifacts.map(function (a) { return repo.saveArtifact(a); })); })
-        .then(function () { return Promise.all(out.links.map(function (l) { return repo.saveLink(l); })); })
-        .then(function () { return Promise.all(out.changes.map(function (c) { return repo.appendChange(c); })); })
+      // 3) artifact → v2 게시판별 store record 로 변환 (추적 ID 보존)
+      var records = out.artifacts.map(function (a) {
+        var store = schema.ARTIFACT_TYPE_TO_STORE[a.artifactType];
+        var cf = a.customFields || {};
+        var reqId = cf.requirementId || '';
+        return {
+          store: store,
+          rec: {
+            id: a.artifactId,
+            projectId: a.projectId,
+            boardType: a.artifactType,
+            requirementId: reqId,
+            importBatchId: bid,
+            importRowId: rowIdOf[reqId] || '',
+            title: a.title,
+            description: a.description || '',
+            status: a.status,                 // draft
+            reviewStatus: a.reviewStatus,     // Review Needed
+            owner: a.owner || '미지정',
+            sourceType: a.sourceType || 'Requirement Import',
+            sourceRef: a.sourceRef || '',
+            priority: cf.priority || '',
+            actor: cf.actor || '',
+            requirementType: cf.requirementType || '',
+            sourceNote: cf.sourceNote || '',
+            customFields: cf
+          }
+        };
+      });
+
+      // 4) 링크에 importRowId 보강 (requirementId 는 generator 가 이미 보존)
+      var links = out.links.map(function (l) { l.importRowId = rowIdOf[l.requirementId] || ''; return l; });
+
+      // 5) 저장: importBatch → importRows → 게시판별 record → links → changes
+      return db.createImportBatch({
+        importBatchId: bid, projectId: PID, source: 'Requirement Import',
+        rowCount: valid.length, artifactCount: out.artifacts.length, linkCount: out.links.length,
+        status: schema.STATUS.ACTIVE
+      })
+        .then(function () { return Promise.all(importRows.map(function (r) { return db.saveImportRow(r); })); })
+        .then(function () { return Promise.all(records.map(function (x) { return db.createRecord(x.store, x.rec); })); })
+        .then(function () { return Promise.all(links.map(function (l) { return db.saveLink(l); })); })
+        .then(function () { return Promise.all(out.changes.map(function (c) { return db.appendChange(c); })); })
         .then(function () { return renderResult(bid, valid.length); })
         .then(function () {
           $('imp-status').innerHTML = '<strong>생성 완료</strong> — importBatchId <code>' + esc(bid) + '</code> · 유효 요구사항 ' + valid.length +
-            '건 → 산출물 ' + out.artifacts.length + '개 · 연결 ' + out.links.length + '개. 새로고침해도 유지됩니다.';
+            '건 → 산출물 ' + out.artifacts.length + '개 · 연결 ' + out.links.length +
+            '개를 v2 게시판별 store 에 저장했습니다. 새로고침해도 유지됩니다.';
         });
     }).catch(function (e) { $('imp-status').textContent = '생성 오류: ' + e.message; });
   }
 
-  // ── 결과 렌더 (저장소에서 importBatchId 로 다시 조회 — 영속 검증 겸함) ──
+  // ── 결과 렌더 (v2 store 에서 importBatchId 로 다시 조회 — 영속 검증 겸함) ──
   function renderResult(bid, reqCount) {
-    return Promise.all([repo.listArtifacts(PID), repo.listLinks(PID)]).then(function (res) {
-      var artifacts = res[0], links = res[1];
-      var mine = artifacts.filter(function (a) { return a.customFields && a.customFields.importBatchId === bid; });
-      var myLinks = links.filter(function (l) { return l.importBatchId === bid; });
+    var storeNames = schema.BOARD_STORES;
+    var jobs = storeNames.map(function (s) { return db.listRecords(s, PID); });
+    jobs.push(db.listRecords('artifactLinks', PID));
+    return Promise.all(jobs).then(function (res) {
+      var links = res[res.length - 1].filter(function (l) { return l.importBatchId === bid; });
+      var byStore = {};
+      storeNames.forEach(function (s, i) {
+        byStore[s] = res[i].filter(function (a) { return a.importBatchId === bid; });
+      });
 
-      // summary
-      var c = gen.countByType(mine);
       $('imp-summary').innerHTML =
-        cell('생성된 요구사항', c.requirement) +
-        cell('생성된 기능정의', c.functionalDefinition) +
-        cell('생성된 메뉴/화면', c.menuScreen) +
-        cell('생성된 WBS', c.wbs) +
-        cell('생성된 화면설계서', c.screenSpecification) +
-        cell('생성된 테스트 시나리오', c.testScenario) +
-        cell('생성된 연결', myLinks.length);
+        cell('생성된 요구사항', byStore.requirements.length) +
+        cell('생성된 기능정의', byStore.functionalDefinitions.length) +
+        cell('생성된 메뉴/화면', byStore.menuScreens.length) +
+        cell('생성된 WBS', byStore.wbsItems.length) +
+        cell('생성된 화면설계서', byStore.screenSpecifications.length) +
+        cell('생성된 테스트 시나리오', byStore.testScenarios.length) +
+        cell('생성된 연결', links.length);
 
-      // sections by type
       var html = '';
-      TYPE_ORDER.forEach(function (t) {
-        var rows = mine.filter(function (a) { return a.artifactType === t; });
+      storeNames.forEach(function (s) {
+        var rows = byStore[s];
         if (!rows.length) return;
-        html += '<p class="mcrd-body"><strong>' + esc(TYPE_LABEL[t]) + ' 게시판</strong> — ' + rows.length + '건</p>';
-        html += '<table class="stbl"><thead><tr><th>artifactId</th><th>title</th><th>상태</th><th>원본 요구사항</th></tr></thead><tbody>' +
+        var label = (schema.BOARD_META[s] && schema.BOARD_META[s].label) || s;
+        html += '<p class="mcrd-body"><strong>' + esc(label) + ' 게시판</strong> — ' + rows.length + '건 · <span class="mono">' + esc(s) + '</span></p>';
+        html += '<table class="stbl"><thead><tr><th>id</th><th>title</th><th>상태</th><th>원본 요구사항</th></tr></thead><tbody>' +
           rows.map(function (a) {
-            var reqId = (a.customFields && a.customFields.requirementId) || '';
-            return '<tr><td class="mono">' + esc(a.artifactId) + '</td><td>' + esc(a.title) + '</td><td>' + statusBadges(a) +
-              '</td><td class="mono">' + esc(reqId) + '</td></tr>';
+            return '<tr><td class="mono">' + esc(a.id) + '</td><td>' + esc(a.title) + '</td><td>' + statusBadges(a) +
+              '</td><td class="mono">' + esc(a.requirementId || '') + '</td></tr>';
           }).join('') + '</tbody></table>';
       });
       $('imp-result').innerHTML = html || '<p class="mcrd-body">생성된 데이터가 없습니다.</p>';
@@ -278,7 +342,7 @@
   }
 
   function init() {
-    if (!repo || !gen) { $('imp-status').textContent = 'prototype 모듈 로드 실패'; return; }
+    if (!db || !schema || !gen) { $('imp-status').textContent = 'core-db / generator 모듈 로드 실패'; return; }
     $('btn-sample').addEventListener('click', function () {
       $('imp-input').value = gen.sampleTsv();
       $('imp-status').innerHTML = '샘플 데이터를 불러왔습니다 — <strong>미리보기</strong>를 누르세요.';
@@ -292,20 +356,22 @@
     }
     $('btn-preview').addEventListener('click', function () { doPreview(); });
     $('btn-generate').addEventListener('click', function () { doGenerate(); });
+    // 명시적 초기화(사용자 버튼) — v2 store 만 비운다. v1 DB 는 건드리지 않음.
+    // 자동 호출 없음 · deleteDatabase 미사용 · 자동 seed 없음.
     $('btn-reset').addEventListener('click', function () {
-      repo.reset().then(function () {
+      db.clearStoresExplicit().then(function () {
         $('imp-result').innerHTML = '';
         $('imp-summary').innerHTML = '';
         $('imp-preview').innerHTML = '';
-        $('imp-status').innerHTML = '로컬 DB의 prototype 데이터를 모두 삭제했습니다.';
+        $('imp-status').innerHTML = 'Local Core DB v2 의 데이터를 비웠습니다(명시적 초기화). v1 데이터는 보존됩니다.';
       }).catch(function (e) { $('imp-status').textContent = '초기화 오류: ' + e.message; });
     });
 
-    // 최초: 기존 저장 상태 안내
-    repo.listArtifacts(PID).then(function (a) {
+    // 최초: v2 저장 상태 안내 (자동 생성/seed 없음)
+    db.listRecords('requirements', PID).then(function (a) {
       $('imp-status').innerHTML = a.length
-        ? '현재 로컬 DB에 산출물 <strong>' + a.length + '</strong>개가 저장되어 있습니다. 샘플/붙여넣기 후 생성하거나, <a href="matrix.html">요구사항 누락 검증표</a>에서 연결 상태를 보세요.'
-        : '샘플 데이터 불러오기 → 미리보기 → 6개 게시판 초안 생성 순서로 진행하세요.';
+        ? '현재 v2 요구사항 store 에 <strong>' + a.length + '</strong>건이 저장되어 있습니다. 샘플/CSV/Excel 후 생성하거나, <a href="matrix.html">요구사항 누락 검증표</a>를 보세요.'
+        : '샘플 데이터 불러오기(또는 CSV/Excel 업로드) → 미리보기 → 6개 게시판 초안 생성 순서로 진행하세요.';
     }).catch(function () {});
   }
 
