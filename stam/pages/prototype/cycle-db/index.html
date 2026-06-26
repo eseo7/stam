@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Project Cycle DB Prototype — Index</title>
+<link rel="icon" href="../../../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="../../../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../../../css/stam.tokens.css">
+<link rel="stylesheet" href="../../../css/stam.shell.css">
+<link rel="stylesheet" href="../../../css/stam.components.css">
+<link rel="stylesheet" href="../../../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../../../css/stam.docs.css">
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../../../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Project Cycle DB Prototype</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Prototype</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Local IndexedDB</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Shell (no TOC — full width) ── -->
+<div class="guide-shell">
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <div class="ibox info">
+        <strong>STAM Project Cycle DB Prototype — Index</strong>
+        “요구사항 → 기능정의 → 메뉴/화면 → WBS → 화면설계서 → 테스트 시나리오” 한 사이클의 <strong>데이터 구조와 연결 구조</strong>를
+        실제 저장소에서 검증하는 프로토타입 진입 허브. 이번 단계(PR-1)는 <strong>브라우저 로컬 IndexedDB</strong> 만 사용하며
+        Firebase / Firestore / AI / 파일 업로드는 사용하지 않는다. 중앙 DB 완성이 아니라 한 사이클 검증이 목적이다.
+        <span class="sbadge guide">Prototype</span>
+        <span class="sbadge lock">Local IndexedDB</span>
+        <span class="sbadge plan">One Cycle</span>
+        <span class="sbadge done">No Firebase</span>
+      </div>
+
+      <section class="sec" data-screen-label="진입">
+        <div class="sec-hdr">
+          <span class="sec-n">▸</span>
+          <span class="sec-title">Prototype 화면</span>
+          <span class="sbadge guide">Local</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">아래 화면에서 한 사이클 시드를 생성하고, Traceability Matrix 로 연결 상태를 조회한다.
+            데이터는 이 브라우저의 IndexedDB(<code>stam-prototype-cycle-db</code>)에 저장되어 새로고침 후에도 유지된다.</p>
+          <p class="mcrd-body">
+            <a class="stam-btn stam-btn--primary stam-btn--md" href="matrix.html">Traceability Matrix 열기 →</a>
+          </p>
+        </div>
+      </section>
+
+      <section class="sec" data-screen-label="기준">
+        <div class="sec-hdr">
+          <span class="sec-n">▸</span>
+          <span class="sec-title">이 프로토타입의 기준 (Guardrails)</span>
+          <span class="sbadge lock">Guardrails</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>로컬 IndexedDB 기반 — Firebase SDK / Firestore 미사용 (PR-1 범위).</li>
+            <li>화면은 <code>CycleRepo</code> 인터페이스만 호출 — 저장소 어댑터는 교체 가능(후속 Firestore).</li>
+            <li>모든 artifact 기본 <code>reviewStatus = Review Needed</code> (Draft 기준 유지).</li>
+            <li>Missing 은 저장하지 않고, 기대 연결 대비 실제 link 를 계산해 표시한다.</li>
+            <li>기존 제품 화면 / nav-data / shell / topbar 를 변경하지 않는 독립 prototype 경로다.</li>
+            <li>AI 자동 생성 / 자동 분석 / 자동 확정은 이번 범위가 아니다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="sec" data-screen-label="관련">
+        <div class="sec-hdr">
+          <span class="sec-n">▸</span>
+          <span class="sec-title">관련 기준 문서</span>
+          <span class="sbadge guide">Links</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li><a href="../../../docs/STAM-Project-Cycle-Automation-v1.html">STAM Project Cycle Automation v1</a> — 제품 중심축 / 한 사이클</li>
+            <li><a href="../../../docs/STAM-Traceability-Matrix-UX-Preview-v1.html">STAM Traceability Matrix UX Preview v1</a> — 연결 상태/누락 기준</li>
+            <li><a href="../../../docs/STAM-Backend-Architecture-API-Boundary-Guide.html">Backend Architecture &amp; API Boundary Guide</a> — Repository 경유 원칙</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../../../js/stam.theme.js"></script>
+</body>
+</html>
