@@ -51,10 +51,36 @@
 
       <div class="ibox info">
         <strong>입력 방식 안내</strong>
-        실제 <code>.xlsx</code> 업로드는 후속 단계에서 파서/보안/의존성 결정 후 연결합니다(외부 라이브러리 미추가).
-        이번 화면은 엑셀 행 데이터가 들어왔을 때 6개 게시판 데이터가 어떻게 생성되는지 검증하며,
-        입력은 <strong>샘플 데이터 불러오기</strong> 또는 <strong>TSV/CSV 붙여넣기</strong>로 받습니다.
+        엑셀 파일을 업로드하면 첫 번째 시트의 헤더/행을 읽어 요구사항 가져오기 입력값으로 변환합니다.
+        이번 단계는 1차 시트/기본 헤더 기준입니다. 복잡한 병합 셀·다중 시트·고급 컬럼 매핑은 후속 단계에서 처리합니다.
+        외부 CDN/라이브러리 없이 브라우저 내장 기능만으로 <code>.xlsx</code> 를 파싱하며,
+        <strong>샘플 데이터 불러오기</strong> 또는 <strong>TSV/CSV 붙여넣기</strong>도 그대로 사용할 수 있습니다.
       </div>
+
+      <!-- 엑셀 업로드 -->
+      <section class="sec" data-screen-label="엑셀 업로드">
+        <div class="sec-hdr">
+          <span class="sec-n">▸</span>
+          <span class="sec-title">⓪ 요구사항 엑셀 업로드 (선택)</span>
+          <span class="sbadge plan">Excel</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">
+            엑셀 파일을 업로드하면 첫 번째 시트의 헤더/행을 읽어 요구사항 가져오기 입력값으로 변환합니다.
+            <br>이번 단계는 1차 시트/기본 헤더 기준입니다. 복잡한 병합 셀·다중 시트·고급 컬럼 매핑은 후속 단계에서 처리합니다.
+          </p>
+          <p class="mcrd-body">
+            지원 헤더: <code>requirementId</code> · <code>title</code> · <code>description</code> ·
+            <code>priority</code> · <code>actor</code> · <code>requirementType</code> · <code>sourceNote</code>
+            (한글 헤더 <code>요구사항ID/제목/설명/우선순위/사용자/유형/비고</code> 등도 1차 매핑).
+          </p>
+          <p class="mcrd-body">
+            <input type="file" id="imp-file" accept=".xlsx,.xls,.csv,.tsv"
+              class="stam-input" style="max-width:100%">
+          </p>
+          <div class="ibox info" id="imp-file-status" style="display:none"></div>
+        </div>
+      </section>
 
       <!-- 입력 -->
       <section class="sec" data-screen-label="입력">
@@ -130,6 +156,7 @@
 <script src="../../../js/prototype/cycle-db.repo.local.js"></script>
 <script src="../../../js/prototype/cycle-db.seed.js"></script>
 <script src="../../../js/prototype/cycle-db.generator.js"></script>
+<script src="../../../js/prototype/cycle-db.xlsx-mini.js"></script>
 <script src="../../../js/prototype/cycle-db.import-app.js"></script>
 </body>
 </html>

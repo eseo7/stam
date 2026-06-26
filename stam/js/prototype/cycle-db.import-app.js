@@ -153,12 +153,143 @@
     return '<div class="meta-cell"><span class="meta-k">' + esc(k) + '</span><span class="meta-v code">' + esc(v) + '</span></div>';
   }
 
+  // ── 헤더 매핑 (한글/영문 → canonical) ──────────────────────────
+  var HEADER_MAP = {
+    'requirementid': 'requirementId', 'title': 'title', 'description': 'description',
+    'priority': 'priority', 'actor': 'actor', 'requirementtype': 'requirementType', 'sourcenote': 'sourceNote',
+    '요구사항id': 'requirementId', '요구사항 id': 'requirementId', '요구사항아이디': 'requirementId',
+    '제목': 'title', '요구사항명': 'title', '요구사항 명': 'title',
+    '설명': 'description', '내용': 'description',
+    '우선순위': 'priority',
+    '사용자': 'actor', '행위자': 'actor',
+    '유형': 'requirementType', '요구사항유형': 'requirementType', '요구사항 유형': 'requirementType',
+    '비고': 'sourceNote', '출처': 'sourceNote'
+  };
+  function mapHeader(h) {
+    var k = String(h == null ? '' : h).trim();
+    var canon = HEADER_MAP[k.toLowerCase()] || HEADER_MAP[k];
+    return canon || k; // 매핑 없으면 원본 유지(이후 unknownColumns 로 표시)
+  }
+  function cleanCell(s) {
+    // TSV 무결성 유지를 위해 셀 내 탭/개행 제거
+    return String(s == null ? '' : s).replace(/[\t\r\n]+/g, ' ').trim();
+  }
+
+  // aoa(2차원 배열) → { tsv, headers, dataCount } / 오류는 throw(code 포함)
+  function aoaToTsv(aoa) {
+    var rows = (aoa || []).filter(function (r) {
+      return r && r.some(function (c) { return cleanCell(c) !== ''; });
+    });
+    if (!rows.length) { throw withCode('EMPTY', '빈 파일입니다. 데이터가 없습니다.'); }
+    var rawHeaders = rows[0];
+    if (!rawHeaders || !rawHeaders.length || !rawHeaders.some(function (c) { return cleanCell(c) !== ''; })) {
+      throw withCode('NO_HEADER', '헤더 행이 없습니다. 첫 행에 컬럼명을 넣어주세요.');
+    }
+    var headers = rawHeaders.map(mapHeader);
+    if (headers.indexOf('requirementId') < 0 || headers.indexOf('title') < 0) {
+      throw withCode('NO_REQUIRED', '필수 컬럼(requirementId·title)을 찾을 수 없습니다. ' +
+        '헤더에 requirementId/title (또는 요구사항ID/제목) 컬럼을 포함해주세요.');
+    }
+    var dataRows = rows.slice(1);
+    var lines = [headers.map(cleanCell).join('\t')];
+    dataRows.forEach(function (r) {
+      var arr = [];
+      for (var i = 0; i < headers.length; i++) arr.push(cleanCell(r[i]));
+      lines.push(arr.join('\t'));
+    });
+    return { tsv: lines.join('\n'), headers: headers, dataCount: dataRows.length };
+  }
+  function withCode(code, msg) { var e = new Error(msg); e.code = code; return e; }
+
+  function showFileStatus(html, kind) {
+    var el = $('imp-file-status');
+    if (!el) return;
+    el.style.display = '';
+    el.className = 'ibox ' + (kind === 'err' ? 'warn' : 'info');
+    el.innerHTML = html;
+  }
+
+  // ── 파일 업로드 처리 ──────────────────────────────────────────
+  function handleFile(file) {
+    if (!file) return;
+    var name = file.name || '';
+    var lower = name.toLowerCase();
+    var isText = /\.(csv|tsv)$/.test(lower);
+    var isXls = /\.xls$/.test(lower);
+    var isXlsx = /\.xlsx$/.test(lower);
+    showFileStatus('파일 읽는 중… <code>' + esc(name) + '</code>', 'info');
+
+    if (isText) {
+      var fr = new FileReader();
+      fr.onerror = function () { showFileStatus('파일을 읽을 수 없습니다: <code>' + esc(name) + '</code>', 'err'); };
+      fr.onload = function () {
+        var text = String(fr.result || '');
+        if (!text.trim()) { showFileStatus('빈 파일입니다: <code>' + esc(name) + '</code>', 'err'); return; }
+        // CSV/TSV 는 그대로 텍스트 입력 영역에 채운다(기존 흐름 재사용)
+        $('imp-input').value = text.replace(/\r/g, '');
+        var lineCount = text.replace(/\r/g, '').split('\n').filter(function (l) { return l.trim() !== ''; }).length;
+        var dataCount = Math.max(0, lineCount - 1);
+        showFileStatus('파일 <code>' + esc(name) + '</code> 읽기 완료 · 형식 ' +
+          (lower.indexOf('.tsv') > -1 ? 'TSV' : 'CSV') + ' · 데이터 ' + dataCount + '행 인식. ' +
+          '<strong>미리보기</strong>를 눌러 확인하세요.', 'info');
+        $('imp-status').innerHTML = '파일에서 입력을 불러왔습니다 — <strong>미리보기</strong>를 누르세요.';
+        doPreview();
+      };
+      fr.readAsText(file);
+      return;
+    }
+
+    if (isXls) {
+      showFileStatus('<strong>구버전 <code>.xls</code>(바이너리)는 이번 단계에서 지원하지 않습니다.</strong> ' +
+        '엑셀에서 <code>.xlsx</code> 또는 <code>.csv</code> 로 저장 후 다시 업로드해주세요.', 'err');
+      return;
+    }
+
+    if (isXlsx) {
+      var xlsx = window.STAM_CYCLE && window.STAM_CYCLE.xlsx;
+      if (!xlsx) { showFileStatus('엑셀 파서 모듈 로드 실패.', 'err'); return; }
+      xlsx.readFile(file).then(function (res) {
+        var conv;
+        try { conv = aoaToTsv(res.aoa); }
+        catch (e) {
+          showFileStatus('엑셀 변환 오류 — ' + esc(e.message) +
+            ' <br>(파일 <code>' + esc(name) + '</code> · 시트 <code>' + esc(res.sheetName) + '</code>)', 'err');
+          return;
+        }
+        $('imp-input').value = conv.tsv;
+        showFileStatus('파일 <code>' + esc(name) + '</code> · 시트 <code>' + esc(res.sheetName) + '</code> · ' +
+          '인식 데이터 <strong>' + conv.dataCount + '행</strong> · 컬럼 <code>' + esc(conv.headers.join(', ')) + '</code> ' +
+          '→ 입력 영역에 반영했습니다. 필요 시 직접 수정 후 <strong>미리보기</strong>를 누르세요.', 'info');
+        $('imp-status').innerHTML = '엑셀에서 ' + conv.dataCount + '행을 변환했습니다 — <strong>미리보기</strong>를 누르세요.';
+        doPreview();
+      }).catch(function (e) {
+        var code = e && e.code;
+        var msg = (code === 'NOT_ZIP') ? '엑셀(.xlsx) 형식이 아니거나 손상된 파일입니다.'
+          : (code === 'NO_SHEET') ? '시트를 찾을 수 없습니다.'
+            : (code === 'UNSUPPORTED') ? (e.message || '지원하지 않는 파일입니다.')
+              : ('파일을 읽을 수 없습니다 — ' + (e && e.message || ''));
+        showFileStatus(esc(msg) + ' <br>(<code>' + esc(name) + '</code>)', 'err');
+      });
+      return;
+    }
+
+    showFileStatus('지원하지 않는 파일 형식입니다: <code>' + esc(name) + '</code> ' +
+      '(.xlsx / .csv / .tsv 를 사용해주세요).', 'err');
+  }
+
   function init() {
     if (!repo || !gen) { $('imp-status').textContent = 'prototype 모듈 로드 실패'; return; }
     $('btn-sample').addEventListener('click', function () {
       $('imp-input').value = gen.sampleTsv();
       $('imp-status').innerHTML = '샘플 데이터를 불러왔습니다 — <strong>미리보기</strong>를 누르세요.';
     });
+    var fileEl = $('imp-file');
+    if (fileEl) {
+      fileEl.addEventListener('change', function (ev) {
+        var f = ev.target.files && ev.target.files[0];
+        handleFile(f);
+      });
+    }
     $('btn-preview').addEventListener('click', function () { doPreview(); });
     $('btn-generate').addEventListener('click', function () { doGenerate(); });
     $('btn-reset').addEventListener('click', function () {
