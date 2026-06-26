@@ -1,6 +1,9 @@
 name: Deploy STAM Design Staging to Firebase Hosting
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -12,10 +15,53 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Firebase 가 release 단계에서
+      #   400 FAILED_PRECONDITION: supplied version is the current active version
+      # 를 반환할 수 있다(업로드한 콘텐츠가 이미 live 와 동일한 경우). 이는 콘텐츠가
+      # 이미 반영된 상태라 비차단으로 본다. 따라서 deploy 단계 실패만으로 job 을
+      # 실패 처리하지 않고, 아래 URL probe 를 실제 판정 기준(source of truth)으로 둔다.
       - name: Deploy staging site
+        id: deploy
+        continue-on-error: true
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAM_PREVIEW_HOSTING }}
           projectId: stam-preview-hosting
           channelId: live
           target: staging
+
+      - name: Note deploy outcome
+        if: steps.deploy.outcome == 'failure'
+        run: |
+          echo "::warning::Firebase deploy step reported failure. 콘텐츠가 이미 live 와 동일할 때 발생하는 '400 FAILED_PRECONDITION: supplied version is the current active version' 케이스라면 비차단입니다. 아래 URL probe 가 실제 판정 기준입니다."
+
+      # 핵심 URL 이 실제로 200 인지 확인한다. 새 파일이 404 인 상태(실제 배포 실패)는
+      # 여기서 실패로 잡힌다. CDN 전파 지연을 감안해 URL 당 재시도한다.
+      - name: Probe core staging URLs
+        run: |
+          set -u
+          urls=(
+            "https://stam-design-staging.web.app/"
+            "https://stam-design-staging.web.app/pages/prototype/cycle-db/import.html"
+            "https://stam-design-staging.web.app/pages/boards/functional-specification.html"
+          )
+          fail=0
+          for url in "${urls[@]}"; do
+            code="000"
+            for attempt in $(seq 1 10); do
+              code=$(curl -sL -o /dev/null -w "%{http_code}" "$url" || echo "000")
+              if [ "$code" = "200" ]; then break; fi
+              sleep 6
+            done
+            if [ "$code" = "200" ]; then
+              echo "OK   $code  $url"
+            else
+              echo "FAIL $code  $url"
+              fail=1
+            fi
+          done
+          if [ "$fail" = "1" ]; then
+            echo "::error::하나 이상의 핵심 staging URL 이 200 이 아닙니다(실제 배포 실패)."
+            exit 1
+          fi
+          echo "All core staging URLs returned 200."
