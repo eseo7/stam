@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Product Screen Implementation Gate v1</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a href="STAM-Docs-Index.html" class="doc-nav-back">← Docs</a>
+  <span class="doc-nav-title">Product Screen Implementation Gate v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>1차 기준</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Implementation Gate</span>
+      <span class="toc-ver-pill">1차 기준</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Overview</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Scope</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Mandatory Mapping</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Work Intake Gate</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Implementation Rules</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Screen Type Presets</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>PR Completion Report</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Merge Gate</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Exception Policy</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>WBS First Application</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>QA Checklist</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- S01 Overview -->
+      <section id="s01" class="sec" data-screen-label="01 Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Overview — 이 Gate의 목적</span>
+          <span class="sbadge guide">1차 기준</span>
+        </div>
+        <div class="sec-body">
+          <div class="meta-row">
+            <div class="meta-cell"><span class="meta-k">문서명</span><span class="meta-v">STAM Product Screen Implementation Gate v1</span></div>
+            <div class="meta-cell"><span class="meta-k">대상</span><span class="meta-v">제품 화면 작업 (구현 통제 기준)</span></div>
+            <div class="meta-cell"><span class="meta-k">상태</span><span class="meta-v code">1차 기준</span></div>
+          </div>
+
+          <p class="sub">목적</p>
+          <ul class="blist">
+            <li>Component Guide 7종(Button · Icon · Dialog · Form · Drawer · Table · Topbar)은 <strong>설명서</strong>이고, 이 문서는 제품 화면 <strong>구현 통제 기준(Gate)</strong>이다.</li>
+            <li>Claude Code가 제품 화면을 수정할 때 Component Guide를 임의로 무시하거나 “감”으로 구현하지 못하도록 강제한다.</li>
+            <li>제품 화면 수정 전 반드시 본 Gate의 매핑 / Intake / Completion Report / Merge Gate를 따른다.</li>
+            <li>화면 작업에 공통 적용한다: WBS · 요구사항 · 메뉴/화면목록 · 화면설계서 · 기능정의 · 프로그램목록 · API 명세 · 정책 · 테이블정의 · DB 정보 · 서버 정보 · 접근보안 · 프로젝트 Overview · 설정/권한.</li>
+          </ul>
+
+          <div class="ibox warn">
+            <strong>핵심 원칙</strong>
+            “Component Guide는 무엇을 어떻게 보여줄 것인가의 설명서다. 이 Gate는 제품 화면을 만들 때 그 설명서를 반드시 따르도록 강제하는 운영 기준이다.”
+          </div>
+        </div>
+      </section>
+
+      <!-- S02 Scope -->
+      <section id="s02" class="sec" data-screen-label="02 Scope">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Scope — 적용 / 제외 대상</span>
+          <span class="sbadge guide">1차 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">적용 대상 (제품 화면 작업)</p>
+          <ul class="blist">
+            <li>WBS</li>
+            <li>요구사항</li>
+            <li>메뉴/화면목록</li>
+            <li>화면설계서</li>
+            <li>기능정의</li>
+            <li>프로그램목록</li>
+            <li>API 명세</li>
+            <li>정책</li>
+            <li>테이블정의</li>
+            <li>DB 정보</li>
+            <li>서버 정보</li>
+            <li>접근보안</li>
+            <li>프로젝트 대시보드 / Overview</li>
+            <li>설정 / 권한 / 산출물 접근권한</li>
+          </ul>
+
+          <p class="sub">제외 대상 (Gate 미적용)</p>
+          <ul class="blist">
+            <li>단순 문서 오탈자 수정</li>
+            <li>Preview 문서만 수정하는 작업</li>
+            <li>Firebase / 배포 인프라 작업</li>
+            <li>nav-data 구조 변경 전용 작업</li>
+          </ul>
+
+          <div class="ibox info">
+            적용 대상 화면을 수정하는 모든 PR은 본 Gate를 통과해야 한다. 제외 대상은 Gate 없이 진행 가능하지만, 화면에 시각적 영향을 주는 부수 변경이 섞이면 즉시 Gate 적용.
+          </div>
+        </div>
+      </section>
+
+      <!-- S03 Mandatory Mapping -->
+      <section id="s03" class="sec" data-screen-label="03 Mandatory Mapping">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Mandatory Component Guide Mapping</span>
+          <span class="sbadge guide">1차 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">제품 화면 수정 전 반드시 작성해야 하는 매핑</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>화면 요소</th>
+                <th>반드시 참조할 Guide</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>상단 화면명 / 주요 액션 / 프로젝트 컨텍스트</td>
+                <td>Topbar Guide</td>
+              </tr>
+              <tr>
+                <td>목록 / 컬럼 / 정렬 / 필터 / 검색 / 상태 chip</td>
+                <td>Table Guide</td>
+              </tr>
+              <tr>
+                <td>버튼 위계 (Primary / Secondary / Ghost / Danger)</td>
+                <td>Button Guide</td>
+              </tr>
+              <tr>
+                <td>아이콘 버튼 / 행 액션 / hit area / aria-label</td>
+                <td>Icon Guide (+ Button Guide)</td>
+              </tr>
+              <tr>
+                <td>등록 / 수정 / 상세 / 검토 패널</td>
+                <td>Drawer Guide</td>
+              </tr>
+              <tr>
+                <td>입력 필드 / validation / error / required / optional</td>
+                <td>Form Guide</td>
+              </tr>
+              <tr>
+                <td>삭제 / 반려 / 권한 제거 / 위험 확인</td>
+                <td>Dialog Guide</td>
+              </tr>
+              <tr>
+                <td>전체보기 / Focus View / 고밀도 테이블</td>
+                <td>Table Guide + UI Baseline Guide (S10)</td>
+              </tr>
+              <tr>
+                <td>모바일 / 좁은 화면 (430 / 768)</td>
+                <td>Topbar + Table + Drawer + Form Guide의 Mobile 섹션</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ibox warn">
+            <strong>매핑이 없는 화면 요소는 작업을 시작하지 않는다.</strong>
+            매핑이 누락된 채로 “일단 구현부터” 진행하면 Component Guide 위반 가능성이 높다.
+          </div>
+        </div>
+      </section>
+
+      <!-- S04 Work Intake Gate -->
+      <section id="s04" class="sec" data-screen-label="04 Work Intake Gate">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Product Screen Work Intake Gate</span>
+          <span class="sbadge guide">1차 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">제품 화면 작업 시작 전 Claude Code가 반드시 보고할 항목</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>항목</th>
+                <th>설명</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>작업 대상 화면</td><td>예: WBS / 요구사항 / 화면설계서 …</td></tr>
+              <tr><td>실제 repo 파일 경로</td><td>`stam/pages/...` / 관련 JS / CSS 경로</td></tr>
+              <tr><td>수정 허용 파일</td><td>이 작업에서 건드릴 수 있는 파일 명시</td></tr>
+              <tr><td>수정 금지 파일</td><td>건드리면 안 되는 파일 명시 (nav-data / Shell / Firebase 등)</td></tr>
+              <tr><td>적용할 Component Guide 목록</td><td>S03 매핑 결과를 화면 기준으로 압축</td></tr>
+              <tr><td>예상 영향 범위</td><td>본 화면 외 다른 화면에 영향이 있는지</td></tr>
+              <tr><td>제품 로직 변경 여부</td><td>저장 / 삭제 / 상태 전이 / 권한 검사 등 로직 영향</td></tr>
+              <tr><td>저장 / 삭제 / API / localStorage / Firestore 영향 여부</td><td>데이터 영향 명시</td></tr>
+              <tr><td>모바일 영향 여부</td><td>430 / 768 영향 여부</td></tr>
+              <tr><td>다크모드 영향 여부</td><td>토큰·테마 깨질 가능성</td></tr>
+              <tr><td>예외 필요 여부</td><td>S09 Exception Policy 적용 여부</td></tr>
+            </tbody>
+          </table>
+
+          <div class="ibox info">
+            Intake 보고가 부족하면 사용자(QA)는 작업 시작을 보류시킬 수 있다. 시작 후 변경 범위가 바뀌면 즉시 재보고한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- S05 Implementation Rules -->
+      <section id="s05" class="sec" data-screen-label="05 Implementation Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Implementation Rules — 구현 중 지켜야 할 규칙</span>
+          <span class="sbadge guide">1차 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">핵심 규칙</p>
+          <ul class="blist">
+            <li>Component Guide와 다르게 구현해야 할 경우 <strong>코드 수정 전에 사유를 보고하고 승인</strong>받는다.</li>
+            <li>기존 공통 App Shell / Left Nav / Topbar 구조를 깨지 않는다.</li>
+            <li>화면별로 필터 / 검색 / 버튼 / Drawer / 상태 chip을 임의 패턴으로 새로 만들지 않는다. 공통 기준을 따른다.</li>
+            <li>WBS에서 정한 Table / Filter 기준은 다른 목록 화면에도 확장 가능한 형태여야 한다.</li>
+            <li>제품 화면에서 임의 inline style / 신규 local style / 외부 CDN 추가 금지.</li>
+            <li>모바일에서 전체 페이지 가로 스크롤이 생기면 <strong>실패</strong>로 본다. 가로 스크롤은 테이블 컨테이너 내부에서만 허용된다.</li>
+            <li>다크모드 토큰을 깨면 <strong>실패</strong>로 본다. 색을 직접 박지 않고 토큰을 사용한다.</li>
+            <li>위험 액션(삭제 · 반려 · 권한 제거)은 즉시 실행하지 않고 Dialog Guide 기준을 따른다.</li>
+            <li>권한이 없는 액션은 hide-by-default. 필요 시 disabled + 이유 안내 기준을 따른다.</li>
+            <li>저장 / 삭제 / API / 상태 전이 등 로직 변경은 Intake 보고에 포함된 범위 안에서만 진행한다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- S06 Screen Type Presets -->
+      <section id="s06" class="sec" data-screen-label="06 Screen Type Presets">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Screen Type Presets — 화면 유형별 적용</span>
+          <span class="sbadge guide">1차 기준</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>화면 유형</th>
+                <th>주요 UI</th>
+                <th>반드시 참조할 Guide</th>
+                <th>주의할 실패 패턴</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Dashboard / Overview</td>
+                <td>요약 카드 · 핵심 지표 · 진입 링크</td>
+                <td>Topbar · Button · Table</td>
+                <td>카드마다 임의 색·border 추가 / 핵심 액션 위치 불일치</td>
+              </tr>
+              <tr>
+                <td>Board List</td>
+                <td>목록 · 필터 · 검색 · 행 액션</td>
+                <td>Table · Button · Icon · Form (필터 입력)</td>
+                <td>화면별 필터 자가 발명 / 행 클릭과 행 액션 혼용</td>
+              </tr>
+              <tr>
+                <td>High Density Table</td>
+                <td>다컬럼 · 전체보기 · Focus View</td>
+                <td>Table + UI Baseline (S10) + Drawer (전체보기)</td>
+                <td>모든 컬럼 강제 노출 / 페이지 전체 가로 스크롤 발생</td>
+              </tr>
+              <tr>
+                <td>Detail Drawer</td>
+                <td>상세 · 메타 · 이력 · 닫기</td>
+                <td>Drawer · Icon · Button</td>
+                <td>입력 필드를 Drawer 아닌 Dialog에 넣음 / footer action 순서 불일치</td>
+              </tr>
+              <tr>
+                <td>Register / Edit Drawer</td>
+                <td>폼 · 임시저장 · 저장 · 취소</td>
+                <td>Drawer · Form · Button · Dialog (이탈 확인)</td>
+                <td>필수값 안내가 저장 클릭 시점에만 발생 / Placeholder를 Label처럼 사용</td>
+              </tr>
+              <tr>
+                <td>Review / Approval Flow</td>
+                <td>승인 · 반려 · 사유 · 상태 전이</td>
+                <td>Drawer · Form · Dialog · Button (Danger)</td>
+                <td>반려를 즉시 실행 / 사유 입력을 Dialog에 욱여넣음</td>
+              </tr>
+              <tr>
+                <td>Settings / Permission Screen</td>
+                <td>권한 · 토글 · 위험 액션</td>
+                <td>Form · Button · Dialog · Topbar (권한 컨텍스트)</td>
+                <td>권한 없는 액션 노출 / 위험 액션 즉시 실행</td>
+              </tr>
+              <tr>
+                <td>Search / Filter Heavy Screen</td>
+                <td>다중 필터 · 자유 검색 · 결과 목록</td>
+                <td>Form · Table · Button</td>
+                <td>필터 결과 비어있음 상태 미정의 / 결과 컬럼이 화면마다 다름</td>
+              </tr>
+              <tr>
+                <td>Mobile Review Screen</td>
+                <td>모바일 폭 / 핵심 컬럼 / Drawer 상세</td>
+                <td>Topbar + Table + Drawer + Form 의 Mobile 섹션</td>
+                <td>모든 컬럼 유지 시도 / 페이지 전체 가로 스크롤</td>
+              </tr>
+              <tr>
+                <td>Empty / Loading / Error State</td>
+                <td>비어있음 안내 · 로딩 · 오류 + 다음 행동</td>
+                <td>Table · Dialog (Error) · Button (Retry)</td>
+                <td>“오류가 발생했습니다”만 표시 / 다음 행동 미제공</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- S07 PR Completion Report Gate -->
+      <section id="s07" class="sec" data-screen-label="07 PR Completion Report">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">PR Completion Report Gate</span>
+          <span class="sbadge guide">1차 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Claude Code 완료 보고에 반드시 포함해야 할 항목</p>
+          <ul class="blist">
+            <li>변경 파일 (정확한 경로)</li>
+            <li>변경 요약 (무엇이 / 왜 / 어디서)</li>
+            <li>적용한 Component Guide 목록</li>
+            <li>Component Guide별 준수 여부 (Topbar / Table / Drawer / Form / Dialog / Button / Icon)</li>
+            <li>예외 여부 + 사유 (S09)</li>
+            <li>제품 로직 변경 여부</li>
+            <li>저장 / 삭제 / API / localStorage / Firestore 영향 여부</li>
+            <li>CSS / JS / HTML 변경 범위</li>
+            <li>모바일 확인 (430 / 768)</li>
+            <li>1366 확인</li>
+            <li>Light / Dark 확인</li>
+            <li>신규 `&lt;style&gt;` / 신규 inline `style=` / 신규 JS / 외부 CDN 여부</li>
+            <li>콘솔 red error 여부</li>
+            <li>Preview URL (또는 인프라 blocked 사유)</li>
+            <li>사용자 QA 전 Draft 유지 여부</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- S08 Merge Gate -->
+      <section id="s08" class="sec" data-screen-label="08 Merge Gate">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Merge Gate — merge 전 확인 기준</span>
+          <span class="sbadge guide">1차 기준</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li><code>changed_files</code> 수치와 실제 변경 파일 확인</li>
+            <li>허용 파일 외 변경 없음 확인</li>
+            <li>Component Guide 매핑 보고 완료 (S03)</li>
+            <li>제품 로직 변경 여부 명시</li>
+            <li>Preview success 또는 인프라 blocked 사유 분리</li>
+            <li>사용자가 승인하기 전 ready 전환 / merge 금지</li>
+            <li>ready 전환 및 squash merge는 Claude Code가 실행, 사용자(지민)는 QA 판단만 수행</li>
+          </ul>
+
+          <div class="ibox info">
+            인프라(예: Firebase OAuth `Premature close`) 사유로 Preview / Staging deploy가 실패하면 “인프라 blocked”로 분리 보고. 코드/문서 변경이 정상이면 사용자 판단으로 merge 진행 가능.
+          </div>
+        </div>
+      </section>
+
+      <!-- S09 Exception Policy -->
+      <section id="s09" class="sec" data-screen-label="09 Exception Policy">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Exception Policy — 예외 처리</span>
+          <span class="sbadge guide">1차 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">예외 허용 조건</p>
+          <ul class="blist">
+            <li>기존 구조상 Component Guide와 완전히 맞출 수 없는 경우</li>
+            <li>기술 부채로 인해 별도 단계화가 필요한 경우</li>
+            <li>모바일 / 접근성 / 성능 상 Guide와 다르게 처리해야 하는 경우</li>
+          </ul>
+
+          <p class="sub">예외 보고 형식 (필수)</p>
+          <ul class="blist">
+            <li>어떤 Guide와 다른가</li>
+            <li>왜 다른가</li>
+            <li>대안은 무엇인가</li>
+            <li>후속 보정이 필요한가 (있다면 후속 PR 항목으로 기록)</li>
+            <li>사용자 승인 여부</li>
+          </ul>
+
+          <div class="ibox warn">
+            <strong>예외는 “사후 통보”가 아니라 “사전 승인”이다.</strong>
+            코드를 다 바꾼 다음에 “예외였습니다”라고 보고하는 패턴은 거부된다.
+          </div>
+        </div>
+      </section>
+
+      <!-- S10 WBS First Application -->
+      <section id="s10" class="sec" data-screen-label="10 WBS First Application">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">WBS First Application Rule</span>
+          <span class="sbadge guide">1차 기준</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>WBS는 첫 적용 기준 화면이다. 필터 / 검색 / 정렬 / 상태 chip / 행 액션 / 전체보기 / Focus View 기준을 <strong>Table Guide</strong> 기준으로 먼저 정리한다.</li>
+            <li>WBS에서 확정한 공통 목록 패턴은 요구사항 · 메뉴/화면목록 · 화면설계서 · 기능정의 · 프로그램목록 등 다른 목록 화면에 그대로 확장한다.</li>
+            <li>WBS만 특수하게 “WBS Special”로 끝내지 않고, 추출한 공통 기준은 Table Guide / Drawer Guide / Filter 기준으로 환원한다.</li>
+            <li>WBS 작업에서 새로 발견한 “공통화 후보”는 후속 PR 항목으로 기록한다.</li>
+          </ul>
+
+          <div class="ibox info">
+            WBS가 “특수 화면”이면 다른 목록 화면이 또 “특수 화면”이 된다. 본 Gate는 WBS를 공통 기준의 출발점으로 본다.
+          </div>
+        </div>
+      </section>
+
+      <!-- S11 QA Checklist -->
+      <section id="s11" class="sec" data-screen-label="11 QA Checklist">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">QA Checklist</span>
+          <span class="sbadge guide">1차 기준</span>
+        </div>
+        <div class="sec-body">
+          <div class="chk-grid">
+            <div class="chk-item"><span class="chk-box"></span>실제 repo 경로 확인</div>
+            <div class="chk-item"><span class="chk-box"></span>Component Guide 매핑 작성 (S03)</div>
+            <div class="chk-item"><span class="chk-box"></span>허용 / 금지 파일 확인</div>
+            <div class="chk-item"><span class="chk-box"></span>제품 로직 변경 여부 확인</div>
+            <div class="chk-item"><span class="chk-box"></span>저장 / API / Firestore / localStorage 영향 확인</div>
+            <div class="chk-item"><span class="chk-box"></span>Table 기준 준수</div>
+            <div class="chk-item"><span class="chk-box"></span>Drawer 기준 준수</div>
+            <div class="chk-item"><span class="chk-box"></span>Form 기준 준수</div>
+            <div class="chk-item"><span class="chk-box"></span>Dialog 기준 준수</div>
+            <div class="chk-item"><span class="chk-box"></span>Button 기준 준수</div>
+            <div class="chk-item"><span class="chk-box"></span>Icon 기준 준수</div>
+            <div class="chk-item"><span class="chk-box"></span>Topbar 기준 준수</div>
+            <div class="chk-item"><span class="chk-box"></span>모바일 430 확인</div>
+            <div class="chk-item"><span class="chk-box"></span>모바일 768 확인</div>
+            <div class="chk-item"><span class="chk-box"></span>1366 확인</div>
+            <div class="chk-item"><span class="chk-box"></span>Light / Dark 토큰 깨짐 없음</div>
+            <div class="chk-item"><span class="chk-box"></span>신규 &lt;style&gt; / inline style= / 신규 JS / 외부 CDN 없음</div>
+            <div class="chk-item"><span class="chk-box"></span>Preview success 또는 인프라 blocked 사유 분리</div>
+            <div class="chk-item"><span class="chk-box"></span>콘솔 red error 0</div>
+            <div class="chk-item"><span class="chk-box"></span>사용자 QA 전 Draft 유지</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- S12 Related Links -->
+      <section id="s12" class="sec" data-screen-label="12 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Related Links — 관련 문서</span>
+          <span class="sbadge guide">진입 허브</span>
+        </div>
+        <div class="sec-body">
+          <div class="rel-links">
+            <a href="STAM-Docs-Index.html" class="rel-link">← Docs Index</a>
+            <a href="STAM-Component-Guide.html" class="rel-link">← Component Guide</a>
+            <a href="STAM-UI-Baseline-Guide.html" class="rel-link">UI Baseline Guide</a>
+            <a href="components/STAM-Button-Guide.html" class="rel-link">Button Guide</a>
+            <a href="components/STAM-Icon-Guide.html" class="rel-link">Icon Guide</a>
+            <a href="components/STAM-Dialog-Guide.html" class="rel-link">Dialog Guide</a>
+            <a href="components/STAM-Form-Guide.html" class="rel-link">Form Guide</a>
+            <a href="components/STAM-Drawer-Guide.html" class="rel-link">Drawer Guide</a>
+            <a href="components/STAM-Table-Guide.html" class="rel-link">Table Guide</a>
+            <a href="components/STAM-Topbar-Guide.html" class="rel-link">Topbar Guide</a>
+          </div>
+
+          <div class="ibox info">
+            본 Gate는 1차 기준이다. WBS · 요구사항 · 화면설계서 · 기능정의 등 첫 적용 PR 진행 과정에서 발견된 보강 항목을 후속 PR로 반영한다.
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) {
+      a.closest('.toc-item').classList.toggle('active', i === cur);
+    });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
