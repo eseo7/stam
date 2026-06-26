@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Project Cycle Automation v1</title>
+<link rel="icon" href="../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Project Cycle Automation</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Cycle v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>2026-06-26</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Project Cycle Automation</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Purpose</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Product Reframing</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Project Cycle Overview</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Cycle Step Definition</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Excel / Artifact Import Builder</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Standard Fields and Custom Fields</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Draft Generation and Human Approval</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Traceability Matrix</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Relationship with Existing Screens</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>1차 핵심 범위</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>후속 확장 범위</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>보류할 항목</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Implementation Principles</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Risk and Guardrails</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>Recommended Next Work</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Hero / Status Summary ── -->
+      <div class="ibox info">
+        <strong>STAM Project Cycle Automation v1</strong>
+        고객 요구사항에서 화면설계·WBS·테스트까지 이어지는 SI 산출물 한 사이클 자동화 기준.
+        이 문서는 STAM Works의 <strong>제품 중심축</strong>을 “산출물 게시판 모음”이 아니라
+        “SI 산출물 한 사이클을 생성·연결·추적하는 자동화 서비스”로 재정의하는 기준 문서다.
+        기존 요구사항 / WBS / 화면설계서 / Component Guide / Product Screen Implementation Gate는
+        폐기 대상이 아니라 이 <strong>상위 사이클</strong> 아래의 하위 실행 화면·기준으로 재배치한다.
+        문서 전용이며 제품 화면 / JS / CSS / Firebase / nav-data 를 변경하지 않는다.
+      </div>
+
+      <div class="meta-row">
+        <div class="meta-cell"><span class="meta-k">Document</span><span class="meta-v">Project Cycle Automation v1</span></div>
+        <div class="meta-cell"><span class="meta-k">Type</span><span class="meta-v">Product Strategy / 기준 문서</span></div>
+        <div class="meta-cell"><span class="meta-k">Scope</span><span class="meta-v">Docs Only · No Product Change</span></div>
+        <div class="meta-cell"><span class="meta-k">제품 중심축</span><span class="meta-v">산출물 한 사이클 자동화</span></div>
+        <div class="meta-cell"><span class="meta-k">1차 핵심 범위</span><span class="meta-v">요구사항 → 테스트 시나리오 → 추적성</span></div>
+        <div class="meta-cell"><span class="meta-k">Date</span><span class="meta-v code">2026-06-26</span></div>
+      </div>
+
+      <!-- ── 01 Purpose ── -->
+      <section id="s01" class="sec" data-screen-label="01 Purpose">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Purpose — 이 문서의 목적</span>
+          <span class="sbadge guide">Strategy</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">이 문서는 STAM Works가 무엇을 만드는 서비스인지에 대한 <strong>제품 중심축</strong>을 한 문장으로 고정한다:
+            STAM Works는 <strong>고객 상담·엑셀 산출물·요구사항을 시작점으로</strong>, 기능정의 · 메뉴/화면 · WBS · 화면설계서 · 테스트 시나리오 · 추적성 매트릭스까지
+            <strong>연결 생성·관리·추적하는 한 사이클 자동화 서비스</strong>다.</p>
+          <ul class="blist">
+            <li>향후 <strong>로드맵 · 화면 설계 · 구현 순서</strong>를 결정할 때 기준이 되는 상위 문서다.</li>
+            <li>기존 산출물 화면을 폐기하지 않고 <strong>Project Cycle Automation</strong>이라는 상위 개념 아래에 재배치한다.</li>
+            <li>Excel Import Builder / 상담 Intake / 요구사항 / 기능정의 / 메뉴·화면 / WBS / 화면설계서 / 테스트 시나리오 / 추적성 매트릭스의 <strong>관계</strong>를 명확히 한다.</li>
+            <li>자동화의 의미를 “최종 확정”이 아니라 “초안 생성 + 연결 추천 + 누락 감지 + 변경 영향 분석 + 사람 승인”으로 정의한다.</li>
+          </ul>
+          <div class="ibox info">
+            <strong>핵심 결론 8가지</strong>
+            ① STAM Works는 단순 산출물 게시판 모음이 아니다.
+            ② 상담·엑셀·요구사항을 시작점으로 기능정의·메뉴/화면·WBS·화면설계서·테스트 시나리오까지 연결 생성·관리한다.
+            ③ 기존 요구사항/WBS/화면설계서 화면은 폐기 대상이 아니라 하위 실행 화면이다.
+            ④ 자동화는 “초안 생성 + 연결 추천 + 누락 감지 + 변경 영향 분석 + 사람 승인”이다.
+            ⑤ Excel Import Builder는 부가기능이 아니라 주요 진입 기능이다.
+            ⑥ 공통화는 컬럼 고정이 아니다. 구조·동작은 공통화, 필드/컬럼은 표준 필드 + customFields 로 확장한다.
+            ⑦ API 명세·배치잡·테이블정의·DB·서버·접근보안은 기능정의에서 파생되는 후속 산출물이다.
+            ⑧ 1차 핵심 범위는 요구사항 → 기능정의 → 메뉴/화면 → WBS → 화면설계서 → 테스트 시나리오 → 추적성 매트릭스다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 02 Product Reframing ── -->
+      <section id="s02" class="sec" data-screen-label="02 Product Reframing">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Product Reframing — 제품 중심축 재정의</span>
+          <span class="sbadge lock">Reframe</span>
+        </div>
+        <div class="sec-body">
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">기존 관점 — 산출물 게시판 모음</span>
+              <ul class="blist bad">
+                <li>요구사항 게시판</li>
+                <li>WBS 게시판</li>
+                <li>화면설계서 게시판</li>
+                <li>각 게시판이 서로 분리된 독립 목록으로만 존재</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">새 관점 — 산출물 한 사이클 자동화</span>
+              <ul class="blist">
+                <li>고객 상담 / 엑셀 / 요구사항에서 <strong>시작</strong></li>
+                <li>산출물 한 사이클을 <strong>생성·연결·추적</strong>하는 자동화 서비스</li>
+                <li>각 산출물이 앞뒤 산출물과 <strong>연결(linked)</strong>되어 추적 가능</li>
+                <li>변경 시 영향 범위를 사이클 전체에서 확인</li>
+              </ul>
+            </div>
+          </div>
+          <div class="ibox warn">
+            <strong>기존 작업은 버리지 않는다</strong>
+            지금까지 만든 요구사항 / WBS / 화면설계서 / Component Guide / Product Screen Implementation Gate 는 폐기 대상이 아니다.
+            이들은 새 상위 개념인 <strong>Project Cycle Automation</strong> 아래의 하위 실행 화면·실행 기준으로 재배치된다.
+            상위 사이클 개념만 새로 추가하고, 하위 화면은 그대로 활용한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 03 Project Cycle Overview ── -->
+      <section id="s03" class="sec" data-screen-label="03 Project Cycle Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Project Cycle Overview — 한 사이클 흐름</span>
+          <span class="sbadge guide">Flow</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">STAM Project Cycle 은 다음 흐름을 기준으로 한다. 각 단계는 앞 단계의 출력을 입력으로 받아 다음 산출물의 초안을 생성·연결한다.</p>
+          <div class="flow-row">
+            <span class="fbox">Intake / 상담·견적</span><span class="farr">→</span>
+            <span class="fbox">Excel / Artifact Import</span><span class="farr">→</span>
+            <span class="fbox">Requirement / 요구사항</span><span class="farr">→</span>
+            <span class="fbox">Feature Definition / 기능정의</span><span class="farr">→</span>
+            <span class="fbox">Menu &amp; Screen / 메뉴·화면</span>
+          </div>
+          <div class="flow-row">
+            <span class="fbox">WBS / 작업계획</span><span class="farr">→</span>
+            <span class="fbox">Screen Specification / 화면설계서</span><span class="farr">→</span>
+            <span class="fbox">Test Scenario / 테스트 시나리오</span><span class="farr">→</span>
+            <span class="fbox">Traceability Matrix / 추적성 매트릭스</span><span class="farr">→</span>
+            <span class="fbox end">Export / 내보내기</span>
+          </div>
+          <div class="ibox info">
+            <strong>사이클의 의미</strong>
+            이 흐름은 강제 단방향 순서가 아니라 <strong>연결의 기준 축</strong>이다. 어느 단계에서 시작하든(예: 엑셀 import 또는 상담 intake)
+            앞뒤 산출물과 연결될 수 있어야 하며, 모든 단계의 결과는 <strong>초안(Draft)</strong>으로 생성되고 사람이 검토·승인한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 04 Cycle Step Definition ── -->
+      <section id="s04" class="sec" data-screen-label="04 Cycle Step Definition">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Cycle Step Definition — 단계별 정의</span>
+          <span class="sbadge guide">Definition</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">각 단계는 입력 · 처리 · 출력 · 연결 대상 · 사람이 검토해야 할 항목 · 후속 생성 가능 산출물로 정의한다.</p>          <table class="stbl">
+            <thead>
+              <tr><th>단계</th><th>입력</th><th>처리</th><th>출력</th><th>연결 대상</th><th>사람 검토 항목</th><th>후속 생성 가능</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Intake / 상담·견적</td>
+                <td>상담 메모, 고객 요청, 견적 항목</td>
+                <td>요청 정리, 범위 후보 추출</td>
+                <td>상담 기록 초안, 요구 후보</td>
+                <td>요구사항</td>
+                <td>범위 적정성, 우선순위</td>
+                <td>요구사항 초안</td>
+              </tr>
+              <tr>
+                <td>Excel / Artifact Import</td>
+                <td>엑셀/기존 산출물 파일</td>
+                <td>헤더 감지, 컬럼 분석, 표준 필드 매핑</td>
+                <td>Draft Import, 매핑 후보</td>
+                <td>요구사항, 기능정의</td>
+                <td>매핑 확정, custom field 채택</td>
+                <td>요구사항 초안</td>
+              </tr>
+              <tr>
+                <td>Requirement / 요구사항</td>
+                <td>상담/엑셀 결과, 직접 입력</td>
+                <td>요구 항목 정규화, 분류</td>
+                <td>요구사항 항목</td>
+                <td>기능정의, 화면, WBS, 화면설계서, 테스트</td>
+                <td>중복/누락, 분류·우선순위</td>
+                <td>기능정의 초안</td>
+              </tr>
+              <tr>
+                <td>Feature Definition / 기능정의</td>
+                <td>요구사항 항목</td>
+                <td>기능 단위 분해, 그룹화</td>
+                <td>기능 항목</td>
+                <td>요구사항, 메뉴/화면, 테스트</td>
+                <td>기능 분해 적정성</td>
+                <td>메뉴/화면 후보, API·DB 후속 산출물</td>
+              </tr>
+              <tr>
+                <td>Menu &amp; Screen / 메뉴·화면</td>
+                <td>기능 항목</td>
+                <td>화면 구조 변환, 메뉴 배치</td>
+                <td>메뉴/화면 목록</td>
+                <td>기능정의, WBS, 화면설계서</td>
+                <td>화면 단위 적정성, IA 정합</td>
+                <td>WBS 초안, 화면설계서 템플릿</td>
+              </tr>
+              <tr>
+                <td>WBS / 작업계획</td>
+                <td>기능/화면 단위</td>
+                <td>작업 분해, 일정·담당 후보</td>
+                <td>WBS 작업 항목</td>
+                <td>기능정의, 메뉴/화면</td>
+                <td>일정·담당·공수 확정</td>
+                <td>일정/리소스 후속 산출물</td>
+              </tr>
+              <tr>
+                <td>Screen Specification / 화면설계서</td>
+                <td>메뉴/화면 + 템플릿</td>
+                <td>템플릿 기반 화면 구체화</td>
+                <td>화면설계서 항목</td>
+                <td>메뉴/화면, 기능정의, 테스트</td>
+                <td>필드·액션·권한 확정</td>
+                <td>테스트 시나리오 초안</td>
+              </tr>
+              <tr>
+                <td>Test Scenario / 테스트 시나리오</td>
+                <td>화면설계서, 기능정의</td>
+                <td>시나리오·케이스 초안 생성</td>
+                <td>테스트 시나리오 항목</td>
+                <td>화면설계서, 기능정의, 요구사항</td>
+                <td>케이스 충분성, 예외 흐름</td>
+                <td>추적성 매트릭스 행</td>
+              </tr>
+              <tr>
+                <td>Traceability Matrix / 추적성</td>
+                <td>전 단계 산출물 연결</td>
+                <td>연결 집계, 누락 감지</td>
+                <td>추적성 매트릭스</td>
+                <td>요구사항 ~ 테스트 전체</td>
+                <td>누락 연결, 영향 범위</td>
+                <td>내보내기 산출물</td>
+              </tr>
+              <tr>
+                <td>Export / 내보내기</td>
+                <td>확정 산출물</td>
+                <td>템플릿 기반 출력 구성</td>
+                <td>내보내기 문서</td>
+                <td>전 단계</td>
+                <td>출력 범위·형식</td>
+                <td>고객/내부 제출본</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 05 Excel / Artifact Import Builder ── -->
+      <section id="s05" class="sec" data-screen-label="05 Import Builder">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Excel / Artifact Import Builder — 주요 진입 기능</span>
+          <span class="sbadge lock">Entry</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>Excel Import Builder 는 부가기능이 아니다</strong>
+            엑셀 산출물은 SI 현장에서 가장 흔한 시작점이다. Import Builder 는 STAM 의 <strong>주요 진입 기능</strong>으로 다룬다.
+          </div>
+          <p class="mcrd-body">Import Builder 의 흐름:</p>
+          <div class="flow-row">
+            <span class="fbox">파일 업로드</span><span class="farr">→</span>
+            <span class="fbox">시트 선택</span><span class="farr">→</span>
+            <span class="fbox">헤더 행 감지</span><span class="farr">→</span>
+            <span class="fbox">컬럼 자동 분석</span><span class="farr">→</span>
+            <span class="fbox">표준 필드 매핑</span>
+          </div>
+          <div class="flow-row">
+            <span class="fbox">custom field 생성 후보</span><span class="farr">→</span>
+            <span class="fbox">데이터 타입 추론</span><span class="farr">→</span>
+            <span class="fbox">상태값/옵션값 추출</span><span class="farr">→</span>
+            <span class="fbox">중복/누락/오류 검사</span>
+          </div>
+          <div class="flow-row">
+            <span class="fbox">미리보기</span><span class="farr">→</span>
+            <span class="fbox">import 확정</span><span class="farr">→</span>
+            <span class="fbox end">요구사항 초안 생성</span>
+          </div>
+          <div class="two-col">
+            <div class="ibox warn">
+              <strong>자동 생성 결과 = Draft Import</strong>
+              import 결과는 확정 데이터가 아니라 <strong>Draft Import</strong> 로 취급한다.
+              사용자가 매핑을 수정하고 직접 확정해야 실제 산출물 항목이 된다.
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">원본 추적 메타 (필수)</span>
+              <ul class="blist">
+                <li><code>sourceFile</code> — 원본 파일</li>
+                <li><code>sourceSheet</code> — 원본 시트</li>
+                <li><code>sourceRow</code> — 원본 행</li>
+                <li><code>importBatchId</code> — import 배치 식별자</li>
+                <li><code>importedAt</code> — import 시각</li>
+                <li><code>importedBy</code> — import 수행자</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 06 Standard Fields and Custom Fields ── -->
+      <section id="s06" class="sec" data-screen-label="06 Standard / Custom Fields">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Standard Fields and Custom Fields — 공통화와 확장</span>
+          <span class="sbadge guide">Field Model</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>공통화 ≠ 컬럼 고정</strong>
+            산출물별 <strong>표준 필드</strong>는 유지하되, 고객사/프로젝트별 컬럼은 <code>customFields</code> 로 흡수한다.
+            공통화와 커스텀 컬럼은 충돌하지 않는다.
+          </div>
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">공통화 대상 (구조·동작)</span>
+              <ul class="blist">
+                <li>화면 구조</li>
+                <li>필터 / 검색 / 정렬</li>
+                <li>Drawer</li>
+                <li>변경이력</li>
+                <li>권한</li>
+                <li>내보내기</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">확장 가능 대상</span>
+              <ul class="blist">
+                <li>필드</li>
+                <li>컬럼</li>
+                <li>옵션값</li>
+                <li>고객사/프로젝트별 customFields</li>
+              </ul>
+            </div>
+          </div>
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">예시 필드 (요구사항)</span>
+              <ul class="blist">
+                <li><code>requirementId</code></li>
+                <li><code>externalRequirementId</code></li>
+                <li><code>title</code></li>
+                <li><code>description</code></li>
+                <li><code>category</code></li>
+                <li><code>priority</code></li>
+                <li><code>status</code></li>
+                <li><code>requester</code></li>
+                <li><code>owner</code></li>
+                <li><code>linkedFeatures</code></li>
+                <li><code>linkedScreens</code></li>
+                <li><code>linkedWbs</code></li>
+                <li><code>customFields</code></li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">예시 FieldDefinition</span>
+              <ul class="blist">
+                <li><code>fieldKey</code></li>
+                <li><code>label</code></li>
+                <li><code>type</code></li>
+                <li><code>required</code></li>
+                <li><code>options</code></li>
+                <li><code>visibleInList</code></li>
+                <li><code>filterable</code></li>
+                <li><code>sortable</code></li>
+                <li><code>exportable</code></li>
+                <li><code>order</code></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 07 Draft Generation and Human Approval ── -->
+      <section id="s07" class="sec" data-screen-label="07 Draft / Approval">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Draft Generation and Human Approval — 사람 승인 전제</span>
+          <span class="sbadge lock">Human-in-loop</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox warn">
+            <strong>STAM 은 최종 산출물을 자동 확정하지 않는다</strong>
+            자동화는 <strong>초안 생성 · 연결 추천 · 누락 감지 · 변경 영향 분석</strong>까지만 담당한다.
+            확정은 PM / 기획자 / 담당자의 검토·승인을 거친다.
+          </div>
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">자동화가 하는 일</span>
+              <ul class="blist">
+                <li>초안(Draft) 생성</li>
+                <li>연결 추천 (linked 후보)</li>
+                <li>누락 감지</li>
+                <li>변경 영향 분석</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">사람이 하는 일</span>
+              <ul class="blist">
+                <li>내용 검토</li>
+                <li>매핑·연결 확정</li>
+                <li>우선순위 결정</li>
+                <li>승인</li>
+              </ul>
+            </div>
+          </div>
+          <p class="mcrd-body">상태 예시:</p>
+          <div class="flow-row">
+            <span class="fbox">Imported Draft</span><span class="farr">→</span>
+            <span class="fbox">Review Needed</span><span class="farr">→</span>
+            <span class="fbox">Confirmed</span><span class="farr">→</span>
+            <span class="fbox">Linked</span><span class="farr">→</span>
+            <span class="fbox end">Export Ready</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 08 Traceability Matrix ── -->
+      <section id="s08" class="sec" data-screen-label="08 Traceability Matrix">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Traceability Matrix — 핵심 차별화 화면</span>
+          <span class="sbadge lock">Differentiator</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">요구사항 · 기능정의 · 메뉴/화면 · WBS · 화면설계서 · 테스트 시나리오 사이의 연결을 한 표로 보여준다.</p>          <table class="stbl">
+            <thead>
+              <tr><th>요구사항</th><th>기능</th><th>메뉴/화면</th><th>WBS</th><th>화면설계서</th><th>테스트</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>REQ-001 로그인</td><td>F-001 인증</td><td>S-001 로그인 화면</td><td>W-001 인증 개발</td><td>SS-001 로그인 설계</td><td>T-001 로그인 테스트</td></tr>
+              <tr><td>REQ-002 권한관리</td><td>F-002 권한</td><td>S-002 권한 설정</td><td>W-002 권한 개발</td><td>SS-002 권한 설계</td><td>T-002 권한 테스트</td></tr>
+              <tr><td>REQ-003 게시판</td><td>F-003 목록·등록</td><td>S-003 게시판 목록</td><td>W-003 게시판 개발</td><td>SS-003 목록 설계</td><td class="mono">(누락 감지)</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox info">
+            <strong>이 화면의 역할</strong>
+            추적성 매트릭스는 STAM 의 핵심 차별화 화면이다.
+            누락된 연결을 감지하고, 산출물 변경 시 영향 범위를 보여주며, 고객사/내부 검토에서 기준 화면으로 사용할 수 있다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 09 Relationship with Existing Screens ── -->
+      <section id="s09" class="sec" data-screen-label="09 Existing Screens">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Relationship with Existing Screens — 기존 화면과의 관계</span>
+          <span class="sbadge guide">Mapping</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>기존 화면은 하위 실행 화면이다</strong>
+            기존 제품 화면은 폐기되지 않고 Project Cycle Automation 의 각 단계 실행 화면으로 재배치된다.
+          </div>          <table class="stbl">
+            <thead><tr><th>기존 화면</th><th>사이클 내 역할</th></tr></thead>
+            <tbody>
+              <tr><td>요구사항 화면</td><td>Excel Import 와 상담 Intake 의 <strong>도착지</strong></td></tr>
+              <tr><td>기능정의 화면</td><td>요구사항을 <strong>기능 단위로 분해</strong>한 결과</td></tr>
+              <tr><td>메뉴/화면목록</td><td>기능을 <strong>실제 화면 구조로 변환</strong>하는 단계</td></tr>
+              <tr><td>WBS</td><td>기능/화면 단위 <strong>작업계획 생성</strong> 대상</td></tr>
+              <tr><td>화면설계서</td><td>메뉴/화면을 <strong>템플릿 기반으로 구체화</strong>하는 단계</td></tr>
+              <tr><td>테스트 시나리오</td><td>화면설계서와 기능정의에서 생성되는 <strong>후속 산출물</strong></td></tr>
+              <tr><td>API 명세 / DB / 서버 / 접근보안</td><td>기능정의 <strong>이후 파생 산출물</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 10 1차 핵심 범위 ── -->
+      <section id="s10" class="sec" data-screen-label="10 1차 핵심 범위">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">1차 핵심 범위 — 우선 적용 범위</span>
+          <span class="sbadge done">Core Scope</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">초기 제품 기준으로 우선 적용할 범위. 요구사항 → 기능정의 → 메뉴/화면 → WBS → 화면설계서 → 테스트 시나리오 → 추적성 매트릭스.</p>
+          <ul class="blist">
+            <li>Project Cycle 개념 고정</li>
+            <li>Requirement Import Builder Preview</li>
+            <li>요구사항 → 기능정의 초안</li>
+            <li>기능정의 → 메뉴/화면 후보</li>
+            <li>메뉴/화면 → WBS 초안</li>
+            <li>메뉴/화면 → 화면설계서 템플릿 추천</li>
+            <li>화면설계서 → 테스트 시나리오 초안</li>
+            <li>추적성 매트릭스 Preview</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── 11 후속 확장 범위 ── -->
+      <section id="s11" class="sec" data-screen-label="11 후속 확장 범위">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">후속 확장 범위 — 단계적 구현</span>
+          <span class="sbadge plan">Follow-up</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">1차 핵심 범위 이후 단계적으로 확장할 후속 산출물·기능.</p>
+          <ul class="blist">
+            <li>API 명세 자동 초안</li>
+            <li>배치잡 정의</li>
+            <li>테이블정의서</li>
+            <li>DB 정보</li>
+            <li>서버 정보</li>
+            <li>접근보안</li>
+            <li>내보내기 템플릿</li>
+            <li>Board Builder</li>
+            <li>고객사별 산출물 템플릿</li>
+            <li>권한/승인 고도화</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── 12 보류할 항목 ── -->
+      <section id="s12" class="sec" data-screen-label="12 보류할 항목">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">보류할 항목 — Out of Scope (현재)</span>
+          <span class="sbadge plan">Hold</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox warn">
+            <strong>현재 단계에서 보류</strong>
+            아래 항목은 이번 기준 단계에서 구현·확정하지 않는다. 이 문서는 기준 문서이며 실제 구현 작업이 아니다.
+          </div>
+          <ul class="blist bad">
+            <li>실제 Excel parsing 구현</li>
+            <li>AI 자동 분해 로직 구현</li>
+            <li>DB schema 확정</li>
+            <li>Firebase backend 도입</li>
+            <li>Storage 업로드 구현</li>
+            <li>HWP 내보내기</li>
+            <li>온프레미스 / 전용 tenant</li>
+            <li>공공 / 금융 보안 대응</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── 13 Implementation Principles ── -->
+      <section id="s13" class="sec" data-screen-label="13 Implementation Principles">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Implementation Principles — 구현 원칙</span>
+          <span class="sbadge guide">Principles</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>기존 화면을 갈아엎지 않는다.</li>
+            <li>기존 Component Guide / Product Screen Implementation Gate 를 유지한다.</li>
+            <li>새 기능은 기존 화면 위에 <strong>Project Cycle Layer</strong> 로 얹는다.</li>
+            <li>제품 화면 변경 시 반드시 Gate 를 적용한다.</li>
+            <li>repo 실제 경로 기준으로 작업한다.</li>
+            <li>모바일 430 / 768 을 고려한다.</li>
+            <li>Light / Dark 를 고려한다.</li>
+            <li><code>customFields</code> 를 전제로 한다.</li>
+            <li>source traceability 를 전제로 한다.</li>
+            <li>사람 승인을 전제로 한다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── 14 Risk and Guardrails ── -->
+      <section id="s14" class="sec" data-screen-label="14 Risk and Guardrails">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Risk and Guardrails — 리스크와 대응</span>
+          <span class="sbadge lock">Guardrails</span>
+        </div>
+        <div class="sec-body">          <table class="stbl">
+            <thead><tr><th>리스크</th><th>대응</th></tr></thead>
+            <tbody>
+              <tr><td>자동화 과신</td><td>Draft Import · 사람 승인 전제</td></tr>
+              <tr><td>엑셀 컬럼 난립</td><td>Field Mapping Preview · 표준 필드 우선 매핑</td></tr>
+              <tr><td>customFields 무분별 증가</td><td>custom field 후보 검토 단계</td></tr>
+              <tr><td>공통화 붕괴</td><td>구조·동작 공통화 고정 · 필드만 확장</td></tr>
+              <tr><td>산출물 순서 강제</td><td>사이클은 연결 축이며 강제 단방향 아님</td></tr>
+              <tr><td>기존 화면 재작업 과다</td><td>Project Cycle Layer · 작은 PR 단위 적용</td></tr>
+              <tr><td>DB 설계 조기 확정</td><td>DB schema 확정 보류 · 기능정의 이후 파생</td></tr>
+              <tr><td>Import 이후 중복/갱신 충돌</td><td>Import batch 이력 · 중복/누락 검사</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox info">
+            <strong>핵심 가드레일</strong>
+            Draft Import · Field Mapping Preview · 표준 필드 우선 매핑 · custom field 후보 검토 ·
+            Import batch 이력 · Traceability Matrix · Gate 기반 구현 · 작은 PR 단위 적용.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 15 Recommended Next Work ── -->
+      <section id="s15" class="sec" data-screen-label="15 Recommended Next Work">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">Recommended Next Work — 권장 후속 순서</span>
+          <span class="sbadge plan">Next</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">아래 순서로 단계적 구현을 제안한다.</p>
+          <div class="nav-grps">
+            <div class="ngrow"><span class="ng-id">1</span><span class="ng-name">Project Cycle Automation v1 문서 생성</span><span class="ng-sp">본 문서</span></div>
+            <div class="ngrow"><span class="ng-id">2</span><span class="ng-name">Requirement Import Builder UX Preview</span><span class="ng-sp">Preview</span></div>
+            <div class="ngrow"><span class="ng-id">3</span><span class="ng-name">Traceability Matrix UX Preview</span><span class="ng-sp">Preview</span></div>
+            <div class="ngrow"><span class="ng-id">4</span><span class="ng-name">요구사항 → 기능정의 초안 생성 Preview</span><span class="ng-sp">Preview</span></div>
+            <div class="ngrow"><span class="ng-id">5</span><span class="ng-name">메뉴/화면 → WBS 초안 생성 Preview</span><span class="ng-sp">Preview</span></div>
+            <div class="ngrow"><span class="ng-id">6</span><span class="ng-name">화면설계서 → 테스트 시나리오 생성 Preview</span><span class="ng-sp">Preview</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 16 Related Links ── -->
+      <section id="s16" class="sec" data-screen-label="16 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
+          <span class="sec-title">Related Links — 관련 문서·화면</span>
+          <span class="sbadge guide">Links</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">repo 실제 경로 기준의 관련 문서 및 하위 실행 화면.</p>
+          <ul class="blist">
+            <li><a href="STAM-Docs-Index.html">STAM Docs Index</a> — 전체 문서 인덱스</li>
+            <li><a href="STAM-Sitemap-IA-Overview-v1.html">STAM Sitemap &amp; IA Overview v1</a> — IA / 메뉴 단일 출처</li>
+            <li><a href="STAM-Product-Screen-Implementation-Gate-v1.html">Product Screen Implementation Gate v1</a> — 제품 화면 변경 Gate</li>
+            <li><a href="STAM-Component-Guide.html">STAM Component Guide</a> — 공통 컴포넌트 기준</li>
+            <li><a href="STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html">Board Builder ↔ Screen Template Integration Blueprint v1</a> — 구조 → 화면 초안 연결</li>
+            <li><a href="STAM-Screen-Template-System-Master-Guide-v1.html">Screen Template System Master Guide v1</a> — 화면설계서 템플릿 체계</li>
+            <li><a href="../pages/boards/requirements.html">요구사항정의서 (제품 화면)</a> — Import / Intake 도착지</li>
+            <li><a href="../pages/boards/functional-specification.html">기능정의서 (제품 화면)</a> — 요구사항 기능 분해</li>
+            <li><a href="../pages/boards/menu-screen-list.html">메뉴구조 / 화면목록 (제품 화면)</a> — 화면 구조 변환</li>
+            <li><a href="../pages/boards/wbs.html">WBS 작업 (제품 화면)</a> — 작업계획</li>
+            <li><a href="../pages/boards/screen-specification.html">화면설계서 (제품 화면)</a> — 템플릿 기반 구체화</li>
+            <li><a href="../pages/boards/open-scenario.html">오픈 시나리오 (제품 화면)</a> — 시나리오 산출물</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
