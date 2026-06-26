@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Requirement AI Prompt Bridge UX Preview v1</title>
+<link rel="icon" href="../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Requirement AI Prompt Bridge</span>
+  <span class="doc-nav-pill"><span class="dot"></span>UX Preview v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>2026-06-26</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">AI Prompt Bridge</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Purpose</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>Product Position</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Why This Approach</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>User Scenario</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Prompt Bridge Flow Overview</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Source Text Input Area</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Target Import Format Selection</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Requirement Import Column Schema</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Prompt Generator Layout</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Generated Prompt Preview</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Copy Prompt &amp; External AI Usage</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>AI Result Output Format</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Excel / CSV Handoff</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Import Builder Handoff</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>Draft / Review Needed Rules</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>Privacy and Security Notice</a></li>
+      <li class="toc-item"><a href="#s17"><span class="toc-n">17</span>Accuracy Guardrails</a></li>
+      <li class="toc-item"><a href="#s18"><span class="toc-n">18</span>What the System Can and Cannot Do</a></li>
+      <li class="toc-item"><a href="#s19"><span class="toc-n">19</span>vs Text Intake Helper</a></li>
+      <li class="toc-item"><a href="#s20"><span class="toc-n">20</span>vs Requirement Import Builder</a></li>
+      <li class="toc-item"><a href="#s21"><span class="toc-n">21</span>vs Traceability Matrix</a></li>
+      <li class="toc-item"><a href="#s22"><span class="toc-n">22</span>1차 핵심 범위</a></li>
+      <li class="toc-item"><a href="#s23"><span class="toc-n">23</span>후속 확장 범위</a></li>
+      <li class="toc-item"><a href="#s24"><span class="toc-n">24</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Hero / Status Summary ── -->
+      <div class="ibox info">
+        <strong>STAM Requirement AI Prompt Bridge UX Preview v1</strong>
+        자유 텍스트 요구사항을 STAM 이 직접 AI 분석하지 않고, 사용자가 외부 AI(ChatGPT / Claude / Gemini 등)에 붙여넣을 수 있는
+        <strong>요구사항 Excel/CSV 변환 프롬프트</strong>를 생성해 주는 UX Preview. STAM 은 내부에서 AI 분석을 수행하지 않으며,
+        외부 AI 에 붙여넣을 <strong>프롬프트를 만들어 줄 뿐</strong>이다. 사용자는 외부 AI 결과를 직접 검토한 뒤 Excel/CSV 로 저장해
+        <strong>Requirement Import Builder</strong> 에 업로드한다. 외부 AI 결과는 확정 요구사항이 아니라 <strong>Draft / Review Needed</strong> 로 들어온다.
+        이 기능은 AI Requirement Extraction 의 직접 구현이 아니라 <strong>Prompt Bridge</strong> 다. 정적 UX Preview 이며 실제 AI API / 파일 변환 / DB 를 구현하지 않는다.
+        <span class="sbadge guide">UX Preview</span>
+        <span class="sbadge lock">Prompt Bridge</span>
+        <span class="sbadge plan">Draft Flow</span>
+        <span class="sbadge done">No Backend</span>
+      </div>
+
+      <div class="flow-row">
+        <span class="fbox">원문 붙여넣기</span><span class="farr">→</span>
+        <span class="fbox">STAM 프롬프트 생성</span><span class="farr">→</span>
+        <span class="fbox">외부 AI 에 사용자가 붙여넣기</span><span class="farr">→</span>
+        <span class="fbox">표/TSV 결과 검토</span><span class="farr">→</span>
+        <span class="fbox">Excel/CSV 저장</span><span class="farr">→</span>
+        <span class="fbox end">Import Builder 업로드 (Draft)</span>
+      </div>
+
+      <div class="meta-row">
+        <div class="meta-cell"><span class="meta-k">Document</span><span class="meta-v">Requirement AI Prompt Bridge UX Preview v1</span></div>
+        <div class="meta-cell"><span class="meta-k">Type</span><span class="meta-v">UX Preview / Prompt Bridge</span></div>
+        <div class="meta-cell"><span class="meta-k">Scope</span><span class="meta-v">Docs Only · No Backend · No AI Call</span></div>
+        <div class="meta-cell"><span class="meta-k">AI 위치</span><span class="meta-v">외부 AI · 사용자가 직접 사용</span></div>
+        <div class="meta-cell"><span class="meta-k">결과 상태</span><span class="meta-v">Draft / Review Needed</span></div>
+        <div class="meta-cell"><span class="meta-k">Date</span><span class="meta-v code">2026-06-26</span></div>
+      </div>
+
+      <!-- ── 01 Purpose ── -->
+      <section id="s01" class="sec" data-screen-label="01 Purpose">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Purpose — 이 문서의 목적</span>
+          <span class="sbadge guide">Preview Baseline</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">이 문서는 자유 텍스트 요구사항을 <strong>STAM 이 직접 AI 분석하지 않고</strong>, 사용자가 외부 AI 에 붙여넣어
+            STAM 표준 Import 포맷(Excel/CSV)으로 변환하도록 돕는 <strong>Prompt Bridge</strong> UX 를 정의한다.</p>
+          <ul class="blist">
+            <li>STAM 내부에서 AI 분석을 직접 수행하지 않는다.</li>
+            <li>STAM 은 외부 AI 에 붙여넣을 <strong>프롬프트를 만들어 준다</strong>.</li>
+            <li>사용자가 외부 AI 결과를 검토한 뒤 Excel/CSV 로 저장하거나 붙여넣어 Import Builder 에 업로드한다.</li>
+            <li>외부 AI 결과는 확정 요구사항이 아니라 <strong>Draft / Review Needed</strong> 상태로 들어온다.</li>
+            <li>원문에 없는 내용을 AI 가 만들지 않도록 프롬프트에 강한 제약을 둔다.</li>
+            <li>개인정보/고객자료를 외부 AI 에 붙여넣을지는 사용자가 직접 판단하며, 주의문구를 명확히 표시한다.</li>
+            <li>이 기능은 AI Requirement Extraction 의 직접 구현이 아니라 <strong>Prompt Bridge</strong> 다.</li>
+          </ul>
+          <div class="ibox warn">
+            <strong>정적 UX Preview</strong>
+            이번 작업은 정적 UX Preview 문서다. 실제 AI API 호출 / 파일 변환 / Excel 생성 / CSV parsing / DB 저장은 구현하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 02 Product Position ── -->
+      <section id="s02" class="sec" data-screen-label="02 Product Position">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">Product Position — Prompt Bridge의 역할</span>
+          <span class="sbadge lock">Bridge</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">Prompt Bridge 는 “자유 텍스트”와 “STAM Requirement Import” 사이의 <strong>중간 다리</strong>다.
+            STAM 이 AI 가 되는 것이 아니라, 사용자가 외부 AI 를 잘 쓰도록 <strong>프롬프트와 표준 포맷</strong>을 제공한다.</p>
+          <div class="flow-row">
+            <span class="fbox">자유 텍스트</span><span class="farr">→</span>
+            <span class="fbox end">Prompt Bridge (프롬프트 생성)</span><span class="farr">→</span>
+            <span class="fbox">외부 AI (사용자가 사용)</span><span class="farr">→</span>
+            <span class="fbox">STAM 표준 Import 포맷</span>
+          </div>
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">Prompt Bridge 가 하는 일</span>
+              <ul class="blist">
+                <li>외부 AI 용 프롬프트 생성</li>
+                <li>STAM 표준 컬럼 스키마 안내</li>
+                <li>결과 업로드 흐름 안내</li>
+                <li>Import Builder 로 연결</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">Prompt Bridge 가 하지 않는 일</span>
+              <ul class="blist bad">
+                <li>STAM 내부 AI 분석</li>
+                <li>AI API 자동 호출</li>
+                <li>외부 AI 로 자동 전송</li>
+                <li>결과 자동 확정/자동 등록</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 03 Why This Approach ── -->
+      <section id="s03" class="sec" data-screen-label="03 Why This Approach">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Why This Approach — 왜 이 방식인가</span>
+          <span class="sbadge guide">Rationale</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <thead><tr><th>고려</th><th>Prompt Bridge 방식의 이유</th></tr></thead>
+            <tbody>
+              <tr><td>보안/개인정보</td><td>STAM 이 고객자료를 외부 AI 로 자동 전송하지 않는다. 전송 여부는 사용자가 판단</td></tr>
+              <tr><td>비용/운영</td><td>STAM 이 AI API 를 직접 호출/과금하지 않는다</td></tr>
+              <tr><td>정확성 책임</td><td>AI 결과는 사용자가 검토·승인. STAM 이 자동 확정하지 않음</td></tr>
+              <tr><td>유연성</td><td>사용자가 선호하는 외부 AI(ChatGPT/Claude/Gemini 등)를 선택</td></tr>
+              <tr><td>단계적 구현</td><td>실제 AI 연동은 후속 확장. 1차는 프롬프트 생성 + 표준 포맷 안내</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox info">
+            <strong>책임 분리</strong>
+            STAM 이 책임 있게 할 수 있는 범위(프롬프트 생성·표준 포맷·업로드 흐름)와, 사용자가 판단해야 하는 범위(외부 AI 사용·민감정보·결과 검토)를 분리한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 04 User Scenario ── -->
+      <section id="s04" class="sec" data-screen-label="04 User Scenario">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">User Scenario — 실무 시나리오</span>
+          <span class="sbadge guide">Scenario</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">기획자가 고객 메일/회의록 텍스트를 요구사항으로 정리하고 싶지만 양이 많다. STAM 이 직접 분석하는 대신,
+            외부 AI 에 쓸 프롬프트를 만들어 주고, 사용자가 결과를 검토해 Import 한다.</p>
+          <div class="flow-row">
+            <span class="fbox">원문을 STAM 에 붙여넣기</span><span class="farr">→</span>
+            <span class="fbox">STAM 이 변환 프롬프트 생성</span><span class="farr">→</span>
+            <span class="fbox">사용자가 외부 AI 에 붙여넣기</span><span class="farr">→</span>
+            <span class="fbox">AI 가 표/TSV 반환</span>
+          </div>
+          <div class="flow-row">
+            <span class="fbox">사용자가 결과 검토</span><span class="farr">→</span>
+            <span class="fbox">Excel/CSV 저장</span><span class="farr">→</span>
+            <span class="fbox">Import Builder 업로드</span><span class="farr">→</span>
+            <span class="fbox end">Draft / Review Needed 로 가져오기</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 05 Prompt Bridge Flow Overview ── -->
+      <section id="s05" class="sec" data-screen-label="05 Flow Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Prompt Bridge Flow Overview</span>
+          <span class="sbadge guide">Flow</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <thead><tr><th>단계</th><th>수행 주체</th><th>내용</th></tr></thead>
+            <tbody>
+              <tr><td>1 프롬프트 생성</td><td>STAM</td><td>원문 + 표준 컬럼으로 변환 프롬프트 구성</td></tr>
+              <tr><td>2 프롬프트 붙여넣기</td><td>사용자</td><td>외부 AI 에 프롬프트 붙여넣기 (STAM 자동 전송 아님)</td></tr>
+              <tr><td>3 결과 반환</td><td>외부 AI</td><td>표/TSV 결과 생성</td></tr>
+              <tr><td>4 결과 검토</td><td>사용자</td><td>정확성/근거 검토·수정</td></tr>
+              <tr><td>5 저장</td><td>사용자</td><td>Excel/CSV 로 저장</td></tr>
+              <tr><td>6 업로드</td><td>사용자</td><td>Requirement Import Builder 에 업로드</td></tr>
+              <tr><td>7 가져오기</td><td>STAM</td><td>Draft / Review Needed 상태로 가져오기</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox warn">
+            <strong>사용자가 직접 한다</strong>
+            2·4·5·6 단계는 사용자가 직접 복사/붙여넣기/검토/저장/업로드 한다. STAM 은 외부 AI 전송을 자동 수행하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 06 Source Text Input Area ── -->
+      <section id="s06" class="sec" data-screen-label="06 Source Text Input">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Source Text Input Area</span>
+          <span class="sbadge plan">Input</span>
+        </div>
+        <div class="sec-body">
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">입력 영역</span>
+              <ul class="blist">
+                <li>자유 텍스트 요구사항 붙여넣기 영역</li>
+                <li>예: 메모 / 회의록 / 메일 / 고객 요청 문장 / RFP 일부 텍스트</li>
+                <li>입력 길이/문단 안내</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">안내 문구</span>
+              <ul class="blist">
+                <li>STAM 은 이 텍스트를 <strong>직접 AI 분석하지 않는다</strong></li>
+                <li>이 텍스트는 외부 AI 용 프롬프트에 포함될 원문일 뿐</li>
+                <li>민감정보 포함 여부를 업로드 전 확인</li>
+              </ul>
+            </div>
+          </div>
+          <div class="ibox info">
+            <strong>분석 아님</strong>
+            입력 영역은 “분석 시작” 버튼이 아니다. STAM 은 원문을 외부 AI 프롬프트에 넣을 텍스트로만 다루며, 의미를 해석하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 07 Target Import Format Selection ── -->
+      <section id="s07" class="sec" data-screen-label="07 Target Format">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Target Import Format Selection</span>
+          <span class="sbadge guide">Target</span>
+        </div>
+        <div class="sec-body">
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">기본 선택 (1차 핵심 범위)</span>
+              <ul class="blist">
+                <li><strong>Requirement Import</strong> — 요구사항 표준 컬럼</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">후속 확장 후보</span>
+              <ul class="blist">
+                <li>WBS Import — 후속 확장</li>
+                <li>Functional Definition Import — 후속 확장</li>
+                <li>Screen List Import — 후속 확장</li>
+              </ul>
+            </div>
+          </div>
+          <div class="ibox info">
+            <strong>1차 기준</strong>
+            이번 1차 기준은 <strong>Requirement Import</strong> 중심이다. 다른 산출물 Import 프롬프트는 후속 확장 범위로만 표기한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 08 Requirement Import Column Schema ── -->
+      <section id="s08" class="sec" data-screen-label="08 Column Schema">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Requirement Import Column Schema</span>
+          <span class="sbadge guide">Schema</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">외부 AI 가 채워야 할 표준 컬럼. 원문 근거가 없으면 <code>미지정</code> 으로 두고, 불확실성은 <code>notes</code> 에 남긴다.</p>
+          <table class="stbl">
+            <thead><tr><th>컬럼</th><th>의미</th><th>원문 근거 없을 때</th></tr></thead>
+            <tbody>
+              <tr><td><code>externalRequirementId</code></td><td>원본 식별자(있으면)</td><td>미지정</td></tr>
+              <tr><td><code>title</code></td><td>요구사항 제목</td><td>첫 문장 기반(추정 금지)</td></tr>
+              <tr><td><code>description</code></td><td>요구사항 본문</td><td>원문 인용</td></tr>
+              <tr><td><code>requirementType</code></td><td>유형(기능/비기능/제약/질문)</td><td>미지정</td></tr>
+              <tr><td><code>actor</code></td><td>관련 사용자/주체</td><td>미지정</td></tr>
+              <tr><td><code>priority</code></td><td>우선순위</td><td>미지정</td></tr>
+              <tr><td><code>status</code></td><td>상태</td><td>미지정</td></tr>
+              <tr><td><code>reviewStatus</code></td><td>검토 상태</td><td><code>Review Needed</code> 고정</td></tr>
+              <tr><td><code>acceptanceCriteria</code></td><td>수용 기준</td><td>미지정</td></tr>
+              <tr><td><code>relatedScreenCandidate</code></td><td>관련 화면 후보</td><td>미지정</td></tr>
+              <tr><td><code>sourceText</code></td><td>원문 근거(필수)</td><td>반드시 원문 인용</td></tr>
+              <tr><td><code>confidence</code></td><td>확신도(낮음/중간/높음)</td><td>낮음</td></tr>
+              <tr><td><code>notes</code></td><td>불확실/판단 메모</td><td>불확실점 기록</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 09 Prompt Generator Layout ── -->
+      <section id="s09" class="sec" data-screen-label="09 Generator Layout">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Prompt Generator Layout</span>
+          <span class="sbadge plan">Layout</span>
+        </div>
+        <div class="sec-body">
+          <div class="flow-row">
+            <span class="fbox">좌측: 원문 입력</span><span class="farr">→</span>
+            <span class="fbox">가운데: 출력 컬럼/규칙 설정</span><span class="farr">→</span>
+            <span class="fbox end">우측: 생성된 프롬프트 미리보기</span>
+          </div>
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">3분할 구성</span>
+              <ul class="blist">
+                <li>좌측 — 원문 입력 (Source Text)</li>
+                <li>가운데 — 출력 컬럼/규칙 설정 (Schema &amp; Rules)</li>
+                <li>우측 — 생성된 프롬프트 미리보기 (Prompt Preview)</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">하단 액션 (Button Guide hierarchy)</span>
+              <ul class="blist">
+                <li>[프롬프트 복사] — 주 액션 (<code>stam-btn--primary</code>)</li>
+                <li>[Import Builder로 이동] — 보조 (<code>stam-btn--secondary</code>)</li>
+                <li>[주의사항 보기] — 저강도 (<code>stam-btn--text</code>)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="ibox warn">
+            <strong>Preview UI only</strong>
+            레이아웃/버튼은 정적 Preview 다. 실제 생성/복사/이동 동작 및 저장은 수행하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 10 Generated Prompt Preview ── -->
+      <section id="s10" class="sec" data-screen-label="10 Prompt Preview">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Generated Prompt Preview</span>
+          <span class="sbadge lock">Core Output</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">외부 AI 에 붙여넣을 프롬프트 예시. 프롬프트는 “원문에 없는 내용 생성 금지”를 포함한 강한 제약을 반드시 담는다.</p>
+          <div class="mcrd">
+            <span class="mcrd-title">생성된 프롬프트 (복사용 예시)</span>
+            <ul class="blist">
+              <li>당신은 요구사항 정리 보조자다. 아래 원문을 STAM 요구사항 표로 변환하라.</li>
+              <li>원문에 없는 내용을 만들지 말 것.</li>
+              <li>확실하지 않으면 값은 <code>미지정</code> 으로 둘 것.</li>
+              <li>한 행은 하나의 요구사항 후보로 만들 것.</li>
+              <li>각 행의 <code>sourceText</code> 에 원문 근거를 반드시 남길 것.</li>
+              <li>결과는 Excel 에 붙여넣기 쉬운 Markdown table 또는 TSV 로 출력할 것.</li>
+              <li>모든 행의 <code>reviewStatus</code> 는 <code>Review Needed</code> 로 둘 것 (Imported Draft).</li>
+              <li>우선순위/화면/담당자/권한은 원문에 명확할 때만 작성할 것.</li>
+              <li>불확실한 점은 <code>notes</code> 에 적을 것.</li>
+              <li>컬럼: externalRequirementId, title, description, requirementType, actor, priority, status, reviewStatus, acceptanceCriteria, relatedScreenCandidate, sourceText, confidence, notes</li>
+              <li>[원문 시작] … 사용자가 붙여넣은 원문 … [원문 끝]</li>
+            </ul>
+          </div>
+          <div class="ibox warn">
+            <strong>제약이 핵심이다</strong>
+            프롬프트의 목적은 “많이 생성”이 아니라 “원문 근거 있는 후보만, 불확실하면 미지정”이다. 이 제약이 정확성 가드레일의 출발점이다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 11 Copy Prompt and External AI Usage ── -->
+      <section id="s11" class="sec" data-screen-label="11 External AI Usage">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Copy Prompt and External AI Usage</span>
+          <span class="sbadge guide">Steps</span>
+        </div>
+        <div class="sec-body">
+          <div class="nav-grps">
+            <div class="ngrow"><span class="ng-id">1</span><span class="ng-name">STAM 에서 프롬프트 생성</span><span class="ng-sp">STAM</span></div>
+            <div class="ngrow"><span class="ng-id">2</span><span class="ng-name">사용자가 외부 AI 에 프롬프트 붙여넣기</span><span class="ng-sp">사용자</span></div>
+            <div class="ngrow"><span class="ng-id">3</span><span class="ng-name">AI 가 표/TSV 결과 반환</span><span class="ng-sp">외부 AI</span></div>
+            <div class="ngrow"><span class="ng-id">4</span><span class="ng-name">사용자가 결과를 검토</span><span class="ng-sp">사용자</span></div>
+            <div class="ngrow"><span class="ng-id">5</span><span class="ng-name">Excel/CSV 로 저장</span><span class="ng-sp">사용자</span></div>
+            <div class="ngrow"><span class="ng-id">6</span><span class="ng-name">STAM Requirement Import Builder 에 업로드</span><span class="ng-sp">사용자</span></div>
+            <div class="ngrow"><span class="ng-id">7</span><span class="ng-name">STAM 에서 Draft / Review Needed 로 가져오기</span><span class="ng-sp">STAM</span></div>
+          </div>
+          <div class="ibox warn">
+            <strong>자동 전송 아님</strong>
+            STAM 은 외부 AI 에 자동 전송하지 않는다. 프롬프트는 사용자가 직접 복사해 외부 AI 에 붙여넣는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 12 AI Result Output Format ── -->
+      <section id="s12" class="sec" data-screen-label="12 Output Format">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">AI Result Output Format</span>
+          <span class="sbadge guide">Format</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">권장 출력 형식은 Excel 붙여넣기에 쉬운 Markdown table 또는 TSV 다. Markdown table 예시:</p>
+          <table class="stbl">
+            <thead><tr><th>title</th><th>description</th><th>priority</th><th>reviewStatus</th><th>sourceText</th><th>confidence</th><th>notes</th></tr></thead>
+            <tbody>
+              <tr><td>로그인 2차 인증</td><td>OTP 기반 2차 인증 지원</td><td>미지정</td><td>Review Needed</td><td>"2차 인증 필요"</td><td>중간</td><td>방식 미확정</td></tr>
+              <tr><td>권한 구분</td><td>관리자/일반 권한 분리</td><td>미지정</td><td>Review Needed</td><td>"권한 구분"</td><td>낮음</td><td>역할 정의 필요</td></tr>
+            </tbody>
+          </table>
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">TSV 예시 (탭 구분)</span>
+              <ul class="blist">
+                <li>헤더 행: <code>title</code> ⇥ <code>description</code> ⇥ … (탭 구분)</li>
+                <li>데이터 행: 값 사이를 탭으로 구분</li>
+                <li>Excel 에 그대로 붙여넣으면 셀로 분리됨</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">CSV/Excel 전환 · 주의</span>
+              <ul class="blist">
+                <li>긴 텍스트는 줄바꿈이 셀을 깨지 않게 한 줄로</li>
+                <li>콤마 포함 값은 따옴표로 감쌈</li>
+                <li>따옴표 자체는 이스케이프</li>
+                <li>CSV 저장 시 UTF-8 권장</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 13 Excel / CSV Handoff ── -->
+      <section id="s13" class="sec" data-screen-label="13 Excel/CSV Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Excel / CSV Handoff</span>
+          <span class="sbadge guide">Handoff</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">사용자는 외부 AI 결과를 Excel/CSV 로 저장한다. STAM 은 Excel 파일을 자동 생성하지 않는다.</p>
+          <table class="stbl">
+            <thead><tr><th>단계</th><th>사용자 행동</th><th>주의</th></tr></thead>
+            <tbody>
+              <tr><td>표 복사</td><td>AI 결과 표/TSV 복사</td><td>헤더 포함</td></tr>
+              <tr><td>Excel 붙여넣기</td><td>Excel/스프레드시트에 붙여넣기</td><td>셀 분리 확인</td></tr>
+              <tr><td>검토/수정</td><td>값 검토·보정</td><td>미지정/오류 확인</td></tr>
+              <tr><td>저장</td><td>.xlsx 또는 .csv 저장</td><td>CSV 는 UTF-8</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox warn">
+            <strong>자동 생성 아님</strong>
+            STAM 은 Excel/CSV 파일을 자동 생성하거나 파싱하지 않는다. 저장/정리는 사용자가 수행한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 14 Import Builder Handoff ── -->
+      <section id="s14" class="sec" data-screen-label="14 Import Builder Handoff">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Import Builder Handoff</span>
+          <span class="sbadge guide">Handoff</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">AI 결과(Excel/CSV)는 <strong>Requirement Import Builder 의 입력</strong>으로 들어간다. Prompt Bridge 는 Import Builder 를 대체하지 않는다.</p>
+          <div class="flow-row">
+            <span class="fbox">Excel/CSV</span><span class="farr">→</span>
+            <span class="fbox">Import Builder 업로드</span><span class="farr">→</span>
+            <span class="fbox">컬럼 매핑</span><span class="farr">→</span>
+            <span class="fbox">검증</span><span class="farr">→</span>
+            <span class="fbox">미리보기</span><span class="farr">→</span>
+            <span class="fbox end">확정 가져오기 (Draft)</span>
+          </div>
+          <div class="ibox info">
+            <strong>대체 아님</strong>
+            Prompt Bridge 는 “외부 AI 로 표준 포맷을 만들도록 돕는 단계”이고, 실제 가져오기·컬럼 매핑·검증·확정은 Import Builder 가 담당한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 15 Draft / Review Needed Rules ── -->
+      <section id="s15" class="sec" data-screen-label="15 Draft Rules">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">Draft / Review Needed Rules</span>
+          <span class="sbadge lock">Human-in-loop</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>AI 가 만든 표는 <strong>확정 요구사항이 아니다</strong>.</li>
+            <li>모든 행은 <code>Imported Draft</code> 다.</li>
+            <li>모든 행은 <code>Review Needed</code> 다.</li>
+            <li>사람이 검토/수정/승인한 뒤에만 Traceability Matrix 에서 연결 확정이 가능하다.</li>
+          </ul>
+          <div class="flow-row">
+            <span class="fbox">외부 AI 결과</span><span class="farr">→</span>
+            <span class="fbox">Imported Draft</span><span class="farr">→</span>
+            <span class="fbox">Review Needed</span><span class="farr">→</span>
+            <span class="fbox">사람 승인</span><span class="farr">→</span>
+            <span class="fbox end">연결 확정 가능</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 16 Privacy and Security Notice ── -->
+      <section id="s16" class="sec" data-screen-label="16 Privacy / Security">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
+          <span class="sec-title">Privacy and Security Notice</span>
+          <span class="sbadge lock">Notice</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox bad">
+            <strong>외부 AI 사용 전 반드시 확인</strong>
+            고객사 자료 · 개인정보 · 계약정보 · 보안정보를 외부 AI 에 붙여넣기 전에 사용자가 직접 검토해야 한다.
+            민감정보는 마스킹 후 사용을 권장한다.
+          </div>
+          <ul class="blist">
+            <li>STAM 은 외부 AI 전송을 <strong>자동 수행하지 않는다</strong>.</li>
+            <li>프롬프트/원문은 사용자가 직접 복사·붙여넣기 한다.</li>
+            <li>외부 AI 서비스의 데이터 처리 정책은 사용자가 확인한다.</li>
+            <li>민감정보는 마스킹/익명화 후 사용 권장.</li>
+            <li>고객 계약상 외부 전송이 제한되는 자료는 사용하지 않는다.</li>
+          </ul>
+          <div class="ibox warn">
+            <strong>판단 주체</strong>
+            무엇을 외부 AI 에 붙여넣을지는 <strong>사용자가 직접 판단</strong>한다. STAM 은 주의문구를 표시할 뿐 전송을 대신하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 17 Accuracy Guardrails ── -->
+      <section id="s17" class="sec" data-screen-label="17 Accuracy Guardrails">
+        <div class="sec-hdr">
+          <span class="sec-n">17</span>
+          <span class="sec-title">Accuracy Guardrails</span>
+          <span class="sbadge lock">Guardrails</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>AI 결과는 <strong>틀릴 수 있다</strong>. 검토 없이 신뢰하지 않는다.</li>
+            <li>없는 요구사항을 생성하면 안 된다 (프롬프트 제약).</li>
+            <li>화면명/우선순위/담당자/권한은 원문 근거가 없으면 <code>미지정</code>.</li>
+            <li><code>sourceText</code> 와 <code>notes</code> 로 근거/불확실성을 남긴다.</li>
+            <li>Import 후에도 사람 검토가 필요하다.</li>
+          </ul>
+          <div class="ibox info">
+            <strong>근거 우선</strong>
+            정확성의 핵심은 “원문 근거(sourceText)”와 “불확실성 표기(notes/confidence)”다. STAM 은 AI 결과의 의미를 자동 보증하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 18 What the System Can and Cannot Do ── -->
+      <section id="s18" class="sec" data-screen-label="18 Can / Cannot">
+        <div class="sec-hdr">
+          <span class="sec-n">18</span>
+          <span class="sec-title">What the System Can and Cannot Do</span>
+          <span class="sbadge lock">Limits</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <thead><tr><th>가능한 것 (Can)</th><th>불가능한 것 / 하지 않는 것 (Cannot)</th></tr></thead>
+            <tbody>
+              <tr><td>외부 AI 용 프롬프트 생성</td><td>STAM 내부 AI 분석</td></tr>
+              <tr><td>STAM 표준 컬럼 안내</td><td>AI API 자동 호출</td></tr>
+              <tr><td>결과 업로드 흐름 안내</td><td>결과 자동 확정/자동 등록</td></tr>
+              <tr><td>Import Builder 로 연결</td><td>Excel 파일 자동 생성</td></tr>
+              <tr><td>주의문구 표시</td><td>원문 의미 자동 보증</td></tr>
+              <tr><td>표준 포맷 가이드</td><td>고객자료 외부 전송 자동 수행</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 19 Relationship with Text Intake Helper ── -->
+      <section id="s19" class="sec" data-screen-label="19 vs Text Intake">
+        <div class="sec-hdr">
+          <span class="sec-n">19</span>
+          <span class="sec-title">Relationship with Text Intake Helper</span>
+          <span class="sbadge guide">Mapping</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">Text Intake Helper 는 <strong>AI 없이 수동으로</strong> 블록을 나누고 Draft 를 만드는 보조 도구다.
+            Prompt Bridge 는 같은 자유 텍스트를 <strong>외부 AI</strong> 로 표준 Import 포맷에 맞게 변환하도록 돕는다. 둘은 대체 관계가 아니라 선택지다.</p>
+          <table class="stbl">
+            <thead><tr><th>구분</th><th>Text Intake Helper</th><th>AI Prompt Bridge</th></tr></thead>
+            <tbody>
+              <tr><td>분석 방식</td><td>AI 없음 · Rule-based + 수동</td><td>외부 AI · 사용자가 사용</td></tr>
+              <tr><td>STAM 역할</td><td>블록 분리/선택 보조</td><td>프롬프트 생성/포맷 안내</td></tr>
+              <tr><td>결과</td><td>Draft / Review Needed</td><td>Draft / Review Needed</td></tr>
+              <tr><td>의미 분석</td><td>안 함</td><td>STAM 안 함 (외부 AI 가)</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox info">
+            <strong>충돌 없음</strong>
+            두 경로 모두 STAM 내부에서 자유 텍스트를 AI 로 의미 분석하지 않는다(PR #227 기준 유지). Prompt Bridge 의 AI 사용은 외부에서 사용자가 수행한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 20 Relationship with Requirement Import Builder ── -->
+      <section id="s20" class="sec" data-screen-label="20 vs Import Builder">
+        <div class="sec-hdr">
+          <span class="sec-n">20</span>
+          <span class="sec-title">Relationship with Requirement Import Builder</span>
+          <span class="sbadge guide">Mapping</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">Requirement Import Builder 는 Excel/CSV 결과를 실제로 가져오는 도구다. Prompt Bridge 결과(Excel/CSV)는 Import Builder 입력이 된다.</p>
+          <ul class="blist">
+            <li>Prompt Bridge → 표준 포맷 Excel/CSV 생성을 돕는 단계</li>
+            <li>Import Builder → 업로드 · 컬럼 매핑 · 검증 · 미리보기 · 확정 가져오기</li>
+            <li><code>sourceType</code> 은 AI 변환 출처를 함께 보존(예: AI Prompt Bridge)</li>
+            <li>가져온 결과는 Draft / Review Needed 에서 시작</li>
+          </ul>
+          <div class="ibox info">
+            <strong>역할 분담</strong>
+            Prompt Bridge 는 “포맷 맞추기”, Import Builder 는 “실제 가져오기”. Prompt Bridge 는 Import Builder 를 대체하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 21 Relationship with Traceability Matrix ── -->
+      <section id="s21" class="sec" data-screen-label="21 vs Traceability">
+        <div class="sec-hdr">
+          <span class="sec-n">21</span>
+          <span class="sec-title">Relationship with Traceability Matrix</span>
+          <span class="sbadge guide">Mapping</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">가져온 요구사항이 기능정의·화면·WBS·화면설계서·테스트로 연결됐는지는 Traceability Matrix 에서 본다.
+            Prompt Bridge 로 들어온 요구사항도 Draft / Review Needed 이므로, 승인 전까지 Matrix 에서 연결을 확정하지 않는다.</p>
+          <div class="flow-row">
+            <span class="fbox">Prompt Bridge</span><span class="farr">→</span>
+            <span class="fbox">Import Builder (Draft)</span><span class="farr">→</span>
+            <span class="fbox">사람 승인</span><span class="farr">→</span>
+            <span class="fbox end">Traceability Matrix 연결 확정</span>
+          </div>
+          <div class="ibox info">
+            <strong>일관된 기준</strong>
+            출처가 Excel Import / Text Intake / AI Prompt Bridge 중 무엇이든, 모든 요구사항은 Draft 에서 시작하고 사람 승인 후 연결이 확정된다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 22 1차 핵심 범위 ── -->
+      <section id="s22" class="sec" data-screen-label="22 1차 핵심 범위">
+        <div class="sec-hdr">
+          <span class="sec-n">22</span>
+          <span class="sec-title">1차 핵심 범위 — 우선 적용 범위</span>
+          <span class="sbadge done">Core Scope</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">초기 제품 기준으로 이번 Preview 가 정의하는 1차 핵심 범위.</p>
+          <ul class="blist">
+            <li>Source Text 입력 UX</li>
+            <li>Requirement Import 대상 선택 UX</li>
+            <li>Requirement Import 표준 컬럼 스키마</li>
+            <li>Prompt Generator 레이아웃 UX</li>
+            <li>Generated Prompt(제약 포함) 미리보기 UX</li>
+            <li>외부 AI 사용 단계 안내 UX</li>
+            <li>AI 결과 출력 형식(Markdown/TSV) 안내 UX</li>
+            <li>Excel/CSV → Import Builder Handoff UX</li>
+            <li>Draft / Review Needed 규칙 UX</li>
+            <li>Privacy / Security / Accuracy 가드레일 UX</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── 23 후속 확장 범위 ── -->
+      <section id="s23" class="sec" data-screen-label="23 후속 확장 범위">
+        <div class="sec-hdr">
+          <span class="sec-n">23</span>
+          <span class="sec-title">후속 확장 범위 — 단계적 구현</span>
+          <span class="sbadge plan">Follow-up</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">1차 핵심 범위 이후 단계적으로 확장할 항목. 모두 후속 확장으로만 표기한다.</p>
+          <ul class="blist">
+            <li>WBS / Functional Definition / Screen List Import 프롬프트</li>
+            <li>STAM 내 AI 연동(승인·보안 정책 확정 후) — 후속 확장</li>
+            <li>프롬프트 템플릿 저장 / 고객사별 프리셋</li>
+            <li>AI 결과 자동 검증 체크리스트</li>
+            <li>민감정보 자동 마스킹 보조</li>
+            <li>결과 품질 피드백 루프</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── 24 Related Links ── -->
+      <section id="s24" class="sec" data-screen-label="24 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">24</span>
+          <span class="sec-title">Related Links — 관련 문서·화면</span>
+          <span class="sbadge guide">Links</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">repo 실제 경로 기준의 관련 기준 문서 및 제품 화면.</p>
+          <ul class="blist">
+            <li><a href="STAM-Project-Cycle-Automation-v1.html">STAM Project Cycle Automation v1</a> — 제품 중심축 / 한 사이클 자동화 기준</li>
+            <li><a href="STAM-Requirement-Import-Builder-UX-Preview-v1.html">STAM Requirement Import Builder UX Preview v1</a> — Excel/CSV 가져오기 (Handoff 대상)</li>
+            <li><a href="STAM-Requirement-Text-Intake-Helper-UX-Preview-v1.html">STAM Requirement Text Intake Helper UX Preview v1</a> — AI 없는 수동 보조 경로</li>
+            <li><a href="STAM-Traceability-Matrix-UX-Preview-v1.html">STAM Traceability Matrix UX Preview v1</a> — 연결 상태 확인 화면</li>
+            <li><a href="STAM-Docs-Usage-Criteria-Matrix-v1.html">STAM Docs Usage Criteria Matrix v1</a> — docs 핵심/보조/보류 분류</li>
+            <li><a href="STAM-Product-Screen-Implementation-Gate-v1.html">Product Screen Implementation Gate v1</a> — 제품 화면 변경 Gate</li>
+            <li><a href="STAM-Component-Guide.html">Component Guide</a> — 공통 컴포넌트 기준</li>
+            <li><a href="STAM-UI-Baseline-Guide.html">UI Baseline Guide</a> — UI 시각·레이아웃·토큰 기준</li>
+            <li><a href="../pages/boards/requirements.html">요구사항정의서 (제품 화면)</a> — Import 도착 화면</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
