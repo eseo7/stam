@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Project Cycle DB Prototype — 요구사항 가져오기 및 산출물 초안 생성</title>
+<link rel="icon" href="../../../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="../../../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../../../css/stam.tokens.css">
+<link rel="stylesheet" href="../../../css/stam.shell.css">
+<link rel="stylesheet" href="../../../css/stam.components.css">
+<link rel="stylesheet" href="../../../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../../../css/stam.docs.css">
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../../../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Cycle DB · 요구사항 가져오기</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Prototype</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Local IndexedDB</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Shell (no TOC — full width) ── -->
+<div class="guide-shell">
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <div class="ibox info">
+        <strong>요구사항 가져오기 및 산출물 초안 생성</strong>
+        6개 게시판은 기본으로 존재합니다. 요구사항 표 데이터를 가져오면 요구사항 게시판 데이터가 생성되고,
+        이를 기준으로 기능정의·메뉴/화면·WBS·화면설계서·테스트 시나리오 초안이 생성됩니다.
+        <span class="sbadge guide">Local IndexedDB</span>
+        <span class="sbadge lock">No Firebase</span>
+        <span class="sbadge plan">Import Trigger</span>
+      </div>
+
+      <div class="ibox warn">
+        <strong>이 화면은 무엇을 하나요?</strong>
+        이 화면은 요구사항 표 데이터를 가져와 <strong>6개 게시판의 초안 데이터를 자동 생성하는 흐름</strong>을 검증합니다.
+        <strong>게시판은 이미 존재하며, 가져오기는 게시판을 만드는 것이 아니라 데이터 생성 자동화</strong>입니다.
+        각 게시판에는 엑셀 없이 <strong>직접 하나씩 등록</strong>할 수도 있으며, 가져오기는 자동화를 위한 선택 흐름입니다.
+        모든 자동 생성 데이터는 확정이 아니라 <strong>초안 / 검토 필요</strong> 상태로 만들어지고, 원본 요구사항과 연결됩니다.
+      </div>
+
+      <div class="ibox info">
+        <strong>입력 방식 안내</strong>
+        실제 <code>.xlsx</code> 업로드는 후속 단계에서 파서/보안/의존성 결정 후 연결합니다(외부 라이브러리 미추가).
+        이번 화면은 엑셀 행 데이터가 들어왔을 때 6개 게시판 데이터가 어떻게 생성되는지 검증하며,
+        입력은 <strong>샘플 데이터 불러오기</strong> 또는 <strong>TSV/CSV 붙여넣기</strong>로 받습니다.
+      </div>
+
+      <!-- 입력 -->
+      <section class="sec" data-screen-label="입력">
+        <div class="sec-hdr">
+          <span class="sec-n">▸</span>
+          <span class="sec-title">① 요구사항 표 입력</span>
+          <span class="sbadge guide">Input</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">입력 컬럼: <code>requirementId</code> · <code>title</code> · <code>description</code> ·
+            <code>priority</code> · <code>actor</code> · <code>requirementType</code> · <code>sourceNote</code>
+            (탭 또는 콤마 구분, 첫 줄은 헤더). <code>requirementId</code> · <code>title</code> 은 필수입니다.</p>
+          <p class="mcrd-body">
+            <button class="stam-btn stam-btn--secondary stam-btn--md" id="btn-sample" type="button">샘플 데이터 불러오기</button>
+            <button class="stam-btn stam-btn--secondary stam-btn--md" id="btn-preview" type="button">② 미리보기</button>
+            <button class="stam-btn stam-btn--primary stam-btn--md" id="btn-generate" type="button">③ 6개 게시판 초안 생성</button>
+            <button class="stam-btn stam-btn--danger stam-btn--md" id="btn-reset" type="button">초기화</button>
+            <a class="stam-btn stam-btn--ghost stam-btn--md" href="index.html">← 허브로</a>
+          </p>
+          <p class="mcrd-body">
+            <textarea id="imp-input" rows="7" class="stam-textarea" style="width:100%;box-sizing:border-box"
+              placeholder="requirementId&#9;title&#9;description&#9;priority&#9;actor&#9;requirementType&#9;sourceNote"></textarea>
+          </p>
+          <div class="ibox warn" id="imp-status">불러오는 중…</div>
+        </div>
+      </section>
+
+      <!-- 미리보기 -->
+      <section class="sec" data-screen-label="미리보기">
+        <div class="sec-hdr">
+          <span class="sec-n">▸</span>
+          <span class="sec-title">미리보기 (인식/누락/중복)</span>
+          <span class="sbadge guide">Preview</span>
+        </div>
+        <div class="sec-body">
+          <div id="imp-preview"></div>
+        </div>
+      </section>
+
+      <!-- 결과 요약 -->
+      <section class="sec" data-screen-label="결과 요약">
+        <div class="sec-hdr">
+          <span class="sec-n">▸</span>
+          <span class="sec-title">생성 결과 요약</span>
+          <span class="sbadge guide">Summary</span>
+        </div>
+        <div class="sec-body">
+          <div class="meta-row" id="imp-summary"></div>
+          <p class="mcrd-body"><a href="matrix.html">요구사항 누락 검증표에서 연결 상태 보기 →</a></p>
+        </div>
+      </section>
+
+      <!-- 결과 상세 -->
+      <section class="sec" data-screen-label="결과 상세">
+        <div class="sec-hdr">
+          <span class="sec-n">▸</span>
+          <span class="sec-title">생성 결과 (게시판별)</span>
+          <span class="sbadge lock">Draft</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">생성된 데이터는 모두 <span class="sbadge guide">초안(Draft)</span>
+            <span class="sbadge plan">검토 필요(Review Needed)</span> 상태이며, 원본 요구사항(requirementId)·importBatchId 로 추적됩니다.</p>
+          <div id="imp-result"></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../../../js/stam.theme.js"></script>
+<script src="../../../js/prototype/cycle-db.repo.js"></script>
+<script src="../../../js/prototype/cycle-db.repo.local.js"></script>
+<script src="../../../js/prototype/cycle-db.seed.js"></script>
+<script src="../../../js/prototype/cycle-db.generator.js"></script>
+<script src="../../../js/prototype/cycle-db.import-app.js"></script>
+</body>
+</html>
