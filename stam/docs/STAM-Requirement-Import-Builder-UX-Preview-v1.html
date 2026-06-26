@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Requirement Import Builder UX Preview v1</title>
+<link rel="icon" href="../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Requirement Import Builder</span>
+  <span class="doc-nav-pill"><span class="dot"></span>UX Preview v1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>2026-06-26</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Requirement Import Builder</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Purpose</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>User Scenario</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Import Wizard Overview</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Step 1 — File Upload</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Step 2 — Sheet &amp; Header Detection</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Step 3 — Column Mapping</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Step 4 — Standard vs customFields</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Step 5 — Data Validation</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>Step 6 — Preview &amp; Confirm</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>Result — Requirement Draft Board</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>Source Traceability</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>States and Badges</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>Guardrails</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>Relationship with Existing Screen</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>1차 핵심 범위</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>후속 확장 범위</a></li>
+      <li class="toc-item"><a href="#s17"><span class="toc-n">17</span>Related Links</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Hero / Status Summary ── -->
+      <div class="ibox info">
+        <strong>STAM Requirement Import Builder UX Preview v1</strong>
+        엑셀 요구사항을 표준 필드와 <code>customFields</code> 로 매핑해 요구사항 초안을 생성하는 Import Wizard Preview.
+        사용자가 기존 요구사항 엑셀을 업로드하면 STAM 이 컬럼을 분석하고, 표준 필드와 <code>customFields</code> 로 매핑한 뒤,
+        요구사항 게시판 초안(<strong>Draft Import</strong>)으로 가져오는 전체 흐름을 정적으로 시각화한다.
+        실제 업로드 / 파싱 / 저장 로직은 구현하지 않으며, 이 Preview 는 후속 실제 구현의 기준 화면으로 사용한다.
+        <span class="sbadge guide">UX Preview</span>
+        <span class="sbadge lock">Import Builder</span>
+        <span class="sbadge plan">Draft Flow</span>
+        <span class="sbadge done">No Backend</span>
+      </div>
+
+      <div class="flow-row">
+        <span class="fbox">Excel</span><span class="farr">→</span>
+        <span class="fbox">Mapping</span><span class="farr">→</span>
+        <span class="fbox">Validation</span><span class="farr">→</span>
+        <span class="fbox end">Draft Requirements</span>
+      </div>
+
+      <div class="meta-row">
+        <div class="meta-cell"><span class="meta-k">Document</span><span class="meta-v">Requirement Import Builder UX Preview v1</span></div>
+        <div class="meta-cell"><span class="meta-k">Type</span><span class="meta-v">UX Preview / 기준 화면</span></div>
+        <div class="meta-cell"><span class="meta-k">Scope</span><span class="meta-v">Docs Only · No Backend</span></div>
+        <div class="meta-cell"><span class="meta-k">진입 위치</span><span class="meta-v">요구사항 화면 [엑셀 가져오기]</span></div>
+        <div class="meta-cell"><span class="meta-k">도착지</span><span class="meta-v">요구사항 게시판 Draft Import</span></div>
+        <div class="meta-cell"><span class="meta-k">Date</span><span class="meta-v code">2026-06-26</span></div>
+      </div>
+
+      <!-- ── 01 Purpose ── -->
+      <section id="s01" class="sec" data-screen-label="01 Purpose">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Purpose — 이 문서의 목적</span>
+          <span class="sbadge guide">Preview Baseline</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">이 문서는 STAM 의 주요 진입 기능인 <strong>“요구사항 엑셀 가져오기”</strong> 흐름을 정적 UX Preview 로 정의한다.
+            사용자가 기존 요구사항 엑셀을 업로드하면 STAM 이 컬럼을 분석하고, <strong>표준 필드</strong>와 <code>customFields</code> 로 매핑한 뒤,
+            요구사항 게시판 초안으로 가져오는 전체 흐름을 시각화한다. 실제 Excel parsing / Firebase / Storage / DB 작업은 포함하지 않는다.</p>
+          <ul class="blist">
+            <li>이 Preview 는 후속 <strong>실제 구현의 기준 화면</strong>으로 사용한다.</li>
+            <li>Excel Import Builder 는 부가기능이 아니라 STAM 의 <strong>주요 진입 기능</strong>이다.</li>
+            <li>업로드 결과는 확정 데이터가 아니라 <strong>Draft Import</strong> 다.</li>
+            <li>매핑 · 타입 · 옵션값 · 무시 여부는 <strong>사용자 검토</strong>와 <strong>사람 승인</strong>을 거친다.</li>
+            <li>원본 추적을 위한 <strong>source traceability</strong> 메타를 전제로 한다.</li>
+          </ul>
+          <div class="ibox info">
+            <strong>Preview 핵심 메시지 8가지</strong>
+            ① Excel Import Builder 는 부가기능이 아니라 STAM 의 주요 진입 기능이다.
+            ② 엑셀 업로드 결과는 확정 데이터가 아니라 Draft Import 다.
+            ③ STAM 은 컬럼을 자동 분석하고 표준 필드 매핑을 제안한다.
+            ④ 표준 필드에 맞지 않는 컬럼은 <code>customFields</code> 후보로 분류한다.
+            ⑤ 사용자는 매핑 / 타입 / 옵션값 / 무시 여부를 검토하고 확정한다.
+            ⑥ import 후 요구사항 게시판에는 “초안 / 미검토 / Excel Import 출처” 상태로 들어간다.
+            ⑦ 원본 추적을 위해 sourceFile / sourceSheet / sourceRow / importBatchId / importedAt / importedBy 메타가 필요하다.
+            ⑧ 이 Preview 는 실제 Excel parsing 구현이 아니라 UX 기준이다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 02 User Scenario ── -->
+      <section id="s02" class="sec" data-screen-label="02 User Scenario">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">User Scenario — 실무 시나리오</span>
+          <span class="sbadge guide">Scenario</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">SI 현장에서 가장 흔한 시작점은 고객사가 보내는 요구사항 엑셀이다. 아래 흐름을 기준 시나리오로 한다.</p>
+          <div class="flow-row">
+            <span class="fbox">고객사 요구사항 엑셀 수신</span><span class="farr">→</span>
+            <span class="fbox">기획자가 STAM 업로드</span><span class="farr">→</span>
+            <span class="fbox">헤더·컬럼 자동 분석</span><span class="farr">→</span>
+            <span class="fbox">표준 필드 매핑 제안</span>
+          </div>
+          <div class="flow-row">
+            <span class="fbox">고객사 고유 컬럼 = customFields 후보</span><span class="farr">→</span>
+            <span class="fbox">사용자 검토·확정</span><span class="farr">→</span>
+            <span class="fbox end">요구사항 게시판 Draft Import 생성</span>
+          </div>
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">표준 필드로 매핑되는 예</span>
+              <ul class="blist">
+                <li>요구사항명 → <code>title</code></li>
+                <li>상세내용 → <code>description</code></li>
+                <li>우선순위 → <code>priority</code></li>
+                <li>상태 → <code>status</code></li>
+                <li>담당자 → <code>owner</code></li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">customFields 후보가 되는 예</span>
+              <ul class="blist">
+                <li>고객검토여부 → <code>customFields.customerReviewStatus</code></li>
+                <li>1차오픈범위 → <code>customFields.phase1Scope</code></li>
+                <li>법무검토필요 → <code>customFields.legalCheckNeeded</code></li>
+                <li>레거시코드 → <code>customFields.legacySystemCode</code></li>
+              </ul>
+            </div>
+          </div>
+          <div class="ibox warn">
+            <strong>핵심</strong>
+            STAM 은 고객사 고유 컬럼을 버리지 않는다. 표준 필드에 맞지 않는 컬럼은 <code>customFields</code> 후보로 분류해
+            사용자가 채택 / 병합 / 무시를 결정하게 한다. 최종 생성물은 모두 <strong>Draft Import</strong> 상태로 들어간다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 03 Import Wizard Overview ── -->
+      <section id="s03" class="sec" data-screen-label="03 Wizard Overview">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Import Wizard Overview — 단계 구성</span>
+          <span class="sbadge guide">Wizard</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">Import Builder 는 7단계 Wizard 로 구성한다. 각 단계는 앞 단계 결과를 입력으로 받아 다음 단계 초안을 만든다.</p>
+          <div class="flow-row">
+            <span class="fbox">1 파일 업로드</span><span class="farr">→</span>
+            <span class="fbox">2 시트/헤더 선택</span><span class="farr">→</span>
+            <span class="fbox">3 컬럼 매핑</span><span class="farr">→</span>
+            <span class="fbox">4 필드 설정</span>
+          </div>
+          <div class="flow-row">
+            <span class="fbox">5 데이터 검증</span><span class="farr">→</span>
+            <span class="fbox">6 미리보기</span><span class="farr">→</span>
+            <span class="fbox end">7 가져오기 확정</span>
+          </div>
+          <table class="stbl">
+            <thead><tr><th>단계</th><th>화면 목적</th><th>사용자 행동</th><th>결과</th></tr></thead>
+            <tbody>
+              <tr><td>1 파일 업로드</td><td>엑셀 파일 선택</td><td>파일 업로드 / Drag &amp; Drop</td><td>업로드 후보</td></tr>
+              <tr><td>2 시트/헤더 선택</td><td>시트·헤더 행 확인</td><td>자동 감지 결과 조정</td><td>데이터 범위 확정</td></tr>
+              <tr><td>3 컬럼 매핑</td><td>컬럼 → 표준 필드 매핑</td><td>매핑 / 무시 / 검토</td><td>매핑 초안</td></tr>
+              <tr><td>4 필드 설정</td><td>표준 / customFields 분리</td><td>customField 생성·병합·무시</td><td>필드 모델</td></tr>
+              <tr><td>5 데이터 검증</td><td>PASS / WARN / ERROR</td><td>오류 확인</td><td>검증 리포트</td></tr>
+              <tr><td>6 미리보기</td><td>가져올 행 미리보기</td><td>상태별 확인</td><td>Import 후보</td></tr>
+              <tr><td>7 가져오기 확정</td><td>Draft Import 생성</td><td>가져오기 확정 / 매핑 저장</td><td>요구사항 초안</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 04 Step 1 File Upload ── -->
+      <section id="s04" class="sec" data-screen-label="04 Step 1 Upload">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Step 1 — File Upload</span>
+          <span class="sbadge plan">Step 1</span>
+        </div>
+        <div class="sec-body">
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">업로드 카드 (Drag &amp; Drop)</span>
+              <ul class="blist">
+                <li>중앙 Drag &amp; Drop 영역 + “파일 선택” 액션</li>
+                <li>파일명 예시: <code>고객사_요구사항정의서_2026.xlsx</code></li>
+                <li>업로드 후 파일 메타(이름·크기·시트 수) 표시</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">지원 파일 안내</span>
+              <ul class="blist">
+                <li><code>.xlsx</code> — 우선 적용 범위</li>
+                <li><code>.xls</code> — 우선 적용 범위</li>
+                <li><code>.csv</code> — 후속 확장 범위</li>
+              </ul>
+            </div>
+          </div>
+          <div class="ibox warn">
+            <strong>주의</strong>
+            이 화면은 실제 업로드 구현이 아니라 <strong>Preview 기준</strong>이다. 실제 파일 파싱 / Storage 업로드는 수행하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 05 Step 2 Sheet & Header Detection ── -->
+      <section id="s05" class="sec" data-screen-label="05 Step 2 Sheet/Header">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">Step 2 — Sheet and Header Detection</span>
+          <span class="sbadge plan">Step 2</span>
+        </div>
+        <div class="sec-body">
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">선택 컨트롤</span>
+              <ul class="blist">
+                <li>시트 선택 드롭다운</li>
+                <li>헤더 행 후보 표시</li>
+                <li>데이터 시작 행 표시</li>
+                <li>사용자가 직접 조정 가능</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">자동 감지 결과 (예시)</span>
+              <ul class="blist">
+                <li>Sheet: <code>요구사항정의서</code></li>
+                <li>Header Row: <code>3</code></li>
+                <li>Data Start Row: <code>4</code></li>
+                <li>Rows Detected: <code>128</code></li>
+              </ul>
+            </div>
+          </div>
+          <table class="stbl">
+            <thead><tr><th>감지 항목</th><th>값</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>Sheet</td><td>요구사항정의서</td><td>다중 시트 중 자동 선택</td></tr>
+              <tr><td>Header Row</td><td>3</td><td>사용자 조정 가능</td></tr>
+              <tr><td>Data Start Row</td><td>4</td><td>사용자 조정 가능</td></tr>
+              <tr><td>Rows Detected</td><td>128</td><td>데이터 행 수</td></tr>
+              <tr><td>Empty Rows</td><td>3</td><td>빈 행 제외 후보</td></tr>
+              <tr><td>Merged Cells</td><td class="mono">2 warnings</td><td>병합 셀 경고</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox info">
+            <strong>사용자 조정</strong>
+            자동 감지 결과는 제안값이다. 시트 · 헤더 행 · 데이터 시작 행은 사용자가 직접 조정할 수 있으며,
+            병합 셀 / 빈 행은 경고로 표시하되 가져오기를 차단하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 06 Step 3 Column Mapping ── -->
+      <section id="s06" class="sec" data-screen-label="06 Step 3 Column Mapping">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Step 3 — Column Mapping (가장 중요한 화면)</span>
+          <span class="sbadge lock">Core Screen</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">엑셀 컬럼을 표준 STAM 필드로 매핑하고, 표준 필드에 맞지 않는 컬럼은 <code>customFields</code> 후보로 분류한다.
+            Confidence 는 자동 매핑 신뢰도 제안값이며, Action 은 사용자가 최종 선택한다.</p>
+          <table class="stbl">
+            <thead>
+              <tr><th>Excel Column</th><th>Sample Value</th><th>Suggested STAM Field</th><th>Confidence</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>요구사항ID</td><td>REQ-014</td><td><code>externalRequirementId</code></td><td>High</td><td>표준 필드로 매핑</td></tr>
+              <tr><td>요구사항명</td><td>로그인 2차 인증</td><td><code>title</code></td><td>High</td><td>표준 필드로 매핑</td></tr>
+              <tr><td>상세내용</td><td>OTP 기반 2차 인증…</td><td><code>description</code></td><td>High</td><td>표준 필드로 매핑</td></tr>
+              <tr><td>구분</td><td>보안</td><td><code>category</code></td><td>Medium</td><td>표준 필드로 매핑</td></tr>
+              <tr><td>중요도</td><td>상</td><td><code>priority</code></td><td>Medium</td><td>표준 필드로 매핑</td></tr>
+              <tr><td>상태</td><td>검토중</td><td><code>status</code></td><td>Medium</td><td>표준 필드로 매핑</td></tr>
+              <tr><td>요청자</td><td>고객 PM</td><td><code>requester</code></td><td>Medium</td><td>표준 필드로 매핑</td></tr>
+              <tr><td>담당자</td><td>홍길동</td><td><code>owner</code></td><td>Medium</td><td>표준 필드로 매핑</td></tr>
+              <tr><td>화면ID</td><td>S-001</td><td><code>linkedScreens</code></td><td>Low</td><td>검토 필요</td></tr>
+              <tr><td>비고</td><td>2차 오픈 협의</td><td><code>note</code> 또는 <code>customFields.note</code></td><td>Low</td><td>비고로 병합</td></tr>
+              <tr><td>고객검토여부</td><td>완료</td><td><code>customFields.customerReviewStatus</code></td><td>Low</td><td>customField 생성</td></tr>
+              <tr><td>1차오픈범위</td><td>Y</td><td><code>customFields.phase1Scope</code></td><td>Low</td><td>customField 생성</td></tr>
+              <tr><td>내부메모</td><td>(빈 값 다수)</td><td>—</td><td>—</td><td>무시</td></tr>
+            </tbody>
+          </table>
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">Confidence 제안 기준</span>
+              <ul class="blist">
+                <li>High — 표준 필드명·동의어 직접 일치</li>
+                <li>Medium — 값 패턴·부분 일치</li>
+                <li>Low — 매핑 모호, 사용자 검토 권장</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">선택 가능한 Action</span>
+              <ul class="blist">
+                <li>표준 필드로 매핑</li>
+                <li>customField 생성</li>
+                <li>비고로 병합</li>
+                <li>무시</li>
+                <li>검토 필요</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 07 Step 4 Standard vs customFields ── -->
+      <section id="s07" class="sec" data-screen-label="07 Step 4 Fields">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">Step 4 — Standard Fields vs customFields</span>
+          <span class="sbadge guide">Field Model</span>
+        </div>
+        <div class="sec-body">
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">Standard Fields (표준 필드)</span>
+              <ul class="blist">
+                <li><code>externalRequirementId</code></li>
+                <li><code>title</code></li>
+                <li><code>description</code></li>
+                <li><code>category</code></li>
+                <li><code>priority</code></li>
+                <li><code>status</code></li>
+                <li><code>requester</code></li>
+                <li><code>owner</code></li>
+                <li><code>linkedScreens</code></li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">customFields Candidates (후보)</span>
+              <ul class="blist">
+                <li><code>customerReviewStatus</code></li>
+                <li><code>phase1Scope</code></li>
+                <li><code>legalCheckNeeded</code></li>
+                <li><code>legacySystemCode</code></li>
+                <li><code>departmentConfirmDate</code></li>
+              </ul>
+            </div>
+          </div>
+          <p class="mcrd-body">각 <code>customFields</code> 후보는 아래 속성과 함께 검토한다. 채택 / 병합 / 무시는 사용자가 결정한다.</p>
+          <table class="stbl">
+            <thead>
+              <tr><th>label</th><th>fieldKey</th><th>type</th><th>options</th><th>visibleInList</th><th>filterable</th><th>exportable</th><th>action</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>고객검토여부</td><td><code>customerReviewStatus</code></td><td>select</td><td>완료 / 진행 / 미검토</td><td>Y</td><td>Y</td><td>Y</td><td>create</td></tr>
+              <tr><td>1차오픈범위</td><td><code>phase1Scope</code></td><td>boolean</td><td>Y / N</td><td>Y</td><td>Y</td><td>Y</td><td>create</td></tr>
+              <tr><td>법무검토필요</td><td><code>legalCheckNeeded</code></td><td>boolean</td><td>Y / N</td><td>N</td><td>Y</td><td>Y</td><td>create</td></tr>
+              <tr><td>레거시코드</td><td><code>legacySystemCode</code></td><td>text</td><td>—</td><td>N</td><td>N</td><td>Y</td><td>merge</td></tr>
+              <tr><td>부서확인일</td><td><code>departmentConfirmDate</code></td><td>date</td><td>—</td><td>N</td><td>Y</td><td>Y</td><td>ignore</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox info">
+            <strong>분리 기준</strong>
+            표준 필드에 의미가 정확히 대응되면 <strong>표준 필드 우선 매핑</strong>. 표준 필드에 없지만 의미 있는 컬럼은
+            <code>customFields</code> 후보로 분류. 값이 거의 비어 있거나 내부 메모성 컬럼은 무시 후보로 둔다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 08 Step 5 Data Validation ── -->
+      <section id="s08" class="sec" data-screen-label="08 Step 5 Validation">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Step 5 — Data Validation</span>
+          <span class="sbadge plan">Step 5</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>PASS</strong>
+            · 128 rows detected
+            · 9 standard fields mapped
+          </div>
+          <div class="ibox warn">
+            <strong>WARN</strong>
+            · 5 rows missing priority
+            · 3 unknown status values
+            · 2 merged cell warnings
+            · 6 customFields candidates
+          </div>
+          <div class="ibox bad">
+            <strong>ERROR</strong>
+            · 1 duplicate <code>externalRequirementId</code>
+            · 2 rows missing <code>title</code>
+          </div>
+          <table class="stbl">
+            <thead><tr><th>구분</th><th>항목</th><th>가져오기 영향</th></tr></thead>
+            <tbody>
+              <tr><td>PASS</td><td>행 수 / 표준 필드 매핑 정상</td><td>진행 가능</td></tr>
+              <tr><td>WARN</td><td>누락·불일치·병합 셀·customField 후보</td><td>import 가능하지만 검토 필요</td></tr>
+              <tr><td>ERROR</td><td>중복 ID / 필수값 누락</td><td>해결 전 가져오기 확정 불가</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox warn">
+            <strong>검증 규칙</strong>
+            “ERROR 해결 전 가져오기 확정 불가”. “WARN 은 import 가능하지만 검토 필요”.
+            ERROR 가 0 이 될 때까지 7단계(가져오기 확정)는 활성화되지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 09 Step 6 Preview & Confirm ── -->
+      <section id="s09" class="sec" data-screen-label="09 Step 6 Preview/Confirm">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Step 6 — Preview and Confirm Import</span>
+          <span class="sbadge plan">Step 6</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">가져올 행을 상태별로 미리 보여준다. Mapping 열은 각 행이 어떤 매핑 규칙으로 들어가는지 요약한다.</p>
+          <table class="stbl">
+            <thead>
+              <tr><th>Import Status</th><th>Requirement ID</th><th>Title</th><th>Priority</th><th>Status</th><th>Source Row</th><th>Mapping</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Ready</td><td>REQ-014</td><td>로그인 2차 인증</td><td>상</td><td>검토중</td><td>4</td><td>표준 9 + custom 2</td></tr>
+              <tr><td>Ready</td><td>REQ-015</td><td>권한 관리</td><td>중</td><td>예정</td><td>5</td><td>표준 9 + custom 1</td></tr>
+              <tr><td>Review Needed</td><td>REQ-016</td><td>게시판 목록</td><td class="mono">(누락)</td><td>알수없음</td><td>6</td><td>priority/status 검토</td></tr>
+              <tr><td>Blocked</td><td>REQ-014</td><td>(중복 ID)</td><td>상</td><td>검토중</td><td>9</td><td>duplicate ID</td></tr>
+              <tr><td>Blocked</td><td class="mono">(누락)</td><td>(title 없음)</td><td>하</td><td>예정</td><td>12</td><td>title 필수 누락</td></tr>
+            </tbody>
+          </table>
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">하단 버튼 (Button Guide hierarchy)</span>
+              <ul class="blist">
+                <li>이전 — <code>stam-btn--ghost</code> (보조 이동)</li>
+                <li>매핑 저장 — <code>stam-btn--secondary</code> (보조 액션)</li>
+                <li>가져오기 확정 — <code>stam-btn--primary</code> (주 액션)</li>
+                <li>취소 — <code>stam-btn--text</code> (저강도)</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">상태 의미</span>
+              <ul class="blist">
+                <li>Ready — 매핑·검증 통과, 가져오기 대상</li>
+                <li>Review Needed — WARN 존재, 검토 후 가져오기</li>
+                <li>Blocked — ERROR 존재, 가져오기 불가</li>
+              </ul>
+            </div>
+          </div>
+          <div class="ibox warn">
+            <strong>Preview UI only</strong>
+            버튼은 기존 Button Guide 의 hierarchy 를 따른다(주 액션 1개 · 보조 액션 · 저강도 액션).
+            이 화면은 정적 Preview 이며 실제 동작 / 저장은 수행하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 10 Result Requirement Draft Board ── -->
+      <section id="s10" class="sec" data-screen-label="10 Result Draft Board">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">Result — Requirement Draft Board</span>
+          <span class="sbadge done">Result</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">가져오기 확정 후 요구사항 게시판에 들어가는 모습. import 된 항목은 출처와 원본 행이 함께 보존된다.</p>
+          <table class="stbl">
+            <thead><tr><th>요구사항</th><th>상태</th><th>출처</th><th>importBatchId</th><th>원본 행</th></tr></thead>
+            <tbody>
+              <tr><td>REQ-014 로그인 2차 인증</td><td>Imported Draft</td><td>Excel Import</td><td class="mono">imp_20260626_01</td><td>4</td></tr>
+              <tr><td>REQ-015 권한 관리</td><td>Imported Draft</td><td>Excel Import</td><td class="mono">imp_20260626_01</td><td>5</td></tr>
+              <tr><td>REQ-016 게시판 목록</td><td>Review Needed</td><td>Excel Import</td><td class="mono">imp_20260626_01</td><td>6</td></tr>
+            </tbody>
+          </table>
+          <div class="two-col">
+            <div class="mcrd">
+              <span class="mcrd-title">상태 체계</span>
+              <ul class="blist">
+                <li>Imported Draft — 초안 / 미검토</li>
+                <li>Review Needed — 검토 필요</li>
+                <li>Confirmed — 사람 승인 완료</li>
+              </ul>
+            </div>
+            <div class="mcrd">
+              <span class="mcrd-title">상세 Drawer</span>
+              <ul class="blist">
+                <li>요구사항 상세 Drawer 에 <strong>source traceability</strong> 섹션이 보인다.</li>
+                <li>원본 파일 · 시트 · 행 · import 배치 정보 노출</li>
+                <li>원본 컬럼명 / 원본 셀 값 보존</li>
+              </ul>
+            </div>
+          </div>
+          <div class="ibox info">
+            <strong>도착 상태</strong>
+            import 직후 요구사항 게시판 항목은 “초안 / 미검토 / Excel Import 출처” 상태로 들어간다.
+            확정 데이터가 아니라 <strong>Draft Import</strong> 이며, 사람 승인을 거쳐 Confirmed 로 전환된다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 11 Source Traceability ── -->
+      <section id="s11" class="sec" data-screen-label="11 Source Traceability">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">Source Traceability — 원본 추적 메타</span>
+          <span class="sbadge lock">Traceability</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">import 된 모든 요구사항 항목은 아래 메타를 보존한다. 원본 추적(source traceability)은 선택이 아니라 필수다.</p>
+          <table class="stbl">
+            <thead><tr><th>메타</th><th>의미</th><th>예시</th></tr></thead>
+            <tbody>
+              <tr><td><code>sourceFile</code></td><td>원본 파일명</td><td>고객사_요구사항정의서_2026.xlsx</td></tr>
+              <tr><td><code>sourceSheet</code></td><td>원본 시트</td><td>요구사항정의서</td></tr>
+              <tr><td><code>sourceRow</code></td><td>원본 행 번호</td><td>4</td></tr>
+              <tr><td><code>importBatchId</code></td><td>import 배치 식별자</td><td class="mono">imp_20260626_01</td></tr>
+              <tr><td><code>importedAt</code></td><td>import 시각</td><td>2026-06-26 14:20</td></tr>
+              <tr><td><code>importedBy</code></td><td>import 수행자</td><td>기획자 A</td></tr>
+              <tr><td><code>mappingVersion</code></td><td>적용 매핑 버전</td><td>map_v1</td></tr>
+              <tr><td><code>originalColumnName</code></td><td>원본 컬럼명</td><td>요구사항명</td></tr>
+              <tr><td><code>originalCellValue</code></td><td>원본 셀 값</td><td>로그인 2차 인증</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox info">
+            <strong>역할</strong>
+            source traceability 는 “어느 파일·시트·행에서, 어떤 원본 컬럼·값이, 어떤 매핑 버전으로 들어왔는가”를 복원 가능하게 한다.
+            이는 후속 단계의 중복/변경 비교 · import rollback · 기존 요구사항 업데이트 import 의 전제가 된다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 12 States and Badges ── -->
+      <section id="s12" class="sec" data-screen-label="12 States and Badges">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">States and Badges — 상태 체계</span>
+          <span class="sbadge guide">States</span>
+        </div>
+        <div class="sec-body">
+          <div class="flow-row">
+            <span class="fbox">Uploaded</span><span class="farr">→</span>
+            <span class="fbox">Mapping Needed</span><span class="farr">→</span>
+            <span class="fbox">Validation Failed</span><span class="farr">→</span>
+            <span class="fbox">Ready to Import</span>
+          </div>
+          <div class="flow-row">
+            <span class="fbox">Imported Draft</span><span class="farr">→</span>
+            <span class="fbox">Review Needed</span><span class="farr">→</span>
+            <span class="fbox end">Confirmed</span>
+          </div>
+          <table class="stbl">
+            <thead><tr><th>상태</th><th>단계</th><th>의미</th></tr></thead>
+            <tbody>
+              <tr><td>Uploaded</td><td>Wizard</td><td>파일 업로드 완료</td></tr>
+              <tr><td>Mapping Needed</td><td>Wizard</td><td>컬럼 매핑 필요</td></tr>
+              <tr><td>Validation Failed</td><td>Wizard</td><td>ERROR 존재, 확정 불가</td></tr>
+              <tr><td>Ready to Import</td><td>Wizard</td><td>ERROR 0, 가져오기 가능</td></tr>
+              <tr><td>Imported Draft</td><td>게시판</td><td>초안 / 미검토 상태로 생성</td></tr>
+              <tr><td>Review Needed</td><td>게시판</td><td>WARN 검토 필요</td></tr>
+              <tr><td>Confirmed</td><td>게시판</td><td>사람 승인 완료</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 13 Guardrails ── -->
+      <section id="s13" class="sec" data-screen-label="13 Guardrails">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">Guardrails — 가드레일</span>
+          <span class="sbadge lock">Guardrails</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>자동 import 결과는 확정 데이터가 아니다 (Draft Import).</li>
+            <li>표준 필드 우선 매핑을 기본으로 한다.</li>
+            <li><code>customFields</code> 는 후보 검토 후 생성한다.</li>
+            <li>중복 ID 를 방지한다.</li>
+            <li>필수값(title 등) 누락을 방지한다.</li>
+            <li>source traceability 는 필수다.</li>
+            <li>importBatch 단위 rollback / 비교는 후속 확장 범위다.</li>
+            <li>기존 요구사항 화면을 대수술하지 않는다.</li>
+            <li>실제 DB schema 를 이 단계에서 확정하지 않는다.</li>
+          </ul>
+          <div class="ibox warn">
+            <strong>핵심 가드레일</strong>
+            Draft Import · 표준 필드 우선 매핑 · customField 후보 검토 · 중복/필수값 검사 ·
+            source traceability 필수 · 기존 화면 보존 · DB schema 확정 보류.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 14 Relationship with Existing Requirement Screen ── -->
+      <section id="s14" class="sec" data-screen-label="14 Existing Screen">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">Relationship with Existing Requirement Screen</span>
+          <span class="sbadge guide">Mapping</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>기존 요구사항 화면은 유지된다</strong>
+            기존 <code>stam/pages/boards/requirements.html</code> 는 유지하며 이번 PR 에서 변경하지 않는다.
+            Import Builder 는 요구사항 화면 상단 액션 <code>[엑셀 가져오기]</code> 에서 시작하는 후속 기능으로 본다.
+          </div>
+          <table class="stbl">
+            <thead><tr><th>구분</th><th>내용</th></tr></thead>
+            <tbody>
+              <tr><td>시작 위치</td><td>요구사항 화면 상단 액션 <code>[엑셀 가져오기]</code></td></tr>
+              <tr><td>도착지</td><td>요구사항 게시판 (Draft Import)</td></tr>
+              <tr><td>기존 화면 변경</td><td>이번 PR 에서는 제품 화면 변경 없음</td></tr>
+              <tr><td>실제 적용 시점</td><td>후속 PR 에서 Product Screen Implementation Gate 적용 후 진행</td></tr>
+            </tbody>
+          </table>
+          <div class="ibox warn">
+            <strong>이번 PR 범위</strong>
+            실제 제품 화면(요구사항 등) 변경은 후속 PR 에서 Product Screen Gate 를 적용해 진행한다.
+            이번 PR 은 docs 전용 UX Preview 이며 제품 화면을 변경하지 않는다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 15 1차 핵심 범위 ── -->
+      <section id="s15" class="sec" data-screen-label="15 1차 핵심 범위">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">1차 핵심 범위 — 우선 적용 범위</span>
+          <span class="sbadge done">Core Scope</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">초기 제품 기준으로 이번 Preview 가 정의하는 1차 핵심 범위.</p>
+          <ul class="blist">
+            <li>Wizard UX</li>
+            <li>Column Mapping UX</li>
+            <li>Standard / custom field 분리 UX</li>
+            <li>Validation UX</li>
+            <li>Draft Import 결과 UX</li>
+            <li>Source traceability UX</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── 16 후속 확장 범위 ── -->
+      <section id="s16" class="sec" data-screen-label="16 후속 확장 범위">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
+          <span class="sec-title">후속 확장 범위 — 단계적 구현</span>
+          <span class="sbadge plan">Follow-up</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">1차 핵심 범위 이후 단계적으로 확장할 항목.</p>
+          <ul class="blist">
+            <li>실제 Excel parsing</li>
+            <li>CSV import</li>
+            <li>Google Sheets 연동</li>
+            <li>AI 요구사항 분해</li>
+            <li>중복 / 변경 비교</li>
+            <li>기존 요구사항 업데이트 import</li>
+            <li>import rollback</li>
+            <li>import template 저장</li>
+            <li>고객사별 mapping preset</li>
+            <li>기능정의서 / WBS / 테스트 시나리오 import 로 확장</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── 17 Related Links ── -->
+      <section id="s17" class="sec" data-screen-label="17 Related Links">
+        <div class="sec-hdr">
+          <span class="sec-n">17</span>
+          <span class="sec-title">Related Links — 관련 문서·화면</span>
+          <span class="sbadge guide">Links</span>
+        </div>
+        <div class="sec-body">
+          <p class="mcrd-body">repo 실제 경로 기준의 관련 기준 문서 및 제품 화면.</p>
+          <ul class="blist">
+            <li><a href="STAM-Project-Cycle-Automation-v1.html">STAM Project Cycle Automation v1</a> — 제품 중심축 / 한 사이클 자동화 기준</li>
+            <li><a href="STAM-Docs-Usage-Criteria-Matrix-v1.html">STAM Docs Usage Criteria Matrix v1</a> — docs 핵심/보조/보류 분류</li>
+            <li><a href="STAM-Product-Screen-Implementation-Gate-v1.html">Product Screen Implementation Gate v1</a> — 제품 화면 변경 Gate</li>
+            <li><a href="STAM-Component-Guide.html">Component Guide</a> — 공통 컴포넌트 기준</li>
+            <li><a href="STAM-UI-Baseline-Guide.html">UI Baseline Guide</a> — UI 시각·레이아웃·토큰 기준</li>
+            <li><a href="STAM-Board-Builder-Screen-Template-Integration-Blueprint-v1.html">Board Builder ↔ Screen Template Integration Blueprint v1</a> — 구조 → 화면 초안 연결</li>
+            <li><a href="../pages/boards/requirements.html">요구사항정의서 (제품 화면)</a> — Import Builder 진입·도착 화면</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) { a.closest('.toc-item').classList.toggle('active', i === cur); });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
