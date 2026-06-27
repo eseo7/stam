@@ -80,33 +80,67 @@
   }
 
   // ── 상세 ────────────────────────────────────────────────────────────
-  function drow(k, v) {
-    return '<div class="ssv2-drow"><span class="ssv2-k">' + esc(k) + '</span><span>' + esc(v == null || v === '' ? '—' : v) + '</span></div>';
+  // ── 값 → 한글 표시 ──────────────────────────────────────────────────
+  function statusKo(s) { return ({ draft: '작성중', reviewing: '검토중', confirmed: '승인완료', rejected: '반려', deleted: '삭제됨' })[s] || (s || '작성중'); }
+  function reviewKo(r) { return ({ 'Review Needed': '검토 필요', 'In Review': '검토중', 'Approved': '승인완료', 'Rejected': '반려', 'Changed': '변경됨' })[r] || (r || '미지정'); }
+  function sourceKo(rec) {
+    var s = rec.sourceType;
+    if (s === 'manual') return '직접 등록';
+    if (s === 'Requirement Import') return '요구사항 가져오기';
+    if (!s) return rec.importBatchId ? '요구사항 가져오기' : '직접 등록';
+    return s;
   }
+  function statusChipHtml(rec) {
+    var st = board.statusInfo(rec);
+    return '<span class="ssv2-stchip" style="background:' + st.bg + ';color:' + st.fg + '">' + esc(st.label) + '</span>';
+  }
+  // 라벨/값 행 (빈 값은 muted + 문맥 placeholder)
+  function field(label, value, opts) {
+    opts = opts || {};
+    var empty = (value == null || value === '');
+    var disp = empty ? (opts.empty || '미지정') : value;
+    return '<div class="ssv2-row2"><span class="ssv2-l">' + esc(label) + '</span>' +
+      '<span class="ssv2-v' + (empty ? ' muted' : '') + '">' + esc(disp) +
+      (opts.sub ? ' <small>' + esc(opts.sub) + '</small>' : '') + '</span></div>';
+  }
+
   function openDetail(id) {
     return db.getRecord(STORE, id).then(function (rec) {
       if (!rec) return;
       currentId = id;
       setHeader(rec);
       var h = '';
-      h += drow('screenSpecId', rec.id);
-      h += drow('screenName', board.nameOf(rec));
-      h += drow('screenType', rec.screenType);
-      h += drow('templateId', rec.templateId);
-      h += drow('routePath', rec.routePath);
-      h += drow('owner', board.ownerOf(rec));
-      h += drow('requirementId', rec.requirementId);
-      h += drow('functionId', rec.functionId);
-      h += drow('wbsId', rec.wbsId);
-      h += drow('menuId', rec.menuId);
-      h += drow('status', rec.status);
-      h += drow('reviewStatus', rec.reviewStatus);
-      h += drow('sourceType', rec.sourceType || (rec.importBatchId ? 'import' : 'manual'));
-      h += drow('importBatchId', rec.importBatchId);
-      h += drow('importRowId', rec.importRowId);
-      h += drow('createdAt', board.dpart(rec.createdAt));
-      h += drow('updatedAt', board.dpart(rec.updatedAt));
-      if (rec.description) h += '<div style="margin-top:8px"><div class="ssv2-k" style="margin-bottom:4px">설명</div><div style="font-size:12px;color:var(--t1);line-height:1.6">' + esc(rec.description) + '</div></div>';
+      // A. 기본 정보
+      h += '<div class="ssv2-sec"><div class="ssv2-sec-t">기본 정보</div>';
+      h += field('화면 ID', rec.id);
+      h += field('화면명', board.nameOf(rec));
+      h += field('화면 유형', rec.screenType);
+      h += field('적용 템플릿', rec.templateId);
+      h += field('화면 경로', rec.routePath);
+      h += field('담당자', rec.owner, { empty: '미지정' });
+      h += '</div>';
+      // B. 연결 정보
+      h += '<div class="ssv2-sec"><div class="ssv2-sec-t">연결 정보</div>';
+      h += field('연결 요구사항', rec.requirementId, { empty: '연결 없음' });
+      h += field('연결 기능정의', rec.functionId, { empty: '연결 없음' });
+      h += field('연결 WBS', rec.wbsId, { empty: '연결 없음' });
+      h += field('연결 메뉴', rec.menuId, { empty: '연결 없음' });
+      h += '</div>';
+      // C. 작성 · 검토 상태
+      h += '<div class="ssv2-sec"><div class="ssv2-sec-t">작성 · 검토 상태</div>';
+      h += '<div class="ssv2-row2"><span class="ssv2-l">작성 상태</span><span class="ssv2-v">' + statusChipHtml(rec) + '</span></div>';
+      h += field('검토 상태', reviewKo(rec.reviewStatus));
+      var srcSub = rec.importBatchId ? ('가져오기 회차 ' + rec.importBatchId + (rec.importRowId ? ' · 원본 행 ' + rec.importRowId : '')) : '';
+      h += field('생성 방식', sourceKo(rec), { sub: srcSub });
+      h += field('최초 등록일', board.dpart(rec.createdAt));
+      h += field('최종 수정일', board.dpart(rec.updatedAt));
+      h += '</div>';
+      // D. 설명
+      h += '<div class="ssv2-sec"><div class="ssv2-sec-t">설명</div>';
+      h += rec.description
+        ? '<div class="ssv2-desc">' + esc(rec.description) + '</div>'
+        : '<div class="ssv2-desc muted">화면설계서 초안 설명이 없습니다.</div>';
+      h += '</div>';
       var det = $('ssv2-detail'); if (det) det.innerHTML = h;
       openDrawer('detail');
       return renderChanges(id, det);
@@ -117,13 +151,16 @@
     return db.listRecords('artifactChanges', PID, { includeDeleted: true }).then(function (all) {
       var mine = (all || []).filter(function (c) { return c.artifactId === id; })
         .sort(function (a, b) { return String(b.at || '').localeCompare(String(a.at || '')); });
-      var h = '<div style="margin-top:12px;border-top:1px solid var(--bd);padding-top:10px"><div class="ssv2-k" style="margin-bottom:6px">변경이력</div>';
-      if (!mine.length) h += '<div style="font-size:12px;color:var(--t3)">변경 이력이 없습니다.</div>';
+      var h = '<div class="ssv2-sec"><div class="ssv2-sec-t">변경이력</div>';
+      if (!mine.length) h += '<div class="ssv2-v muted">변경 이력이 없습니다.</div>';
       else h += mine.map(function (c) {
-        var what = c.changeType === 'create' ? '화면설계서 최초 등록'
-          : c.changeType === 'delete' ? '화면설계서 삭제(soft delete)'
-            : (c.field === 'status' ? '상태 변경 → ' + esc(c.after) : '화면설계서 수정');
-        return '<div style="display:flex;gap:8px;font-size:11.5px;padding:3px 0"><span style="color:var(--t2)">' + esc(c.by || 'user') + '</span><span style="color:var(--t1)">' + what + '</span><span style="margin-left:auto;color:var(--t3)">' + esc(board.dpart(c.at)) + '</span></div>';
+        var who = (!c.by || c.by === 'prototype-user') ? '작업자' : c.by;
+        var what = c.changeType === 'create' ? '화면설계서를 등록했습니다.'
+          : c.changeType === 'delete' ? '화면설계서를 삭제했습니다.'
+            : (c.field === 'status' ? '작성 상태를 변경했습니다.' : '화면설계서를 수정했습니다.');
+        return '<div class="ssv2-hist"><span class="who">' + esc(who) + '</span>' +
+          '<span class="what">' + what + '</span>' +
+          '<span class="when">' + esc(board.dpart(c.at)) + '</span></div>';
       }).join('');
       h += '</div>';
       det.insertAdjacentHTML('beforeend', h);
