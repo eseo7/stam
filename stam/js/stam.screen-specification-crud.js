@@ -53,9 +53,43 @@
 
   var drawer = $('ssv2-drawer'), scrim = $('ssv2-scrim');
 
+  // ── 수정 모드 select → 공통 STAM custom select (요구사항정의서와 동일 동작/스타일) ──
+  var SSV2_CS_CFG = {
+    selectSelector: '#ssv2-form select',
+    nativeMarkerAttr: 'data-ssv2-cs',
+    uidPrefix: 'ssv2cs',
+    wrapClass: 'ssv2-cs',
+    triggerClass: 'ssv2-cs-trigger',
+    valClass: 'ssv2-cs-val',
+    caretClass: 'ssv2-cs-caret',
+    panelClass: 'ssv2-cs-panel',
+    optClass: 'ssv2-cs-opt',
+    checkClass: 'ssv2-cs-check',
+    otextClass: 'ssv2-cs-otext',
+    nativeClass: 'ssv2-cs-native',
+    flipContainer: '.ssv2-dw-bd',
+    openClass: 'open',
+    upClass: 'cs-up',
+    openSelector: '.ssv2-cs.open'
+  };
+  function hasCS() { return !!(window.STAM && window.STAM.customSelect); }
+  function closeAllSelects() { if (hasCS()) window.STAM.customSelect.closeAll(document, SSV2_CS_CFG); }
+  // 값이 매 레코드마다 바뀌므로, 빌드된 custom select 를 native 로 복원 후 다시 빌드한다
+  // (custom-select 모듈은 1회 빌드만 하므로 값 동기화를 위해 reset → fill → enhance 순서로 사용).
+  function resetSelects() {
+    var form = $('ssv2-form'); if (!form) return;
+    form.querySelectorAll('.ssv2-cs').forEach(function (w) {
+      var nat = w.querySelector('select');
+      if (nat) { nat.classList.remove('ssv2-cs-native'); nat.removeAttribute('data-ssv2-cs'); w.parentNode.insertBefore(nat, w); }
+      w.remove();
+    });
+  }
+  function enhanceSelects() { var form = $('ssv2-form'); if (form && hasCS()) window.STAM.customSelect.init(form, SSV2_CS_CFG); }
+
   function setMode(mode) {
     if (drawer) drawer.setAttribute('data-mode', mode);
     var isForm = (mode === 'register' || mode === 'edit');
+    if (!isForm) closeAllSelects();
     var det = $('ssv2-detail'), form = $('ssv2-form'), fd = $('ssv2-foot-detail'), ff = $('ssv2-foot-form');
     var tabs = $('ssv2-tabs'), hmeta = $('ssv2-hmeta');
     if (det) det.style.display = isForm ? 'none' : '';
@@ -71,6 +105,7 @@
     setMode(mode);
   }
   function closeDrawer() {
+    closeAllSelects();
     if (scrim) scrim.style.display = 'none';
     if (drawer) drawer.setAttribute('data-open', 'false');
   }
@@ -140,6 +175,7 @@
       if (!rec) return;
       currentId = id;
       setHeader(rec);
+      var fmeta = $('ssv2-foot-meta'); if (fmeta) fmeta.textContent = rec.updatedAt ? ('최종 변경 ' + board.dpart(rec.updatedAt)) : '';
       setActiveTab(0);
       // 탭 0: 기본 정보 (카드/grid) + 설명
       var srcSub = rec.importBatchId ? ('가져오기 회차 ' + rec.importBatchId + (rec.importRowId ? ' · 원본 행 ' + rec.importRowId : '')) : '';
@@ -230,11 +266,13 @@
     };
   }
 
-  function openRegister() { currentId = null; fillForm(null); setHeader(null); openDrawer('register'); }
+  function openRegister() {
+    currentId = null; resetSelects(); fillForm(null); setHeader(null); openDrawer('register'); enhanceSelects();
+  }
   function openEdit(id) {
     return db.getRecord(STORE, id).then(function (rec) {
       if (!rec) return;
-      currentId = id; fillForm(rec); setHeader(rec); openDrawer('edit');
+      currentId = id; resetSelects(); fillForm(rec); setHeader(rec); openDrawer('edit'); enhanceSelects();
     });
   }
 
@@ -312,5 +350,14 @@
   var delBtn = $('ssv2-del-btn'); if (delBtn) delBtn.addEventListener('click', del);
   var saveBtn = $('ssv2-save-btn'); if (saveBtn) saveBtn.addEventListener('click', save);
   var cancelBtn = $('ssv2-cancel-btn'); if (cancelBtn) cancelBtn.addEventListener('click', function () { if (currentId) openDetail(currentId); else closeDrawer(); });
+
+  // custom select: 바깥 클릭 → 닫기 / ESC → 열린 패널 우선 닫기
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.ssv2-cs')) closeAllSelects();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (document.querySelector('.ssv2-cs.open')) { e.preventDefault(); e.stopPropagation(); closeAllSelects(); }
+  }, true);
 
 }());
