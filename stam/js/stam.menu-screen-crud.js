@@ -96,7 +96,15 @@
   var drawer    = $('msv2-dw');
   var currentId = null;
 
+  // 기존 static drawer(#msl-dw-*)와 scrim(#msl-scrim) 닫기
+  function closeStaticDrawers() {
+    document.querySelectorAll('.msl-drawer.open').forEach(function (d) { d.classList.remove('open'); });
+    var mslScrim = $('msl-scrim');
+    if (mslScrim) mslScrim.classList.remove('show');
+  }
+
   function openDrawer(mode) {
+    closeStaticDrawers();                          // 기존 static drawer 먼저 닫기
     if (scrim)  scrim.style.display = 'block';
     if (drawer) { drawer.setAttribute('data-open', 'true'); drawer.setAttribute('data-mode', mode); }
     var tabs = $('msv2-tabs');
@@ -387,12 +395,19 @@
   }, true);
 
   // tbody: v2 행 클릭 → 상세/수정
+  // stopImmediatePropagation으로 STAMBoardList의 table 버블 핸들러가 반응하지 않게 막음
   var tbody = $('msl-tbody');
   if (tbody) tbody.addEventListener('click', function (e) {
-    var ed  = e.target.closest('[data-msv2-edit]');   if (ed)  { e.stopPropagation(); openEdit(ed.getAttribute('data-msv2-edit'));       return; }
-    var de  = e.target.closest('[data-msv2-detail]'); if (de)  { e.stopPropagation(); openDetail(de.getAttribute('data-msv2-detail'));   return; }
-    var row = e.target.closest('.msv2-int-row');      if (!row) return;
-    var id  = row.getAttribute('data-msv2-id');       if (id)  openDetail(id);
+    var row = e.target.closest('.msv2-int-row');
+    if (!row) return;                              // v2 행이 아니면 기존 핸들러에 위임
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    var ed = e.target.closest('[data-msv2-edit]');
+    if (ed)  { openEdit(ed.getAttribute('data-msv2-edit'));     return; }
+    var de = e.target.closest('[data-msv2-detail]');
+    if (de)  { openDetail(de.getAttribute('data-msv2-detail')); return; }
+    var id = row.getAttribute('data-msv2-id');
+    if (id) openDetail(id);
   });
 
   // scrim 클릭 → 닫기
