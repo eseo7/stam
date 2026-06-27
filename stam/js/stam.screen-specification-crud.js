@@ -57,8 +57,11 @@
     if (drawer) drawer.setAttribute('data-mode', mode);
     var isForm = (mode === 'register' || mode === 'edit');
     var det = $('ssv2-detail'), form = $('ssv2-form'), fd = $('ssv2-foot-detail'), ff = $('ssv2-foot-form');
+    var tabs = $('ssv2-tabs'), hmeta = $('ssv2-hmeta');
     if (det) det.style.display = isForm ? 'none' : '';
     if (form) form.style.display = isForm ? '' : 'none';
+    if (tabs) tabs.style.display = isForm ? 'none' : 'flex';
+    if (hmeta) hmeta.style.display = isForm ? 'none' : 'flex';
     if (fd) fd.style.display = isForm ? 'none' : 'flex';
     if (ff) ff.style.display = isForm ? 'flex' : 'none';
   }
@@ -72,16 +75,7 @@
     if (drawer) drawer.setAttribute('data-open', 'false');
   }
 
-  function setHeader(rec) {
-    var st = board.statusInfo(rec || { status: 'draft' });
-    var wid = $('ssv2-wid'); if (wid) wid.textContent = (rec && rec.id) || '신규';
-    var chip = $('ssv2-status-chip'); if (chip) { chip.textContent = st.label; chip.style.background = st.bg; chip.style.color = st.fg; }
-    var title = $('ssv2-title'); if (title) title.textContent = rec ? board.nameOf(rec) : '새 화면설계서 등록';
-  }
-
-  // ── 상세 ────────────────────────────────────────────────────────────
   // ── 값 → 한글 표시 ──────────────────────────────────────────────────
-  function statusKo(s) { return ({ draft: '작성중', reviewing: '검토중', confirmed: '승인완료', rejected: '반려', deleted: '삭제됨' })[s] || (s || '작성중'); }
   function reviewKo(r) { return ({ 'Review Needed': '검토 필요', 'In Review': '검토중', 'Approved': '승인완료', 'Rejected': '반려', 'Changed': '변경됨' })[r] || (r || '미지정'); }
   function sourceKo(rec) {
     var s = rec.sourceType;
@@ -90,18 +84,55 @@
     if (!s) return rec.importBatchId ? '요구사항 가져오기' : '직접 등록';
     return s;
   }
+  function approvalKo(rec) {
+    if (rec.status === 'confirmed') return '승인완료';
+    if (rec.status === 'rejected') return '반려';
+    if (rec.reviewStatus === 'Approved') return '승인완료';
+    return '미승인';
+  }
   function statusChipHtml(rec) {
     var st = board.statusInfo(rec);
     return '<span class="ssv2-stchip" style="background:' + st.bg + ';color:' + st.fg + '">' + esc(st.label) + '</span>';
   }
-  // 라벨/값 행 (빈 값은 muted + 문맥 placeholder)
-  function field(label, value, opts) {
+
+  function setHeader(rec) {
+    var st = board.statusInfo(rec || { status: 'draft' });
+    var wid = $('ssv2-wid'); if (wid) wid.textContent = (rec && rec.id) || '신규';
+    var chip = $('ssv2-status-chip'); if (chip) { chip.textContent = st.label; chip.style.background = st.bg; chip.style.color = st.fg; }
+    var title = $('ssv2-title'); if (title) title.textContent = rec ? board.nameOf(rec) : '새 화면설계서 등록';
+    var hmeta = $('ssv2-hmeta');
+    if (hmeta) {
+      if (!rec) { hmeta.innerHTML = ''; return; }
+      var owner = board.ownerOf(rec);
+      var ini = esc(String(owner).charAt(0) || '?');
+      hmeta.innerHTML = '<span class="ssv2-typechip">' + esc(rec.screenType || '화면') + '</span>' +
+        '<span class="ssv2-ava">' + ini + '</span><span style="font-size:11.5px;color:var(--t2)">' + esc(owner) + '</span>';
+    }
+  }
+
+  // ── 상세 (요구사항정의서 공통 상세 레이아웃: 탭 + igrid + 카드 + 타임라인) ──
+  function ic(label, value, opts) {
     opts = opts || {};
     var empty = (value == null || value === '');
-    var disp = empty ? (opts.empty || '미지정') : value;
-    return '<div class="ssv2-row2"><span class="ssv2-l">' + esc(label) + '</span>' +
-      '<span class="ssv2-v' + (empty ? ' muted' : '') + '">' + esc(disp) +
-      (opts.sub ? ' <small>' + esc(opts.sub) + '</small>' : '') + '</span></div>';
+    var inner = opts.html ? value : esc(empty ? (opts.empty || '미지정') : value);
+    return '<div class="ssv2-ic' + (opts.full ? ' full' : '') + '">' +
+      '<div class="ssv2-ik">' + esc(label) + '</div>' +
+      '<div class="ssv2-iv' + (empty && !opts.html ? ' muted' : '') + '">' + inner +
+      (opts.sub ? ' <small>' + esc(opts.sub) + '</small>' : '') + '</div></div>';
+  }
+  function card(label, id, typeName, color) {
+    var has = !!id;
+    var icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:' + (has ? (color || 'var(--stam)') : 'var(--t3)') + '"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>';
+    return '<div class="ssv2-card">' + icon +
+      '<div style="min-width:0"><div class="ssv2-card-id' + (has ? '' : ' none') + '"' + ((has && color) ? (' style="color:' + color + '"') : '') + '>' + esc(has ? id : '연결 없음') + '</div>' +
+      '<div class="ssv2-card-name">' + esc(label) + '</div></div>' +
+      '<span class="ssv2-card-type">' + esc(typeName) + '</span></div>';
+  }
+  function setPanel(idx, html) { if (!drawer) return; var p = drawer.querySelector('.ssv2-tabpanel[data-tp="' + idx + '"]'); if (p) p.innerHTML = html; }
+  function setActiveTab(idx) {
+    if (!drawer) return;
+    drawer.querySelectorAll('.ssv2-tab').forEach(function (t) { t.classList.toggle('on', t.getAttribute('data-ssv2-tab') === String(idx)); });
+    drawer.querySelectorAll('.ssv2-tabpanel').forEach(function (p) { p.style.display = p.getAttribute('data-tp') === String(idx) ? '' : 'none'; });
   }
 
   function openDetail(id) {
@@ -109,61 +140,61 @@
       if (!rec) return;
       currentId = id;
       setHeader(rec);
-      var h = '';
-      // A. 기본 정보
-      h += '<div class="ssv2-sec"><div class="ssv2-sec-t">기본 정보</div>';
-      h += field('화면 ID', rec.id);
-      h += field('화면명', board.nameOf(rec));
-      h += field('화면 유형', rec.screenType);
-      h += field('적용 템플릿', rec.templateId);
-      h += field('화면 경로', rec.routePath);
-      h += field('담당자', rec.owner, { empty: '미지정' });
-      h += '</div>';
-      // B. 연결 정보
-      h += '<div class="ssv2-sec"><div class="ssv2-sec-t">연결 정보</div>';
-      h += field('연결 요구사항', rec.requirementId, { empty: '연결 없음' });
-      h += field('연결 기능정의', rec.functionId, { empty: '연결 없음' });
-      h += field('연결 WBS', rec.wbsId, { empty: '연결 없음' });
-      h += field('연결 메뉴', rec.menuId, { empty: '연결 없음' });
-      h += '</div>';
-      // C. 작성 · 검토 상태
-      h += '<div class="ssv2-sec"><div class="ssv2-sec-t">작성 · 검토 상태</div>';
-      h += '<div class="ssv2-row2"><span class="ssv2-l">작성 상태</span><span class="ssv2-v">' + statusChipHtml(rec) + '</span></div>';
-      h += field('검토 상태', reviewKo(rec.reviewStatus));
+      setActiveTab(0);
+      // 탭 0: 기본 정보 (카드/grid) + 설명
       var srcSub = rec.importBatchId ? ('가져오기 회차 ' + rec.importBatchId + (rec.importRowId ? ' · 원본 행 ' + rec.importRowId : '')) : '';
-      h += field('생성 방식', sourceKo(rec), { sub: srcSub });
-      h += field('최초 등록일', board.dpart(rec.createdAt));
-      h += field('최종 수정일', board.dpart(rec.updatedAt));
-      h += '</div>';
-      // D. 설명
-      h += '<div class="ssv2-sec"><div class="ssv2-sec-t">설명</div>';
-      h += rec.description
-        ? '<div class="ssv2-desc">' + esc(rec.description) + '</div>'
-        : '<div class="ssv2-desc muted">화면설계서 초안 설명이 없습니다.</div>';
-      h += '</div>';
-      var det = $('ssv2-detail'); if (det) det.innerHTML = h;
+      var g = '<div class="ssv2-sec"><div class="ssv2-sec-hdr"><h3>기본 정보</h3></div><div class="ssv2-igrid">';
+      g += ic('화면 ID', '<span style="font-weight:700;color:var(--stam)">' + esc(rec.id) + '</span>', { html: true });
+      g += ic('화면명', board.nameOf(rec));
+      g += ic('화면 유형', rec.screenType);
+      g += ic('작성 상태', statusChipHtml(rec), { html: true });
+      g += ic('검토 상태', reviewKo(rec.reviewStatus));
+      g += ic('승인 상태', approvalKo(rec));
+      g += ic('담당자', rec.owner, { empty: '미지정' });
+      g += ic('적용 템플릿', rec.templateId);
+      g += ic('화면 경로', rec.routePath);
+      g += ic('생성 방식', sourceKo(rec), { sub: srcSub });
+      g += ic('최초 등록일', board.dpart(rec.createdAt));
+      g += ic('최종 수정일', board.dpart(rec.updatedAt));
+      g += '</div></div>';
+      g += '<div class="ssv2-sec"><div class="ssv2-sec-hdr"><h3>설명</h3></div>' +
+        (rec.description ? '<div class="ssv2-purp">' + esc(rec.description) + '</div>' : '<div class="ssv2-empty">화면설계서 설명이 없습니다.</div>') + '</div>';
+      setPanel(0, g);
+      // 탭 1: 연결 정보 (카드형)
+      var linkN = [rec.requirementId, rec.functionId, rec.wbsId, rec.menuId].filter(Boolean).length;
+      var c = '<div class="ssv2-sec"><div class="ssv2-sec-hdr"><h3>연결 정보</h3><span class="ssv2-sec-badge">연결 ' + linkN + '</span></div>' +
+        '<div style="display:flex;flex-direction:column;gap:8px">';
+      c += card('연결 요구사항', rec.requirementId, '요구사항', 'var(--stam)');
+      c += card('연결 기능정의', rec.functionId, '기능정의', '#10B981');
+      c += card('연결 WBS', rec.wbsId, 'WBS', '#8B5CF6');
+      c += card('연결 메뉴', rec.menuId, '메뉴/화면', '#F59E0B');
+      c += '</div></div>';
+      setPanel(1, c);
       openDrawer('detail');
-      return renderChanges(id, det);
+      return renderHistory(id);
     });
   }
-  function renderChanges(id, det) {
-    if (!det) return;
+
+  function renderHistory(id) {
     return db.listRecords('artifactChanges', PID, { includeDeleted: true }).then(function (all) {
       var mine = (all || []).filter(function (c) { return c.artifactId === id; })
         .sort(function (a, b) { return String(b.at || '').localeCompare(String(a.at || '')); });
-      var h = '<div class="ssv2-sec"><div class="ssv2-sec-t">변경이력</div>';
-      if (!mine.length) h += '<div class="ssv2-v muted">변경 이력이 없습니다.</div>';
-      else h += mine.map(function (c) {
+      // 탭 2: 검토 이력 (현재 데이터 없음 → fallback)
+      setPanel(2, '<div class="ssv2-sec"><div class="ssv2-sec-hdr"><h3>검토 이력</h3></div><div class="ssv2-empty">검토 이력이 없습니다.</div></div>');
+      // 탭 3: 변경 이력 (타임라인)
+      var h = '<div class="ssv2-sec"><div class="ssv2-sec-hdr"><h3>변경 이력</h3><span class="ssv2-sec-badge">' + mine.length + '건</span></div>';
+      if (!mine.length) h += '<div class="ssv2-empty">변경 이력이 없습니다.</div>';
+      else h += '<div class="ssv2-chg-list">' + mine.map(function (c) {
         var who = (!c.by || c.by === 'prototype-user') ? '작업자' : c.by;
         var what = c.changeType === 'create' ? '화면설계서를 등록했습니다.'
           : c.changeType === 'delete' ? '화면설계서를 삭제했습니다.'
             : (c.field === 'status' ? '작성 상태를 변경했습니다.' : '화면설계서를 수정했습니다.');
-        return '<div class="ssv2-hist"><span class="who">' + esc(who) + '</span>' +
-          '<span class="what">' + what + '</span>' +
-          '<span class="when">' + esc(board.dpart(c.at)) + '</span></div>';
-      }).join('');
+        return '<div class="ssv2-chg-item"><span class="ssv2-chg-dot"></span>' +
+          '<span><span class="ssv2-chg-who">' + esc(who) + '</span> — ' + what + '</span>' +
+          '<span class="ssv2-chg-sp"></span><span class="ssv2-chg-date">' + esc(board.dpart(c.at)) + '</span></div>';
+      }).join('') + '</div>';
       h += '</div>';
-      det.insertAdjacentHTML('beforeend', h);
+      setPanel(3, h);
     });
   }
 
@@ -268,6 +299,15 @@
   });
   var closeBtn = $('ssv2-close'); if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
   if (scrim) scrim.addEventListener('click', closeDrawer);
+  // 탭 전환
+  var tabsEl = $('ssv2-tabs');
+  if (tabsEl) tabsEl.addEventListener('click', function (e) {
+    var t = e.target.closest('.ssv2-tab'); if (!t) return;
+    setActiveTab(t.getAttribute('data-ssv2-tab'));
+  });
+  // 전체 보기 (후속 연결 예정 안내)
+  var fvBtn = $('ssv2-fullview-btn');
+  if (fvBtn) fvBtn.addEventListener('click', function () { alert('화면설계서 전체 보기 기능은 후속 연결 예정입니다.'); });
   var editBtn = $('ssv2-edit-btn'); if (editBtn) editBtn.addEventListener('click', function () { if (currentId) openEdit(currentId); });
   var delBtn = $('ssv2-del-btn'); if (delBtn) delBtn.addEventListener('click', del);
   var saveBtn = $('ssv2-save-btn'); if (saveBtn) saveBtn.addEventListener('click', save);
