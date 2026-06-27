@@ -66,7 +66,7 @@
     .msv2-cs-val{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .msv2-cs-caret{flex-shrink:0;color:var(--t3);transition:transform .15s}
     .msv2-cs.open .msv2-cs-caret{transform:rotate(180deg)}
-    .msv2-cs-panel{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--bg-sur);border:1px solid var(--bd);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:50;max-height:200px;overflow-y:auto;display:none}
+    .msv2-cs-panel{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--bg-sur);border:1px solid var(--bd);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:50;max-height:280px;overflow-y:auto;display:none}
     .msv2-cs.open .msv2-cs-panel{display:block}
     .msv2-cs.cs-up .msv2-cs-panel{top:auto;bottom:calc(100% + 4px)}
     .msv2-cs-opt{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;font-size:12px;color:var(--t1)}
@@ -120,6 +120,25 @@
     .msv2-int-row .msl-link-chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:4px;background:var(--stam-soft);color:var(--stam);cursor:pointer}
     .msv2-int-row .msl-link-chip-scr{background:rgba(29,78,216,.12);color:#60a5fa}
     .msv2-int-row .msl-link-chip-none{font-size:11px;color:var(--t3)}
+    /* ── Detail: Summary Card ── */
+    .msv2-summary-card{background:var(--bg-sur);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+    .msv2-summary-row{display:flex;align-items:center;gap:8px;font-size:12px}
+    .msv2-summary-k{color:var(--t3);flex-shrink:0;min-width:68px;font-size:11px;font-weight:600}
+    .msv2-summary-v{color:var(--t1);display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+    .msv2-missing-tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10.5px;font-weight:600;background:rgba(239,68,68,.1);color:#ef4444}
+    /* ── Detail: Guide Box ── */
+    .msv2-guide-box{background:var(--stam-soft);border-radius:6px;padding:10px 12px;font-size:11.5px;color:var(--t2);line-height:1.65}
+    /* ── Detail: Section header (link tab) ── */
+    .msv2-link-sec-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .msv2-link-count-badge{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--stam-soft);color:var(--stam);font-weight:700}
+    /* ── Edit notice banner ── */
+    .msv2-edit-notice{margin:8px 0 0;padding:8px 12px;background:rgba(245,158,11,.12);border-radius:6px;font-size:11.5px;color:#B45309;line-height:1.5}
+    [data-theme="dark"] .msv2-edit-notice{color:#FCD34D}
+    /* ── Form: textarea ── */
+    .msv2-ta{height:auto;min-height:72px;padding:8px 10px;resize:vertical;line-height:1.55}
+    /* ── Info grid: full-width cell ── */
+    .msv2-igrid .msv2-ic.full{grid-column:1/-1}
+    .msv2-iv-hint{font-size:11px;color:var(--t3)}
   </style>
 </head>
 <body>
@@ -953,12 +972,17 @@
 
                 <div class="msv2-ffield full">
                   <label class="msv2-flbl" for="msv2-f-route">화면 경로</label>
-                  <input class="msv2-inp" type="text" id="msv2-f-route" placeholder="/path/to/screen">
+                  <input class="msv2-inp" type="text" id="msv2-f-route" placeholder="예: /requirements/list">
                 </div>
 
                 <div class="msv2-ffield full">
                   <label class="msv2-flbl" for="msv2-f-owner">담당자</label>
                   <input class="msv2-inp" type="text" id="msv2-f-owner" placeholder="담당자 이름">
+                </div>
+
+                <div class="msv2-ffield full">
+                  <label class="msv2-flbl" for="msv2-f-desc">화면 설명</label>
+                  <textarea class="msv2-inp msv2-ta" id="msv2-f-desc" placeholder="화면의 목적과 주요 기능을 간략히 설명하세요." rows="3"></textarea>
                 </div>
 
               </div>
