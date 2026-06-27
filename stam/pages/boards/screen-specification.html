@@ -168,18 +168,8 @@
 
       </section>
 
-      <!-- ======================================== Local Core DB v2 화면설계서 목록 + 기본 CRUD -->
+      <!-- 화면설계서 상세/편집 Drawer (목록은 상단 단일 목록에 통합 표시) -->
       <style>
-        .ssv2-section{margin:18px 0 8px;border:1px solid var(--bd);border-radius:12px;background:var(--bg-sur);overflow:hidden}
-        .ssv2-hd{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--bd)}
-        .ssv2-hd .t{font-size:13px;font-weight:800;color:var(--t1)}
-        .ssv2-chip{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:700;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t2)}
-        .ssv2-reg{margin-left:auto;font-size:12px;font-weight:700;padding:6px 12px;border-radius:8px;border:1px solid var(--stam);background:var(--stam);color:#fff;cursor:pointer}
-        .ssv2-tbl{width:100%;border-collapse:collapse;font-size:12px;min-width:760px}
-        .ssv2-tbl th{text-align:left;padding:8px 10px;font-size:10.5px;color:var(--t3);font-weight:700;border-bottom:1px solid var(--bd);background:var(--bg-sur2)}
-        .ssv2-tbl td{padding:9px 10px;border-bottom:1px solid var(--bd);vertical-align:middle}
-        .ssv2-row{cursor:pointer}
-        .ssv2-row:hover{background:var(--bg-sur2)}
         .ssv2-scrim{position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:1400;display:none}
         .ssv2-drawer{position:fixed;top:0;right:0;width:440px;max-width:92vw;height:100%;background:var(--bg-sur);border-left:1px solid var(--bd);z-index:1401;transform:translateX(100%);transition:transform .2s;display:flex;flex-direction:column;overflow:hidden}
         .ssv2-drawer[data-open="true"]{transform:translateX(0)}
@@ -197,22 +187,6 @@
         .ssv2-btn.danger{border-color:#991B1B;background:rgba(153,27,27,.1);color:#b91c1c}
         .ssv2-stchip{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:700}
       </style>
-      <section class="ssv2-section" aria-label="Local Core DB v2 화면설계서 목록">
-        <div class="ssv2-hd">
-          <span class="t">화면설계서 목록</span>
-          <span class="ssv2-chip">Local Core DB v2</span>
-          <span style="font-size:11px;color:var(--t3)">요구사항 가져오기 생성 + 직접 등록 (기본 메타데이터)</span>
-          <button class="ssv2-reg" id="ssv2-reg-btn" type="button">+ 등록</button>
-        </div>
-        <div style="overflow-x:auto">
-          <table class="ssv2-tbl">
-            <thead><tr>
-              <th>화면 ID</th><th>화면명</th><th>화면유형</th><th>담당자</th><th>상태</th><th>검토 상태</th><th>최종 수정일</th>
-            </tr></thead>
-            <tbody id="ss-v2-tbody"></tbody>
-          </table>
-        </div>
-      </section>
 
       <div class="ssv2-scrim" id="ssv2-scrim"></div>
       <aside class="ssv2-drawer" id="ssv2-drawer" data-open="false" data-mode="detail" aria-label="화면설계서 v2 상세/편집">
@@ -281,7 +255,7 @@
 <script src="../../js/stam.project-context-render.js"></script>
 <script src="../../js/stam.board-filter.js"></script>
 <script src="../../js/stam.screen-specification.js"></script>
-<!-- ── Local Core DB v2 연동 — 화면설계서 CRUD ── -->
+<!-- ── 화면설계서 데이터 연동 (목록 통합 + 상세/등록/수정/삭제) ── -->
 <script src="../../js/stam.core-db-schema.js"></script>
 <script src="../../js/stam.local-core-db.js"></script>
 <script src="../../js/stam.screen-specification-cycle.js"></script>

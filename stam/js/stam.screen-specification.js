@@ -493,6 +493,8 @@
     }
     var tbody = document.getElementById('ss-tbody');
     if (tbody) tbody.innerHTML = html;
+    // v2(screenSpecifications) 데이터를 동일 목록에 통합 주입 (하단 별도 목록 없음)
+    if (tbody && window.STAM && window.STAM.ssv2 && window.STAM.ssv2.afterRender) window.STAM.ssv2.afterRender(tbody);
     var tfoot = document.getElementById('ss-tfoot-info');
     if (tfoot) {
       tfoot.innerHTML = total === ALL_SCREENS.length
@@ -509,6 +511,10 @@
       allCb.indeterminate = S.sel.size > 0 && S.sel.size < totalRows;
     }
   }
+
+  // v2 CRUD 모듈이 목록 갱신을 요청할 수 있도록 재렌더 함수 노출
+  window.STAM = window.STAM || {};
+  window.STAM.ssRerender = renderTable;
 
   function setQ(q) {
     S.q = q;

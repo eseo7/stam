@@ -1,16 +1,15 @@
 /* ============================================================================
- * STAM 화면설계서 게시판 — Local Core DB v2 목록 렌더러 (기본 목록 표시)
+ * STAM 화면설계서 게시판 — Local Core DB v2 목록 통합 렌더러
  * ----------------------------------------------------------------------------
- * screenSpecifications store(v2) 를 기준으로 v2 화면설계서 목록(#ss-v2-tbody)을
- * 그린다. Excel/import 생성 + 직접 등록(sourceType=manual)이 같은 목록에 보인다.
- * 기본 조회는 status !== deleted.
+ * screenSpecifications store(v2) 데이터를 기존 화면설계서 단일 목록(#ss-tbody)에
+ * "하나의 목록"으로 통합 주입한다. 하단 별도 목록/개발자 라벨 없음.
+ *   - 기존 renderTable() 끝에서 window.STAM.ssv2.afterRender(tbody) 훅 호출 →
+ *     이 모듈이 v2 그룹(헤더 + 행)을 같은 테이블 상단에 append.
+ *   - 데이터는 메모리 캐시. 변경 시 refresh() → 캐시 재로드 + STAM.ssRerender().
+ *   - 행/버튼은 v2 전용 Drawer(stam.screen-specification-crud.js)로 연결.
+ *   - 기본 조회는 status !== deleted. 자동 seed/insert 없음.
  *
- *  - 데이터가 없으면 정적 샘플을 쓰지 않고 empty state 표시(자동 seed/insert 금지).
- *  - 각 행에 data-ssv2-id 부여 → 상세/수정/삭제(crud)가 record 식별.
- *  - 기존 화면설계서 목록/템플릿/에디터(.ss-table, ss-template-view, ss-editor-view)는
- *    건드리지 않는다(회귀 방지). 템플릿/에디터 고급 연동은 후속.
- *  - CRUD 는 stam.screen-specification-crud.js 가 담당, 변경 후 render().
- *
+ * 기존 정적 목록(MENUS)·템플릿·에디터는 건드리지 않는다(회귀 방지).
  * Firebase/Firestore/API 미사용.
  * ==========================================================================*/
 (function () {
@@ -18,6 +17,7 @@
 
   var PID = 'proto-proj-001';
   var STORE = 'screenSpecifications';
+  var cache = [];
 
   function ready(fn) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
@@ -30,7 +30,6 @@
   }
   function dpart(iso) { return String(iso || '').replace('T', ' ').slice(0, 10); }
 
-  // v2 status/reviewStatus → 상태 칩(한글) + 색
   function statusInfo(rec) {
     var s = rec.status, r = rec.reviewStatus;
     if (s === 'deleted') return { label: '삭제됨', bg: 'rgba(100,116,139,.15)', fg: '#64748B' };
@@ -39,54 +38,75 @@
     if (s === 'reviewing') return (r === 'Approved')
       ? { label: '검토완료', bg: 'rgba(4,120,87,.12)', fg: '#047857' }
       : { label: '검토요청', bg: 'rgba(180,83,9,.12)', fg: '#B45309' };
-    return { label: '작성중', bg: 'rgba(100,116,139,.12)', fg: '#64748B' }; // draft
+    return { label: '작성중', bg: 'rgba(100,116,139,.12)', fg: '#64748B' };
   }
   function nameOf(rec) { return rec.screenName || rec.title || '(화면명 없음)'; }
-  function typeOf(rec) { return rec.screenType || '—'; }
+  function typeOf(rec) { return rec.screenType || '화면'; }
   function ownerOf(rec) { return rec.owner || '미지정'; }
+
+  function chip(label, bg, fg) {
+    return '<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:700;background:' + bg + ';color:' + fg + '">' + esc(label) + '</span>';
+  }
 
   function rowHtml(rec) {
     var st = statusInfo(rec);
-    var cellS = 'padding:9px 10px;border-bottom:1px solid var(--bd);vertical-align:middle';
-    return '<tr class="ssv2-row" data-ssv2-id="' + esc(rec.id) + '">' +
-      '<td style="' + cellS + ';font-family:var(--font);font-weight:700;color:var(--stam);white-space:nowrap">' + esc(rec.id) + '</td>' +
-      '<td style="' + cellS + ';color:var(--t1)">' + esc(nameOf(rec)) + '</td>' +
-      '<td style="' + cellS + ';color:var(--t2)">' + esc(typeOf(rec)) + '</td>' +
-      '<td style="' + cellS + ';color:var(--t2)">' + esc(ownerOf(rec)) + '</td>' +
-      '<td style="' + cellS + '"><span class="ssv2-stchip" style="background:' + st.bg + ';color:' + st.fg + '">' + esc(st.label) + '</span></td>' +
-      '<td style="' + cellS + ';color:var(--t2);font-size:11px">' + esc(rec.reviewStatus || '—') + '</td>' +
-      '<td style="' + cellS + ';font-size:11px;color:var(--t3);white-space:nowrap">' + (esc(dpart(rec.updatedAt)) || '—') + '</td>' +
-      '</tr>';
-  }
-  function emptyHtml() {
-    return '<tr class="ssv2-empty-row"><td colspan="7" style="padding:0;border:0">' +
-      '<div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:44px 16px;text-align:center">' +
-      '<div style="font-size:13px;font-weight:700;color:var(--t1)">아직 등록된 화면설계서가 없습니다.</div>' +
-      '<div style="font-size:12px;color:var(--t3);line-height:1.6">등록 버튼을 눌러 직접 추가하거나, 요구사항 가져오기를 통해 초안을 생성하세요.</div>' +
-      '</div></td></tr>';
+    return '<tr class="ssv2-int-row stam-table-row" data-ssv2-id="' + esc(rec.id) + '">' +
+      '<td class="ss-ch stam-check-cell"></td>' +
+      '<td class="ss-name-col"><div class="ss-sc-cell">' +
+        '<span class="ss-sc-ind">└</span>' +
+        '<span class="ss-sc-id">' + esc(rec.id) + '</span>' +
+        '<span class="ss-sc-name">' + esc(nameOf(rec)) + '</span>' +
+        '<span class="ss-type-chip ss-type-chip-sm">' + esc(typeOf(rec)) + '</span>' +
+      '</div></td>' +
+      '<td><span class="ss-vp">v0.1</span></td>' +
+      '<td>' + chip(st.label, st.bg, st.fg) + '</td>' +
+      '<td style="color:var(--t3);font-size:11px">' + esc(rec.reviewStatus || '—') + '</td>' +
+      '<td style="color:var(--t3)">—</td>' +
+      '<td style="color:var(--t3);font-size:11px">' + esc(ownerOf(rec)) + '</td>' +
+      '<td style="color:var(--t3);font-size:12px">' + (esc(dpart(rec.updatedAt)) || '—') + '</td>' +
+      '<td><div class="ss-rec-actions">' +
+        '<button type="button" class="ss-rec-act-btn" data-ssv2-detail="' + esc(rec.id) + '">상세</button>' +
+        '<button type="button" class="ss-rec-act-btn ss-rec-act-edit" data-ssv2-edit="' + esc(rec.id) + '">수정</button>' +
+      '</div></td>' +
+    '</tr>';
   }
 
-  var tbody;
-  function render() {
+  // 기존 목록(#ss-tbody) 상단에 v2 그룹을 통합 주입한다.
+  function afterRender(tbody) {
+    if (!tbody || !cache.length) return;
+    var head = '<tr class="ss-gr-row ssv2-grp">' +
+      '<td class="ss-ch stam-check-cell"></td>' +
+      '<td colspan="8"><div class="ss-gr-cell">' +
+      '<svg class="ss-gr-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>' +
+      '<span class="ss-gr-name">요구사항 연계 화면설계서</span>' +
+      '<span class="ss-gr-sep"></span>' +
+      '<span class="ss-gr-count">' + cache.length + '개 화면</span>' +
+      '<button type="button" data-ssv2-reg="1" style="margin-left:auto;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:7px;border:1px solid var(--stam);background:var(--stam);color:#fff;cursor:pointer">+ 등록</button>' +
+      '</div></td></tr>';
+    var rows = cache.slice().sort(function (a, b) { return String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')); }).map(rowHtml).join('');
+    tbody.insertAdjacentHTML('afterbegin', head + rows);
+  }
+
+  function loadCache() {
     var db = window.STAM_CORE && window.STAM_CORE.db;
-    if (!db || !tbody) return Promise.resolve();
-    return db.listRecords(STORE, PID).then(function (list) {
-      list = (list || []); // deleted 제외
-      if (!list.length) { tbody.innerHTML = emptyHtml(); return; }
-      list.sort(function (a, b) { return String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')); });
-      tbody.innerHTML = list.map(rowHtml).join('');
-    }).catch(function () { /* DB 오류 시 조용히 */ });
+    if (!db) return Promise.resolve();
+    return db.listRecords(STORE, PID).then(function (list) { cache = list || []; }).catch(function () { cache = []; });
+  }
+  function refresh() {
+    return loadCache().then(function () { if (window.STAM && window.STAM.ssRerender) window.STAM.ssRerender(); });
   }
 
   window.STAM = window.STAM || {};
-  window.STAM.ssBoard = {
-    PID: PID, STORE: STORE, render: render,
+  var api = {
+    PID: PID, STORE: STORE,
+    afterRender: afterRender, refresh: refresh,
     statusInfo: statusInfo, nameOf: nameOf, typeOf: typeOf, ownerOf: ownerOf, esc: esc, dpart: dpart
   };
+  window.STAM.ssBoard = api;
+  window.STAM.ssv2 = api; // renderTable() 훅이 찾는 이름
 
   ready(function () {
-    tbody = document.getElementById('ss-v2-tbody');
-    if (!tbody) return;
-    render();
+    // 초기 1회: 캐시 로드 후 기존 목록 재렌더(→ afterRender 훅이 v2 그룹 주입)
+    loadCache().then(function () { if (window.STAM.ssRerender) window.STAM.ssRerender(); });
   });
 }());

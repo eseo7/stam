@@ -193,7 +193,7 @@
             at: nowIso(), by: BY
           });
         });
-      }).then(function () { closeDrawer(); return board.render(); }).catch(function (e) { alert('저장 오류: ' + e.message); });
+      }).then(function () { closeDrawer(); return board.refresh(); }).catch(function (e) { alert('저장 오류: ' + e.message); });
     } else {
       var nid = genId();
       var rec = {
@@ -205,7 +205,7 @@
       };
       db.createRecord(STORE, rec).then(function () {
         return db.appendChange({ changeId: changeId(nid, 'create'), projectId: PID, artifactId: nid, changeType: 'create', field: 'screenSpecification', before: null, after: f.screenName, at: nowIso(), by: BY });
-      }).then(function () { closeDrawer(); return board.render(); }).catch(function (e) { alert('등록 오류: ' + e.message); });
+      }).then(function () { closeDrawer(); return board.refresh(); }).catch(function (e) { alert('등록 오류: ' + e.message); });
     }
   }
 
@@ -216,16 +216,19 @@
     var id = currentId;
     db.softDeleteRecord(STORE, id, { by: BY, reason: '사용자 삭제' }).then(function () {
       return db.appendChange({ changeId: changeId(id, 'delete'), projectId: PID, artifactId: id, changeType: 'delete', field: 'status', before: 'active', after: 'deleted', at: nowIso(), by: BY });
-    }).then(function () { closeDrawer(); return board.render(); }).catch(function (e) { alert('삭제 오류: ' + e.message); });
+    }).then(function () { closeDrawer(); return board.refresh(); }).catch(function (e) { alert('삭제 오류: ' + e.message); });
   }
 
   // ── 바인딩 ──────────────────────────────────────────────────────────
-  var tbody = $('ss-v2-tbody');
+  // v2 행/버튼은 기존 단일 목록(#ss-tbody)에 통합 주입되므로 위임으로 처리한다.
+  var tbody = $('ss-tbody');
   if (tbody) tbody.addEventListener('click', function (e) {
-    var row = e.target.closest('.ssv2-row'); if (!row) return;
+    var reg = e.target.closest('[data-ssv2-reg]'); if (reg) { e.stopPropagation(); openRegister(); return; }
+    var ed = e.target.closest('[data-ssv2-edit]'); if (ed) { e.stopPropagation(); openEdit(ed.getAttribute('data-ssv2-edit')); return; }
+    var de = e.target.closest('[data-ssv2-detail]'); if (de) { e.stopPropagation(); openDetail(de.getAttribute('data-ssv2-detail')); return; }
+    var row = e.target.closest('.ssv2-int-row'); if (!row) return;
     var id = row.getAttribute('data-ssv2-id'); if (id) openDetail(id);
   });
-  var regBtn = $('ssv2-reg-btn'); if (regBtn) regBtn.addEventListener('click', openRegister);
   var closeBtn = $('ssv2-close'); if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
   if (scrim) scrim.addEventListener('click', closeDrawer);
   var editBtn = $('ssv2-edit-btn'); if (editBtn) editBtn.addEventListener('click', function () { if (currentId) openEdit(currentId); });
