@@ -24,8 +24,8 @@
     #msv2-tabs{display:flex;gap:0;border-bottom:1px solid var(--bd);flex-shrink:0;padding:0 20px;background:var(--bg-sur)}
     .msv2-tab{background:none;border:none;cursor:pointer;font-size:12px;font-weight:600;color:var(--t3);padding:9px 12px;border-bottom:2px solid transparent;margin-bottom:-1px}
     .msv2-tab.on{color:var(--stam);border-bottom-color:var(--stam)}
-    /* ── Body content area ── */
-    .msv2-dw-bd{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:16px;background:var(--bg-base)}
+    /* ── Content flow wrapper (inside stam-drawer-body) ── */
+    .msv2-content-flow{display:flex;flex-direction:column;gap:16px}
     /* show/hide by mode */
     #msv2-dw[data-mode="detail"] .msv2-form-area{display:none}
     #msv2-dw[data-mode="register"] .msv2-tab-panel,
@@ -864,7 +864,8 @@
         </div>
 
         <!-- Body -->
-        <div class="stam-drawer-body msv2-dw-bd">
+        <div class="stam-drawer-body">
+          <div class="msv2-content-flow">
 
           <!-- Detail tab panels (rendered by renderDetail()) -->
           <div class="msv2-tab-panel" id="msv2-tab-info"    data-tab="info"></div>
@@ -1018,6 +1019,7 @@
 
           </div><!-- /.msv2-form-area -->
 
+          </div><!-- /.msv2-content-flow -->
         </div><!-- /.stam-drawer-body -->
 
         <!-- Footer (rendered by renderFooter()) -->
