@@ -51,6 +51,11 @@
     document.querySelectorAll('.msl-drawer').forEach(function (d) {
       d.classList.remove('open');
     });
+    // v2 drawer도 함께 닫기 (상호배타)
+    var v2dw   = document.getElementById('msv2-dw');
+    var v2sc   = document.getElementById('msv2-scrim');
+    if (v2dw) v2dw.setAttribute('data-open', 'false');
+    if (v2sc) v2sc.style.display = 'none';
   }
 
   // STAMBoardList Controller 가 row .is-active / checkbox .is-selected / delete count(삭제 (N)) /
@@ -61,7 +66,12 @@
   if (listRoot && window.STAMBoardList) {
     boardApi = window.STAMBoardList.init(listRoot, {
       deleteBtn: '#msl-del-btn',
-      onRowActivate: function () { openDrawer('detail'); },
+      onRowActivate: function (rowEl) {
+        // v2 row(msv2-int-row)는 stam.menu-screen-crud.js가 처리 — static drawer 열지 않음
+        var active = listRoot.querySelector('.stam-table-row.is-active');
+        if (active && active.classList.contains('msv2-int-row')) return;
+        openDrawer('detail');
+      },
     });
   }
 
