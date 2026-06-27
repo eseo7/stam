@@ -81,7 +81,7 @@
       '<span class="ss-gr-name">요구사항 연계 화면설계서</span>' +
       '<span class="ss-gr-sep"></span>' +
       '<span class="ss-gr-count">' + cache.length + '개 화면</span>' +
-      '<button type="button" data-ssv2-reg="1" style="margin-left:auto;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:7px;border:1px solid var(--stam);background:var(--stam);color:#fff;cursor:pointer">+ 등록</button>' +
+      '<span class="ss-gr-notice">요구사항 가져오기로 생성된 화면설계서 초안입니다. 상세 확인 후 수정하거나 승인하세요.</span>' +
       '</div></td></tr>';
     var rows = cache.slice().sort(function (a, b) { return String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')); }).map(rowHtml).join('');
     tbody.insertAdjacentHTML('afterbegin', head + rows);

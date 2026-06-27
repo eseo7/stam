@@ -326,10 +326,12 @@
   }
 
   // ── 바인딩 ──────────────────────────────────────────────────────────
-  // v2 행/버튼은 기존 단일 목록(#ss-tbody)에 통합 주입되므로 위임으로 처리한다.
+  // data-ssv2-reg는 헤더 버튼과 테이블 내부 모두에서 쓰이므로 document 위임
+  document.addEventListener('click', function (e) {
+    var reg = e.target.closest('[data-ssv2-reg]'); if (reg) { e.stopPropagation(); openRegister(); return; }
+  }, true);
   var tbody = $('ss-tbody');
   if (tbody) tbody.addEventListener('click', function (e) {
-    var reg = e.target.closest('[data-ssv2-reg]'); if (reg) { e.stopPropagation(); openRegister(); return; }
     var ed = e.target.closest('[data-ssv2-edit]'); if (ed) { e.stopPropagation(); openEdit(ed.getAttribute('data-ssv2-edit')); return; }
     var de = e.target.closest('[data-ssv2-detail]'); if (de) { e.stopPropagation(); openDetail(de.getAttribute('data-ssv2-detail')); return; }
     var row = e.target.closest('.ssv2-int-row'); if (!row) return;
