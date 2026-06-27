@@ -28,32 +28,32 @@
   function dpart(iso) { return String(iso || '').replace('T', ' ').slice(0, 10); }
   function changeId(id, type) { return id + '-' + type + '-' + Date.now(); }
 
-  // ── Custom select config ─────────────────────────────────────────────────
+  // ── Custom select config — 공통 stam-cs-* 기준 ───────────────────────────
   var CS_CFG = {
     selectSelector:   'select.msv2-sel',
     nativeMarkerAttr: 'data-msv2-cs',
     uidPrefix:        'msv2cs',
-    wrapClass:        'msv2-cs',
-    triggerClass:     'msv2-cs-trigger',
-    valClass:         'msv2-cs-val',
-    caretClass:       'msv2-cs-caret',
-    panelClass:       'msv2-cs-panel',
-    optClass:         'msv2-cs-opt',
-    checkClass:       'msv2-cs-check',
-    otextClass:       'msv2-cs-otext',
-    nativeClass:      'msv2-cs-native',
-    flipContainer:    '.msv2-dw-bd',
-    openClass:        'open',
-    upClass:          'cs-up',
-    openSelector:     '.msv2-cs.open'
+    wrapClass:        'stam-cs',
+    triggerClass:     'stam-cs-trigger',
+    valClass:         'stam-cs-value',
+    caretClass:       'stam-cs-icon',
+    panelClass:       'stam-cs-menu',
+    optClass:         'stam-cs-opt',
+    checkClass:       'stam-cs-check',
+    otextClass:       'stam-cs-otext',
+    nativeClass:      'stam-cs-native',
+    flipContainer:    '.stam-drawer-body',
+    openClass:        'is-open',
+    upClass:          'is-up',
+    openSelector:     '.stam-cs.is-open'
   };
 
   function resetSelects() {
     var form = document.querySelector('#msv2-dw .msv2-form-area');
     if (!form) return;
-    form.querySelectorAll('.msv2-cs').forEach(function (w) {
+    form.querySelectorAll('.stam-cs').forEach(function (w) {
       var nat = w.querySelector('select');
-      if (nat) { nat.classList.remove('msv2-cs-native'); nat.removeAttribute('data-msv2-cs'); w.parentNode.insertBefore(nat, w); }
+      if (nat) { nat.classList.remove('stam-cs-native'); nat.removeAttribute('data-msv2-cs'); w.parentNode.insertBefore(nat, w); }
       w.remove();
     });
   }
@@ -107,9 +107,9 @@
   }
 
   function openDrawer(mode) {
-    closeStaticDrawers();                          // 기존 static drawer 먼저 닫기
-    if (scrim)  scrim.style.display = 'block';
-    if (drawer) { drawer.setAttribute('data-open', 'true'); drawer.setAttribute('data-mode', mode); }
+    closeStaticDrawers();
+    if (scrim)  scrim.classList.add('show');
+    if (drawer) { drawer.classList.add('open'); drawer.setAttribute('data-mode', mode); }
     var tabs = $('msv2-tabs');
     if (tabs)  tabs.style.display = (mode === 'detail') ? '' : 'none';
     if (mode === 'detail') setActiveTab('info');
@@ -117,8 +117,8 @@
 
   function closeDrawer() {
     resetSelects();
-    if (scrim)  scrim.style.display = 'none';
-    if (drawer) drawer.setAttribute('data-open', 'false');
+    if (scrim)  scrim.classList.remove('show');
+    if (drawer) { drawer.classList.remove('open'); drawer.setAttribute('data-mode', 'detail'); }
     currentId = null;
   }
 
@@ -335,27 +335,27 @@
     }
   }
 
-  // ── 푸터 렌더링 ───────────────────────────────────────────────────────────
+  // ── 푸터 렌더링 — 공통 stam-btn-* 사용 ──────────────────────────────────
   function renderFooter(mode, rec) {
     var foot = $('msv2-foot');
     if (!foot) return;
     if (mode === 'detail') {
       foot.innerHTML =
-        '<div class="msv2-foot-meta"><span>최종 수정: ' + esc(dpart(rec && rec.updatedAt)) + '</span></div>' +
-        '<div class="msv2-foot-spacer"></div>' +
-        '<div class="msv2-foot-right">' +
-          '<button class="msv2-fbtn msv2-fbtn-danger"  id="msv2-del-btn"  type="button">삭제</button>' +
-          '<button class="msv2-fbtn msv2-fbtn-ghost"   id="msv2-view-btn" type="button">전체 보기</button>' +
-          '<button class="msv2-fbtn msv2-fbtn-primary" id="msv2-edit-btn" type="button">수정</button>' +
+        '<div class="stam-dw-foot-meta"><span>최종 수정: ' + esc(dpart(rec && rec.updatedAt)) + '</span></div>' +
+        '<div class="stam-dw-foot-spacer"></div>' +
+        '<div class="stam-dw-foot-right">' +
+          '<button class="stam-btn stam-btn-danger"  id="msv2-del-btn"  type="button">삭제</button>' +
+          '<button class="stam-btn stam-btn-ghost"   id="msv2-view-btn" type="button">전체 보기</button>' +
+          '<button class="stam-btn stam-btn-primary" id="msv2-edit-btn" type="button">수정</button>' +
         '</div>';
       var delBtn  = $('msv2-del-btn');  if (delBtn)  delBtn.addEventListener('click',  del);
       var editBtn = $('msv2-edit-btn'); if (editBtn) editBtn.addEventListener('click',  function () { openEdit(currentId); });
     } else {
       foot.innerHTML =
-        '<div class="msv2-foot-spacer"></div>' +
-        '<div class="msv2-foot-right">' +
-          '<button class="msv2-fbtn msv2-fbtn-ghost"   id="msv2-cancel-btn" type="button">취소</button>' +
-          '<button class="msv2-fbtn msv2-fbtn-primary" id="msv2-save-btn"   type="button">저장</button>' +
+        '<div class="stam-dw-foot-spacer"></div>' +
+        '<div class="stam-dw-foot-right">' +
+          '<button class="stam-btn stam-btn-ghost"   id="msv2-cancel-btn" type="button">취소</button>' +
+          '<button class="stam-btn stam-btn-primary" id="msv2-save-btn"   type="button">저장</button>' +
         '</div>';
       var cancelBtn = $('msv2-cancel-btn'); if (cancelBtn) cancelBtn.addEventListener('click', closeDrawer);
       var saveBtn   = $('msv2-save-btn');   if (saveBtn)   saveBtn.addEventListener('click',   save);

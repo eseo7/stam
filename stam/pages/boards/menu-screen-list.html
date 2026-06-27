@@ -17,31 +17,20 @@
   <link rel="stylesheet" href="../../css/stam.board-toolbar.css">
   <link rel="stylesheet" href="../../css/stam.board-filter.css">
   <link rel="stylesheet" href="../../css/stam.board-layout.css">
+  <link rel="stylesheet" href="../../css/stam.custom-select.css">
   <link rel="stylesheet" href="../../css/stam.menu-screen-list.css">
   <style>
-    /* ── msv2 Scrim & Drawer ── */
-    .msv2-scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1200;display:none}
-    .msv2-drawer{position:fixed;top:0;right:0;height:100%;width:480px;max-width:100vw;background:var(--bg-sur);box-shadow:-4px 0 32px rgba(0,0,0,.22);z-index:1201;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1)}
-    .msv2-drawer[data-open="true"]{transform:translateX(0)}
-    /* ── Head ── */
-    #msv2-head{padding:20px 20px 12px;border-bottom:1px solid var(--bd);flex-shrink:0;background:var(--bg-sur)}
-    .msv2-hrow1{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-    .msv2-hdg-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--stam-soft);color:var(--stam)}
-    .msv2-close{background:none;border:none;cursor:pointer;color:var(--t2);display:flex;align-items:center;justify-content:center;padding:4px;border-radius:4px}
-    .msv2-close:hover{background:var(--bg-sur2)}
-    .msv2-htitle{font-size:15px;font-weight:700;color:var(--t1);margin-bottom:6px;line-height:1.4}
-    .msv2-hmeta{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-    /* ── Tabs ── */
+    /* ── Tabs (v2 Drawer 전용 — 공통 없음) ── */
     #msv2-tabs{display:flex;gap:0;border-bottom:1px solid var(--bd);flex-shrink:0;padding:0 20px;background:var(--bg-sur)}
     .msv2-tab{background:none;border:none;cursor:pointer;font-size:12px;font-weight:600;color:var(--t3);padding:9px 12px;border-bottom:2px solid transparent;margin-bottom:-1px}
     .msv2-tab.on{color:var(--stam);border-bottom-color:var(--stam)}
-    /* ── Body ── */
+    /* ── Body content area ── */
     .msv2-dw-bd{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:16px;background:var(--bg-base)}
     /* show/hide by mode */
     #msv2-dw[data-mode="detail"] .msv2-form-area{display:none}
     #msv2-dw[data-mode="register"] .msv2-tab-panel,
     #msv2-dw[data-mode="edit"] .msv2-tab-panel{display:none}
-    /* ── Form ── */
+    /* ── Form sections ── */
     .msv2-form-area{display:flex;flex-direction:column;gap:16px}
     .msv2-fs{background:var(--bg-sur);border:1px solid var(--bd);border-radius:8px;padding:14px 16px}
     .msv2-fs-hdr{display:flex;align-items:center;gap:8px;margin-bottom:12px}
@@ -55,45 +44,25 @@
     .msv2-inp{width:100%;box-sizing:border-box;height:32px;padding:0 10px;border:1px solid var(--bd);border-radius:6px;font-size:12px;color:var(--t1);background:var(--bg-sur);outline:none;font-family:inherit}
     .msv2-inp:focus{border-color:var(--stam)}
     .msv2-inp.ro{background:var(--bg-sur2);color:var(--t3);cursor:default}
-    .msv2-textarea{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--bd);border-radius:6px;font-size:12px;color:var(--t1);background:var(--bg-sur);outline:none;font-family:inherit;resize:vertical;min-height:64px}
-    .msv2-textarea:focus{border-color:var(--stam)}
+    .msv2-ta{width:100%;box-sizing:border-box;height:auto;min-height:72px;padding:8px 10px;border:1px solid var(--bd);border-radius:6px;font-size:12px;color:var(--t1);background:var(--bg-sur);outline:none;font-family:inherit;resize:vertical;line-height:1.55}
+    .msv2-ta:focus{border-color:var(--stam)}
     .msv2-helper{font-size:10px;color:var(--t3)}
-    /* ── Custom Select ── */
-    .msv2-cs{position:relative;display:block}
-    .msv2-cs-trigger{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 10px;border:1px solid var(--bd);border-radius:6px;background:var(--bg-sur);cursor:pointer;font-size:12px;color:var(--t1);user-select:none;gap:6px}
-    .msv2-cs-trigger:hover{border-color:var(--stam)}
-    .msv2-cs.open .msv2-cs-trigger{border-color:var(--stam)}
-    .msv2-cs-val{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .msv2-cs-caret{flex-shrink:0;color:var(--t3);transition:transform .15s}
-    .msv2-cs.open .msv2-cs-caret{transform:rotate(180deg)}
-    .msv2-cs-panel{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--bg-sur);border:1px solid var(--bd);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:50;max-height:280px;overflow-y:auto;display:none}
-    .msv2-cs.open .msv2-cs-panel{display:block}
-    .msv2-cs.cs-up .msv2-cs-panel{top:auto;bottom:calc(100% + 4px)}
-    .msv2-cs-opt{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;font-size:12px;color:var(--t1)}
-    .msv2-cs-opt:hover{background:var(--bg-sur2)}
-    .msv2-cs-opt.selected{background:var(--stam-soft);color:var(--stam)}
-    .msv2-cs-check{width:14px;height:14px;flex-shrink:0;color:var(--stam);opacity:0}
-    .msv2-cs-opt.selected .msv2-cs-check{opacity:1}
-    .msv2-cs-native{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
-    /* ── Footer ── */
-    #msv2-foot{border-top:1px solid var(--bd);padding:12px 20px;display:flex;align-items:center;gap:8px;flex-shrink:0;background:var(--bg-sur2)}
-    .msv2-foot-meta{font-size:11px;color:var(--t3)}
-    .msv2-foot-spacer{flex:1}
-    .msv2-foot-right{display:flex;gap:8px;align-items:center}
-    .msv2-fbtn{height:30px;padding:0 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
-    .msv2-fbtn-ghost{background:none;border-color:var(--bd);color:var(--t2)}
-    .msv2-fbtn-ghost:hover{background:var(--bg-sur3)}
-    .msv2-fbtn-primary{background:var(--stam);color:#fff;border-color:var(--stam)}
-    .msv2-fbtn-primary:hover{opacity:.9}
-    .msv2-fbtn-danger{background:none;border-color:rgba(220,38,38,.4);color:#f87171}
-    .msv2-fbtn-danger:hover{background:rgba(220,38,38,.08)}
+    /* ── Head inner elements ── */
+    .msv2-hrow1{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .msv2-hdg-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--stam-soft);color:var(--stam)}
+    .msv2-close{background:none;border:none;cursor:pointer;color:var(--t2);display:flex;align-items:center;justify-content:center;padding:4px;border-radius:4px}
+    .msv2-close:hover{background:var(--bg-sur2)}
+    .msv2-htitle{font-size:15px;font-weight:700;color:var(--t1);margin-bottom:6px;line-height:1.4}
+    .msv2-hmeta{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
     /* ── Detail: Info Grid ── */
     .msv2-igrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .msv2-ic{display:flex;flex-direction:column;gap:3px}
+    .msv2-ic.full{grid-column:1/-1}
     .msv2-ik{font-size:10.5px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.04em}
     .msv2-iv{font-size:12px;color:var(--t1)}
     .msv2-id-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--stam-soft);color:var(--stam)}
     .msv2-code{font-family:monospace;font-size:11px;background:var(--bg-sur2);padding:1px 5px;border-radius:3px;color:var(--t2)}
+    .msv2-iv-hint{font-size:11px;color:var(--t3)}
     /* ── Detail: Link Cards ── */
     .msv2-link-cards{display:flex;flex-direction:column;gap:8px}
     .msv2-link-card{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg-sur)}
@@ -128,17 +97,14 @@
     .msv2-missing-tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10.5px;font-weight:600;background:rgba(239,68,68,.1);color:#ef4444}
     /* ── Detail: Guide Box ── */
     .msv2-guide-box{background:var(--stam-soft);border-radius:6px;padding:10px 12px;font-size:11.5px;color:var(--t2);line-height:1.65}
-    /* ── Detail: Section header (link tab) ── */
+    /* ── Detail: Link section header ── */
     .msv2-link-sec-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px}
     .msv2-link-count-badge{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--stam-soft);color:var(--stam);font-weight:700}
     /* ── Edit notice banner ── */
     .msv2-edit-notice{margin:8px 0 0;padding:8px 12px;background:rgba(245,158,11,.12);border-radius:6px;font-size:11.5px;color:#B45309;line-height:1.5}
     [data-theme="dark"] .msv2-edit-notice{color:#FCD34D}
-    /* ── Form: textarea ── */
-    .msv2-ta{height:auto;min-height:72px;padding:8px 10px;resize:vertical;line-height:1.55}
-    /* ── Info grid: full-width cell ── */
-    .msv2-igrid .msv2-ic.full{grid-column:1/-1}
-    .msv2-iv-hint{font-size:11px;color:var(--t3)}
+    /* ── stam-cs override: height to match msv2-inp ── */
+    #msv2-dw .stam-cs-trigger{height:32px;font-size:12px}
   </style>
 </head>
 <body>
@@ -881,13 +847,13 @@
       </div><!-- /#msl-dw-edit -->
 
       <!-- ── v2 Scrim ── -->
-      <div class="msv2-scrim" id="msv2-scrim"></div>
+      <div class="stam-drawer-scrim" id="msv2-scrim"></div>
 
       <!-- ── v2 CRUD Drawer ── -->
-      <aside class="msv2-drawer" id="msv2-dw" role="dialog" aria-modal="true" aria-label="메뉴/화면 상세" data-mode="detail" data-open="false">
+      <aside class="stam-drawer is-narrow" id="msv2-dw" role="dialog" aria-modal="true" aria-label="메뉴/화면 상세" data-mode="detail">
 
         <!-- Head (rendered by setHeader()) -->
-        <div id="msv2-head"></div>
+        <div class="stam-drawer-head" id="msv2-head"></div>
 
         <!-- Tabs (detail only) -->
         <div id="msv2-tabs">
@@ -898,7 +864,7 @@
         </div>
 
         <!-- Body -->
-        <div class="msv2-dw-bd">
+        <div class="stam-drawer-body msv2-dw-bd">
 
           <!-- Detail tab panels (rendered by renderDetail()) -->
           <div class="msv2-tab-panel" id="msv2-tab-info"    data-tab="info"></div>
@@ -929,7 +895,7 @@
 
                 <div class="msv2-ffield">
                   <label class="msv2-flbl" for="msv2-f-type">화면 유형</label>
-                  <select class="msv2-inp msv2-sel" id="msv2-f-type">
+                  <select class="msv2-sel" id="msv2-f-type">
                     <option value="">선택</option>
                     <option value="목록">목록</option>
                     <option value="등록">등록</option>
@@ -944,7 +910,7 @@
 
                 <div class="msv2-ffield">
                   <label class="msv2-flbl" for="msv2-f-channel">채널 (FO/BO)</label>
-                  <select class="msv2-inp msv2-sel" id="msv2-f-channel">
+                  <select class="msv2-sel" id="msv2-f-channel">
                     <option value="">선택</option>
                     <option value="FO">FO</option>
                     <option value="BO">BO</option>
@@ -953,7 +919,7 @@
 
                 <div class="msv2-ffield">
                   <label class="msv2-flbl" for="msv2-f-status">작성 상태</label>
-                  <select class="msv2-inp msv2-sel" id="msv2-f-status">
+                  <select class="msv2-sel" id="msv2-f-status">
                     <option value="draft">작성중</option>
                     <option value="reviewing">검토중</option>
                     <option value="confirmed">확정</option>
@@ -963,7 +929,7 @@
 
                 <div class="msv2-ffield">
                   <label class="msv2-flbl" for="msv2-f-review">검토 상태</label>
-                  <select class="msv2-inp msv2-sel" id="msv2-f-review">
+                  <select class="msv2-sel" id="msv2-f-review">
                     <option value="Review Needed">검토 필요</option>
                     <option value="In Review">검토중</option>
                     <option value="Approved">승인완료</option>
@@ -982,7 +948,7 @@
 
                 <div class="msv2-ffield full">
                   <label class="msv2-flbl" for="msv2-f-desc">화면 설명</label>
-                  <textarea class="msv2-inp msv2-ta" id="msv2-f-desc" placeholder="화면의 목적과 주요 기능을 간략히 설명하세요." rows="3"></textarea>
+                  <textarea class="msv2-ta" id="msv2-f-desc" placeholder="화면의 목적과 주요 기능을 간략히 설명하세요." rows="3"></textarea>
                 </div>
 
               </div>
@@ -998,7 +964,7 @@
 
                 <div class="msv2-ffield">
                   <label class="msv2-flbl" for="msv2-f-lv1">LV1</label>
-                  <select class="msv2-inp msv2-sel" id="msv2-f-lv1">
+                  <select class="msv2-sel" id="msv2-f-lv1">
                     <option value="">선택</option>
                     <option value="서비스 루트">서비스 루트</option>
                     <option value="대시보드">대시보드</option>
@@ -1052,10 +1018,10 @@
 
           </div><!-- /.msv2-form-area -->
 
-        </div><!-- /.msv2-dw-bd -->
+        </div><!-- /.stam-drawer-body -->
 
         <!-- Footer (rendered by renderFooter()) -->
-        <div id="msv2-foot"></div>
+        <div class="stam-drawer-foot" id="msv2-foot"></div>
 
       </aside><!-- /#msv2-dw -->
 

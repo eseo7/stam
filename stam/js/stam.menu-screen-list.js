@@ -54,8 +54,8 @@
     // v2 drawer도 함께 닫기 (상호배타)
     var v2dw   = document.getElementById('msv2-dw');
     var v2sc   = document.getElementById('msv2-scrim');
-    if (v2dw) v2dw.setAttribute('data-open', 'false');
-    if (v2sc) v2sc.style.display = 'none';
+    if (v2dw) v2dw.classList.remove('open');
+    if (v2sc) v2sc.classList.remove('show');
   }
 
   // STAMBoardList Controller 가 row .is-active / checkbox .is-selected / delete count(삭제 (N)) /
