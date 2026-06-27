@@ -49,12 +49,17 @@
   };
 
   function resetSelects() {
-    var dw = $('msv2-dw');
-    if (dw && window.STAM && window.STAM.customSelect) window.STAM.customSelect.reset(dw, CS_CFG);
+    var form = document.querySelector('#msv2-dw .msv2-form-area');
+    if (!form) return;
+    form.querySelectorAll('.msv2-cs').forEach(function (w) {
+      var nat = w.querySelector('select');
+      if (nat) { nat.classList.remove('msv2-cs-native'); nat.removeAttribute('data-msv2-cs'); w.parentNode.insertBefore(nat, w); }
+      w.remove();
+    });
   }
   function enhanceSelects() {
-    var dw = $('msv2-dw');
-    if (dw && window.STAM && window.STAM.customSelect) window.STAM.customSelect.init(dw, CS_CFG);
+    var form = document.querySelector('#msv2-dw .msv2-form-area');
+    if (form && window.STAM && window.STAM.customSelect) window.STAM.customSelect.init(form, CS_CFG);
   }
 
   // ── 값 한글화 ─────────────────────────────────────────────────────────────
