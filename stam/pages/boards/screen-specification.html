@@ -168,6 +168,94 @@
 
       </section>
 
+      <!-- ======================================== Local Core DB v2 화면설계서 목록 + 기본 CRUD -->
+      <style>
+        .ssv2-section{margin:18px 0 8px;border:1px solid var(--bd);border-radius:12px;background:var(--bg-sur);overflow:hidden}
+        .ssv2-hd{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--bd)}
+        .ssv2-hd .t{font-size:13px;font-weight:800;color:var(--t1)}
+        .ssv2-chip{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:700;background:var(--bg-sur2);border:1px solid var(--bd);color:var(--t2)}
+        .ssv2-reg{margin-left:auto;font-size:12px;font-weight:700;padding:6px 12px;border-radius:8px;border:1px solid var(--stam);background:var(--stam);color:#fff;cursor:pointer}
+        .ssv2-tbl{width:100%;border-collapse:collapse;font-size:12px;min-width:760px}
+        .ssv2-tbl th{text-align:left;padding:8px 10px;font-size:10.5px;color:var(--t3);font-weight:700;border-bottom:1px solid var(--bd);background:var(--bg-sur2)}
+        .ssv2-tbl td{padding:9px 10px;border-bottom:1px solid var(--bd);vertical-align:middle}
+        .ssv2-row{cursor:pointer}
+        .ssv2-row:hover{background:var(--bg-sur2)}
+        .ssv2-scrim{position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:1400;display:none}
+        .ssv2-drawer{position:fixed;top:0;right:0;width:440px;max-width:92vw;height:100%;background:var(--bg-sur);border-left:1px solid var(--bd);z-index:1401;transform:translateX(100%);transition:transform .2s;display:flex;flex-direction:column;overflow:hidden}
+        .ssv2-drawer[data-open="true"]{transform:translateX(0)}
+        .ssv2-dw-hd{padding:14px 16px;border-bottom:1px solid var(--bd)}
+        .ssv2-dw-bd{padding:14px 16px;overflow:auto;flex:1}
+        .ssv2-dw-ft{padding:12px 16px;border-top:1px solid var(--bd);display:flex;gap:8px;justify-content:flex-end}
+        .ssv2-k{min-width:120px;color:var(--t3);font-size:11.5px}
+        .ssv2-drow{display:flex;gap:8px;padding:4px 0;font-size:11.5px}
+        .ssv2-drow span:last-child{color:var(--t1);word-break:break-all}
+        .ssv2-fld{margin-bottom:10px}
+        .ssv2-fld label{display:block;font-size:11px;font-weight:700;color:var(--t2);margin-bottom:4px}
+        .ssv2-fld input,.ssv2-fld select,.ssv2-fld textarea{width:100%;box-sizing:border-box;font-size:12px;padding:7px 9px;border:1px solid var(--bd);border-radius:7px;background:var(--bg-sur2);color:var(--t1)}
+        .ssv2-btn{font-size:12px;font-weight:700;padding:7px 13px;border-radius:8px;cursor:pointer;border:1px solid var(--bd);background:var(--bg-sur2);color:var(--t1)}
+        .ssv2-btn.pri{border-color:var(--stam);background:var(--stam);color:#fff}
+        .ssv2-btn.danger{border-color:#991B1B;background:rgba(153,27,27,.1);color:#b91c1c}
+        .ssv2-stchip{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:700}
+      </style>
+      <section class="ssv2-section" aria-label="Local Core DB v2 화면설계서 목록">
+        <div class="ssv2-hd">
+          <span class="t">화면설계서 목록</span>
+          <span class="ssv2-chip">Local Core DB v2</span>
+          <span style="font-size:11px;color:var(--t3)">요구사항 가져오기 생성 + 직접 등록 (기본 메타데이터)</span>
+          <button class="ssv2-reg" id="ssv2-reg-btn" type="button">+ 등록</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="ssv2-tbl">
+            <thead><tr>
+              <th>화면 ID</th><th>화면명</th><th>화면유형</th><th>담당자</th><th>상태</th><th>검토 상태</th><th>최종 수정일</th>
+            </tr></thead>
+            <tbody id="ss-v2-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="ssv2-scrim" id="ssv2-scrim"></div>
+      <aside class="ssv2-drawer" id="ssv2-drawer" data-open="false" data-mode="detail" aria-label="화면설계서 v2 상세/편집">
+        <div class="ssv2-dw-hd">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span id="ssv2-wid" style="font-weight:800;color:var(--stam);font-size:12px">SCR-000</span>
+            <span id="ssv2-status-chip" class="ssv2-stchip" style="background:var(--bg-sur2);color:var(--t2)">작성중</span>
+            <button id="ssv2-close" type="button" style="margin-left:auto;border:0;background:none;font-size:16px;color:var(--t3);cursor:pointer">✕</button>
+          </div>
+          <div id="ssv2-title" style="margin-top:8px;font-size:15px;font-weight:800;color:var(--t1)">화면설계서</div>
+        </div>
+        <div class="ssv2-dw-bd">
+          <!-- detail -->
+          <div id="ssv2-detail"></div>
+          <!-- form (register/edit 공용) -->
+          <div id="ssv2-form" style="display:none">
+            <div class="ssv2-fld"><label>화면명 *</label><input id="ssv2-f-name" type="text" placeholder="화면명을 입력하세요"></div>
+            <div class="ssv2-fld"><label>화면유형</label><select id="ssv2-f-type"><option value="">선택</option><option>목록</option><option>상세</option><option>등록</option><option>수정</option><option>팝업</option><option>대시보드</option><option>기타</option></select></div>
+            <div class="ssv2-fld"><label>상태</label><select id="ssv2-f-status"><option>작성중</option><option>검토요청</option><option>검토완료</option><option>승인완료</option><option>보류</option></select></div>
+            <div class="ssv2-fld"><label>담당자</label><input id="ssv2-f-owner" type="text" placeholder="담당자"></div>
+            <div class="ssv2-fld"><label>템플릿 ID</label><input id="ssv2-f-template" type="text" placeholder="예: TPL-LIST-01"></div>
+            <div class="ssv2-fld"><label>라우트 경로</label><input id="ssv2-f-route" type="text" placeholder="예: /boards/foo"></div>
+            <div class="ssv2-fld"><label>연결 요구사항 ID</label><input id="ssv2-f-req" type="text" placeholder="예: REQ-001"></div>
+            <div class="ssv2-fld"><label>연결 기능정의 ID</label><input id="ssv2-f-fun" type="text" placeholder="예: REQ-001-FUN"></div>
+            <div class="ssv2-fld"><label>연결 WBS ID</label><input id="ssv2-f-wbs" type="text" placeholder="예: REQ-001-WBS1"></div>
+            <div class="ssv2-fld"><label>연결 메뉴 ID</label><input id="ssv2-f-menu" type="text" placeholder="예: MENU-001"></div>
+            <div class="ssv2-fld"><label>설명</label><textarea id="ssv2-f-desc" rows="3" placeholder="화면 설명"></textarea></div>
+          </div>
+        </div>
+        <div class="ssv2-dw-ft">
+          <!-- detail foot -->
+          <span id="ssv2-foot-detail" style="display:flex;gap:8px">
+            <button class="ssv2-btn danger" id="ssv2-del-btn" type="button">삭제</button>
+            <button class="ssv2-btn pri" id="ssv2-edit-btn" type="button">수정</button>
+          </span>
+          <!-- form foot -->
+          <span id="ssv2-foot-form" style="display:none;gap:8px">
+            <button class="ssv2-btn" id="ssv2-cancel-btn" type="button">취소</button>
+            <button class="ssv2-btn pri" id="ssv2-save-btn" type="button">저장</button>
+          </span>
+        </div>
+      </aside>
+
       <!-- Template View: 풀페이지 템플릿 선택 -->
       <div class="ss-template-view" id="ss-template-view" style="display:none" aria-label="템플릿 선택"></div>
 
@@ -193,6 +281,11 @@
 <script src="../../js/stam.project-context-render.js"></script>
 <script src="../../js/stam.board-filter.js"></script>
 <script src="../../js/stam.screen-specification.js"></script>
+<!-- ── Local Core DB v2 연동 — 화면설계서 CRUD ── -->
+<script src="../../js/stam.core-db-schema.js"></script>
+<script src="../../js/stam.local-core-db.js"></script>
+<script src="../../js/stam.screen-specification-cycle.js"></script>
+<script src="../../js/stam.screen-specification-crud.js"></script>
 
 </body>
 </html>
