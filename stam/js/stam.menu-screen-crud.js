@@ -180,11 +180,11 @@
       title = '화면명 미지정';
     }
 
-    var metaHtml = '';
-    if (rec) {
-      metaHtml = statusChip(rec.status) +
-        '<span style="font-size:11px;color:var(--t3)">' + esc(sourceKo(rec)) + '</span>';
-    }
+    // 상태 chip은 row1(배지 옆)에 배치 — rq-dw-hrow1 패턴
+    var statusInRow = rec ? statusChip(rec.status) : '';
+    var metaHtml = rec
+      ? '<span style="font-size:11px;color:var(--t3)">' + esc(sourceKo(rec)) + '</span>'
+      : '';
 
     // 수정 모드이고 자동 생성 레코드이면 안내 배너
     var noticeHtml = '';
@@ -195,8 +195,9 @@
     head.innerHTML =
       '<div class="msv2-hrow1">' +
         '<span class="msv2-hdg-badge">' + badge + '</span>' +
+        statusInRow +
         '<button class="msv2-close" id="msv2-close-btn" aria-label="닫기">' +
-          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
         '</button>' +
       '</div>' +
       '<div class="msv2-htitle">' + title + '</div>' +
@@ -222,64 +223,76 @@
       if (!rec.lv1)        missing.push('LV1');
       if (!rec.routePath)  missing.push('화면 경로');
 
-      // 초안 요약 카드
+      // 섹션 0: 초안 요약 카드 (상단 현황 박스)
       var summaryHtml =
-        '<div class="msv2-summary-card">' +
-          '<div class="msv2-summary-row">' +
-            '<span class="msv2-summary-k">생성 방식</span>' +
-            '<span class="msv2-summary-v">' + esc(sourceKo(rec)) + '</span>' +
-          '</div>' +
-          '<div class="msv2-summary-row">' +
-            '<span class="msv2-summary-k">현재 상태</span>' +
-            '<span class="msv2-summary-v">' + statusChip(rec.status) + '</span>' +
-          '</div>' +
-          (missing.length ?
+        '<div class="msv2-dw-sec">' +
+          '<div class="msv2-summary-card">' +
             '<div class="msv2-summary-row">' +
-              '<span class="msv2-summary-k">보완 필요</span>' +
-              '<span class="msv2-summary-v">' +
-                missing.map(function (m) {
-                  return '<span class="msv2-missing-tag">' + esc(m) + '</span>';
-                }).join(' ') +
-              '</span>' +
-            '</div>'
-          : '<div class="msv2-summary-row"><span class="msv2-summary-k">완성도</span>' +
-              '<span class="msv2-summary-v" style="color:#047857">필수 항목 입력 완료</span></div>') +
+              '<span class="msv2-summary-k">생성 방식</span>' +
+              '<span class="msv2-summary-v">' + esc(sourceKo(rec)) + '</span>' +
+            '</div>' +
+            '<div class="msv2-summary-row">' +
+              '<span class="msv2-summary-k">현재 상태</span>' +
+              '<span class="msv2-summary-v">' + statusChip(rec.status) + '</span>' +
+            '</div>' +
+            (missing.length
+              ? '<div class="msv2-summary-row">' +
+                  '<span class="msv2-summary-k">보완 필요</span>' +
+                  '<span class="msv2-summary-v">' +
+                    missing.map(function (m) { return '<span class="msv2-missing-tag">' + esc(m) + '</span>'; }).join(' ') +
+                  '</span>' +
+                '</div>'
+              : '<div class="msv2-summary-row">' +
+                  '<span class="msv2-summary-k">완성도</span>' +
+                  '<span class="msv2-summary-v" style="color:#047857">필수 항목 입력 완료</span>' +
+                '</div>') +
+          '</div>' +
         '</div>';
 
-      // 작성 안내 박스
-      var guideHtml =
-        '<div class="msv2-guide-box">' +
-          (isAuto
-            ? '요구사항을 바탕으로 생성된 메뉴/화면 초안입니다. 화면명, 메뉴 계층, 화면 유형, 경로를 확인한 뒤 수정에서 보완하세요.'
-            : '직접 등록된 메뉴/화면입니다. 관련 요구사항과 화면설계서 연결 정보를 확인하세요.') +
-        '</div>';
-
-      // 필드 그리드 — 중요 빈 필드는 힌트 표시, 사소한 빈 필드는 생략
+      // 섹션 1: 기본 정보 그리드 (rq-igrid 동일 구조 — description 제외)
       var gridHtml =
-        '<div class="msv2-igrid">' +
-          ic('메뉴/화면 ID', '<span class="msv2-id-badge">' + esc(rec.id) + '</span>') +
-          icSmart('화면명',    rec.screenName,  true) +
-          icSmart('메뉴명',    rec.menuName,    true) +
-          icSmart('LV1',       rec.lv1,         true) +
-          (rec.lv2 ? ic('LV2', esc(rec.lv2)) : '') +
-          (rec.lv3 ? ic('LV3', esc(rec.lv3)) : '') +
-          icSmart('화면 유형',  rec.screenType, true) +
-          (rec.channel ? ic('채널', esc(rec.channel)) : '') +
-          ic('화면 경로',
-            rec.routePath
-              ? '<code class="msv2-code">' + esc(rec.routePath) + '</code>'
-              : '<span class="msv2-iv-hint">미지정 · 수정에서 입력 필요</span>') +
-          (rec.owner ? ic('담당자', esc(rec.owner)) : '') +
-          ic('작성 상태', statusChip(rec.status)) +
-          ic('검토 상태', esc(reviewKo(rec.reviewStatus))) +
-          (rec.description
-            ? ic('화면 설명', '<span style="white-space:pre-wrap;line-height:1.55">' + esc(rec.description) + '</span>', { full: true })
-            : '') +
-          ic('최초 등록일', esc(dpart(rec.createdAt))) +
-          ic('최종 수정일', esc(dpart(rec.updatedAt))) +
+        '<div class="msv2-dw-sec">' +
+          '<div class="msv2-dw-sec-hdr"><h3>기본 정보</h3></div>' +
+          '<div class="msv2-igrid">' +
+            ic('메뉴/화면 ID', '<span class="msv2-id-badge">' + esc(rec.id) + '</span>') +
+            icSmart('화면명',   rec.screenName, true) +
+            icSmart('메뉴명',   rec.menuName,   true) +
+            icSmart('LV1',      rec.lv1,        true) +
+            (rec.lv2 ? ic('LV2', esc(rec.lv2)) : '') +
+            (rec.lv3 ? ic('LV3', esc(rec.lv3)) : '') +
+            icSmart('화면 유형', rec.screenType, true) +
+            (rec.channel ? ic('채널', esc(rec.channel)) : '') +
+            ic('화면 경로',
+              rec.routePath
+                ? '<code class="msv2-code">' + esc(rec.routePath) + '</code>'
+                : '<span class="msv2-iv-hint">미지정 · 수정에서 입력 필요</span>') +
+            (rec.owner ? ic('담당자', esc(rec.owner)) : '') +
+            ic('작성 상태', statusChip(rec.status)) +
+            ic('검토 상태', esc(reviewKo(rec.reviewStatus))) +
+            ic('최초 등록일', esc(dpart(rec.createdAt))) +
+            ic('최종 수정일', esc(dpart(rec.updatedAt))) +
+          '</div>' +
         '</div>';
 
-      infoEl.innerHTML = summaryHtml + guideHtml + gridHtml;
+      // 섹션 2: 화면 설명 — rq-purp-box 동일 패턴 (존재할 때만)
+      var descHtml = rec.description
+        ? '<div class="msv2-dw-sec">' +
+            '<div class="msv2-dw-sec-hdr"><h3>화면 설명</h3></div>' +
+            '<div class="msv2-purp-box">' + esc(rec.description) + '</div>' +
+          '</div>'
+        : '';
+
+      // 섹션 3: 작성 안내 박스 — accent-line 스타일
+      var guideHtml =
+        '<div class="msv2-dw-sec">' +
+          '<div class="msv2-guide-box">' +
+            (isAuto
+              ? '요구사항을 바탕으로 생성된 메뉴/화면 초안입니다. 화면명, 메뉴 계층, 화면 유형, 경로를 확인한 뒤 수정에서 보완하세요.'
+              : '직접 등록된 메뉴/화면입니다. 관련 요구사항과 화면설계서 연결 정보를 확인하세요.') +
+          '</div>' +
+        '</div>';
+
+      infoEl.innerHTML = summaryHtml + gridHtml + descHtml + guideHtml;
     }
 
     // 연결 정보 탭 ─────────────────────────────────────────────────────────
@@ -344,7 +357,7 @@
         '<div class="stam-dw-foot-meta"><span>최종 수정: ' + esc(dpart(rec && rec.updatedAt)) + '</span></div>' +
         '<div class="stam-dw-foot-spacer"></div>' +
         '<div class="stam-dw-foot-right">' +
-          '<button class="stam-btn stam-btn-danger"  id="msv2-del-btn"  type="button">삭제</button>' +
+          '<button class="stam-btn msv2-del-btn"     id="msv2-del-btn"  type="button">삭제</button>' +
           '<button class="stam-btn stam-btn-ghost"   id="msv2-view-btn" type="button">전체 보기</button>' +
           '<button class="stam-btn stam-btn-primary" id="msv2-edit-btn" type="button">수정</button>' +
         '</div>';
