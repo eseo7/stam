@@ -18,6 +18,109 @@
   <link rel="stylesheet" href="../../css/stam.board-filter.css">
   <link rel="stylesheet" href="../../css/stam.board-layout.css">
   <link rel="stylesheet" href="../../css/stam.menu-screen-list.css">
+  <style>
+    /* ── msv2 Scrim & Drawer ── */
+    .msv2-scrim{position:fixed;inset:0;background:rgba(0,0,0,.32);z-index:1200;display:none}
+    .msv2-drawer{position:fixed;top:0;right:0;height:100%;width:480px;max-width:100vw;background:var(--surface,#fff);box-shadow:-4px 0 24px rgba(0,0,0,.12);z-index:1201;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1)}
+    .msv2-drawer[data-open="true"]{transform:translateX(0)}
+    /* ── Head ── */
+    #msv2-head{padding:20px 20px 12px;border-bottom:1px solid var(--border,#e5e7eb);flex-shrink:0}
+    .msv2-hrow1{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .msv2-hdg-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--stam-light,#ede9fe);color:var(--stam,#5454e8)}
+    .msv2-close{background:none;border:none;cursor:pointer;color:var(--t2,#6b7280);display:flex;align-items:center;justify-content:center;padding:4px;border-radius:4px}
+    .msv2-close:hover{background:var(--hover,#f3f4f6)}
+    .msv2-htitle{font-size:15px;font-weight:700;color:var(--t1,#111827);margin-bottom:6px;line-height:1.4}
+    .msv2-hmeta{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+    /* ── Tabs ── */
+    #msv2-tabs{display:flex;gap:0;border-bottom:1px solid var(--border,#e5e7eb);flex-shrink:0;padding:0 20px}
+    .msv2-tab{background:none;border:none;cursor:pointer;font-size:12px;font-weight:600;color:var(--t3,#9ca3af);padding:9px 12px;border-bottom:2px solid transparent;margin-bottom:-1px}
+    .msv2-tab.on{color:var(--stam,#5454e8);border-bottom-color:var(--stam,#5454e8)}
+    /* ── Body ── */
+    .msv2-dw-bd{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:16px}
+    /* show/hide by mode */
+    #msv2-dw[data-mode="detail"] .msv2-form-area{display:none}
+    #msv2-dw[data-mode="register"] .msv2-tab-panel,
+    #msv2-dw[data-mode="edit"] .msv2-tab-panel{display:none}
+    /* ── Form ── */
+    .msv2-form-area{display:flex;flex-direction:column;gap:16px}
+    .msv2-fs{background:var(--surface2,#f9fafb);border:1px solid var(--border,#e5e7eb);border-radius:8px;padding:14px 16px}
+    .msv2-fs-hdr{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+    .msv2-fs-num{width:20px;height:20px;border-radius:50%;background:var(--stam,#5454e8);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .msv2-fs-title{font-size:12px;font-weight:700;color:var(--t1,#111827)}
+    .msv2-fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .msv2-ffield{display:flex;flex-direction:column;gap:4px}
+    .msv2-ffield.full{grid-column:1/-1}
+    .msv2-flbl{font-size:11px;font-weight:600;color:var(--t2,#6b7280)}
+    .msv2-flbl .req{color:#ef4444}
+    .msv2-inp{width:100%;box-sizing:border-box;height:32px;padding:0 10px;border:1px solid var(--border,#e5e7eb);border-radius:6px;font-size:12px;color:var(--t1,#111827);background:#fff;outline:none;font-family:inherit}
+    .msv2-inp:focus{border-color:var(--stam,#5454e8)}
+    .msv2-inp.ro{background:var(--surface2,#f9fafb);color:var(--t3,#9ca3af);cursor:default}
+    .msv2-textarea{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border,#e5e7eb);border-radius:6px;font-size:12px;color:var(--t1,#111827);background:#fff;outline:none;font-family:inherit;resize:vertical;min-height:64px}
+    .msv2-textarea:focus{border-color:var(--stam,#5454e8)}
+    .msv2-helper{font-size:10px;color:var(--t3,#9ca3af)}
+    /* ── Custom Select ── */
+    .msv2-cs{position:relative;display:block}
+    .msv2-cs-trigger{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 10px;border:1px solid var(--border,#e5e7eb);border-radius:6px;background:#fff;cursor:pointer;font-size:12px;color:var(--t1,#111827);user-select:none;gap:6px}
+    .msv2-cs-trigger:hover{border-color:var(--stam,#5454e8)}
+    .msv2-cs.open .msv2-cs-trigger{border-color:var(--stam,#5454e8)}
+    .msv2-cs-val{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .msv2-cs-caret{flex-shrink:0;color:var(--t3,#9ca3af);transition:transform .15s}
+    .msv2-cs.open .msv2-cs-caret{transform:rotate(180deg)}
+    .msv2-cs-panel{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--border,#e5e7eb);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:50;max-height:200px;overflow-y:auto;display:none}
+    .msv2-cs.open .msv2-cs-panel{display:block}
+    .msv2-cs.cs-up .msv2-cs-panel{top:auto;bottom:calc(100% + 4px)}
+    .msv2-cs-opt{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;font-size:12px;color:var(--t1,#111827)}
+    .msv2-cs-opt:hover{background:var(--hover,#f3f4f6)}
+    .msv2-cs-opt.selected{background:var(--stam-light,#ede9fe);color:var(--stam,#5454e8)}
+    .msv2-cs-check{width:14px;height:14px;flex-shrink:0;color:var(--stam,#5454e8);opacity:0}
+    .msv2-cs-opt.selected .msv2-cs-check{opacity:1}
+    .msv2-cs-native{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
+    /* ── Footer ── */
+    #msv2-foot{border-top:1px solid var(--border,#e5e7eb);padding:12px 20px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+    .msv2-foot-meta{font-size:11px;color:var(--t3,#9ca3af)}
+    .msv2-foot-spacer{flex:1}
+    .msv2-foot-right{display:flex;gap:8px;align-items:center}
+    .msv2-fbtn{height:30px;padding:0 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
+    .msv2-fbtn-ghost{background:none;border-color:var(--border,#e5e7eb);color:var(--t2,#6b7280)}
+    .msv2-fbtn-ghost:hover{background:var(--hover,#f3f4f6)}
+    .msv2-fbtn-primary{background:var(--stam,#5454e8);color:#fff;border-color:var(--stam,#5454e8)}
+    .msv2-fbtn-primary:hover{opacity:.9}
+    .msv2-fbtn-danger{background:none;border-color:#fca5a5;color:#dc2626}
+    .msv2-fbtn-danger:hover{background:#fef2f2}
+    /* ── Detail: Info Grid ── */
+    .msv2-igrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .msv2-ic{display:flex;flex-direction:column;gap:3px}
+    .msv2-ik{font-size:10.5px;font-weight:600;color:var(--t3,#9ca3af);text-transform:uppercase;letter-spacing:.04em}
+    .msv2-iv{font-size:12px;color:var(--t1,#111827)}
+    .msv2-id-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--stam-light,#ede9fe);color:var(--stam,#5454e8)}
+    .msv2-code{font-family:monospace;font-size:11px;background:var(--surface2,#f9fafb);padding:1px 5px;border-radius:3px}
+    /* ── Detail: Link Cards ── */
+    .msv2-link-cards{display:flex;flex-direction:column;gap:8px}
+    .msv2-link-card{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--border,#e5e7eb);border-radius:8px;background:#fff}
+    .msv2-link-card-empty{opacity:.6}
+    .msv2-link-card-lbl{font-size:11px;font-weight:700;color:var(--stam,#5454e8)}
+    .msv2-link-card-val{font-size:12px;color:var(--t2,#6b7280)}
+    .msv2-lchip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--stam-light,#ede9fe);color:var(--stam,#5454e8)}
+    /* ── Detail: Change History ── */
+    .msv2-chg-list{display:flex;flex-direction:column;gap:10px}
+    .msv2-chg-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2,#6b7280)}
+    .msv2-chg-dot{width:6px;height:6px;border-radius:50%;background:var(--stam,#5454e8);flex-shrink:0}
+    .msv2-chg-sp{flex:1}
+    .msv2-chg-date{font-size:11px;color:var(--t3,#9ca3af);white-space:nowrap}
+    .msv2-empty{font-size:12px;color:var(--t3,#9ca3af);text-align:center;padding:24px 0}
+    /* ── v2 Group Header Row ── */
+    .msv2-grp-row{background:var(--surface2,#f9fafb)}
+    .msv2-gr-cell{display:flex;align-items:center;gap:8px;padding:8px 0;flex-wrap:wrap}
+    .msv2-gr-icon{color:var(--stam,#5454e8);flex-shrink:0}
+    .msv2-gr-name{font-size:12px;font-weight:700;color:var(--t1,#111827)}
+    .msv2-gr-sep{width:1px;height:14px;background:var(--border,#e5e7eb)}
+    .msv2-gr-count{font-size:11px;font-weight:600;color:var(--stam,#5454e8)}
+    .msv2-gr-notice{font-size:11px;color:var(--t3,#9ca3af);font-style:italic;margin-left:auto}
+    /* ── v2 Data Rows ── */
+    .msv2-int-row .msl-link-chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:4px;background:var(--stam-light,#ede9fe);color:var(--stam,#5454e8);cursor:pointer}
+    .msv2-int-row .msl-link-chip-scr{background:#dbeafe;color:#1d4ed8}
+    .msv2-int-row .msl-link-chip-none{font-size:11px;color:var(--t3,#9ca3af)}
+  </style>
 </head>
 <body>
 
@@ -60,9 +163,9 @@
               <svg class="stam-board-action-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               내보내기
             </button>
-            <button class="msl-btn msl-btn-pri stam-btn stam-btn-primary stam-board-action-btn is-primary" id="msl-reg-btn" type="button">
+            <button class="msl-btn msl-btn-out stam-btn stam-btn-outline stam-board-action-btn is-secondary" type="button" data-msv2-reg="1">
               <svg class="stam-board-action-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              화면 등록
+              직접 등록
             </button>
           </div>
         </div>
@@ -758,6 +861,180 @@
         </div>
       </div><!-- /#msl-dw-edit -->
 
+      <!-- ── v2 Scrim ── -->
+      <div class="msv2-scrim" id="msv2-scrim"></div>
+
+      <!-- ── v2 CRUD Drawer ── -->
+      <aside class="msv2-drawer" id="msv2-dw" role="dialog" aria-modal="true" aria-label="메뉴/화면 상세" data-mode="detail" data-open="false">
+
+        <!-- Head (rendered by setHeader()) -->
+        <div id="msv2-head"></div>
+
+        <!-- Tabs (detail only) -->
+        <div id="msv2-tabs">
+          <button class="msv2-tab on" type="button" data-msv2-tab="info">기본 정보</button>
+          <button class="msv2-tab"    type="button" data-msv2-tab="link">연결 정보</button>
+          <button class="msv2-tab"    type="button" data-msv2-tab="review">검토 이력</button>
+          <button class="msv2-tab"    type="button" data-msv2-tab="history">변경 이력</button>
+        </div>
+
+        <!-- Body -->
+        <div class="msv2-dw-bd">
+
+          <!-- Detail tab panels (rendered by renderDetail()) -->
+          <div class="msv2-tab-panel" id="msv2-tab-info"    data-tab="info"></div>
+          <div class="msv2-tab-panel" id="msv2-tab-link"    data-tab="link"    style="display:none"></div>
+          <div class="msv2-tab-panel" id="msv2-tab-review"  data-tab="review"  style="display:none"></div>
+          <div class="msv2-tab-panel" id="msv2-tab-history" data-tab="history" style="display:none"></div>
+
+          <!-- Register / Edit form -->
+          <div class="msv2-form-area">
+
+            <!-- Section 1: 기본 정보 -->
+            <div class="msv2-fs">
+              <div class="msv2-fs-hdr">
+                <span class="msv2-fs-num">1</span>
+                <span class="msv2-fs-title">기본 정보</span>
+              </div>
+              <div class="msv2-fgrid">
+
+                <div class="msv2-ffield">
+                  <label class="msv2-flbl" for="msv2-f-name">화면명 <span class="req">*</span></label>
+                  <input class="msv2-inp" type="text" id="msv2-f-name" placeholder="화면명을 입력하세요">
+                </div>
+
+                <div class="msv2-ffield">
+                  <label class="msv2-flbl" for="msv2-f-menuname">메뉴명</label>
+                  <input class="msv2-inp" type="text" id="msv2-f-menuname" placeholder="메뉴명">
+                </div>
+
+                <div class="msv2-ffield">
+                  <label class="msv2-flbl" for="msv2-f-type">화면 유형</label>
+                  <select class="msv2-inp msv2-sel" id="msv2-f-type">
+                    <option value="">선택</option>
+                    <option value="목록">목록</option>
+                    <option value="등록">등록</option>
+                    <option value="상세">상세</option>
+                    <option value="수정">수정</option>
+                    <option value="팝업">팝업</option>
+                    <option value="Drawer">Drawer</option>
+                    <option value="설정">설정</option>
+                    <option value="대시보드">대시보드</option>
+                  </select>
+                </div>
+
+                <div class="msv2-ffield">
+                  <label class="msv2-flbl" for="msv2-f-channel">채널 (FO/BO)</label>
+                  <select class="msv2-inp msv2-sel" id="msv2-f-channel">
+                    <option value="">선택</option>
+                    <option value="FO">FO</option>
+                    <option value="BO">BO</option>
+                  </select>
+                </div>
+
+                <div class="msv2-ffield">
+                  <label class="msv2-flbl" for="msv2-f-status">작성 상태</label>
+                  <select class="msv2-inp msv2-sel" id="msv2-f-status">
+                    <option value="draft">작성중</option>
+                    <option value="reviewing">검토중</option>
+                    <option value="confirmed">확정</option>
+                    <option value="hold">보류</option>
+                  </select>
+                </div>
+
+                <div class="msv2-ffield">
+                  <label class="msv2-flbl" for="msv2-f-review">검토 상태</label>
+                  <select class="msv2-inp msv2-sel" id="msv2-f-review">
+                    <option value="Review Needed">검토 필요</option>
+                    <option value="In Review">검토중</option>
+                    <option value="Approved">승인완료</option>
+                  </select>
+                </div>
+
+                <div class="msv2-ffield full">
+                  <label class="msv2-flbl" for="msv2-f-route">화면 경로</label>
+                  <input class="msv2-inp" type="text" id="msv2-f-route" placeholder="/path/to/screen">
+                </div>
+
+                <div class="msv2-ffield full">
+                  <label class="msv2-flbl" for="msv2-f-owner">담당자</label>
+                  <input class="msv2-inp" type="text" id="msv2-f-owner" placeholder="담당자 이름">
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Section 2: 메뉴 계층 -->
+            <div class="msv2-fs">
+              <div class="msv2-fs-hdr">
+                <span class="msv2-fs-num">2</span>
+                <span class="msv2-fs-title">메뉴 계층</span>
+              </div>
+              <div class="msv2-fgrid">
+
+                <div class="msv2-ffield">
+                  <label class="msv2-flbl" for="msv2-f-lv1">LV1</label>
+                  <select class="msv2-inp msv2-sel" id="msv2-f-lv1">
+                    <option value="">선택</option>
+                    <option value="서비스 루트">서비스 루트</option>
+                    <option value="대시보드">대시보드</option>
+                    <option value="산출물 관리">산출물 관리</option>
+                    <option value="테스트/품질">테스트/품질</option>
+                    <option value="협업/검토/승인">협업/검토/승인</option>
+                    <option value="내보내기/납품">내보내기/납품</option>
+                    <option value="관리/설정">관리/설정</option>
+                    <option value="인증">인증</option>
+                  </select>
+                </div>
+
+                <div class="msv2-ffield">
+                  <label class="msv2-flbl" for="msv2-f-lv2">LV2</label>
+                  <input class="msv2-inp" type="text" id="msv2-f-lv2" placeholder="LV2 메뉴명">
+                </div>
+
+                <div class="msv2-ffield full">
+                  <label class="msv2-flbl" for="msv2-f-lv3">LV3</label>
+                  <input class="msv2-inp" type="text" id="msv2-f-lv3" placeholder="LV3 메뉴명">
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Section 3: 연결 정보 -->
+            <div class="msv2-fs">
+              <div class="msv2-fs-hdr">
+                <span class="msv2-fs-num">3</span>
+                <span class="msv2-fs-title">연결 정보</span>
+              </div>
+              <div class="msv2-fgrid">
+
+                <div class="msv2-ffield">
+                  <label class="msv2-flbl" for="msv2-f-req">연결 요구사항 ID</label>
+                  <input class="msv2-inp" type="text" id="msv2-f-req" placeholder="REQ-001">
+                </div>
+
+                <div class="msv2-ffield">
+                  <label class="msv2-flbl" for="msv2-f-func">연결 기능정의 ID</label>
+                  <input class="msv2-inp" type="text" id="msv2-f-func" placeholder="FUNC-001">
+                </div>
+
+                <div class="msv2-ffield full">
+                  <label class="msv2-flbl" for="msv2-f-spec">연결 화면설계서 ID</label>
+                  <input class="msv2-inp" type="text" id="msv2-f-spec" placeholder="SPEC-001">
+                </div>
+
+              </div>
+            </div>
+
+          </div><!-- /.msv2-form-area -->
+
+        </div><!-- /.msv2-dw-bd -->
+
+        <!-- Footer (rendered by renderFooter()) -->
+        <div id="msv2-foot"></div>
+
+      </aside><!-- /#msv2-dw -->
+
     </main>
   </div>
 </div>
@@ -772,5 +1049,8 @@
 <script src="../../js/stam.board-list.js"></script>
 <script src="../../js/stam.custom-select.js"></script>
 <script src="../../js/stam.menu-screen-list.js"></script>
+<script src="../../js/stam.local-core-db.js"></script>
+<script src="../../js/stam.menu-screen-cycle.js"></script>
+<script src="../../js/stam.menu-screen-crud.js"></script>
 </body>
 </html>
