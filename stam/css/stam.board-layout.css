@@ -266,13 +266,13 @@
 .stam-summary-num.is-violet { color: #8B5CF6; }
 
 /* ═══════════════════════════════════════
-   5. Board group header row (no legacy prefix)
+   5. Board group header row
    ═══════════════════════════════════════ */
-.msl-table tr:not(.msl-data-row) {
+.stam-board-group-row {
   background: var(--bg-sur2);
 }
 
-.msl-table tr:not(.msl-data-row) td[colspan="9"] > div {
+.stam-board-group-cell {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -280,39 +280,47 @@
   flex-wrap: wrap;
 }
 
-.msl-table tr:not(.msl-data-row) td[colspan="9"] svg {
+.stam-board-group-icon {
   color: var(--stam);
   flex-shrink: 0;
 }
 
-.msl-table tr:not(.msl-data-row) td[colspan="9"] span:nth-of-type(1) {
+.stam-board-group-name {
   font-size: 12px;
   font-weight: 700;
   color: var(--t1);
 }
 
-.msl-table tr:not(.msl-data-row) td[colspan="9"] span:nth-of-type(2) {
+.stam-board-group-separator {
   width: 1px;
   height: 14px;
   background: var(--bd);
   flex-shrink: 0;
 }
 
-.msl-table tr:not(.msl-data-row) td[colspan="9"] span:nth-of-type(3) {
+.stam-board-group-count {
   font-size: 11px;
   font-weight: 600;
   color: var(--stam);
 }
 
-.msl-table tr:not(.msl-data-row) td[colspan="9"] span:nth-of-type(4) {
+.stam-board-group-notice {
   font-size: 11px;
   color: var(--t3);
   font-style: italic;
   margin-left: auto;
 }
 
-/* Interactive data row link chips */
-.msl-data-row.stam-table-row .msl-link-chip {
+/* ═══════════════════════════════════════
+   6. Board link chips (table / list)
+   ═══════════════════════════════════════ */
+.stam-link-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.stam-link-chip {
   display: inline-block;
   font-size: 11px;
   font-weight: 600;
@@ -323,13 +331,31 @@
   cursor: pointer;
 }
 
-.msl-data-row.stam-table-row .msl-link-chip-scr {
+.stam-table-row .stam-link-chip {
+  cursor: pointer;
+}
+
+.stam-link-chip.is-spec,
+.stam-link-chip.is-screen {
   background: rgba(29, 78, 216, .12);
   color: #60a5fa;
 }
 
+[data-theme="dark"] .stam-link-chip.is-spec,
+[data-theme="dark"] .stam-link-chip.is-screen {
+  color: #93c5fd;
+}
+
+.stam-link-chip.is-muted {
+  color: var(--t3);
+  background: var(--bg-sur2);
+  border: 1px solid var(--bd);
+  cursor: default;
+  font-weight: 500;
+}
+
 /* ═══════════════════════════════════════
-   6. Utility helpers
+   7. Utility helpers
    ═══════════════════════════════════════ */
 .is-hidden {
   display: none !important;

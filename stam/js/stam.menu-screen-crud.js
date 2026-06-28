@@ -593,7 +593,7 @@
   // stopImmediatePropagation으로 STAMBoardList의 table 버블 핸들러가 반응하지 않게 막음
   var tbody = $('msl-tbody');
   if (tbody) tbody.addEventListener('click', function (e) {
-    var row = e.target.closest('.msv2-int-row');
+    var row = e.target.closest('.stam-board-data-row');
     if (!row) return;                              // v2 행이 아니면 기존 핸들러에 위임
     e.stopPropagation();
     e.stopImmediatePropagation();
