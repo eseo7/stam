@@ -1,0 +1,120 @@
+{
+  "auditId": "STAM_Common_UI_Source_Audit_Requirements_vs_MenuScreen_v1",
+  "prNumber": 263,
+  "generatedAt": "2026-06-28T12:00:00Z",
+  "baseBranch": "main",
+  "baseSha": "458f5fea29bf308fcdba7571015ea0dd93da9457",
+  "headSha": "418726415204b48c6f2494eae5a086eedbd00b4e",
+  "auditor": "cursor-agent",
+  "scope": {
+    "boards": ["requirements", "menu-screen-list"],
+    "filesRead": [
+      "stam/pages/boards/requirements.html",
+      "stam/pages/boards/menu-screen-list.html",
+      "stam/js/stam.requirements-crud.js",
+      "stam/js/stam.menu-screen-crud.js",
+      "stam/css/stam.requirements.css",
+      "stam/css/stam.menu-screen-list.css",
+      "stam/css/stam.buttons.css",
+      "stam/css/stam.drawer.css",
+      "stam/css/stam.form-controls.css",
+      "stam/css/stam.board-layout.css",
+      "stam/css/stam.tokens.css",
+      "stam/css/stam.board-toolbar.css",
+      "stam/css/stam.board-filter.css",
+      "stam/css/stam.detail-drawer.css"
+    ],
+    "filesNote": "stam/css/stam.board.css — repo에 존재하지 않음. 실질 대응 파일은 stam.board-layout.css / stam.board-toolbar.css / stam.board-filter.css"
+  },
+  "grepSummary": {
+    "rqBtn": { "count": 24, "files": ["requirements.html", "stam.requirements-crud.js", "stam.requirements.css"] },
+    "mslBtn": { "count": 24, "files": ["menu-screen-list.html", "stam.menu-screen-list.css"] },
+    "inlineStyleHtml": { "requirements": 72, "menuScreenList": 0 },
+    "inlineStyleTag": { "requirements": 0, "menuScreenList": 0 },
+    "jsDynamicStyle": { "requirements": 1, "menuScreenList": 0, "details": ["requirements-crud.js:471 hChip.style.marginLeft"] },
+    "svgWidth": { "requirementsHtml": 22, "menuScreenListHtml": 15, "requirementsJs": 0, "menuScreenListJs": 6 }
+  },
+  "overallVerdict": "HOLD",
+  "passCount": 4,
+  "holdCount": 25,
+  "naCount": 1,
+  "summaryTable": [
+    { "area": 1, "name": "Page layout", "visualParity": "PASS", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "requirements.html:51 req-page / menu-screen-list.html:52 msl-page — 동일 padding/max-width 패턴, 래퍼 class 병행" },
+    { "area": 2, "name": "Page header", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "stam-board-header 공통 + rq-page-hdr* / msl-page-hdr* 병행; MSL 헤더 CTA 2개 outline vs RQ primary 등록" },
+    { "area": 3, "name": "Summary Strip", "visualParity": "PASS", "sourceContract": "HOLD", "tokenParity": "HOLD", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "rq-sstrip vs msl-sstrip 병렬 CSS; RQ dot inline hex vs MSL stam-summary-dot (board-layout.css:252-266)" },
+    { "area": 4, "name": "Toolbar", "visualParity": "PASS", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "stam-board-toolbar 공통 + rq-toolbar / msl-toolbar 병행" },
+    { "area": 5, "name": "Search", "visualParity": "PASS", "sourceContract": "HOLD", "tokenParity": "HOLD", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "stam-board-search + rq-search/msl-search; RQ SVG style= vs MSL stam-icon-muted" },
+    { "area": 6, "name": "Filter", "visualParity": "PASS", "sourceContract": "PASS", "tokenParity": "PASS", "reuseReadiness": "PASS", "final": "PASS", "evidence": "stam-board-filter-panel/grid/actions + sbf-* — 양쪽 동일 contract" },
+    { "area": 7, "name": "Bulk actions", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "rq-btn-del+stam-btn--md vs msl-btn-del (size modifier 누락); rq-filter-count display:none vs msl 항상 표시" },
+    { "area": 8, "name": "Table", "visualParity": "PASS", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "stam-select-table 공통; colgroup inline width vs stam-col-* class" },
+    { "area": 9, "name": "Table row / cell / chip", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "HOLD", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "rq-chip/rq-link-chip vs msl-chip/stam-link-chip; RQ avatar inline style" },
+    { "area": 10, "name": "Pagination / footer", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "stam-board-footer 공통; RQ prev/next SVG vs MSL 숫자만; count 문구 상이" },
+    { "area": 11, "name": "상세 Drawer header", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "RQ rq-dw-head static / MSL active msv2 JS stam-drawer-head-* + legacy msl-dw-head" },
+    { "area": 12, "name": "상세 Drawer tabs", "visualParity": "PASS", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "RQ rq-dw-tabs(4) / MSL stam-drawer-tabs(4) active path; legacy msl-dw-tabs(3) 잔존" },
+    { "area": 13, "name": "상세 Drawer body", "visualParity": "PASS", "sourceContract": "PASS", "tokenParity": "PASS", "reuseReadiness": "PASS", "final": "PASS", "evidence": "양쪽 STAM.detailDrawer.mount + stam-detail* (requirements-crud.js:150 / menu-screen-crud.js:143)" },
+    { "area": 14, "name": "상세 Drawer footer", "visualParity": "PASS", "sourceContract": "PASS", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "active path: stam-btn-danger-outline/ghost-muted/primary (PR #262); legacy msl-dw-detail footer는 msl-btn" },
+    { "area": 15, "name": "등록 Drawer header", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "RQ rq-dw-register / MSL msv2 setHeader() stam-drawer-head-* + legacy msl-dw-register" },
+    { "area": 16, "name": "등록 Drawer body", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "RQ rq-fs/rq-ffield/rq-inp vs MSL stam-form-section/stam-form-input (msv2)" },
+    { "area": 17, "name": "등록 Drawer footer", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "RQ rq-btn-*+stam-btn--md static / MSL msv2 renderFooter stam-btn--md; legacy msl-btn without --md" },
+    { "area": 18, "name": "수정 Drawer header", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "RQ rq-edit-sum block / MSL stam-edit-notice (msv2) + legacy msl-edit-sum" },
+    { "area": 19, "name": "수정 Drawer body", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "RQ rq-fs 4섹션 / MSL stam-form-section 3섹션 (필드 스키마 상이)" },
+    { "area": 20, "name": "수정 Drawer footer", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "등록 footer와 동일 이중 contract (rq-btn vs msv2 stam-btn)" },
+    { "area": 21, "name": "Button class contract", "visualParity": "PASS", "sourceContract": "HOLD", "tokenParity": "HOLD", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "rq-btn/msl-btn 병렬 alias CSS + stam-btn; ghost-muted/danger-outline는 active detail만 SSOT" },
+    { "area": 22, "name": "Icon source", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "N/A", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "inline SVG 동일 path 다수; close 14px(RQ/msv2) vs 16px(msl legacy); registry 없음" },
+    { "area": 23, "name": "Color token", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "HOLD", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "공통 --stam/--btn-primary-* + RQ summary/dot/avatar hardcoded hex inline" },
+    { "area": 24, "name": "Hover token", "visualParity": "PASS", "sourceContract": "HOLD", "tokenParity": "HOLD", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "rq-btn/msl-btn hover 규칙 거의 동일하나 파일 2벌 복제; del hover #DC2626 hardcoded" },
+    { "area": 25, "name": "Focus state", "visualParity": "PASS", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "search :focus-within screen CSS 병렬; stam-btn focus-visible는 buttons.css SSOT" },
+    { "area": 26, "name": "Dark mode", "visualParity": "PASS", "sourceContract": "HOLD", "tokenParity": "PASS", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "[data-theme=dark] chip/row 규칙 양쪽 screen CSS에 거의 동일 복제" },
+    { "area": 27, "name": "Mobile 430px / narrow layout", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "N/A", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "양 screen CSS에 @media 430px 없음; drawer width calc(100vw-gutter)만 공통" },
+    { "area": 28, "name": "inline style", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "N/A", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "requirements.html 72건 vs menu-screen-list.html 0건" },
+    { "area": 29, "name": "JS dynamic style", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "N/A", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "requirements-crud.js 1건 (.style.marginLeft); menu-screen-crud.js 0건" },
+    { "area": 30, "name": "화면 전용 class 사용 현황", "visualParity": "HOLD", "sourceContract": "HOLD", "tokenParity": "N/A", "reuseReadiness": "HOLD", "final": "HOLD", "evidence": "rq-* 1046 / msl-* 1019 (contract script); 교차 오염 없음, 병렬 중복" }
+  ],
+  "conclusions": {
+    "alreadyCommonized": [
+      "App shell (po-shell, stam-topbar, stam-left-nav, project-context)",
+      "Filter panel (stam-board-filter-* + STAM.boardFilter)",
+      "Detail drawer body 4탭 (STAM.detailDrawer + stam-detail*)",
+      "Active detail drawer footer variant (stam-btn-danger-outline / ghost-muted / primary — PR #262)"
+    ],
+    "visuallySimilarDifferentContract": [
+      "Summary strip (동일 레이아웃, RQ inline dot color vs MSL stam-summary-dot)",
+      "Toolbar/Search (stam-board-* shell + rq-/msl- 병렬 CSS)",
+      "Table shell/chips (stam-select-table + rq-chip vs msl-chip/stam-link-chip 혼재)",
+      "Drawer shell/tabs/forms (RQ rq-dw-* vs MSL msv2 stam-drawer-* + legacy msl-dw-*)",
+      "Button aliases (rq-btn / msl-btn 중복 CSS 블록)"
+    ],
+    "riskyImmediateCommonization": [
+      "MSL dual drawer stack (#msl-dw-* static demo + #msv2-dw runtime) — 제거/통합 설계 선행 필요",
+      "Register/Edit form field schema 차이 (요구사항 4섹션 vs 메뉴 3섹션 + FO/BO/LV)",
+      "Chip taxonomy (rq-chip-approved/priority vs msl-chip-type-list/fob)",
+      "requirements.html 72 inline style 일괄 이관 — 시각 회귀 위험",
+      "Pagination count/nav 패턴 불일치"
+    ]
+  },
+  "riskTop10": [
+    { "rank": 1, "area": "Drawer 이중 스택 (MSL)", "problem": "legacy #msl-dw-* 와 active #msv2-dw 공존", "risk": "수정 시 잘못된 drawer 타깃·QA 혼선", "difficulty": "High", "recommendedPr": "PR #268 — MSL legacy drawer deprecate 설계" },
+    { "rank": 2, "area": "등록/수정 Drawer form", "problem": "rq-fs/rq-inp vs stam-form-section/stam-form-input", "risk": "3번째 보드마다 또 다른 form contract", "difficulty": "Medium", "recommendedPr": "PR #264 — 등록/수정 Drawer form contract 정렬" },
+    { "rank": 3, "area": "Button alias", "problem": "rq-btn/msl-btn CSS 2벌 + stam-btn modifier 불일치", "risk": "hover/focus/dark drift", "difficulty": "Medium", "recommendedPr": "PR #265 — Button alias 제거 및 stam-btn SSOT" },
+    { "rank": 4, "area": "Summary strip tokens", "problem": "RQ inline hex vs MSL stam-summary-dot", "risk": "dark mode·브랜드 토큰 불일치", "difficulty": "Low", "recommendedPr": "PR #266 — Summary strip stam-summary-* SSOT" },
+    { "rank": 5, "area": "Table link chips", "problem": "rq-link-chip vs stam-link-chip", "risk": "연결 칩 색상/variant 분기", "difficulty": "Low", "recommendedPr": "PR #267 — Table link chip SSOT" },
+    { "rank": 6, "area": "Status/priority chips", "problem": "rq-chip-* vs msl-chip-* 병렬 정의", "risk": "상태 색상 매핑 오류", "difficulty": "Medium", "recommendedPr": "PR #268 — Chip status registry" },
+    { "rank": 7, "area": "inline style (RQ)", "problem": "requirements.html 72건 style=", "risk": "토큰 우회·유지보수 불가", "difficulty": "Medium", "recommendedPr": "PR #269 — Requirements inline style 제거" },
+    { "rank": 8, "area": "Icon inline SVG", "problem": "registry 없이 HTML/JS 분산", "risk": "stroke-width/size drift", "difficulty": "Low", "recommendedPr": "PR #270 — Icon source registry" },
+    { "rank": 9, "area": "Pagination", "problem": "prev/next·count 문구 불일치", "risk": "footer UX 불일치", "difficulty": "Low", "recommendedPr": "PR #271 — Pagination footer contract" },
+    { "rank": 10, "area": "Mobile 430px", "problem": "양 board CSS에 430px 규칙 없음", "risk": "narrow viewport 회귀 미검출", "difficulty": "Medium", "recommendedPr": "PR #272 — Board narrow layout @media SSOT" }
+  ],
+  "recommendedPrSequence": [
+    "PR #264 — 등록/수정 Drawer form/footer contract 정렬 (RQ → stam-form-section 또는 MSL msv2 → RQ 패턴 단일화)",
+    "PR #265 — rq-btn/msl-btn alias 제거 및 stam-btn modifier SSOT",
+    "PR #266 — Summary strip stam-summary-dot/num SSOT (RQ inline hex 제거)",
+    "PR #267 — Table row/link chip stam-link-chip + stam-status-chip SSOT",
+    "PR #268 — MSL legacy #msl-dw-* deprecate 및 단일 drawer runtime 확정",
+    "PR #269 — Requirements inline style 72건 이관",
+    "PR #270 — Icon inline SVG registry",
+    "PR #271 — Pagination/footer count contract",
+    "PR #272 — Board @media 430px narrow layout SSOT"
+  ],
+  "productFilesModified": false,
+  "allowedOutputFilesOnly": true
+}
