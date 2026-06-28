@@ -142,3 +142,137 @@
   color: var(--t3);
   line-height: 1.5;
 }
+
+/* ── Drawer tabs / panels / form shell ── */
+.stam-drawer-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--bd);
+  flex-shrink: 0;
+  padding: 0 20px;
+  background: var(--bg-sur);
+}
+
+.stam-drawer-tab {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t3);
+  padding: 9px 12px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-family: inherit;
+}
+
+.stam-drawer-tab.on {
+  color: var(--stam);
+  border-bottom-color: var(--stam);
+}
+
+.stam-drawer-content-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stam-drawer-tab-panel.is-hidden {
+  display: none;
+}
+
+.stam-drawer-form-area {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+#msv2-dw[data-mode="detail"] .stam-drawer-form-area {
+  display: none;
+}
+
+#msv2-dw[data-mode="register"] .stam-drawer-tab-panel,
+#msv2-dw[data-mode="edit"] .stam-drawer-tab-panel {
+  display: none;
+}
+
+.stam-drawer-head-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+}
+
+.stam-drawer-head-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--stam-soft);
+  color: var(--stam);
+  flex-shrink: 0;
+}
+
+.stam-drawer-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--t2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.stam-drawer-close:hover {
+  background: var(--bg-sur2);
+}
+
+#msv2-head .stam-drawer-title {
+  margin-bottom: 7px;
+}
+
+.stam-drawer-meta {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.stam-edit-notice {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  background: rgba(245, 158, 11, .12);
+  border-radius: 6px;
+  font-size: 11.5px;
+  color: #B45309;
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .stam-edit-notice {
+  color: #FCD34D;
+}
+
+.stam-drawer-select-compact .stam-cs-trigger {
+  height: 32px;
+  font-size: 12px;
+}
+
+.stam-drawer-title-hint {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--t3);
+}
+
+.stam-drawer-meta-source {
+  font-size: 11px;
+  color: var(--t3);
+}
+
+#msv2-tabs.is-hidden {
+  display: none;
+}
