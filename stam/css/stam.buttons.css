@@ -72,6 +72,30 @@
   opacity: .45;
 }
 
+/* ghost muted — drawer footer "전체 보기" (rq-btn-ghost effective style SSOT) */
+.stam-btn-ghost-muted,
+.stam-btn--ghost-muted {
+  background: transparent;
+  color: var(--t3);
+  border-color: transparent;
+}
+.stam-btn-ghost-muted:hover,
+.stam-btn--ghost-muted:hover {
+  background: var(--bg-sur2);
+  border-color: var(--bd);
+  color: var(--t2);
+}
+.stam-btn-ghost-muted:focus-visible,
+.stam-btn--ghost-muted:focus-visible {
+  box-shadow: var(--btn-focus-ring);
+}
+.stam-btn-ghost-muted[disabled],
+.stam-btn-ghost-muted.is-disabled,
+.stam-btn--ghost-muted[disabled],
+.stam-btn--ghost-muted.is-disabled {
+  opacity: .45;
+}
+
 /* outline — secondary와 동일하나 배경이 투명 */
 .stam-btn-outline {
   background: transparent;
@@ -231,15 +255,37 @@
   flex-wrap: wrap;
 }
 
-/* Ghost danger — drawer delete */
+/* outline danger — drawer footer "삭제" (rq-btn-del effective style SSOT) */
+.stam-btn-danger-outline,
+.stam-btn--danger-outline {
+  background: transparent;
+  border-color: var(--bd-s);
+  color: var(--t3);
+}
+.stam-btn-danger-outline:not([disabled]):hover,
+.stam-btn--danger-outline:not([disabled]):hover {
+  border-color: #DC2626;
+  color: #DC2626;
+}
+.stam-btn-danger-outline:focus-visible,
+.stam-btn--danger-outline:focus-visible {
+  box-shadow: var(--btn-danger-ring);
+}
+.stam-btn-danger-outline[disabled],
+.stam-btn-danger-outline.is-disabled,
+.stam-btn--danger-outline[disabled],
+.stam-btn--danger-outline.is-disabled {
+  opacity: .45;
+}
+
+/* Ghost danger — alias of outline danger (legacy name) */
 .stam-btn-danger-ghost {
-  background: transparent !important;
-  border-color: var(--bd) !important;
-  color: var(--t3) !important;
+  background: transparent;
+  border-color: var(--bd-s);
+  color: var(--t3);
 }
 
 .stam-btn-danger-ghost:not([disabled]):hover {
-  border-color: #DC2626 !important;
-  color: #DC2626 !important;
-  background: rgba(220, 38, 38, .06) !important;
+  border-color: #DC2626;
+  color: #DC2626;
 }

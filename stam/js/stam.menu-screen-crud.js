@@ -446,8 +446,8 @@
         '<div class="stam-dw-foot-meta"><span>최종 수정: ' + esc(dpart(rec && rec.updatedAt)) + '</span></div>' +
         '<div class="stam-dw-foot-spacer"></div>' +
         '<div class="stam-dw-foot-right">' +
-          '<button class="stam-btn stam-btn-danger-ghost stam-btn--md" id="msv2-del-btn"  type="button">삭제</button>' +
-          '<button class="stam-btn stam-btn-ghost stam-btn--md"   id="msv2-view-btn" type="button">전체 보기</button>' +
+          '<button class="stam-btn stam-btn-danger-outline stam-btn--md stam-btn--danger-outline" id="msv2-del-btn"  type="button">삭제</button>' +
+          '<button class="stam-btn stam-btn-ghost-muted stam-btn--md stam-btn--ghost-muted" id="msv2-view-btn" type="button">전체 보기</button>' +
           '<button class="stam-btn stam-btn-primary stam-btn--md stam-btn--primary" id="msv2-edit-btn" type="button">' + ICON_EDIT + ' 수정</button>' +
         '</div>';
       var delBtn  = $('msv2-del-btn');  if (delBtn)  delBtn.addEventListener('click',  del);
