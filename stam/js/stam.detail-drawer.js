@@ -2,7 +2,8 @@
  * STAM Detail Drawer — 공통 본문 renderer (v0.1)
  *
  * Drawer shell(.stam-drawer*) 내부 본문 영역을 config 기반 HTML로 렌더한다.
- * 외부 dependency 없음. 제품 데이터/API/localStorage 접근 없음.
+ * v0.1 security: safe text/object config only — all user strings HTML-escaped.
+ * Rich HTML body/actions are not supported in v0.1 (future extension).
  *
  * 사용:
  *   STAM.detailDrawer.render(config)           → HTML string
@@ -20,6 +21,13 @@
 
   var DEFAULT_EMPTY = '—';
 
+  var ALLOWED_HREF_SCHEMES = {
+    http: true,
+    https: true,
+    mailto: true,
+    tel: true,
+  };
+
   function escape(value) {
     if (value === null || value === undefined) return '';
     return String(value)
@@ -28,6 +36,24 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
+  }
+
+  function safeHref(href) {
+    if (href === null || href === undefined) return null;
+    var raw = String(href).trim();
+    if (!raw) return null;
+
+    var lower = raw.toLowerCase();
+    if (lower.indexOf('javascript:') === 0) return null;
+    if (lower.indexOf('data:') === 0) return null;
+    if (lower.indexOf('vbscript:') === 0) return null;
+
+    var schemeMatch = lower.match(/^([a-z][a-z0-9+.-]*):/);
+    if (schemeMatch) {
+      if (!ALLOWED_HREF_SCHEMES[schemeMatch[1]]) return null;
+    }
+
+    return raw;
   }
 
   function isEmpty(value) {
@@ -122,15 +148,15 @@
       parts.push('</div>');
     }
 
-    if (section.body) {
-      parts.push('<div class="stam-detail-note is-body">' + section.body + '</div>');
+    if (!isEmpty(section.body)) {
+      parts.push('<div class="stam-detail-note is-body">' + escape(section.body) + '</div>');
     } else if (Array.isArray(section.fields) && section.fields.length > 0) {
       parts.push('<div class="stam-detail-grid">');
       section.fields.forEach(function (field) {
         parts.push(renderField(field));
       });
       parts.push('</div>');
-    } else if (!section.body) {
+    } else {
       var emptyText = section.emptyText != null ? section.emptyText : DEFAULT_EMPTY;
       parts.push('<div class="stam-detail-empty">' + escape(emptyText) + '</div>');
     }
@@ -140,22 +166,22 @@
   }
 
   function renderActions(actions) {
-    if (!actions) return '';
-    var inner = '';
-    if (typeof actions === 'string') {
-      inner = actions;
-    } else if (Array.isArray(actions)) {
-      inner = actions.map(function (action) {
-        if (typeof action === 'string') return action;
-        if (!action || typeof action !== 'object') return '';
-        var cls = escape(action.className || 'stam-btn stam-btn-secondary');
-        var label = escape(action.label || '');
-        if (action.href) {
-          return '<a class="' + cls + '" href="' + escape(action.href) + '">' + label + '</a>';
-        }
-        return '<button type="button" class="' + cls + '">' + label + '</button>';
-      }).join('');
-    }
+    if (!Array.isArray(actions) || actions.length === 0) return '';
+
+    var inner = actions.map(function (action) {
+      if (!action || typeof action !== 'object' || Array.isArray(action)) return '';
+
+      var cls = escape(action.className || 'stam-btn stam-btn-secondary');
+      var label = escape(action.label || '');
+      var href = safeHref(action.href);
+
+      if (href) {
+        return '<a class="' + cls + '" href="' + escape(href) + '">' + label + '</a>';
+      }
+
+      return '<button type="button" class="' + cls + '">' + label + '</button>';
+    }).join('');
+
     if (!inner) return '';
     return '<div class="stam-detail-actions">' + inner + '</div>';
   }
@@ -206,6 +232,7 @@
 
   window.STAM.detailDrawer = {
     escape: escape,
+    safeHref: safeHref,
     renderField: renderField,
     renderSection: renderSection,
     render: render,

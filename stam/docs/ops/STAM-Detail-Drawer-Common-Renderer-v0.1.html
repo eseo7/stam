@@ -190,8 +190,9 @@ pre.sample{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:va
               <thead><tr><th>함수</th><th>설명</th></tr></thead>
               <tbody>
                 <tr><td><code>STAM.detailDrawer.escape(value)</code></td><td>HTML escape. null/undefined → 빈 문자열</td></tr>
+                <tr><td><code>STAM.detailDrawer.safeHref(href)</code></td><td>허용 scheme만 통과 (<code>http</code>, <code>https</code>, <code>mailto</code>, <code>tel</code>, 상대경로). <code>javascript:</code> 등 차단 → <code>null</code></td></tr>
                 <tr><td><code>renderField(field)</code></td><td><code>{ label, value, emptyText, type, className, full }</code> → field HTML</td></tr>
-                <tr><td><code>renderSection(section)</code></td><td><code>{ title, meta, fields, body, emptyText }</code> → section HTML</td></tr>
+                <tr><td><code>renderSection(section)</code></td><td><code>{ title, meta, fields, body, emptyText }</code> → section HTML (<code>body</code>는 escaped text)</td></tr>
                 <tr><td><code>render(config)</code></td><td><code>{ title, sections, actions, dividerBeforeActions }</code> → root HTML</td></tr>
                 <tr><td><code>mount(target, config)</code></td><td>selector 또는 HTMLElement. 없으면 <code>false</code>. 성공 <code>true</code></td></tr>
               </tbody>
@@ -203,7 +204,11 @@ pre.sample{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:va
             <li><code>chips</code> item: <code>{ label, tone?, className? }</code> — tone: brand / pass / warn / fail</li>
           </ul>
           <div class="ibox warn" style="margin-top:12px">
-            <code>section.body</code>는 trusted HTML 용도(마이그레이션 단계). 일반 텍스트는 <code>fields</code> + escape 경로 사용.
+            <strong>v0.1 security — safe text/object config only</strong><br>
+            <code>section.body</code>, <code>field.value</code>, <code>action.label</code> 등 모든 사용자 문자열은 HTML escape 처리한다.<br>
+            <code>actions</code>는 <strong>object array만</strong> 허용한다 (string raw HTML 금지).<br>
+            <code>action.href</code>는 <code>safeHref()</code>로 <code>javascript:</code> / <code>data:</code> 등 위험 scheme을 차단한다.<br>
+            Rich HTML body/actions가 필요하면 v0.1 범위 밖 — 후속 확장 PR에서 별도 설계한다.
           </div>
         </div>
       </section>
