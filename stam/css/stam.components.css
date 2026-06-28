@@ -753,3 +753,136 @@
   color: var(--stam);
   border-color: transparent;
 }
+
+/* ═══════════════════════════════════════
+   Summary strip — board list SSOT (PR #268)
+   ═══════════════════════════════════════ */
+
+.stam-summary-strip {
+  display: flex;
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin-bottom: 6px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, .04);
+}
+
+.stam-summary-item {
+  flex: 1;
+  padding: 12px 16px;
+  border-right: 1px solid var(--bd);
+  cursor: pointer;
+  transition: background 120ms;
+  position: relative;
+  min-width: 0;
+}
+.stam-summary-item:last-child { border-right: 0; }
+.stam-summary-item:hover { background: rgba(84, 81, 232, .025); }
+.stam-summary-item.on,
+.stam-summary-item.is-active {
+  background: var(--stam-soft);
+}
+.stam-summary-item.on::after,
+.stam-summary-item.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2.5px;
+  background: var(--stam);
+  border-radius: 2px 2px 0 0;
+}
+
+.stam-summary-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--t3);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 5px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.stam-summary-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.stam-summary-value,
+.stam-summary-num {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -.03em;
+}
+
+.stam-summary-sub {
+  font-size: 10px;
+  color: var(--t3);
+  margin-top: 3px;
+}
+
+.stam-summary-meta {
+  font-size: 11px;
+  color: var(--t3);
+  padding: 4px 0 10px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.stam-summary-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.stam-summary-meta-label { color: var(--t3); }
+.stam-summary-meta-value { font-weight: 700; color: var(--stam); }
+
+.stam-summary-dot.is-brand { background: var(--stam); }
+.stam-summary-dot.is-slate { background: #64748B; }
+.stam-summary-dot.is-warn { background: #B45309; }
+.stam-summary-dot.is-pass { background: #047857; }
+.stam-summary-dot.is-fail { background: #991B1B; }
+.stam-summary-dot.is-info { background: #3B82F6; }
+.stam-summary-dot.is-violet { background: #8B5CF6; }
+
+.stam-summary-value.is-brand,
+.stam-summary-num.is-brand { color: var(--stam); }
+.stam-summary-value.is-slate,
+.stam-summary-num.is-slate { color: #64748B; }
+.stam-summary-value.is-warn,
+.stam-summary-num.is-warn { color: #B45309; }
+.stam-summary-value.is-pass,
+.stam-summary-num.is-pass { color: #047857; }
+.stam-summary-value.is-fail,
+.stam-summary-num.is-fail { color: #991B1B; }
+.stam-summary-value.is-info,
+.stam-summary-num.is-info { color: #3B82F6; }
+.stam-summary-value.is-violet,
+.stam-summary-num.is-violet { color: #8B5CF6; }
+
+[data-theme="dark"] .stam-summary-strip {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .18);
+}
+
+@media (max-width: 430px) {
+  .stam-summary-strip {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .stam-summary-item {
+    flex: 0 0 auto;
+    min-width: 108px;
+  }
+  .stam-summary-meta {
+    gap: 12px;
+  }
+}
