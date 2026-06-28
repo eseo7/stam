@@ -720,6 +720,7 @@
 
 .stam-form-input:focus:not(:disabled) {
   border-color: var(--stam);
+  box-shadow: 0 0 0 3px var(--stam-soft);
 }
 
 .stam-form-input[readonly],
@@ -749,4 +750,35 @@
 
 .stam-form-textarea:focus:not(:disabled) {
   border-color: var(--stam);
+  box-shadow: 0 0 0 3px var(--stam-soft);
+}
+
+.stam-form-textarea.is-h72 {
+  min-height: 72px;
+}
+
+.stam-form-textarea.is-h96 {
+  min-height: 96px;
+}
+
+.stam-form-help {
+  font-size: 11px;
+  color: var(--t3);
+  margin-top: 2px;
+  line-height: 1.45;
+}
+
+/* Drawer compact form — select uses stam-form-input + custom-select */
+.stam-drawer-form-area select.stam-form-input {
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+}
+
+[data-theme="dark"] .stam-drawer-form-area select.stam-form-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a8be' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
 }
