@@ -15,16 +15,30 @@
 |----------|------|
 | 공통화 정의 v0.1 | `stam/docs/ops/STAM-Commonization-Definition-v0.1.html` |
 | PR Audit Log Guide v0.1 | `stam/docs/ops/STAM-PR-Audit-Log-Guide-v0.1.html` |
+| Screenshot QA Gate v0.1 | `stam/docs/ops/STAM-Screenshot-QA-Gate-v0.1.html` |
+
+## QA Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/qa/capture-ui-pr-screenshots.mjs` | Playwright UI screenshot 캡쳐 (dynamic import) |
+| `scripts/qa/ui-screenshot-targets.json` | 캡쳐 대상 설정 |
+
+```bash
+node scripts/qa/capture-ui-pr-screenshots.mjs --help
+node scripts/qa/capture-ui-pr-screenshots.mjs --dry-run --pr 254
+```
 
 ## Usage
 
 1. PR merge/close 전후에 `pr-audit-log.jsonl`에 한 줄 추가
 2. 필드 구조는 `pr-audit-log.schema.json` 및 Guide 문서 참조
-3. UI PR은 `screenshotQa` + `visualPass` 필수
+3. UI PR은 `screenshotQa` + `visualPass` 필수 (docs-only PR은 생략 가능)
 4. 공통화 PR은 2개 이상 화면 실사용 여부를 `notes`에 명시
 
-## Initial records
+## Records
 
 - PR #250 — `MERGED_NEEDS_CORRECTION` (correctionPr: 252)
 - PR #251 — `CLOSED` (correctionPr: 252)
 - PR #252 — `MERGED_PASS` (mergeSha: `f636ba11fec690556ed162071ec1471d18928a28`)
+- PR #253 — `MERGED_PASS` (mergeSha: `518a35bc2130941fd70f08a739d7bb29de1f1833`)

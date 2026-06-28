@@ -1,0 +1,131 @@
+{
+  "$schema": "./ui-screenshot-targets.schema-note",
+  "version": "0.1",
+  "description": "STAM UI PR screenshot capture targets. Extend with WBS, screen-specification, functional-specification as selectors stabilize.",
+  "defaultBaseUrl": "http://127.0.0.1:5500/stam",
+  "viewports": {
+    "desktop": { "width": 1440, "height": 900 },
+    "mobile430": { "width": 430, "height": 932 }
+  },
+  "targets": [
+    {
+      "name": "requirements-detail-drawer",
+      "label": "요구사항정의서 상세 Drawer (기준 화면)",
+      "path": "/pages/boards/requirements.html",
+      "viewport": "desktop",
+      "theme": "light",
+      "actions": [
+        {
+          "type": "manual",
+          "description": "목록에서 첫 번째 행 클릭하여 상세 Drawer 열기 (read-only). selector 미확정 — 수동 또는 todoSelector 확정 후 자동화."
+        }
+      ],
+      "waitFor": {
+        "type": "todoSelector",
+        "selector": null,
+        "note": "Drawer open 후 .stam-drawer.is-open 또는 요구사항 detail panel visible 상태 selector 확정 필요"
+      },
+      "screenshotName": "requirements-detail-light-desktop",
+      "role": "baseline"
+    },
+    {
+      "name": "menu-screen-list-detail-drawer",
+      "label": "메뉴/화면목록 상세 Drawer (변경 대상)",
+      "path": "/pages/boards/menu-screen-list.html",
+      "viewport": "desktop",
+      "theme": "light",
+      "actions": [
+        {
+          "type": "manual",
+          "description": "목록에서 첫 번째 행 클릭하여 상세 Drawer 열기 (read-only)."
+        }
+      ],
+      "waitFor": {
+        "type": "todoSelector",
+        "selector": null,
+        "note": "menu-screen-list detail drawer open selector 확정 필요"
+      },
+      "screenshotName": "menu-detail-light-desktop",
+      "role": "changed"
+    },
+    {
+      "name": "menu-screen-list-detail-dark",
+      "label": "메뉴/화면목록 상세 Drawer dark desktop",
+      "path": "/pages/boards/menu-screen-list.html",
+      "viewport": "desktop",
+      "theme": "dark",
+      "actions": [
+        {
+          "type": "manual",
+          "description": "theme toggle 또는 data-theme=dark 적용 후 drawer open"
+        }
+      ],
+      "waitFor": {
+        "type": "todoSelector",
+        "selector": null,
+        "note": "dark theme + drawer open 상태"
+      },
+      "screenshotName": "menu-detail-dark-desktop",
+      "role": "changed"
+    },
+    {
+      "name": "menu-screen-list-detail-mobile",
+      "label": "메뉴/화면목록 상세 Drawer mobile 430px",
+      "path": "/pages/boards/menu-screen-list.html",
+      "viewport": "mobile430",
+      "theme": "light",
+      "actions": [
+        {
+          "type": "manual",
+          "description": "430px viewport에서 drawer open — overflow/버튼 겹침 확인"
+        }
+      ],
+      "waitFor": {
+        "type": "todoSelector",
+        "selector": null,
+        "note": "mobile drawer open selector 확정 필요"
+      },
+      "screenshotName": "menu-detail-mobile-430",
+      "role": "changed"
+    },
+    {
+      "name": "compare-baseline-vs-changed",
+      "label": "기준/변경 비교용 light desktop (수동 캡쳐 또는 합성)",
+      "path": null,
+      "viewport": "desktop",
+      "theme": "light",
+      "actions": [
+        {
+          "type": "manual",
+          "description": "requirements-detail + menu-detail을 동일 viewport에서 나란히 비교 가능하도록 수동 캡쳐 또는 이미지 합성"
+        }
+      ],
+      "waitFor": {
+        "type": "manual",
+        "note": "자동 compare는 후속 PR에서 구현"
+      },
+      "screenshotName": "compare-light-desktop",
+      "role": "compare"
+    }
+  ],
+  "futureTargets": [
+    {
+      "name": "wbs-detail-drawer",
+      "path": "/pages/boards/wbs.html",
+      "status": "todo",
+      "note": "WBS drawer selector 확정 후 targets 배열로 이동"
+    },
+    {
+      "name": "screen-specification-detail-drawer",
+      "path": "/pages/boards/screen-specification.html",
+      "status": "todo",
+      "note": "화면설계서 drawer selector 확정 후 추가"
+    },
+    {
+      "name": "functional-specification-detail-drawer",
+      "path": "/pages/boards/functional-specification.html",
+      "status": "todo",
+      "note": "기능정의 drawer selector 확정 후 추가"
+    }
+  ]
+}

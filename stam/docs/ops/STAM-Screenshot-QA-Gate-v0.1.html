@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Screenshot QA Gate v0.1</title>
+<link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../../css/stam.tokens.css">
+<link rel="stylesheet" href="../../css/stam.shell.css">
+<link rel="stylesheet" href="../../css/stam.components.css">
+<link rel="stylesheet" href="../../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../../css/stam.docs.css">
+<style>
+.ops-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:var(--font);white-space:nowrap}
+.ops-pill::before{content:"";width:6px;height:6px;border-radius:999px;background:currentColor;display:inline-block;flex-shrink:0}
+.ops-pill.brand{background:var(--stam-soft);color:var(--stam)}
+.ops-pill.warn{background:var(--warn-bg);color:var(--warn)}
+.ops-pill.pass{background:var(--pass-bg);color:var(--pass)}
+.ops-pill.fail{background:var(--fail-bg);color:var(--fail)}
+.ops-pill.info{background:var(--info-bg);color:var(--info)}
+.ops-tbl-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--bd)}
+.ops-tbl{width:100%;border-collapse:collapse;font-family:var(--font);font-size:11.5px;background:var(--bg-sur);min-width:680px}
+.ops-tbl th{padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2)}
+.ops-tbl td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;line-height:1.6}
+.ops-tbl tbody tr:last-child td{border-bottom:none}
+.ops-tbl td.tn{font-weight:800;color:var(--t1);white-space:nowrap}
+.ops-tbl td.good{color:var(--pass);font-weight:700}
+.ops-tbl td.warn{color:var(--warn);font-weight:700}
+.ops-tbl td.bad{color:var(--fail);font-weight:700}
+.ops-tbl td code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.ops-case{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:14px 16px;display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.ops-case .ch{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ops-case .ct{font-size:13px;font-weight:800;color:var(--t1)}
+.ops-case .cb{font-size:11.5px;color:var(--t2);line-height:1.65}
+.ops-case .cb code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+.ops-bad{border:1px solid rgba(255,90,71,.35);background:rgba(255,90,71,.08);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.ops-bad .bh{font-size:11px;font-weight:800;color:var(--fail);letter-spacing:.06em;text-transform:uppercase}
+.ops-bad ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.ops-bad li{position:relative;padding-left:14px;font-size:11.5px;color:var(--t2);line-height:1.6}
+.ops-bad li::before{content:"×";position:absolute;left:0;top:0;color:var(--fail);font-weight:800}
+.ops-good{border:1px solid rgba(40,180,99,.30);background:rgba(40,180,99,.06);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.ops-good .bh{font-size:11px;font-weight:800;color:var(--pass);letter-spacing:.06em;text-transform:uppercase}
+.ops-good ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.ops-good li{position:relative;padding-left:14px;font-size:11.5px;color:var(--t2);line-height:1.6}
+.ops-good li::before{content:"✓";position:absolute;left:0;top:0;color:var(--pass);font-weight:800}
+.ops-checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ops-checklist li{font-size:12px;line-height:1.65;color:var(--t2);padding-left:20px;position:relative}
+.ops-checklist li::before{content:"☐";position:absolute;left:0;color:var(--t3);font-weight:700}
+</style>
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a href="../STAM-Docs-Index.html" class="doc-nav-back">← Docs</a>
+  <span class="doc-nav-title">Screenshot QA Gate v0.1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>운영 기준</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Screenshot QA</span>
+      <span class="toc-ver-pill">v0.1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>목적</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>적용 대상</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>필수 캡쳐 세트</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>파일명 규칙</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>PR 체크리스트</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>PASS/FAIL</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>안전 기준</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>사례 (#250~#252)</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>관련 파일</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <section id="s01" class="sec" data-screen-label="01 목적">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Screenshot QA Gate 목적</span>
+          <span class="sbadge guide">v0.1</span>
+        </div>
+        <div class="sec-body">
+          <div class="meta-row">
+            <div class="meta-cell"><span class="meta-k">문서명</span><span class="meta-v">STAM Screenshot QA Gate v0.1</span></div>
+            <div class="meta-cell"><span class="meta-k">대상</span><span class="meta-v">UI PR merge 전 시각 검증</span></div>
+            <div class="meta-cell"><span class="meta-k">캡쳐 스크립트</span><span class="meta-v code">scripts/qa/capture-ui-pr-screenshots.mjs</span></div>
+          </div>
+
+          <ul class="blist">
+            <li><strong>UI PR은 GitHub source review만으로 merge하지 않는다.</strong></li>
+            <li>실제 렌더링 화면을 <strong>Playwright screenshot</strong>으로 남기고, <strong>사람 눈으로 PASS/FAIL</strong> 확인한다.</li>
+            <li>PR #250처럼 “공통 class는 썼지만 화면이 어색한” 상황을 막기 위한 Gate다.</li>
+          </ul>
+
+          <div class="ibox info" style="margin-top:16px">
+            <strong>범위</strong><br>
+            본 Gate는 기준·스크립트 초안만 정의한다. 상세 Drawer 공통 CSS/JS 생성, 제품 UI 코드 전환, staging 배포 판단은 이후 PR에서 별도로 진행한다.
+          </div>
+        </div>
+      </section>
+
+      <section id="s02" class="sec" data-screen-label="02 적용 대상">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">적용 대상</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Screenshot QA 필수</p>
+          <ul class="blist">
+            <li>UI layout 변경</li>
+            <li>Drawer / modal / popover / dropdown 변경</li>
+            <li>Button / footer / header / toolbar 변경</li>
+            <li>Custom select / form control 변경</li>
+            <li>dark mode / responsive 변경</li>
+            <li>공통 component 변경</li>
+            <li>WBS / 요구사항 / 메뉴화면 / 화면설계서 / 기능정의 등 <strong>주요 board 화면 변경</strong></li>
+          </ul>
+
+          <p class="sub" style="margin-top:20px">Screenshot QA 생략 가능</p>
+          <ul class="blist">
+            <li>docs-only PR</li>
+            <li>ops log / schema-only PR</li>
+            <li>comment / text-only 문서 수정</li>
+            <li>제품 UI에 영향 없는 CI / infra 문서 PR</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="s03" class="sec" data-screen-label="03 필수 캡쳐 세트">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">필수 캡쳐 세트</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">UI PR마다 최소 5장</p>
+          <div class="ops-tbl-wrap">
+            <table class="ops-tbl">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>캡쳐</th>
+                  <th>설명</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">1</td>
+                  <td>기준 화면 light desktop</td>
+                  <td>변경 전 또는 SSOT 기준 화면 (예: 요구사항정의서 detail drawer)</td>
+                </tr>
+                <tr>
+                  <td class="tn">2</td>
+                  <td>변경 화면 light desktop</td>
+                  <td>이번 PR이 수정한 화면</td>
+                </tr>
+                <tr>
+                  <td class="tn">3</td>
+                  <td>기준/변경 비교용 light desktop</td>
+                  <td>나란히 비교 가능한 캡쳐 또는 동일 viewport·동일 drawer 상태</td>
+                </tr>
+                <tr>
+                  <td class="tn">4</td>
+                  <td>변경 화면 dark desktop</td>
+                  <td><code>data-theme="dark"</code> 또는 토글 후 캡쳐</td>
+                </tr>
+                <tr>
+                  <td class="tn">5</td>
+                  <td>변경 화면 mobile 430px</td>
+                  <td>overflow·버튼 겹침 확인</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="sub" style="margin-top:20px">권장 viewport</p>
+          <ul class="blist">
+            <li><strong>desktop:</strong> 1440 × 900 또는 1366 × 900</li>
+            <li><strong>mobile:</strong> 430 × 932</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="s04" class="sec" data-screen-label="04 파일명 규칙">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">파일명 규칙</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">형식: <code>pr&lt;번호&gt;-&lt;대상&gt;-&lt;theme&gt;-&lt;viewport&gt;.png</code></p>
+          <ul class="blist">
+            <li><code>pr254-requirements-detail-light-desktop.png</code></li>
+            <li><code>pr254-menu-detail-light-desktop.png</code></li>
+            <li><code>pr254-compare-light-desktop.png</code></li>
+            <li><code>pr254-menu-detail-dark-desktop.png</code></li>
+            <li><code>pr254-menu-detail-mobile-430.png</code></li>
+          </ul>
+          <div class="ibox warn" style="margin-top:12px">
+            생성된 screenshot 파일은 <strong>PR 코드에 커밋하지 않는 것</strong>을 기본으로 한다. PR comment 또는 외부 artifact로 제출한다.
+          </div>
+        </div>
+      </section>
+
+      <section id="s05" class="sec" data-screen-label="05 PR 체크리스트">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">PR body / PR comment 체크리스트</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">UI PR merge 요청 시 반드시 포함</p>
+          <ul class="ops-checklist">
+            <li>screenshot 파일 경로 또는 첨부 (최소 5장)</li>
+            <li>캡쳐 대상 URL</li>
+            <li>viewport (desktop / mobile 430)</li>
+            <li>theme (light / dark)</li>
+            <li>console error count (0이어야 PASS)</li>
+            <li>drawer / modal open 확인</li>
+            <li>mobile overflow 확인 (가로 스크롤·버튼 겹침 없음)</li>
+            <li>human visual reviewer (이름 또는 역할)</li>
+            <li>final visual PASS / FAIL</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="s06" class="sec" data-screen-label="06 PASS/FAIL">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">PASS / FAIL 기준</span>
+        </div>
+        <div class="sec-body">
+          <div class="ops-good">
+            <span class="bh">PASS 조건</span>
+            <ul>
+              <li>필수 캡쳐 5장 모두 제출</li>
+              <li>console red error 0건</li>
+              <li>drawer/header/footer가 기준 패턴과 시각적으로 일치</li>
+              <li>dark mode 배경·텍스트 정상</li>
+              <li>mobile 430px에서 버튼 겹침·가로 스크롤 없음</li>
+              <li>human visual reviewer가 PASS 판정</li>
+            </ul>
+          </div>
+
+          <div class="ops-bad" style="margin-top:16px">
+            <span class="bh">FAIL 조건</span>
+            <ul>
+              <li>스크린샷 누락</li>
+              <li>console red error 발생</li>
+              <li>drawer / header / footer가 기준 패턴과 명확히 다름</li>
+              <li>dark mode에서 흰 배경 깨짐</li>
+              <li>mobile 430px에서 버튼 겹침 / 가로 스크롤</li>
+              <li>스크린샷은 있지만 기준 화면과 비교 불가</li>
+              <li>CSS 값만 보고하고 이미지 증빙이 없음</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="s07" class="sec" data-screen-label="07 안전 기준">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">안전 기준</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li><strong>캡쳐는 read-only 시나리오 우선</strong> — 목록 조회, drawer 열기, 탭 전환 등</li>
+            <li><strong>save / delete / submit 클릭 금지</strong></li>
+            <li>IndexedDB local test data는 허용하되 <strong>Firestore / API write 금지</strong></li>
+            <li>staging / preview URL 사용 시 <strong>운영 데이터 변경 금지</strong></li>
+            <li>generated screenshot files는 <strong>PR에 코드 파일로 커밋하지 않는 것</strong>을 기본으로 함</li>
+            <li>PR comment 또는 외부 artifact로 제출</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="s08" class="sec" data-screen-label="08 사례">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">PR #250 ~ #252 사례 연결</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Screenshot QA Gate 도입 근거</p>
+
+          <div class="ops-case">
+            <div class="ch">
+              <span class="ops-pill warn">PR #250</span>
+              <span class="ops-pill fail">MERGED_NEEDS_CORRECTION</span>
+            </div>
+            <span class="ct">공통 shell/class 재배선</span>
+            <span class="cb">source / class 기준은 통과했지만 <strong>상세 시각 패턴 QA가 부족</strong>했다. 공통 class를 썼어도 화면이 어색한 상태로 merge되어 PR #252 보정이 필요했다.</span>
+          </div>
+
+          <div class="ops-case">
+            <div class="ch">
+              <span class="ops-pill pass">PR #252</span>
+              <span class="ops-pill pass">MERGED_PASS</span>
+            </div>
+            <span class="ct">요구사항정의서 패턴 보정</span>
+            <span class="cb"><strong>Playwright QA와 시각 기준</strong>을 통해 보정 완료. 이 사례를 근거로 Screenshot QA Gate를 도입한다.</span>
+          </div>
+
+          <div class="ibox info" style="margin-top:12px">
+            상세 사례는 <a href="STAM-PR-Audit-Log-Guide-v0.1.html">PR Audit Log Guide v0.1</a> 및 <code>stam/ops/pr-audit-log.jsonl</code> 참조.
+          </div>
+        </div>
+      </section>
+
+      <section id="s09" class="sec" data-screen-label="09 관련 파일">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">관련 파일</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li><code>scripts/qa/capture-ui-pr-screenshots.mjs</code> — Playwright screenshot 캡쳐 스크립트</li>
+            <li><code>scripts/qa/ui-screenshot-targets.json</code> — 캡쳐 대상 설정</li>
+            <li><a href="STAM-PR-Audit-Log-Guide-v0.1.html">STAM PR Audit Log Guide v0.1</a></li>
+            <li><a href="STAM-Commonization-Definition-v0.1.html">STAM Commonization Definition v0.1</a></li>
+            <li><code>stam/ops/pr-audit-log.jsonl</code></li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) {
+      a.closest('.toc-item').classList.toggle('active', i === cur);
+    });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
