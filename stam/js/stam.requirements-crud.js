@@ -83,28 +83,258 @@
     wrap.querySelectorAll('.rq-cs-opt').forEach(function (o, i) { o.classList.toggle('is-selected', i === sel.selectedIndex); });
   }
 
-  // ── 상세 표시 접근 ──────────────────────────────────────────────────
-  function icSet(scope, label, html) {
-    var ics = scope.querySelectorAll('.rq-ic');
-    for (var i = 0; i < ics.length; i++) {
-      var k = ics[i].querySelector('.rq-ik');
-      if (k && k.textContent.trim().indexOf(label) === 0) {
-        var v = ics[i].querySelector('.rq-iv');
-        if (v) v.innerHTML = html;
-        return;
-      }
+  // ── 상세 탭 — STAM.detailDrawer (PR #256 공통 renderer) ─────────────────
+  function mountRequirementDetailTab(el, config) {
+    if (!el) return;
+    if (window.STAM && window.STAM.detailDrawer) {
+      window.STAM.detailDrawer.mount(el, config);
+      return;
     }
+    el.textContent = '—';
   }
-  function purpSet(scope, label, text) {
-    var ik = scope.querySelectorAll('.rq-ik');
-    for (var i = 0; i < ik.length; i++) {
-      if (ik[i].textContent.trim().indexOf(label) === 0) {
-        var box = ik[i].parentNode.querySelector('.rq-purp-box');
-        if (box) box.textContent = text || '—';
-        return;
-      }
+
+  function statusChipItems(rec) {
+    var st = board.statusInfo(rec);
+    var tone = st.cls === 'rq-chip-approved' || st.cls === 'rq-chip-done' ? 'pass'
+      : st.cls === 'rq-chip-hold' ? 'fail'
+        : st.cls === 'rq-chip-review' ? 'brand'
+          : 'warn';
+    return [{ label: st.label, tone: tone }];
+  }
+
+  function priorityChipItems(rec) {
+    var pr = board.priInfo(rec.priority);
+    var tone = pr.cls === 'rq-chip-high' ? 'fail'
+      : pr.cls === 'rq-chip-low' ? 'brand'
+        : 'warn';
+    return [{ label: pr.label, tone: tone }];
+  }
+
+  function typeChipItems(rec) {
+    return [{ label: board.typeOf(rec), tone: 'brand' }];
+  }
+
+  function detailField(label, value, opts) {
+    opts = opts || {};
+    var f = { label: label };
+    if (opts.full) f.full = true;
+    if (opts.type) f.type = opts.type;
+    if (value != null && String(value) !== '') {
+      f.value = value;
+      return f;
     }
+    if (opts.type) {
+      f.value = opts.value != null ? opts.value : '';
+      if (opts.emptyText) f.emptyText = opts.emptyText;
+      return f;
+    }
+    if (opts.emptyText) {
+      f.emptyText = opts.emptyText;
+      f.value = '';
+      return f;
+    }
+    return null;
   }
+
+  function pushField(fields, field) {
+    if (field) fields.push(field);
+  }
+
+  function sourceText(rec) {
+    var base = rec.sourceType || '—';
+    return rec.sourceRef ? base + ' · ' + rec.sourceRef : base;
+  }
+
+  function importBatchText(rec) {
+    if (rec.importBatchId) {
+      return rec.importBatchId + (rec.importRowId ? ' / ' + rec.importRowId : '');
+    }
+    return rec.sourceType === 'manual' ? '직접 등록(manual)' : '';
+  }
+
+  function acceptanceItems(text) {
+    return String(text || '').split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+  }
+
+  function buildRequirementInfoConfig(rec) {
+    var accItems = acceptanceItems(rec.acceptanceCriteria);
+    var sections = [
+      {
+        title: '요약',
+        fields: [
+          { label: '유형', type: 'chips', value: typeChipItems(rec) },
+          { label: '우선순위', type: 'chips', value: priorityChipItems(rec) },
+          { label: '상태', type: 'chips', value: statusChipItems(rec) },
+        ],
+      },
+      {
+        title: '기본 정보',
+        fields: (function () {
+          var fields = [];
+          pushField(fields, detailField('요구사항 ID', rec.id));
+          pushField(fields, detailField('요구사항명', rec.title));
+          pushField(fields, { label: '유형', type: 'chips', value: typeChipItems(rec) });
+          pushField(fields, { label: '우선순위', type: 'chips', value: priorityChipItems(rec) });
+          pushField(fields, { label: '상태', type: 'chips', value: statusChipItems(rec) });
+          pushField(fields, detailField('담당자', board.ownerOf(rec)));
+          pushField(fields, detailField('관련 메뉴 경로', rec.menuPath));
+          pushField(fields, detailField('검토 상태', rec.reviewStatus));
+          pushField(fields, detailField('행위자', rec.actor));
+          pushField(fields, detailField('출처', sourceText(rec)));
+          pushField(fields, detailField('Import 배치', importBatchText(rec)));
+          pushField(fields, detailField('최종 수정일', board.dpart(rec.updatedAt)));
+          return fields;
+        })(),
+      },
+      {
+        title: '요구 내용',
+        fields: [
+          { label: '배경', type: 'note', value: rec.background || '', emptyText: '배경이 없습니다.', full: true },
+          { label: '상세 요구사항', type: 'note', value: rec.description || '', emptyText: '상세 요구사항이 없습니다.', full: true },
+        ],
+      },
+      {
+        title: '수용 조건',
+        fields: accItems.length
+          ? [{ label: '조건', type: 'list', value: accItems, full: true }]
+          : [],
+        emptyText: '수용 조건이 없습니다.',
+      },
+    ];
+    return { sections: sections };
+  }
+
+  function buildRequirementLinkConfig(rec) {
+    var links = [
+      { label: '연결 화면설계서', id: rec.linkedScreenSpec },
+      { label: '연결 WBS', id: rec.linkedWbs },
+      { label: '관련 메뉴 경로', id: rec.menuPath },
+    ];
+    var linkN = links.filter(function (l) { return !!l.id; }).length;
+    var sections = [
+      {
+        title: '연결 요약',
+        fields: [{ label: '연결 건수', value: String(linkN) + '건' }],
+      },
+      {
+        title: '연결 산출물',
+        fields: links.map(function (l) {
+          return {
+            label: l.label,
+            value: l.id || '',
+            emptyText: '연결 없음',
+          };
+        }),
+      },
+    ];
+    if (linkN === 0) {
+      sections.push({
+        title: '안내',
+        fields: [{
+          label: '연결 정보',
+          type: 'note',
+          value: '연결된 화면설계서, WBS, 메뉴 경로가 없습니다. 수정에서 연결 정보를 입력할 수 있습니다.',
+          full: true,
+        }],
+      });
+    }
+    return { sections: sections };
+  }
+
+  function buildRequirementReviewConfig(rec) {
+    var hasReview = !!(rec.reviewer || rec.approvalStatus || rec.reviewNote || rec.reviewStatus);
+    if (!hasReview) {
+      return {
+        sections: [{
+          title: '검토 이력',
+          emptyText: '검토 이력이 없습니다.',
+          fields: [],
+        }],
+      };
+    }
+    return {
+      sections: [
+        {
+          title: '검토 정보',
+          fields: [
+            detailField('검토자', rec.reviewer, { emptyText: '미지정' }),
+            detailField('승인 상태', rec.approvalStatus, { emptyText: '미지정' }),
+            detailField('검토 상태', rec.reviewStatus, { emptyText: '미지정' }),
+          ].filter(Boolean),
+        },
+        {
+          title: '검토 메모',
+          fields: [{
+            label: '메모',
+            type: 'note',
+            value: rec.reviewNote || '',
+            emptyText: '검토 메모가 없습니다.',
+            full: true,
+          }],
+        },
+      ],
+    };
+  }
+
+  function historyLine(c) {
+    var who = esc(c.by || 'user');
+    var what = c.changeType === 'create' ? '요구사항 최초 등록'
+      : c.changeType === 'delete' ? '요구사항 삭제(soft delete)'
+        : (c.field === 'status' ? '상태 변경 → ' + (c.after || '') : '요구사항 정보 수정');
+    return who + ' — ' + what + ' (' + board.dpart(c.at) + ')';
+  }
+
+  function buildRequirementHistoryConfig(items) {
+    if (!items || !items.length) {
+      return {
+        sections: [{
+          title: '변경 이력',
+          emptyText: '변경 이력이 없습니다.',
+          fields: [],
+        }],
+      };
+    }
+    return {
+      sections: [{
+        title: '변경 이력',
+        fields: [{
+          label: '이력',
+          type: 'list',
+          value: items.map(historyLine),
+          full: true,
+        }],
+      }],
+    };
+  }
+
+  function renderRequirementDetail(rec) {
+    var infoEl = document.getElementById('rq-tab-info');
+    if (infoEl) mountRequirementDetailTab(infoEl, buildRequirementInfoConfig(rec));
+
+    var linkEl = document.getElementById('rq-tab-link');
+    if (linkEl) mountRequirementDetailTab(linkEl, buildRequirementLinkConfig(rec));
+
+    var reviewEl = document.getElementById('rq-tab-review');
+    if (reviewEl) mountRequirementDetailTab(reviewEl, buildRequirementReviewConfig(rec));
+
+    var histEl = document.getElementById('rq-tab-history');
+    if (!histEl) return Promise.resolve();
+
+    return db.listRecords('artifactChanges', PID, { includeDeleted: true }).then(function (all) {
+      var mine = (all || []).filter(function (c) { return c.artifactId === rec.id; })
+        .sort(function (a, b) { return String(b.at || '').localeCompare(String(a.at || '')); });
+      mountRequirementDetailTab(histEl, buildRequirementHistoryConfig(mine));
+    }).catch(function () {
+      mountRequirementDetailTab(histEl, {
+        sections: [{
+          title: '변경 이력',
+          emptyText: '변경 이력을 불러올 수 없습니다.',
+          fields: [],
+        }],
+      });
+    });
+  }
+
   function esc(s) { return board.esc(s); }
 
   // ── 등록 ────────────────────────────────────────────────────────────
@@ -166,63 +396,15 @@
     return db.getRecord(STORE, id).then(function (rec) {
       if (!rec) return;
       currentId = id;
-      var st = board.statusInfo(rec), pr = board.priInfo(rec.priority), ty = board.typeOf(rec);
-      var owner = board.ownerOf(rec);
+      var st = board.statusInfo(rec), pr = board.priInfo(rec.priority);
       var badge = detDrawer.querySelector('.rq-req-badge'); if (badge) badge.textContent = rec.id;
       var hChip = detDrawer.querySelector('.rq-dw-hrow1 .rq-chip'); if (hChip) { hChip.className = 'rq-chip ' + st.cls; hChip.style.marginLeft = '4px'; hChip.textContent = st.label; }
       var title = detDrawer.querySelector('.rq-dw-htitle'); if (title) title.textContent = rec.title || '(제목 없음)';
       var hmeta = detDrawer.querySelectorAll('.rq-dw-hmeta .rq-chip');
-      if (hmeta[0]) { hmeta[0].className = 'rq-chip rq-chip-type'; hmeta[0].textContent = ty; }
+      if (hmeta[0]) { hmeta[0].className = 'rq-chip rq-chip-type'; hmeta[0].textContent = board.typeOf(rec); }
       if (hmeta[1]) { hmeta[1].className = 'rq-chip ' + pr.cls; hmeta[1].textContent = pr.label; }
-      // 기본 정보
-      icSet(detDrawer, '요구사항 ID', '<span style="font-weight:700;color:var(--stam)">' + esc(rec.id) + '</span>');
-      icSet(detDrawer, '유형', '<span class="rq-chip rq-chip-type">' + esc(ty) + '</span>');
-      icSet(detDrawer, '우선순위', '<span class="rq-chip ' + pr.cls + '">' + esc(pr.label) + '</span>');
-      icSet(detDrawer, '상태', '<span class="rq-chip ' + st.cls + '">' + esc(st.label) + '</span>');
-      icSet(detDrawer, '담당자', '<span class="rq-ava" style="background:#5451E8">' + esc(String(owner).charAt(0)) + '</span>' + esc(owner));
-      icSet(detDrawer, '관련 메뉴 경로', esc(rec.menuPath || '—'));
-      // 추적/추가 정보(추가 셀)
-      icSet(detDrawer, '검토 상태', '<span style="font-size:11.5px">' + esc(rec.reviewStatus || '—') + '</span>');
-      icSet(detDrawer, '행위자', esc(rec.actor || '—'));
-      icSet(detDrawer, '출처', '<span style="font-size:11px;color:var(--t3)">' + esc((rec.sourceType || '—') + (rec.sourceRef ? ' · ' + rec.sourceRef : '')) + '</span>');
-      icSet(detDrawer, 'Import 배치', '<span style="font-size:11px;color:var(--t3)">' + esc(rec.importBatchId ? (rec.importBatchId + (rec.importRowId ? ' / ' + rec.importRowId : '')) : (rec.sourceType === 'manual' ? '직접 등록(manual)' : '—')) + '</span>');
-      icSet(detDrawer, '최종 수정일', '<span style="font-size:11.5px">' + (esc(board.dpart(rec.updatedAt)) || '—') + '</span>');
-      // 요구 내용
-      purpSet(detDrawer, '배경', rec.background);
-      purpSet(detDrawer, '상세 요구사항', rec.description);
-      // 수용 조건
-      renderAcc(rec.acceptanceCriteria);
-      // footer
+      renderRequirementDetail(rec);
       var meta = detDrawer.querySelector('.stam-dw-foot-meta'); if (meta) meta.textContent = '최종 변경 ' + (board.dpart(rec.updatedAt) || '—');
-      return renderChanges(id);
-    });
-  }
-
-  function renderAcc(text) {
-    var list = detDrawer.querySelector('.rq-acc-list');
-    if (!list) return;
-    var items = String(text || '').split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
-    if (!items.length) { list.innerHTML = '<div style="font-size:12px;color:var(--t3)">수용 조건이 없습니다.</div>'; return; }
-    list.innerHTML = items.map(function (s, i) {
-      return '<div class="rq-acc-item"><span class="rq-acc-n">' + (i + 1) + '</span><span>' + esc(s) + '</span></div>';
-    }).join('');
-  }
-
-  function renderChanges(id) {
-    var list = detDrawer.querySelector('.rq-chg-list');
-    if (!list) return;
-    return db.listRecords('artifactChanges', PID, { includeDeleted: true }).then(function (all) {
-      var mine = (all || []).filter(function (c) { return c.artifactId === id; })
-        .sort(function (a, b) { return String(b.at || '').localeCompare(String(a.at || '')); });
-      if (!mine.length) { list.innerHTML = '<div style="font-size:12px;color:var(--t3);padding:6px 0">변경 이력이 없습니다.</div>'; return; }
-      list.innerHTML = mine.map(function (c) {
-        var what = c.changeType === 'create' ? '요구사항 최초 등록'
-          : c.changeType === 'delete' ? '요구사항 삭제(soft delete)'
-            : (c.field === 'status' ? '상태 변경 → ' + esc(c.after) : '요구사항 정보 수정');
-        return '<div class="rq-chg-item"><span class="rq-chg-dot"></span>' +
-          '<span><span class="rq-chg-who">' + esc(c.by || 'user') + '</span>가 ' + what + '</span>' +
-          '<span class="rq-chg-sp"></span><span class="rq-chg-date">' + esc(board.dpart(c.at)) + '</span></div>';
-      }).join('');
     });
   }
 
