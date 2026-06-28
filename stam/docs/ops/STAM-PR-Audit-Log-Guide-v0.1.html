@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM PR Audit Log Guide v0.1</title>
+<link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../../css/stam.tokens.css">
+<link rel="stylesheet" href="../../css/stam.shell.css">
+<link rel="stylesheet" href="../../css/stam.components.css">
+<link rel="stylesheet" href="../../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../../css/stam.docs.css">
+<style>
+.ops-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:var(--font);white-space:nowrap}
+.ops-pill::before{content:"";width:6px;height:6px;border-radius:999px;background:currentColor;display:inline-block;flex-shrink:0}
+.ops-pill.brand{background:var(--stam-soft);color:var(--stam)}
+.ops-pill.warn{background:var(--warn-bg);color:var(--warn)}
+.ops-pill.pass{background:var(--pass-bg);color:var(--pass)}
+.ops-pill.fail{background:var(--fail-bg);color:var(--fail)}
+.ops-pill.info{background:var(--info-bg);color:var(--info)}
+.ops-tbl-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--bd)}
+.ops-tbl{width:100%;border-collapse:collapse;font-family:var(--font);font-size:11.5px;background:var(--bg-sur);min-width:680px}
+.ops-tbl th{padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2)}
+.ops-tbl td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;line-height:1.6}
+.ops-tbl tbody tr:last-child td{border-bottom:none}
+.ops-tbl td.tn{font-weight:800;color:var(--t1);white-space:nowrap}
+.ops-tbl td.good{color:var(--pass);font-weight:700}
+.ops-tbl td.warn{color:var(--warn);font-weight:700}
+.ops-tbl td.bad{color:var(--fail);font-weight:700}
+.ops-tbl td code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.ops-case{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:14px 16px;display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.ops-case .ch{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ops-case .ct{font-size:13px;font-weight:800;color:var(--t1)}
+.ops-case .cb{font-size:11.5px;color:var(--t2);line-height:1.65}
+.ops-case .cb code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+.ops-field-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media (max-width:900px){.ops-field-grid{grid-template-columns:1fr}}
+.ops-field{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-sm);padding:10px 12px}
+.ops-field .fk{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:4px}
+.ops-field .fv{font-size:11.5px;color:var(--t2);line-height:1.6}
+.ops-field .fv code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+</style>
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a href="../STAM-Docs-Index.html" class="doc-nav-back">← Docs</a>
+  <span class="doc-nav-title">PR Audit Log Guide v0.1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>운영 기준</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">PR Audit Log</span>
+      <span class="toc-ver-pill">v0.1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>목적</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>기록 대상</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>필수 필드</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>초기 사례 (#250~#252)</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>운영 원칙</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>관련 파일</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <section id="s01" class="sec" data-screen-label="01 목적">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">PR Audit Log 목적</span>
+          <span class="sbadge guide">v0.1</span>
+        </div>
+        <div class="sec-body">
+          <div class="meta-row">
+            <div class="meta-cell"><span class="meta-k">문서명</span><span class="meta-v">STAM PR Audit Log Guide v0.1</span></div>
+            <div class="meta-cell"><span class="meta-k">데이터 파일</span><span class="meta-v code">stam/ops/pr-audit-log.jsonl</span></div>
+            <div class="meta-cell"><span class="meta-k">스키마</span><span class="meta-v code">stam/ops/pr-audit-log.schema.json</span></div>
+          </div>
+
+          <ul class="blist">
+            <li>PR별 <strong>변경 범위</strong>, <strong>검증 기준</strong>, <strong>실패 사유</strong>, <strong>보정 PR</strong>, <strong>최종 승인 여부</strong>를 repo에 기록한다.</li>
+            <li>ChatGPT / Cursor / Claude <strong>세션 기억에 의존하지 않는다</strong>.</li>
+            <li>추후 “왜 이 PR을 승인했는지”, “무엇을 놓쳤는지” <strong>추적 가능</strong>하게 한다.</li>
+          </ul>
+
+          <div class="ibox info" style="margin-top:16px">
+            <strong>기록 형식</strong><br>
+            JSON Lines (JSONL) — 한 줄 = 한 PR 기록. 각 줄은 독립적으로 <code>JSON.parse</code> 가능해야 한다.
+          </div>
+        </div>
+      </section>
+
+      <section id="s02" class="sec" data-screen-label="02 기록 대상">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">기록 대상</span>
+        </div>
+        <div class="sec-body">
+          <div class="ops-tbl-wrap">
+            <table class="ops-tbl">
+              <thead>
+                <tr>
+                  <th>type 값 (예시)</th>
+                  <th>대상</th>
+                  <th>비고</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn"><code>UI</code></td>
+                  <td>UI PR</td>
+                  <td>제품 화면·레이아웃·스타일 변경</td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>UI_COMMON_COMPONENT</code></td>
+                  <td>공통 컴포넌트 PR</td>
+                  <td>공통 CSS/JS renderer 도입·확장</td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>CRUD_DB_API</code></td>
+                  <td>CRUD/DB/API PR</td>
+                  <td>데이터 계층·API 경계 변경</td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>DOCS_INFRA</code></td>
+                  <td>Docs/Infra PR</td>
+                  <td>문서·CI·배포·운영 기준</td>
+                </tr>
+                <tr>
+                  <td class="tn"><code>FAILURE_CORRECTION</code></td>
+                  <td>실패/폐기/보정 PR</td>
+                  <td>closed·보정·회귀 수정 PR 포함</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="s03" class="sec" data-screen-label="03 필수 필드">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">필수 필드 설명</span>
+        </div>
+        <div class="sec-body">
+          <div class="ops-field-grid">
+            <div class="ops-field">
+              <div class="fk">prNumber</div>
+              <div class="fv">GitHub PR 번호 (number)</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">title</div>
+              <div class="fv">PR 제목 (string)</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">type</div>
+              <div class="fv">PR 유형 — <code>UI</code>, <code>UI_COMMON_COMPONENT</code>, <code>CRUD_DB_API</code>, <code>DOCS_INFRA</code> 등</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">baseSha</div>
+              <div class="fv">PR base commit SHA (merge 전 main 기준)</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">headSha</div>
+              <div class="fv">PR head commit SHA (PR 브랜치 최종 커밋)</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">changedFiles</div>
+              <div class="fv">변경 파일 경로 배열 (array of string)</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">allowedFiles</div>
+              <div class="fv">PR 작업 시 허용된 파일 목록 (있는 경우)</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">forbiddenTouched</div>
+              <div class="fv">금지 파일이 diff에 포함됐는지 (boolean)</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">sourceReview</div>
+              <div class="fv">소스 리뷰 결과 객체 — <code>{ pass, notes, reviewer }</code> 등</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">screenshotQa</div>
+              <div class="fv">Playwright screenshot QA 결과 객체 — <code>{ pass, reportPath, notes }</code> 등</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">visualPass</div>
+              <div class="fv">시각 검증 통과 여부 (boolean 또는 null — 미실시 시 null)</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">failureReason</div>
+              <div class="fv">실패·보정 필요 사유 (string 또는 null)</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">correctionPr</div>
+              <div class="fv">후속 보정 PR 번호 (number 또는 null)</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">mergeSha</div>
+              <div class="fv">main에 merge된 커밋 SHA (string 또는 null)</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">stagingUrl</div>
+              <div class="fv">staging 검증 URL (string 또는 null)</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">finalStatus</div>
+              <div class="fv">최종 상태 — <code>MERGED_PASS</code>, <code>MERGED_NEEDS_CORRECTION</code>, <code>CLOSED</code> 등</div>
+            </div>
+            <div class="ops-field">
+              <div class="fk">notes</div>
+              <div class="fv">운영자·리뷰어 메모 (string)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="s04" class="sec" data-screen-label="04 초기 사례">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">PR #250 ~ #252 초기 사례</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">메뉴/화면 Drawer 공통화·패턴 보정 작업의 첫 Audit Log 기록</p>
+
+          <div class="ops-case">
+            <div class="ch">
+              <span class="ops-pill warn">PR #250</span>
+              <span class="ops-pill fail">MERGED_NEEDS_CORRECTION</span>
+            </div>
+            <span class="ct">메뉴구조/화면목록 v2 Drawer 공통 클래스 재배선 + UX 개선</span>
+            <span class="cb">
+              공통 shell/class 재배선은 진행됐지만 <strong>상세 시각 패턴 QA가 부족</strong>했다.
+              merge 후 시각 불일치가 확인되어 <strong>PR #252로 보정</strong>되었다.<br>
+              merge SHA: <code>b8658c04ebc0fc0aca378b37fad077a74e48cb35</code><br>
+              변경: <code>stam.custom-select.css</code>, <code>stam.menu-screen-crud.js</code>, <code>stam.menu-screen-list.js</code>, <code>menu-screen-list.html</code>
+            </span>
+          </div>
+
+          <div class="ops-case">
+            <div class="ch">
+              <span class="ops-pill fail">PR #251</span>
+              <span class="ops-pill fail">CLOSED</span>
+            </div>
+            <span class="ct">(폐기) 브랜치/diff 기준 문제</span>
+            <span class="cb">
+              <strong>브랜치/diff 기준 문제</strong>로 폐기 또는 closed 처리되었다.
+              동일 작업을 <strong>PR #252에서 fresh branch로 재작성</strong>했다.
+              correctionPr: <code>252</code>
+            </span>
+          </div>
+
+          <div class="ops-case">
+            <div class="ch">
+              <span class="ops-pill pass">PR #252</span>
+              <span class="ops-pill pass">MERGED_PASS</span>
+            </div>
+            <span class="ct">메뉴/화면 상세 Drawer UI를 요구사항정의서 패턴으로 재정렬</span>
+            <span class="cb">
+              메뉴/화면 상세 Drawer <strong>요구사항정의서 패턴 보정 완료</strong>.
+              <strong>Playwright QA PASS</strong>. merge 완료.<br>
+              merge SHA: <code>f636ba11fec690556ed162071ec1471d18928a28</code> (main HEAD)<br>
+              <strong>단, 상세 본문 CSS/JS 공통화 완료는 아님</strong> — 패턴 보정 단계이며, 공통 detail renderer/CSS는 후속 PR 대상이다.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <section id="s05" class="sec" data-screen-label="05 운영 원칙">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">운영 원칙</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li><strong>UI PR은 source review만으로 merge 금지</strong> — 코드 리뷰만으로는 시각 회귀를 잡지 못한다.</li>
+            <li><strong>screenshot QA 필요</strong> — Playwright screenshot으로 패턴·레이아웃 일치를 검증한다.</li>
+            <li><strong>공통화 PR은 같은 코드를 실제 2개 이상 화면이 쓰는지 확인</strong> — 한 화면만 쓰면 공통화 PR이 아니다.</li>
+            <li><strong>전용 class를 새로 만들면 공통화가 아니다</strong> — <code>rq-*</code>, <code>msv2-*</code> 등 화면 전용 prefix 생성은 FAIL.</li>
+            <li><strong>최종 승인 전 merge 금지</strong> — <code>finalStatus</code>가 <code>MERGED_PASS</code> 또는 명시적 예외 승인 전까지 merge하지 않는다.</li>
+            <li><strong>보정 PR 연결</strong> — <code>MERGED_NEEDS_CORRECTION</code> 또는 <code>CLOSED</code>인 경우 <code>correctionPr</code> 필드로 후속 PR을 연결한다.</li>
+            <li><strong>모든 PR을 jsonl에 기록</strong> — merge·close·폐기 모두 기록 대상이다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="s06" class="sec" data-screen-label="06 관련 파일">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">관련 파일</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li><code>stam/ops/pr-audit-log.jsonl</code> — PR Audit Log 데이터 (한 줄 = 한 PR)</li>
+            <li><code>stam/ops/pr-audit-log.schema.json</code> — JSONL 레코드 스키마</li>
+            <li><a href="STAM-Commonization-Definition-v0.1.html">STAM Commonization Definition v0.1</a> — 공통화 정의·PASS 조건</li>
+            <li><a href="../STAM-Product-Screen-Implementation-Gate-v1.html">STAM Product Screen Implementation Gate v1</a> — 제품 화면 merge Gate</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) {
+      a.closest('.toc-item').classList.toggle('active', i === cur);
+    });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
