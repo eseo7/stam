@@ -1,0 +1,178 @@
+{
+  "version": "0.1",
+  "description": "STAM Common UI contract inspection targets — baseline snapshot before Detail Drawer common CSS/JS work.",
+  "globalContracts": {
+    "commonDrawerShell": {
+      "classes": [
+        "stam-drawer",
+        "stam-drawer-head",
+        "stam-drawer-body",
+        "stam-drawer-foot"
+      ],
+      "notes": "Drawer shell container classes shared across boards."
+    },
+    "commonButton": {
+      "classes": ["stam-btn"],
+      "notes": "Shared button class; screen-specific btn aliases may coexist during migration."
+    },
+    "customSelect": {
+      "classes": ["stam-cs", "stam-cs-trigger"],
+      "renderers": ["STAM.customSelect"],
+      "cssAssets": ["stam.custom-select.css"],
+      "status": "active"
+    },
+    "formControls": {
+      "cssAssets": ["stam.form-controls.css"],
+      "classes": ["stam-form-field", "stam-input", "stam-select", "stam-textarea"],
+      "status": "active"
+    },
+    "detailDrawerFuture": {
+      "classes": ["stam-detail"],
+      "renderers": ["STAM.detailDrawer"],
+      "cssAssets": ["stam.detail-drawer.css"],
+      "status": "planned",
+      "notes": "Not yet implemented — baseline records absence as WARN, not immediate FAIL."
+    }
+  },
+  "detailLayoutSignals": {
+    "patterns": ["innerHTML", "insertAdjacentHTML"],
+    "notes": "JS that builds detail drawer body via string templates — legacy pattern to reduce over time."
+  },
+  "targets": [
+    {
+      "id": "requirements",
+      "label": "요구사항정의서",
+      "htmlPath": "stam/pages/boards/requirements.html",
+      "jsPaths": [
+        "stam/js/stam.requirements.js",
+        "stam/js/stam.requirements-crud.js",
+        "stam/js/stam.requirements-cycle.js"
+      ],
+      "cssPaths": ["stam/css/stam.requirements.css"],
+      "expectedCommonAssets": [
+        "stam.drawer.css",
+        "stam.form-controls.css",
+        "stam.buttons.css",
+        "stam.custom-select.css"
+      ],
+      "expectedCommonClasses": [
+        "stam-drawer",
+        "stam-drawer-head",
+        "stam-drawer-body",
+        "stam-drawer-foot",
+        "stam-btn"
+      ],
+      "expectedCommonRenderers": ["STAM.customSelect"],
+      "knownLegacyPrefixes": ["rq-"],
+      "knownLegacyNotes": "Drawer shell uses stam-drawer*; detail body retains rq-* dedicated classes (rq-dw-*, rq-ic, rq-acc-*, rq-cs).",
+      "status": "baseline-warn",
+      "failOnMissingFile": true
+    },
+    {
+      "id": "menu-screen-list",
+      "label": "메뉴구조/화면목록",
+      "htmlPath": "stam/pages/boards/menu-screen-list.html",
+      "jsPaths": [
+        "stam/js/stam.menu-screen-list.js",
+        "stam/js/stam.menu-screen-crud.js",
+        "stam/js/stam.menu-screen-cycle.js"
+      ],
+      "cssPaths": ["stam/css/stam.menu-screen-list.css"],
+      "expectedCommonAssets": [
+        "stam.drawer.css",
+        "stam.custom-select.css",
+        "stam.form-controls.css",
+        "stam.buttons.css"
+      ],
+      "expectedCommonClasses": [
+        "stam-drawer",
+        "stam-drawer-head",
+        "stam-drawer-body",
+        "stam-drawer-foot",
+        "stam-btn",
+        "stam-cs"
+      ],
+      "expectedCommonRenderers": ["STAM.customSelect"],
+      "knownLegacyPrefixes": ["msv2-", "msl-"],
+      "knownLegacyNotes": "Register/edit drawers use stam-drawer shell. Detail drawer (msv2-dw) uses stam-drawer shell but detail body is rendered with msv2-* classes via innerHTML in menu-screen-crud.js.",
+      "status": "baseline-warn",
+      "failOnMissingFile": true
+    },
+    {
+      "id": "wbs",
+      "label": "WBS",
+      "htmlPath": "stam/pages/boards/wbs.html",
+      "jsPaths": [
+        "stam/js/stam.wbs.js",
+        "stam/js/stam.wbs-crud.js",
+        "stam/js/stam.wbs-cycle.js"
+      ],
+      "cssPaths": ["stam/css/stam.wbs.css"],
+      "expectedCommonAssets": [
+        "stam.drawer.css",
+        "stam.buttons.css"
+      ],
+      "expectedCommonClasses": [
+        "stam-btn"
+      ],
+      "expectedCommonRenderers": [],
+      "knownLegacyPrefixes": ["wbs-"],
+      "knownLegacyNotes": "Full legacy drawer: wbs-drawer / wbs-drawer-panel / wbs-drawer-* structure. No stam-drawer shell. Detail layout built via innerHTML in stam.wbs.js. Partial stam-btn adoption in footer/toolbar only.",
+      "status": "knownLegacy",
+      "failOnMissingFile": true
+    },
+    {
+      "id": "screen-specification",
+      "label": "화면설계서",
+      "htmlPath": "stam/pages/boards/screen-specification.html",
+      "jsPaths": [
+        "stam/js/stam.screen-specification.js",
+        "stam/js/stam.screen-specification-crud.js",
+        "stam/js/stam.screen-specification-cycle.js"
+      ],
+      "cssPaths": ["stam/css/stam.screen-specification.css"],
+      "expectedCommonAssets": [
+        "stam.drawer.css",
+        "stam.custom-select.css"
+      ],
+      "expectedCommonClasses": [
+        "stam-drawer-foot",
+        "stam-btn"
+      ],
+      "expectedCommonRenderers": ["STAM.customSelect"],
+      "knownLegacyPrefixes": ["ssv2-", "ss-"],
+      "knownLegacyNotes": "Drawer uses ssv2-drawer dedicated structure (not stam-drawer shell). Footer partially uses stam-drawer-foot. Large inline ssv2-* CSS block in HTML. Detail panels built via innerHTML in screen-specification-crud.js.",
+      "status": "knownLegacy",
+      "failOnMissingFile": true
+    },
+    {
+      "id": "functional-specification",
+      "label": "기능정의서",
+      "htmlPath": "stam/pages/boards/functional-specification.html",
+      "jsPaths": [
+        "stam/js/stam.functional-specification.js",
+        "stam/js/stam.functional-definition-crud.js",
+        "stam/js/stam.functional-definition-cycle.js"
+      ],
+      "cssPaths": ["stam/css/stam.functional-specification.css"],
+      "expectedCommonAssets": [
+        "stam.drawer.css",
+        "stam.form-controls.css",
+        "stam.custom-select.css",
+        "stam.buttons.css"
+      ],
+      "expectedCommonClasses": [
+        "stam-drawer",
+        "stam-drawer-head",
+        "stam-drawer-body",
+        "stam-drawer-foot",
+        "stam-btn"
+      ],
+      "expectedCommonRenderers": ["STAM.customSelect"],
+      "knownLegacyPrefixes": ["fn-"],
+      "knownLegacyNotes": "Drawer shell partially uses stam-drawer*. Detail body retains fn-* dedicated classes (fn-dw-*, fn-fs, fn-ffield). No shared detail renderer.",
+      "status": "baseline-warn",
+      "failOnMissingFile": true
+    }
+  ]
+}
