@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Common UI Inspection Gate v0.1</title>
+<link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../../css/stam.tokens.css">
+<link rel="stylesheet" href="../../css/stam.shell.css">
+<link rel="stylesheet" href="../../css/stam.components.css">
+<link rel="stylesheet" href="../../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../../css/stam.docs.css">
+<style>
+.ops-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:var(--font);white-space:nowrap}
+.ops-pill::before{content:"";width:6px;height:6px;border-radius:999px;background:currentColor;display:inline-block;flex-shrink:0}
+.ops-pill.brand{background:var(--stam-soft);color:var(--stam)}
+.ops-pill.warn{background:var(--warn-bg);color:var(--warn)}
+.ops-pill.pass{background:var(--pass-bg);color:var(--pass)}
+.ops-pill.fail{background:var(--fail-bg);color:var(--fail)}
+.ops-pill.info{background:var(--info-bg);color:var(--info)}
+.ops-tbl-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--bd)}
+.ops-tbl{width:100%;border-collapse:collapse;font-family:var(--font);font-size:11.5px;background:var(--bg-sur);min-width:680px}
+.ops-tbl th{padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2)}
+.ops-tbl td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;line-height:1.6}
+.ops-tbl tbody tr:last-child td{border-bottom:none}
+.ops-tbl td.tn{font-weight:800;color:var(--t1);white-space:nowrap}
+.ops-tbl td.good{color:var(--pass);font-weight:700}
+.ops-tbl td.warn{color:var(--warn);font-weight:700}
+.ops-tbl td.bad{color:var(--fail);font-weight:700}
+.ops-tbl td code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.ops-case{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:14px 16px;display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.ops-case .ch{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ops-case .ct{font-size:13px;font-weight:800;color:var(--t1)}
+.ops-case .cb{font-size:11.5px;color:var(--t2);line-height:1.65}
+.ops-case .cb code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+.ops-bad{border:1px solid rgba(255,90,71,.35);background:rgba(255,90,71,.08);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.ops-bad .bh{font-size:11px;font-weight:800;color:var(--fail);letter-spacing:.06em;text-transform:uppercase}
+.ops-bad ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.ops-bad li{position:relative;padding-left:14px;font-size:11.5px;color:var(--t2);line-height:1.6}
+.ops-bad li::before{content:"×";position:absolute;left:0;top:0;color:var(--fail);font-weight:800}
+.ops-good{border:1px solid rgba(40,180,99,.30);background:rgba(40,180,99,.06);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.ops-good .bh{font-size:11px;font-weight:800;color:var(--pass);letter-spacing:.06em;text-transform:uppercase}
+.ops-good ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.ops-good li{position:relative;padding-left:14px;font-size:11.5px;color:var(--t2);line-height:1.6}
+.ops-good li::before{content:"✓";position:absolute;left:0;top:0;color:var(--pass);font-weight:800}
+.ops-warn{border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.06);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.ops-warn .bh{font-size:11px;font-weight:800;color:var(--warn);letter-spacing:.06em;text-transform:uppercase}
+.ops-warn ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.ops-warn li{position:relative;padding-left:14px;font-size:11.5px;color:var(--t2);line-height:1.6}
+.ops-warn li::before{content:"!";position:absolute;left:0;top:0;color:var(--warn);font-weight:800}
+.ops-checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ops-checklist li{font-size:12px;line-height:1.65;color:var(--t2);padding-left:20px;position:relative}
+.ops-checklist li::before{content:"☐";position:absolute;left:0;color:var(--t3);font-weight:700}
+</style>
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a href="../STAM-Docs-Index.html" class="doc-nav-back">← Docs</a>
+  <span class="doc-nav-title">Common UI Inspection Gate v0.1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>운영 기준</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Common UI</span>
+      <span class="toc-ver-pill">v0.1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>목적</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>적용 대상</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>검사 관점</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>용어 판정</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>현재 baseline</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>운영 원칙</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>스크립트 사용</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>관련 파일</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <section id="s01" class="sec" data-screen-label="01 목적">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Common UI Inspection Gate 목적</span>
+          <span class="sbadge guide">v0.1</span>
+        </div>
+        <div class="sec-body">
+          <div class="meta-row">
+            <div class="meta-cell"><span class="meta-k">문서명</span><span class="meta-v">STAM Common UI Inspection Gate v0.1</span></div>
+            <div class="meta-cell"><span class="meta-k">대상</span><span class="meta-v">공통 UI / 공통화 PR merge 전 코드 검사</span></div>
+            <div class="meta-cell"><span class="meta-k">검사 스크립트</span><span class="meta-v code">scripts/qa/audit-common-ui-contract.mjs</span></div>
+          </div>
+
+          <ul class="blist">
+            <li><strong>“비슷하게 보이는 것”과 “실제 공통화”를 구분한다.</strong> screenshot만으로는 shell class 일부 적용을 공통화 완료로 오판할 수 있다.</li>
+            <li><a href="STAM-Commonization-Definition-v0.1.html">PR #253 공통화 정의</a>를 <strong>코드 검사 기준</strong>으로 연결한다.</li>
+            <li>UI PR에서 source review + screenshot QA만으로 부족한 경우, <strong>공통 class / 공통 JS renderer 사용 여부</strong>를 검사한다.</li>
+            <li>PR #250처럼 공통 shell/class 일부만 적용하고 <strong>“공통화 완료”로 오판</strong>하는 상황을 막는다.</li>
+          </ul>
+
+          <div class="ibox info" style="margin-top:16px">
+            <strong>범위</strong><br>
+            본 Gate는 기준·contract 스크립트·baseline 기록만 정의한다. Detail Drawer 공통 CSS/JS 생성, 제품 UI 코드 전환, class명 변경은 이후 PR에서 별도로 진행한다. v0.1은 <strong>공통화 완료 판정 도구가 아니다.</strong>
+          </div>
+        </div>
+      </section>
+
+      <section id="s02" class="sec" data-screen-label="02 적용 대상">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">적용 대상</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">검사 필수</p>
+          <ul class="blist">
+            <li>Drawer / Modal / Popover</li>
+            <li>Detail Drawer 본문</li>
+            <li>Footer button area</li>
+            <li>Custom select</li>
+            <li>Form controls</li>
+            <li>Board list / filter / toolbar</li>
+            <li>공통 component CSS/JS 변경</li>
+            <li>요구사항정의서 / 메뉴화면 / WBS / 화면설계서 / 기능정의 등 <strong>주요 board 화면</strong></li>
+          </ul>
+
+          <p class="sub" style="margin-top:20px">검사 생략 가능</p>
+          <ul class="blist">
+            <li>docs-only PR</li>
+            <li>ops log / schema-only PR</li>
+            <li>제품 UI에 영향 없는 문서 / infra PR</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="s03" class="sec" data-screen-label="03 검사 관점">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">검사 관점</span>
+        </div>
+        <div class="sec-body">
+          <div class="ops-tbl-wrap">
+            <table class="ops-tbl">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>관점</th>
+                  <th>설명</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">1</td>
+                  <td>공통 CSS 파일 로드</td>
+                  <td><code>stam.drawer.css</code>, <code>stam.custom-select.css</code>, <code>stam.form-controls.css</code> 등 HTML link 여부</td>
+                </tr>
+                <tr>
+                  <td class="tn">2</td>
+                  <td>공통 class 사용</td>
+                  <td><code>stam-drawer</code>, <code>stam-drawer-head/body/foot</code>, <code>stam-btn</code>, <code>stam-cs</code> 등</td>
+                </tr>
+                <tr>
+                  <td class="tn">3</td>
+                  <td>공통 JS renderer</td>
+                  <td><code>STAM.customSelect</code>, 향후 <code>STAM.detailDrawer</code></td>
+                </tr>
+                <tr>
+                  <td class="tn">4</td>
+                  <td>화면별 prefix class 잔존</td>
+                  <td><code>rq-</code>, <code>msv2-</code>, <code>wbs-</code>, <code>ssv2-</code>, <code>fn-</code> 등</td>
+                </tr>
+                <tr>
+                  <td class="tn">5</td>
+                  <td>detail layout 직접 생성</td>
+                  <td>화면별 JS가 <code>innerHTML</code> / template string으로 detail layout을 직접 생성하는지</td>
+                </tr>
+                <tr>
+                  <td class="tn">6</td>
+                  <td>신규 전용 class 증가</td>
+                  <td>baseline 대비 화면별 전용 class / renderer 직접 생성이 늘어나는지</td>
+                </tr>
+                <tr>
+                  <td class="tn">7</td>
+                  <td>실사용 2화면 이상</td>
+                  <td>공통화 완료 주장 시 최소 2개 이상 실제 화면이 같은 class/function을 써야 함</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="s04" class="sec" data-screen-label="04 용어 판정">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">용어 판정 (PASS / WARN / FAIL)</span>
+        </div>
+        <div class="sec-body">
+          <div class="ops-good">
+            <span class="bh">PASS</span>
+            <ul>
+              <li>같은 <code>stam-*</code> class + 같은 <code>STAM.*</code> renderer 사용</li>
+              <li><strong>2개 이상 화면</strong>에서 실사용 확인</li>
+              <li>legacy prefix 감소 또는 공통 renderer로 대체</li>
+              <li>“공통화 완료” 문구는 이 조건을 만족할 때만 사용</li>
+            </ul>
+          </div>
+
+          <div class="ops-warn" style="margin-top:16px">
+            <span class="bh">WARN</span>
+            <ul>
+              <li>legacy class 잔존 (현재 baseline 상태)</li>
+              <li>shell만 공통, detail body는 화면별 전용 class</li>
+              <li>renderer 미공통 (<code>innerHTML</code> 직접 생성)</li>
+              <li>공통 CSS 일부만 link</li>
+              <li>v0.1 baseline: <strong>legacy 존재만으로 전체 FAIL 처리하지 않음</strong></li>
+            </ul>
+          </div>
+
+          <div class="ops-bad" style="margin-top:16px">
+            <span class="bh">FAIL</span>
+            <ul>
+              <li>baseline 대비 <strong>신규 전용 detail class 증가</strong></li>
+              <li>제품 UI PR에서 screenshot 없이 merge</li>
+              <li>공통화 완료 허위 주장 (PASS 조건 미충족)</li>
+              <li>공통 파일 없이 화면별 CSS/JS 복제 추가</li>
+              <li>contract 대상 파일 누락 (<code>failOnMissingFile</code>)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="s05" class="sec" data-screen-label="05 현재 baseline">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">현재 baseline (솔직한 현황 기록)</span>
+          <span class="sbadge warn">WARN</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">2026-06-28 기준 — Detail Drawer 공통 CSS/JS 작업 전 snapshot</p>
+
+          <div class="ops-tbl-wrap">
+            <table class="ops-tbl">
+              <thead>
+                <tr>
+                  <th>화면</th>
+                  <th>shell</th>
+                  <th>detail body</th>
+                  <th>상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">requirements</td>
+                  <td class="good"><code>stam-drawer*</code> 공통 적용</td>
+                  <td class="warn"><code>rq-*</code> 전용 class 잔존</td>
+                  <td class="warn">WARN</td>
+                </tr>
+                <tr>
+                  <td class="tn">menu-screen-list</td>
+                  <td class="good"><code>stam-drawer*</code> 공통 적용</td>
+                  <td class="warn"><code>msv2-*</code> 전용 class 잔존 (crud innerHTML)</td>
+                  <td class="warn">WARN</td>
+                </tr>
+                <tr>
+                  <td class="tn">wbs</td>
+                  <td class="bad"><code>wbs-drawer</code> legacy</td>
+                  <td class="bad"><code>wbs-drawer-*</code> 전체 legacy</td>
+                  <td class="warn">WARN (knownLegacy)</td>
+                </tr>
+                <tr>
+                  <td class="tn">screen-specification</td>
+                  <td class="warn">drawer/footer 부분 적용</td>
+                  <td class="warn"><code>ssv2-*</code> 전용 구조 잔존</td>
+                  <td class="warn">WARN (knownLegacy)</td>
+                </tr>
+                <tr>
+                  <td class="tn">functional-specification</td>
+                  <td class="good">일부 <code>stam-drawer*</code> 적용</td>
+                  <td class="warn"><code>fn-*</code> 전용 detail class 잔존</td>
+                  <td class="warn">WARN</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox warn" style="margin-top:16px">
+            <strong>미완료</strong><br>
+            Detail Drawer 공통 CSS (<code>stam.detail-drawer.css</code>) / JS renderer (<code>STAM.detailDrawer</code>)는 <strong>아직 미완료</strong>. absence는 baseline WARN이며 즉시 FAIL이 아니다.
+          </div>
+        </div>
+      </section>
+
+      <section id="s06" class="sec" data-screen-label="06 운영 원칙">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">운영 원칙</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li><strong>현재 legacy를 모두 즉시 FAIL 처리하지 않는다.</strong> v0.1은 현황 기록 + 증가 방지가 목적이다.</li>
+            <li>baseline 대비 <strong>전용 class / renderer 직접 생성이 증가</strong>하면 FAIL 후보로 본다.</li>
+            <li>공통화 PR은 <strong>기존 legacy 감소</strong> 또는 <strong>공통 사용 증가</strong>가 있어야 한다.</li>
+            <li>검사 결과는 <strong>human review</strong>와 함께 판단한다.</li>
+            <li>자동 검사는 <strong>보조 장치</strong>이며 최종 판단은 <a href="STAM-PR-Audit-Log-Guide-v0.1.html">PR Audit Log</a>에 기록한다.</li>
+            <li>자동 생성 report는 <code>tmp/**</code>에만 저장하고 repo tracked report로 커밋하지 않는다.</li>
+          </ul>
+
+          <p class="sub" style="margin-top:20px">Screenshot QA Gate와의 관계</p>
+          <ul class="blist">
+            <li><a href="STAM-Screenshot-QA-Gate-v0.1.html">Screenshot QA Gate</a>: 시각적 PASS/FAIL (Playwright + human eye)</li>
+            <li><strong>Common UI Inspection Gate</strong>: 코드 contract PASS/WARN/FAIL (class / renderer / legacy)</li>
+            <li>두 Gate를 함께 통과해야 “공통화 완료” 주장이 가능하다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="s07" class="sec" data-screen-label="07 스크립트 사용">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">스크립트 사용법</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">CLI</p>
+          <ul class="blist">
+            <li><code>node scripts/qa/audit-common-ui-contract.mjs --help</code></li>
+            <li><code>node scripts/qa/audit-common-ui-contract.mjs --dry-run</code> — 대상/규칙만 출력</li>
+            <li><code>node scripts/qa/audit-common-ui-contract.mjs --format text --fail-on none</code> — baseline WARN, exit 0</li>
+            <li><code>node scripts/qa/audit-common-ui-contract.mjs --format json --fail-on none</code></li>
+            <li><code>node scripts/qa/audit-common-ui-contract.mjs --out tmp/common-ui-audit.json</code> — JSON report (tmp only)</li>
+          </ul>
+
+          <p class="sub" style="margin-top:20px">옵션</p>
+          <div class="ops-tbl-wrap">
+            <table class="ops-tbl">
+              <thead>
+                <tr><th>옵션</th><th>설명</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>--config &lt;path&gt;</code></td><td>contract JSON 경로</td></tr>
+                <tr><td><code>--format text|json</code></td><td>출력 형식</td></tr>
+                <tr><td><code>--out &lt;path&gt;</code></td><td>JSON report (tmp/** only)</td></tr>
+                <tr><td><code>--fail-on warn|fail|none</code></td><td>exit code 정책 (기본 none)</td></tr>
+                <tr><td><code>--dry-run</code></td><td>파일 스캔 없이 규칙만 출력</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="s08" class="sec" data-screen-label="08 관련 파일">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">관련 파일</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li><code>scripts/qa/audit-common-ui-contract.mjs</code> — Common UI contract read-only 검사 스크립트</li>
+            <li><code>scripts/qa/common-ui-contracts.json</code> — 검사 대상·기준 설정</li>
+            <li><a href="STAM-Commonization-Definition-v0.1.html">STAM Commonization Definition v0.1</a></li>
+            <li><a href="STAM-Screenshot-QA-Gate-v0.1.html">STAM Screenshot QA Gate v0.1</a></li>
+            <li><a href="STAM-PR-Audit-Log-Guide-v0.1.html">STAM PR Audit Log Guide v0.1</a></li>
+            <li><code>stam/ops/pr-audit-log.jsonl</code></li>
+            <li><code>scripts/audit-common-ui.mjs</code> — 기존 audit (본 PR에서 수정하지 않음)</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) {
+      a.closest('.toc-item').classList.toggle('active', i === cur);
+    });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
