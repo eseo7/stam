@@ -1,0 +1,262 @@
+/* ============================================================
+ * STAM Detail Drawer Body — 공통 본문 CSS
+ * stam.detail-drawer.css
+ * v0.1 · 2026-06-28
+ *
+ * Drawer shell(.stam-drawer*)과 분리된 "본문 영역" 전용 스타일.
+ * 로드 순서: stam.tokens.css → stam.drawer.css → stam.detail-drawer.css → 페이지 CSS
+ *
+ * 사용 원칙:
+ *   1. 상세 Drawer 본문은 STAM.detailDrawer + 이 파일로 렌더한다.
+ *   2. board별 rq-*, msv2-*, wbs-*, ssv2-*, fn-* prefix 사용 금지.
+ *   3. 화면 전환 PR에서 기존 legacy class를 점진 제거한다.
+ * ============================================================ */
+
+:root {
+  --detail-gap: 16px;
+  --detail-section-gap: 20px;
+  --detail-grid-gap: 1px;
+  --detail-field-pad-y: 10px;
+  --detail-field-pad-x: 14px;
+  --detail-label-fs: 10.5px;
+  --detail-value-fs: 12.5px;
+  --detail-section-title-fs: 12px;
+  --detail-section-meta-fs: 11px;
+  --detail-note-fs: 12.5px;
+  --detail-chip-fs: 11px;
+  --detail-list-fs: 12.5px;
+}
+
+/* ── Root ── */
+.stam-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--detail-section-gap);
+  min-width: 0;
+  max-width: 100%;
+  font-family: var(--font);
+  color: var(--t1);
+}
+
+/* ── Section ── */
+.stam-detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.stam-detail-section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.stam-detail-section-title {
+  margin: 0;
+  font-size: var(--detail-section-title-fs);
+  font-weight: 700;
+  color: var(--t1);
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+
+.stam-detail-section-meta {
+  font-size: var(--detail-section-meta-fs);
+  font-weight: 500;
+  color: var(--t3);
+  line-height: 1.45;
+}
+
+/* ── Field grid ── */
+.stam-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--detail-grid-gap);
+  background: var(--bd);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.stam-detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--bg-sur);
+  padding: var(--detail-field-pad-y) var(--detail-field-pad-x);
+  min-width: 0;
+}
+
+.stam-detail-field.is-full {
+  grid-column: 1 / -1;
+}
+
+.stam-detail-label {
+  font-size: var(--detail-label-fs);
+  font-weight: 500;
+  color: var(--t3);
+  line-height: 1.4;
+}
+
+.stam-detail-value {
+  font-size: var(--detail-value-fs);
+  font-weight: 600;
+  color: var(--t1);
+  line-height: 1.5;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.stam-detail-value.is-plain {
+  font-weight: 400;
+}
+
+.stam-detail-empty {
+  font-size: var(--detail-value-fs);
+  font-weight: 500;
+  color: var(--t3);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* ── Note / prose ── */
+.stam-detail-note {
+  font-size: var(--detail-note-fs);
+  line-height: 1.68;
+  color: var(--t2);
+  background: var(--bg-sur2);
+  border-left: 3px solid var(--stam);
+  padding: 11px 15px;
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* ── List ── */
+.stam-detail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.stam-detail-list li {
+  position: relative;
+  padding-left: 14px;
+  font-size: var(--detail-list-fs);
+  color: var(--t2);
+  line-height: 1.55;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.stam-detail-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--stam-soft2, var(--stam-soft));
+  border: 1.5px solid var(--stam);
+}
+
+/* ── Chips ── */
+.stam-detail-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.stam-detail-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: var(--detail-chip-fs);
+  font-weight: 600;
+  line-height: 1.3;
+  background: var(--bg-sur2);
+  color: var(--t2);
+  border: 1px solid var(--bd);
+  max-width: 100%;
+  word-break: break-word;
+}
+
+.stam-detail-chip.is-brand {
+  background: var(--stam-soft);
+  color: var(--stam);
+  border-color: transparent;
+}
+
+.stam-detail-chip.is-pass {
+  background: var(--pass-bg);
+  color: var(--pass);
+  border-color: transparent;
+}
+
+.stam-detail-chip.is-warn {
+  background: var(--warn-bg);
+  color: var(--warn);
+  border-color: transparent;
+}
+
+.stam-detail-chip.is-fail {
+  background: var(--fail-bg);
+  color: var(--fail);
+  border-color: transparent;
+}
+
+/* ── Actions (본문 하단 보조 액션 — shell foot와 별도) ── */
+.stam-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+  min-width: 0;
+}
+
+.stam-detail-divider {
+  height: 1px;
+  background: var(--bd);
+  border: 0;
+  margin: 2px 0;
+  flex-shrink: 0;
+}
+
+/* ── Mobile / narrow ── */
+@media (max-width: 640px) {
+  .stam-detail-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stam-detail-field.is-full {
+    grid-column: 1;
+  }
+}
+
+/* ── Dark mode token flip (surface/border only; semantic chips use token vars) ── */
+[data-theme="dark"] .stam-detail-grid {
+  background: var(--bd);
+  border-color: var(--bd);
+}
+
+[data-theme="dark"] .stam-detail-field {
+  background: var(--bg-sur);
+}
+
+[data-theme="dark"] .stam-detail-note {
+  background: var(--bg-sur2);
+}

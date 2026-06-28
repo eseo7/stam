@@ -294,8 +294,19 @@ function assessTarget(target, config) {
     });
   }
 
-  const future = config.globalContracts?.detailDrawerFuture;
-  if (future?.status === 'planned') {
+  const future = config.globalContracts?.detailDrawer || config.globalContracts?.detailDrawerFuture;
+  if (future?.status === 'active') {
+    const adopted = findInContent(allContent, future.classes || []);
+    const rendererOnBoard = findInContent(allContent, future.renderers || []);
+    checks.push({
+      id: 'detail-drawer-adoption',
+      status: 'WARN',
+      message: adopted.length || rendererOnBoard.length
+        ? 'Detail drawer common artifacts referenced on board (verify migration scope)'
+        : 'Common detail drawer not adopted on this board yet (repo assets exist; migration pending)',
+      planned: false,
+    });
+  } else if (future?.status === 'planned') {
     const futureClasses = future.classes || [];
     const futureRenderers = future.renderers || [];
     const futureFound = [
@@ -387,6 +398,13 @@ function formatTextReport(report) {
   lines.push(`Generated: ${report.generatedAt}`);
   lines.push(`Config: ${report.configPath}`);
   lines.push('');
+  if (report.globalChecks?.length) {
+    lines.push('── Global ──');
+    for (const c of report.globalChecks) {
+      lines.push(`  (${c.status}) ${c.id}: ${c.message}`);
+    }
+    lines.push('');
+  }
   lines.push('── Targets ──');
   for (const t of report.targets) {
     lines.push('');
@@ -405,13 +423,42 @@ function formatTextReport(report) {
   return lines.join('\n');
 }
 
+function assessGlobalAssets(config) {
+  const checks = [];
+  const detail = config.globalContracts?.detailDrawer;
+  if (detail?.status === 'active') {
+    const cssPath = detail.cssPath || 'stam/css/stam.detail-drawer.css';
+    const jsPath = detail.jsPath || 'stam/js/stam.detail-drawer.js';
+    const cssOk = readRootFile(cssPath).exists;
+    const jsOk = readRootFile(jsPath).exists;
+    const jsContent = readRootFile(jsPath).content || '';
+    const hasRenderer = jsContent.includes('STAM.detailDrawer');
+    if (cssOk && jsOk && hasRenderer) {
+      checks.push({
+        id: 'detail-drawer-assets',
+        status: 'PASS',
+        message: `Common detail drawer assets present: ${cssPath}, ${jsPath}`,
+      });
+    } else {
+      checks.push({
+        id: 'detail-drawer-assets',
+        status: 'FAIL',
+        message: `Missing detail drawer assets — css:${cssOk} js:${jsOk} renderer:${hasRenderer}`,
+      });
+    }
+  }
+  return checks;
+}
+
 function buildReport(config, configPath) {
+  const globalChecks = assessGlobalAssets(config);
   const targetResults = (config.targets || []).map((t) => assessTarget(t, config));
   const pass = targetResults.filter((t) => t.status === 'PASS').length;
   const warn = targetResults.filter((t) => t.status === 'WARN').length;
   const fail = targetResults.filter((t) => t.status === 'FAIL').length;
+  const globalFail = globalChecks.some((c) => c.status === 'FAIL');
   let overall = 'WARN';
-  if (fail > 0) overall = 'FAIL';
+  if (fail > 0 || globalFail) overall = 'FAIL';
   else if (warn > 0) overall = 'WARN';
   else if (pass > 0 && warn === 0 && fail === 0) overall = 'PASS';
 
@@ -420,14 +467,16 @@ function buildReport(config, configPath) {
     generatedAt: new Date().toISOString(),
     configPath,
     policy: 'baseline-warn-v0.1',
+    globalChecks,
     targets: targetResults,
     summary: { pass, warn, fail, overall, total: targetResults.length },
   };
 }
 
 function resolveExitCode(report, failOn) {
-  if (failOn === 'fail') return report.summary.fail > 0 ? 1 : 0;
-  if (failOn === 'warn') return report.summary.fail > 0 || report.summary.warn > 0 ? 1 : 0;
+  const globalFail = (report.globalChecks || []).some((c) => c.status === 'FAIL');
+  if (failOn === 'fail') return report.summary.fail > 0 || globalFail ? 1 : 0;
+  if (failOn === 'warn') return report.summary.fail > 0 || report.summary.warn > 0 || globalFail ? 1 : 0;
   return 0;
 }
 
