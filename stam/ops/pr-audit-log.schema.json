@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stam.app/ops/pr-audit-log.schema.json",
+  "title": "STAM PR Audit Log Entry",
+  "description": "One line in stam/ops/pr-audit-log.jsonl — records PR change scope, verification, failure, correction, and final approval status.",
+  "type": "object",
+  "required": [
+    "prNumber",
+    "title",
+    "type",
+    "status",
+    "baseSha",
+    "headSha",
+    "mergeSha",
+    "changedFiles",
+    "forbiddenTouched",
+    "sourceReview",
+    "screenshotQa",
+    "visualPass",
+    "failureReason",
+    "correctionPr",
+    "finalStatus",
+    "notes"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "prNumber": {
+      "type": "number",
+      "description": "GitHub pull request number"
+    },
+    "title": {
+      "type": "string",
+      "description": "Pull request title"
+    },
+    "type": {
+      "type": "string",
+      "description": "PR category: UI, UI_COMMON_COMPONENT, CRUD_DB_API, DOCS_INFRA, FAILURE_CORRECTION, etc."
+    },
+    "status": {
+      "type": "string",
+      "description": "GitHub PR state at record time: open, closed, merged"
+    },
+    "baseSha": {
+      "type": "string",
+      "description": "Base commit SHA when the PR was opened or last rebased"
+    },
+    "headSha": {
+      "type": "string",
+      "description": "Head commit SHA of the PR branch"
+    },
+    "mergeSha": {
+      "type": ["string", "null"],
+      "description": "Commit SHA on main after merge, or null if not merged"
+    },
+    "changedFiles": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of file paths changed in the PR"
+    },
+    "allowedFiles": {
+      "type": ["array", "null"],
+      "items": { "type": "string" },
+      "description": "Optional allow-list of paths permitted for this PR"
+    },
+    "forbiddenTouched": {
+      "type": "boolean",
+      "description": "True if any forbidden path appeared in the diff"
+    },
+    "sourceReview": {
+      "type": "object",
+      "description": "Source code review outcome",
+      "properties": {
+        "pass": { "type": ["boolean", "null"] },
+        "notes": { "type": ["string", "null"] },
+        "reviewer": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "screenshotQa": {
+      "type": "object",
+      "description": "Playwright screenshot QA outcome",
+      "properties": {
+        "pass": { "type": ["boolean", "null"] },
+        "reportPath": { "type": ["string", "null"] },
+        "notes": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "visualPass": {
+      "type": ["boolean", "null"],
+      "description": "Overall visual verification pass, or null if not run"
+    },
+    "failureReason": {
+      "type": ["string", "null"],
+      "description": "Reason for failure or need for correction PR"
+    },
+    "correctionPr": {
+      "type": ["number", "null"],
+      "description": "Follow-up PR number that corrects this entry, if any"
+    },
+    "stagingUrl": {
+      "type": ["string", "null"],
+      "description": "Staging URL used for verification, if any"
+    },
+    "finalStatus": {
+      "type": "string",
+      "description": "Final audit outcome: MERGED_PASS, MERGED_NEEDS_CORRECTION, CLOSED, OPEN, etc."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-form operator notes"
+    },
+    "recordedAt": {
+      "type": ["string", "null"],
+      "description": "ISO 8601 timestamp when this log line was written"
+    }
+  }
+}

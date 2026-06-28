@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Commonization Definition v0.1</title>
+<link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../../css/stam.tokens.css">
+<link rel="stylesheet" href="../../css/stam.shell.css">
+<link rel="stylesheet" href="../../css/stam.components.css">
+<link rel="stylesheet" href="../../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../../css/stam.docs.css">
+<style>
+.ops-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:var(--font);white-space:nowrap}
+.ops-pill::before{content:"";width:6px;height:6px;border-radius:999px;background:currentColor;display:inline-block;flex-shrink:0}
+.ops-pill.brand{background:var(--stam-soft);color:var(--stam)}
+.ops-pill.warn{background:var(--warn-bg);color:var(--warn)}
+.ops-pill.pass{background:var(--pass-bg);color:var(--pass)}
+.ops-pill.fail{background:var(--fail-bg);color:var(--fail)}
+.ops-pill.info{background:var(--info-bg);color:var(--info)}
+.ops-tbl-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--bd)}
+.ops-tbl{width:100%;border-collapse:collapse;font-family:var(--font);font-size:11.5px;background:var(--bg-sur);min-width:680px}
+.ops-tbl th{padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2)}
+.ops-tbl td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;line-height:1.6}
+.ops-tbl tbody tr:last-child td{border-bottom:none}
+.ops-tbl td.tn{font-weight:800;color:var(--t1);white-space:nowrap}
+.ops-tbl td.good{color:var(--pass);font-weight:700}
+.ops-tbl td.warn{color:var(--warn);font-weight:700}
+.ops-tbl td.bad{color:var(--fail);font-weight:700}
+.ops-tbl td code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.ops-bad{border:1px solid rgba(255,90,71,.35);background:rgba(255,90,71,.08);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.ops-bad .bh{font-size:11px;font-weight:800;color:var(--fail);letter-spacing:.06em;text-transform:uppercase}
+.ops-bad ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.ops-bad li{position:relative;padding-left:14px;font-size:11.5px;color:var(--t2);line-height:1.6}
+.ops-bad li::before{content:"×";position:absolute;left:0;top:0;color:var(--fail);font-weight:800}
+.ops-good{border:1px solid rgba(40,180,99,.30);background:rgba(40,180,99,.06);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.ops-good .bh{font-size:11px;font-weight:800;color:var(--pass);letter-spacing:.06em;text-transform:uppercase}
+.ops-good ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.ops-good li{position:relative;padding-left:14px;font-size:11.5px;color:var(--t2);line-height:1.6}
+.ops-good li::before{content:"✓";position:absolute;left:0;top:0;color:var(--pass);font-weight:800}
+.ops-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:900px){.ops-grid-3{grid-template-columns:1fr}}
+.ops-card{border:1px solid var(--bd);background:var(--bg-sur2);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.ops-card .h{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--t1)}
+.ops-card .b{font-size:11.5px;color:var(--t2);line-height:1.65}
+.ops-card .b code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur);border:1px solid var(--bd);border-radius:4px;padding:1px 5px}
+</style>
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a href="../STAM-Docs-Index.html" class="doc-nav-back">← Docs</a>
+  <span class="doc-nav-title">Commonization Definition v0.1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>운영 기준</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Commonization</span>
+      <span class="toc-ver-pill">v0.1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>정의</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>공통화가 아닌 것</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>용어 구분</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>현재 상태표</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>PASS 조건</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>관련 문서</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <section id="s01" class="sec" data-screen-label="01 정의">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">STAM에서 공통화의 정의</span>
+          <span class="sbadge guide">v0.1</span>
+        </div>
+        <div class="sec-body">
+          <div class="meta-row">
+            <div class="meta-cell"><span class="meta-k">문서명</span><span class="meta-v">STAM Commonization Definition v0.1</span></div>
+            <div class="meta-cell"><span class="meta-k">대상</span><span class="meta-v">UI 공통화 판정 기준</span></div>
+            <div class="meta-cell"><span class="meta-k">상태</span><span class="meta-v code">운영 기준 (v0.1)</span></div>
+          </div>
+
+          <p class="sub">공통화란</p>
+          <div class="ops-good">
+            <span class="bh">PASS 정의</span>
+            <ul>
+              <li>여러 화면이 <strong>같은 <code>stam-*</code> CSS class</strong>와 <strong>같은 <code>STAM.*</code> JS renderer</strong>를 실제로 사용하고,</li>
+              <li>화면별 JS는 <strong>데이터/config만 넘기는</strong> 상태이다.</li>
+              <li>공통 부품이 기준이고, 요구사항정의서 · 메뉴화면 · 화면설계서 · WBS가 그 공통 부품을 써야 한다.</li>
+            </ul>
+          </div>
+
+          <div class="ibox info" style="margin-top:16px">
+            <strong>이 문서의 범위</strong><br>
+            본 문서는 공통화의 <em>정의와 판정 기준</em>만 고정한다. 상세 Drawer 공통 CSS/JS 생성, 제품 UI 코드 전환, staging 배포는 이후 PR에서 별도로 진행한다.
+          </div>
+        </div>
+      </section>
+
+      <section id="s02" class="sec" data-screen-label="02 공통화가 아닌 것">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">공통화가 아닌 것</span>
+        </div>
+        <div class="sec-body">
+          <div class="ops-bad">
+            <span class="bh">아래는 공통화가 아니다</span>
+            <ul>
+              <li><strong>같아 보이는 것</strong> — 시각적으로 비슷해 보여도, 공통 class/renderer를 공유하지 않으면 공통화가 아니다.</li>
+              <li><strong>같은 색상/간격을 복사한 것</strong> — 토큰 값이나 spacing을 화면별로 복사·붙여넣기한 것은 공통화가 아니다.</li>
+              <li><strong><code>rq-*</code>를 보고 <code>msv2-*</code>를 만든 것</strong> — 기준 화면의 패턴을 다른 prefix로 복제한 것은 <em>패턴 복제</em>다.</li>
+              <li><strong>요구사항정의서가 기준 화면으로 남아 있는 상태</strong> — 특정 화면이 SSOT(기준)로 남아 있고 다른 화면이 그것을 흉내 내면, 최종 공통화가 아니다.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="s03" class="sec" data-screen-label="03 용어 구분">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">용어 구분</span>
+        </div>
+        <div class="sec-body">
+          <div class="ops-grid-3">
+            <div class="ops-card">
+              <span class="h">패턴 보정</span>
+              <span class="b">기준 화면(예: 요구사항정의서)을 보고 비슷하게 맞춘 것. 시각·구조를 맞추지만 공통 renderer/CSS 계약이 아직 없을 수 있다.</span>
+            </div>
+            <div class="ops-card">
+              <span class="h">공통 shell 적용</span>
+              <span class="b"><code>stam-drawer</code> 같은 껍데기 공통 class를 사용하는 단계. 본문·필드 렌더링은 아직 화면별일 수 있다.</span>
+            </div>
+            <div class="ops-card">
+              <span class="h">공통화</span>
+              <span class="b">같은 CSS + 같은 JS renderer + 같은 HTML 구조 계약을 <strong>실제 2개 이상 화면</strong>이 사용하는 것. 화면별 JS는 config/data만 전달한다.</span>
+            </div>
+          </div>
+
+          <div class="ops-tbl-wrap" style="margin-top:16px">
+            <table class="ops-tbl">
+              <thead>
+                <tr>
+                  <th>용어</th>
+                  <th>CSS</th>
+                  <th>JS renderer</th>
+                  <th>화면 수</th>
+                  <th>판정</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">패턴 보정</td>
+                  <td>화면별 / 복제</td>
+                  <td>화면별 HTML 생성</td>
+                  <td>1~N</td>
+                  <td class="warn">공통화 아님</td>
+                </tr>
+                <tr>
+                  <td class="tn">공통 shell 적용</td>
+                  <td><code>stam-drawer</code> 등 shell</td>
+                  <td>본문은 화면별</td>
+                  <td>2+</td>
+                  <td class="warn">부분 단계</td>
+                </tr>
+                <tr>
+                  <td class="tn">공통화</td>
+                  <td>공통 <code>stam-*</code> class</td>
+                  <td>공통 <code>STAM.*</code> renderer</td>
+                  <td>2+</td>
+                  <td class="good">PASS</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="s04" class="sec" data-screen-label="04 현재 상태표">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">현재 상태표</span>
+          <span class="sbadge warn">2026-06 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">영역별 공통화 진행 상태 (판정 기준: 본 문서 §01·§05)</p>
+          <div class="ops-tbl-wrap">
+            <table class="ops-tbl">
+              <thead>
+                <tr>
+                  <th>영역</th>
+                  <th>상태</th>
+                  <th>비고</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tn">Drawer shell</td>
+                  <td class="warn">부분 공통화 완료</td>
+                  <td><code>stam-drawer</code> shell class 공유. 본문·필드는 화면별 잔존.</td>
+                </tr>
+                <tr>
+                  <td class="tn">Custom select JS</td>
+                  <td class="good">공통화 완료</td>
+                  <td>공통 <code>STAM.*</code> renderer 사용.</td>
+                </tr>
+                <tr>
+                  <td class="tn">Custom select CSS</td>
+                  <td class="warn">화면별 prefix 혼재</td>
+                  <td>공통 파일 존재하나 화면별 prefix 잔존.</td>
+                </tr>
+                <tr>
+                  <td class="tn">상세 Drawer 본문 CSS</td>
+                  <td class="bad">미완료</td>
+                  <td>공통 detail body CSS 미생성.</td>
+                </tr>
+                <tr>
+                  <td class="tn">상세 Drawer JS renderer</td>
+                  <td class="bad">미완료</td>
+                  <td>공통 detail renderer 미생성.</td>
+                </tr>
+                <tr>
+                  <td class="tn">WBS Drawer</td>
+                  <td class="bad">공통 shell 미적용</td>
+                  <td>Drawer shell 계약 미적용.</td>
+                </tr>
+                <tr>
+                  <td class="tn">화면설계서 Drawer</td>
+                  <td class="warn">부분 적용</td>
+                  <td>shell·일부 스타일만 공유.</td>
+                </tr>
+                <tr>
+                  <td class="tn">요구사항정의서/메뉴화면 상세 본문</td>
+                  <td class="bad"><code>rq-*</code> / <code>msv2-*</code> 전용 class 잔존</td>
+                  <td>패턴 보정 단계. 공통 detail class/renderer 미사용.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ibox warn" style="margin-top:16px">
+            <strong>주의</strong><br>
+            위 표의 “부분 공통화 완료”·“공통화 완료”(Custom select JS)는 <em>해당 영역 한정</em> 판정이다. STAM 전체 상세 Drawer 공통화가 끝났다는 뜻이 아니다.
+          </div>
+        </div>
+      </section>
+
+      <section id="s05" class="sec" data-screen-label="05 PASS 조건">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">공통화 PASS 조건</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">공통화 PR이 merge되기 위해 충족해야 하는 조건</p>
+          <ul class="blist">
+            <li><strong>공통 CSS 파일 존재</strong> — 대상 UI에 대한 공통 stylesheet가 repo에 있고, 화면별 복제가 아니다.</li>
+            <li><strong>공통 JS renderer 존재</strong> — <code>STAM.*</code> 네임스페이스의 공통 renderer/function이 존재한다.</li>
+            <li><strong>대상 화면 2개 이상</strong> — 같은 공통 class/function을 실제로 사용한다.</li>
+            <li><strong>화면별 JS는 config/data만 전달</strong> — HTML 구조를 직접 만들지 않는다.</li>
+            <li><strong>전용 detail class 신규 생성 금지</strong> — <code>rq-*</code>, <code>msv2-*</code> 같은 화면 전용 class를 새로 만들면 공통화가 아니다.</li>
+            <li><strong>Playwright screenshot QA 증빙</strong> — 시각 회귀·패턴 일치를 screenshot으로 검증한다.</li>
+            <li><strong>PR Audit Log 기록</strong> — <code>stam/ops/pr-audit-log.jsonl</code>에 본 PR을 기록한다.</li>
+          </ul>
+
+          <div class="ops-good" style="margin-top:16px">
+            <span class="bh">체크리스트 요약</span>
+            <ul>
+              <li>□ 공통 CSS 파일</li>
+              <li>□ 공통 JS renderer</li>
+              <li>□ 2개 이상 화면 실사용</li>
+              <li>□ 화면별 JS = config/data only</li>
+              <li>□ 전용 detail class 미생성</li>
+              <li>□ Playwright screenshot QA PASS</li>
+              <li>□ PR Audit Log 기록</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="s06" class="sec" data-screen-label="06 관련 문서">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">관련 문서</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li><a href="STAM-PR-Audit-Log-Guide-v0.1.html">STAM PR Audit Log Guide v0.1</a> — PR별 검증·승인 기록 운영 가이드</li>
+            <li><a href="../STAM-Board-Drawer-Shell-Contract-v1.html">STAM Board Drawer Shell Contract v1</a> — Drawer shell class 계약</li>
+            <li><a href="../STAM-Custom-Select-Contract-v1.html">STAM Custom Select Contract v1</a> — Custom select 공통 계약</li>
+            <li><a href="../STAM-Product-Screen-Implementation-Gate-v1.html">STAM Product Screen Implementation Gate v1</a> — 제품 화면 구현 통제 Gate</li>
+            <li><code>stam/ops/pr-audit-log.jsonl</code> — PR Audit Log 데이터</li>
+            <li><code>stam/ops/pr-audit-log.schema.json</code> — JSONL 스키마</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../../js/stam.theme.js"></script>
+<script>
+(function () {
+  var main = document.getElementById('guide-main');
+  var links = [].slice.call(document.querySelectorAll('.toc-item a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function highlight() {
+    var top = main.scrollTop;
+    var cur = 0;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop - 32 <= top) cur = i;
+    }
+    links.forEach(function (a, i) {
+      a.closest('.toc-item').classList.toggle('active', i === cur);
+    });
+  }
+  main.addEventListener('scroll', highlight, { passive: true });
+  highlight();
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var t = document.querySelector(a.getAttribute('href'));
+      if (t) main.scrollTop = t.offsetTop - 16;
+    });
+  });
+}());
+</script>
+</body>
+</html>
