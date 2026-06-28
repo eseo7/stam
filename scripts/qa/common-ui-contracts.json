@@ -83,6 +83,7 @@
       "cssPaths": ["stam/css/stam.menu-screen-list.css"],
       "expectedCommonAssets": [
         "stam.drawer.css",
+        "stam.detail-drawer.css",
         "stam.custom-select.css",
         "stam.form-controls.css",
         "stam.buttons.css"
@@ -93,11 +94,12 @@
         "stam-drawer-body",
         "stam-drawer-foot",
         "stam-btn",
-        "stam-cs"
+        "stam-cs",
+        "stam-detail"
       ],
-      "expectedCommonRenderers": ["STAM.customSelect"],
+      "expectedCommonRenderers": ["STAM.customSelect", "STAM.detailDrawer"],
       "knownLegacyPrefixes": ["msv2-", "msl-"],
-      "knownLegacyNotes": "Register/edit drawers use stam-drawer shell. Detail drawer (msv2-dw) uses stam-drawer shell but detail body is rendered with msv2-* classes via innerHTML in menu-screen-crud.js.",
+      "knownLegacyNotes": "Detail drawer body tabs use STAM.detailDrawer + stam-detail* (PR #257). Shell/tabs/register-edit still use msv2-* legacy classes.",
       "status": "baseline-warn",
       "failOnMissingFile": true
     },
