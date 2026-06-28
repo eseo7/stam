@@ -27,23 +27,33 @@
   }
   function dpart(iso) { return String(iso || '').replace('T', ' ').slice(0, 10); }
 
-  function statusInfo(rec) {
+  function statusTone(rec) {
     var s = rec.status;
-    if (s === 'deleted')   return { label: '삭제됨', bg: 'rgba(100,116,139,.15)', fg: '#64748B' };
-    if (s === 'confirmed') return { label: '확정',   bg: 'rgba(4,120,87,.12)',    fg: '#047857' };
-    if (s === 'hold')      return { label: '보류',   bg: 'rgba(153,27,27,.12)',   fg: '#991B1B' };
-    if (s === 'reviewing') return { label: '검토중', bg: 'rgba(180,83,9,.12)',    fg: '#B45309' };
-    return { label: '작성중', bg: 'rgba(100,116,139,.12)', fg: '#64748B' };
+    if (s === 'confirmed') return 'is-pass';
+    if (s === 'hold')      return 'is-fail';
+    if (s === 'reviewing') return 'is-warn';
+    if (s === 'deleted')   return '';
+    return '';
   }
 
-  function chip(label, bg, fg) {
-    return '<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:700;background:' + bg + ';color:' + fg + '">' + esc(label) + '</span>';
+  function statusLabel(rec) {
+    var s = rec.status;
+    if (s === 'deleted')   return '삭제됨';
+    if (s === 'confirmed') return '확정';
+    if (s === 'hold')      return '보류';
+    if (s === 'reviewing') return '검토중';
+    return '작성중';
+  }
+
+  function statusChip(rec) {
+    var tone = statusTone(rec);
+    var cls = 'stam-detail-chip' + (tone ? ' ' + tone : '');
+    return '<span class="' + cls + '">' + esc(statusLabel(rec)) + '</span>';
   }
 
   // 10개 컬럼 구조에 맞춤: 체크/ID·이름/LV1/LV2/화면유형/FO-BO/연결요구사항/연결화면설계서/상태/수정일
   function rowHtml(rec) {
-    var st = statusInfo(rec);
-    return '<tr class="msv2-int-row stam-table-row msl-data-row" data-msv2-id="' + esc(rec.id) + '">' +
+    return '<tr class="stam-board-data-row stam-table-row msl-data-row" data-msv2-id="' + esc(rec.id) + '">' +
       '<td class="msl-ch stam-check-cell"></td>' +
       '<td><div class="msl-id-cell">' +
         '<span class="msl-scr-id">' + esc(rec.id) + '</span>' +
@@ -54,12 +64,12 @@
       '<td><span class="msl-lv-text">' + esc(rec.screenType || '—') + '</span></td>' +
       '<td><span class="msl-lv-text">' + esc(rec.channel || '—') + '</span></td>' +
       '<td>' + (rec.requirementId
-        ? '<span class="msl-link-chip">' + esc(rec.requirementId) + '</span>'
-        : '<span class="msl-link-chip-none">미연결</span>') + '</td>' +
+        ? '<span class="stam-link-chip">' + esc(rec.requirementId) + '</span>'
+        : '<span class="stam-link-chip is-muted">미연결</span>') + '</td>' +
       '<td>' + (rec.screenSpecificationId
-        ? '<span class="msl-link-chip msl-link-chip-scr">' + esc(rec.screenSpecificationId) + '</span>'
-        : '<span class="msl-link-chip-none">미작성</span>') + '</td>' +
-      '<td>' + chip(st.label, st.bg, st.fg) + '</td>' +
+        ? '<span class="stam-link-chip is-spec">' + esc(rec.screenSpecificationId) + '</span>'
+        : '<span class="stam-link-chip is-muted">미작성</span>') + '</td>' +
+      '<td>' + statusChip(rec) + '</td>' +
       '<td class="msl-date">' + esc(dpart(rec.updatedAt)) + '</td>' +
     '</tr>';
   }
@@ -68,16 +78,16 @@
     var tbody = document.getElementById('msl-tbody');
     if (!tbody) return;
     // 이전 주입 행 제거
-    tbody.querySelectorAll('.msv2-grp-row, .msv2-int-row').forEach(function (r) { r.remove(); });
+    tbody.querySelectorAll('.stam-board-group-row, .stam-board-data-row').forEach(function (r) { r.remove(); });
     if (!cache.length) return;
-    var head = '<tr class="msv2-grp-row">' +
+    var head = '<tr class="stam-board-group-row">' +
       '<td class="msl-ch stam-check-cell"></td>' +
-      '<td colspan="9"><div class="msv2-gr-cell">' +
-        '<svg class="msv2-gr-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>' +
-        '<span class="msv2-gr-name">요구사항 연계 메뉴/화면</span>' +
-        '<span class="msv2-gr-sep"></span>' +
-        '<span class="msv2-gr-count">' + cache.length + '개 화면</span>' +
-        '<span class="msv2-gr-notice">요구사항 가져오기로 생성된 메뉴/화면 초안입니다. 상세 확인 후 수정하거나 확정하세요.</span>' +
+      '<td colspan="9"><div class="stam-board-group-cell">' +
+        '<svg class="stam-board-group-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>' +
+        '<span class="stam-board-group-name">요구사항 연계 메뉴/화면</span>' +
+        '<span class="stam-board-group-separator"></span>' +
+        '<span class="stam-board-group-count">' + cache.length + '개 화면</span>' +
+        '<span class="stam-board-group-notice">요구사항 가져오기로 생성된 메뉴/화면 초안입니다. 상세 확인 후 수정하거나 확정하세요.</span>' +
       '</div></td>' +
     '</tr>';
     var rows = cache.slice().sort(function (a, b) {

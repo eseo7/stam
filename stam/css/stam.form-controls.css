@@ -598,3 +598,127 @@
   padding: 6px 9px;
   border-radius: 6px;
 }
+
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * 10. Drawer form section (compact)
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.stam-form-section {
+  background: var(--bg-sur);
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.stam-form-section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.stam-form-section-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--stam);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stam-form-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t1);
+}
+
+.stam-form-grid.is-compact {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .stam-form-grid.is-compact {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stam-form-grid.is-compact .stam-form-field.full,
+.stam-form-grid.is-compact .full-span {
+  grid-column: 1 / -1;
+}
+
+.stam-form-field.is-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stam-form-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--t2);
+}
+
+.stam-form-label .req {
+  color: #ef4444;
+}
+
+.stam-form-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--t1);
+  background: var(--bg-sur);
+  outline: none;
+  font-family: inherit;
+  transition: border-color 140ms;
+}
+
+.stam-form-input:hover:not(:disabled):not([readonly]) {
+  border-color: var(--bd-s, var(--bd));
+}
+
+.stam-form-input:focus:not(:disabled) {
+  border-color: var(--stam);
+}
+
+.stam-form-input[readonly],
+.stam-form-input.is-readonly {
+  background: var(--bg-sur2);
+  color: var(--t3);
+  cursor: default;
+}
+
+.stam-form-textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 72px;
+  padding: 8px 10px;
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--t1);
+  background: var(--bg-sur);
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+  line-height: 1.55;
+  transition: border-color 140ms;
+}
+
+.stam-form-textarea:focus:not(:disabled) {
+  border-color: var(--stam);
+}

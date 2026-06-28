@@ -20,102 +20,6 @@
   <link rel="stylesheet" href="../../css/stam.board-layout.css">
   <link rel="stylesheet" href="../../css/stam.custom-select.css">
   <link rel="stylesheet" href="../../css/stam.menu-screen-list.css">
-  <style>
-    /* ── Tabs (v2 Drawer 전용 — 공통 없음) ── */
-    #msv2-tabs{display:flex;gap:0;border-bottom:1px solid var(--bd);flex-shrink:0;padding:0 20px;background:var(--bg-sur)}
-    .msv2-tab{background:none;border:none;cursor:pointer;font-size:12px;font-weight:600;color:var(--t3);padding:9px 12px;border-bottom:2px solid transparent;margin-bottom:-1px}
-    .msv2-tab.on{color:var(--stam);border-bottom-color:var(--stam)}
-    /* ── Content flow wrapper (inside stam-drawer-body) ── */
-    .msv2-content-flow{display:flex;flex-direction:column;gap:16px}
-    /* show/hide by mode */
-    #msv2-dw[data-mode="detail"] .msv2-form-area{display:none}
-    #msv2-dw[data-mode="register"] .msv2-tab-panel,
-    #msv2-dw[data-mode="edit"] .msv2-tab-panel{display:none}
-    /* ── Form sections ── */
-    .msv2-form-area{display:flex;flex-direction:column;gap:16px}
-    .msv2-fs{background:var(--bg-sur);border:1px solid var(--bd);border-radius:8px;padding:14px 16px}
-    .msv2-fs-hdr{display:flex;align-items:center;gap:8px;margin-bottom:12px}
-    .msv2-fs-num{width:20px;height:20px;border-radius:50%;background:var(--stam);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-    .msv2-fs-title{font-size:12px;font-weight:700;color:var(--t1)}
-    .msv2-fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .msv2-ffield{display:flex;flex-direction:column;gap:4px}
-    .msv2-ffield.full{grid-column:1/-1}
-    .msv2-flbl{font-size:11px;font-weight:600;color:var(--t2)}
-    .msv2-flbl .req{color:#ef4444}
-    .msv2-inp{width:100%;box-sizing:border-box;height:32px;padding:0 10px;border:1px solid var(--bd);border-radius:6px;font-size:12px;color:var(--t1);background:var(--bg-sur);outline:none;font-family:inherit}
-    .msv2-inp:focus{border-color:var(--stam)}
-    .msv2-inp.ro{background:var(--bg-sur2);color:var(--t3);cursor:default}
-    .msv2-ta{width:100%;box-sizing:border-box;height:auto;min-height:72px;padding:8px 10px;border:1px solid var(--bd);border-radius:6px;font-size:12px;color:var(--t1);background:var(--bg-sur);outline:none;font-family:inherit;resize:vertical;line-height:1.55}
-    .msv2-ta:focus{border-color:var(--stam)}
-    .msv2-helper{font-size:10px;color:var(--t3)}
-    /* ── Head inner elements ── */
-    .msv2-hrow1{display:flex;align-items:center;gap:7px;margin-bottom:8px}
-    .msv2-hdg-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--stam-soft);color:var(--stam);flex-shrink:0}
-    .msv2-close{background:none;border:none;cursor:pointer;color:var(--t2);display:flex;align-items:center;justify-content:center;padding:4px;border-radius:4px;margin-left:auto;flex-shrink:0}
-    .msv2-close:hover{background:var(--bg-sur2)}
-    .msv2-htitle{font-size:17px;font-weight:700;color:var(--t1);letter-spacing:-.022em;line-height:1.3;margin-bottom:7px}
-    .msv2-hmeta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
-    /* ── Detail: Info Grid (rq-igrid 동일 패턴 — 1px 라인 테이블) ── */
-    .msv2-igrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:var(--r-md,6px);overflow:hidden}
-    .msv2-ic{background:var(--bg-sur);padding:10px 14px}
-    .msv2-ic.full{grid-column:1/-1}
-    .msv2-ik{font-size:10.5px;color:var(--t3);margin-bottom:4px;font-weight:500}
-    .msv2-iv{font-size:12.5px;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:5px;flex-wrap:wrap;line-height:1.5}
-    .msv2-id-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--stam-soft);color:var(--stam)}
-    .msv2-code{font-family:monospace;font-size:11px;background:var(--bg-sur2);padding:1px 5px;border-radius:3px;color:var(--t2)}
-    .msv2-iv-hint{font-size:11px;color:var(--t3)}
-    /* ── Detail: Section wrappers (rq-dw-sec 동일 패턴) ── */
-    .msv2-dw-sec{margin-bottom:18px}
-    .msv2-dw-sec-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-    .msv2-dw-sec-hdr h3{font-size:12px;font-weight:700;color:var(--t2);margin:0}
-    /* ── Detail: Content box (rq-purp-box 동일 패턴 — 좌측 accent line) ── */
-    .msv2-purp-box{font-size:13px;line-height:1.68;color:var(--t2);background:var(--bg-sur2);border-left:3px solid var(--stam);padding:11px 15px;border-radius:0 var(--r-md,6px) var(--r-md,6px) 0}
-    /* ── Detail: Link Cards ── */
-    .msv2-link-cards{display:flex;flex-direction:column;gap:8px}
-    .msv2-link-card{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg-sur)}
-    .msv2-link-card-empty{opacity:.6}
-    .msv2-link-card-lbl{font-size:11px;font-weight:700;color:var(--stam)}
-    .msv2-link-card-val{font-size:12px;color:var(--t2)}
-    .msv2-lchip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--stam-soft);color:var(--stam)}
-    /* ── Detail: Change History ── */
-    .msv2-chg-list{display:flex;flex-direction:column;gap:10px}
-    .msv2-chg-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2)}
-    .msv2-chg-dot{width:6px;height:6px;border-radius:50%;background:var(--stam);flex-shrink:0}
-    .msv2-chg-sp{flex:1}
-    .msv2-chg-date{font-size:11px;color:var(--t3);white-space:nowrap}
-    .msv2-empty{font-size:12px;color:var(--t3);text-align:center;padding:24px 0}
-    /* ── v2 Group Header Row ── */
-    .msv2-grp-row{background:var(--bg-sur2)}
-    .msv2-gr-cell{display:flex;align-items:center;gap:8px;padding:8px 0;flex-wrap:wrap}
-    .msv2-gr-icon{color:var(--stam);flex-shrink:0}
-    .msv2-gr-name{font-size:12px;font-weight:700;color:var(--t1)}
-    .msv2-gr-sep{width:1px;height:14px;background:var(--bd)}
-    .msv2-gr-count{font-size:11px;font-weight:600;color:var(--stam)}
-    .msv2-gr-notice{font-size:11px;color:var(--t3);font-style:italic;margin-left:auto}
-    /* ── v2 Data Rows ── */
-    .msv2-int-row .msl-link-chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:4px;background:var(--stam-soft);color:var(--stam);cursor:pointer}
-    .msv2-int-row .msl-link-chip-scr{background:rgba(29,78,216,.12);color:#60a5fa}
-    .msv2-int-row .msl-link-chip-none{font-size:11px;color:var(--t3)}
-    /* ── Detail: Summary Card ── */
-    .msv2-summary-card{background:var(--bg-sur);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
-    .msv2-summary-row{display:flex;align-items:center;gap:8px;font-size:12px}
-    .msv2-summary-k{color:var(--t3);flex-shrink:0;min-width:68px;font-size:11px;font-weight:600}
-    .msv2-summary-v{color:var(--t1);display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-    .msv2-missing-tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10.5px;font-weight:600;background:rgba(239,68,68,.1);color:#ef4444}
-    /* ── Detail: Guide Box (rq-purp-box 유사 — 좌측 accent line, 약한 톤) ── */
-    .msv2-guide-box{font-size:11.5px;line-height:1.65;color:var(--t2);background:var(--bg-sur2);border-left:3px solid var(--stam);padding:10px 14px;border-radius:0 var(--r-md,6px) var(--r-md,6px) 0}
-    /* ── Footer: Delete button — ghost danger (rq-btn-del 패턴) ── */
-    .msv2-del-btn{background:transparent!important;border-color:var(--bd)!important;color:var(--t3)!important}
-    .msv2-del-btn:not([disabled]):hover{border-color:#DC2626!important;color:#DC2626!important;background:rgba(220,38,38,.06)!important}
-    /* ── Detail: Link section header ── */
-    .msv2-link-sec-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-    .msv2-link-count-badge{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--stam-soft);color:var(--stam);font-weight:700}
-    /* ── Edit notice banner ── */
-    .msv2-edit-notice{margin:8px 0 0;padding:8px 12px;background:rgba(245,158,11,.12);border-radius:6px;font-size:11.5px;color:#B45309;line-height:1.5}
-    [data-theme="dark"] .msv2-edit-notice{color:#FCD34D}
-    /* ── stam-cs override: height to match msv2-inp ── */
-    #msv2-dw .stam-cs-trigger{height:32px;font-size:12px}
-  </style>
 </head>
 <body>
 
@@ -168,37 +72,37 @@
         <!-- ── Summary strip ── -->
         <div class="msl-sstrip">
           <div class="msl-ss-cell on">
-            <div class="msl-ss-lbl"><span class="msl-ss-dot" style="background:var(--stam)"></span>전체</div>
-            <div class="msl-ss-num" style="color:var(--stam)">38</div>
+            <div class="msl-ss-lbl"><span class="msl-ss-dot stam-summary-dot is-brand"></span>전체</div>
+            <div class="msl-ss-num stam-summary-num is-brand">38</div>
             <div class="msl-ss-sub">전체 화면</div>
           </div>
           <div class="msl-ss-cell">
-            <div class="msl-ss-lbl"><span class="msl-ss-dot" style="background:#64748B"></span>작성중</div>
+            <div class="msl-ss-lbl"><span class="msl-ss-dot stam-summary-dot is-slate"></span>작성중</div>
             <div class="msl-ss-num">12</div>
             <div class="msl-ss-sub">초안 작성중</div>
           </div>
           <div class="msl-ss-cell">
-            <div class="msl-ss-lbl"><span class="msl-ss-dot" style="background:#B45309"></span>검토중</div>
+            <div class="msl-ss-lbl"><span class="msl-ss-dot stam-summary-dot is-warn"></span>검토중</div>
             <div class="msl-ss-num">9</div>
             <div class="msl-ss-sub">검토 진행중</div>
           </div>
           <div class="msl-ss-cell">
-            <div class="msl-ss-lbl"><span class="msl-ss-dot" style="background:#047857"></span>확정</div>
+            <div class="msl-ss-lbl"><span class="msl-ss-dot stam-summary-dot is-pass"></span>확정</div>
             <div class="msl-ss-num">15</div>
             <div class="msl-ss-sub">확정 완료</div>
           </div>
           <div class="msl-ss-cell">
-            <div class="msl-ss-lbl"><span class="msl-ss-dot" style="background:#991B1B"></span>보류</div>
+            <div class="msl-ss-lbl"><span class="msl-ss-dot stam-summary-dot is-fail"></span>보류</div>
             <div class="msl-ss-num">2</div>
             <div class="msl-ss-sub">보류 처리</div>
           </div>
           <div class="msl-ss-cell">
-            <div class="msl-ss-lbl"><span class="msl-ss-dot" style="background:#3B82F6"></span>미연결 요구사항</div>
+            <div class="msl-ss-lbl"><span class="msl-ss-dot stam-summary-dot is-info"></span>미연결 요구사항</div>
             <div class="msl-ss-num">8</div>
             <div class="msl-ss-sub">요구사항 미연결</div>
           </div>
-          <div class="msl-ss-cell" style="border-right:0">
-            <div class="msl-ss-lbl"><span class="msl-ss-dot" style="background:#8B5CF6"></span>미작성 화면설계서</div>
+          <div class="msl-ss-cell">
+            <div class="msl-ss-lbl"><span class="msl-ss-dot stam-summary-dot is-violet"></span>미작성 화면설계서</div>
             <div class="msl-ss-num">14</div>
             <div class="msl-ss-sub">화면설계서 미작성</div>
           </div>
@@ -214,14 +118,14 @@
           <div class="stam-board-toolbar-left">
             <div class="stam-board-toolbar-base">
               <div class="msl-search stam-board-search">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--t3);flex-shrink:0" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="stam-icon-muted" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <input type="text" placeholder="화면 ID · 화면명 · 담당자 검색" autocomplete="off">
               </div>
               <div class="msl-toolbar-sep"></div>
               <button class="msl-filter-btn stam-board-filter-trigger" id="msl-filter-open-btn" type="button" aria-expanded="false" aria-controls="msl-filter-panel">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M4 8h8M6 12h4"/></svg>
                 필터
-                <span class="stam-board-filter-count" id="msl-filter-count" style="display:none">0</span>
+                <span class="stam-board-filter-count" id="msl-filter-count">0</span>
               </button>
               <button class="msl-btn msl-btn-del stam-btn stam-btn-danger stam-board-delete stam-delete-btn" id="msl-del-btn" type="button" disabled>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
@@ -248,16 +152,16 @@
           <div class="msl-tbl-scroll">
             <table class="msl-table stam-select-table" data-stam-board-list>
               <colgroup>
-                <col style="width:40px">
-                <col style="min-width:200px">
-                <col style="width:110px">
-                <col style="width:110px">
-                <col style="width:80px">
-                <col style="width:60px">
-                <col style="width:130px">
-                <col style="width:130px">
-                <col style="width:76px">
-                <col style="width:96px">
+                <col class="stam-col-check">
+                <col class="stam-col-name">
+                <col class="stam-col-lv1">
+                <col class="stam-col-lv2">
+                <col class="stam-col-type">
+                <col class="stam-col-channel">
+                <col class="stam-col-req">
+                <col class="stam-col-spec">
+                <col class="stam-col-status">
+                <col class="stam-col-date">
               </colgroup>
               <thead>
                 <tr>
@@ -289,12 +193,12 @@
                   <td><span class="msl-chip msl-chip-type-list">목록</span></td>
                   <td><span class="msl-fob msl-fob-fo">FO</span></td>
                   <td>
-                    <div class="msl-link-chips">
-                      <span class="msl-link-chip">REQ-001</span>
-                      <span class="msl-link-chip">REQ-002</span>
+                    <div class="stam-link-chips">
+                      <span class="stam-link-chip">REQ-001</span>
+                      <span class="stam-link-chip">REQ-002</span>
                     </div>
                   </td>
-                  <td><span class="msl-link-chip msl-link-chip-scr">SCR-001</span></td>
+                  <td><span class="stam-link-chip is-spec">SCR-001</span></td>
                   <td><span class="msl-chip msl-chip-done">확정</span></td>
                   <td class="msl-date">2026-06-10</td>
                 </tr>
@@ -312,8 +216,8 @@
                   <td><span class="msl-lv-text">요구사항정의서</span></td>
                   <td><span class="msl-chip msl-chip-type-reg">등록</span></td>
                   <td><span class="msl-fob msl-fob-fo">FO</span></td>
-                  <td><span class="msl-link-chip">REQ-001</span></td>
-                  <td><span class="msl-link-chip msl-link-chip-scr">SCR-002</span></td>
+                  <td><span class="stam-link-chip">REQ-001</span></td>
+                  <td><span class="stam-link-chip is-spec">SCR-002</span></td>
                   <td><span class="msl-chip msl-chip-done">확정</span></td>
                   <td class="msl-date">2026-06-10</td>
                 </tr>
@@ -331,8 +235,8 @@
                   <td><span class="msl-lv-text">WBS 작업</span></td>
                   <td><span class="msl-chip msl-chip-type-list">목록</span></td>
                   <td><span class="msl-fob msl-fob-fo">FO</span></td>
-                  <td><span class="msl-link-chip">REQ-003</span></td>
-                  <td><span class="msl-link-chip-none">미연결</span></td>
+                  <td><span class="stam-link-chip">REQ-003</span></td>
+                  <td><span class="stam-link-chip is-muted">미연결</span></td>
                   <td><span class="msl-chip msl-chip-review">검토중</span></td>
                   <td class="msl-date">2026-06-09</td>
                 </tr>
@@ -350,8 +254,8 @@
                   <td><span class="msl-lv-text">화면설계서</span></td>
                   <td><span class="msl-chip msl-chip-type-list">목록</span></td>
                   <td><span class="msl-fob msl-fob-fo">FO</span></td>
-                  <td><span class="msl-link-chip">REQ-002</span></td>
-                  <td><span class="msl-link-chip msl-link-chip-scr">SCR-003</span></td>
+                  <td><span class="stam-link-chip">REQ-002</span></td>
+                  <td><span class="stam-link-chip is-spec">SCR-003</span></td>
                   <td><span class="msl-chip msl-chip-done">확정</span></td>
                   <td class="msl-date">2026-06-10</td>
                 </tr>
@@ -369,8 +273,8 @@
                   <td><span class="msl-lv-text msl-lv-empty">—</span></td>
                   <td><span class="msl-chip msl-chip-type-list">목록</span></td>
                   <td><span class="msl-fob msl-fob-fo">FO</span></td>
-                  <td><span class="msl-link-chip-none">미연결</span></td>
-                  <td><span class="msl-link-chip-none">미작성</span></td>
+                  <td><span class="stam-link-chip is-muted">미연결</span></td>
+                  <td><span class="stam-link-chip is-muted">미작성</span></td>
                   <td><span class="msl-chip msl-chip-draft">작성중</span></td>
                   <td class="msl-date">2026-06-08</td>
                 </tr>
@@ -388,8 +292,8 @@
                   <td><span class="msl-lv-text msl-lv-empty">—</span></td>
                   <td><span class="msl-chip msl-chip-type-list">목록</span></td>
                   <td><span class="msl-fob msl-fob-fo">FO</span></td>
-                  <td><span class="msl-link-chip">REQ-004</span></td>
-                  <td><span class="msl-link-chip msl-link-chip-scr">SCR-004</span></td>
+                  <td><span class="stam-link-chip">REQ-004</span></td>
+                  <td><span class="stam-link-chip is-spec">SCR-004</span></td>
                   <td><span class="msl-chip msl-chip-done">확정</span></td>
                   <td class="msl-date">2026-06-07</td>
                 </tr>
@@ -407,8 +311,8 @@
                   <td><span class="msl-lv-text">메뉴구조/화면목록</span></td>
                   <td><span class="msl-chip msl-chip-type-list">목록</span></td>
                   <td><span class="msl-fob msl-fob-fo">FO</span></td>
-                  <td><span class="msl-link-chip">REQ-002</span></td>
-                  <td><span class="msl-link-chip-none">미작성</span></td>
+                  <td><span class="stam-link-chip">REQ-002</span></td>
+                  <td><span class="stam-link-chip is-muted">미작성</span></td>
                   <td><span class="msl-chip msl-chip-review">검토중</span></td>
                   <td class="msl-date">2026-06-09</td>
                 </tr>
@@ -426,8 +330,8 @@
                   <td><span class="msl-lv-text">멤버 관리</span></td>
                   <td><span class="msl-chip msl-chip-type-list">목록</span></td>
                   <td><span class="msl-fob msl-fob-bo">BO</span></td>
-                  <td><span class="msl-link-chip-none">미연결</span></td>
-                  <td><span class="msl-link-chip-none">미작성</span></td>
+                  <td><span class="stam-link-chip is-muted">미연결</span></td>
+                  <td><span class="stam-link-chip is-muted">미작성</span></td>
                   <td><span class="msl-chip msl-chip-hold">보류</span></td>
                   <td class="msl-date">2026-06-08</td>
                 </tr>
@@ -562,7 +466,7 @@
               <div class="msl-ffield full stam-form-field full-span">
                 <label class="msl-flbl stam-label">연결 요구사항</label>
                 <div class="msl-linked-chips">
-                  <span class="msl-link-chip">REQ-001</span>
+                  <span class="stam-link-chip">REQ-001</span>
                 </div>
                 <button class="msl-link-add" type="button">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -575,7 +479,7 @@
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                   아직 연결된 화면설계서가 없습니다.
                 </div>
-                <button class="msl-link-add" type="button" style="margin-top:6px">
+                <button class="msl-link-add stam-link-add-spaced" type="button">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   화면설계서 연결 추가
                 </button>
@@ -648,19 +552,19 @@
                 <div class="msl-ic"><div class="msl-ik">LV2</div><div class="msl-iv">요구사항정의서</div></div>
                 <div class="msl-ic"><div class="msl-ik">FO/BO</div><div class="msl-iv"><span class="msl-fob msl-fob-fo">FO</span></div></div>
                 <div class="msl-ic"><div class="msl-ik">상태</div><div class="msl-iv"><span class="msl-chip msl-chip-done">확정</span></div></div>
-                <div class="msl-ic"><div class="msl-ik">담당자</div><div class="msl-iv"><span class="msl-ava" style="background:#5454e8">김</span> 김민준</div></div>
+                <div class="msl-ic"><div class="msl-ik">담당자</div><div class="msl-iv"><span class="msl-ava stam-avatar is-brand">김</span> 김민준</div></div>
                 <div class="msl-ic"><div class="msl-ik">최종 수정일</div><div class="msl-iv">2026-06-10</div></div>
               </div>
             </div>
           </div>
 
           <!-- Tab 1: 연결 정보 -->
-          <div class="msl-tab-panel" style="display:none">
+          <div class="msl-tab-panel is-hidden">
             <div class="msl-dw-sec">
               <div class="msl-dw-sec-hdr"><h3>연결 요구사항</h3><span class="msl-dw-sec-badge">2</span></div>
-              <div class="msl-linked-chips" style="margin-bottom:8px">
-                <span class="msl-link-chip">REQ-001</span>
-                <span class="msl-link-chip">REQ-002</span>
+              <div class="msl-linked-chips stam-linked-chips-spaced">
+                <span class="stam-link-chip">REQ-001</span>
+                <span class="stam-link-chip">REQ-002</span>
               </div>
             </div>
             <div class="msl-dw-sec">
@@ -673,7 +577,7 @@
           </div>
 
           <!-- Tab 2: 변경 이력 -->
-          <div class="msl-tab-panel" style="display:none">
+          <div class="msl-tab-panel is-hidden">
             <div class="msl-chg-list">
               <div class="msl-chg-item">
                 <span class="msl-chg-dot"></span>
@@ -825,10 +729,10 @@
               <div class="msl-ffield full stam-form-field full-span">
                 <label class="msl-flbl stam-label">연결 요구사항</label>
                 <div class="msl-linked-chips">
-                  <span class="msl-link-chip">REQ-001</span>
-                  <span class="msl-link-chip">REQ-002</span>
+                  <span class="stam-link-chip">REQ-001</span>
+                  <span class="stam-link-chip">REQ-002</span>
                 </div>
-                <button class="msl-link-add" type="button" style="margin-top:6px">
+                <button class="msl-link-add stam-link-add-spaced" type="button">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   요구사항 연결 추가
                 </button>
@@ -866,47 +770,47 @@
         <div class="stam-drawer-head" id="msv2-head"></div>
 
         <!-- Tabs (detail only) -->
-        <div id="msv2-tabs">
-          <button class="msv2-tab on" type="button" data-msv2-tab="info">기본 정보</button>
-          <button class="msv2-tab"    type="button" data-msv2-tab="link">연결 정보</button>
-          <button class="msv2-tab"    type="button" data-msv2-tab="review">검토 이력</button>
-          <button class="msv2-tab"    type="button" data-msv2-tab="history">변경 이력</button>
+        <div id="msv2-tabs" class="stam-drawer-tabs">
+          <button class="stam-drawer-tab on" type="button" data-msv2-tab="info">기본 정보</button>
+          <button class="stam-drawer-tab"    type="button" data-msv2-tab="link">연결 정보</button>
+          <button class="stam-drawer-tab"    type="button" data-msv2-tab="review">검토 이력</button>
+          <button class="stam-drawer-tab"    type="button" data-msv2-tab="history">변경 이력</button>
         </div>
 
         <!-- Body -->
         <div class="stam-drawer-body">
-          <div class="msv2-content-flow">
+          <div class="stam-drawer-content-flow">
 
           <!-- Detail tab panels (rendered by renderDetail()) -->
-          <div class="msv2-tab-panel" id="msv2-tab-info"    data-tab="info"></div>
-          <div class="msv2-tab-panel" id="msv2-tab-link"    data-tab="link"    style="display:none"></div>
-          <div class="msv2-tab-panel" id="msv2-tab-review"  data-tab="review"  style="display:none"></div>
-          <div class="msv2-tab-panel" id="msv2-tab-history" data-tab="history" style="display:none"></div>
+          <div class="stam-drawer-tab-panel" id="msv2-tab-info"    data-tab="info"></div>
+          <div class="stam-drawer-tab-panel is-hidden" id="msv2-tab-link"    data-tab="link"></div>
+          <div class="stam-drawer-tab-panel is-hidden" id="msv2-tab-review"  data-tab="review"></div>
+          <div class="stam-drawer-tab-panel is-hidden" id="msv2-tab-history" data-tab="history"></div>
 
           <!-- Register / Edit form -->
-          <div class="msv2-form-area">
+          <div class="stam-drawer-form-area stam-drawer-select-compact">
 
             <!-- Section 1: 기본 정보 -->
-            <div class="msv2-fs">
-              <div class="msv2-fs-hdr">
-                <span class="msv2-fs-num">1</span>
-                <span class="msv2-fs-title">기본 정보</span>
+            <div class="stam-form-section">
+              <div class="stam-form-section-head">
+                <span class="stam-form-section-num">1</span>
+                <span class="stam-form-section-title">기본 정보</span>
               </div>
-              <div class="msv2-fgrid">
+              <div class="stam-form-grid is-compact">
 
-                <div class="msv2-ffield">
-                  <label class="msv2-flbl" for="msv2-f-name">화면명 <span class="req">*</span></label>
-                  <input class="msv2-inp" type="text" id="msv2-f-name" placeholder="화면명을 입력하세요">
+                <div class="stam-form-field is-compact">
+                  <label class="stam-form-label" for="msv2-f-name">화면명 <span class="req">*</span></label>
+                  <input class="stam-form-input" type="text" id="msv2-f-name" placeholder="화면명을 입력하세요">
                 </div>
 
-                <div class="msv2-ffield">
-                  <label class="msv2-flbl" for="msv2-f-menuname">메뉴명</label>
-                  <input class="msv2-inp" type="text" id="msv2-f-menuname" placeholder="메뉴명">
+                <div class="stam-form-field is-compact">
+                  <label class="stam-form-label" for="msv2-f-menuname">메뉴명</label>
+                  <input class="stam-form-input" type="text" id="msv2-f-menuname" placeholder="메뉴명">
                 </div>
 
-                <div class="msv2-ffield">
-                  <label class="msv2-flbl" for="msv2-f-type">화면 유형</label>
-                  <select class="msv2-sel" id="msv2-f-type">
+                <div class="stam-form-field is-compact">
+                  <label class="stam-form-label" for="msv2-f-type">화면 유형</label>
+                  <select class="stam-form-input" id="msv2-f-type">
                     <option value="">선택</option>
                     <option value="목록">목록</option>
                     <option value="등록">등록</option>
@@ -919,18 +823,18 @@
                   </select>
                 </div>
 
-                <div class="msv2-ffield">
-                  <label class="msv2-flbl" for="msv2-f-channel">채널 (FO/BO)</label>
-                  <select class="msv2-sel" id="msv2-f-channel">
+                <div class="stam-form-field is-compact">
+                  <label class="stam-form-label" for="msv2-f-channel">채널 (FO/BO)</label>
+                  <select class="stam-form-input" id="msv2-f-channel">
                     <option value="">선택</option>
                     <option value="FO">FO</option>
                     <option value="BO">BO</option>
                   </select>
                 </div>
 
-                <div class="msv2-ffield">
-                  <label class="msv2-flbl" for="msv2-f-status">작성 상태</label>
-                  <select class="msv2-sel" id="msv2-f-status">
+                <div class="stam-form-field is-compact">
+                  <label class="stam-form-label" for="msv2-f-status">작성 상태</label>
+                  <select class="stam-form-input" id="msv2-f-status">
                     <option value="draft">작성중</option>
                     <option value="reviewing">검토중</option>
                     <option value="confirmed">확정</option>
@@ -938,44 +842,44 @@
                   </select>
                 </div>
 
-                <div class="msv2-ffield">
-                  <label class="msv2-flbl" for="msv2-f-review">검토 상태</label>
-                  <select class="msv2-sel" id="msv2-f-review">
+                <div class="stam-form-field is-compact">
+                  <label class="stam-form-label" for="msv2-f-review">검토 상태</label>
+                  <select class="stam-form-input" id="msv2-f-review">
                     <option value="Review Needed">검토 필요</option>
                     <option value="In Review">검토중</option>
                     <option value="Approved">승인완료</option>
                   </select>
                 </div>
 
-                <div class="msv2-ffield full">
-                  <label class="msv2-flbl" for="msv2-f-route">화면 경로</label>
-                  <input class="msv2-inp" type="text" id="msv2-f-route" placeholder="예: /requirements/list">
+                <div class="stam-form-field is-compact full">
+                  <label class="stam-form-label" for="msv2-f-route">화면 경로</label>
+                  <input class="stam-form-input" type="text" id="msv2-f-route" placeholder="예: /requirements/list">
                 </div>
 
-                <div class="msv2-ffield full">
-                  <label class="msv2-flbl" for="msv2-f-owner">담당자</label>
-                  <input class="msv2-inp" type="text" id="msv2-f-owner" placeholder="담당자 이름">
+                <div class="stam-form-field is-compact full">
+                  <label class="stam-form-label" for="msv2-f-owner">담당자</label>
+                  <input class="stam-form-input" type="text" id="msv2-f-owner" placeholder="담당자 이름">
                 </div>
 
-                <div class="msv2-ffield full">
-                  <label class="msv2-flbl" for="msv2-f-desc">화면 설명</label>
-                  <textarea class="msv2-ta" id="msv2-f-desc" placeholder="화면의 목적과 주요 기능을 간략히 설명하세요." rows="3"></textarea>
+                <div class="stam-form-field is-compact full">
+                  <label class="stam-form-label" for="msv2-f-desc">화면 설명</label>
+                  <textarea class="stam-form-textarea" id="msv2-f-desc" placeholder="화면의 목적과 주요 기능을 간략히 설명하세요." rows="3"></textarea>
                 </div>
 
               </div>
             </div>
 
             <!-- Section 2: 메뉴 계층 -->
-            <div class="msv2-fs">
-              <div class="msv2-fs-hdr">
-                <span class="msv2-fs-num">2</span>
-                <span class="msv2-fs-title">메뉴 계층</span>
+            <div class="stam-form-section">
+              <div class="stam-form-section-head">
+                <span class="stam-form-section-num">2</span>
+                <span class="stam-form-section-title">메뉴 계층</span>
               </div>
-              <div class="msv2-fgrid">
+              <div class="stam-form-grid is-compact">
 
-                <div class="msv2-ffield">
-                  <label class="msv2-flbl" for="msv2-f-lv1">LV1</label>
-                  <select class="msv2-sel" id="msv2-f-lv1">
+                <div class="stam-form-field is-compact">
+                  <label class="stam-form-label" for="msv2-f-lv1">LV1</label>
+                  <select class="stam-form-input" id="msv2-f-lv1">
                     <option value="">선택</option>
                     <option value="서비스 루트">서비스 루트</option>
                     <option value="대시보드">대시보드</option>
@@ -988,48 +892,48 @@
                   </select>
                 </div>
 
-                <div class="msv2-ffield">
-                  <label class="msv2-flbl" for="msv2-f-lv2">LV2</label>
-                  <input class="msv2-inp" type="text" id="msv2-f-lv2" placeholder="LV2 메뉴명">
+                <div class="stam-form-field is-compact">
+                  <label class="stam-form-label" for="msv2-f-lv2">LV2</label>
+                  <input class="stam-form-input" type="text" id="msv2-f-lv2" placeholder="LV2 메뉴명">
                 </div>
 
-                <div class="msv2-ffield full">
-                  <label class="msv2-flbl" for="msv2-f-lv3">LV3</label>
-                  <input class="msv2-inp" type="text" id="msv2-f-lv3" placeholder="LV3 메뉴명">
+                <div class="stam-form-field is-compact full">
+                  <label class="stam-form-label" for="msv2-f-lv3">LV3</label>
+                  <input class="stam-form-input" type="text" id="msv2-f-lv3" placeholder="LV3 메뉴명">
                 </div>
 
               </div>
             </div>
 
             <!-- Section 3: 연결 정보 -->
-            <div class="msv2-fs">
-              <div class="msv2-fs-hdr">
-                <span class="msv2-fs-num">3</span>
-                <span class="msv2-fs-title">연결 정보</span>
+            <div class="stam-form-section">
+              <div class="stam-form-section-head">
+                <span class="stam-form-section-num">3</span>
+                <span class="stam-form-section-title">연결 정보</span>
               </div>
-              <div class="msv2-fgrid">
+              <div class="stam-form-grid is-compact">
 
-                <div class="msv2-ffield">
-                  <label class="msv2-flbl" for="msv2-f-req">연결 요구사항 ID</label>
-                  <input class="msv2-inp" type="text" id="msv2-f-req" placeholder="REQ-001">
+                <div class="stam-form-field is-compact">
+                  <label class="stam-form-label" for="msv2-f-req">연결 요구사항 ID</label>
+                  <input class="stam-form-input" type="text" id="msv2-f-req" placeholder="REQ-001">
                 </div>
 
-                <div class="msv2-ffield">
-                  <label class="msv2-flbl" for="msv2-f-func">연결 기능정의 ID</label>
-                  <input class="msv2-inp" type="text" id="msv2-f-func" placeholder="FUNC-001">
+                <div class="stam-form-field is-compact">
+                  <label class="stam-form-label" for="msv2-f-func">연결 기능정의 ID</label>
+                  <input class="stam-form-input" type="text" id="msv2-f-func" placeholder="FUNC-001">
                 </div>
 
-                <div class="msv2-ffield full">
-                  <label class="msv2-flbl" for="msv2-f-spec">연결 화면설계서 ID</label>
-                  <input class="msv2-inp" type="text" id="msv2-f-spec" placeholder="SPEC-001">
+                <div class="stam-form-field is-compact full">
+                  <label class="stam-form-label" for="msv2-f-spec">연결 화면설계서 ID</label>
+                  <input class="stam-form-input" type="text" id="msv2-f-spec" placeholder="SPEC-001">
                 </div>
 
               </div>
             </div>
 
-          </div><!-- /.msv2-form-area -->
+          </div><!-- /.stam-drawer-form-area -->
 
-          </div><!-- /.msv2-content-flow -->
+          </div><!-- /.stam-drawer-content-flow -->
         </div><!-- /.stam-drawer-body -->
 
         <!-- Footer (rendered by renderFooter()) -->
