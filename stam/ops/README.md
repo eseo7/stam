@@ -17,6 +17,7 @@
 | PR Audit Log Guide v0.1 | `stam/docs/ops/STAM-PR-Audit-Log-Guide-v0.1.html` |
 | Screenshot QA Gate v0.1 | `stam/docs/ops/STAM-Screenshot-QA-Gate-v0.1.html` |
 | Common UI Inspection Gate v0.1 | `stam/docs/ops/STAM-Common-UI-Inspection-Gate-v0.1.html` |
+| Detail Drawer Common Renderer v0.1 | `stam/docs/ops/STAM-Detail-Drawer-Common-Renderer-v0.1.html` |
 
 ## QA Scripts
 
@@ -49,3 +50,4 @@ node scripts/qa/audit-common-ui-contract.mjs --format text --fail-on none
 - PR #252 — `MERGED_PASS` (mergeSha: `f636ba11fec690556ed162071ec1471d18928a28`)
 - PR #253 — `MERGED_PASS` (mergeSha: `518a35bc2130941fd70f08a739d7bb29de1f1833`)
 - PR #254 — `MERGED_PASS` (mergeSha: `d880dfabc865337a9368b487a7e6a97055d88b50`)
+- PR #255 — `MERGED_PASS` (mergeSha: `c86ee44fee278061c8b9ffaca0e2ef8cbcbafcc4`)

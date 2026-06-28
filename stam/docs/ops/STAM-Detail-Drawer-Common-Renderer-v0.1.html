@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Detail Drawer Common Renderer v0.1</title>
+<link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../../css/stam.tokens.css">
+<link rel="stylesheet" href="../../css/stam.shell.css">
+<link rel="stylesheet" href="../../css/stam.components.css">
+<link rel="stylesheet" href="../../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../../css/stam.docs.css">
+<style>
+.ops-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:var(--font);white-space:nowrap}
+.ops-pill::before{content:"";width:6px;height:6px;border-radius:999px;background:currentColor;display:inline-block;flex-shrink:0}
+.ops-pill.brand{background:var(--stam-soft);color:var(--stam)}
+.ops-pill.warn{background:var(--warn-bg);color:var(--warn)}
+.ops-pill.pass{background:var(--pass-bg);color:var(--pass)}
+.ops-tbl-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--bd)}
+.ops-tbl{width:100%;border-collapse:collapse;font-family:var(--font);font-size:11.5px;background:var(--bg-sur);min-width:680px}
+.ops-tbl th{padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;color:var(--t3);border-bottom:1px solid var(--bd);background:var(--bg-sur2)}
+.ops-tbl td{padding:10px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:top;line-height:1.6}
+.ops-tbl tbody tr:last-child td{border-bottom:none}
+.ops-tbl td code{font-family:var(--font);font-size:10.5px;color:var(--t1);background:var(--bg-sur2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.ops-good{border:1px solid rgba(40,180,99,.30);background:rgba(40,180,99,.06);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.ops-good .bh{font-size:11px;font-weight:800;color:var(--pass);letter-spacing:.06em;text-transform:uppercase}
+.ops-good ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.ops-good li{position:relative;padding-left:14px;font-size:11.5px;color:var(--t2);line-height:1.6}
+.ops-good li::before{content:"✓";position:absolute;left:0;top:0;color:var(--pass);font-weight:800}
+.ops-bad{border:1px solid rgba(255,90,71,.35);background:rgba(255,90,71,.08);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.ops-bad .bh{font-size:11px;font-weight:800;color:var(--fail);letter-spacing:.06em;text-transform:uppercase}
+.ops-bad ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.ops-bad li{position:relative;padding-left:14px;font-size:11.5px;color:var(--t2);line-height:1.6}
+.ops-bad li::before{content:"×";position:absolute;left:0;top:0;color:var(--fail);font-weight:800}
+.ops-warn{border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.06);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.ops-warn .bh{font-size:11px;font-weight:800;color:var(--warn);letter-spacing:.06em;text-transform:uppercase}
+.ops-warn ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.ops-warn li{position:relative;padding-left:14px;font-size:11.5px;color:var(--t2);line-height:1.6}
+.ops-warn li::before{content:"!";position:absolute;left:0;top:0;color:var(--warn);font-weight:800}
+pre.sample{background:var(--bg-sur2);border:1px solid var(--bd);border-radius:var(--r-md);padding:14px 16px;font-family:var(--font);font-size:11px;line-height:1.65;color:var(--t2);overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+</style>
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a href="../STAM-Docs-Index.html" class="doc-nav-back">← Docs</a>
+  <span class="doc-nav-title">Detail Drawer Common Renderer v0.1</span>
+  <span class="doc-nav-pill"><span class="dot"></span>운영 기준</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Detail Drawer</span>
+      <span class="toc-ver-pill">v0.1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>목적</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>적용 범위</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>이번 PR 범위</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>하지 않는 것</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>CSS contract</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>JS API</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>샘플 config</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>샘플 output</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>QA 기준</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>후속 전환</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <section id="s01" class="sec" data-screen-label="01 목적">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">목적</span>
+          <span class="sbadge guide">v0.1</span>
+        </div>
+        <div class="sec-body">
+          <p>STAM 주요 board 화면의 <strong>상세 Drawer 본문</strong>을 동일한 구조·스타일로 전환하기 위한 공통 CSS/JS 기반을 제공한다.</p>
+          <ul class="blist">
+            <li>Drawer <strong>shell</strong>은 기존 <code>stam-drawer*</code> (stam.drawer.css)를 유지한다.</li>
+            <li>Drawer <strong>body</strong>는 <code>stam-detail*</code> + <code>STAM.detailDrawer</code>로 렌더한다.</li>
+            <li>board별 legacy prefix (<code>rq-*</code>, <code>msv2-*</code> 등)를 점진 제거한다.</li>
+          </ul>
+          <div class="ibox warn" style="margin-top:16px">
+            <strong>공통화 완료가 아님</strong> — 본 문서와 자산은 “기반 생성” 단계이다. 실제 화면 전환은 후속 PR에서 진행한다.
+          </div>
+        </div>
+      </section>
+
+      <section id="s02" class="sec" data-screen-label="02 적용 범위">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">적용 범위 (대상 board)</span>
+        </div>
+        <div class="sec-body">
+          <div class="ops-tbl-wrap">
+            <table class="ops-tbl">
+              <thead><tr><th>화면</th><th>현재 상태</th><th>전환 PR (예정)</th></tr></thead>
+              <tbody>
+                <tr><td>메뉴구조/화면목록</td><td><span class="ops-pill warn">legacy msv2-*</span></td><td>PR #257</td></tr>
+                <tr><td>요구사항정의서</td><td><span class="ops-pill warn">legacy rq-*</span></td><td>PR #258</td></tr>
+                <tr><td>WBS</td><td><span class="ops-pill warn">legacy wbs-*</span></td><td>이후 단계</td></tr>
+                <tr><td>화면설계서</td><td><span class="ops-pill warn">legacy ssv2-*</span></td><td>이후 단계</td></tr>
+                <tr><td>기능정의서</td><td><span class="ops-pill warn">legacy fn-*</span></td><td>이후 단계</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="s03" class="sec" data-screen-label="03 이번 PR">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">PR #256 범위 (공통 자산 생성)</span>
+        </div>
+        <div class="sec-body">
+          <div class="ops-good">
+            <span class="bh">포함</span>
+            <ul>
+              <li><code>stam/css/stam.detail-drawer.css</code> 신규</li>
+              <li><code>stam/js/stam.detail-drawer.js</code> — <code>STAM.detailDrawer</code></li>
+              <li>본 운영 문서</li>
+              <li>PR #255 audit log 기록 추가</li>
+              <li>contract 검사 설정 갱신 (자산 존재 확인)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="s04" class="sec" data-screen-label="04 하지 않는 것">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">이번 PR에서 하지 않는 것</span>
+        </div>
+        <div class="sec-body">
+          <div class="ops-bad">
+            <span class="bh">금지 / 범위 외</span>
+            <ul>
+              <li>기존 board HTML/JS/CSS의 Drawer 본문 전환</li>
+              <li>Drawer open/close / tab / scrim 로직 변경</li>
+              <li>Firestore / API / localStorage 데이터 접근</li>
+              <li>“공통화 완료” 선언</li>
+              <li>실제 board 화면에 <code>mount()</code> 적용</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="s05" class="sec" data-screen-label="05 CSS">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">CSS class contract</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">로드 순서</p>
+          <pre class="sample">stam.tokens.css → stam.drawer.css → stam.detail-drawer.css → (페이지 CSS)</pre>
+          <p class="sub" style="margin-top:16px">본문 class (board prefix 금지)</p>
+          <ul class="blist">
+            <li><code>.stam-detail</code> — root</li>
+            <li><code>.stam-detail-section</code>, <code>.stam-detail-section-head</code>, <code>.stam-detail-section-title</code>, <code>.stam-detail-section-meta</code></li>
+            <li><code>.stam-detail-grid</code>, <code>.stam-detail-field</code>, <code>.stam-detail-label</code>, <code>.stam-detail-value</code>, <code>.stam-detail-empty</code></li>
+            <li><code>.stam-detail-note</code>, <code>.stam-detail-list</code>, <code>.stam-detail-chip-row</code>, <code>.stam-detail-chip</code></li>
+            <li><code>.stam-detail-actions</code>, <code>.stam-detail-divider</code></li>
+          </ul>
+          <p class="sub" style="margin-top:16px">반응형</p>
+          <ul class="blist">
+            <li>640px 이하: <code>.stam-detail-grid</code> 1열</li>
+            <li>가로 스크롤 유발 금지 (<code>min-width:0</code>, <code>overflow-wrap</code>)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="s06" class="sec" data-screen-label="06 JS API">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">JS renderer API</span>
+        </div>
+        <div class="sec-body">
+          <div class="ops-tbl-wrap">
+            <table class="ops-tbl">
+              <thead><tr><th>함수</th><th>설명</th></tr></thead>
+              <tbody>
+                <tr><td><code>STAM.detailDrawer.escape(value)</code></td><td>HTML escape. null/undefined → 빈 문자열</td></tr>
+                <tr><td><code>renderField(field)</code></td><td><code>{ label, value, emptyText, type, className, full }</code> → field HTML</td></tr>
+                <tr><td><code>renderSection(section)</code></td><td><code>{ title, meta, fields, body, emptyText }</code> → section HTML</td></tr>
+                <tr><td><code>render(config)</code></td><td><code>{ title, sections, actions, dividerBeforeActions }</code> → root HTML</td></tr>
+                <tr><td><code>mount(target, config)</code></td><td>selector 또는 HTMLElement. 없으면 <code>false</code>. 성공 <code>true</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="sub" style="margin-top:16px">field.type</p>
+          <ul class="blist">
+            <li><code>text</code> (default), <code>plain</code>, <code>note</code>, <code>list</code>, <code>chips</code></li>
+            <li><code>chips</code> item: <code>{ label, tone?, className? }</code> — tone: brand / pass / warn / fail</li>
+          </ul>
+          <div class="ibox warn" style="margin-top:12px">
+            <code>section.body</code>는 trusted HTML 용도(마이그레이션 단계). 일반 텍스트는 <code>fields</code> + escape 경로 사용.
+          </div>
+        </div>
+      </section>
+
+      <section id="s07" class="sec" data-screen-label="07 샘플 config">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">샘플 config</span>
+        </div>
+        <div class="sec-body">
+<pre class="sample">{
+  title: "상세 본문 (데모)",
+  sections: [
+    {
+      title: "기본 정보",
+      meta: "REQ-001",
+      fields: [
+        { label: "제목", value: "로그인 화면 개선" },
+        { label: "우선순위", type: "chips",
+          value: [{ label: "High", tone: "warn" }] },
+        { label: "설명", value: "소셜 로그인 버튼 정렬", type: "note", full: true }
+      ]
+    },
+    {
+      title: "연관 항목",
+      fields: [
+        { label: "태그", type: "chips", value: ["UI", "Auth"] },
+        { label: "비고", value: "", emptyText: "없음" }
+      ]
+    }
+  ],
+  dividerBeforeActions: true,
+  actions: [
+    { label: "이력 보기", className: "stam-btn stam-btn-ghost" }
+  ]
+}</pre>
+        </div>
+      </section>
+
+      <section id="s08" class="sec" data-screen-label="08 샘플 output">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">샘플 output 구조</span>
+        </div>
+        <div class="sec-body">
+<pre class="sample">&lt;div class="stam-detail"&gt;
+  &lt;div class="stam-detail-section-head is-standalone"&gt;…&lt;/div&gt;
+  &lt;section class="stam-detail-section"&gt;
+    &lt;div class="stam-detail-section-head"&gt;…&lt;/div&gt;
+    &lt;div class="stam-detail-grid"&gt;
+      &lt;div class="stam-detail-field"&gt;
+        &lt;div class="stam-detail-label"&gt;…&lt;/div&gt;
+        &lt;div class="stam-detail-value"&gt;…&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+  &lt;hr class="stam-detail-divider"&gt;
+  &lt;div class="stam-detail-actions"&gt;…&lt;/div&gt;
+&lt;/div&gt;</pre>
+          <p class="sub" style="margin-top:16px">검증 (Node)</p>
+<pre class="sample">node --check stam/js/stam.detail-drawer.js
+node -e "
+  global.window = global;
+  require('fs').readFileSync('stam/js/stam.detail-drawer.js','utf8').replace(/^\\/\\*[^]*?\\*\\/\\n/,'').replace(/\\(function/,'').replace(/\\}\\)\\(\\);?$/,'');
+"</pre>
+        </div>
+      </section>
+
+      <section id="s09" class="sec" data-screen-label="09 QA">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">Light / Dark / Mobile QA 기준</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li><strong>Light:</strong> grid border·label hierarchy·note accent bar 정상</li>
+            <li><strong>Dark:</strong> <code>data-theme="dark"</code> surface/border token flip, chip semantic 색 유지</li>
+            <li><strong>Mobile 430px:</strong> grid 1열, chip wrap, 가로 스크롤 없음</li>
+            <li><strong>Shell 충돌 없음:</strong> <code>.stam-drawer-body</code> 내부에 <code>.stam-detail</code>만 삽입</li>
+          </ul>
+          <div class="ibox info" style="margin-top:12px">
+            PR #256은 제품 UI 미전환 PR — Screenshot QA 생략. 문서 URL 200 및 script 검증으로 대체.
+          </div>
+        </div>
+      </section>
+
+      <section id="s10" class="sec" data-screen-label="10 후속">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">후속 전환 순서</span>
+        </div>
+        <div class="sec-body">
+          <ol class="blist" style="list-style:decimal;padding-left:20px">
+            <li><strong>PR #257</strong> — 메뉴/화면 상세 Drawer 공통 renderer 적용</li>
+            <li><strong>PR #258</strong> — 요구사항정의서 상세 Drawer 공통 renderer 적용</li>
+            <li><strong>이후</strong> — WBS → 화면설계서 → 기능정의서 단계 적용</li>
+          </ol>
+          <p style="margin-top:16px">각 전환 PR은 Screenshot QA Gate + Common UI contract 검사 + PR Audit Log 기록을 따른다.</p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../../js/stam.theme.js"></script>
+<script src="../../js/stam.shell.js"></script>
+</body>
+</html>
