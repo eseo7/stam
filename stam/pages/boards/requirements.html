@@ -354,35 +354,36 @@
         <!-- ══════════════ 등록 DRAWER ══════════════ -->
         <div class="rq-drawer stam-drawer" id="rq-dw-register" role="dialog" aria-modal="true" aria-label="요구사항 등록">
           <div class="rq-dw-head stam-drawer-head">
-            <div class="rq-dw-hrow1">
-              <span class="rq-req-badge">NEW</span>
-              <span style="font-size:12px;color:var(--t3);margin-left:2px">요구사항 등록</span>
-              <button class="rq-dw-close" aria-label="닫기">
+            <div class="stam-drawer-head-row rq-dw-hrow1">
+              <span class="stam-drawer-head-badge rq-req-badge">NEW</span>
+              <span class="stam-drawer-head-subtitle">요구사항 등록</span>
+              <button class="stam-drawer-close rq-dw-close" type="button" aria-label="닫기">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
             <div class="rq-dw-htitle stam-drawer-title">새 요구사항 등록</div>
-            <div class="rq-dw-hmeta">
+            <div class="stam-drawer-meta rq-dw-hmeta">
               <span class="rq-chip rq-chip-draft">작성중</span>
-              <span style="font-size:11px;color:var(--t3)">등록 후 ID가 자동 부여됩니다</span>
+              <span class="stam-drawer-meta-source">등록 후 ID가 자동 부여됩니다</span>
             </div>
           </div>
 
           <div class="rq-dw-body stam-drawer-body">
+            <div class="stam-drawer-form-area stam-drawer-select-compact">
             <!-- 섹션 1: 기본 정보 -->
-            <div class="rq-fs">
-              <div class="rq-fs-hdr">
-                <span class="rq-fs-num">1</span>
-                <span class="rq-fs-title">기본 정보</span>
+            <div class="stam-form-section is-drawer">
+              <div class="stam-form-section-head">
+                <span class="stam-form-section-num">1</span>
+                <span class="stam-form-section-title">기본 정보</span>
               </div>
-              <div class="rq-fgrid stam-form-grid">
-                <div class="rq-ffield stam-form-field">
-                  <label class="rq-flbl stam-label">요구사항 ID <span style="font-size:10.5px;color:var(--t3)">(자동 부여)</span></label>
-                  <input class="rq-inp ro stam-input" value="REQ-025" readonly>
+              <div class="stam-form-grid">
+                <div class="stam-form-field rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">요구사항 ID <span class="stam-drawer-meta-source">(자동 부여)</span></label>
+                  <input class="stam-form-input is-readonly" value="REQ-025" readonly>
                 </div>
-                <div class="rq-ffield stam-form-field">
-                  <label class="rq-flbl stam-label">유형 <span class="req">*</span></label>
-                  <select class="rq-inp stam-select">
+                <div class="stam-form-field rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">유형 <span class="req">*</span></label>
+                  <select class="stam-form-input rq-inp">
                     <option value="">유형 선택</option>
                     <option>기능</option>
                     <option>화면</option>
@@ -393,22 +394,22 @@
                     <option>비기능</option>
                   </select>
                 </div>
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">요구사항명 <span class="req">*</span></label>
-                  <input class="rq-inp stam-input" placeholder="요구사항명을 입력하세요">
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">요구사항명 <span class="req">*</span></label>
+                  <input class="stam-form-input" placeholder="요구사항명을 입력하세요">
                 </div>
-                <div class="rq-ffield stam-form-field">
-                  <label class="rq-flbl stam-label">우선순위 <span class="req">*</span></label>
-                  <select class="rq-inp stam-select">
+                <div class="stam-form-field rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">우선순위 <span class="req">*</span></label>
+                  <select class="stam-form-input rq-inp">
                     <option value="">우선순위 선택</option>
                     <option>높음</option>
                     <option>보통</option>
                     <option>낮음</option>
                   </select>
                 </div>
-                <div class="rq-ffield stam-form-field">
-                  <label class="rq-flbl stam-label">상태</label>
-                  <select class="rq-inp stam-select">
+                <div class="stam-form-field rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">상태</label>
+                  <select class="stam-form-input rq-inp">
                     <option>작성중</option>
                     <option>검토요청</option>
                     <option>검토완료</option>
@@ -416,45 +417,45 @@
                     <option>보류</option>
                   </select>
                 </div>
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">담당자</label>
-                  <input class="rq-inp stam-input" placeholder="담당자 검색 또는 입력">
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">담당자</label>
+                  <input class="stam-form-input" placeholder="담당자 검색 또는 입력">
                 </div>
               </div>
             </div>
 
             <!-- 섹션 2: 요구 내용 -->
-            <div class="rq-fs">
-              <div class="rq-fs-hdr">
-                <span class="rq-fs-num">2</span>
-                <span class="rq-fs-title">요구 내용</span>
+            <div class="stam-form-section is-drawer">
+              <div class="stam-form-section-head">
+                <span class="stam-form-section-num">2</span>
+                <span class="stam-form-section-title">요구 내용</span>
               </div>
-              <div class="rq-fgrid stam-form-grid">
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">배경 <span class="req">*</span></label>
-                  <textarea class="rq-inp stam-textarea" placeholder="이 요구사항이 필요한 배경을 작성하세요" style="min-height:72px"></textarea>
+              <div class="stam-form-grid">
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">배경 <span class="req">*</span></label>
+                  <textarea class="stam-form-textarea is-h72" placeholder="이 요구사항이 필요한 배경을 작성하세요"></textarea>
                 </div>
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">상세 요구사항 <span class="req">*</span></label>
-                  <textarea class="rq-inp stam-textarea" placeholder="구체적인 요구사항을 기술하세요" style="min-height:96px"></textarea>
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">상세 요구사항 <span class="req">*</span></label>
+                  <textarea class="stam-form-textarea is-h96" placeholder="구체적인 요구사항을 기술하세요"></textarea>
                 </div>
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">수용 조건</label>
-                  <textarea class="rq-inp stam-textarea" placeholder="이 요구사항이 충족되었다고 판단하는 조건을 작성하세요" style="min-height:72px"></textarea>
-                  <span class="rq-helper">수용 조건은 줄바꿈으로 구분하면 각 항목으로 인식됩니다</span>
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">수용 조건</label>
+                  <textarea class="stam-form-textarea is-h72" placeholder="이 요구사항이 충족되었다고 판단하는 조건을 작성하세요"></textarea>
+                  <span class="stam-form-help rq-helper">수용 조건은 줄바꿈으로 구분하면 각 항목으로 인식됩니다</span>
                 </div>
               </div>
             </div>
 
             <!-- 섹션 3: 연결 정보 -->
-            <div class="rq-fs">
-              <div class="rq-fs-hdr">
-                <span class="rq-fs-num">3</span>
-                <span class="rq-fs-title">연결 정보</span>
+            <div class="stam-form-section is-drawer">
+              <div class="stam-form-section-head">
+                <span class="stam-form-section-num">3</span>
+                <span class="stam-form-section-title">연결 정보</span>
               </div>
-              <div class="rq-fgrid stam-form-grid">
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">연결 화면설계서</label>
+              <div class="stam-form-grid">
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">연결 화면설계서</label>
                   <div class="rq-linked-chips">
                     <button class="rq-link-add" type="button">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -466,8 +467,8 @@
                     연결된 화면설계서가 없습니다
                   </div>
                 </div>
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">연결 WBS</label>
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">연결 WBS</label>
                   <div class="rq-linked-chips">
                     <button class="rq-link-add" type="button">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -479,52 +480,53 @@
                     연결된 WBS 항목이 없습니다
                   </div>
                 </div>
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">관련 메뉴 경로</label>
-                  <input class="rq-inp stam-input" placeholder="예: 산출물 관리 > 요구사항정의서 > 목록">
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">관련 메뉴 경로</label>
+                  <input class="stam-form-input" placeholder="예: 산출물 관리 > 요구사항정의서 > 목록">
                 </div>
               </div>
             </div>
 
             <!-- 섹션 4: 검토 정보 -->
-            <div class="rq-fs">
-              <div class="rq-fs-hdr">
-                <span class="rq-fs-num">4</span>
-                <span class="rq-fs-title">검토 정보</span>
+            <div class="stam-form-section is-drawer">
+              <div class="stam-form-section-head">
+                <span class="stam-form-section-num">4</span>
+                <span class="stam-form-section-title">검토 정보</span>
               </div>
-              <div class="rq-fgrid stam-form-grid">
-                <div class="rq-ffield stam-form-field">
-                  <label class="rq-flbl stam-label">검토자</label>
-                  <input class="rq-inp stam-input" placeholder="검토자 검색 또는 입력">
+              <div class="stam-form-grid">
+                <div class="stam-form-field rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">검토자</label>
+                  <input class="stam-form-input" placeholder="검토자 검색 또는 입력">
                 </div>
-                <div class="rq-ffield stam-form-field">
-                  <label class="rq-flbl stam-label">승인 상태</label>
-                  <select class="rq-inp stam-select">
+                <div class="stam-form-field rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">승인 상태</label>
+                  <select class="stam-form-input rq-inp">
                     <option>미승인</option>
                     <option>승인완료</option>
                     <option>반려</option>
                   </select>
                 </div>
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">검토 메모</label>
-                  <textarea class="rq-inp stam-textarea" placeholder="검토자에게 전달할 내용 또는 검토 의견을 작성하세요" style="min-height:72px"></textarea>
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">검토 메모</label>
+                  <textarea class="stam-form-textarea is-h72" placeholder="검토자에게 전달할 내용 또는 검토 의견을 작성하세요"></textarea>
                 </div>
               </div>
+            </div>
             </div>
           </div>
 
           <div class="stam-drawer-foot">
             <div class="stam-dw-foot-left">
-              <button class="rq-btn rq-btn-ghost stam-btn stam-btn-ghost stam-btn--md stam-btn--ghost" type="button" data-rq-close>취소</button>
-              <button class="rq-btn rq-btn-out stam-btn stam-btn-outline stam-btn--md stam-btn--secondary" type="button">
+              <button class="stam-btn stam-btn-ghost stam-btn--md stam-btn--ghost" type="button" data-rq-close>취소</button>
+              <button class="stam-btn stam-btn-outline stam-btn--md stam-btn--secondary" type="button">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
                 임시저장
               </button>
-              <button class="rq-btn rq-btn-ghost stam-btn stam-btn-ghost stam-btn--md stam-btn--ghost" type="button">전체 보기</button>
+              <button class="stam-btn stam-btn-ghost stam-btn--md stam-btn--ghost" type="button">전체 보기</button>
             </div>
             <div class="stam-dw-foot-spacer"></div>
             <div class="stam-dw-foot-right">
-              <button class="rq-btn rq-btn-pri stam-btn stam-btn-primary stam-btn--md stam-btn--primary" type="button">
+              <button class="stam-btn stam-btn-primary stam-btn--md stam-btn--primary rq-btn-pri" type="button">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 등록
               </button>
@@ -598,27 +600,25 @@
           </div>
 
           <div class="rq-dw-body stam-drawer-body">
-            <div class="rq-edit-sum">
-              <div class="rq-edit-sum-ic">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              </div>
-              <div class="rq-edit-sum-txt"><span class="rq-edit-sum-id">REQ-001</span> 수정 모드 — 최종 변경 2026-06-10 · 저장 시 변경 이력이 기록됩니다</div>
+            <div class="stam-edit-notice">
+              <span class="rq-edit-sum-id">REQ-001</span> 수정 모드 — 최종 변경 2026-06-10 · 저장 시 변경 이력이 기록됩니다
             </div>
 
+            <div class="stam-drawer-form-area stam-drawer-select-compact">
             <!-- 섹션 1: 기본 정보 -->
-            <div class="rq-fs">
-              <div class="rq-fs-hdr">
-                <span class="rq-fs-num">1</span>
-                <span class="rq-fs-title">기본 정보</span>
+            <div class="stam-form-section is-drawer">
+              <div class="stam-form-section-head">
+                <span class="stam-form-section-num">1</span>
+                <span class="stam-form-section-title">기본 정보</span>
               </div>
-              <div class="rq-fgrid stam-form-grid">
-                <div class="rq-ffield stam-form-field">
-                  <label class="rq-flbl stam-label">요구사항 ID</label>
-                  <input class="rq-inp ro stam-input" value="REQ-001" readonly>
+              <div class="stam-form-grid">
+                <div class="stam-form-field rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">요구사항 ID</label>
+                  <input class="stam-form-input is-readonly" value="REQ-001" readonly>
                 </div>
-                <div class="rq-ffield stam-form-field">
-                  <label class="rq-flbl stam-label">유형 <span class="req">*</span></label>
-                  <select class="rq-inp stam-select">
+                <div class="stam-form-field rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">유형 <span class="req">*</span></label>
+                  <select class="stam-form-input rq-inp">
                     <option selected>기능</option>
                     <option>화면</option>
                     <option>데이터</option>
@@ -628,21 +628,21 @@
                     <option>비기능</option>
                   </select>
                 </div>
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">요구사항명 <span class="req">*</span></label>
-                  <input class="rq-inp stam-input" value="요구사항정의서 목록 화면 기본 구조">
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">요구사항명 <span class="req">*</span></label>
+                  <input class="stam-form-input" value="요구사항정의서 목록 화면 기본 구조">
                 </div>
-                <div class="rq-ffield stam-form-field">
-                  <label class="rq-flbl stam-label">우선순위 <span class="req">*</span></label>
-                  <select class="rq-inp stam-select">
+                <div class="stam-form-field rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">우선순위 <span class="req">*</span></label>
+                  <select class="stam-form-input rq-inp">
                     <option selected>높음</option>
                     <option>보통</option>
                     <option>낮음</option>
                   </select>
                 </div>
-                <div class="rq-ffield stam-form-field">
-                  <label class="rq-flbl stam-label">상태</label>
-                  <select class="rq-inp stam-select">
+                <div class="stam-form-field rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">상태</label>
+                  <select class="stam-form-input rq-inp">
                     <option>작성중</option>
                     <option>검토요청</option>
                     <option>검토완료</option>
@@ -650,31 +650,31 @@
                     <option>보류</option>
                   </select>
                 </div>
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">담당자</label>
-                  <input class="rq-inp stam-input" value="김지훈">
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">담당자</label>
+                  <input class="stam-form-input" value="김지훈">
                 </div>
               </div>
             </div>
 
             <!-- 섹션 2: 요구 내용 -->
-            <div class="rq-fs">
-              <div class="rq-fs-hdr">
-                <span class="rq-fs-num">2</span>
-                <span class="rq-fs-title">요구 내용</span>
+            <div class="stam-form-section is-drawer">
+              <div class="stam-form-section-head">
+                <span class="stam-form-section-num">2</span>
+                <span class="stam-form-section-title">요구 내용</span>
               </div>
-              <div class="rq-fgrid stam-form-grid">
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">배경 <span class="req">*</span></label>
-                  <textarea class="rq-inp stam-textarea" style="min-height:72px">프로젝트 관리 시스템에서 요구사항을 체계적으로 관리하고, 화면설계서·WBS와의 연결 추적성을 확보하기 위한 목록 화면이 필요합니다.</textarea>
+              <div class="stam-form-grid">
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">배경 <span class="req">*</span></label>
+                  <textarea class="stam-form-textarea is-h72">프로젝트 관리 시스템에서 요구사항을 체계적으로 관리하고, 화면설계서·WBS와의 연결 추적성을 확보하기 위한 목록 화면이 필요합니다.</textarea>
                 </div>
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">상세 요구사항 <span class="req">*</span></label>
-                  <textarea class="rq-inp stam-textarea" style="min-height:96px">요구사항 ID, 요구사항명, 유형, 우선순위, 상태, 담당자, 연결 화면설계서, 연결 WBS, 최종 수정일을 컬럼으로 포함한 테이블 형태의 목록 화면을 구성한다.</textarea>
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">상세 요구사항 <span class="req">*</span></label>
+                  <textarea class="stam-form-textarea is-h96">요구사항 ID, 요구사항명, 유형, 우선순위, 상태, 담당자, 연결 화면설계서, 연결 WBS, 최종 수정일을 컬럼으로 포함한 테이블 형태의 목록 화면을 구성한다.</textarea>
                 </div>
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">수용 조건</label>
-                  <textarea class="rq-inp stam-textarea" style="min-height:72px">테이블에 지정된 컬럼이 모두 표시된다.
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">수용 조건</label>
+                  <textarea class="stam-form-textarea is-h72">테이블에 지정된 컬럼이 모두 표시된다.
 Summary Strip에서 상태별 건수와 연결 수가 확인된다.
 검색·필터가 동작한다.
 행 클릭 시 상세 Drawer가 열린다.</textarea>
@@ -683,14 +683,14 @@ Summary Strip에서 상태별 건수와 연결 수가 확인된다.
             </div>
 
             <!-- 섹션 3: 연결 정보 -->
-            <div class="rq-fs">
-              <div class="rq-fs-hdr">
-                <span class="rq-fs-num">3</span>
-                <span class="rq-fs-title">연결 정보</span>
+            <div class="stam-form-section is-drawer">
+              <div class="stam-form-section-head">
+                <span class="stam-form-section-num">3</span>
+                <span class="stam-form-section-title">연결 정보</span>
               </div>
-              <div class="rq-fgrid stam-form-grid">
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">연결 화면설계서</label>
+              <div class="stam-form-grid">
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">연결 화면설계서</label>
                   <div class="rq-linked-card" style="margin-bottom:6px">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--stam);flex-shrink:0" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
                     <div>
@@ -706,8 +706,8 @@ Summary Strip에서 상태별 건수와 연결 수가 확인된다.
                     화면설계서 연결 추가
                   </button>
                 </div>
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">연결 WBS</label>
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">연결 WBS</label>
                   <div class="rq-linked-card" style="margin-bottom:6px">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:#8B5CF6;flex-shrink:0" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
                     <div>
@@ -723,52 +723,53 @@ Summary Strip에서 상태별 건수와 연결 수가 확인된다.
                     WBS 항목 연결 추가
                   </button>
                 </div>
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">관련 메뉴 경로</label>
-                  <input class="rq-inp stam-input" value="산출물 관리 > 요구사항정의서 > 목록">
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">관련 메뉴 경로</label>
+                  <input class="stam-form-input" value="산출물 관리 > 요구사항정의서 > 목록">
                 </div>
               </div>
             </div>
 
             <!-- 섹션 4: 검토 정보 -->
-            <div class="rq-fs">
-              <div class="rq-fs-hdr">
-                <span class="rq-fs-num">4</span>
-                <span class="rq-fs-title">검토 정보</span>
+            <div class="stam-form-section is-drawer">
+              <div class="stam-form-section-head">
+                <span class="stam-form-section-num">4</span>
+                <span class="stam-form-section-title">검토 정보</span>
               </div>
-              <div class="rq-fgrid stam-form-grid">
-                <div class="rq-ffield stam-form-field">
-                  <label class="rq-flbl stam-label">검토자</label>
-                  <input class="rq-inp stam-input" value="이수연">
+              <div class="stam-form-grid">
+                <div class="stam-form-field rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">검토자</label>
+                  <input class="stam-form-input" value="이수연">
                 </div>
-                <div class="rq-ffield stam-form-field">
-                  <label class="rq-flbl stam-label">승인 상태</label>
-                  <select class="rq-inp stam-select">
+                <div class="stam-form-field rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">승인 상태</label>
+                  <select class="stam-form-input rq-inp">
                     <option>미승인</option>
                     <option selected>승인완료</option>
                     <option>반려</option>
                   </select>
                 </div>
-                <div class="rq-ffield full stam-form-field full-span">
-                  <label class="rq-flbl stam-label">검토 메모</label>
-                  <textarea class="rq-inp stam-textarea" style="min-height:72px">목록 컬럼 구성 및 Summary Strip 기준 확인 완료. 수용 조건 모두 충족됨.</textarea>
+                <div class="stam-form-field full-span rq-ffield">
+                  <label class="stam-form-label stam-label rq-flbl">검토 메모</label>
+                  <textarea class="stam-form-textarea is-h72">목록 컬럼 구성 및 Summary Strip 기준 확인 완료. 수용 조건 모두 충족됨.</textarea>
                 </div>
               </div>
+            </div>
             </div>
           </div>
 
           <div class="stam-drawer-foot">
             <div class="stam-dw-foot-left">
-              <button class="rq-btn rq-btn-ghost stam-btn stam-btn-ghost stam-btn--md stam-btn--ghost" type="button" data-rq-close>취소</button>
-              <button class="rq-btn rq-btn-out stam-btn stam-btn-outline stam-btn--md stam-btn--secondary" type="button">
+              <button class="stam-btn stam-btn-ghost stam-btn--md stam-btn--ghost" type="button" data-rq-close>취소</button>
+              <button class="stam-btn stam-btn-outline stam-btn--md stam-btn--secondary" type="button">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
                 임시저장
               </button>
-              <button class="rq-btn rq-btn-ghost stam-btn stam-btn-ghost stam-btn--md stam-btn--ghost" type="button">전체 보기</button>
+              <button class="stam-btn stam-btn-ghost stam-btn--md stam-btn--ghost" type="button">전체 보기</button>
             </div>
             <div class="stam-dw-foot-spacer"></div>
             <div class="stam-dw-foot-right">
-              <button class="rq-btn rq-btn-pri stam-btn stam-btn-primary stam-btn--md stam-btn--primary" type="button">
+              <button class="stam-btn stam-btn-primary stam-btn--md stam-btn--primary rq-btn-pri" type="button">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
                 저장
               </button>

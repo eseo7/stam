@@ -457,13 +457,13 @@
       var submitIcon  = mode === 'register' ? ICON_PLUS : ICON_SAVE;
       foot.innerHTML =
         '<div class="stam-dw-foot-left">' +
-          '<button class="stam-btn stam-btn-ghost stam-btn--md"   id="msv2-cancel-btn" type="button">취소</button>' +
-          '<button class="stam-btn stam-btn-outline stam-btn--md" id="msv2-draft-btn"  type="button">' + ICON_SAVE + ' 임시저장</button>' +
-          '<button class="stam-btn stam-btn-ghost stam-btn--md"   id="msv2-view-btn"   type="button">전체 보기</button>' +
+          '<button class="stam-btn stam-btn-ghost stam-btn--md stam-btn--ghost" id="msv2-cancel-btn" type="button">취소</button>' +
+          '<button class="stam-btn stam-btn-outline stam-btn--md stam-btn--secondary" id="msv2-draft-btn" type="button">' + ICON_SAVE + ' 임시저장</button>' +
+          '<button class="stam-btn stam-btn-ghost stam-btn--md stam-btn--ghost" id="msv2-view-btn" type="button">전체 보기</button>' +
         '</div>' +
         '<div class="stam-dw-foot-spacer"></div>' +
         '<div class="stam-dw-foot-right">' +
-          '<button class="stam-btn stam-btn-primary stam-btn--md" id="msv2-save-btn" type="button">' + submitIcon + ' ' + submitLabel + '</button>' +
+          '<button class="stam-btn stam-btn-primary stam-btn--md stam-btn--primary" id="msv2-save-btn" type="button">' + submitIcon + ' ' + submitLabel + '</button>' +
         '</div>';
       var cancelBtn = $('msv2-cancel-btn'); if (cancelBtn) cancelBtn.addEventListener('click', closeDrawer);
       var saveBtn   = $('msv2-save-btn');   if (saveBtn)   saveBtn.addEventListener('click',   save);
