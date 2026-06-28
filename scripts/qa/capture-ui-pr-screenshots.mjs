@@ -42,9 +42,14 @@ Examples:
   node scripts/qa/capture-ui-pr-screenshots.mjs --pr 254 --base-url http://127.0.0.1:5500/stam
 
 Requirements:
-  Playwright must be installed separately (not bundled in this repo):
-    npm install -D playwright
+  Playwright must be available in the QA runtime. Do not add it to this repo's package.json.
+  Use Playwright already installed in Cursor/CI/local QA, or prepare it in a temporary
+  environment only. Do not modify package.json or package-lock.json from this script.
+  If browser binaries are missing, run in the QA environment only:
     npx playwright install chromium
+  Do not commit dependency changes or browser cache artifacts to this repo.
+  Do not run npm install -D playwright in this repo unless a separate dependency PR
+  explicitly allows package.json changes.
 
 Safety:
   - Read-only scenarios only (no save/delete/submit)
@@ -211,9 +216,15 @@ async function loadPlaywright() {
     console.error('');
     console.error('Playwright is not installed or could not be loaded.');
     console.error('');
-    console.error('Install Playwright separately (this script does NOT modify package.json):');
-    console.error('  npm install -D playwright');
+    console.error('Playwright must be available in the QA runtime. Do not add it to this repo\'s package.json.');
+    console.error('Use Playwright already installed in Cursor/CI/local QA, or prepare it in a temporary');
+    console.error('environment only. Do not modify package.json or package-lock.json.');
+    console.error('');
+    console.error('If browser binaries are missing, prepare Chromium in the QA environment only:');
     console.error('  npx playwright install chromium');
+    console.error('Do not commit dependency changes or browser cache artifacts to this repo.');
+    console.error('Do not run npm install -D playwright in this repo unless a separate dependency PR');
+    console.error('explicitly allows package.json changes.');
     console.error('');
     console.error('Then re-run this script.');
     console.error('');
