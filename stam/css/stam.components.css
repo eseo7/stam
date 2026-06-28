@@ -886,3 +886,45 @@
     gap: 12px;
   }
 }
+
+/* ============================================================
+ * STAM Scrollbar — common visual contract (PR #270)
+ * Token source: stam.tokens.css (--stam-scrollbar-*)
+ * Apply: class="stam-scrollbar" or class="stam-scroll-area"
+ * ============================================================ */
+.stam-scrollbar,
+.stam-scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: var(--stam-scrollbar-thumb) var(--stam-scrollbar-track);
+}
+
+.stam-scrollbar::-webkit-scrollbar,
+.stam-scroll-area::-webkit-scrollbar {
+  width: var(--stam-scrollbar-size);
+  height: var(--stam-scrollbar-size);
+}
+
+.stam-scrollbar::-webkit-scrollbar-track,
+.stam-scroll-area::-webkit-scrollbar-track {
+  background: var(--stam-scrollbar-track);
+  border-radius: 999px;
+}
+
+.stam-scrollbar::-webkit-scrollbar-thumb,
+.stam-scroll-area::-webkit-scrollbar-thumb {
+  background: var(--stam-scrollbar-thumb);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.stam-scrollbar::-webkit-scrollbar-thumb:hover,
+.stam-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: var(--stam-scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+
+.stam-scrollbar::-webkit-scrollbar-corner,
+.stam-scroll-area::-webkit-scrollbar-corner {
+  background: var(--stam-scrollbar-track);
+}
