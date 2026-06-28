@@ -77,44 +77,8 @@ body:has(.req-page) .po-main { overflow-x: hidden; }
 /* ── Avatar ── */
 .rq-ava { border-radius:5px;display:inline-grid;place-items:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0;width:24px;height:24px }
 
-/* ── Scrim ── */
-.rq-scrim { position:fixed;inset:0;background:rgba(14,26,46,.22);z-index:49;opacity:0;pointer-events:none;transition:opacity 200ms }
-.rq-scrim.show { opacity:1;pointer-events:auto }
-
-/* ── Drawer shell ── */
-.rq-drawer {
-  position:fixed;top:0;right:0;bottom:0;
-  width:min(var(--stam-drawer-width), calc(100vw - var(--stam-drawer-gutter)));
-  background:var(--bg-sur);
-  box-shadow:-8px 0 32px rgba(0,0,0,.16),0 0 1px rgba(0,0,0,.07);
-  z-index:50;display:flex;flex-direction:column;
-  transform:translateX(102%);
-  transition:transform 260ms cubic-bezier(.32,.72,.32,1);
-}
-.rq-drawer.open { transform:none }
-
-/* ── Drawer header ── */
-.rq-dw-head { flex-shrink:0;padding:18px 24px 0;border-bottom:1px solid var(--bd) }
-.rq-dw-hrow1 { display:flex;align-items:center;gap:7px;margin-bottom:8px }
+/* ── Drawer badge (screen hook) ── */
 .rq-req-badge { font-size:11px;font-weight:700;color:var(--stam);background:rgba(84,81,232,.10);border:1px solid rgba(84,81,232,.22);padding:2px 8px;border-radius:var(--r-sm);letter-spacing:.02em }
-.rq-dw-close { margin-left:auto;width:28px;height:28px;border:0;background:transparent;color:var(--t3);cursor:pointer;border-radius:var(--r-md);display:grid;place-items:center;transition:all 120ms;flex-shrink:0 }
-.rq-dw-close:hover { background:var(--bg-sur2);color:var(--t1) }
-.rq-dw-htitle { font-size:17px;font-weight:700;color:var(--t1);letter-spacing:-.022em;line-height:1.3;margin-bottom:7px }
-.rq-dw-hmeta { display:flex;align-items:center;gap:6px;margin-bottom:14px;flex-wrap:wrap }
-
-/* ── Drawer tabs ── */
-.rq-dw-tabs { flex-shrink:0;display:flex;padding:0 24px;border-bottom:1px solid var(--bd) }
-.rq-dw-tab { position:relative;border:0;background:transparent;cursor:pointer;padding:10px 14px;font-size:12.5px;font-weight:500;color:var(--t3);display:inline-flex;align-items:center;gap:5px;transition:color 120ms;white-space:nowrap;font-family:inherit }
-.rq-dw-tab:hover { color:var(--t1) }
-.rq-dw-tab.on { color:var(--stam);font-weight:700 }
-.rq-dw-tab.on::after { content:"";position:absolute;left:6px;right:6px;bottom:-1px;height:2px;background:var(--stam);border-radius:2px 2px 0 0 }
-
-/* ── Drawer body ── */
-.rq-dw-body { flex:1;overflow-y:auto;padding:20px 24px 8px;scrollbar-width:thin;scrollbar-color:rgba(100,116,139,.18) transparent }
-.rq-dw-body::-webkit-scrollbar { width:5px }
-.rq-dw-body::-webkit-scrollbar-thumb { background:rgba(100,116,139,.18);border-radius:99px }
-
-/* ── Drawer footer — 공통 .stam-drawer-foot / .stam-dw-foot-left / .stam-dw-foot-right / .stam-dw-foot-meta / .stam-dw-foot-spacer 사용 ── */
 
 /* ── Drawer sections ── */
 .rq-dw-sec { margin-bottom:18px }
