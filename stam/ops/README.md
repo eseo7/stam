@@ -53,3 +53,4 @@ node scripts/qa/audit-common-ui-contract.mjs --format text --fail-on none
 - PR #255 — `MERGED_PASS` (mergeSha: `c86ee44fee278061c8b9ffaca0e2ef8cbcbafcc4`)
 - PR #256 — `MERGED_PASS` (mergeSha: `0c57febb2ddd091f50239c94f5e46bbdc7f49567`)
 - PR #257 — `MERGED_PASS` (mergeSha: `323fe6f5eb91cfee632e6225a552f1983d1fbc67`)
+- PR #259 — `DRAFT_PENDING_VISUAL_REVIEW` (inline style 제거 + stam-* 공통 CSS 재구성)
