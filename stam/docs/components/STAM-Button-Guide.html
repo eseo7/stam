@@ -21,7 +21,7 @@
   <a href="../STAM-Docs-Index.html" class="doc-nav-back">← Docs</a>
   <a href="../STAM-Component-Guide.html" class="doc-nav-back">← Component Guide</a>
   <span class="doc-nav-title">Button Guide</span>
-  <span class="doc-nav-pill"><span class="dot"></span>Skeleton</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Detail Draft</span>
   <div class="doc-nav-sp"></div>
   <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
 </nav>
@@ -30,118 +30,314 @@
   <aside class="guide-toc">
     <div class="toc-hdr">
       <span class="toc-brand">Button Guide</span>
-      <span class="toc-ver-pill">Skeleton</span>
+      <span class="toc-ver-pill">Detail Draft</span>
     </div>
     <ul class="toc-list">
       <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>목적</a></li>
-      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>적용 대상</a></li>
-      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>기본 원칙</a></li>
-      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Do</a></li>
-      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>Don't</a></li>
-      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>QA 체크리스트</a></li>
-      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>관련 링크</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>버튼 유형</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>사용 위치별 기준</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>버튼 문구 기준</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>우선순위 기준</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Do</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Don't</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Cursor 작업 지시 기준</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>QA 체크리스트</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>관련 링크</a></li>
     </ul>
   </aside>
 
   <main class="guide-main" id="guide-main">
     <div class="guide-content">
 
-      <div class="ibox warn" style="margin-bottom:24px;">
-        <strong>상태: Skeleton</strong> — 구조만 생성된 상태입니다. 상세 규칙은 후속 작업에서 확장합니다.
+      <div class="ibox info">
+        <div>
+          <strong>상태: Detail Draft</strong>
+          <span class="sbadge plan">2026-06-29</span>
+        </div>
+        <p>
+          이 문서는 1차 기준 초안입니다. STAM 화면 작업 시 버튼 판단 기준으로 참고하십시오.
+          현재 기준은 1차 초안이며, 향후 실제 화면 리뷰 결과를 반영하여 순차 보완합니다.
+        </p>
       </div>
 
+      <!-- 01 목적 -->
       <section id="s01" class="sec" data-screen-label="01 목적">
         <div class="sec-hdr">
           <span class="sec-n">01</span>
           <span class="sec-title">목적</span>
-          <span class="sbadge guide">Skeleton</span>
+          <span class="sbadge guide">Detail Draft</span>
         </div>
         <div class="sec-body">
           <ul class="blist">
-            <li>STAM 화면에서 사용하는 Button 컴포넌트의 위계 · 사이즈 · 상태 기준을 정의한다.</li>
-            <li>상세 규칙은 후속 작업에서 확장한다.</li>
+            <li>STAM 화면 전반에서 버튼 사용 기준을 통일한다.</li>
+            <li>Cursor / Claude / Codex가 STAM 화면 작업 시 버튼 유형·문구·위계를 판단하는 기준 문서로 사용한다.</li>
+            <li>기존 공통 CSS/JS/DOM 기준을 설명한다. 새 버튼 클래스·토큰·DOM 구조를 제안하지 않는다.</li>
+            <li>새 화면을 만들거나 기존 화면을 수정할 때, 이 문서를 먼저 확인한 뒤 버튼 배치를 결정한다.</li>
           </ul>
         </div>
       </section>
 
-      <section id="s02" class="sec" data-screen-label="02 적용 대상">
+      <!-- 02 버튼 유형 -->
+      <section id="s02" class="sec" data-screen-label="02 버튼 유형">
         <div class="sec-hdr">
           <span class="sec-n">02</span>
-          <span class="sec-title">적용 대상</span>
-          <span class="sbadge guide">Skeleton</span>
+          <span class="sec-title">버튼 유형</span>
+          <span class="sbadge guide">Detail Draft</span>
         </div>
         <div class="sec-body">
           <ul class="blist">
-            <li>모든 화면의 Primary · Secondary · Danger · Ghost 버튼</li>
-            <li>Drawer 등록 · 수정 · 저장 액션 버튼</li>
-            <li>Dialog 내 확인 · 취소 버튼</li>
+            <li>
+              <strong>Primary Button</strong> — 화면의 핵심 완료 액션에 사용한다.
+              화면당 원칙적으로 1개만 배치한다.
+              예: 등록, 저장, 적용.
+            </li>
+            <li>
+              <strong>Secondary Button</strong> — 보조 액션 또는 Primary와 병렬로 배치되는 선택지에 사용한다.
+              예: 취소, 닫기, 이전.
+            </li>
+            <li>
+              <strong>Ghost / Text Button</strong> — 강조가 필요 없는 인라인 액션·툴바 보조 액션에 사용한다.
+              시각 무게를 최소화해야 할 때 선택한다.
+              예: 초기화, 전체 보기, 필터 해제.
+            </li>
+            <li>
+              <strong>Danger Button</strong> — 삭제·초기화 등 되돌릴 수 없는 위험 액션에 사용한다.
+              반드시 Dialog 확인 단계와 함께 배치한다.
+              예: 삭제, 일괄 삭제, 강제 초기화.
+            </li>
+            <li>
+              <strong>Icon Button</strong> — 아이콘만으로 구성된 버튼이다.
+              반드시 <code>aria-label</code>을 지정하여 의미를 명확히 한다.
+              아이콘 의미가 맥락 없이 불명확한 경우 사용하지 않는다.
+            </li>
           </ul>
         </div>
       </section>
 
-      <section id="s03" class="sec" data-screen-label="03 기본 원칙">
+      <!-- 03 사용 위치별 기준 -->
+      <section id="s03" class="sec" data-screen-label="03 사용 위치별 기준">
         <div class="sec-hdr">
           <span class="sec-n">03</span>
-          <span class="sec-title">기본 원칙</span>
-          <span class="sbadge guide">Skeleton</span>
+          <span class="sec-title">사용 위치별 기준</span>
+          <span class="sbadge guide">Detail Draft</span>
         </div>
         <div class="sec-body">
           <ul class="blist">
-            <li>Primary · Secondary · Danger · Ghost 위계를 준수한다.</li>
-            <li>크기는 sm · md · lg 3단계를 사용한다.</li>
-            <li>아이콘 + 텍스트 조합은 허용한다.</li>
+            <li>
+              <strong>목록 상단 주요 액션</strong> —
+              Primary 1개를 상단 우측에 배치한다.
+              보조 액션은 Secondary 또는 Ghost로 좌측에 배치한다.
+              예: 등록 (Primary) / 내보내기·필터 (Secondary 또는 Ghost).
+            </li>
+            <li>
+              <strong>툴바 보조 액션</strong> —
+              Secondary 또는 Ghost를 사용한다.
+              아이콘 + 텍스트 조합을 권장한다.
+              예: 필터, 열 설정, 초기화, 내보내기.
+            </li>
+            <li>
+              <strong>드로어 하단 액션</strong> —
+              취소(Secondary) → 저장/등록(Primary) 순서를 유지한다.
+              위험 액션이 포함된 경우 Danger를 별도 좌측에 배치한다.
+              버튼 순서와 레이아웃은 전 화면 일관되게 유지한다.
+            </li>
+            <li>
+              <strong>테이블 행 액션</strong> —
+              Ghost 또는 Icon Button을 사용한다.
+              행 내 버튼 수는 최소화한다 (원칙 3개 이하).
+              예: 상세, 수정, 삭제.
+            </li>
+            <li>
+              <strong>위험 액션</strong> —
+              Danger Button을 사용하고 반드시 Dialog 확인 단계를 거친다.
+              목록 상단에 Danger를 직접 배치하지 않는다.
+            </li>
+            <li>
+              <strong>빈 상태(Empty State) 액션</strong> —
+              Primary 1개만 배치한다.
+              예: 등록하러 가기, 전체 보기, 새로 만들기.
+            </li>
           </ul>
         </div>
       </section>
 
-      <section id="s04" class="sec" data-screen-label="04 Do">
+      <!-- 04 버튼 문구 기준 -->
+      <section id="s04" class="sec" data-screen-label="04 버튼 문구 기준">
         <div class="sec-hdr">
           <span class="sec-n">04</span>
-          <span class="sec-title">Do</span>
-          <span class="sbadge guide">Skeleton</span>
+          <span class="sec-title">버튼 문구 기준</span>
+          <span class="sbadge guide">Detail Draft</span>
         </div>
         <div class="sec-body">
           <ul class="blist">
-            <li>Primary는 화면당 1개만 배치한다.</li>
-            <li>위험 · 되돌릴 수 없는 작업에 Danger 버튼을 사용한다.</li>
-            <li>아이콘 단독 버튼에 <code>aria-label</code>을 추가한다.</li>
+            <li>
+              <strong>사용자가 할 행동으로 작성한다.</strong>
+              상태 설명이 아닌 동작 중심 문구를 사용한다.
+            </li>
+            <li>
+              <strong>한국형 업무 문구를 사용한다.</strong>
+              권장 표현: 등록, 저장, 수정, 삭제, 취소, 닫기, 적용, 초기화, 전체 보기, 확인, 이전, 다음.
+            </li>
+            <li>
+              <strong>영어·혼합 표현을 남발하지 않는다.</strong>
+              예: <code>Save</code> → 저장 / <code>Cancel</code> → 취소 / <code>Delete</code> → 삭제.
+              대외 서비스 연동 등 고유명사가 필요한 경우에 한해 예외를 허용한다.
+            </li>
+            <li>
+              <strong>"확인" 단독 사용에 주의한다.</strong>
+              "확인"은 어떤 행동인지 불명확할 수 있다.
+              맥락이 분명한 경우에만 사용하고, 그렇지 않으면 구체적 행동 문구로 대체한다.
+              예: "확인" → 저장, 적용, 닫기 등.
+            </li>
+            <li>
+              <strong>Danger 버튼 문구는 위험성을 명확히 드러낸다.</strong>
+              예: "삭제", "일괄 삭제", "초기화" — 부드럽게 포장하지 않는다.
+            </li>
           </ul>
         </div>
       </section>
 
-      <section id="s05" class="sec" data-screen-label="05 Don't">
+      <!-- 05 우선순위 기준 -->
+      <section id="s05" class="sec" data-screen-label="05 우선순위 기준">
         <div class="sec-hdr">
           <span class="sec-n">05</span>
+          <span class="sec-title">우선순위 기준</span>
+          <span class="sbadge guide">Detail Draft</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>
+              <strong>Primary는 화면당 원칙 1개.</strong>
+              한 화면에 Primary가 2개 이상 보이면 위계가 무너진다.
+              여러 완료 액션이 동시에 노출되어야 하는 경우, 우선 순위를 재검토한다.
+            </li>
+            <li>
+              <strong>저장 / 등록 / 적용 → Primary.</strong>
+              사용자의 핵심 완료 의도를 담은 버튼이다.
+            </li>
+            <li>
+              <strong>취소 / 닫기 / 이전 → Secondary 또는 Ghost.</strong>
+              이탈·복귀 액션은 강조하지 않는다.
+            </li>
+            <li>
+              <strong>삭제 / 초기화 등 위험 액션 → Danger.</strong>
+              문맥에 따라 신중한 Secondary 처리도 허용하나, Danger가 기본 기준이다.
+              위험 액션을 Primary처럼 강조하지 않는다.
+            </li>
+            <li>
+              <strong>동급 선택지가 나열될 경우 → Secondary 동등 배치.</strong>
+              예: 드로어 하단의 취소 + 저장 중 저장만 Primary.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 06 Do -->
+      <section id="s06" class="sec" data-screen-label="06 Do">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Do</span>
+          <span class="sbadge guide">Detail Draft</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>기존 공통 버튼 클래스를 사용한다. 임의 스타일 오버라이드를 금지한다.</li>
+            <li>화면별 Primary 액션을 1개로 유지한다.</li>
+            <li>버튼 문구는 사용자가 할 행동으로 작성한다.</li>
+            <li>아이콘 버튼에는 반드시 <code>aria-label</code>을 지정한다.</li>
+            <li>드로어 하단 버튼 순서를 일관되게 유지한다 (취소 → 저장/등록).</li>
+            <li>Danger 버튼 사용 시 Dialog 확인 단계를 거친다.</li>
+            <li>Ghost 버튼은 툴바·인라인 등 강조가 불필요한 위치에 한정해 사용한다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 07 Don't -->
+      <section id="s07" class="sec" data-screen-label="07 Don't">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
           <span class="sec-title">Don't</span>
-          <span class="sbadge guide">Skeleton</span>
+          <span class="sbadge guide">Detail Draft</span>
         </div>
         <div class="sec-body">
           <ul class="blist bad">
-            <li>임의 배경색 · 크기 인라인 오버라이드 금지.</li>
-            <li>Disabled 버튼에 클릭 이벤트 처리 금지.</li>
-            <li>버튼 텍스트를 아이콘만으로 대체 금지 (<code>aria-label</code> 없는 경우).</li>
+            <li>화면마다 새 버튼 스타일을 만들지 않는다.</li>
+            <li>색상만으로 버튼 의미를 전달하지 않는다.</li>
+            <li>Primary 버튼을 한 화면에 여러 개 배치하지 않는다.</li>
+            <li>삭제·위험 버튼을 일반 Primary처럼 강조하지 않는다.</li>
+            <li>아이콘만 있고 의미가 불명확한 버튼을 사용하지 않는다 (<code>aria-label</code> 없는 Icon Button 금지).</li>
+            <li>Disabled 버튼에 클릭 이벤트를 처리하지 않는다.</li>
+            <li>인라인 배경색·크기 오버라이드를 추가하지 않는다.</li>
+            <li>취소/닫기 버튼을 과하게 강조하지 않는다.</li>
           </ul>
         </div>
       </section>
 
-      <section id="s06" class="sec" data-screen-label="06 QA 체크리스트">
+      <!-- 08 Cursor 작업 지시 기준 -->
+      <section id="s08" class="sec" data-screen-label="08 Cursor 작업 지시 기준">
         <div class="sec-hdr">
-          <span class="sec-n">06</span>
+          <span class="sec-n">08</span>
+          <span class="sec-title">Cursor 작업 지시 기준</span>
+          <span class="sbadge guide">Detail Draft</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>버튼 작업 전 필수 확인 지시문</strong><br>
+            아래 내용을 Cursor / Claude / Codex에게 버튼 관련 작업 지시 시 함께 전달한다.
+          </div>
+          <ul class="blist">
+            <li>
+              버튼을 추가·수정할 때는 반드시 <code>STAM-Button-Guide.html</code>을 먼저 확인한다.
+            </li>
+            <li>
+              새 CSS 클래스, 새 JS, 새 토큰을 생성하지 않는다.
+              기존 공통 버튼 클래스만 사용한다.
+            </li>
+            <li>
+              Primary 버튼은 해당 화면에 이미 몇 개 있는지 먼저 파악한다.
+              추가 시 1개 초과 여부를 확인한다.
+            </li>
+            <li>
+              삭제·초기화 액션에는 Danger 클래스를 사용하고,
+              Dialog 확인 단계가 구현되어 있는지 확인한다.
+            </li>
+            <li>
+              Icon Button을 추가할 때는 <code>aria-label</code>이 포함되어 있는지 확인한다.
+            </li>
+            <li>
+              드로어 하단 버튼 순서는 취소 → 저장/등록 순을 유지한다.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 09 QA 체크리스트 -->
+      <section id="s09" class="sec" data-screen-label="09 QA 체크리스트">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
           <span class="sec-title">QA 체크리스트</span>
-          <span class="sbadge guide">Skeleton</span>
+          <span class="sbadge guide">Detail Draft</span>
         </div>
         <div class="sec-body">
           <ul class="blist">
-            <li>버튼 위계가 화면당 준수되었는지 확인.</li>
-            <li>Hover · <code>:focus-visible</code> 링 표시 확인.</li>
-            <li>Disabled 상태 <code>pointer-events</code> 처리 확인.</li>
+            <li>Primary 버튼이 화면당 1개 중심인지 확인한다.</li>
+            <li>저장 / 등록 / 적용 버튼이 Primary 클래스로 명확히 적용되어 있는지 확인한다.</li>
+            <li>취소 / 닫기 버튼이 과하게 강조되지 않았는지 확인한다 (Secondary 또는 Ghost).</li>
+            <li>삭제 / 위험 액션이 Danger 클래스로 구분되어 있는지 확인한다.</li>
+            <li>라이트 / 다크 모드 전환 시 버튼 대비가 충분한지 확인한다.</li>
+            <li>좁은 화면에서 버튼 줄바꿈·고정 footer가 깨지지 않는지 확인한다.</li>
+            <li>키보드 Tab 이동 시 <code>:focus-visible</code> 포커스 링이 표시되는지 확인한다.</li>
+            <li>Icon Button에 <code>aria-label</code>이 모두 지정되어 있는지 확인한다.</li>
+            <li>Disabled 버튼에 불필요한 클릭 이벤트가 처리되지 않는지 확인한다.</li>
+            <li>드로어 하단 버튼 순서가 전 화면 일관되게 적용되어 있는지 확인한다.</li>
           </ul>
         </div>
       </section>
 
-      <section id="s07" class="sec" data-screen-label="07 관련 링크">
+      <!-- 10 관련 링크 -->
+      <section id="s10" class="sec" data-screen-label="10 관련 링크">
         <div class="sec-hdr">
-          <span class="sec-n">07</span>
+          <span class="sec-n">10</span>
           <span class="sec-title">관련 링크</span>
         </div>
         <div class="sec-body">
@@ -153,7 +349,7 @@
                 <span class="doc-card-sub">전체 문서 진입점</span>
               </div>
               <div class="doc-card-meta">
-                <span class="doc-card-arr"><svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:currentColor;"><path d="M3 7h8M8 4l3 3-3 3"/></svg></span>
+                <span class="doc-card-arr"><svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M8 4l3 3-3 3"/></svg></span>
               </div>
             </a>
             <a href="../STAM-Component-Guide.html" class="doc-card">
@@ -163,7 +359,37 @@
                 <span class="doc-card-sub">컴포넌트 가이드 허브</span>
               </div>
               <div class="doc-card-meta">
-                <span class="doc-card-arr"><svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:currentColor;"><path d="M3 7h8M8 4l3 3-3 3"/></svg></span>
+                <span class="doc-card-arr"><svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M8 4l3 3-3 3"/></svg></span>
+              </div>
+            </a>
+            <a href="STAM-Drawer-Guide.html" class="doc-card">
+              <div class="doc-card-ico">DW</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">Drawer Guide</span>
+                <span class="doc-card-sub">Drawer 패턴 기준 — 드로어 하단 버튼 배치 참고</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="doc-card-arr"><svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M8 4l3 3-3 3"/></svg></span>
+              </div>
+            </a>
+            <a href="STAM-Form-Guide.html" class="doc-card">
+              <div class="doc-card-ico">FM</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">Form Guide</span>
+                <span class="doc-card-sub">폼 영역 버튼 배치 참고</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="doc-card-arr"><svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M8 4l3 3-3 3"/></svg></span>
+              </div>
+            </a>
+            <a href="STAM-Table-Guide.html" class="doc-card">
+              <div class="doc-card-ico">TB</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">Table Guide</span>
+                <span class="doc-card-sub">테이블 행 액션 버튼 배치 참고</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="doc-card-arr"><svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M8 4l3 3-3 3"/></svg></span>
               </div>
             </a>
           </div>
