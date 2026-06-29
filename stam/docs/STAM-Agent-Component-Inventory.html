@@ -33,13 +33,15 @@
     </div>
     <ul class="toc-list">
       <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>목적</a></li>
-      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>필수 확인 공통 CSS</a></li>
-      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>필수 확인 공통 JS</a></li>
-      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>문서/가이드 기준</a></li>
-      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>현재 사용 가능한 가이드</a></li>
-      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>화면 작업 전 보고</a></li>
-      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>FAIL 조건</a></li>
-      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>관련 링크</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>에이전트 작업 규칙</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>필수 확인 공통 CSS</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>문서(docs) 전용 CSS</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>필수 확인 공통 JS</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>문서/가이드 기준</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>현재 사용 가능한 가이드</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>화면 작업 전 보고</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>FAIL 조건</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>관련 링크</a></li>
     </ul>
   </aside>
 
@@ -51,7 +53,7 @@
         <p>
           Cursor / Claude Code / Claude Design가 STAM 화면 작업 시 새 CSS·JS·DOM을 만들지 않고
           기존 공통 컴포넌트를 찾아 조립하도록 돕는 인벤토리 문서입니다.
-          새 화면은 그리는 것이 아니라 기존 STAM 공통 컴포넌트를 조립합니다.
+          새 화면은 그리는 것이 아니라 기존 STAM 공통 컴포넌트를 조립한다.
         </p>
       </div>
 
@@ -72,15 +74,32 @@
         </div>
       </section>
 
-      <!-- 02 필수 확인 공통 CSS -->
-      <section id="s02" class="sec" data-screen-label="02 필수 확인 공통 CSS">
+      <!-- 02 에이전트 작업 규칙 -->
+      <section id="s02" class="sec" data-screen-label="02 에이전트 작업 규칙">
         <div class="sec-hdr">
           <span class="sec-n">02</span>
+          <span class="sec-title">에이전트 작업 규칙</span>
+          <span class="sbadge lock">필수</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>새 화면은 그리는 것이 아니라 기존 STAM 공통 컴포넌트를 조립한다.</li>
+            <li>작업 전 사용할 기존 클래스/함수 목록을 먼저 보고한다.</li>
+            <li>diff에 새 CSS/JS 파일 또는 inline style/script가 있으면 작업 실패다.</li>
+            <li>필요한 컴포넌트가 없으면 임의 생성하지 말고 멈춰서 보고한다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 03 필수 확인 공통 CSS -->
+      <section id="s03" class="sec" data-screen-label="03 필수 확인 공통 CSS">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
           <span class="sec-title">필수 확인 공통 CSS</span>
           <span class="sbadge guide">SSOT</span>
         </div>
         <div class="sec-body">
-          <p class="sub">작업 시작 전 아래 파일을 읽고 사용할 클래스를 선언한다.</p>
+          <p class="sub">제품 화면 작업 시작 전 아래 파일을 읽고 사용할 클래스를 선언한다.</p>
           <table class="stbl">
             <thead>
               <tr><th>파일</th><th>역할</th><th>대표 클래스/토큰</th></tr>
@@ -111,14 +130,44 @@
         </div>
       </section>
 
-      <!-- 03 필수 확인 공통 JS -->
-      <section id="s03" class="sec" data-screen-label="03 필수 확인 공통 JS">
+      <!-- 04 문서(docs) 전용 CSS -->
+      <section id="s04" class="sec" data-screen-label="04 문서(docs) 전용 CSS">
         <div class="sec-hdr">
-          <span class="sec-n">03</span>
+          <span class="sec-n">04</span>
+          <span class="sec-title">문서(docs) 전용 CSS</span>
+          <span class="sbadge lock">제품 화면 사용 금지</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">문서(docs) 전용 스타일. 제품 화면에서는 사용하지 않는다.</p>
+          <table class="stbl">
+            <thead>
+              <tr><th>파일</th><th>역할</th><th>용도</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>stam/css/stam.docs.css</code></td>
+                <td>문서 공통 스타일</td>
+                <td>docs 전용 / 제품 화면 사용 금지</td>
+              </tr>
+              <tr>
+                <td><code>stam/css/stam.ui-baseline-guide.css</code></td>
+                <td>UI Baseline Guide 전용 스타일</td>
+                <td>docs 전용 / 제품 화면 사용 금지</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 05 필수 확인 공통 JS -->
+      <section id="s05" class="sec" data-screen-label="05 필수 확인 공통 JS">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
           <span class="sec-title">필수 확인 공통 JS</span>
           <span class="sbadge guide">SSOT</span>
         </div>
         <div class="sec-body">
+          <p class="sub">제품 화면 작업 시작 전 아래 파일을 읽고 사용할 API를 선언한다.</p>
           <table class="stbl">
             <thead>
               <tr><th>파일</th><th>역할</th><th>대표 API</th></tr>
@@ -144,21 +193,27 @@
                 <td>Topbar 공통 렌더</td>
                 <td class="mono">STAM.topbarRender.init()</td>
               </tr>
+              <tr>
+                <td><code>stam/js/stam.project-context-render.js</code></td>
+                <td>Project Context Bar 공통 렌더</td>
+                <td class="mono">STAM.projectContextRender.init()</td>
+              </tr>
             </tbody>
           </table>
           <p class="sub">DOM 계약 예시</p>
           <ul class="blist">
             <li><code>&lt;nav class="po-sidebar" data-stam-left-nav&gt;</code> + <code>STAM.navRender.init('A1')</code></li>
             <li><code>&lt;header class="po-topbar stam-topbar" data-stam-topbar data-tb-crumbs="..."&gt;</code> + <code>STAM.topbarRender.init()</code></li>
+            <li><code>&lt;div class="po-ctx" data-stam-project-context ...&gt;</code> + <code>STAM.projectContextRender.init()</code></li>
             <li><code>data-theme-toggle</code> 버튼 + <code>STAM.toggleTheme()</code></li>
           </ul>
         </div>
       </section>
 
-      <!-- 04 문서/가이드 기준 -->
-      <section id="s04" class="sec" data-screen-label="04 문서/가이드 기준">
+      <!-- 06 문서/가이드 기준 -->
+      <section id="s06" class="sec" data-screen-label="06 문서/가이드 기준">
         <div class="sec-hdr">
-          <span class="sec-n">04</span>
+          <span class="sec-n">06</span>
           <span class="sec-title">문서/가이드 기준</span>
           <span class="sbadge guide">Governance Draft</span>
         </div>
@@ -176,10 +231,10 @@
         </div>
       </section>
 
-      <!-- 05 현재 사용 가능한 가이드 -->
-      <section id="s05" class="sec" data-screen-label="05 현재 사용 가능한 가이드">
+      <!-- 07 현재 사용 가능한 가이드 -->
+      <section id="s07" class="sec" data-screen-label="07 현재 사용 가능한 가이드">
         <div class="sec-hdr">
-          <span class="sec-n">05</span>
+          <span class="sec-n">07</span>
           <span class="sec-title">현재 사용 가능한 가이드</span>
           <span class="sbadge guide">인덱스</span>
         </div>
@@ -262,15 +317,15 @@
         </div>
       </section>
 
-      <!-- 06 화면 작업 전 보고 -->
-      <section id="s06" class="sec" data-screen-label="06 화면 작업 전 보고">
+      <!-- 08 화면 작업 전 보고 -->
+      <section id="s08" class="sec" data-screen-label="08 화면 작업 전 보고">
         <div class="sec-hdr">
-          <span class="sec-n">06</span>
+          <span class="sec-n">08</span>
           <span class="sec-title">화면 작업 전 보고해야 할 것</span>
           <span class="sbadge guide">필수</span>
         </div>
         <div class="sec-body">
-          <p class="sub">코딩 시작 전 아래 항목을 먼저 보고한다.</p>
+          <p class="sub">작업 전 사용할 기존 클래스/함수 목록을 먼저 보고한다.</p>
           <table class="stbl">
             <thead>
               <tr><th>항목</th><th>내용</th></tr>
@@ -278,11 +333,11 @@
             <tbody>
               <tr>
                 <td>사용할 기존 CSS 파일</td>
-                <td>예: <code>stam.tokens.css</code>, <code>stam.shell.css</code>, <code>stam.components.css</code> (+ 화면 전용 CSS가 이미 있으면 해당 파일명)</td>
+                <td>예: <code>stam/css/stam.tokens.css</code>, <code>stam/css/stam.shell.css</code>, <code>stam/css/stam.components.css</code> (+ 화면 전용 CSS가 이미 있으면 해당 파일명)</td>
               </tr>
               <tr>
                 <td>사용할 기존 JS 파일</td>
-                <td>예: <code>stam.theme.js</code>, <code>stam.nav-render.js</code>, <code>stam.topbar-render.js</code></td>
+                <td>예: <code>stam/js/stam.theme.js</code>, <code>stam/js/stam.nav-render.js</code>, <code>stam/js/stam.topbar-render.js</code>, <code>stam/js/stam.project-context-render.js</code></td>
               </tr>
               <tr>
                 <td>사용할 기존 클래스</td>
@@ -301,10 +356,10 @@
         </div>
       </section>
 
-      <!-- 07 FAIL 조건 -->
-      <section id="s07" class="sec" data-screen-label="07 FAIL 조건">
+      <!-- 09 FAIL 조건 -->
+      <section id="s09" class="sec" data-screen-label="09 FAIL 조건">
         <div class="sec-hdr">
-          <span class="sec-n">07</span>
+          <span class="sec-n">09</span>
           <span class="sec-title">FAIL 조건</span>
           <span class="sbadge lock">FAIL</span>
         </div>
@@ -325,10 +380,10 @@
         </div>
       </section>
 
-      <!-- 08 관련 링크 -->
-      <section id="s08" class="sec" data-screen-label="08 관련 링크">
+      <!-- 10 관련 링크 -->
+      <section id="s10" class="sec" data-screen-label="10 관련 링크">
         <div class="sec-hdr">
-          <span class="sec-n">08</span>
+          <span class="sec-n">10</span>
           <span class="sec-title">관련 링크</span>
           <span class="sbadge guide">링크</span>
         </div>
