@@ -33,68 +33,7 @@
     var hms = '' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
     return 'REQ-MANUAL-' + ymd + '-' + hms;
   }
-  function genMenuDraftId() {
-    var d = new Date();
-    var ymd = '' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate());
-    var hms = '' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
-    return 'MENU-AUTO-' + ymd + '-' + hms;
-  }
   function changeId(id, kind) { return 'CHG-' + id + '-' + kind + '-' + Date.now(); }
-
-  function ensureMenuScreenDraftFromRequirement(req) {
-    if (!req || !req.id) return Promise.resolve(null);
-    var reqId = req.id;
-    return db.listRecords('menuScreens', PID).then(function (items) {
-      var exists = (items || []).some(function (m) {
-        return m.requirementId === reqId
-          || m.requirementId === req.requirementId
-          || m.sourceRef === reqId;
-      });
-      if (exists) return null;
-      var menuDraftId = genMenuDraftId();
-      var draft = {
-        id: menuDraftId,
-        projectId: PID,
-        boardType: 'menuScreen',
-        sourceType: 'Requirement Import',
-        sourceRef: reqId,
-        requirementId: reqId,
-        importBatchId: 'REQ-MANUAL',
-        importRowId: reqId,
-        screenName: req.title || '(요구사항 기반 화면 초안)',
-        menuName: req.title || '(요구사항 기반 메뉴 초안)',
-        lv1: '',
-        lv2: '',
-        lv3: '',
-        screenType: '화면',
-        channel: '',
-        routePath: '',
-        owner: req.owner || '미지정',
-        functionId: '',
-        screenSpecificationId: '',
-        description: req.description || '',
-        status: 'draft',
-        reviewStatus: 'Review Needed',
-        createdAt: nowIso(),
-        updatedAt: nowIso(),
-        createdBy: BY,
-        updatedBy: BY
-      };
-      return db.createRecord('menuScreens', draft).then(function () {
-        return db.appendChange({
-          changeId: changeId(menuDraftId, 'create-menu-screen'),
-          projectId: PID,
-          artifactId: menuDraftId,
-          changeType: 'create',
-          field: 'menuScreen',
-          before: null,
-          after: draft.screenName,
-          at: nowIso(),
-          by: BY
-        }).then(function () { return draft; });
-      });
-    });
-  }
 
   var KO_TO_V2 = {
     '작성중': { status: 'draft', reviewStatus: 'Review Needed' },
