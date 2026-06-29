@@ -398,7 +398,13 @@
 
   function esc(s) { return board.esc(s); }
 
-  // ── 등록 — 관련 산출물 옵션 (UI read/sync only; 저장 연결은 후속 PR) ──
+  function isRelatedArtifactPersistWarning(result) {
+    if (!result || !result.message) return false;
+    if (result.message === '이미 생성된 관련 산출물이 있어 누락된 항목만 추가했습니다.') return false;
+    return /failed|not available|required functions|Failed/i.test(result.message);
+  }
+
+  // ── 등록 — 관련 산출물 옵션 ─────────────────────────────────────────
   var RELATED_ARTIFACT_DEFAULT_TARGETS = {
     menuScreen: true,
     wbs: true,
@@ -528,7 +534,6 @@
     ) {
       relatedPreview = window.STAM.requirementArtifacts.buildRelatedArtifactsFromRequirement(rec, relatedOptions);
     }
-    // Related artifact preview is intentionally not persisted in this PR.
     db.createRecord(STORE, rec)
       .then(function () {
         return db.appendChange({
@@ -537,10 +542,22 @@
         });
       })
       .then(function () {
-        return ensureMenuScreenDraftFromRequirement(rec).catch(function (menuErr) {
-          console.error('[stam.requirements] menu draft create failed', menuErr);
-          alert('요구사항은 저장됐지만 메뉴/화면 초안 생성에 실패했습니다. 메뉴구조/화면목록에서 직접 등록하거나 다시 시도하세요.');
-        });
+        if (
+          window.STAM &&
+          window.STAM.requirementArtifacts &&
+          typeof window.STAM.requirementArtifacts.persistRelatedArtifactsFromRequirement === 'function'
+        ) {
+          return window.STAM.requirementArtifacts.persistRelatedArtifactsFromRequirement(rec, relatedOptions);
+        }
+        return null;
+      })
+      .then(function (persistResult) {
+        if (isRelatedArtifactPersistWarning(persistResult)) {
+          console.error('[stam.requirements] related artifact persist warning', persistResult);
+          alert('요구사항은 저장됐지만 관련 산출물 초안 생성에 일부 실패했습니다. 산출물 목록에서 직접 등록하거나 다시 시도하세요.');
+        } else if (persistResult && persistResult.created && persistResult.created.length > 0) {
+          alert('요구사항이 등록되었습니다. 선택한 관련 산출물 초안도 함께 생성되었습니다.');
+        }
       })
       .then(function () { closeDrawers(); return board.render(); })
       .catch(function (e) {
