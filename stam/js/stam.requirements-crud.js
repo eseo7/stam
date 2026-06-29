@@ -398,6 +398,85 @@
 
   function esc(s) { return board.esc(s); }
 
+  // ── 등록 — 관련 산출물 옵션 (UI read/sync only; 저장 연결은 후속 PR) ──
+  var RELATED_ARTIFACT_DEFAULT_TARGETS = {
+    menuScreen: true,
+    wbs: true,
+    screenSpecification: false,
+    functionalDefinition: false
+  };
+  var RELATED_ARTIFACT_TARGET_KEYS = ['menuScreen', 'wbs', 'screenSpecification', 'functionalDefinition'];
+
+  function copyRelatedTargets(targets) {
+    return {
+      menuScreen: !!targets.menuScreen,
+      wbs: !!targets.wbs,
+      screenSpecification: !!targets.screenSpecification,
+      functionalDefinition: !!targets.functionalDefinition
+    };
+  }
+
+  function getRelatedArtifactOptions(scope) {
+    var defaults = {
+      createRelatedArtifacts: true,
+      targets: copyRelatedTargets(RELATED_ARTIFACT_DEFAULT_TARGETS),
+      generatedByFlow: 'manual'
+    };
+    if (!scope) return defaults;
+    var master = scope.querySelector('[data-rq-related-master]');
+    if (!master) return defaults;
+    if (!master.checked) {
+      return {
+        createRelatedArtifacts: false,
+        targets: { menuScreen: false, wbs: false, screenSpecification: false, functionalDefinition: false },
+        generatedByFlow: 'manual'
+      };
+    }
+    var targets = {};
+    RELATED_ARTIFACT_TARGET_KEYS.forEach(function (key) {
+      var el = scope.querySelector('[data-rq-related-target="' + key + '"]');
+      targets[key] = el ? el.checked : RELATED_ARTIFACT_DEFAULT_TARGETS[key];
+    });
+    return {
+      createRelatedArtifacts: true,
+      targets: copyRelatedTargets(targets),
+      generatedByFlow: 'manual'
+    };
+  }
+
+  function syncRelatedArtifactOptionState(scope) {
+    if (!scope) return;
+    var master = scope.querySelector('[data-rq-related-master]');
+    if (!master) return;
+    var enabled = master.checked;
+    RELATED_ARTIFACT_TARGET_KEYS.forEach(function (key) {
+      var el = scope.querySelector('[data-rq-related-target="' + key + '"]');
+      if (el) el.disabled = !enabled;
+    });
+  }
+
+  function resetRelatedArtifactOptions(scope) {
+    if (!scope) return;
+    var master = scope.querySelector('[data-rq-related-master]');
+    if (master) master.checked = true;
+    RELATED_ARTIFACT_TARGET_KEYS.forEach(function (key) {
+      var el = scope.querySelector('[data-rq-related-target="' + key + '"]');
+      if (el) el.checked = !!RELATED_ARTIFACT_DEFAULT_TARGETS[key];
+    });
+    syncRelatedArtifactOptionState(scope);
+  }
+
+  function bindRelatedArtifactOptionEvents(scope) {
+    if (!scope) return;
+    var master = scope.querySelector('[data-rq-related-master]');
+    if (!master || master.getAttribute('data-rq-related-bound') === '1') return;
+    master.setAttribute('data-rq-related-bound', '1');
+    master.addEventListener('change', function () {
+      syncRelatedArtifactOptionState(scope);
+    });
+    syncRelatedArtifactOptionState(scope);
+  }
+
   // ── 등록 ────────────────────────────────────────────────────────────
   var regDrawer = document.getElementById('rq-dw-register');
   function resetRegister() {
@@ -406,6 +485,7 @@
     if (idInput) idInput.value = '(저장 시 자동 부여)';
     ['유형', '우선순위', '상태', '승인 상태'].forEach(function (l) { var s = fieldByLabel(regDrawer, l); if (s && s.tagName === 'SELECT') { s.selectedIndex = 0; syncCs(s); } });
     ['요구사항명', '담당자', '배경', '상세 요구사항', '수용 조건', '관련 메뉴 경로', '검토자', '검토 메모'].forEach(function (l) { setVal(regDrawer, l, ''); });
+    resetRelatedArtifactOptions(regDrawer);
   }
 
   function submitRegister() {
@@ -576,6 +656,7 @@
   var regBtn = document.getElementById('rq-reg-btn');
   if (regBtn) regBtn.addEventListener('click', function () { setTimeout(resetRegister, 0); });
   if (regDrawer) {
+    bindRelatedArtifactOptionEvents(regDrawer);
     var regSubmit = regDrawer.querySelector('.stam-dw-foot-right .rq-btn-pri');
     if (regSubmit) regSubmit.addEventListener('click', submitRegister);
   }
