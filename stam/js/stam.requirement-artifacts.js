@@ -390,6 +390,220 @@
     return Promise.resolve(buildRelatedArtifactsFromRequirement(requirement, options));
   }
 
+  var EXISTING_STORES = [
+    { key: 'menuScreen', store: 'menuScreens' },
+    { key: 'wbs', store: 'wbsItems' },
+    { key: 'screenSpecification', store: 'screenSpecifications' },
+    { key: 'functionalDefinition', store: 'functionalDefinitions' }
+  ];
+
+  function recordMatchesRequirement(record, reqId) {
+    return record.sourceRequirementId === reqId ||
+      record.requirementId === reqId ||
+      record.sourceRef === reqId;
+  }
+
+  function emptyPersistResult(reqId, message) {
+    return {
+      requirementId: reqId,
+      created: [],
+      skipped: [],
+      links: [],
+      changes: [],
+      summary: {
+        createdCount: 0,
+        skippedCount: 0,
+        linkCount: 0,
+        changeCount: 0
+      },
+      message: message || ''
+    };
+  }
+
+  function makePersistSummary(created, skipped, links, changes) {
+    return {
+      requirementId: '',
+      created: created,
+      skipped: skipped,
+      links: links,
+      changes: changes,
+      summary: {
+        createdCount: created.length,
+        skippedCount: skipped.length,
+        linkCount: links.length,
+        changeCount: changes.length
+      },
+      message: skipped.length ? SKIP_MESSAGE : ''
+    };
+  }
+
+  function queryExistingArtifacts(db, reqId) {
+    return Promise.all(EXISTING_STORES.map(function (entry) {
+      return db.listRecords(entry.store).then(function (rows) {
+        return { key: entry.key, store: entry.store, rows: rows || [] };
+      });
+    })).then(function (results) {
+      var existing = {
+        menuScreen: false,
+        wbs: false,
+        screenSpecification: false,
+        functionalDefinition: false
+      };
+      var storeMaps = {};
+      results.forEach(function (r) {
+        storeMaps[r.store] = r.rows;
+        existing[r.key] = r.rows.some(function (row) {
+          return recordMatchesRequirement(row, reqId);
+        });
+      });
+      return { existing: existing, storeMaps: storeMaps };
+    });
+  }
+
+  function isLinkValidForPersist(link, reqId, createdIdSet) {
+    var fromOk = !!createdIdSet[link.fromArtifactId] || link.fromArtifactId === reqId;
+    var toOk = !!createdIdSet[link.toArtifactId];
+    return fromOk && toOk;
+  }
+
+  function isChangeValidForPersist(change, createdIdSet, savedLinks) {
+    if (change.changeType === 'create') {
+      return !!createdIdSet[change.artifactId];
+    }
+    if (change.changeType === 'link') {
+      for (var i = 0; i < savedLinks.length; i++) {
+        var l = savedLinks[i];
+        if (l.fromArtifactId === change.artifactId &&
+            l.linkType === change.field &&
+            l.toArtifactId === change.after) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function persistRelatedArtifactsFromRequirement(requirement, options) {
+    var reqId = resolveRequirementId(requirement);
+
+    function resolveNoop(message) {
+      return Promise.resolve(emptyPersistResult(reqId, message));
+    }
+
+    var core = window.STAM_CORE;
+    if (!core || !core.db) {
+      return resolveNoop('Local Core DB is not available.');
+    }
+
+    var db = core.db;
+    if (typeof db.listRecords !== 'function' ||
+        typeof db.createRecord !== 'function' ||
+        typeof db.saveLink !== 'function' ||
+        typeof db.appendChange !== 'function') {
+      return resolveNoop('Local Core DB required functions are not available.');
+    }
+
+    var normalized = normalizeOptions(options);
+
+    return queryExistingArtifacts(db, reqId).then(function (ctx) {
+      var optionsWithExisting = Object.assign({}, normalized, {
+        existing: Object.assign({}, normalized.existing, ctx.existing)
+      });
+      var payload = buildRelatedArtifactsFromRequirement(requirement, optionsWithExisting);
+      var skipped = (payload.skipped || []).slice();
+      var created = [];
+      var savedLinks = [];
+      var savedChanges = [];
+      var createdIdSet = {};
+      var persistMessage = payload.message || '';
+      var items = payload.created || [];
+
+      function persistCreated(index) {
+        if (index >= items.length) {
+          return persistLinks(0);
+        }
+
+        var item = items[index];
+        var storeRows = ctx.storeMaps[item.store] || [];
+        var alreadyInDb = storeRows.some(function (row) { return row.id === item.id; });
+
+        if (alreadyInDb) {
+          skipped.push({ target: item.target, reason: 'already_exists' });
+          return persistCreated(index + 1);
+        }
+
+        return db.createRecord(item.store, item.record).then(function () {
+          created.push(item);
+          createdIdSet[item.id] = true;
+          return persistCreated(index + 1);
+        }).catch(function (err) {
+          persistMessage = 'createRecord failed for ' + item.store + '/' + item.id + ': ' +
+            (err && err.message ? err.message : 'unknown error');
+          return persistLinks(0);
+        });
+      }
+
+      function persistLinks(index) {
+        var links = payload.links || [];
+        if (index >= links.length) {
+          return persistChanges(0);
+        }
+
+        var link = links[index];
+        if (!isLinkValidForPersist(link, reqId, createdIdSet)) {
+          return persistLinks(index + 1);
+        }
+
+        return db.saveLink(link).then(function () {
+          savedLinks.push(link);
+          return persistLinks(index + 1);
+        }).catch(function (err) {
+          persistMessage = persistMessage || ('saveLink failed: ' +
+            (err && err.message ? err.message : 'unknown error'));
+          return persistChanges(0);
+        });
+      }
+
+      function persistChanges(index) {
+        var changes = payload.changes || [];
+        if (!created.length && !savedLinks.length) {
+          return finalize();
+        }
+        if (index >= changes.length) {
+          return finalize();
+        }
+
+        var change = changes[index];
+        if (!isChangeValidForPersist(change, createdIdSet, savedLinks)) {
+          return persistChanges(index + 1);
+        }
+
+        return db.appendChange(change).then(function () {
+          savedChanges.push(change);
+          return persistChanges(index + 1);
+        }).catch(function (err) {
+          persistMessage = persistMessage || ('appendChange failed: ' +
+            (err && err.message ? err.message : 'unknown error'));
+          return finalize();
+        });
+      }
+
+      function finalize() {
+        var result = makePersistSummary(created, skipped, savedLinks, savedChanges);
+        result.requirementId = reqId;
+        if (persistMessage) {
+          result.message = persistMessage;
+        }
+        return result;
+      }
+
+      return persistCreated(0);
+    }).catch(function (err) {
+      return emptyPersistResult(reqId, 'Failed to query existing artifacts: ' +
+        (err && err.message ? err.message : 'unknown error'));
+    });
+  }
+
   window.STAM = window.STAM || {};
   if (window.STAM.requirementArtifacts) return;
 
@@ -397,6 +611,7 @@
     DEFAULT_TARGETS: copyTargets(DEFAULT_TARGETS),
     normalizeOptions: normalizeOptions,
     buildRelatedArtifactsFromRequirement: buildRelatedArtifactsFromRequirement,
-    generateRelatedArtifactsFromRequirement: generateRelatedArtifactsFromRequirement
+    generateRelatedArtifactsFromRequirement: generateRelatedArtifactsFromRequirement,
+    persistRelatedArtifactsFromRequirement: persistRelatedArtifactsFromRequirement
   };
 }());
