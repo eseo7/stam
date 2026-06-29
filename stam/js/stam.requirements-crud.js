@@ -519,6 +519,16 @@
       status: v2.status,
       reviewStatus: v2.reviewStatus
     };
+    var relatedOptions = getRelatedArtifactOptions(regDrawer);
+    var relatedPreview = null;
+    if (
+      window.STAM &&
+      window.STAM.requirementArtifacts &&
+      typeof window.STAM.requirementArtifacts.buildRelatedArtifactsFromRequirement === 'function'
+    ) {
+      relatedPreview = window.STAM.requirementArtifacts.buildRelatedArtifactsFromRequirement(rec, relatedOptions);
+    }
+    // Related artifact preview is intentionally not persisted in this PR.
     db.createRecord(STORE, rec)
       .then(function () {
         return db.appendChange({
