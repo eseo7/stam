@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Agent Component Inventory</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a href="STAM-Docs-Index.html" class="doc-nav-back">← Docs</a>
+  <span class="doc-nav-title">Agent Component Inventory</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Governance Draft</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle type="button" onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Agent Inventory</span>
+      <span class="toc-ver-pill">Governance Draft</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>목적</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>필수 확인 공통 CSS</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>필수 확인 공통 JS</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>문서/가이드 기준</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>현재 사용 가능한 가이드</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>화면 작업 전 보고</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>FAIL 조건</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>관련 링크</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <div class="ibox info">
+        <strong>상태: Governance Draft</strong>
+        <p>
+          Cursor / Claude Code / Claude Design가 STAM 화면 작업 시 새 CSS·JS·DOM을 만들지 않고
+          기존 공통 컴포넌트를 찾아 조립하도록 돕는 인벤토리 문서입니다.
+          새 화면은 그리는 것이 아니라 기존 STAM 공통 컴포넌트를 조립합니다.
+        </p>
+      </div>
+
+      <!-- 01 목적 -->
+      <section id="s01" class="sec" data-screen-label="01 목적">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">목적</span>
+          <span class="sbadge guide">Governance Draft</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>에이전트가 STAM 작업 전 반드시 확인해야 할 공통 CSS/JS/가이드 목록을 한곳에 모은다.</li>
+            <li>임의 컴포넌트 생성·inline style/script·신규 CSS/JS 파일을 방지한다.</li>
+            <li>화면 작업은 기존 클래스·함수·DOM 패턴의 <strong>조립</strong>으로만 수행한다.</li>
+            <li>프로젝트 루트 <code>CLAUDE.md</code> 및 <code>.cursor/rules/stam-agent-governance.mdc</code>와 동일 기준을 따른다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 02 필수 확인 공통 CSS -->
+      <section id="s02" class="sec" data-screen-label="02 필수 확인 공통 CSS">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">필수 확인 공통 CSS</span>
+          <span class="sbadge guide">SSOT</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">작업 시작 전 아래 파일을 읽고 사용할 클래스를 선언한다.</p>
+          <table class="stbl">
+            <thead>
+              <tr><th>파일</th><th>역할</th><th>대표 클래스/토큰</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>stam/css/stam.tokens.css</code></td>
+                <td>디자인 토큰 SSOT</td>
+                <td class="mono">--brand, --t1, --bd, --r-md, --font, --sw</td>
+              </tr>
+              <tr>
+                <td><code>stam/css/stam.shell.css</code></td>
+                <td>앱 셸·Topbar·Sidebar·문서 nav</td>
+                <td class="mono">.po-sidebar, .po-topbar, .doc-nav, .tbtn</td>
+              </tr>
+              <tr>
+                <td><code>stam/css/stam.components.css</code></td>
+                <td>공통 UI 컴포넌트</td>
+                <td class="mono">.stam-btn--*, .sbadge, .stam-summary-strip, .stam-icon</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="ibox warn">
+            <strong>금지</strong>
+            위 파일 외 신규 CSS 생성, inline style, 하드코딩 색상/간격/폰트.
+            화면별 전용 CSS 수정도 승인 없이는 금지.
+          </div>
+        </div>
+      </section>
+
+      <!-- 03 필수 확인 공통 JS -->
+      <section id="s03" class="sec" data-screen-label="03 필수 확인 공통 JS">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">필수 확인 공통 JS</span>
+          <span class="sbadge guide">SSOT</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <thead>
+              <tr><th>파일</th><th>역할</th><th>대표 API</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>stam/js/stam.theme.js</code></td>
+                <td>다크/라이트 테마</td>
+                <td class="mono">STAM.toggleTheme(), STAM.setTheme(), STAM.getTheme()</td>
+              </tr>
+              <tr>
+                <td><code>stam/js/stam.shell.js</code></td>
+                <td>Sidebar·Root Cards·Menu Table</td>
+                <td class="mono">STAM.shell.renderSidebar(), renderRootCards(), renderMenuTable(), initSearch()</td>
+              </tr>
+              <tr>
+                <td><code>stam/js/stam.nav-render.js</code></td>
+                <td>Left Nav 공통 렌더</td>
+                <td class="mono">STAM.navRender.init('메뉴코드')</td>
+              </tr>
+              <tr>
+                <td><code>stam/js/stam.topbar-render.js</code></td>
+                <td>Topbar 공통 렌더</td>
+                <td class="mono">STAM.topbarRender.init()</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="sub">DOM 계약 예시</p>
+          <ul class="blist">
+            <li><code>&lt;nav class="po-sidebar" data-stam-left-nav&gt;</code> + <code>STAM.navRender.init('A1')</code></li>
+            <li><code>&lt;header class="po-topbar stam-topbar" data-stam-topbar data-tb-crumbs="..."&gt;</code> + <code>STAM.topbarRender.init()</code></li>
+            <li><code>data-theme-toggle</code> 버튼 + <code>STAM.toggleTheme()</code></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 04 문서/가이드 기준 -->
+      <section id="s04" class="sec" data-screen-label="04 문서/가이드 기준">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">문서/가이드 기준</span>
+          <span class="sbadge guide">Governance Draft</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>UI Baseline Guide — 폰트·토큰·레이아웃·Forbidden Rules</li>
+            <li>Component Guide — 컴포넌트 인덱스·공통 규칙</li>
+            <li>Button Guide — 버튼 유형·위치·문구·우선순위 (Button 작업 필수)</li>
+            <li>에이전트 규칙 — <code>CLAUDE.md</code>, <code>.cursor/rules/stam-agent-governance.mdc</code></li>
+          </ul>
+          <div class="ibox info">
+            <strong>원칙</strong>
+            가이드에 없는 패턴은 만들지 않는다. 가이드 보완 PR이 선행되어야 한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- 05 현재 사용 가능한 가이드 -->
+      <section id="s05" class="sec" data-screen-label="05 현재 사용 가능한 가이드">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">현재 사용 가능한 가이드</span>
+          <span class="sbadge guide">인덱스</span>
+        </div>
+        <div class="sec-body">
+          <div class="comp-grid">
+
+            <a href="STAM-Component-Guide.html" class="comp-card">
+              <div class="comp-card-ico">CG</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Component Guide</span>
+                <span class="comp-card-subs">전체 컴포넌트 인덱스 · 공통 규칙 · 토큰 참조</span>
+              </div>
+              <span class="sbadge plan">Skeleton</span>
+            </a>
+
+            <a href="components/STAM-Button-Guide.html" class="comp-card">
+              <div class="comp-card-ico">BT</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Button Guide</span>
+                <span class="comp-card-subs">버튼 유형 · 위치 · 문구 · 우선순위 · Cursor 작업 지시</span>
+              </div>
+              <span class="sbadge done">Detail Draft</span>
+            </a>
+
+            <a href="components/STAM-Drawer-Guide.html" class="comp-card">
+              <div class="comp-card-ico">DR</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Drawer Guide</span>
+                <span class="comp-card-subs">드로어 레이아웃 · 푸터 액션 · 슬라이드 패널</span>
+              </div>
+              <span class="sbadge plan">Skeleton</span>
+            </a>
+
+            <a href="components/STAM-Form-Guide.html" class="comp-card">
+              <div class="comp-card-ico">FM</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Form Guide</span>
+                <span class="comp-card-subs">입력 필드 · 유효성 · 레이블 · 그룹</span>
+              </div>
+              <span class="sbadge plan">Skeleton</span>
+            </a>
+
+            <a href="components/STAM-Table-Guide.html" class="comp-card">
+              <div class="comp-card-ico">TB</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Table Guide</span>
+                <span class="comp-card-subs">테이블 · 행 액션 · 선택 · 정렬</span>
+              </div>
+              <span class="sbadge plan">Skeleton</span>
+            </a>
+
+            <a href="components/STAM-Icon-Guide.html" class="comp-card">
+              <div class="comp-card-ico">IC</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Icon Guide</span>
+                <span class="comp-card-subs">아이콘 세트 · 크기 · 접근성</span>
+              </div>
+              <span class="sbadge plan">Skeleton</span>
+            </a>
+
+            <a href="components/STAM-Dialog-Guide.html" class="comp-card">
+              <div class="comp-card-ico">DL</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Dialog Guide</span>
+                <span class="comp-card-subs">확인 · 경고 · Danger 액션 연계</span>
+              </div>
+              <span class="sbadge plan">Skeleton</span>
+            </a>
+
+            <a href="components/STAM-Topbar-Guide.html" class="comp-card">
+              <div class="comp-card-ico">TP</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Topbar Guide</span>
+                <span class="comp-card-subs">breadcrumb · 검색 · 사용자 메뉴</span>
+              </div>
+              <span class="sbadge plan">Skeleton</span>
+            </a>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- 06 화면 작업 전 보고 -->
+      <section id="s06" class="sec" data-screen-label="06 화면 작업 전 보고">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">화면 작업 전 보고해야 할 것</span>
+          <span class="sbadge guide">필수</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">코딩 시작 전 아래 항목을 먼저 보고한다.</p>
+          <table class="stbl">
+            <thead>
+              <tr><th>항목</th><th>내용</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>사용할 기존 CSS 파일</td>
+                <td>예: <code>stam.tokens.css</code>, <code>stam.shell.css</code>, <code>stam.components.css</code> (+ 화면 전용 CSS가 이미 있으면 해당 파일명)</td>
+              </tr>
+              <tr>
+                <td>사용할 기존 JS 파일</td>
+                <td>예: <code>stam.theme.js</code>, <code>stam.nav-render.js</code>, <code>stam.topbar-render.js</code></td>
+              </tr>
+              <tr>
+                <td>사용할 기존 클래스</td>
+                <td>예: <code>.stam-btn--primary</code>, <code>.po-sidebar</code>, <code>.stam-summary-strip</code></td>
+              </tr>
+              <tr>
+                <td>수정 대상 파일</td>
+                <td>예: <code>stam/pages/A/A1-dashboard.html</code></td>
+              </tr>
+              <tr>
+                <td>새 CSS/JS 생성 여부</td>
+                <td><strong>0건</strong> (1건 이상이면 작업 중단)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 07 FAIL 조건 -->
+      <section id="s07" class="sec" data-screen-label="07 FAIL 조건">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">FAIL 조건</span>
+          <span class="sbadge lock">FAIL</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist bad">
+            <li>diff에 <code>stam/css/**</code> 또는 <code>stam/js/**</code> <strong>신규 파일</strong> 포함</li>
+            <li>diff에 inline <code>style=""</code>, <code>&lt;style&gt;</code>, inline <code>&lt;script&gt;</code> 본문 포함</li>
+            <li>하드코딩 색상·간격·폰트 (토큰 미사용)</li>
+            <li>승인 없이 공통 CSS/JS 확장</li>
+            <li>화면 HTML 안에 새 컴포넌트 정의</li>
+            <li>가이드에 없는 컴포넌트 임의 생성</li>
+            <li>Button Guide와 충돌하는 버튼 배치·유형</li>
+          </ul>
+          <div class="ibox bad">
+            <strong>작업 실패 판정</strong>
+            diff에 새 CSS/JS 파일 또는 inline style/script가 있으면 작업 실패다.
+          </div>
+        </div>
+      </section>
+
+      <!-- 08 관련 링크 -->
+      <section id="s08" class="sec" data-screen-label="08 관련 링크">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">관련 링크</span>
+          <span class="sbadge guide">링크</span>
+        </div>
+        <div class="sec-body">
+          <div class="doc-card-list">
+
+            <a href="STAM-Docs-Index.html" class="doc-card">
+              <div class="doc-card-ico">DI</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">STAM Docs Index</span>
+                <span class="doc-card-sub">기준 문서 · 컴포넌트 가이드 · 읽기 순서</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge done">완료</span>
+              </div>
+            </a>
+
+            <a href="STAM-UI-Baseline-Guide.html" class="doc-card">
+              <div class="doc-card-ico">BG</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">STAM UI Baseline Guide</span>
+                <span class="doc-card-sub">폰트 · 토큰 · 레이아웃 · Forbidden Rules</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge lock">기준 고정</span>
+              </div>
+            </a>
+
+            <a href="STAM-Component-Guide.html" class="doc-card">
+              <div class="doc-card-ico">CG</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">STAM Component Guide</span>
+                <span class="doc-card-sub">컴포넌트 인덱스 · 공통 규칙</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge plan">Skeleton</span>
+              </div>
+            </a>
+
+            <a href="components/STAM-Button-Guide.html" class="doc-card">
+              <div class="doc-card-ico">BT</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">STAM Button Guide</span>
+                <span class="doc-card-sub">버튼 작업 필수 확인 문서</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge done">Detail Draft</span>
+              </div>
+            </a>
+
+          </div>
+          <p class="sub">에이전트 규칙 (저장소 루트)</p>
+          <ul class="blist">
+            <li><code>CLAUDE.md</code> — Claude Code 프로젝트 규칙</li>
+            <li><code>.cursor/rules/stam-agent-governance.mdc</code> — Cursor Rules</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+
+</body>
+</html>
