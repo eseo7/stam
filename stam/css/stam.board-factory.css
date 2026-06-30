@@ -82,7 +82,21 @@ body:has(.bf-page) .po-main { overflow-x: hidden; }
   margin-bottom: 5px;
 }
 .bf-ss-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── Summary strip dot tones — token-based, no hardcoded hex ──
+ * 각 tone은 config의 summary.cells[].tone 값으로 결정된다.
+ * stam.tokens.css 의 CSS variable 만 사용(light/dark 자동 대응). */
+.bf-ss-dot--brand          { background: var(--stam); }
+.bf-ss-dot--neutral        { background: var(--t3); }
+.bf-ss-dot--status-warn    { background: var(--warn); }
+.bf-ss-dot--status-pass    { background: var(--pass); }
+.bf-ss-dot--status-fail    { background: var(--fail); }
+.bf-ss-dot--priority-high  { background: var(--prio-high); }
+.bf-ss-dot--relation-req   { background: var(--g-a); }
+.bf-ss-dot--relation-screen { background: var(--g-b); }
+
 .bf-ss-num { font-size: 20px; font-weight: 700; line-height: 1.1; letter-spacing: -.03em; color: var(--t1); }
+.bf-ss-num--on { color: var(--stam); }
 .bf-ss-sub { font-size: 10px; color: var(--t3); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ── (3) Toolbar — .bf-toolbar (기존 fn-toolbar 밀도) ─────────── */
@@ -184,22 +198,17 @@ body:has(.bf-page) .po-main { overflow-x: hidden; }
   border: 1px solid transparent;
   background: var(--bg-sur2); color: var(--t2);
 }
+/* 모든 chip 색상은 stam.tokens.css var 만 사용 — hardcoded hex 0건.
+ * *-bg / * 토큰이 [data-theme="dark"] 에서 flip 되므로 dark override 불필요. */
 .bf-chip--neutral { background: var(--bg-sur2); color: var(--t2); border-color: var(--bd); }
-.bf-chip--brand   { background: var(--stam-soft); color: var(--stam); border-color: rgba(84,81,232,.20); }
-.bf-chip--info    { background: rgba(4,120,87,.10);  color: #047857; border-color: rgba(4,120,87,.22); }
-.bf-chip--warn    { background: rgba(245,158,11,.10); color: #B45309; border-color: rgba(245,158,11,.22); }
-.bf-chip--pass    { background: rgba(84,81,232,.10);  color: #4340C8; border-color: rgba(84,81,232,.22); }
-.bf-chip--fail    { background: rgba(153,27,27,.09);  color: #991B1B; border-color: rgba(153,27,27,.18); }
-.bf-chip--high    { background: rgba(239,68,68,.10);  color: #B91C1C; border-color: rgba(239,68,68,.20); }
-.bf-chip--mid     { background: rgba(245,158,11,.10); color: #B45309; border-color: rgba(245,158,11,.20); }
-.bf-chip--low     { background: rgba(100,116,139,.10);color: #475569; border-color: rgba(100,116,139,.18); }
-[data-theme="dark"] .bf-chip--info { background: rgba(4,120,87,.13);  color: #46C97D; }
-[data-theme="dark"] .bf-chip--warn { background: rgba(245,158,11,.13); color: #F0B24E; }
-[data-theme="dark"] .bf-chip--pass { background: rgba(139,127,248,.13);color: #8B7FF8; }
-[data-theme="dark"] .bf-chip--fail { background: rgba(220,38,38,.12);  color: #FF8585; }
-[data-theme="dark"] .bf-chip--high { background: rgba(239,68,68,.12);  color: #FF8585; }
-[data-theme="dark"] .bf-chip--mid  { background: rgba(245,158,11,.12); color: #F0B24E; }
-[data-theme="dark"] .bf-chip--low  { background: rgba(100,116,139,.10);color: rgba(200,204,220,.45); }
+.bf-chip--brand   { background: var(--stam-soft); color: var(--stam); border-color: var(--stam-soft-strong); }
+.bf-chip--info    { background: var(--pass-bg);   color: var(--pass); }
+.bf-chip--warn    { background: var(--warn-bg);   color: var(--warn); }
+.bf-chip--pass    { background: var(--stam-soft); color: var(--stam); }
+.bf-chip--fail    { background: var(--fail-bg);   color: var(--fail); }
+.bf-chip--high    { background: var(--fail-bg);   color: var(--fail); }
+.bf-chip--mid     { background: var(--warn-bg);   color: var(--warn); }
+.bf-chip--low     { background: var(--skip-bg);   color: var(--skip); }
 
 /* ── relation chips (height 20px, 기존 fn-link-chip 톤) ───────── */
 .bf-rel-wrap { display: inline-flex; flex-wrap: wrap; gap: 4px; }

@@ -561,8 +561,8 @@
       var num = metrics[cell.key];
       if (num === undefined || num === null) num = 0;
       return '<div class="bf-ss-cell' + (i === 0 ? ' on' : '') + '">' +
-        '<div class="bf-ss-lbl"><span class="bf-ss-dot" style="background:' + esc(cell.dot || 'var(--stam)') + '"></span>' + esc(cell.label) + '</div>' +
-        '<div class="bf-ss-num"' + (i === 0 ? ' style="color:var(--stam)"' : '') + '>' + esc(num) + '</div>' +
+        '<div class="bf-ss-lbl"><span class="bf-ss-dot bf-ss-dot--' + esc(cell.tone || 'brand') + '"></span>' + esc(cell.label) + '</div>' +
+        '<div class="bf-ss-num' + (i === 0 ? ' bf-ss-num--on' : '') + '">' + esc(num) + '</div>' +
         (cell.sub ? '<div class="bf-ss-sub">' + esc(cell.sub) + '</div>' : '') +
         '</div>';
     }).join('') + '</div>';

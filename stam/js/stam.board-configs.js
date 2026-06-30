@@ -316,13 +316,13 @@
 
     summary: {
       cells: [
-        { key: 'total',     label: '전체',        dot: 'var(--stam)', sub: '전체 기능' },
-        { key: 'draft',     label: '작성중',      dot: '#64748B', sub: '초안 · 작성중' },
-        { key: 'review',    label: '검토중',      dot: '#B45309', sub: '검토요청' },
-        { key: 'approved',  label: '승인완료',    dot: '#047857', sub: '최종 승인' },
-        { key: 'hold',      label: '보류',        dot: '#991B1B', sub: '보류 처리' },
-        { key: 'linkedReq', label: '연결 요구사항', dot: '#3B82F6', sub: '연결된 요구사항' },
-        { key: 'linkedScr', label: '연결 화면',    dot: '#8B5CF6', sub: '연결된 화면' }
+        { key: 'total',     label: '전체',          tone: 'brand',           sub: '전체 기능' },
+        { key: 'draft',     label: '작성중',        tone: 'neutral',         sub: '초안 · 작성중' },
+        { key: 'review',    label: '검토중',        tone: 'status-warn',     sub: '검토요청' },
+        { key: 'approved',  label: '승인완료',      tone: 'status-pass',     sub: '최종 승인' },
+        { key: 'hold',      label: '보류',          tone: 'status-fail',     sub: '보류 처리' },
+        { key: 'linkedReq', label: '연결 요구사항', tone: 'relation-req',    sub: '연결된 요구사항' },
+        { key: 'linkedScr', label: '연결 화면',     tone: 'relation-screen', sub: '연결된 화면' }
       ]
     },
 
@@ -667,13 +667,13 @@
 
     summary: {
       cells: [
-        { key: 'total',     label: '전체',          dot: 'var(--stam)', sub: '전체 화면' },
-        { key: 'draft',     label: '작성중',        dot: '#64748B', sub: '초안 · 작성중' },
-        { key: 'review',    label: '검토중',        dot: '#B45309', sub: '검토 요청' },
-        { key: 'done',      label: '확정',          dot: '#047857', sub: '확정 완료' },
-        { key: 'hold',      label: '보류',          dot: '#991B1B', sub: '보류 처리' },
-        { key: 'linkedReq', label: '연결 요구사항', dot: '#3B82F6', sub: '연결된 요구사항' },
-        { key: 'linkedScr', label: '연결 화면설계서', dot: '#8B5CF6', sub: '연결된 설계서' }
+        { key: 'total',     label: '전체',            tone: 'brand',           sub: '전체 화면' },
+        { key: 'draft',     label: '작성중',          tone: 'neutral',         sub: '초안 · 작성중' },
+        { key: 'review',    label: '검토중',          tone: 'status-warn',     sub: '검토 요청' },
+        { key: 'done',      label: '확정',            tone: 'status-pass',     sub: '확정 완료' },
+        { key: 'hold',      label: '보류',            tone: 'status-fail',     sub: '보류 처리' },
+        { key: 'linkedReq', label: '연결 요구사항',   tone: 'relation-req',    sub: '연결된 요구사항' },
+        { key: 'linkedScr', label: '연결 화면설계서', tone: 'relation-screen', sub: '연결된 설계서' }
       ]
     },
 
@@ -1036,13 +1036,13 @@
 
     summary: {
       cells: [
-        { key: 'total',        label: '전체',          dot: 'var(--stam)', sub: '전체 요구사항' },
-        { key: 'reviewing',    label: '검토중',        dot: '#B45309', sub: '검토요청 + 검토완료' },
-        { key: 'approved',     label: '승인완료',      dot: '#047857', sub: '최종 승인' },
-        { key: 'hold',         label: '보류',          dot: '#991B1B', sub: '보류 처리' },
-        { key: 'highPriority', label: '높음 우선순위', dot: '#DC2626', sub: '우선순위 높음' },
-        { key: 'linkedDesign', label: '연결 화면설계서', dot: '#3B82F6', sub: '연결된 설계서' },
-        { key: 'linkedWbs',    label: '연결 WBS',      dot: '#8B5CF6', sub: '연결된 WBS' }
+        { key: 'total',        label: '전체',            tone: 'brand',           sub: '전체 요구사항' },
+        { key: 'reviewing',    label: '검토중',          tone: 'status-warn',     sub: '검토요청 + 검토완료' },
+        { key: 'approved',     label: '승인완료',        tone: 'status-pass',     sub: '최종 승인' },
+        { key: 'hold',         label: '보류',            tone: 'status-fail',     sub: '보류 처리' },
+        { key: 'highPriority', label: '높음 우선순위',   tone: 'priority-high',   sub: '우선순위 높음' },
+        { key: 'linkedDesign', label: '연결 화면설계서', tone: 'relation-req',    sub: '연결된 설계서' },
+        { key: 'linkedWbs',    label: '연결 WBS',        tone: 'relation-screen', sub: '연결된 WBS' }
       ]
     },
 
