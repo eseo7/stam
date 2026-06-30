@@ -49,7 +49,12 @@
     <div class="guide-content">
 
       <div class="ibox info">
-        <strong>상태: Governance Draft</strong>
+        <strong>역할: Agent / 작업자용 거버넌스 문서</strong>
+        <p>
+          This inventory is the governance reference for agents and implementation work.
+          For human-readable component usage guidance, refer to STAM Component Guide.
+          For token meaning and tone rules, refer to STAM Token Guide.
+        </p>
         <p>
           Cursor / Claude Code / Claude Design가 STAM 화면 작업 시 새 CSS·JS·DOM을 만들지 않고
           기존 공통 컴포넌트를 찾아 조립하도록 돕는 인벤토리 문서입니다.
@@ -219,9 +224,10 @@
         </div>
         <div class="sec-body">
           <ul class="blist">
-            <li>UI Baseline Guide — 폰트·토큰·레이아웃·Forbidden Rules</li>
-            <li>Component Guide — 컴포넌트 인덱스·공통 규칙</li>
-            <li>Button Guide — 버튼 유형·위치·문구·우선순위 (Button 작업 필수)</li>
+            <li><a href="STAM-UI-Baseline-Guide.html">UI Baseline Guide</a> — 레이아웃·타이포·스크롤·UI 원칙</li>
+            <li><a href="STAM-Token-Guide.html">Token Guide</a> — 토큰 의미·톤 규칙 (SSOT: <code>stam/css/stam.tokens.css</code>)</li>
+            <li><a href="STAM-Component-Guide.html">Component Guide</a> — 사람용 컴포넌트 카탈로그 stub</li>
+            <li>상세 컴포넌트 가이드 — 후속 Phase에서 분리 생성 (Phase 1에서는 링크 없음)</li>
             <li>에이전트 규칙 — <code>CLAUDE.md</code>, <code>.cursor/rules/stam-agent-governance.mdc</code></li>
           </ul>
           <div class="ibox info">
@@ -241,77 +247,104 @@
         <div class="sec-body">
           <div class="comp-grid">
 
+            <a href="STAM-Docs-Index.html" class="comp-card">
+              <div class="comp-card-ico">DI</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Docs Index</span>
+                <span class="comp-card-subs">기준 문서 · 가이드 · Preview 진입점</span>
+              </div>
+              <span class="sbadge done">Phase 1</span>
+            </a>
+
+            <a href="STAM-UI-Baseline-Guide.html" class="comp-card">
+              <div class="comp-card-ico">BG</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">UI Baseline Guide</span>
+                <span class="comp-card-subs">레이아웃 · 타이포 · 스크롤 · Forbidden Rules</span>
+              </div>
+              <span class="sbadge lock">기준 고정</span>
+            </a>
+
+            <a href="STAM-Token-Guide.html" class="comp-card">
+              <div class="comp-card-ico">TK</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Token Guide</span>
+                <span class="comp-card-subs">토큰 의미 · 톤 규칙 · Color Delta 이력</span>
+              </div>
+              <span class="sbadge guide">Derived</span>
+            </a>
+
             <a href="STAM-Component-Guide.html" class="comp-card">
               <div class="comp-card-ico">CG</div>
               <div class="comp-card-body">
                 <span class="comp-card-title">Component Guide</span>
-                <span class="comp-card-subs">전체 컴포넌트 인덱스 · 공통 규칙 · 토큰 참조</span>
+                <span class="comp-card-subs">사람용 컴포넌트 카탈로그 stub</span>
               </div>
-              <span class="sbadge plan">Skeleton</span>
+              <span class="sbadge plan">Stub</span>
             </a>
 
-            <a href="components/STAM-Button-Guide.html" class="comp-card">
+            <div class="comp-card">
               <div class="comp-card-ico">BT</div>
               <div class="comp-card-body">
-                <span class="comp-card-title">Button Guide</span>
-                <span class="comp-card-subs">버튼 유형 · 위치 · 문구 · 우선순위 · Cursor 작업 지시</span>
+                <span class="comp-card-title">Button Guide <em>Planned</em></span>
+                <span class="comp-card-subs">후속 Phase에서 분리 생성</span>
               </div>
-              <span class="sbadge done">Detail Draft</span>
-            </a>
+              <span class="sbadge plan">Planned</span>
+            </div>
 
-            <a href="components/STAM-Drawer-Guide.html" class="comp-card">
-              <div class="comp-card-ico">DR</div>
-              <div class="comp-card-body">
-                <span class="comp-card-title">Drawer Guide</span>
-                <span class="comp-card-subs">드로어 레이아웃 · 푸터 액션 · 슬라이드 패널</span>
-              </div>
-              <span class="sbadge plan">Skeleton</span>
-            </a>
-
-            <a href="components/STAM-Form-Guide.html" class="comp-card">
-              <div class="comp-card-ico">FM</div>
-              <div class="comp-card-body">
-                <span class="comp-card-title">Form Guide</span>
-                <span class="comp-card-subs">입력 필드 · 유효성 · 레이블 · 그룹</span>
-              </div>
-              <span class="sbadge plan">Skeleton</span>
-            </a>
-
-            <a href="components/STAM-Table-Guide.html" class="comp-card">
-              <div class="comp-card-ico">TB</div>
-              <div class="comp-card-body">
-                <span class="comp-card-title">Table Guide</span>
-                <span class="comp-card-subs">테이블 · 행 액션 · 선택 · 정렬</span>
-              </div>
-              <span class="sbadge plan">Skeleton</span>
-            </a>
-
-            <a href="components/STAM-Icon-Guide.html" class="comp-card">
+            <div class="comp-card">
               <div class="comp-card-ico">IC</div>
               <div class="comp-card-body">
-                <span class="comp-card-title">Icon Guide</span>
-                <span class="comp-card-subs">아이콘 세트 · 크기 · 접근성</span>
+                <span class="comp-card-title">Icon Guide <em>Planned</em></span>
+                <span class="comp-card-subs">후속 Phase에서 분리 생성</span>
               </div>
-              <span class="sbadge plan">Skeleton</span>
-            </a>
+              <span class="sbadge plan">Planned</span>
+            </div>
 
-            <a href="components/STAM-Dialog-Guide.html" class="comp-card">
+            <div class="comp-card">
               <div class="comp-card-ico">DL</div>
               <div class="comp-card-body">
-                <span class="comp-card-title">Dialog Guide</span>
-                <span class="comp-card-subs">확인 · 경고 · Danger 액션 연계</span>
+                <span class="comp-card-title">Dialog Guide <em>Planned</em></span>
+                <span class="comp-card-subs">후속 Phase에서 분리 생성</span>
               </div>
-              <span class="sbadge plan">Skeleton</span>
-            </a>
+              <span class="sbadge plan">Planned</span>
+            </div>
 
-            <a href="components/STAM-Topbar-Guide.html" class="comp-card">
+            <div class="comp-card">
+              <div class="comp-card-ico">FM</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Form Guide <em>Planned</em></span>
+                <span class="comp-card-subs">후속 Phase에서 분리 생성</span>
+              </div>
+              <span class="sbadge plan">Planned</span>
+            </div>
+
+            <div class="comp-card">
+              <div class="comp-card-ico">DR</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Drawer Guide <em>Planned</em></span>
+                <span class="comp-card-subs">후속 Phase에서 분리 생성</span>
+              </div>
+              <span class="sbadge plan">Planned</span>
+            </div>
+
+            <div class="comp-card">
+              <div class="comp-card-ico">TB</div>
+              <div class="comp-card-body">
+                <span class="comp-card-title">Table Guide <em>Planned</em></span>
+                <span class="comp-card-subs">후속 Phase에서 분리 생성</span>
+              </div>
+              <span class="sbadge plan">Planned</span>
+            </div>
+
+            <div class="comp-card">
               <div class="comp-card-ico">TP</div>
               <div class="comp-card-body">
-                <span class="comp-card-title">Topbar Guide</span>
-                <span class="comp-card-subs">breadcrumb · 검색 · 사용자 메뉴</span>
+                <span class="comp-card-title">Topbar Guide <em>Planned</em></span>
+                <span class="comp-card-subs">후속 Phase에서 분리 생성</span>
               </div>
-              <span class="sbadge plan">Skeleton</span>
-            </a>
+              <span class="sbadge plan">Planned</span>
+            </div>
 
           </div>
         </div>
@@ -412,25 +445,25 @@
               </div>
             </a>
 
+            <a href="STAM-Token-Guide.html" class="doc-card">
+              <div class="doc-card-ico">TK</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">STAM Token Guide</span>
+                <span class="doc-card-sub">토큰 의미 · 톤 규칙 · Color Delta 이력</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge guide">Derived</span>
+              </div>
+            </a>
+
             <a href="STAM-Component-Guide.html" class="doc-card">
               <div class="doc-card-ico">CG</div>
               <div class="doc-card-body">
                 <span class="doc-card-title">STAM Component Guide</span>
-                <span class="doc-card-sub">컴포넌트 인덱스 · 공통 규칙</span>
+                <span class="doc-card-sub">사람용 컴포넌트 카탈로그 stub</span>
               </div>
               <div class="doc-card-meta">
-                <span class="sbadge plan">Skeleton</span>
-              </div>
-            </a>
-
-            <a href="components/STAM-Button-Guide.html" class="doc-card">
-              <div class="doc-card-ico">BT</div>
-              <div class="doc-card-body">
-                <span class="doc-card-title">STAM Button Guide</span>
-                <span class="doc-card-sub">버튼 작업 필수 확인 문서</span>
-              </div>
-              <div class="doc-card-meta">
-                <span class="sbadge done">Detail Draft</span>
+                <span class="sbadge plan">Stub</span>
               </div>
             </a>
 
