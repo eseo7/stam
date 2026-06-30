@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Token Guide</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <a href="STAM-Docs-Index.html" class="doc-nav-back">← Docs</a>
+  <span class="doc-nav-title">Token Guide</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Derived Reference</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle type="button" onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<div class="guide-shell">
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Token Guide</span>
+      <span class="toc-ver-pill">Phase 1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>Purpose</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>SSOT Rule</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>Usage Principles</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>Tone / Status / Priority</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>PR #290 Color Delta</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Related Documents</a></li>
+    </ul>
+  </aside>
+
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <div class="ibox info">
+        <strong>역할: 사람용 토큰 파생 뷰</strong>
+        <p>
+          STAM Token Guide is not the SSOT.
+          The SSOT for token values is <code>stam/css/stam.tokens.css</code>.
+          This guide is a derived human-readable reference.
+        </p>
+        <p>
+          토큰 이름·의미·사용 원칙·상태/우선순위/관계 톤 기준을 설명합니다.
+          현재값 확인은 항상 <code>stam/css/stam.tokens.css</code>를 따릅니다.
+        </p>
+      </div>
+
+      <!-- 01 Purpose -->
+      <section id="s01" class="sec" data-screen-label="01 Purpose">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">Purpose</span>
+          <span class="sbadge guide">Derived Reference</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li><code>stam/css/stam.tokens.css</code>에 정의된 디자인 토큰을 사람이 읽기 쉬운 형태로 정리한다.</li>
+            <li>토큰 이름, 의미, 사용 원칙, 상태·우선순위·관계 톤 기준을 문서화한다.</li>
+            <li>승인된 Color Delta 변경 이력을 기록한다 — 현재값 SSOT가 아니다.</li>
+            <li>제품 화면·문서 작업 시 하드코딩 색상 대신 <code>var(--token-name)</code> 사용을 강제한다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 02 SSOT Rule -->
+      <section id="s02" class="sec" data-screen-label="02 SSOT Rule">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">SSOT Rule</span>
+          <span class="sbadge lock">필수</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox warn">
+            <strong>SSOT</strong>
+            Token values are defined only in <code>stam/css/stam.tokens.css</code>.
+            This guide must not be treated as the authoritative source for current hex or rgba values.
+          </div>
+          <ul class="blist">
+            <li>토큰 추가·변경은 <code>stam/css/stam.tokens.css</code> PR에서만 수행한다.</li>
+            <li>이 가이드는 파생 문서이므로, CSS와 불일치 시 CSS가 우선한다.</li>
+            <li>에이전트·구현 작업 전 반드시 CSS 파일에서 현재값을 확인한다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 03 Token Usage Principles -->
+      <section id="s03" class="sec" data-screen-label="03 Token Usage Principles">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">Token Usage Principles</span>
+          <span class="sbadge lock">기준 고정</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>색상·간격·radius·폰트는 <code>--*</code> 토큰만 사용한다.</li>
+            <li>CSS에서 <code>var(--token-name)</code> 형태로 참조한다.</li>
+            <li>문서·가이드 본문에 현재값 hex를 반복 기재하지 않는다.</li>
+            <li>임의 토큰명 생성·하드코딩 색상·px 직접 기입은 금지한다.</li>
+            <li>라이트/다크 대응은 <code>[data-theme="dark"]</code> 블록의 토큰 재정의를 따른다.</li>
+          </ul>
+          <table class="stbl">
+            <thead>
+              <tr><th>영역</th><th>대표 토큰</th><th>용도</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Brand</td>
+                <td class="mono">--brand, --brand-h, --accent, --stam</td>
+                <td>Primary 액션·링크·브랜드 강조</td>
+              </tr>
+              <tr>
+                <td>Surface</td>
+                <td class="mono">--bg-base, --bg-sur, --bg-sur2, --bg-side</td>
+                <td>페이지·카드·사이드바 배경</td>
+              </tr>
+              <tr>
+                <td>Text</td>
+                <td class="mono">--t1, --t2, --t3, --label-strong … --label-disabled</td>
+                <td>본문·보조·캡션·레이블 위계</td>
+              </tr>
+              <tr>
+                <td>Border</td>
+                <td class="mono">--bd, --bd-s, --bd-f</td>
+                <td>기본·강조·포커스 테두리</td>
+              </tr>
+              <tr>
+                <td>Layout</td>
+                <td class="mono">--content-max, --content-pad-x, --topbar-h, --sw</td>
+                <td>본문 폭·여백·셸 치수</td>
+              </tr>
+              <tr>
+                <td>Radius</td>
+                <td class="mono">--r-sm, --r-md, --r-lg</td>
+                <td>chip · 버튼 · 카드 모서리</td>
+              </tr>
+              <tr>
+                <td>Typography</td>
+                <td class="mono">--font</td>
+                <td>S-Core Dream 기본 폰트 스택</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 04 Tone / Status / Priority / Relation -->
+      <section id="s04" class="sec" data-screen-label="04 Tone Status Priority Relation">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">Tone / Status / Priority / Relation Token Areas</span>
+          <span class="sbadge guide">톤 기준</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">Status — 결과·진행 상태 톤</p>
+          <table class="stbl">
+            <thead>
+              <tr><th>토큰</th><th>의미</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">--pass, --pass-bg</td><td>성공·통과·완료(긍정)</td></tr>
+              <tr><td class="mono">--fail, --fail-bg</td><td>실패·오류·차단(부정)</td></tr>
+              <tr><td class="mono">--warn, --warn-bg</td><td>경고·주의·지연 위험</td></tr>
+              <tr><td class="mono">--info, --info-bg</td><td>안내·정보</td></tr>
+              <tr><td class="mono">--skip, --skip-bg</td><td>건너뜀·비활성·해당 없음</td></tr>
+              <tr><td class="mono">--purple, --purple-bg</td><td>특수·강조 상태(보조 톤)</td></tr>
+            </tbody>
+          </table>
+
+          <p class="sub">Priority — 우선순위 톤</p>
+          <table class="stbl">
+            <thead>
+              <tr><th>토큰</th><th>의미</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">--prio-high</td><td>높음 · 긴급 · 즉시 대응</td></tr>
+              <tr><td class="mono">--prio-mid</td><td>중간 · 일반 대응</td></tr>
+              <tr><td class="mono">--prio-low</td><td>낮음 · 참고 · 후순위</td></tr>
+            </tbody>
+          </table>
+
+          <p class="sub">Relation — 단계·역할·그룹 톤</p>
+          <table class="stbl">
+            <thead>
+              <tr><th>토큰</th><th>의미</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">--phase-plan-bg, --phase-plan-fg</td><td>계획·예정 단계</td></tr>
+              <tr><td class="mono">--phase-done-bg, --phase-done-fg</td><td>완료·종료 단계</td></tr>
+              <tr><td class="mono">--role-def-bg, --role-def-fg</td><td>기본 역할·담당자 톤</td></tr>
+              <tr><td class="mono">--g-a … --g-g, --g-*-bg</td><td>그룹·카테고리 구분 색</td></tr>
+              <tr><td class="mono">--badge-urgent-*, --badge-warn-*, --badge-brand-*</td><td>카운트·상태 배지 톤</td></tr>
+            </tbody>
+          </table>
+
+          <div class="ibox info">
+            <strong>사용 원칙</strong>
+            상태·우선순위·관계 표현은 위 토큰 세트를 우선 사용한다.
+            Board Factory 등 도메인 UI도 승인된 토큰 매핑 PR을 거쳐 <code>stam.tokens.css</code>와 정합한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- 05 PR #290 Color Delta -->
+      <section id="s05" class="sec" data-screen-label="05 PR 290 Color Delta">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">PR #290 Color Delta Approval Record</span>
+          <span class="sbadge plan">Change History</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox warn">
+            <strong>변경 이력 전용</strong>
+            This section records approved color deltas from PR #290.
+            It is a change history record, not the current token value SSOT.
+            Current token values must always be checked in <code>stam/css/stam.tokens.css</code>.
+          </div>
+          <ul class="blist">
+            <li><strong>priority-high:</strong> previous <code>#DC2626</code> → token <code>--prio-high</code> (approved value <code>#EF4444</code> at merge)</li>
+            <li><strong>status-warn:</strong> previous <code>#B45309</code> → token <code>--warn</code> (approved value <code>#854D0E</code> at merge)</li>
+          </ul>
+          <p class="sub">PR 참조</p>
+          <ul class="blist">
+            <li>PR #290 — <em>refactor: tokenize Board Factory status and chip colors</em></li>
+            <li>merge commit: <code>f031f24041f7eeaa732b9ff514ed1538d924b3cc</code></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 06 Related Documents -->
+      <section id="s06" class="sec" data-screen-label="06 Related Documents">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Related Documents</span>
+          <span class="sbadge guide">링크</span>
+        </div>
+        <div class="sec-body">
+          <div class="doc-card-list">
+
+            <a href="STAM-Docs-Index.html" class="doc-card">
+              <div class="doc-card-ico">DI</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">STAM Docs Index</span>
+                <span class="doc-card-sub">기준 문서 · 가이드 · Preview 진입점</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge done">Phase 1</span>
+              </div>
+            </a>
+
+            <a href="STAM-UI-Baseline-Guide.html" class="doc-card">
+              <div class="doc-card-ico">BG</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">STAM UI Baseline Guide</span>
+                <span class="doc-card-sub">레이아웃 · 타이포 · 스크롤 · UI 원칙</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge lock">기준 고정</span>
+              </div>
+            </a>
+
+            <a href="STAM-Component-Guide.html" class="doc-card">
+              <div class="doc-card-ico">CG</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">STAM Component Guide</span>
+                <span class="doc-card-sub">사람용 컴포넌트 카탈로그 stub</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge plan">Stub</span>
+              </div>
+            </a>
+
+            <a href="STAM-Agent-Component-Inventory.html" class="doc-card">
+              <div class="doc-card-ico">AI</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">STAM Agent Component Inventory</span>
+                <span class="doc-card-sub">에이전트·구현 거버넌스 기준</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge guide">Governance</span>
+              </div>
+            </a>
+
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+
+</body>
+</html>
