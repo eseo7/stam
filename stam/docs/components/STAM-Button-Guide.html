@@ -21,7 +21,7 @@
   <a href="../STAM-Docs-Index.html" class="doc-nav-back">← Docs</a>
   <a href="../STAM-Component-Guide.html" class="doc-nav-back">← Component Guide</a>
   <span class="doc-nav-title">Button Guide</span>
-  <span class="doc-nav-pill"><span class="dot"></span>Detail Draft</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Phase 2</span>
   <div class="doc-nav-sp"></div>
   <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
 </nav>
@@ -30,7 +30,7 @@
   <aside class="guide-toc">
     <div class="toc-hdr">
       <span class="toc-brand">Button Guide</span>
-      <span class="toc-ver-pill">Detail Draft</span>
+      <span class="toc-ver-pill">Phase 2</span>
     </div>
     <ul class="toc-list">
       <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>목적</a></li>
@@ -42,7 +42,9 @@
       <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>Don't</a></li>
       <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Cursor 작업 지시 기준</a></li>
       <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>QA 체크리스트</a></li>
-      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>관련 링크</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>접근성</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>반응형 / 모바일</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>관련 링크</a></li>
     </ul>
   </aside>
 
@@ -51,12 +53,17 @@
 
       <div class="ibox info">
         <div>
-          <strong>상태: Detail Draft</strong>
-          <span class="sbadge plan">2026-06-29</span>
+          <strong>Button Guide — Phase 2 · Single Component Pattern</strong>
+          <span class="sbadge done">Phase 2</span>
         </div>
         <p>
-          이 문서는 1차 기준 초안입니다. STAM 화면 작업 시 버튼 판단 기준으로 참고하십시오.
-          현재 기준은 1차 초안이며, 향후 실제 화면 리뷰 결과를 반영하여 순차 보완합니다.
+          This guide is the first activated detailed component guide in STAM Docs Phase 2.
+          It defines button usage, hierarchy, wording, accessibility, and QA rules.
+          It does not create new CSS classes, JS behavior, DOM structures, or design tokens.
+        </p>
+        <p>
+          STAM Docs Phase 2에서 공식 활성화된 첫 상세 컴포넌트 가이드입니다.
+          버튼 사용·위계·문구·접근성·QA 기준을 정의하며, 새 CSS 클래스·JS 동작·DOM 구조·디자인 토큰을 만들지 않습니다.
         </p>
       </div>
 
@@ -65,7 +72,7 @@
         <div class="sec-hdr">
           <span class="sec-n">01</span>
           <span class="sec-title">목적</span>
-          <span class="sbadge guide">Detail Draft</span>
+          <span class="sbadge done">Phase 2</span>
         </div>
         <div class="sec-body">
           <ul class="blist">
@@ -73,6 +80,14 @@
             <li>Cursor / Claude / Codex가 STAM 화면 작업 시 버튼 유형·문구·위계를 판단하는 기준 문서로 사용한다.</li>
             <li>기존 공통 CSS/JS/DOM 기준을 설명한다. 새 버튼 클래스·토큰·DOM 구조를 제안하지 않는다.</li>
             <li>새 화면을 만들거나 기존 화면을 수정할 때, 이 문서를 먼저 확인한 뒤 버튼 배치를 결정한다.</li>
+          </ul>
+          <p class="sub">SSOT / 관련 기준 문서</p>
+          <ul class="blist">
+            <li>Layout / typography / scroll principles — <a href="../STAM-UI-Baseline-Guide.html">STAM UI Baseline Guide</a></li>
+            <li>Token values and tone rules — <a href="../STAM-Token-Guide.html">STAM Token Guide</a></li>
+            <li>Token value SSOT — <code>stam/css/stam.tokens.css</code></li>
+            <li>Component reuse governance — <a href="../STAM-Agent-Component-Inventory.html">STAM Agent Component Inventory</a></li>
+            <li>Component catalog entry point — <a href="../STAM-Component-Guide.html">STAM Component Guide</a></li>
           </ul>
         </div>
       </section>
@@ -82,34 +97,56 @@
         <div class="sec-hdr">
           <span class="sec-n">02</span>
           <span class="sec-title">버튼 유형</span>
-          <span class="sbadge guide">Detail Draft</span>
+          <span class="sbadge done">Phase 2</span>
         </div>
         <div class="sec-body">
+          <p class="sub">Primary</p>
           <ul class="blist">
-            <li>
-              <strong>Primary Button</strong> — 화면의 핵심 완료 액션에 사용한다.
-              화면당 원칙적으로 1개만 배치한다.
-              예: 등록, 저장, 적용.
-            </li>
-            <li>
-              <strong>Secondary Button</strong> — 보조 액션 또는 Primary와 병렬로 배치되는 선택지에 사용한다.
-              예: 취소, 닫기, 이전.
-            </li>
-            <li>
-              <strong>Ghost / Text Button</strong> — 강조가 필요 없는 인라인 액션·툴바 보조 액션에 사용한다.
-              시각 무게를 최소화해야 할 때 선택한다.
-              예: 초기화, 전체 보기, 필터 해제.
-            </li>
-            <li>
-              <strong>Danger Button</strong> — 삭제·초기화 등 되돌릴 수 없는 위험 액션에 사용한다.
-              반드시 Dialog 확인 단계와 함께 배치한다.
-              예: 삭제, 일괄 삭제, 강제 초기화.
-            </li>
-            <li>
-              <strong>Icon Button</strong> — 아이콘만으로 구성된 버튼이다.
-              반드시 <code>aria-label</code>을 지정하여 의미를 명확히 한다.
-              아이콘 의미가 맥락 없이 불명확한 경우 사용하지 않는다.
-            </li>
+            <li><strong>사용 목적</strong> — 화면의 핵심 완료 액션. 화면당 원칙적으로 1개.</li>
+            <li><strong>사용 위치</strong> — 목록 상단 우측, 드로어 하단, 빈 상태(Empty State).</li>
+            <li><strong>금지 조건</strong> — 한 화면에 Primary 2개 이상 배치, 위험 액션을 Primary로 강조.</li>
+            <li><strong>대표 문구</strong> — 등록, 저장, 적용.</li>
+            <li><strong>접근성</strong> — 키보드 Tab 이동 가능, <code>:focus-visible</code> 링 표시.</li>
+          </ul>
+          <p class="sub">Secondary</p>
+          <ul class="blist">
+            <li><strong>사용 목적</strong> — 보조 액션 또는 Primary와 병렬 선택지.</li>
+            <li><strong>사용 위치</strong> — 드로어 하단 좌측, 툴바 보조 액션, 목록 상단 좌측.</li>
+            <li><strong>금지 조건</strong> — Primary와 동등한 시각 강조, 화면당 Primary 대체 사용.</li>
+            <li><strong>대표 문구</strong> — 취소, 닫기, 이전.</li>
+            <li><strong>접근성</strong> — Disabled 시 클릭 이벤트 처리 금지.</li>
+          </ul>
+          <p class="sub">Ghost / Text</p>
+          <ul class="blist">
+            <li><strong>사용 목적</strong> — 강조가 필요 없는 인라인·툴바 보조 액션.</li>
+            <li><strong>사용 위치</strong> — 테이블 행 액션, 툴바, 인라인 링크형 액션.</li>
+            <li><strong>금지 조건</strong> — 화면 핵심 완료 액션에 사용, Primary 대체.</li>
+            <li><strong>대표 문구</strong> — 초기화, 전체 보기, 필터 해제.</li>
+            <li><strong>접근성</strong> — 색상만으로 의미 전달 금지, 텍스트 또는 <code>aria-label</code> 필수.</li>
+          </ul>
+          <p class="sub">Danger</p>
+          <ul class="blist">
+            <li><strong>사용 목적</strong> — 삭제·초기화 등 되돌릴 수 없는 위험 액션.</li>
+            <li><strong>사용 위치</strong> — Dialog 확인 단계, 드로어 하단 좌측(별도 배치), 행 액션.</li>
+            <li><strong>금지 조건</strong> — Dialog 없이 직접 실행, 목록 상단에 Danger 직접 배치, Primary처럼 강조.</li>
+            <li><strong>대표 문구</strong> — 삭제, 일괄 삭제, 초기화.</li>
+            <li><strong>접근성</strong> — 반드시 Dialog 확인 단계와 함께 사용, 색상만으로 위험 전달 금지.</li>
+          </ul>
+          <p class="sub">Icon Button</p>
+          <ul class="blist">
+            <li><strong>사용 목적</strong> — 아이콘만으로 구성된 공간 절약형 액션.</li>
+            <li><strong>사용 위치</strong> — 테이블 행 액션, 툴바, Topbar 보조 액션.</li>
+            <li><strong>금지 조건</strong> — <code>aria-label</code> 없이 사용, 아이콘 의미가 맥락 없이 불명확한 경우.</li>
+            <li><strong>대표 문구</strong> — <code>aria-label</code>로 행동 명시 (예: 수정, 삭제, 닫기).</li>
+            <li><strong>접근성</strong> — <code>aria-label</code> 필수, 키보드 Tab·focus-visible 링 필수.</li>
+          </ul>
+          <p class="sub">Button Group</p>
+          <ul class="blist">
+            <li><strong>사용 목적</strong> — 관련 액션을 인접 배치하여 선택지를 그룹화.</li>
+            <li><strong>사용 위치</strong> — 드로어 하단, 툴바, 필터·열 설정 영역.</li>
+            <li><strong>금지 조건</strong> — Primary 2개 이상 포함, 위험 액션과 일반 액션 혼재 시 시각 위계 미분리.</li>
+            <li><strong>대표 문구</strong> — 취소 + 저장, 필터 + 열 설정.</li>
+            <li><strong>접근성</strong> — 그룹 내 Tab 순서 논리적, Primary·Secondary 순서 유지.</li>
           </ul>
         </div>
       </section>
@@ -119,7 +156,7 @@
         <div class="sec-hdr">
           <span class="sec-n">03</span>
           <span class="sec-title">사용 위치별 기준</span>
-          <span class="sbadge guide">Detail Draft</span>
+          <span class="sbadge done">Phase 2</span>
         </div>
         <div class="sec-body">
           <ul class="blist">
@@ -166,7 +203,7 @@
         <div class="sec-hdr">
           <span class="sec-n">04</span>
           <span class="sec-title">버튼 문구 기준</span>
-          <span class="sbadge guide">Detail Draft</span>
+          <span class="sbadge done">Phase 2</span>
         </div>
         <div class="sec-body">
           <ul class="blist">
@@ -176,7 +213,7 @@
             </li>
             <li>
               <strong>한국형 업무 문구를 사용한다.</strong>
-              권장 표현: 등록, 저장, 수정, 삭제, 취소, 닫기, 적용, 초기화, 전체 보기, 확인, 이전, 다음.
+              권장 표현: 등록, 저장, 수정, 삭제, 취소, 닫기, 적용, 초기화, 전체 보기, 확인, 이전, 다음,보내기, 필터, 열 설정.
             </li>
             <li>
               <strong>영어·혼합 표현을 남발하지 않는다.</strong>
@@ -202,7 +239,7 @@
         <div class="sec-hdr">
           <span class="sec-n">05</span>
           <span class="sec-title">우선순위 기준</span>
-          <span class="sbadge guide">Detail Draft</span>
+          <span class="sbadge done">Phase 2</span>
         </div>
         <div class="sec-body">
           <ul class="blist">
@@ -225,6 +262,14 @@
               위험 액션을 Primary처럼 강조하지 않는다.
             </li>
             <li>
+              <strong>행 액션 → Ghost 또는 Icon Button.</strong>
+              테이블·카드 행 내 액션은 시각 무게를 최소화한다.
+            </li>
+            <li>
+              <strong>Toolbar 보조 액션 → Secondary 또는 Ghost.</strong>
+              필터, 열 설정, 초기화,보내기 등은 Primary를 대체하지 않는다.
+            </li>
+            <li>
               <strong>동급 선택지가 나열될 경우 → Secondary 동등 배치.</strong>
               예: 드로어 하단의 취소 + 저장 중 저장만 Primary.
             </li>
@@ -237,7 +282,7 @@
         <div class="sec-hdr">
           <span class="sec-n">06</span>
           <span class="sec-title">Do</span>
-          <span class="sbadge guide">Detail Draft</span>
+          <span class="sbadge done">Phase 2</span>
         </div>
         <div class="sec-body">
           <ul class="blist">
@@ -257,7 +302,7 @@
         <div class="sec-hdr">
           <span class="sec-n">07</span>
           <span class="sec-title">Don't</span>
-          <span class="sbadge guide">Detail Draft</span>
+          <span class="sbadge done">Phase 2</span>
         </div>
         <div class="sec-body">
           <ul class="blist bad">
@@ -278,7 +323,7 @@
         <div class="sec-hdr">
           <span class="sec-n">08</span>
           <span class="sec-title">Cursor 작업 지시 기준</span>
-          <span class="sbadge guide">Detail Draft</span>
+          <span class="sbadge done">Phase 2</span>
         </div>
         <div class="sec-body">
           <div class="ibox info">
@@ -316,7 +361,7 @@
         <div class="sec-hdr">
           <span class="sec-n">09</span>
           <span class="sec-title">QA 체크리스트</span>
-          <span class="sbadge guide">Detail Draft</span>
+          <span class="sbadge done">Phase 2</span>
         </div>
         <div class="sec-body">
           <ul class="blist">
@@ -334,10 +379,46 @@
         </div>
       </section>
 
-      <!-- 10 관련 링크 -->
-      <section id="s10" class="sec" data-screen-label="10 관련 링크">
+      <!-- 10 접근성 -->
+      <section id="s10" class="sec" data-screen-label="10 접근성">
         <div class="sec-hdr">
           <span class="sec-n">10</span>
+          <span class="sec-title">접근성</span>
+          <span class="sbadge done">Phase 2</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>Icon Button은 <code>aria-label</code> 필수.</li>
+            <li>Disabled 버튼은 클릭 이벤트 처리 금지.</li>
+            <li>버튼은 키보드 Tab 이동 가능해야 함.</li>
+            <li><code>:focus-visible</code> 링이 보여야 함.</li>
+            <li>색상만으로 의미를 전달하지 않음.</li>
+            <li>Danger 액션은 Dialog 확인 단계와 함께 사용.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 11 반응형 / 모바일 -->
+      <section id="s11" class="sec" data-screen-label="11 반응형 / 모바일">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">반응형 / 모바일</span>
+          <span class="sbadge done">Phase 2</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>좁은 화면에서 버튼이 겹치지 않아야 함.</li>
+            <li>드로어 하단 버튼은 줄바꿈·고정 footer에서 깨지지 않아야 함.</li>
+            <li>버튼 텍스트가 긴 경우 우선 문구를 줄이고, 임의 width 하드코딩 금지.</li>
+            <li>모바일에서 Primary와 Secondary의 순서가 뒤집히지 않아야 함.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 12 관련 링크 -->
+      <section id="s12" class="sec" data-screen-label="12 관련 링크">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
           <span class="sec-title">관련 링크</span>
         </div>
         <div class="sec-body">
@@ -362,36 +443,106 @@
                 <span class="doc-card-arr"><svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M8 4l3 3-3 3"/></svg></span>
               </div>
             </a>
-            <a href="STAM-Drawer-Guide.html" class="doc-card">
+            <a href="../STAM-Token-Guide.html" class="doc-card">
+              <div class="doc-card-ico">TK</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">STAM Token Guide</span>
+                <span class="doc-card-sub">토큰 의미 · 톤 규칙 · SSOT: stam/css/stam.tokens.css</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="doc-card-arr"><svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M8 4l3 3-3 3"/></svg></span>
+              </div>
+            </a>
+            <a href="../STAM-UI-Baseline-Guide.html" class="doc-card">
+              <div class="doc-card-ico">BG</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">STAM UI Baseline Guide</span>
+                <span class="doc-card-sub">레이아웃 · 타이포 · 스크롤 원칙</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="doc-card-arr"><svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M8 4l3 3-3 3"/></svg></span>
+              </div>
+            </a>
+            <a href="../STAM-Agent-Component-Inventory.html" class="doc-card">
+              <div class="doc-card-ico">AI</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">STAM Agent Component Inventory</span>
+                <span class="doc-card-sub">컴포넌트 재사용 거버넌스</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="doc-card-arr"><svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M8 4l3 3-3 3"/></svg></span>
+              </div>
+            </a>
+            <div class="doc-card">
               <div class="doc-card-ico">DW</div>
               <div class="doc-card-body">
-                <span class="doc-card-title">Drawer Guide</span>
-                <span class="doc-card-sub">Drawer 패턴 기준 — 드로어 하단 버튼 배치 참고</span>
+                <span class="doc-card-title">Drawer Guide <em>Planned</em></span>
+                <span class="doc-card-sub">후속 Phase에서 분리 검증</span>
               </div>
               <div class="doc-card-meta">
-                <span class="doc-card-arr"><svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M8 4l3 3-3 3"/></svg></span>
+                <span class="sbadge plan">Planned</span>
               </div>
-            </a>
-            <a href="STAM-Form-Guide.html" class="doc-card">
+            </div>
+            <div class="doc-card">
               <div class="doc-card-ico">FM</div>
               <div class="doc-card-body">
-                <span class="doc-card-title">Form Guide</span>
-                <span class="doc-card-sub">폼 영역 버튼 배치 참고</span>
+                <span class="doc-card-title">Form Guide <em>Planned</em></span>
+                <span class="doc-card-sub">후속 Phase에서 분리 검증</span>
               </div>
               <div class="doc-card-meta">
-                <span class="doc-card-arr"><svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M8 4l3 3-3 3"/></svg></span>
+                <span class="sbadge plan">Planned</span>
               </div>
-            </a>
-            <a href="STAM-Table-Guide.html" class="doc-card">
+            </div>
+            <div class="doc-card">
               <div class="doc-card-ico">TB</div>
               <div class="doc-card-body">
-                <span class="doc-card-title">Table Guide</span>
-                <span class="doc-card-sub">테이블 행 액션 버튼 배치 참고</span>
+                <span class="doc-card-title">Table Guide <em>Planned</em></span>
+                <span class="doc-card-sub">후속 Phase에서 분리 검증</span>
               </div>
               <div class="doc-card-meta">
-                <span class="doc-card-arr"><svg viewBox="0 0 14 14" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M8 4l3 3-3 3"/></svg></span>
+                <span class="sbadge plan">Planned</span>
               </div>
-            </a>
+            </div>
+            <div class="doc-card">
+              <div class="doc-card-ico">IC</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">Icon Guide <em>Planned</em></span>
+                <span class="doc-card-sub">후속 Phase에서 분리 검증</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge plan">Planned</span>
+              </div>
+            </div>
+            <div class="doc-card">
+              <div class="doc-card-ico">CH</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">Chip Guide <em>Planned</em></span>
+                <span class="doc-card-sub">후속 Phase에서 분리 검증</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge plan">Planned</span>
+              </div>
+            </div>
+            <div class="doc-card">
+              <div class="doc-card-ico">DL</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">Dialog Guide <em>Planned</em></span>
+                <span class="doc-card-sub">후속 Phase에서 분리 검증</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge plan">Planned</span>
+              </div>
+            </div>
+            <div class="doc-card">
+              <div class="doc-card-ico">TP</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">Topbar Guide <em>Planned</em></span>
+                <span class="doc-card-sub">후속 Phase에서 분리 검증</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge plan">Planned</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
