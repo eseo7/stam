@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM 1차 제품화 전환 범위 정의서</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Phase 1 Productization Scope</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Decision</span>
+  <span class="doc-nav-pill"><span class="dot"></span>PR #294</span>
+  <a class="doc-nav-back" href="STAM-Docs-Index.html">← Docs Index</a>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Phase 1 Scope</span>
+      <span class="toc-ver-pill">v1</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>전환 배경</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>1차 제품화 목표</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>1차 포함 범위</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>1차 제외 범위</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>1차 핵심 산출물</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>Auth 정책</a></li>
+      <li class="toc-item"><a href="#s07"><span class="toc-n">07</span>권한 정책</a></li>
+      <li class="toc-item"><a href="#s08"><span class="toc-n">08</span>Left Menu 상태 전략</a></li>
+      <li class="toc-item"><a href="#s09"><span class="toc-n">09</span>실제 DB 대상</a></li>
+      <li class="toc-item"><a href="#s10"><span class="toc-n">10</span>산출물 연결 구조</a></li>
+      <li class="toc-item"><a href="#s11"><span class="toc-n">11</span>변경 이력 범위</a></li>
+      <li class="toc-item"><a href="#s12"><span class="toc-n">12</span>Rules 적용 시점</a></li>
+      <li class="toc-item"><a href="#s13"><span class="toc-n">13</span>화면설계서 분리 원칙</a></li>
+      <li class="toc-item"><a href="#s14"><span class="toc-n">14</span>1차 라우트 후보</a></li>
+      <li class="toc-item"><a href="#s15"><span class="toc-n">15</span>PR 분리 계획</a></li>
+      <li class="toc-item"><a href="#s16"><span class="toc-n">16</span>기존 자산 역할</a></li>
+      <li class="toc-item"><a href="#s17"><span class="toc-n">17</span>결정 요약</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── Overview ── -->
+      <div class="ibox info">
+        <strong>문서 성격 — 의사결정 문서</strong>
+        본 문서는 STAM을 정적 Preview / 문서 확장 중심 작업에서 실제 Auth / DB / Project / Permission 기반 1차 제품화로 전환하는 <strong>canonical scope 문서</strong>입니다.
+        실제 구현 지시서가 아니라, 이후 구현 PR(#295~#307)의 범위를 통제하는 결정 기준서입니다.
+        <br><br>
+        <strong>핵심 서사</strong>
+        <span>· 1차는 <strong>전체 제품의 폭을 줄이고</strong>, Auth / Project / Permission / DB / 3개 핵심 산출물의 <strong>깊이를 실제 제품 수준으로 구현</strong>한다.</span>
+        <span>· <strong>폭은 줄이고, 깊이는 진짜로 판다.</strong></span>
+        <span>· 요구사항 / WBS / 화면설계서 3개만 <strong>Live 산출물</strong>로 둔다.</span>
+        <span>· 기존 Preview와 문서는 버리지 않고 <strong>실제 제품 구현 기준으로 재활용</strong>한다.</span>
+      </div>
+
+      <!-- ── 01 전환 배경 ── -->
+      <section id="s01" class="sec" data-screen-label="01 전환 배경">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">전환 배경 — Why Phase 1 Now</span>
+          <span class="sbadge lock">Decision</span>
+        </div>
+        <div class="sec-body">
+          <ul class="blist">
+            <li>기존에는 정적 Preview / 문서 / 가이드 / 템플릿 기준이 많이 쌓였다.</li>
+            <li>전체 메뉴와 전체 산출물을 한 번에 풀스택 구현하는 것은 범위가 과도하다.</li>
+            <li>따라서 1차 제품화는 산출물 폭을 3개로 줄이고, Auth / Project / Permission / DB / 저장 구조를 실제 제품 수준으로 만든다.</li>
+            <li>기존 Preview와 문서는 버리지 않고 실제 제품 구현 기준서로 재활용한다.</li>
+          </ul>
+          <div class="ibox info">
+            <strong>전환 원칙</strong>
+            정적 Preview 확장은 중단하지 않지만, <strong>실제 제품화 우선순위보다 앞서지 않는다</strong>.
+            Preview·가이드·템플릿은 실제 CRUD·Auth·Rules 구현의 <strong>기준서</strong>로 재사용한다.
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 02 1차 제품화 목표 ── -->
+      <section id="s02" class="sec" data-screen-label="02 1차 제품화 목표">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">1차 제품화 목표 — Golden Path</span>
+          <span class="sbadge done">Live 목표</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">사용자가 1차에서 반드시 할 수 있어야 하는 일</p>
+          <ul class="blist">
+            <li>로그인한다.</li>
+            <li>프로젝트를 선택한다.</li>
+            <li>요구사항을 등록/수정/조회한다.</li>
+            <li>WBS를 등록/수정/조회한다.</li>
+            <li>화면설계서를 등록/수정/조회한다.</li>
+            <li>요구사항 – WBS – 화면설계서가 최소 연결된다.</li>
+            <li>권한에 따라 액션 가능 여부가 달라진다.</li>
+            <li>DB에 실제 저장된다.</li>
+            <li>staging에서 실제 동작을 확인한다.</li>
+          </ul>
+          <div class="flow-row">
+            <span class="fbox">로그인</span>
+            <span class="farr">›</span>
+            <span class="fbox">프로젝트 선택</span>
+            <span class="farr">›</span>
+            <span class="fbox">요구사항 CRUD</span>
+            <span class="farr">›</span>
+            <span class="fbox">WBS CRUD</span>
+            <span class="farr">›</span>
+            <span class="fbox">화면설계서 CRUD</span>
+            <span class="farr">›</span>
+            <span class="fbox end">artifactLinks 연결</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 03 1차 포함 범위 ── -->
+      <section id="s03" class="sec" data-screen-label="03 1차 포함 범위">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">1차 포함 범위 — In Scope</span>
+          <span class="sbadge done">In Scope</span>
+        </div>
+        <div class="sec-body">
+          <div class="two-col">
+            <div class="mcrd">
+              <div class="mcrd-title">Auth · Project · Permission</div>
+              <div class="mcrd-body">
+                <ul class="blist">
+                  <li>Google 로그인</li>
+                  <li>사용자 생성/갱신 (<code>users</code>)</li>
+                  <li>프로젝트 목록</li>
+                  <li>프로젝트 선택</li>
+                  <li>프로젝트 멤버/권한</li>
+                  <li>Project Overview</li>
+                  <li>Role 저장 · UI 액션 제어</li>
+                  <li><code>projectMembers</code> 기반 접근 게이트</li>
+                  <li>최소 Firestore Rules enforcement</li>
+                </ul>
+              </div>
+            </div>
+            <div class="mcrd">
+              <div class="mcrd-title">3개 핵심 산출물 CRUD</div>
+              <div class="mcrd-body">
+                <ul class="blist">
+                  <li>요구사항 CRUD</li>
+                  <li>WBS CRUD</li>
+                  <li>화면설계서 CRUD</li>
+                  <li><code>screenFields</code> / <code>screenActions</code> 최소 편집 기능</li>
+                  <li><code>artifactLinks</code> 최소 수동 연결 기능</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="mcrd">
+              <div class="mcrd-title">기본 audit 필드</div>
+              <div class="mcrd-body">
+                <ul class="blist">
+                  <li><code>createdAt</code></li>
+                  <li><code>updatedAt</code></li>
+                  <li><code>createdBy</code></li>
+                  <li><code>updatedBy</code></li>
+                  <li><code>statusChangedAt</code></li>
+                  <li><code>statusChangedBy</code></li>
+                </ul>
+              </div>
+            </div>
+            <div class="mcrd">
+              <div class="mcrd-title">UI · 배포</div>
+              <div class="mcrd-body">
+                <ul class="blist">
+                  <li>Left Menu 상태값 표시 (Live · Preview · Planned · Locked)</li>
+                  <li>staging 배포 / QA 기준 정리</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 04 1차 제외 범위 ── -->
+      <section id="s04" class="sec" data-screen-label="04 1차 제외 범위">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">1차 제외 범위 — Out of Scope</span>
+          <span class="sbadge plan">Out of Scope</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox bad">
+            <strong>1차 진행 중 절대 확장하지 않는 항목</strong>
+            아래 항목은 요구사항이 올라오더라도 1차 PR(#294~#307)에서 다루지 않는다.
+            후속 PR / 별도 결정에서 다시 검토한다.
+          </div>
+
+          <div class="two-col">
+            <div class="mcrd">
+              <div class="mcrd-title">넓이 확장 (다른 산출물 · 다른 메뉴)</div>
+              <div class="mcrd-body">
+                <ul class="blist bad">
+                  <li>전체 54개 메뉴 구현</li>
+                  <li>전체 템플릿 30종 구현</li>
+                  <li>기능정의서 CRUD</li>
+                  <li>프로그램목록 CRUD</li>
+                  <li>API 명세 CRUD</li>
+                  <li>정책 문서 CRUD</li>
+                  <li>테이블정의서 CRUD</li>
+                  <li>DB 정보 관리 화면</li>
+                  <li>서버 정보 관리 화면</li>
+                  <li>접근보안 관리 화면</li>
+                  <li>매뉴얼 자동 생성</li>
+                </ul>
+              </div>
+            </div>
+            <div class="mcrd">
+              <div class="mcrd-title">Auth · Invite 확장</div>
+              <div class="mcrd-body">
+                <ul class="blist bad">
+                  <li>초대 이메일 발송</li>
+                  <li>초대 토큰 링크</li>
+                  <li><code>projectInvites</code> 실제 구현</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="mcrd">
+              <div class="mcrd-title">변경 이력 확장</div>
+              <div class="mcrd-body">
+                <ul class="blist bad">
+                  <li>별도 <code>changeLogs</code> 컬렉션</li>
+                  <li>before/after diff 저장</li>
+                  <li>변경 이력 UI</li>
+                  <li>고급 승인 워크플로우</li>
+                </ul>
+              </div>
+            </div>
+            <div class="mcrd">
+              <div class="mcrd-title">권한 · 협업 · 요금 확장</div>
+              <div class="mcrd-body">
+                <ul class="blist bad">
+                  <li>필드 단위 세밀 권한</li>
+                  <li>문서 상태별 권한 매트릭스</li>
+                  <li>담당자 기반 복합 권한</li>
+                  <li>버튼/컴포넌트 단위 권한 엔진</li>
+                  <li>요금제 기반 Locked</li>
+                  <li>첨부파일 고도화</li>
+                  <li>댓글/실시간 협업</li>
+                  <li>고급 validation rule builder</li>
+                  <li>복합 필드 권한</li>
+                  <li>액션별 상태 조건</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 05 1차 핵심 산출물 ── -->
+      <section id="s05" class="sec" data-screen-label="05 1차 핵심 산출물">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">1차 핵심 산출물 — Live vs Planned</span>
+          <span class="sbadge lock">3 Live</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>산출물</th>
+                <th>1차 상태</th>
+                <th>비고</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>요구사항정의서</td><td><span class="sbadge done">Live</span></td><td>실제 DB 저장형 CRUD</td></tr>
+              <tr><td>WBS</td><td><span class="sbadge done">Live</span></td><td>실제 DB 저장형 CRUD</td></tr>
+              <tr><td>화면설계서</td><td><span class="sbadge done">Live</span></td><td>screenSpecs + screenFields/screenActions</td></tr>
+              <tr><td>기능정의서</td><td><span class="sbadge plan">Planned</span></td><td>후속 PR</td></tr>
+              <tr><td>프로그램목록</td><td><span class="sbadge plan">Planned</span></td><td>후속 PR</td></tr>
+              <tr><td>API 명세</td><td><span class="sbadge plan">Planned</span></td><td>후속 PR</td></tr>
+              <tr><td>정책</td><td><span class="sbadge plan">Planned</span></td><td>후속 PR</td></tr>
+              <tr><td>테이블정의서</td><td><span class="sbadge plan">Planned</span></td><td>후속 PR</td></tr>
+              <tr><td>DB 정보</td><td><span class="sbadge plan">Planned</span></td><td>후속 PR</td></tr>
+              <tr><td>서버 정보</td><td><span class="sbadge plan">Planned</span></td><td>후속 PR</td></tr>
+              <tr><td>접근보안</td><td><span class="sbadge plan">Planned</span></td><td>후속 PR</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 06 Auth 정책 ── -->
+      <section id="s06" class="sec" data-screen-label="06 Auth 정책">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">Auth 정책 — Google + projectMembers Gate</span>
+          <span class="sbadge lock">Decision</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>결정 문구</strong>
+            <span>· “로그인은 가볍게, 권한 구조는 진짜로 간다.”</span>
+            <span>· “1차 베타는 Google 로그인 단일화 + <code>projectMembers</code> 이메일 기반 접근 게이트로 운영한다.”</span>
+          </div>
+
+          <p class="sub">Auth 결정 사항</p>
+          <ul class="blist">
+            <li>Google 로그인만 사용</li>
+            <li>공개 회원가입 없음</li>
+            <li>이메일/비밀번호 로그인 없음</li>
+            <li>카카오/네이버 로그인 없음</li>
+            <li>초대받거나 등록된 이메일만 프로젝트 접근 가능</li>
+            <li><code>projectMembers.email</code> 기준으로 접근 게이트 처리</li>
+            <li>로그인 후 <code>users</code> 문서 생성/갱신</li>
+            <li><code>projectMembers.email</code>이 일치하면 <code>userId</code> 연결 후 active 처리</li>
+            <li>프로젝트가 없으면 <strong>Access Pending</strong> 화면 표시</li>
+            <li>초대 이메일 발송 / 토큰 링크는 후속 범위</li>
+            <li><code>projectInvites</code>는 1차 DB 대상이 아니라 후속 확장 후보로 둔다.</li>
+          </ul>
+
+          <div class="flow-row">
+            <span class="fbox">Google 로그인</span>
+            <span class="farr">›</span>
+            <span class="fbox">users 생성/갱신</span>
+            <span class="farr">›</span>
+            <span class="fbox">projectMembers.email 매칭</span>
+            <span class="farr">›</span>
+            <span class="fbox end">프로젝트 진입 · Active</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 07 권한 정책 ── -->
+      <section id="s07" class="sec" data-screen-label="07 권한 정책">
+        <div class="sec-hdr">
+          <span class="sec-n">07</span>
+          <span class="sec-title">권한 정책 — Role Baseline</span>
+          <span class="sbadge lock">Decision</span>
+        </div>
+        <div class="sec-body">
+          <p class="sub">1차 Role 4종</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>Role</th>
+                <th>조회</th>
+                <th>Write</th>
+                <th>관리 권한</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Viewer</td><td>가능</td><td>차단</td><td>없음</td></tr>
+              <tr><td>Editor</td><td>가능</td><td>산출물 등록/수정</td><td>없음</td></tr>
+              <tr><td>Admin</td><td>가능</td><td>산출물 등록/수정</td><td>멤버 관리</td></tr>
+              <tr><td>Owner</td><td>가능</td><td>산출물 등록/수정</td><td>프로젝트 전체 소유/관리</td></tr>
+            </tbody>
+          </table>
+
+          <p class="sub">1차 권한 범위</p>
+          <ul class="blist">
+            <li>Role 저장</li>
+            <li>UI 버튼 노출 / 비활성 제어</li>
+            <li>active project member만 project-scoped data read 가능</li>
+            <li>Editor / Admin / Owner 기본 write 가능</li>
+            <li>Viewer write 차단</li>
+            <li>collection별 세부 hardening은 후속 PR에서 보강</li>
+          </ul>
+
+          <p class="sub">후속 권한 확장 (제외 범위)</p>
+          <ul class="blist bad">
+            <li>필드 단위 권한</li>
+            <li>문서 상태별 권한 매트릭스</li>
+            <li>담당자 기반 권한</li>
+            <li>승인 상태 기반 복합 조건</li>
+            <li>버튼/컴포넌트 단위 권한 엔진</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── 08 Left Menu 상태 전략 ── -->
+      <section id="s08" class="sec" data-screen-label="08 Left Menu 상태 전략">
+        <div class="sec-hdr">
+          <span class="sec-n">08</span>
+          <span class="sec-title">Left Menu 상태 전략 — Live / Preview / Planned / Locked</span>
+          <span class="sbadge lock">Decision</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>전략 원칙</strong>
+            <span>· 전체 IA는 <strong>숨기지 않는다</strong>.</span>
+            <span>· 1차 Live 메뉴만 <strong>선명하게 표시</strong>한다.</span>
+            <span>· 후속 메뉴는 <strong>Planned</strong> 상태로 딤 처리한다.</span>
+            <span>· 정적 Preview나 기준 문서가 있는 메뉴는 <strong>Preview</strong> 상태로 표시한다.</span>
+            <span>· 권한/역할 제한 메뉴는 <strong>Locked</strong> 상태로 표시한다.</span>
+            <span>· 요금제 기반 Locked는 billing 도입 후 후속으로 확장한다.</span>
+          </div>
+
+          <p class="sub">상태값 정의</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>상태</th>
+                <th>정의</th>
+                <th>클릭 동작</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><span class="sbadge done">Live</span></td><td>실제 DB / Auth 연결</td><td>실제 화면 진입</td></tr>
+              <tr><td><span class="sbadge guide">Preview</span></td><td>정적 Preview 또는 기준 문서 존재</td><td>Preview / Guide로 이동</td></tr>
+              <tr><td><span class="sbadge plan">Planned</span></td><td>후속 예정, 딤 처리</td><td>준비 중 안내</td></tr>
+              <tr><td><span class="sbadge lock">Locked</span></td><td>권한 / 역할 제한</td><td>잠금 표시</td></tr>
+            </tbody>
+          </table>
+
+          <div class="two-col">
+            <div class="mcrd">
+              <div class="mcrd-title">1차 Live 메뉴</div>
+              <div class="mcrd-body">
+                <ul class="blist">
+                  <li>Project Overview</li>
+                  <li>요구사항</li>
+                  <li>WBS</li>
+                  <li>화면설계서</li>
+                  <li>멤버 / 권한</li>
+                </ul>
+              </div>
+            </div>
+            <div class="mcrd">
+              <div class="mcrd-title">Planned 메뉴 예시</div>
+              <div class="mcrd-body">
+                <ul class="blist">
+                  <li>기능정의서</li>
+                  <li>프로그램목록</li>
+                  <li>API 명세</li>
+                  <li>정책</li>
+                  <li>테이블정의서</li>
+                  <li>DB 정보</li>
+                  <li>서버 정보</li>
+                  <li>접근보안</li>
+                  <li>산출물 접근권한</li>
+                  <li>매뉴얼 자동 생성</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 09 실제 DB 대상 ── -->
+      <section id="s09" class="sec" data-screen-label="09 실제 DB 대상">
+        <div class="sec-hdr">
+          <span class="sec-n">09</span>
+          <span class="sec-title">실제 DB 대상 — Collections</span>
+          <span class="sbadge lock">Decision</span>
+        </div>
+        <div class="sec-body">
+          <div class="two-col">
+            <div class="mcrd">
+              <div class="mcrd-title">1차 DB 대상 (10 collections)</div>
+              <div class="mcrd-body">
+                <ul class="blist">
+                  <li><code>users</code></li>
+                  <li><code>tenants</code></li>
+                  <li><code>projects</code></li>
+                  <li><code>projectMembers</code></li>
+                  <li><code>requirements</code></li>
+                  <li><code>wbsItems</code></li>
+                  <li><code>screenSpecs</code></li>
+                  <li><code>screenFields</code></li>
+                  <li><code>screenActions</code></li>
+                  <li><code>artifactLinks</code></li>
+                </ul>
+              </div>
+            </div>
+            <div class="mcrd">
+              <div class="mcrd-title">후속 DB 후보</div>
+              <div class="mcrd-body">
+                <ul class="blist bad">
+                  <li><code>projectInvites</code></li>
+                  <li><code>changeLogs</code></li>
+                  <li><code>comments</code></li>
+                  <li><code>attachments</code></li>
+                  <li><code>billingPlans</code></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="ibox info">
+            <strong><code>tenants</code> 처리</strong>
+            <span>· <code>tenantId</code>는 1차 데이터 구조에 포함한다.</span>
+            <span>· 기본 tenant 기준으로 유지한다.</span>
+            <span>· Tenant 관리 화면은 후속으로 둔다.</span>
+            <span>· 조직 전환 UI는 후속으로 둔다.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 10 산출물 연결 구조 ── -->
+      <section id="s10" class="sec" data-screen-label="10 산출물 연결 구조">
+        <div class="sec-hdr">
+          <span class="sec-n">10</span>
+          <span class="sec-title">산출물 연결 구조 — artifactLinks</span>
+          <span class="sbadge lock">Decision</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>핵심</strong>
+            요구사항 · WBS · 화면설계서는 따로 놀면 안 된다.
+            <code>artifactLinks</code>를 통해 서로 <strong>최소 연결</strong>한다.
+            연결은 STAM 차별점이므로 1차에도 최소 형태로 포함한다.
+          </div>
+
+          <div class="two-col">
+            <div class="mcrd">
+              <div class="mcrd-title">1차 포함</div>
+              <div class="mcrd-body">
+                <ul class="blist">
+                  <li>수동 연결</li>
+                  <li>관계 타입은 <code>related</code> 중심</li>
+                  <li>요구사항 / WBS / 화면설계서 연결</li>
+                  <li>각 상세 화면의 연결정보 탭에서 표시</li>
+                </ul>
+              </div>
+            </div>
+            <div class="mcrd">
+              <div class="mcrd-title">후속</div>
+              <div class="mcrd-body">
+                <ul class="blist bad">
+                  <li>자동 추천</li>
+                  <li>영향도 분석</li>
+                  <li>연결 그래프</li>
+                  <li>양방향 고급 탐색</li>
+                  <li>관계 타입 전체 구현</li>
+                  <li>연결 변경 이력 diff</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <p class="sub">예시 연결</p>
+          <div class="flow-row">
+            <span class="fbox">REQ-001</span>
+            <span class="farr">›</span>
+            <span class="fbox">WBS-003</span>
+            <span class="farr">›</span>
+            <span class="fbox">SCR-002</span>
+            <span class="farr">›</span>
+            <span class="fbox end">REQ-001 (재연결)</span>
+          </div>
+
+          <p class="sub">관계 유형 후속 후보</p>
+          <ul class="blist">
+            <li><code>related</code> — 1차 기본</li>
+            <li><code>depends_on</code> — 후속</li>
+            <li><code>implements</code> — 후속</li>
+            <li><code>designs</code> — 후속</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── 11 변경 이력 범위 ── -->
+      <section id="s11" class="sec" data-screen-label="11 변경 이력 범위">
+        <div class="sec-hdr">
+          <span class="sec-n">11</span>
+          <span class="sec-title">변경 이력 범위 — Audit vs changeLogs</span>
+          <span class="sbadge lock">Decision</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>결정 문구</strong>
+            <span>· “기본 audit 필드 저장은 1차 포함.”</span>
+            <span>· “별도 <code>changeLogs</code> 컬렉션과 변경 이력 UI는 후속.”</span>
+          </div>
+
+          <div class="two-col">
+            <div class="mcrd">
+              <div class="mcrd-title">1차 포함</div>
+              <div class="mcrd-body">
+                <ul class="blist">
+                  <li><code>createdAt</code></li>
+                  <li><code>updatedAt</code></li>
+                  <li><code>createdBy</code></li>
+                  <li><code>updatedBy</code></li>
+                  <li><code>statusChangedAt</code></li>
+                  <li><code>statusChangedBy</code></li>
+                </ul>
+              </div>
+            </div>
+            <div class="mcrd">
+              <div class="mcrd-title">후속</div>
+              <div class="mcrd-body">
+                <ul class="blist bad">
+                  <li>별도 <code>changeLogs</code> 컬렉션</li>
+                  <li>before/after diff 저장</li>
+                  <li>변경 이력 UI</li>
+                  <li>변경 이력 필터 / 검색</li>
+                  <li>감사 로그 고도화</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 12 Rules 적용 시점 원칙 ── -->
+      <section id="s12" class="sec" data-screen-label="12 Rules 적용 시점 원칙">
+        <div class="sec-hdr">
+          <span class="sec-n">12</span>
+          <span class="sec-title">Rules 적용 시점 원칙 — Security-First Ordering</span>
+          <span class="sbadge lock">Decision</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox warn">
+            <strong>필수 원칙</strong>
+            “실제 산출물 CRUD가 DB에 저장되기 <strong>전에</strong> 최소 접근 제어가 <strong>먼저</strong> 적용되어야 한다.”
+          </div>
+
+          <p class="sub">순서</p>
+          <ul class="blist">
+            <li>#296 ~ #298 단계에서 아래 기준을 먼저 세운다.
+              <ul class="blist">
+                <li>Firestore Rules deny-by-default</li>
+                <li>active project member만 project-scoped data read 가능</li>
+                <li>Editor / Admin / Owner만 기본 write 가능</li>
+                <li>Viewer write 차단</li>
+              </ul>
+            </li>
+            <li>#300 요구사항 CRUD 이전에 위 최소 Rules baseline이 반드시 반영되어야 한다.</li>
+            <li>#306에서는 이 기본 Rules를 collection별로 보강하고, Role 기반 UI 액션 제어를 함께 적용한다.</li>
+          </ul>
+
+          <div class="flow-row">
+            <span class="fbox">#296 Rules baseline</span>
+            <span class="farr">›</span>
+            <span class="fbox">#297 Google 로그인</span>
+            <span class="farr">›</span>
+            <span class="fbox">#298 Member gate</span>
+            <span class="farr">›</span>
+            <span class="fbox">#300~#304 CRUD</span>
+            <span class="farr">›</span>
+            <span class="fbox end">#306 Rules hardening</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 13 화면설계서 하위 데이터 분리 원칙 ── -->
+      <section id="s13" class="sec" data-screen-label="13 화면설계서 분리 원칙">
+        <div class="sec-hdr">
+          <span class="sec-n">13</span>
+          <span class="sec-title">화면설계서 하위 데이터 분리 원칙 — screenSpecs / screenFields / screenActions</span>
+          <span class="sbadge lock">Decision</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>필수 문구</strong>
+            <span>· <code>screenSpecs</code>, <code>screenFields</code>, <code>screenActions</code>는 1차 DB 대상에 포함한다.</span>
+            <span>· 단, PR 크기와 QA 부담을 줄이기 위해 <strong>분리</strong>한다.</span>
+          </div>
+
+          <p class="sub">PR 분리</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>PR</th>
+                <th>범위</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>#302</td><td><code>screenSpecs</code> 기본 CRUD</td></tr>
+              <tr><td>#303</td><td><code>screenFields</code> / <code>screenActions</code> 최소 편집 기능</td></tr>
+            </tbody>
+          </table>
+
+          <p class="sub">후속</p>
+          <ul class="blist bad">
+            <li>고급 validation rule builder</li>
+            <li>복합 필드 권한</li>
+            <li>액션별 상태 조건</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── 14 1차 라우트 후보 ── -->
+      <section id="s14" class="sec" data-screen-label="14 1차 라우트 후보">
+        <div class="sec-hdr">
+          <span class="sec-n">14</span>
+          <span class="sec-title">1차 라우트 후보 — Route Candidates</span>
+          <span class="sbadge plan">Doc-Only</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox warn">
+            <strong>주의</strong>
+            문서상 후보만 정의한다. <strong>이번 PR에서 구현하지 않는다.</strong>
+            실제 라우트 결정 및 구현은 각 후속 PR(#297~#307)에서 수행한다.
+          </div>
+
+          <ul class="blist">
+            <li><code>/login</code></li>
+            <li><code>/projects</code></li>
+            <li><code>/project-overview</code></li>
+            <li><code>/requirements</code></li>
+            <li><code>/wbs</code></li>
+            <li><code>/screen-specifications</code></li>
+            <li><code>/members</code></li>
+            <li><code>/access-pending</code></li>
+            <li><code>/access-denied</code></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ── 15 PR 분리 계획 ── -->
+      <section id="s15" class="sec" data-screen-label="15 PR 분리 계획">
+        <div class="sec-hdr">
+          <span class="sec-n">15</span>
+          <span class="sec-title">PR 분리 계획 — #294 ~ #307</span>
+          <span class="sbadge lock">Plan</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>PR</th>
+                <th>작업명</th>
+                <th>성격</th>
+                <th>핵심 범위</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>#294</td>
+                <td>1차 제품화 전환 범위 정의서</td>
+                <td>docs-only</td>
+                <td>1차 범위 / 제외 범위 / Auth 정책 / Left Menu 상태 전략 / DB 대상 / PR 분리 계획 확정</td>
+              </tr>
+              <tr>
+                <td>#295</td>
+                <td>Auth / User / Project / Member 데이터 구조 설계 문서</td>
+                <td>docs-only</td>
+                <td><code>users</code>, <code>tenants</code>, <code>projects</code>, <code>projectMembers</code> 논리 구조 정의. <code>projectInvites</code>는 후속 후보로 분리</td>
+              </tr>
+              <tr>
+                <td>#296</td>
+                <td>Firebase Auth / Firestore / Rules baseline / staging 연결 준비</td>
+                <td>infra/dev</td>
+                <td>Firebase Auth / Firestore 연결 준비, deny-by-default Rules baseline, membership helper 구조 준비, staging deploy / CI 흐름 포함</td>
+              </tr>
+              <tr>
+                <td>#297</td>
+                <td>Google 로그인 + <code>users</code> 생성/갱신</td>
+                <td>dev</td>
+                <td>Google 로그인 단일 적용, 로그인 성공 시 <code>users</code> 생성/갱신, 공개 회원가입 없음</td>
+              </tr>
+              <tr>
+                <td>#298</td>
+                <td><code>projectMembers</code> 이메일 게이트 + 프로젝트 목록 + 기본 membership Rules</td>
+                <td>dev/security</td>
+                <td><code>projectMembers.email</code> 기반 접근 게이트, userId 연결, active 처리, 참여 프로젝트 목록, 기본 Rules 적용</td>
+              </tr>
+              <tr>
+                <td>#299</td>
+                <td>Left Menu 상태값 Live / Preview / Planned / Locked 적용</td>
+                <td>dev/ui</td>
+                <td>전체 IA 노출, Live 선명 표시, Planned 딤 처리, Preview 연결, Locked는 권한/역할 제한</td>
+              </tr>
+              <tr>
+                <td>#300</td>
+                <td>요구사항 DB CRUD</td>
+                <td>dev</td>
+                <td><code>requirements</code> 실제 DB 저장형 목록/등록/상세/수정, 기본 audit 필드 포함</td>
+              </tr>
+              <tr>
+                <td>#301</td>
+                <td>WBS DB CRUD</td>
+                <td>dev</td>
+                <td><code>wbsItems</code> 실제 DB 저장형 목록/등록/상세/수정, 기본 audit 필드 포함</td>
+              </tr>
+              <tr>
+                <td>#302</td>
+                <td>화면설계서 기본 DB CRUD</td>
+                <td>dev</td>
+                <td><code>screenSpecs</code> 실제 DB 저장형 목록/등록/상세/수정, 화면 기본정보 중심</td>
+              </tr>
+              <tr>
+                <td>#303</td>
+                <td><code>screenFields</code> / <code>screenActions</code> 최소 편집 기능</td>
+                <td>dev</td>
+                <td><code>screenFields</code> 최소 CRUD, <code>screenActions</code> 최소 CRUD, 화면설계서 상세 내 필드/액션 섹션 구성</td>
+              </tr>
+              <tr>
+                <td>#304</td>
+                <td><code>artifactLinks</code> 최소 연결 기능</td>
+                <td>dev</td>
+                <td>요구사항 / WBS / 화면설계서 간 수동 연결, 1차 관계 타입은 <code>related</code> 중심, 상세 화면 연결정보 탭 표시</td>
+              </tr>
+              <tr>
+                <td>#305</td>
+                <td>기본 audit 필드 / 상태 변경 메타 저장</td>
+                <td>dev</td>
+                <td><code>statusChangedAt</code>, <code>statusChangedBy</code>, 상태 변경 메타 저장. 별도 <code>changeLogs</code>와 before/after diff는 후속</td>
+              </tr>
+              <tr>
+                <td>#306</td>
+                <td>Role 기반 UI 액션 제어 + Rules hardening</td>
+                <td>dev/security</td>
+                <td>Role별 버튼 노출/비활성, Viewer/Editor/Admin/Owner 기준 UI 액션 제어, collection별 Firestore Rules 세부 보강</td>
+              </tr>
+              <tr>
+                <td>#307</td>
+                <td>1차 제품화 통합 QA / staging 배포 기준 정리</td>
+                <td>qa/docs</td>
+                <td>Auth, Project gate, Member role, 3개 산출물 CRUD, screenFields/actions, artifactLinks, audit, Left Menu 상태값 통합 QA</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 16 기존 Preview/문서 자산의 역할 ── -->
+      <section id="s16" class="sec" data-screen-label="16 기존 자산 역할">
+        <div class="sec-hdr">
+          <span class="sec-n">16</span>
+          <span class="sec-title">기존 Preview / 문서 자산의 역할 — Re-Use, Not Discard</span>
+          <span class="sbadge guide">Reuse</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            기존 정적 Preview / 가이드 / 템플릿 / 문서는 <strong>버리지 않는다</strong>.
+            1차 제품화 구현 PR(#297~#307)의 <strong>기준서 · 참조 자산</strong>으로 재활용한다.
+          </div>
+
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>자산</th>
+                <th>1차 역할</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>정적 Preview</td><td>실제 제품 화면 기준서</td></tr>
+              <tr><td>Docs Index</td><td>개발 기준 문서 허브</td></tr>
+              <tr><td>Component Guide</td><td>UI 구현 기준</td></tr>
+              <tr><td>Button Guide</td><td>버튼 / 액션 우선순위 기준</td></tr>
+              <tr><td>Template Catalog</td><td>화면설계서 생성 엔진 후속 기준</td></tr>
+              <tr><td>Left Nav 구조</td><td>전체 제품 IA 기준</td></tr>
+              <tr><td>Control Center</td><td>진행 현황판</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 17 결정 요약 ── -->
+      <section id="s17" class="sec" data-screen-label="17 결정 요약">
+        <div class="sec-hdr">
+          <span class="sec-n">17</span>
+          <span class="sec-title">결정 요약 — Final Statements</span>
+          <span class="sbadge lock">Decision</span>
+        </div>
+        <div class="sec-body">
+          <div class="ibox info">
+            <strong>1차 제품화 canonical scope 결정 문구</strong>
+            <ul class="blist">
+              <li>“1차 제품화는 요구사항 / WBS / 화면설계서 3개 산출물만 실제 DB 저장형으로 만든다.”</li>
+              <li>“Auth / Project / Permission / Link / Audit는 처음부터 실제 구조로 만든다.”</li>
+              <li>“전체 메뉴는 숨기지 않고 Live / Preview / Planned / Locked 상태로 표현한다.”</li>
+              <li>“Google 로그인만 사용하되, <code>projectMembers</code> 이메일 기반 접근 게이트를 적용한다.”</li>
+              <li>“<code>artifactLinks</code>는 STAM 차별점이므로 1차 최소 수동 연결 기능으로 포함한다.”</li>
+              <li>“<code>changeLogs</code>는 후속으로 두고, 1차는 기본 audit 필드만 포함한다.”</li>
+              <li>“정적 Preview 확장은 중단하지 않지만, 실제 제품화 우선순위보다 앞서지 않는다.”</li>
+            </ul>
+          </div>
+
+          <div class="ibox warn">
+            <strong>이 문서의 효력</strong>
+            본 문서에서 정의한 1차 포함 / 제외 범위, Auth 정책, 권한 정책, Left Menu 상태 전략, DB 대상, PR 분리 계획은
+            이후 구현 PR(#295 ~ #307)의 <strong>canonical scope</strong>로 사용된다.
+            범위 변경이 필요한 경우 <strong>별도 결정 PR을 통해 본 문서를 먼저 갱신</strong>한 뒤 구현을 진행한다.
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/stam.theme.js"></script>
+
+</body>
+</html>
