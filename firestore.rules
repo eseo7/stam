@@ -3,38 +3,139 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     /*
-     * STAM Firestore Rules Baseline
+     * STAM Firestore Rules
      *
-     * PR #297 (this PR):
-     * - deny-by-default baseline only
-     * - no project-scoped read / write yet
-     * - no product CRUD open yet
-     * - signedIn() helper is defined but intentionally NOT used to
-     *   open any read; it exists so that PR #298 can compose it with
-     *   the projectMembers email gate.
+     * PR #297 (baseline):
+     *   Deny-by-default only; helper `signedIn()` defined but unused.
+     *
+     * PR #298 (this PR):
+     *   Firestore layout finalized as `projects/{projectId}/**`
+     *   subcollections. Active-project-member read gate is opened
+     *   through `projects/{projectId}/members/{uid}`.
+     *
+     *   - Rules gate is UID-based: allowed iff `projects/{projectId}/
+     *     members/{request.auth.uid}` exists and .status == "active".
+     *   - `email` / `emailNormalized` are stored on the member doc for
+     *     invite / audit / display / future bootstrap, but the read
+     *     gate itself does NOT compare email strings directly.
+     *   - Writes remain fully closed (except the trivial "user reads
+     *     own /users/{uid}" doc — still read-only). Role-based writes
+     *     (Owner / Admin / Editor / Viewer) land in PR #306.
+     *   - The catch-all deny remains as a final backstop.
+     *
+     *   Rules are NOT filters: clients must scope their queries by
+     *   projectId; unconstrained collection queries will be denied.
      *
      * Future scope:
-     * - PR #298:  projectMembers email gate + project-scoped read
-     *             (active member only, per §11-2 of the Auth /
-     *             Project / Member Data Structure Guide)
-     * - PR #306:  role hardening + Viewer write block + action-level
-     *             enforcement (Owner / Admin / Editor / Viewer)
+     *   - PR #306: role hardening + Viewer write block + per-collection
+     *              write / action enforcement.
+     *   - Auth bootstrap PR: emailNormalized-based first-login project
+     *              discovery and pending → active membership linking.
      *
      * See:
+     *   /docs/STAM-Firestore-Project-Membership-Gate-Guide
      *   /docs/STAM-Firebase-Auth-Firestore-Rules-Baseline-Guide
      *   /docs/STAM-Auth-Project-Member-Data-Structure-Guide
      *   /docs/STAM-Phase-1-Productization-Scope
      */
 
+    // ── Auth helpers ───────────────────────────────────────────────
     function signedIn() {
       return request.auth != null;
     }
+    function uid() {
+      return request.auth.uid;
+    }
 
-    // Deny-by-default catch-all. Every read and write is denied until
-    // a more specific rule opens it. Do not add `allow read, write: if
-    // true` anywhere in this file — even temporarily. Do not open a
-    // whole collection with `signedIn()` alone; project-scoped access
-    // must go through the projectMembers gate landed in PR #298.
+    // ── Membership helpers ────────────────────────────────────────
+    // The canonical active-membership indicator is a document at
+    //   projects/{projectId}/members/{uid}
+    // with status == "active". The doc id equals the Firebase Auth
+    // uid — never look up by email string.
+    function memberPath(projectId) {
+      return /databases/$(database)/documents/projects/$(projectId)/members/$(uid());
+    }
+    function hasMemberDoc(projectId) {
+      return signedIn() && exists(memberPath(projectId));
+    }
+    function memberData(projectId) {
+      return get(memberPath(projectId)).data;
+    }
+    function isActiveProjectMember(projectId) {
+      return hasMemberDoc(projectId)
+          && memberData(projectId).userId == uid()
+          && memberData(projectId).projectId == projectId
+          && memberData(projectId).status == "active";
+    }
+    function canReadProject(projectId) {
+      return isActiveProjectMember(projectId);
+    }
+
+    // ── users/{userId} ────────────────────────────────────────────
+    // A signed-in user can read their own /users/{uid} doc only. No
+    // one can write /users/** in this PR — user doc creation happens
+    // through a server-side bootstrap that lands in a later PR.
+    match /users/{userId} {
+      allow read: if signedIn() && userId == uid();
+      allow write: if false;
+    }
+
+    // ── tenants/{tenantId} ────────────────────────────────────────
+    // tenant management UI is deferred. Rules stay fully closed so
+    // no client can enumerate or read the tenants collection yet.
+    match /tenants/{tenantId} {
+      allow read, write: if false;
+    }
+
+    // ── projects/{projectId}/** ───────────────────────────────────
+    // Every read on a project or its subcollections requires an
+    // active member document under projects/{projectId}/members/{uid}.
+    // Writes are closed everywhere here; PR #306 opens role-scoped
+    // writes.
+    match /projects/{projectId} {
+      allow get, list: if canReadProject(projectId);
+      allow create, update, delete: if false;
+
+      match /members/{memberUid} {
+        allow get, list: if canReadProject(projectId);
+        allow create, update, delete: if false;
+      }
+
+      match /requirements/{requirementId} {
+        allow get, list: if canReadProject(projectId);
+        allow create, update, delete: if false;
+      }
+
+      match /wbsItems/{wbsItemId} {
+        allow get, list: if canReadProject(projectId);
+        allow create, update, delete: if false;
+      }
+
+      match /screenSpecs/{screenSpecId} {
+        allow get, list: if canReadProject(projectId);
+        allow create, update, delete: if false;
+      }
+
+      match /screenFields/{fieldId} {
+        allow get, list: if canReadProject(projectId);
+        allow create, update, delete: if false;
+      }
+
+      match /screenActions/{actionId} {
+        allow get, list: if canReadProject(projectId);
+        allow create, update, delete: if false;
+      }
+
+      match /artifactLinks/{linkId} {
+        allow get, list: if canReadProject(projectId);
+        allow create, update, delete: if false;
+      }
+    }
+
+    // ── Catch-all deny ────────────────────────────────────────────
+    // Anything not explicitly matched above is denied. Never insert
+    // a broader `allow read, write: if true` rule here — even for
+    // debugging.
     match /{document=**} {
       allow read, write: if false;
     }
