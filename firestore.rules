@@ -1,0 +1,42 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    /*
+     * STAM Firestore Rules Baseline
+     *
+     * PR #297 (this PR):
+     * - deny-by-default baseline only
+     * - no project-scoped read / write yet
+     * - no product CRUD open yet
+     * - signedIn() helper is defined but intentionally NOT used to
+     *   open any read; it exists so that PR #298 can compose it with
+     *   the projectMembers email gate.
+     *
+     * Future scope:
+     * - PR #298:  projectMembers email gate + project-scoped read
+     *             (active member only, per §11-2 of the Auth /
+     *             Project / Member Data Structure Guide)
+     * - PR #306:  role hardening + Viewer write block + action-level
+     *             enforcement (Owner / Admin / Editor / Viewer)
+     *
+     * See:
+     *   /docs/STAM-Firebase-Auth-Firestore-Rules-Baseline-Guide
+     *   /docs/STAM-Auth-Project-Member-Data-Structure-Guide
+     *   /docs/STAM-Phase-1-Productization-Scope
+     */
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Deny-by-default catch-all. Every read and write is denied until
+    // a more specific rule opens it. Do not add `allow read, write: if
+    // true` anywhere in this file — even temporarily. Do not open a
+    // whole collection with `signedIn()` alone; project-scoped access
+    // must go through the projectMembers gate landed in PR #298.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
