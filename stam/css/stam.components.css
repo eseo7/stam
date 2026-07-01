@@ -55,6 +55,10 @@
 .s-todo { background: var(--skip-bg); color: var(--skip); }
 .s-wip  { background: var(--info-bg); color: var(--info); }
 .s-done { background: var(--pass-bg); color: var(--pass); }
+/* Auth access-state badges (PR 300) — reuse .status-badge base */
+.s-active  { background: var(--pass-bg); color: var(--pass); }
+.s-pending { background: var(--warn-bg); color: var(--warn); }
+.s-denied  { background: var(--fail-bg); color: var(--fail); }
 
 /* ---- Phase badges ---- */
 .phase-p1 {
@@ -753,6 +757,14 @@
   color: var(--stam);
   border-color: transparent;
 }
+
+/* variant: google (auth login — PR 300) */
+.stam-btn--google {
+  background: var(--bg-sur);
+  color: var(--t1);
+  border: 1px solid var(--bd-s);
+}
+.stam-btn--google:hover { background: var(--bg-sur2); }
 
 /* ═══════════════════════════════════════
    Summary strip — board list SSOT (PR #268)
