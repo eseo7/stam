@@ -1,4 +1,4 @@
-name: PR Preview — Firebase Hosting
+name: PR Preview - Firebase Hosting
 
 on:
   pull_request:
@@ -34,7 +34,7 @@ jobs:
       # Deploy via firebase-tools directly (not the action) so the CLI output
       # can be captured for the idempotency-message check below. Runs with
       # continue-on-error so the reconcile step can act as the source of truth.
-      # firebase-tools version is intentionally not pinned — the reconciliation
+      # firebase-tools version is intentionally not pinned - the reconciliation
       # is version-agnostic and mirrors the action's "latest" behaviour.
       - name: Deploy PR preview channel
         id: deploy
@@ -76,7 +76,7 @@ jobs:
           # (1) The failure MUST be the specific 'already current active version'
           #     idempotency message. Anything else is a real failure.
           if ! grep -q "is the current active version" "$log"; then
-            echo "::error::Preview deploy failed for a non-idempotency reason — keeping the check red."
+            echo "::error::Preview deploy failed for a non-idempotency reason - keeping the check red."
             exit 1
           fi
           if grep -q "FAILED_PRECONDITION" "$log"; then
@@ -102,7 +102,7 @@ jobs:
           fi
 
           if [ -z "$url" ] || [ "$url" = "null" ]; then
-            echo "::error::Could not resolve a live URL for preview channel '$PREVIEW_CHANNEL' — keeping the check red."
+            echo "::error::Could not resolve a live URL for preview channel '$PREVIEW_CHANNEL' - keeping the check red."
             exit 1
           fi
 
@@ -114,11 +114,11 @@ jobs:
             sleep 6
           done
           if [ "$code" != "200" ]; then
-            echo "::error::Preview channel URL $url returned $code (expected 200) — real deploy failure, keeping the check red."
+            echo "::error::Preview channel URL $url returned $code (expected 200) - real deploy failure, keeping the check red."
             exit 1
           fi
 
-          echo "::notice::Known 'already current active version' idempotency 400; preview channel $url is live (200). Non-blocking — passing the job."
+          echo "::notice::Known 'already current active version' idempotency 400; preview channel $url is live (200). Non-blocking - passing the job."
           {
             echo "### Preview channel published (idempotency false-negative reconciled)"
             echo ""
