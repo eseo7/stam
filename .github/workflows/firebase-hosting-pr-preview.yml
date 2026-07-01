@@ -9,16 +9,120 @@ permissions:
   contents: read
   pull-requests: write
 
+# Firebase Hosting can return, at the release step,
+#   400 FAILED_PRECONDITION: supplied version ... is the current active version
+# when an apiv2 "premature close" makes firebase-tools retry a release that
+# already succeeded server-side. In that case the content IS published, so the
+# red check is a false-negative. The sibling workflow
+# `.github/workflows/firebase-hosting-staging.yml` already treats this exact
+# 400 as non-blocking (continue-on-error + URL 200 probe as source of truth).
+# This workflow mirrors that idea for PR preview channels, but only passes the
+# job when BOTH hold: (1) the failure is the specific idempotency message, and
+# (2) the preview channel is actually live (HTTP 200). Any other failure
+# (other 400, 404, auth/config/build/quota) stays red.
+
 jobs:
   preview:
     runs-on: ubuntu-latest
+    env:
+      FIREBASE_PROJECT: stam-preview-hosting
+      FIREBASE_SITE: stam-design-staging
+      PREVIEW_CHANNEL: pr${{ github.event.pull_request.number }}
     steps:
       - uses: actions/checkout@v4
 
+      # Deploy via firebase-tools directly (not the action) so the CLI output
+      # can be captured for the idempotency-message check below. Runs with
+      # continue-on-error so the reconcile step can act as the source of truth.
+      # firebase-tools version is intentionally not pinned — the reconciliation
+      # is version-agnostic and mirrors the action's "latest" behaviour.
       - name: Deploy PR preview channel
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAM_PREVIEW_HOSTING }}
-          projectId: stam-preview-hosting
-          target: staging
-          expires: 7d
+        id: deploy
+        continue-on-error: true
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAM_PREVIEW_HOSTING }}
+        run: |
+          set -uo pipefail
+          creds="$RUNNER_TEMP/firebase-sa.json"
+          printf '%s' "$FIREBASE_SA" > "$creds"
+          export GOOGLE_APPLICATION_CREDENTIALS="$creds"
+
+          log="$RUNNER_TEMP/deploy.log"
+          npx -y firebase-tools@latest hosting:channel:deploy "$PREVIEW_CHANNEL" \
+            --project "$FIREBASE_PROJECT" --expires 7d 2>&1 | tee "$log"
+          code="${PIPESTATUS[0]}"
+
+          # Best-effort: capture the channel URL if the CLI printed it.
+          url="$(grep -oE 'https://[A-Za-z0-9.-]+--'"$PREVIEW_CHANNEL"'-[A-Za-z0-9]+\.web\.app' "$log" | head -n1 || true)"
+          {
+            echo "exit_code=$code"
+            echo "channel_url=$url"
+          } >> "$GITHUB_OUTPUT"
+
+          rm -f "$creds"
+          exit "$code"
+
+      # Only runs when the deploy step failed. Passes the job ONLY IF the
+      # failure is the known idempotency case AND the preview channel is live.
+      - name: Reconcile idempotency false-negative
+        if: steps.deploy.outcome == 'failure'
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAM_PREVIEW_HOSTING }}
+          DEPLOY_URL: ${{ steps.deploy.outputs.channel_url }}
+        run: |
+          set -uo pipefail
+          log="$RUNNER_TEMP/deploy.log"
+
+          # (1) The failure MUST be the specific 'already current active version'
+          #     idempotency message. Anything else is a real failure.
+          if ! grep -q "is the current active version" "$log"; then
+            echo "::error::Preview deploy failed for a non-idempotency reason — keeping the check red."
+            exit 1
+          fi
+          if grep -q "FAILED_PRECONDITION" "$log"; then
+            echo "Confirmed: FAILED_PRECONDITION + 'is the current active version'."
+          else
+            echo "::warning::'is the current active version' present but FAILED_PRECONDITION not found; continuing to the live check."
+          fi
+
+          # (2) Resolve the live preview URL: prefer the one parsed from the
+          #     deploy log, otherwise query the channel list.
+          url="$DEPLOY_URL"
+          if [ -z "$url" ]; then
+            creds="$RUNNER_TEMP/firebase-sa.json"
+            printf '%s' "$FIREBASE_SA" > "$creds"
+            export GOOGLE_APPLICATION_CREDENTIALS="$creds"
+            channels="$(npx -y firebase-tools@latest hosting:channel:list \
+                          --project "$FIREBASE_PROJECT" --site "$FIREBASE_SITE" --json 2>/dev/null || true)"
+            rm -f "$creds"
+            url="$(printf '%s' "$channels" | jq -r --arg c "$PREVIEW_CHANNEL" '
+              ((.result.channels // .channels // .result // [])
+                | map(select(((.name // "") | split("/") | last) == $c))
+                | .[0].url) // ""')"
+          fi
+
+          if [ -z "$url" ] || [ "$url" = "null" ]; then
+            echo "::error::Could not resolve a live URL for preview channel '$PREVIEW_CHANNEL' — keeping the check red."
+            exit 1
+          fi
+
+          # (3) The preview URL MUST actually serve HTTP 200 (source of truth).
+          code="000"
+          for attempt in $(seq 1 10); do
+            code="$(curl -sL -o /dev/null -w '%{http_code}' "$url" || echo 000)"
+            [ "$code" = "200" ] && break
+            sleep 6
+          done
+          if [ "$code" != "200" ]; then
+            echo "::error::Preview channel URL $url returned $code (expected 200) — real deploy failure, keeping the check red."
+            exit 1
+          fi
+
+          echo "::notice::Known 'already current active version' idempotency 400; preview channel $url is live (200). Non-blocking — passing the job."
+          {
+            echo "### Preview channel published (idempotency false-negative reconciled)"
+            echo ""
+            echo "- Channel: \`$PREVIEW_CHANNEL\`"
+            echo "- URL: $url"
+            echo "- Deploy reported 400 FAILED_PRECONDITION (already current active version); URL verified live (200)."
+          } >> "$GITHUB_STEP_SUMMARY"
