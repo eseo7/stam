@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>STAM Auth Login Flow Preview</title>
+<link rel="stylesheet" href="../assets/fonts/s-core-dream/s-core-dream.css">
+<link rel="stylesheet" href="../css/stam.tokens.css">
+<link rel="stylesheet" href="../css/stam.shell.css">
+<link rel="stylesheet" href="../css/stam.components.css">
+<link rel="stylesheet" href="../css/stam.ui-baseline-guide.css">
+<link rel="stylesheet" href="../css/stam.docs.css">
+<link rel="stylesheet" href="../css/stam.auth.css">
+<style>
+/* ── Preview-only scaffold — NOT product components ──
+ * Unmapped .mock-* kept per PR #300 contract review: preview demo
+ * scaffolding (badge row / status icon / button stack), not reusable
+ * STAM components. Do not extend; migrate on a future contract PR. */
+.mock-badge-row {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding-top: 12px;
+  border-top: 1px solid var(--bd);
+  width: 100%;
+}
+.mock-status-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mock-status-icon.warn { background: var(--warn-bg); color: var(--warn); }
+.mock-status-icon.bad  { background: var(--fail-bg); color: var(--fail); }
+.mock-btn-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<nav class="doc-nav">
+  <a href="STAM-Docs-Index.html" class="doc-nav-back">
+    <svg width="10" height="10" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11L5 7l4-4"/></svg>
+    Docs
+  </a>
+  <div class="doc-nav-logo">
+    <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+    <span>STAM</span>
+  </div>
+  <span class="doc-nav-title">Auth Login Flow Preview</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Preview</span>
+  <span class="doc-nav-pill"><span class="dot"></span>PR #300</span>
+  <span class="doc-nav-pill"><span class="dot"></span>No SDK</span>
+  <span class="doc-nav-pill"><span class="dot"></span>Design Only</span>
+  <div class="doc-nav-sp"></div>
+  <button class="tbtn" data-theme-toggle onclick="STAM.toggleTheme()">☾ 다크모드</button>
+</nav>
+
+<!-- ── Guide Shell ── -->
+<div class="guide-shell">
+
+  <!-- TOC -->
+  <aside class="guide-toc">
+    <div class="toc-hdr">
+      <span class="toc-brand">Auth Flow</span>
+      <span class="toc-ver-pill">PR #300</span>
+    </div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#sfd"><span class="toc-n">FD</span>흐름 다이어그램</a></li>
+      <li class="toc-item"><a href="#s01"><span class="toc-n">01</span>로그인 화면</a></li>
+      <li class="toc-item"><a href="#s02"><span class="toc-n">02</span>프로젝트 선택</a></li>
+      <li class="toc-item"><a href="#s03"><span class="toc-n">03</span>접근 대기</a></li>
+      <li class="toc-item"><a href="#s04"><span class="toc-n">04</span>접근 거부</a></li>
+      <li class="toc-item"><a href="#s05"><span class="toc-n">05</span>상태별 기준표</a></li>
+      <li class="toc-item"><a href="#s06"><span class="toc-n">06</span>구현 전제</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="guide-main" id="guide-main">
+    <div class="guide-content">
+
+      <!-- ── 문서 메타 배너 ── -->
+      <div class="ibox info">
+        <strong>STAM Auth Login Flow Preview — PR #300</strong>
+        실제 Firebase Auth 구현 전에 로그인·프로젝트 접근 흐름을 정적 HTML Preview로 확정합니다.
+        Firebase SDK · apiKey · authDomain 미추가. 실제 로그인·로그아웃 동작 없음. Design Only.
+      </div>
+
+      <!-- ── FD 흐름 다이어그램 ── -->
+      <section id="sfd" class="sec" data-screen-label="FD 흐름 다이어그램">
+        <div class="sec-hdr">
+          <span class="sec-n">FD</span>
+          <span class="sec-title">Auth Login Flow — 흐름 다이어그램</span>
+          <span class="sbadge guide">Flow</span>
+        </div>
+        <div class="sec-body">
+
+          <p class="sub">전체 흐름 — 선형 단계</p>
+          <div class="flow-row">
+            <div class="fbox">로그인</div>
+            <span class="farr">→</span>
+            <div class="fbox">Google 로그인</div>
+            <span class="farr">→</span>
+            <div class="fbox">프로젝트 접근 확인</div>
+            <span class="farr">→</span>
+            <div class="fbox">3가지 분기</div>
+          </div>
+
+          <p class="sub">접근 확인 결과 — 3가지 분기</p>
+          <div class="doc-card-list">
+            <div class="doc-card">
+              <div class="doc-card-ico">PJ</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">프로젝트 선택 → Project Overview</span>
+                <span class="doc-card-sub">active member 있음 — projects/{projectId}/members/{uid}.status == active</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge done">Active</span>
+              </div>
+            </div>
+            <div class="doc-card">
+              <div class="doc-card-ico">W8</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">접근 대기 — 관리자 승인 대기</span>
+                <span class="doc-card-sub">email 초대 확인됨 · status == pending · active 전환 미완료</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge plan">Pending</span>
+              </div>
+            </div>
+            <div class="doc-card">
+              <div class="doc-card-ico">NO</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">접근 거부 — 계정 확인 요청</span>
+                <span class="doc-card-sub">active · pending member 모두 없음</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge lock">Denied</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ibox info">
+            <strong>Firestore 접근 판정 기준 — PR #298 확정</strong>
+            프로젝트 접근 여부는 로그인 여부만이 아니라 <code>projects/{projectId}/members/{uid}</code> 문서의 <code>status == active</code> 여부로 판단합니다.
+            Firestore layout은 <code>project subcollections</code>로 확정 (PR #298).
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── 01 로그인 화면 ── -->
+      <section id="s01" class="sec" data-screen-label="01 로그인 화면">
+        <div class="sec-hdr">
+          <span class="sec-n">01</span>
+          <span class="sec-title">로그인 화면</span>
+          <span class="sbadge guide">Entry Point</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="meta-row">
+            <div class="meta-cell">
+              <span class="meta-k">목적</span>
+              <span class="meta-v">STAM 첫 진입 화면</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-k">표시 조건</span>
+              <span class="meta-v code">request.auth == null</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-k">다음 동작</span>
+              <span class="meta-v">Google 로그인</span>
+            </div>
+          </div>
+
+          <p class="sub">화면 구성 Preview</p>
+          <div class="scope-card">
+            <h3>STAM에 로그인</h3>
+            <ul>
+              <li>STAM 로고</li>
+              <li>서비스 설명 — 프로젝트 산출물을 안전하게 관리하려면 Google 계정으로 로그인해 주세요.</li>
+              <li>버튼 — Google로 시작하기 (Preview · 동작 없음)</li>
+              <li>보안/권한 안내 — 접근 권한은 프로젝트 멤버 상태에 따라 확인됩니다.</li>
+              <li>이메일/비밀번호 로그인은 1차 기준에서 노출하지 않음</li>
+            </ul>
+          </div>
+
+          <p class="sub">화면 시안 Preview</p>
+          <div class="stam-auth-shell">
+            <div class="stam-auth-card">
+              <div class="stam-auth-brand">
+                <img src="../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+                <span>STAM</span>
+              </div>
+              <div class="stam-auth-title">STAM에 로그인</div>
+              <p class="stam-auth-desc">프로젝트 산출물을 안전하게 관리하려면<br>Google 계정으로 로그인해 주세요.</p>
+              <div class="stam-btn stam-btn--lg stam-btn--google stam-btn--block">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                Google로 시작하기
+              </div>
+              <p class="stam-auth-helper">접근 권한은 프로젝트 멤버 상태에 따라 확인됩니다.</p>
+              <div class="mock-badge-row">
+                <span class="sbadge plan">Preview</span>
+                <span class="sbadge lock">No SDK</span>
+                <span class="sbadge plan">동작 없음</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="sub">주요 액션</p>
+          <div class="flow-row">
+            <div class="fbox">Google로 시작하기</div>
+          </div>
+
+          <p class="sub">권장 문구</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>요소</th>
+                <th>권장 문구</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>제목</td>
+                <td>STAM에 로그인</td>
+              </tr>
+              <tr>
+                <td>설명</td>
+                <td>프로젝트 산출물을 안전하게 관리하려면 Google 계정으로 로그인해 주세요.</td>
+              </tr>
+              <tr>
+                <td>버튼</td>
+                <td>Google로 시작하기</td>
+              </tr>
+              <tr>
+                <td>보조 문구</td>
+                <td>접근 권한은 프로젝트 멤버 상태에 따라 확인됩니다.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ibox warn">
+            <strong>Preview 주의사항</strong>
+            이 버튼은 디자인 Preview이며 실제 Google 로그인 동작이 없습니다.
+            Firebase SDK · apiKey · authDomain 미연결. 실제 로그인 구현은 후속 Auth bootstrap PR에서 진행합니다.
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── 02 프로젝트 선택 화면 ── -->
+      <section id="s02" class="sec" data-screen-label="02 프로젝트 선택 화면">
+        <div class="sec-hdr">
+          <span class="sec-n">02</span>
+          <span class="sec-title">프로젝트 선택 화면</span>
+          <span class="sbadge done">Active Project</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="meta-row">
+            <div class="meta-cell">
+              <span class="meta-k">목적</span>
+              <span class="meta-v">active 프로젝트 선택</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-k">표시 조건</span>
+              <span class="meta-v code">status == active (1개 이상)</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-k">다음 동작</span>
+              <span class="meta-v">Project Overview 진입</span>
+            </div>
+          </div>
+
+          <p class="sub">화면 구성 Preview</p>
+          <div class="scope-card">
+            <h3>프로젝트를 선택하세요</h3>
+            <ul>
+              <li>상단 인사 문구</li>
+              <li>프로젝트 카드 목록 — active member 기준 구성</li>
+              <li>프로젝트 상태 배지 (Active)</li>
+              <li>역할 표시 (Owner / Viewer)</li>
+              <li>최근 수정일 또는 최근 활동</li>
+              <li>버튼 — 프로젝트 열기 (Preview · 동작 없음)</li>
+            </ul>
+          </div>
+
+          <p class="sub">샘플 프로젝트 카드</p>
+          <div class="doc-card-list">
+            <div class="doc-card">
+              <div class="doc-card-ico">ST</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">STAM 1차 구현</span>
+                <span class="doc-card-sub">요구사항, WBS, 화면설계서 1차 구현 프로젝트</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge done">Active</span>
+                <span class="sbadge lock">Owner</span>
+              </div>
+            </div>
+            <div class="doc-card">
+              <div class="doc-card-ico">DW</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">Demo Workspace</span>
+                <span class="doc-card-sub">읽기 전용 샘플 프로젝트</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge done">Active</span>
+                <span class="sbadge guide">Viewer</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ibox info">
+            <strong>프로젝트 목록 표시 기준</strong>
+            접근 가능한 프로젝트만 표시됩니다. 프로젝트 목록은 active member 기준으로 구성됩니다.
+            1차에 프로젝트가 1개뿐이어도 구조는 프로젝트 선택 화면을 유지합니다.
+          </div>
+
+          <p class="sub">화면 시안 Preview</p>
+          <div class="stam-auth-shell">
+            <div class="stam-auth-card">
+              <div class="stam-auth-title">안녕하세요</div>
+              <p class="stam-auth-desc">참여 중인 프로젝트를 선택해 주세요.</p>
+              <div class="stam-project-select-card">
+                <div class="stam-project-select-card__hdr">
+                  <div class="doc-card-ico">ST</div>
+                  <div class="stam-project-select-card__info">
+                    <span class="stam-project-select-card__name">STAM 1차 구현</span>
+                    <span class="stam-project-select-card__desc">요구사항, WBS, 화면설계서 1차 구현 프로젝트</span>
+                  </div>
+                </div>
+                <div class="stam-project-select-card__footer">
+                  <span class="status-badge s-active">Active</span>
+                  <span class="sbadge lock">Owner</span>
+                  <button class="stam-btn stam-btn--sm stam-btn--primary">프로젝트 열기</button>
+                </div>
+              </div>
+              <div class="stam-project-select-card">
+                <div class="stam-project-select-card__hdr">
+                  <div class="doc-card-ico">DW</div>
+                  <div class="stam-project-select-card__info">
+                    <span class="stam-project-select-card__name">Demo Workspace</span>
+                    <span class="stam-project-select-card__desc">읽기 전용 샘플 프로젝트</span>
+                  </div>
+                </div>
+                <div class="stam-project-select-card__footer">
+                  <span class="status-badge s-active">Active</span>
+                  <span class="sbadge guide">Viewer</span>
+                  <button class="stam-btn stam-btn--sm stam-btn--secondary">프로젝트 열기</button>
+                </div>
+              </div>
+              <p class="stam-auth-helper">접근 가능한 프로젝트만 표시됩니다.</p>
+              <div class="mock-badge-row">
+                <span class="sbadge plan">Preview</span>
+                <span class="sbadge plan">동작 없음</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="sub">권장 문구</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>요소</th>
+                <th>권장 문구</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>인사 문구</td>
+                <td>안녕하세요. 참여 중인 프로젝트를 선택해 주세요.</td>
+              </tr>
+              <tr>
+                <td>버튼</td>
+                <td>프로젝트 열기</td>
+              </tr>
+              <tr>
+                <td>안내 1</td>
+                <td>접근 가능한 프로젝트만 표시됩니다.</td>
+              </tr>
+              <tr>
+                <td>안내 2</td>
+                <td>프로젝트 목록은 active member 기준으로 구성됩니다.</td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </section>
+
+      <!-- ── 03 접근 대기 화면 ── -->
+      <section id="s03" class="sec" data-screen-label="03 접근 대기 화면">
+        <div class="sec-hdr">
+          <span class="sec-n">03</span>
+          <span class="sec-title">접근 대기 화면</span>
+          <span class="sbadge plan">Pending</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="meta-row">
+            <div class="meta-cell">
+              <span class="meta-k">목적</span>
+              <span class="meta-v">pending 상태 사용자 안내</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-k">표시 조건</span>
+              <span class="meta-v code">status == pending</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-k">다음 동작</span>
+              <span class="meta-v">관리자 승인 대기</span>
+            </div>
+          </div>
+
+          <div class="ibox warn">
+            <strong>접근 대기 화면 개요</strong>
+            사용자의 이메일은 초대되었지만 아직 Firebase Auth UID와 active member doc 연결이 완료되지 않았거나,
+            상태가 pending인 경우에 표시합니다.
+          </div>
+
+          <p class="sub">화면 구성 Preview</p>
+          <div class="scope-card">
+            <h3>프로젝트 접근 승인 대기 중</h3>
+            <ul>
+              <li>상태 아이콘</li>
+              <li>제목 — 프로젝트 접근 승인 대기 중</li>
+              <li>설명 — 초대 정보는 확인되었지만 아직 프로젝트 접근이 활성화되지 않았습니다.</li>
+              <li>보조 설명 — 관리자가 멤버 상태를 active로 전환하면 프로젝트에 접근할 수 있습니다.</li>
+              <li>현재 로그인 이메일 표시 영역</li>
+              <li>다음 단계 안내 문구</li>
+              <li>버튼 — 다시 확인 · 로그아웃 (Preview · 동작 없음)</li>
+            </ul>
+          </div>
+
+          <p class="sub">화면 시안 Preview</p>
+          <div class="stam-auth-shell">
+            <div class="stam-auth-card">
+              <div class="mock-status-icon warn">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div class="stam-auth-title">프로젝트 접근 승인 대기 중</div>
+              <p class="stam-auth-desc">초대 정보는 확인되었지만 아직<br>프로젝트 접근이 활성화되지 않았습니다.</p>
+              <p class="stam-auth-desc stam-auth-desc--sub">관리자가 멤버 상태를 active로 전환하면<br>프로젝트에 접근할 수 있습니다.</p>
+              <div class="stam-auth-state-card">
+                <div class="stam-auth-state-card__row">
+                  <span class="stam-auth-state-card__label">로그인 계정</span>
+                  <span class="stam-auth-state-card__value">sample@example.com</span>
+                </div>
+                <div class="stam-auth-state-card__row">
+                  <span class="stam-auth-state-card__label">계정 상태</span>
+                  <span class="stam-auth-state-card__value"><span class="status-badge s-pending">Pending</span></span>
+                </div>
+              </div>
+              <div class="mock-btn-row">
+                <button class="stam-btn stam-btn--lg stam-btn--secondary stam-btn--block">다시 확인</button>
+                <button class="stam-btn stam-btn--md stam-btn--ghost stam-btn--block">로그아웃</button>
+              </div>
+              <div class="mock-badge-row">
+                <span class="sbadge plan">Preview</span>
+                <span class="sbadge plan">동작 없음</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="sub">현재 로그인 계정 — 표시 영역</p>
+          <div class="meta-row">
+            <div class="meta-cell">
+              <span class="meta-k">로그인 이메일</span>
+              <span class="meta-v code">sample@example.com</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-k">계정 상태</span>
+              <span class="meta-v"><span class="sbadge plan">Pending</span></span>
+            </div>
+          </div>
+
+          <p class="sub">주요 액션</p>
+          <div class="flow-row">
+            <div class="fbox">다시 확인</div>
+            <span class="farr">·</span>
+            <div class="fbox">로그아웃</div>
+          </div>
+
+          <p class="sub">권장 문구</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>요소</th>
+                <th>권장 문구</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>제목</td>
+                <td>프로젝트 접근 승인 대기 중</td>
+              </tr>
+              <tr>
+                <td>설명</td>
+                <td>초대 정보는 확인되었지만 아직 프로젝트 접근이 활성화되지 않았습니다.</td>
+              </tr>
+              <tr>
+                <td>보조 설명</td>
+                <td>관리자가 멤버 상태를 active로 전환하면 프로젝트에 접근할 수 있습니다.</td>
+              </tr>
+              <tr>
+                <td>버튼 1</td>
+                <td>다시 확인</td>
+              </tr>
+              <tr>
+                <td>버튼 2</td>
+                <td>로그아웃</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ibox bad">
+            <strong>구현 금지 항목</strong>
+            실제 다시 확인 로직 구현 금지. 실제 로그아웃 로직 구현 금지.
+            PR #300는 디자인 Preview만 생성합니다.
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── 04 접근 거부 화면 ── -->
+      <section id="s04" class="sec" data-screen-label="04 접근 거부 화면">
+        <div class="sec-hdr">
+          <span class="sec-n">04</span>
+          <span class="sec-title">접근 거부 화면</span>
+          <span class="sbadge lock">Denied</span>
+        </div>
+        <div class="sec-body">
+
+          <div class="meta-row">
+            <div class="meta-cell">
+              <span class="meta-k">목적</span>
+              <span class="meta-v">접근 불가 계정 안내</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-k">표시 조건</span>
+              <span class="meta-v code">active/pending 모두 없음</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-k">다음 동작</span>
+              <span class="meta-v">계정 확인 또는 초대 요청</span>
+            </div>
+          </div>
+
+          <div class="ibox bad">
+            <strong>접근 거부 화면 개요</strong>
+            로그인은 성공했지만 접근 가능한 프로젝트가 없을 때 표시합니다.
+            active · pending member 모두 없는 경우.
+          </div>
+
+          <p class="sub">화면 구성 Preview</p>
+          <div class="scope-card">
+            <h3>접근 가능한 프로젝트가 없습니다</h3>
+            <ul>
+              <li>상태 아이콘</li>
+              <li>제목 — 접근 가능한 프로젝트가 없습니다</li>
+              <li>설명 — 현재 계정으로 참여 중인 STAM 프로젝트를 찾을 수 없습니다.</li>
+              <li>보조 설명 — 초대받은 Google 계정이 맞는지 확인해 주세요.</li>
+              <li>로그인 계정 표시</li>
+              <li>관리자에게 전달할 정보 영역</li>
+              <li>버튼 — 다른 계정으로 로그인 · 로그아웃 (Preview · 동작 없음)</li>
+            </ul>
+          </div>
+
+          <p class="sub">화면 시안 Preview</p>
+          <div class="stam-auth-shell">
+            <div class="stam-auth-card">
+              <div class="mock-status-icon bad">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              </div>
+              <div class="stam-auth-title">접근 가능한 프로젝트가 없습니다</div>
+              <p class="stam-auth-desc">현재 계정으로 참여 중인 STAM 프로젝트를<br>찾을 수 없습니다.</p>
+              <p class="stam-auth-desc stam-auth-desc--sub">초대받은 Google 계정이 맞는지 확인해 주세요.</p>
+              <div class="stam-auth-state-card">
+                <div class="stam-auth-state-card__row">
+                  <span class="stam-auth-state-card__label">로그인 이메일</span>
+                  <span class="stam-auth-state-card__value">sample@example.com</span>
+                </div>
+                <div class="stam-auth-state-card__row">
+                  <span class="stam-auth-state-card__label">요청 상태</span>
+                  <span class="stam-auth-state-card__value"><code>No active project</code></span>
+                </div>
+              </div>
+              <div class="mock-btn-row">
+                <button class="stam-btn stam-btn--lg stam-btn--primary stam-btn--block">다른 계정으로 로그인</button>
+                <button class="stam-btn stam-btn--md stam-btn--ghost stam-btn--block">로그아웃</button>
+              </div>
+              <div class="mock-badge-row">
+                <span class="sbadge plan">Preview</span>
+                <span class="sbadge plan">동작 없음</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="sub">관리자 전달 정보 — 표시 영역</p>
+          <div class="meta-row">
+            <div class="meta-cell">
+              <span class="meta-k">로그인 이메일</span>
+              <span class="meta-v code">sample@example.com</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-k">요청 시각</span>
+              <span class="meta-v">2026-07-01 14:23</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-k">요청 상태</span>
+              <span class="meta-v code">No active project</span>
+            </div>
+          </div>
+
+          <p class="sub">주요 액션</p>
+          <div class="flow-row">
+            <div class="fbox">다른 계정으로 로그인</div>
+            <span class="farr">·</span>
+            <div class="fbox">로그아웃</div>
+          </div>
+
+          <p class="sub">권장 문구</p>
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>요소</th>
+                <th>권장 문구</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>제목</td>
+                <td>접근 가능한 프로젝트가 없습니다</td>
+              </tr>
+              <tr>
+                <td>설명</td>
+                <td>현재 계정으로 참여 중인 STAM 프로젝트를 찾을 수 없습니다.</td>
+              </tr>
+              <tr>
+                <td>보조 설명</td>
+                <td>초대받은 Google 계정이 맞는지 확인해 주세요.</td>
+              </tr>
+              <tr>
+                <td>버튼 1</td>
+                <td>다른 계정으로 로그인</td>
+              </tr>
+              <tr>
+                <td>버튼 2</td>
+                <td>로그아웃</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ibox bad">
+            <strong>구현 금지 항목</strong>
+            실제 계정 전환 로직 구현 금지. 실제 로그아웃 로직 구현 금지.
+            PR #300는 디자인 Preview만 생성합니다.
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── 05 상태별 기준표 ── -->
+      <section id="s05" class="sec" data-screen-label="05 상태별 기준표">
+        <div class="sec-hdr">
+          <span class="sec-n">05</span>
+          <span class="sec-title">상태별 기준표</span>
+          <span class="sbadge guide">Reference</span>
+        </div>
+        <div class="sec-body">
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>상태</th>
+                <th>조건</th>
+                <th>표시 화면</th>
+                <th>다음 동작</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>미로그인</td>
+                <td><code class="mono">request.auth == null</code></td>
+                <td>로그인</td>
+                <td>Google 로그인</td>
+              </tr>
+              <tr>
+                <td>active project 있음</td>
+                <td><code class="mono">members/{uid}.status == active</code></td>
+                <td>프로젝트 선택</td>
+                <td>프로젝트 진입</td>
+              </tr>
+              <tr>
+                <td>pending</td>
+                <td>email 초대는 있으나 active 아님</td>
+                <td>접근 대기</td>
+                <td>관리자 승인 대기</td>
+              </tr>
+              <tr>
+                <td>no project</td>
+                <td>active/pending 모두 없음</td>
+                <td>접근 거부</td>
+                <td>계정 확인 또는 초대 요청</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 06 구현 전제 / 후속 작업 ── -->
+      <section id="s06" class="sec" data-screen-label="06 구현 전제 / 후속 작업">
+        <div class="sec-hdr">
+          <span class="sec-n">06</span>
+          <span class="sec-title">구현 전제 / 후속 작업</span>
+          <span class="sbadge plan">후속 PR</span>
+        </div>
+        <div class="sec-body">
+
+          <p class="sub">PR #300 범위 확인</p>
+          <ul class="blist">
+            <li>PR #300는 디자인 Preview만 생성한다.</li>
+            <li>Firebase SDK, Auth Provider, apiKey, authDomain은 이번 PR에서 추가하지 않는다.</li>
+            <li>실제 Google 로그인 구현은 후속 Auth bootstrap PR에서 진행한다.</li>
+            <li>users/{uid} 생성/갱신, emailNormalized 기반 초대 확인, pending → active 연결은 후속 PR 범위다.</li>
+            <li>프로젝트 진입 후 기본 landing은 Project Overview로 한다.</li>
+          </ul>
+
+          <p class="sub">후속 Auth Bootstrap PR — 권장 작업 목록</p>
+          <div class="doc-card-list">
+            <div class="doc-card">
+              <div class="doc-card-ico">AB</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">Auth Bootstrap PR</span>
+                <span class="doc-card-sub">Google 로그인 연결 · Firebase Auth Provider 설정 · apiKey / authDomain 추가</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge plan">후속</span>
+              </div>
+            </div>
+            <div class="doc-card">
+              <div class="doc-card-ico">UM</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">User Member Linking</span>
+                <span class="doc-card-sub">users/{uid} 생성/갱신 · emailNormalized 초대 확인 · pending → active member linking</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge plan">후속</span>
+              </div>
+            </div>
+            <div class="doc-card">
+              <div class="doc-card-ico">RT</div>
+              <div class="doc-card-body">
+                <span class="doc-card-title">Auth Routing</span>
+                <span class="doc-card-sub">active project list 조회 · Project Overview 진입 · Access Pending / Access Denied 실제 라우팅</span>
+              </div>
+              <div class="doc-card-meta">
+                <span class="sbadge plan">후속</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ibox info">
+            <strong>수정 금지 경로 — PR #300</strong>
+            firestore.rules · firestore.indexes.json · firebase.json · .firebaserc ·
+            .github/workflows/** · stam/pages/** · stam/js/** · stam/css/** · stam/assets/** ·
+            stam/data/** · package.json · package-lock.json
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+</div>
+
+<script src="../js/stam.theme.js"></script>
+</body>
+</html>
