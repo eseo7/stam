@@ -1,7 +1,7 @@
 /* ============================================================
  * STAM Auth Project List — Firestore read-only (project-select)
  * Scope: list active memberships + project docs, render cards.
- * No Firestore writes, no Project Overview navigation, no CRUD.
+ * No Firestore writes. Project Overview navigation enabled (read-only guard on target page).
  * Depends: firebase-firestore v8, stam.auth-membership-gate patterns
  * ============================================================ */
 (function () {
@@ -164,6 +164,33 @@
     }
   }
 
+  function openProjectOverview(projectId, projectName) {
+    try {
+      sessionStorage.setItem('stam:selectedProjectId', projectId);
+      sessionStorage.setItem('stam:selectedProjectName', projectName || projectId);
+    } catch (err) { /* ignore */ }
+
+    var url = '/pages/dashboard/project-overview.html?projectId=' + encodeURIComponent(projectId);
+    window.location.href = url;
+  }
+
+  function bindProjectOpenHandlers(root) {
+    root.addEventListener('click', function (event) {
+      var btn = event.target.closest('[data-stam-open-project]');
+      if (!btn || btn.disabled) return;
+
+      var card = btn.closest('[data-stam-project-id]');
+      if (!card) return;
+
+      var projectId = card.getAttribute('data-stam-project-id');
+      if (!projectId) return;
+
+      var nameEl = card.querySelector('.stam-project-select-card__name');
+      var projectName = nameEl ? nameEl.textContent.trim() : projectId;
+      openProjectOverview(projectId, projectName);
+    });
+  }
+
   function renderProjectCard(project) {
     var badge = roleBadge(project.role);
     var card = document.createElement('div');
@@ -181,7 +208,7 @@
       '<div class="stam-project-select-card__footer">' +
         '<span class="status-badge s-active">접근 활성</span>' +
         '<span class="sbadge ' + badge.className + '"></span>' +
-        '<button class="stam-btn stam-btn--sm stam-btn--secondary" type="button" disabled>프로젝트 열기</button>' +
+        '<button class="stam-btn stam-btn--sm stam-btn--primary" type="button" data-stam-open-project>프로젝트 열기</button>' +
       '</div>';
 
     card.querySelector('.stam-project-select-card__name').textContent = project.name;
@@ -235,6 +262,8 @@
 
     var root = document.querySelector('[data-stam-project-list-root]');
     if (!root) return;
+
+    bindProjectOpenHandlers(root);
 
     var auth = getAuth();
     if (!auth) {
