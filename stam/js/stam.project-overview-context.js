@@ -15,6 +15,7 @@
 
   var STORAGE_PROJECT_ID = 'stam:selectedProjectId';
   var STORAGE_PROJECT_NAME = 'stam:selectedProjectName';
+  var CLIENT_CTX_FALLBACK = 'STAM';
 
   function getAuth() {
     if (typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length) {
@@ -73,6 +74,29 @@
     return map[String(status).toLowerCase()] || String(status);
   }
 
+  function resolveClient(project) {
+    var raw = project.client || project.clientName || '';
+    return String(raw).trim();
+  }
+
+  function resolveStage(project, projectId) {
+    var raw = project.stage || project.description || '';
+    raw = String(raw).trim();
+    if (raw) return raw;
+    return project.name || project.projectName || projectId || 'Project';
+  }
+
+  function applySidebarProjectBadge(name, metaLine) {
+    var badgeName = document.querySelector('.po-proj-badge-name');
+    var badgeMeta = document.querySelector('.po-proj-badge-meta');
+    if (badgeName) {
+      badgeName.textContent = name;
+    }
+    if (badgeMeta) {
+      badgeMeta.textContent = metaLine;
+    }
+  }
+
   function verifyProjectAccess(db, user, projectId) {
     var memberRef = db.collection('projects').doc(projectId).collection('members').doc(user.uid);
     var projectRef = db.collection('projects').doc(projectId);
@@ -102,8 +126,9 @@
 
   function applyProjectContext(projectId, project, member) {
     var name = project.name || project.projectName || projectId;
-    var client = project.client || project.clientName || '—';
-    var stage = project.stage || project.description || '—';
+    var clientRaw = resolveClient(project);
+    var clientCtx = clientRaw || CLIENT_CTX_FALLBACK;
+    var stage = resolveStage(project, projectId);
     var status = formatStatus(project.status);
     var role = formatRole(member.role);
     var updated = formatUpdatedAt(project.updatedAt);
@@ -116,7 +141,7 @@
     var ctx = document.querySelector('[data-stam-project-context]');
     if (ctx) {
       ctx.setAttribute('data-pc-title', name);
-      ctx.setAttribute('data-pc-client', client);
+      ctx.setAttribute('data-pc-client', clientCtx);
       ctx.setAttribute('data-pc-stage', stage);
       ctx.setAttribute('data-pc-status', status);
       ctx.setAttribute('data-pc-role', role);
@@ -128,9 +153,7 @@
     var topbar = document.querySelector('[data-stam-topbar]');
     if (topbar) {
       topbar.setAttribute('data-tb-crumbs', '내 프로젝트|' + name + '|Project Overview');
-      if (client && client !== '—') {
-        topbar.setAttribute('data-tb-client', client);
-      }
+      topbar.setAttribute('data-tb-client', clientRaw);
     }
 
     document.title = 'Project Overview — ' + name + ' — STAM';
@@ -141,6 +164,8 @@
     if (window.STAM && window.STAM.topbarRender && typeof STAM.topbarRender.init === 'function') {
       STAM.topbarRender.init();
     }
+
+    applySidebarProjectBadge(name, stage + ' · ' + status + ' · ' + role);
   }
 
   function failWithMessage(message, path) {
