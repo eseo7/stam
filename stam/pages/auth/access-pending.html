@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>접근 승인 대기 — STAM</title>
+  <link rel="icon" href="../../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+  <link rel="stylesheet" href="../../css/stam.tokens.css">
+  <link rel="stylesheet" href="../../css/stam.shell.css">
+  <link rel="stylesheet" href="../../css/stam.components.css">
+  <link rel="stylesheet" href="../../css/stam.auth.css">
+</head>
+<body class="stam-auth-page" data-stam-auth-screen="access-pending">
+
+  <header class="stam-auth-page__bar">
+    <div class="stam-auth-page__bar-logo">
+      <img src="../../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+      <span>STAM</span>
+    </div>
+    <button class="tbtn" data-theme-toggle type="button" onclick="STAM.toggleTheme()">☾ 다크모드</button>
+  </header>
+
+  <main class="stam-auth-page__main" id="stam-auth-main">
+    <div class="stam-auth-shell">
+      <div class="stam-auth-card" data-screen-label="Access Pending">
+
+        <div class="stam-auth-status-icon stam-auth-status-icon--warn" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+
+        <span class="status-badge s-pending">승인 대기 중</span>
+
+        <h1 class="stam-auth-title">프로젝트 접근 승인 대기 중</h1>
+
+        <p class="stam-auth-desc">
+          초대 정보는 확인되었지만 아직<br>
+          프로젝트 접근이 활성화되지 않았습니다.
+        </p>
+
+        <p class="stam-auth-desc stam-auth-desc--sub">
+          관리자가 멤버 상태를 active로 전환하면<br>
+          프로젝트에 접근할 수 있습니다.
+        </p>
+
+        <div class="stam-auth-state-card">
+          <div class="stam-auth-state-card__row">
+            <span class="stam-auth-state-card__label">로그인 계정</span>
+            <span class="stam-auth-state-card__value">sample@example.com</span>
+          </div>
+          <div class="stam-auth-state-card__row">
+            <span class="stam-auth-state-card__label">계정 상태</span>
+            <span class="stam-auth-state-card__value"><span class="status-badge s-pending">승인 대기</span></span>
+          </div>
+        </div>
+
+        <div class="stam-auth-btn-stack">
+          <button class="stam-btn stam-btn--lg stam-btn--secondary stam-btn--block" type="button" data-stam-auth-action="refresh-status">새로고침</button>
+          <button class="stam-btn stam-btn--md stam-btn--secondary stam-btn--block" type="button" data-stam-auth-action="sign-out">로그아웃</button>
+        </div>
+
+        <div class="stam-auth-link-row">
+          <button class="stam-btn stam-btn--text" type="button" data-stam-auth-action="contact-admin">관리자에게 문의</button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="../../js/stam.theme.js"></script>
+
+</body>
+</html>

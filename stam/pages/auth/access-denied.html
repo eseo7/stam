@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>접근 거부 — STAM</title>
+  <link rel="icon" href="../../assets/brand/stam/stam_favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="../../assets/fonts/s-core-dream/s-core-dream.css">
+  <link rel="stylesheet" href="../../css/stam.tokens.css">
+  <link rel="stylesheet" href="../../css/stam.shell.css">
+  <link rel="stylesheet" href="../../css/stam.components.css">
+  <link rel="stylesheet" href="../../css/stam.auth.css">
+</head>
+<body class="stam-auth-page" data-stam-auth-screen="access-denied">
+
+  <header class="stam-auth-page__bar">
+    <div class="stam-auth-page__bar-logo">
+      <img src="../../assets/brand/stam/stam_icon_primary_transparent.png" alt="STAM">
+      <span>STAM</span>
+    </div>
+    <button class="tbtn" data-theme-toggle type="button" onclick="STAM.toggleTheme()">☾ 다크모드</button>
+  </header>
+
+  <main class="stam-auth-page__main" id="stam-auth-main">
+    <div class="stam-auth-shell">
+      <div class="stam-auth-card" data-screen-label="Access Denied">
+
+        <div class="stam-auth-status-icon stam-auth-status-icon--denied" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
+
+        <span class="status-badge s-denied">접근 거부</span>
+
+        <h1 class="stam-auth-title">프로젝트 접근이 거부되었습니다</h1>
+
+        <p class="stam-auth-desc">
+          현재 계정은 STAM 프로젝트 접근이<br>
+          명시적으로 거부된 상태입니다.
+        </p>
+
+        <p class="stam-auth-desc stam-auth-desc--sub">
+          초대받은 Google 계정이 맞는지 확인하거나<br>
+          관리자에게 접근 권한을 문의해 주세요.
+        </p>
+
+        <div class="stam-auth-state-card">
+          <div class="stam-auth-state-card__row">
+            <span class="stam-auth-state-card__label">로그인 계정</span>
+            <span class="stam-auth-state-card__value">sample@example.com</span>
+          </div>
+          <div class="stam-auth-state-card__row">
+            <span class="stam-auth-state-card__label">접근 상태</span>
+            <span class="stam-auth-state-card__value"><span class="status-badge s-denied">접근 거부</span></span>
+          </div>
+        </div>
+
+        <div class="stam-auth-btn-stack">
+          <button class="stam-btn stam-btn--lg stam-btn--primary stam-btn--block" type="button" data-stam-auth-action="sign-out">로그아웃</button>
+        </div>
+
+        <div class="stam-auth-link-row">
+          <button class="stam-btn stam-btn--text" type="button" data-stam-auth-action="contact-admin">관리자에게 문의</button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="../../js/stam.theme.js"></script>
+
+</body>
+</html>
