@@ -17,7 +17,7 @@
  *   node scripts/seed-stam-demo-membership.mjs --uid abc123 --status pending --dry-run
  *
  * Requirements (QA environment only — do not add to repo package.json):
- *   npm install firebase-admin
+ *   npm install --no-save firebase-admin
  */
 
 const HELP = `
@@ -165,11 +165,18 @@ function buildPayloads(opts) {
 
 async function loadFirebaseAdmin() {
   try {
-    return await import('firebase-admin');
+    const app = await import('firebase-admin/app');
+    const firestore = await import('firebase-admin/firestore');
+    return {
+      initializeApp: app.initializeApp,
+      getApps: app.getApps,
+      getFirestore: firestore.getFirestore,
+      FieldValue: firestore.FieldValue,
+    };
   } catch (err) {
     console.error('\nfirebase-admin is not installed in this environment.');
     console.error('Install in QA runtime only (do not commit package.json changes):');
-    console.error('  npm install firebase-admin');
+    console.error('  npm install --no-save firebase-admin');
     console.error('\nOriginal error:', err.message);
     process.exit(1);
   }
@@ -190,12 +197,12 @@ async function seedFirestore(opts) {
   }
 
   const admin = await loadFirebaseAdmin();
-  if (!admin.apps.length) {
+  if (!admin.getApps().length) {
     admin.initializeApp({ projectId: opts.firebaseProject });
   }
 
-  const db = admin.firestore();
-  const FieldValue = admin.firestore.FieldValue;
+  const db = admin.getFirestore();
+  const FieldValue = admin.FieldValue;
 
   const userRef = db.doc(payloads.paths.user);
   const projectRef = db.doc(payloads.paths.project);
