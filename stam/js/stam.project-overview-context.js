@@ -86,17 +86,6 @@
     return project.name || project.projectName || projectId || 'Project';
   }
 
-  function applySidebarProjectBadge(name, metaLine) {
-    var badgeName = document.querySelector('.po-proj-badge-name');
-    var badgeMeta = document.querySelector('.po-proj-badge-meta');
-    if (badgeName) {
-      badgeName.textContent = name;
-    }
-    if (badgeMeta) {
-      badgeMeta.textContent = metaLine;
-    }
-  }
-
   function verifyProjectAccess(db, user, projectId) {
     var memberRef = db.collection('projects').doc(projectId).collection('members').doc(user.uid);
     var projectRef = db.collection('projects').doc(projectId);
@@ -132,6 +121,12 @@
     var status = formatStatus(project.status);
     var role = formatRole(member.role);
     var updated = formatUpdatedAt(project.updatedAt);
+    var navMeta = {
+      title: name,
+      stage: stage,
+      status: status,
+      role: role,
+    };
 
     try {
       sessionStorage.setItem(STORAGE_PROJECT_ID, projectId);
@@ -150,6 +145,17 @@
       }
     }
 
+    window.STAM = window.STAM || {};
+    window.STAM.currentProjectContext = navMeta;
+
+    var leftNav = document.querySelector('[data-stam-left-nav]');
+    if (leftNav) {
+      leftNav.setAttribute('data-project-title', navMeta.title);
+      leftNav.setAttribute('data-project-stage', navMeta.stage);
+      leftNav.setAttribute('data-project-status', navMeta.status);
+      leftNav.setAttribute('data-project-role', navMeta.role);
+    }
+
     var topbar = document.querySelector('[data-stam-topbar]');
     if (topbar) {
       topbar.setAttribute('data-tb-crumbs', '내 프로젝트|' + name + '|Project Overview');
@@ -164,8 +170,9 @@
     if (window.STAM && window.STAM.topbarRender && typeof STAM.topbarRender.init === 'function') {
       STAM.topbarRender.init();
     }
-
-    applySidebarProjectBadge(name, stage + ' · ' + status + ' · ' + role);
+    if (window.STAM && window.STAM.navRender && typeof STAM.navRender.init === 'function') {
+      STAM.navRender.init('A1');
+    }
   }
 
   function failWithMessage(message, path) {

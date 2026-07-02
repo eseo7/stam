@@ -4,8 +4,8 @@
  *
  * 사용법 (각 페이지):
  *   <header class="po-topbar stam-topbar" data-stam-topbar
- *     data-tb-crumbs="내 프로젝트|파르나스 리뉴얼 구축|현재 메뉴"
- *     data-tb-client="파르나스호텔"
+ *     data-tb-crumbs="내 프로젝트|Project|현재 메뉴"
+ *     data-tb-client="STAM"
  *     data-tb-search-placeholder="작업명·담당자 검색"></header>
  *
  * breadcrumb 규칙:
@@ -119,7 +119,7 @@
       if (i === 0) {
         bcHtml += '<a href="../../index.html" class="po-topbar-home">' + crumb + '</a>';
       } else if (i === crumbs.length - 1) {
-        bcHtml += '<span class="po-topbar-proj" style="color:rgba(255,255,255,.60)">' + crumb + '</span>';
+        bcHtml += '<span class="po-topbar-proj po-topbar-proj-current">' + crumb + '</span>';
       } else {
         bcHtml += '<span class="po-topbar-proj">' + crumb + '</span>';
       }
