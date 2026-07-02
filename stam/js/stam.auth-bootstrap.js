@@ -1,7 +1,7 @@
 /* ============================================================
  * STAM Auth Bootstrap — Firebase Auth v8 (Hosting reserved URLs)
- * Scope: Google sign-in, auth state, sign-out only.
- * No Firestore membership gate in this PR.
+ * Scope: Google sign-in, auth state, sign-out, route guard shell.
+ * Membership routing: STAM.authMembershipGate (stam.auth-membership-gate.js).
  * Depends: /__/firebase/init.js (auto-init), firebase-auth v8 compat
  * ============================================================ */
 (function () {
@@ -75,23 +75,65 @@
     window.location.replace(routeFor(screen));
   }
 
-  function handleAuthState(user) {
-    var screen = getScreen();
-
-    if (user) {
-      updateAccountEmail(user.email || user.displayName || '—');
+  function applyMembershipRouteGuard(screen, targetScreen) {
+    if (targetScreen === screen) {
+      return;
     }
 
     if (screen === 'login') {
-      if (user) {
+      redirectTo(targetScreen);
+      return;
+    }
+
+    if (screen === 'project-select') {
+      if (targetScreen !== 'project-select') {
+        redirectTo(targetScreen);
+      }
+      return;
+    }
+
+    if (targetScreen === 'project-select') {
+      redirectTo(targetScreen);
+    }
+  }
+
+  function handleSignedOut(screen) {
+    if (screen !== 'login') {
+      redirectTo('login');
+    }
+  }
+
+  function handleSignedIn(user, screen) {
+    updateAccountEmail(user.email || user.displayName || '—');
+
+    var gate = window.STAM && window.STAM.authMembershipGate;
+    if (!gate || typeof gate.resolveTargetScreen !== 'function') {
+      if (screen === 'login') {
         redirectTo('project-select');
       }
       return;
     }
 
+    gate.resolveTargetScreen(user)
+      .then(function (targetScreen) {
+        applyMembershipRouteGuard(screen, targetScreen);
+      })
+      .catch(function () {
+        if (screen === 'login') {
+          showAuthMessage('멤버십 확인 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+        }
+      });
+  }
+
+  function handleAuthState(user) {
+    var screen = getScreen();
+
     if (!user) {
-      redirectTo('login');
+      handleSignedOut(screen);
+      return;
     }
+
+    handleSignedIn(user, screen);
   }
 
   function signInWithGoogle() {

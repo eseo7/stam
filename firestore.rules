@@ -70,6 +70,15 @@ service cloud.firestore {
     function canReadProject(projectId) {
       return isActiveProjectMember(projectId);
     }
+    function authEmailNormalized() {
+      return request.auth.token.email.lower();
+    }
+    function isOwnMembershipRecord() {
+      return signedIn() && (
+        resource.data.userId == uid() ||
+        resource.data.emailNormalized == authEmailNormalized()
+      );
+    }
 
     // ── users/{userId} ────────────────────────────────────────────
     // A signed-in user can read their own /users/{uid} doc only. No
@@ -97,7 +106,14 @@ service cloud.firestore {
       allow create, update, delete: if false;
 
       match /members/{memberUid} {
-        allow get, list: if canReadProject(projectId);
+        allow get: if signedIn() && (
+          memberUid == uid() ||
+          canReadProject(projectId)
+        );
+        allow list: if signedIn() && (
+          isOwnMembershipRecord() ||
+          canReadProject(projectId)
+        );
         allow create, update, delete: if false;
       }
 
