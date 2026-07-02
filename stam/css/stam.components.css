@@ -61,6 +61,30 @@
 .s-pending { background: var(--warn-bg); color: var(--warn); }
 .s-denied  { background: var(--fail-bg); color: var(--fail); }
 
+/* ---- Google provider button — .stam-btn--google ---- */
+/* Base: secondary 토큰 사용. Google 아이콘/브랜드 컬러는 실제 구현 PR에서 확정. */
+.stam-btn--google {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border-color: var(--btn-secondary-border);
+  gap: 10px;
+}
+.stam-btn--google:hover {
+  background: var(--btn-secondary-bg-hover);
+}
+.stam-btn--google:active {
+  background: var(--btn-secondary-bg-active);
+}
+.stam-btn--google:focus-visible {
+  box-shadow: var(--btn-focus-ring);
+}
+.stam-btn--google[disabled],
+.stam-btn--google.is-disabled {
+  color: var(--btn-secondary-text-disabled);
+  background: var(--btn-secondary-bg);
+  border-color: var(--btn-secondary-border);
+}
+
 /* ---- Phase badges ---- */
 .phase-p1 {
   display: inline-flex;
@@ -393,6 +417,13 @@
 [data-theme="dark"] .s-active  { background: var(--pass-bg); color: var(--pass); }
 [data-theme="dark"] .s-pending { background: var(--warn-bg); color: var(--warn); }
 [data-theme="dark"] .s-denied  { background: var(--fail-bg); color: var(--fail); }
+
+/* google button — dark overrides */
+[data-theme="dark"] .stam-btn--google {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border-color: var(--btn-secondary-border);
+}
 
 /* phase badges */
 [data-theme="dark"] .phase-p1    { background: rgba(84,81,232,.14); color: #8B7FF8; }
