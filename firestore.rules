@@ -8,29 +8,28 @@ service cloud.firestore {
      * PR #297 (baseline):
      *   Deny-by-default only; helper `signedIn()` defined but unused.
      *
-     * PR #298 (this PR):
+     * PR #298:
      *   Firestore layout finalized as `projects/{projectId}/**`
      *   subcollections. Active-project-member read gate is opened
      *   through `projects/{projectId}/members/{uid}`.
      *
+     * PR #306:
+     *   Authenticated users can discover only their own membership records
+     *   through constrained `collectionGroup('members')` queries by uid or
+     *   emailNormalized. This enables login-time routing before a projectId
+     *   has been selected.
+     *
      *   - Rules gate is UID-based: allowed iff `projects/{projectId}/
      *     members/{request.auth.uid}` exists and .status == "active".
      *   - `email` / `emailNormalized` are stored on the member doc for
-     *     invite / audit / display / future bootstrap, but the read
-     *     gate itself does NOT compare email strings directly.
-     *   - Writes remain fully closed (except the trivial "user reads
-     *     own /users/{uid}" doc — still read-only). Role-based writes
-     *     (Owner / Admin / Editor / Viewer) land in PR #306.
+     *     invite / audit / display / future bootstrap.
+     *   - Writes remain fully closed. Role-based writes
+     *     (Owner / Admin / Editor / Viewer) land in a later PR.
      *   - The catch-all deny remains as a final backstop.
      *
-     *   Rules are NOT filters: clients must scope their queries by
-     *   projectId; unconstrained collection queries will be denied.
-     *
-     * Future scope:
-     *   - PR #306: role hardening + Viewer write block + per-collection
-     *              write / action enforcement.
-     *   - Auth bootstrap PR: emailNormalized-based first-login project
-     *              discovery and pending → active membership linking.
+     *   Rules are NOT filters: collectionGroup membership discovery must be
+     *   constrained by the signed-in uid or emailNormalized. Project data
+     *   queries must still be scoped by projectId.
      *
      * See:
      *   /docs/STAM-Firestore-Project-Membership-Gate-Guide
@@ -51,7 +50,7 @@ service cloud.firestore {
     // The canonical active-membership indicator is a document at
     //   projects/{projectId}/members/{uid}
     // with status == "active". The doc id equals the Firebase Auth
-    // uid — never look up by email string.
+    // uid — never rely on email alone for project data authorization.
     function memberPath(projectId) {
       return /databases/$(database)/documents/projects/$(projectId)/members/$(uid());
     }
@@ -99,8 +98,7 @@ service cloud.firestore {
     // ── projects/{projectId}/** ───────────────────────────────────
     // Every read on a project or its subcollections requires an
     // active member document under projects/{projectId}/members/{uid}.
-    // Writes are closed everywhere here; PR #306 opens role-scoped
-    // writes.
+    // Writes are closed everywhere here; role-scoped writes land later.
     match /projects/{projectId} {
       allow get, list: if canReadProject(projectId);
       allow create, update, delete: if false;
@@ -146,6 +144,15 @@ service cloud.firestore {
         allow get, list: if canReadProject(projectId);
         allow create, update, delete: if false;
       }
+    }
+
+    // ── collectionGroup('members') discovery ──────────────────────
+    // Login routing does not know projectId yet. Allow signed-in users
+    // to read only their own membership records through collectionGroup
+    // queries constrained by userId or emailNormalized. Writes stay closed.
+    match /{path=**}/members/{memberUid} {
+      allow get, list: if isOwnMembershipRecord();
+      allow create, update, delete: if false;
     }
 
     // ── Catch-all deny ────────────────────────────────────────────
