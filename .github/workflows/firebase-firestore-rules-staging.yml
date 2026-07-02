@@ -1,0 +1,38 @@
+name: Deploy Firestore Rules (Staging Preview)
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_id:
+        description: Firebase project ID
+        required: true
+        default: stam-preview-hosting
+        type: string
+      rules_ref:
+        description: Git ref to checkout for firestore.rules (branch, tag, or SHA)
+        required: true
+        default: main
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  deploy_firestore_rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.rules_ref }}
+
+      - name: Deploy Firestore rules only
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAM_PREVIEW_HOSTING }}
+          FIREBASE_PROJECT: ${{ inputs.project_id }}
+        run: |
+          set -euo pipefail
+          creds="$RUNNER_TEMP/firebase-sa.json"
+          printf '%s' "$FIREBASE_SA" > "$creds"
+          export GOOGLE_APPLICATION_CREDENTIALS="$creds"
+          npx -y firebase-tools@latest deploy --only firestore:rules --project "$FIREBASE_PROJECT"
+          rm -f "$creds"
