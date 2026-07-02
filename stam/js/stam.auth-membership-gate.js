@@ -48,6 +48,7 @@
     var statuses = {
       active: false,
       pending: false,
+      denied: false,
       removed: false,
     };
 
@@ -55,6 +56,7 @@
       var status = doc.exists && doc.data() ? doc.data().status : '';
       if (status === 'active') statuses.active = true;
       if (status === 'pending') statuses.pending = true;
+      if (status === 'denied') statuses.denied = true;
       if (status === 'removed') statuses.removed = true;
     });
 
@@ -77,7 +79,7 @@
     if (statuses.pending) {
       return TARGET_SCREENS['access-pending'];
     }
-    if (statuses.removed) {
+    if (statuses.denied || statuses.removed) {
       return TARGET_SCREENS['access-denied'];
     }
     return TARGET_SCREENS['no-project'];
