@@ -28,52 +28,12 @@
         <h1 class="stam-auth-title">안녕하세요</h1>
         <p class="stam-auth-desc">참여 중인 프로젝트를 선택해 주세요.</p>
 
-        <div class="stam-project-select-card" data-stam-project-id="sample-stam-01">
-          <div class="stam-project-select-card__hdr">
-            <div class="stam-project-select-card__ico" aria-hidden="true">ST</div>
-            <div class="stam-project-select-card__info">
-              <span class="stam-project-select-card__name">STAM 1차 구현</span>
-              <span class="stam-project-select-card__desc">요구사항, WBS, 화면설계서 1차 구현 프로젝트</span>
-            </div>
-          </div>
-          <div class="stam-project-select-card__footer">
-            <span class="status-badge s-active">접근 활성</span>
-            <span class="sbadge lock">Owner</span>
-            <button class="stam-btn stam-btn--sm stam-btn--primary" type="button" data-stam-auth-action="open-project">프로젝트 열기</button>
-          </div>
+        <div data-stam-project-list-root>
+          <p class="stam-auth-helper" data-stam-project-list-loading>프로젝트 목록을 불러오는 중…</p>
+          <div data-stam-project-list-cards></div>
         </div>
 
-        <div class="stam-project-select-card" data-stam-project-id="sample-demo-01">
-          <div class="stam-project-select-card__hdr">
-            <div class="stam-project-select-card__ico" aria-hidden="true">DW</div>
-            <div class="stam-project-select-card__info">
-              <span class="stam-project-select-card__name">Demo Workspace</span>
-              <span class="stam-project-select-card__desc">읽기 전용 샘플 프로젝트</span>
-            </div>
-          </div>
-          <div class="stam-project-select-card__footer">
-            <span class="status-badge s-active">접근 활성</span>
-            <span class="sbadge guide">Viewer</span>
-            <button class="stam-btn stam-btn--sm stam-btn--primary" type="button" data-stam-auth-action="open-project">프로젝트 열기</button>
-          </div>
-        </div>
-
-        <div class="stam-project-select-card is-disabled" data-stam-project-id="sample-pending-01">
-          <div class="stam-project-select-card__hdr">
-            <div class="stam-project-select-card__ico" aria-hidden="true">PN</div>
-            <div class="stam-project-select-card__info">
-              <span class="stam-project-select-card__name">승인 대기 프로젝트</span>
-              <span class="stam-project-select-card__desc">멤버십 pending — 선택 불가 샘플</span>
-            </div>
-          </div>
-          <div class="stam-project-select-card__footer">
-            <span class="status-badge s-pending">승인 대기</span>
-            <span class="sbadge plan">Pending</span>
-            <button class="stam-btn stam-btn--sm stam-btn--secondary" type="button" disabled>프로젝트 열기</button>
-          </div>
-        </div>
-
-        <p class="stam-auth-helper">접근 가능한 active 프로젝트만 표시됩니다. 승인 대기 항목은 선택할 수 없습니다.</p>
+        <p class="stam-auth-helper">접근 가능한 active 프로젝트만 표시됩니다. 프로젝트 열기는 Project Overview PR에서 연결됩니다.</p>
 
         <div class="stam-auth-link-row">
           <button class="stam-btn stam-btn--text" type="button" data-stam-auth-action="sign-out">로그아웃</button>
@@ -88,6 +48,7 @@
   <script src="/__/firebase/8.10.1/firebase-firestore.js"></script>
   <script src="/__/firebase/init.js"></script>
   <script src="../../js/stam.auth-membership-gate.js"></script>
+  <script src="../../js/stam.auth-project-list.js"></script>
   <script src="../../js/stam.auth-bootstrap.js"></script>
   <script src="../../js/stam.theme.js"></script>
 
