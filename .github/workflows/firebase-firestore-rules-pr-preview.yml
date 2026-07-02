@@ -1,0 +1,30 @@
+name: PR Firestore Rules Deploy (Staging Preview)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - firestore.rules
+      - firestore.indexes.json
+
+permissions:
+  contents: read
+
+jobs:
+  deploy_firestore_rules:
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_PROJECT: stam-preview-hosting
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy Firestore rules only
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAM_PREVIEW_HOSTING }}
+        run: |
+          set -euo pipefail
+          creds="$RUNNER_TEMP/firebase-sa.json"
+          printf '%s' "$FIREBASE_SA" > "$creds"
+          export GOOGLE_APPLICATION_CREDENTIALS="$creds"
+          npx -y firebase-tools@latest deploy --only firestore:rules --project "$FIREBASE_PROJECT"
+          rm -f "$creds"
