@@ -12,12 +12,10 @@
 (function () {
   'use strict';
 
-  /* ─── 프로젝트 배지 HTML (고정 프로젝트 컨텍스트) ─── */
-  var PROJ_BADGE_HTML =
-    '<div class="po-proj-badge">' +
-      '<div class="po-proj-badge-name">파르나스 리뉴얼 구축</div>' +
-      '<div class="po-proj-badge-meta">설계 단계 · 진행중 · PM</div>' +
-    '</div>';
+  var DEFAULT_PROJECT_CONTEXT = {
+    title: 'Project',
+    meta: 'Overview'
+  };
 
   /* ─── 메뉴 검색 HTML ─── */
   var SEARCH_HTML =
@@ -43,6 +41,73 @@
   function toRelHref(stamRelPath) {
     if (!stamRelPath || stamRelPath === '#') return '#';
     return '../../' + stamRelPath;
+  }
+
+  function esc(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function clean(value) {
+    return String(value || '').trim();
+  }
+
+  function readProjectContextFromDataset(container) {
+    return {
+      title: clean(container.getAttribute('data-project-title')),
+      stage: clean(container.getAttribute('data-project-stage')),
+      status: clean(container.getAttribute('data-project-status')),
+      role: clean(container.getAttribute('data-project-role')),
+    };
+  }
+
+  function readProjectContextFromGlobal() {
+    var ctx = (window.STAM && window.STAM.currentProjectContext) || {};
+    return {
+      title: clean(ctx.title || ctx.name || ctx.projectTitle),
+      stage: clean(ctx.stage),
+      status: clean(ctx.status),
+      role: clean(ctx.role),
+    };
+  }
+
+  function buildProjectMeta(ctx) {
+    var parts = [ctx.stage, ctx.status, ctx.role].filter(Boolean);
+    return parts.length ? parts.join(' · ') : '';
+  }
+
+  function resolveProjectContext(container) {
+    var fromDataset = readProjectContextFromDataset(container);
+    var datasetMeta = buildProjectMeta(fromDataset);
+    if (fromDataset.title || datasetMeta) {
+      return {
+        title: fromDataset.title || DEFAULT_PROJECT_CONTEXT.title,
+        meta: datasetMeta || DEFAULT_PROJECT_CONTEXT.meta,
+      };
+    }
+
+    var fromGlobal = readProjectContextFromGlobal();
+    var globalMeta = buildProjectMeta(fromGlobal);
+    if (fromGlobal.title || globalMeta) {
+      return {
+        title: fromGlobal.title || DEFAULT_PROJECT_CONTEXT.title,
+        meta: globalMeta || DEFAULT_PROJECT_CONTEXT.meta,
+      };
+    }
+
+    return DEFAULT_PROJECT_CONTEXT;
+  }
+
+  function buildProjectBadgeHtml(container) {
+    var ctx = resolveProjectContext(container);
+    return '<div class="po-proj-badge">' +
+      '<div class="po-proj-badge-name">' + esc(ctx.title) + '</div>' +
+      '<div class="po-proj-badge-meta">' + esc(ctx.meta) + '</div>' +
+    '</div>';
   }
 
   /* ─── nav-data의 href를 현재 페이지 기준 상대 경로로 변환 ─── */
@@ -102,7 +167,7 @@
 
     /* 1. sidebar 내부 구조 주입 (proj-badge + search + nav target) */
     container.innerHTML =
-      PROJ_BADGE_HTML +
+      buildProjectBadgeHtml(container) +
       SEARCH_HTML +
       '<div id="po-sidebar-nav" class="po-sidebar-nav"></div>';
 

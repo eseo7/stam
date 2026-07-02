@@ -39,11 +39,11 @@
 
   /* 승인 요약 KPI */
   var approvalKpi = [
-    { num: 6,  lbl: '승인 대기', color: '#F0B24E' },
-    { num: 12, lbl: '검토중',    color: '#6FA8FF'  },
-    { num: 2,  lbl: '반려',      color: '#FF8585'  },
-    { num: 38, lbl: '승인 완료', color: '#46C97D'  },
-    { num: 3,  lbl: '지연 승인', color: '#FF8585'  },
+    { num: 6,  lbl: '승인 대기', tone: 'pending' },
+    { num: 12, lbl: '검토중',    tone: 'review'  },
+    { num: 2,  lbl: '반려',      tone: 'danger'  },
+    { num: 38, lbl: '승인 완료', tone: 'done'    },
+    { num: 3,  lbl: '지연 승인', tone: 'danger'  },
   ];
 
   /* 최근 승인 요청 */
@@ -109,11 +109,11 @@
     return e;
   }
 
-  function pctBarColor(pct) {
-    if (pct >= 75) { return '#46C97D'; }
-    if (pct >= 40) { return '#5451E8'; }
-    if (pct >   0) { return '#F0B24E'; }
-    return 'rgba(180,184,200,.15)';
+  function pctTone(pct) {
+    if (pct >= 75) { return 'done'; }
+    if (pct >= 40) { return 'wip'; }
+    if (pct >   0) { return 'start'; }
+    return 'empty';
   }
 
   function statusBadge(s) {
@@ -146,7 +146,7 @@
     var tbody = document.getElementById('po-deliv-tbody');
     if (!tbody) { return; }
     deliverables.forEach(function (d) {
-      var clr = pctBarColor(d.pct);
+      var pctCls = pctTone(d.pct);
       var statusCls, statusTxt;
       if (d.pct >= 75) { statusCls = 's-done'; statusTxt = '완료 단계'; }
       else if (d.pct >= 40) { statusCls = 's-wip'; statusTxt = '진행중'; }
@@ -156,15 +156,13 @@
       var tr = document.createElement('tr');
       tr.innerHTML =
         '<td><span class="po-deliv-name">' + d.name + '</span></td>' +
-        '<td style="text-align:center;font-family:var(--mono);font-size:12px;color:var(--t2)">' + d.total + '</td>' +
-        '<td style="text-align:center;font-family:var(--mono);font-size:12px;color:#46C97D">' + d.done + '</td>' +
-        '<td style="text-align:center;font-family:var(--mono);font-size:12px;color:#6FA8FF">' + d.review + '</td>' +
-        '<td style="text-align:center;font-family:var(--mono);font-size:12px;color:#F0B24E">' + d.pending + '</td>' +
+        '<td class="po-deliv-num po-deliv-num-total">' + d.total + '</td>' +
+        '<td class="po-deliv-num po-deliv-num-done">' + d.done + '</td>' +
+        '<td class="po-deliv-num po-deliv-num-review">' + d.review + '</td>' +
+        '<td class="po-deliv-num po-deliv-num-pending">' + d.pending + '</td>' +
         '<td class="po-prog-cell">' +
           '<div class="po-prog-wrap">' +
-            '<div class="po-prog-bar">' +
-              '<div class="po-prog-fill" style="width:' + d.pct + '%;background:' + clr + '"></div>' +
-            '</div>' +
+            '<progress class="po-prog-bar pct-' + pctCls + '" value="' + d.pct + '" max="100">' + d.pct + '%</progress>' +
             '<span class="po-prog-pct">' + d.pct + '%</span>' +
           '</div>' +
         '</td>' +
@@ -205,7 +203,7 @@
       approvalKpi.forEach(function (a) {
         var item = el('div', 'po-appr-item');
         item.innerHTML =
-          '<div class="po-appr-num" style="color:' + a.color + '">' + a.num + '</div>' +
+          '<div class="po-appr-num ' + a.tone + '">' + a.num + '</div>' +
           '<div class="po-appr-lbl">' + a.lbl + '</div>';
         kpiEl.appendChild(item);
       });
@@ -289,11 +287,11 @@
     recentUpdates.forEach(function (u) {
       var tr = document.createElement('tr');
       tr.innerHTML =
-        '<td style="font-weight:600;color:var(--t1);font-size:12px;white-space:nowrap">' + u.target + '</td>' +
+        '<td class="po-recent-target">' + u.target + '</td>' +
         '<td><span class="po-change-type ' + u.type + '">' + u.typeLbl + '</span></td>' +
-        '<td style="font-size:11.5px;white-space:nowrap">' + u.author + '</td>' +
-        '<td style="font-family:var(--mono);font-size:11px;color:var(--t3);white-space:nowrap">' + u.time + '</td>' +
-        '<td style="font-size:11px;color:var(--t3)">' + u.scope + '</td>';
+        '<td class="po-recent-author">' + u.author + '</td>' +
+        '<td class="po-recent-time">' + u.time + '</td>' +
+        '<td class="po-recent-scope">' + u.scope + '</td>';
       tbody.appendChild(tr);
     });
   }
