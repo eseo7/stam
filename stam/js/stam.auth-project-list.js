@@ -242,7 +242,7 @@
     hideLoading(root);
 
     if (!projects.length) {
-      setLoading(root, '접근 가능한 active 프로젝트가 없습니다.');
+      setLoading(root, '접근 가능한 프로젝트가 없습니다. 초대 상태를 확인해 주세요.');
       return;
     }
 
@@ -267,7 +267,7 @@
 
     var auth = getAuth();
     if (!auth) {
-      renderProjectListError(root, 'Firebase Auth를 사용할 수 없습니다.');
+      renderProjectListError(root, '로그인 기능을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
       return;
     }
 
