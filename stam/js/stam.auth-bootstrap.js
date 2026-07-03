@@ -120,7 +120,7 @@
       })
       .catch(function () {
         if (screen === 'login') {
-          showAuthMessage('멤버십 확인 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+          showAuthMessage('접근 권한 확인 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
         }
       });
   }
@@ -139,7 +139,7 @@
   function signInWithGoogle() {
     var auth = getAuth();
     if (!auth) {
-      showAuthMessage('Firebase Auth를 사용할 수 없습니다. Hosting preview에서 확인해 주세요.');
+      showAuthMessage('로그인 기능을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
       return;
     }
 
@@ -194,13 +194,17 @@
       window.location.reload();
       return;
     }
+    if (action === 'contact-admin') {
+      showAuthMessage('프로젝트 관리자에게 사용 중인 Google 계정으로 접근 권한을 요청해 주세요.');
+      return;
+    }
   }
 
   function initAuthBootstrap() {
     var auth = getAuth();
     if (!auth) {
       if (getScreen() === 'login') {
-        showAuthMessage('Firebase SDK 초기화 대기 중… Hosting 환경에서만 Auth가 동작합니다.');
+        showAuthMessage('로그인 준비 중입니다. 잠시 후 다시 시도해 주세요.');
       }
       return;
     }
