@@ -819,3 +819,121 @@ mark.nav-highlight {
 .po-main {
   min-width: 0;
 }
+
+/* ============================================================
+ * Mobile Layout Baseline v1 (PR #316)
+ * Ref: stam/docs/reports/STAM_Mobile_Product_Usage_Baseline_v1.md
+ * Breakpoints: mobile ≤767 · tablet 768–1023 · desktop ≥1024
+ * QA widths: 390 · 430 · 768 · 1024 · 1366 · 1920
+ * ============================================================ */
+
+.po-shell {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* Tablet — compact topbar, persistent sidebar */
+@media (max-width: 1023px) {
+  .po-topbar.stam-topbar .stam-topbar-center {
+    max-width: 280px;
+    padding: 0 10px;
+  }
+
+  .po-topbar.stam-topbar button.stam-topbar-search {
+    min-width: 180px;
+    max-width: 260px;
+  }
+
+  .po-topbar.stam-topbar .po-topbar-client {
+    display: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .po-topbar.stam-topbar .stam-topbar-actions-work,
+  .po-topbar.stam-topbar .stam-topbar-actions-sep {
+    display: none;
+  }
+}
+
+/* Mobile — content-first shell (sidebar overlay = follow-up JS PR) */
+@media (max-width: 767px) {
+  .po-body {
+    min-width: 0;
+  }
+
+  .po-sidebar {
+    display: none;
+  }
+
+  .po-main {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Topbar — icon-first, current page only in breadcrumb */
+  .po-topbar.stam-topbar .po-topbar-logo-txt {
+    display: none;
+  }
+
+  .po-topbar.stam-topbar .po-topbar-breadcrumb {
+    padding: 0 8px;
+    min-width: 0;
+    max-width: min(42vw, 168px);
+    overflow: hidden;
+  }
+
+  .po-topbar.stam-topbar .po-topbar-breadcrumb .po-topbar-home,
+  .po-topbar.stam-topbar .po-topbar-breadcrumb .po-topbar-sep,
+  .po-topbar.stam-topbar .po-topbar-breadcrumb .po-topbar-proj:not(.po-topbar-proj-current) {
+    display: none;
+  }
+
+  .po-topbar.stam-topbar .po-topbar-breadcrumb .po-topbar-proj-current {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  .po-topbar.stam-topbar .stam-topbar-center {
+    display: none;
+  }
+
+  .po-topbar.stam-topbar .stam-topbar-right {
+    padding-right: 8px;
+    gap: 4px;
+  }
+
+  .po-topbar.stam-topbar .stam-topbar-actions-util {
+    gap: 4px;
+  }
+
+  .po-topbar.stam-topbar .stam-topbar-user-btn {
+    width: 28px;
+    min-width: 28px;
+    max-width: 28px;
+    padding: 0;
+    overflow: hidden;
+    font-size: 0;
+    color: transparent;
+  }
+
+  .po-topbar.stam-topbar .stam-topbar-user-btn .stam-topbar-user-chev {
+    display: inline-flex;
+    color: rgba(255, 255, 255, .82);
+    margin-left: 0;
+  }
+}
+
+/* Small phone — 430 / 390 */
+@media (max-width: 430px) {
+  .po-topbar.stam-topbar .po-topbar-logo {
+    padding: 0 10px;
+  }
+
+  .po-topbar.stam-topbar .po-topbar-breadcrumb {
+    max-width: min(38vw, 140px);
+  }
+}
