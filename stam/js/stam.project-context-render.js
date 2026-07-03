@@ -47,6 +47,12 @@
 
   function renderProjectContext(el) {
     var title = attr(el, 'data-pc-title', DEFAULTS.title);
+    if ((title === DEFAULTS.title || title === 'Project') &&
+        window.STAM && window.STAM.projectContextGuard &&
+        typeof window.STAM.projectContextGuard.getSelectedProjectName === 'function') {
+      var selectedName = window.STAM.projectContextGuard.getSelectedProjectName();
+      if (selectedName) title = selectedName;
+    }
     var client = attr(el, 'data-pc-client', DEFAULTS.client);
     var stage = attr(el, 'data-pc-stage', DEFAULTS.stage);
     var status = attr(el, 'data-pc-status', DEFAULTS.status);
