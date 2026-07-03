@@ -438,7 +438,127 @@ interface Requirement {
 - Keep adapter-specific timestamp conversion at the service/mapper boundary.
 - Treat React components as consumers of Domain Model objects and service responses.
 
-## 12. CRUD Implementation Gate
+## 12. Authorization / Permission Portability
+
+### Current authorization baseline
+
+- Firebase Auth identifies the signed-in user.
+- Firestore Rules enforce read/write access for the first implementation.
+- `projects/{projectId}/members/{uid}` is the current membership document candidate for project-scoped access checks.
+
+### Future authorization baseline
+
+- Backend API verifies the request token.
+- Backend API checks project membership.
+- Backend API evaluates role/action permission rules.
+- Backend API writes server-side audit logs for protected actions.
+
+### UI and server permission separation
+
+- UI permission is a UX layer only.
+- Disabled or hidden buttons reduce user confusion, but they are not authorization.
+- Every protected read/write must be revalidated by Firestore Rules now and by Backend API authorization later.
+- Screen code may ask whether an action should be visible, but the service/adapter/API boundary must enforce whether the action is allowed.
+
+### Required portable action candidates
+
+| Action | Purpose | First enforcement layer | Future enforcement layer |
+| --- | --- | --- | --- |
+| `project.read` | Read project metadata and accessible project context | Firestore Rules + membership document | Backend token + membership + permission check |
+| `project.update` | Update project metadata | Firestore Rules + role field | Backend role/action check |
+| `requirement.read` | Read requirements | Firestore Rules + membership document | Backend permission check |
+| `requirement.create` | Create requirements | Firestore Rules + role field | Backend permission check + audit write |
+| `requirement.update` | Update requirements | Firestore Rules + role field | Backend permission check + audit write |
+| `requirement.delete` | Soft delete requirements | Firestore Rules + role field | Backend permission check + audit write |
+| `wbs.read` | Read WBS items | Firestore Rules + membership document | Backend permission check |
+| `wbs.create` | Create WBS items | Firestore Rules + role field | Backend permission check + audit write |
+| `screen.read` | Read screen specifications | Firestore Rules + membership document | Backend permission check |
+| `screen.create` | Create screen specifications | Firestore Rules + role field | Backend permission check + audit write |
+| `approval.request` | Request approval for a target artifact | Firestore Rules + role field | Backend workflow permission check + audit write |
+| `approval.approve` | Approve or reject a target artifact | Firestore Rules + approver/role field | Backend approver validation + audit write |
+| `comment.create` | Add comment to a target artifact | Firestore Rules + membership document | Backend permission check + audit write |
+| `attachment.upload` | Upload or register attachment metadata | Firestore Rules + membership/role field | Backend upload authorization + audit write |
+| `export.run` | Run export/delivery action | Firestore Rules + role field where applicable | Backend permission check + audit write |
+
+## 13. Audit / Change History Baseline
+
+Every create, update, and delete operation should be able to connect to ChangeLog or ActivityLog over the long term. The first implementation may omit full before/after snapshots for some low-risk operations, but the field structure should be fixed early so later audit expansion does not require rewriting entity services.
+
+### Audit event field contract
+
+| Field | Meaning | First implementation note | Future Backend API / PostgreSQL note |
+| --- | --- | --- | --- |
+| `actorUid` | User ID that performed the action | Firebase Auth UID | Backend user ID or mapped Firebase UID |
+| `actorName` | Display name of actor at event time | Display cache from auth/profile | Denormalized display cache |
+| `projectId` | Project scope | Parent project ID | FK to `projects.id` |
+| `targetType` | Domain entity type affected | Example: `Requirement`, `WbsItem`, `ScreenSpec` | Enum or constrained text |
+| `targetId` | Target entity ID | Firestore document ID / portable ID | FK-like target reference or polymorphic target |
+| `action` | Action performed | Example: `create`, `update`, `softDelete`, `approve` | Auditable action name |
+| `beforeSnapshot` | Previous target snapshot | May be omitted in first partial implementation | JSONB snapshot or separate audit payload |
+| `afterSnapshot` | New target snapshot | May be omitted in first partial implementation | JSONB snapshot or separate audit payload |
+| `changedFields` | List of changed field names | Required when before/after snapshots are omitted | `text[]` or JSONB diff |
+| `createdAt` | Event creation timestamp | Server timestamp where possible | `timestamptz` generated server-side |
+| `requestId` | Request or operation correlation ID | Generated by service if available | API request ID for tracing |
+| `source` | Event source | Example: `web`, `seed`, `import`, `system` | Controlled source value |
+
+### Audit principles
+
+- ChangeLog records should be structured enough to support user-facing history and backend audit.
+- ActivityLog records may be more timeline-oriented, but must still reference `projectId`, `targetType`, `targetId`, `actorUid`, `action`, and `createdAt`.
+- Delete operations must log soft delete actions before any hard-delete policy exists.
+- Audit write failure policy must be decided per operation before production use; critical domain writes should eventually be transactional with audit writes.
+
+## 14. First CRUD Recommendation
+
+### Recommended first CRUD target
+
+`Requirement`
+
+### Rationale
+
+- Requirements are the upstream baseline for WBS, screen design, and functional specification artifacts.
+- Requirements are well suited for validating relationship links to WBS items, screen specs, function specs, approvals, comments, attachments, and change logs.
+- Requirement CRUD exercises permission, status, metadata, soft delete, and change history rules early.
+- Requirement services provide a practical test case for future PostgreSQL, Backend API, and React transition boundaries.
+- A Requirement service layer can prove that screen code does not need to know Firestore collection paths.
+
+### Follow-up PR candidates
+
+- `#313 — Requirement Service Contract + Firestore Adapter`
+- `#314 — Requirement List Firestore Read`
+- `#315 — Requirement Create Draft Save`
+- `#316 — Requirement Update / Soft Delete`
+- `#317 — Requirement ChangeLog Baseline`
+
+## 15. Decision Log
+
+| Decision | Status | Reason |
+| --- | --- | --- |
+| Immediate React migration | Deferred | Current priority is to stabilize the model/service boundary before UI framework migration. |
+| Immediate Backend API build | Deferred | Firestore can support the first implementation while the API contract is documented. |
+| Immediate PostgreSQL migration | Deferred | PostgreSQL mapping is defined now, but physical migration is not part of this baseline PR. |
+| New CRUD must follow portable service/model criteria | Accepted | Prevents Firestore path and document shape from becoming the product contract. |
+| Firestore is an adapter | Accepted | Firestore is the current persistence implementation, not the STAM architecture baseline. |
+| Domain Model / Service Contract is the baseline | Accepted | STAM's 기준 is Domain Model and Service Contract, not Firestore paths. |
+
+## 16. QA / Governance Checklist
+
+| Checklist item | Status |
+| --- | --- |
+| Product code changes | None |
+| Firestore rules changes | None |
+| Firebase config changes | None |
+| Workflow changes | None |
+| New runtime dependency | None |
+| Data model includes PostgreSQL mapping | Included |
+| API contract included | Included |
+| React transition mapping included | Included |
+| Service layer rule included | Included |
+| Permission portability included | Included |
+| Audit / ChangeLog baseline included | Included |
+| First CRUD target selected | Requirement |
+
+## 17. CRUD Implementation Gate
 
 Before a save/edit/delete PR is implemented, verify:
 
@@ -452,10 +572,10 @@ Before a save/edit/delete PR is implemented, verify:
 | Relationships | Are links normalized instead of authoritative arrays? |
 | Soft delete | Does delete set soft delete fields? |
 | Audit | Does create/update/delete produce ChangeLog or ActivityLog? |
-| Permission | What portable permission action is checked? |
+| Permission | What portable permission action is checked and where is it revalidated? |
 | React transition | Can this screen action become a component prop/hook calling the same service? |
 
-## 13. Out of Scope for This Baseline
+## 18. Out of Scope for This Baseline
 
 - Implementing CRUD behavior.
 - Modifying Firestore Rules or indexes.
@@ -464,6 +584,6 @@ Before a save/edit/delete PR is implemented, verify:
 - Converting pages to React.
 - Changing product screens, common CSS, common JS, Firebase config, scripts, CI, or deployment configuration.
 
-## 14. Summary for Future PRs
+## 19. Summary for Future PRs
 
-Firestore is the first storage implementation, but it is not the STAM data architecture. Future CRUD PRs should introduce or follow a service boundary that speaks in Domain Entities, common metadata, portable permission actions, normalized relationships, soft delete, and audit records. That service boundary is the bridge from today's HTML / Vanilla JS / Firestore implementation to the target React / TypeScript / Backend API / PostgreSQL architecture.
+Firestore is the first storage implementation, but it is not the STAM data architecture. Future CRUD PRs should introduce or follow a service boundary that speaks in Domain Entities, common metadata, portable permission actions, normalized relationships, soft delete, and audit records. UI permission must remain separate from Rules/API authorization, and every create/update/delete path should be able to connect to ChangeLog or ActivityLog. Requirement is the recommended first CRUD target because it validates traceability, permission, status, soft delete, audit, service layer, PostgreSQL mapping, Backend API, and React transition assumptions together. That service boundary is the bridge from today's HTML / Vanilla JS / Firestore implementation to the target React / TypeScript / Backend API / PostgreSQL architecture.
