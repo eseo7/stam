@@ -117,14 +117,14 @@
           <div class="stam-board-toolbar-left">
             <div class="stam-board-toolbar-base">
               <div class="rq-search stam-board-search">
-                <span data-stam-icon="search" data-stam-icon-class="is-sm" style="color:var(--t3);flex-shrink:0"></span>
+                <span data-stam-icon="search" data-stam-icon-class="is-sm stam-icon-muted"></span>
                 <input type="text" placeholder="요구사항 ID · 요구사항명 · 담당자 검색" autocomplete="off">
               </div>
               <div class="rq-toolbar-sep"></div>
               <button class="rq-filter-btn stam-board-filter-trigger" id="rq-filter-open-btn" type="button" aria-expanded="false" aria-controls="rq-filter-panel">
                 <span data-stam-icon="filter" data-stam-icon-class="is-sm stam-icon-filter"></span>
                 필터
-                <span class="rq-filter-cnt stam-board-filter-count" id="rq-filter-count" style="display:none">0</span>
+                <span class="rq-filter-cnt stam-board-filter-count" id="rq-filter-count">0</span>
               </button>
               <button class="stam-btn stam-btn--md stam-board-delete stam-delete-btn" id="rq-del-btn" type="button" disabled>
                 <span data-stam-icon="trash" data-stam-icon-class="is-sm"></span>
@@ -151,15 +151,15 @@
           <div class="rq-tbl-scroll">
             <table class="rq-table stam-select-table" data-stam-board-list>
               <colgroup>
-                <col style="width:40px">
-                <col style="min-width:240px">
-                <col style="width:80px">
-                <col style="width:76px">
-                <col style="width:88px">
-                <col style="width:80px">
-                <col style="width:130px">
-                <col style="width:130px">
-                <col style="width:100px">
+                <col class="rq-col-ch">
+                <col class="rq-col-title">
+                <col class="rq-col-type">
+                <col class="rq-col-priority">
+                <col class="rq-col-status">
+                <col class="rq-col-owner">
+                <col class="rq-col-screen">
+                <col class="rq-col-wbs">
+                <col class="rq-col-updated">
               </colgroup>
               <thead>
                 <tr>
@@ -428,7 +428,7 @@
           <div class="rq-dw-head stam-drawer-head">
             <div class="rq-dw-hrow1 stam-drawer-head-row">
               <span class="rq-req-badge stam-drawer-head-badge">REQ-001</span>
-              <span class="rq-chip rq-chip-approved" style="margin-left:4px">승인완료</span>
+              <span class="rq-chip rq-chip-approved rq-chip-ml">승인완료</span>
               <button class="rq-dw-close stam-drawer-close" aria-label="닫기">
                 <span data-stam-icon="close" data-stam-icon-class="is-sm"></span>
               </button>
@@ -437,9 +437,9 @@
             <div class="rq-dw-hmeta stam-drawer-meta">
               <span class="rq-chip rq-chip-type">기능</span>
               <span class="rq-chip rq-chip-high">높음</span>
-              <div style="display:flex;align-items:center;gap:5px;margin-left:4px">
-                <span class="rq-ava" style="background:#5451E8">김</span>
-                <span style="font-size:11.5px;color:var(--t2)">김지훈</span>
+              <div class="rq-dw-owner">
+                <span class="rq-ava is-brand">김</span>
+                <span class="rq-dw-owner-name">김지훈</span>
               </div>
             </div>
           </div>
@@ -452,9 +452,9 @@
 
           <div class="rq-dw-body stam-drawer-body stam-scrollbar">
             <div class="rq-tab-panel" id="rq-tab-info"></div>
-            <div class="rq-tab-panel" id="rq-tab-link" style="display:none"></div>
-            <div class="rq-tab-panel" id="rq-tab-review" style="display:none"></div>
-            <div class="rq-tab-panel" id="rq-tab-history" style="display:none"></div>
+            <div class="rq-tab-panel is-hidden" id="rq-tab-link"></div>
+            <div class="rq-tab-panel is-hidden" id="rq-tab-review"></div>
+            <div class="rq-tab-panel is-hidden" id="rq-tab-history"></div>
           </div>
 
           <div class="stam-drawer-foot">
@@ -476,7 +476,7 @@
           <div class="rq-dw-head stam-drawer-head">
             <div class="rq-dw-hrow1 stam-drawer-head-row">
               <span class="rq-req-badge stam-drawer-head-badge">REQ-001</span>
-              <span class="rq-chip rq-chip-approved" style="margin-left:4px">승인완료</span>
+              <span class="rq-chip rq-chip-approved rq-chip-ml">승인완료</span>
               <button class="rq-dw-close stam-drawer-close" aria-label="닫기">
                 <span data-stam-icon="close" data-stam-icon-class="is-sm"></span>
               </button>
@@ -580,8 +580,8 @@ Summary Strip에서 상태별 건수와 연결 수가 확인된다.
               <div class="stam-form-grid">
                 <div class="stam-form-field full-span rq-ffield">
                   <label class="stam-form-label stam-label rq-flbl">연결 화면설계서</label>
-                  <div class="rq-linked-card" style="margin-bottom:6px">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--stam);flex-shrink:0" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+                  <div class="rq-linked-card is-spaced">
+                    <svg class="rq-linked-card-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
                     <div>
                       <div class="rq-linked-card-id">SCR-005</div>
                       <div class="rq-linked-card-name">요구사항정의서 목록</div>
@@ -597,10 +597,10 @@ Summary Strip에서 상태별 건수와 연결 수가 확인된다.
                 </div>
                 <div class="stam-form-field full-span rq-ffield">
                   <label class="stam-form-label stam-label rq-flbl">연결 WBS</label>
-                  <div class="rq-linked-card" style="margin-bottom:6px">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:#8B5CF6;flex-shrink:0" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+                  <div class="rq-linked-card is-spaced">
+                    <svg class="rq-linked-card-icon is-wbs" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
                     <div>
-                      <div class="rq-linked-card-id" style="color:#8B5CF6">WBS-007</div>
+                      <div class="rq-linked-card-id is-wbs">WBS-007</div>
                       <div class="rq-linked-card-name">WBS 목록 화면 기준 설계</div>
                     </div>
                     <button class="rq-linked-card-rm" type="button" title="연결 해제">
