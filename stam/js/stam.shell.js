@@ -27,11 +27,33 @@
   /* ─── chevron SVG — 기본 ∧ (펼침), .closed 시 rotate(180deg) → ∨ ─── */
   var chevronSvg = '<svg class="glabel-chevron-svg" viewBox="0 0 10 10" fill="none"><path d="M2.5 6.5l2.5-3 2.5 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
+  /* ─── 1차 베타 메뉴 상태 (Live / Preview / Planned / Admin / Hidden) ─── */
+  var LIVE_MENU_IDS = { A1: 1, B1: 1, B2: 1, B3: 1, B4: 1 };
+  var PREVIEW_MENU_IDS = { B5: 1, B8: 1, B9: 1, B10: 1, C8: 1, E7: 1 };
+  var ADMIN_MENU_IDS = { F3: 1, F4: 1, F11: 1 };
+  var HIDDEN_MENU_IDS = { B6: 1, B7: 1 };
+
+  function menuStatusFor(id, badge) {
+    if (LIVE_MENU_IDS[id]) return 'live';
+    if (PREVIEW_MENU_IDS[id]) return 'preview';
+    if (ADMIN_MENU_IDS[id]) return 'admin';
+    if (HIDDEN_MENU_IDS[id] || (badge && badge.type === 'hidden')) return 'hidden';
+    return 'planned';
+  }
+
+  function menuStatusClass(status) {
+    if (status === 'live') return 'is-live';
+    if (status === 'preview') return 'is-preview';
+    if (status === 'admin') return 'is-admin-only';
+    if (status === 'hidden') return 'is-hidden';
+    return 'is-planned';
+  }
+
   /* ─── 메뉴별 badge 데이터 (정적 preview) ─── */
   var menuBadges = {
     /* A — 대시보드 */
     A1: { type: 'live',    text: 'Live'    },
-    A2: { type: 'live',    text: 'Live'    },
+    A2: { type: 'plan',    text: '계획됨'  },
     A3: { type: 'plan',    text: '계획됨'  },
     A4: { type: 'plan',    text: '계획됨'  },
     A5: { type: 'plan',    text: '계획됨'  },
@@ -41,13 +63,13 @@
     B2:  { type: 'count',   text: '10'         },
     B3:  { type: 'count',   text: '42'         },
     B4:  { type: 'count',   text: '61'         },
-    B5:  { type: 'plan',    text: '계획됨'     },
+    B5:  { type: 'preview', text: 'Preview'    },
     B6:  { type: 'hidden',  text: '고객숨김'   },
     B7:  { type: 'hidden',  text: '고객숨김'   },
     B8:  { type: 'preview', text: 'Preview'    },
     B9:  { type: 'preview', text: 'Preview'    },
     B10: { type: 'preview', text: 'Preview'    },
-    B11: { type: 'admin',   text: 'Admin Only' },
+    B11: { type: 'plan',    text: '계획됨'     },
     B12: { type: 'plan',    text: '계획됨'     },
     /* C — 테스트/품질 */
     C1: { type: 'plan',    text: '계획됨'  },
@@ -80,8 +102,8 @@
     F2:  { type: 'plan',    text: '계획됨'     },
     F3:  { type: 'admin',   text: 'Admin Only' },
     F4:  { type: 'admin',   text: 'Admin Only' },
-    F5:  { type: 'live',    text: 'Live'       },
-    F6:  { type: 'live',    text: 'Live'       },
+    F5:  { type: 'plan',    text: '계획됨'     },
+    F6:  { type: 'plan',    text: '계획됨'     },
     F7:  { type: 'plan',    text: '계획됨'     },
     F8:  { type: 'plan',    text: '계획됨'     },
     F9:  { type: 'plan',    text: '계획됨'     },
@@ -155,15 +177,18 @@
       grouped[gr.id].forEach(function (m) {
         var badge    = menuBadges[m.id];
         var isActive = m.id === activeId;
+        var status   = menuStatusFor(m.id, badge);
+        var statusCls = menuStatusClass(status);
 
         var item = document.createElement('div');
-        item.className = 'gitem' + (isActive ? ' on' : '');
-        item.setAttribute('data-id',    m.id);
-        item.setAttribute('data-group', gr.id);
-        item.setAttribute('data-gname', gr.name);
-        item.setAttribute('data-badge', badge ? badge.text : '');
-        item.setAttribute('data-desc',  m.s || '');
-        item.setAttribute('data-name',  m.n);
+        item.className = 'gitem ' + statusCls + (isActive ? ' on' : '');
+        item.setAttribute('data-id',     m.id);
+        item.setAttribute('data-group',  gr.id);
+        item.setAttribute('data-gname',  gr.name);
+        item.setAttribute('data-badge',  badge ? badge.text : '');
+        item.setAttribute('data-status', status);
+        item.setAttribute('data-desc',   m.s || '');
+        item.setAttribute('data-name',   m.n);
 
         var badgeHtml = badge
           ? '<span class="mnav-badge nb-' + badge.type + '">' + badge.text + '</span>'

@@ -293,6 +293,98 @@
 }
 .gitem.on .gitem-id { color: rgba(255,255,255,.50); }
 
+/* ---- Menu status: Live / Preview / Planned / Admin / Hidden ---- */
+.gitem.is-live {
+  color: rgba(255,255,255,.82);
+  font-weight: 600;
+}
+.gitem.is-live .gitem-dot {
+  background: rgba(139,127,248,.62);
+  box-shadow: 0 0 3px rgba(139,127,248,.35);
+}
+.gitem.is-live:hover {
+  background: rgba(255,255,255,.08);
+  color: #fff;
+}
+.gitem.is-live:hover .gitem-dot {
+  background: #8B7FF8;
+  box-shadow: 0 0 4px rgba(139,127,248,.55);
+}
+.gitem.is-live .mnav-badge {
+  opacity: 1;
+}
+
+.gitem.is-preview {
+  color: rgba(255,255,255,.64);
+  font-weight: 550;
+}
+.gitem.is-preview .gitem-dot {
+  background: rgba(139,127,248,.38);
+}
+.gitem.is-preview:hover {
+  background: rgba(255,255,255,.07);
+  color: rgba(255,255,255,.88);
+}
+.gitem.is-preview:hover .gitem-dot {
+  background: rgba(139,127,248,.62);
+}
+
+.gitem.is-planned {
+  color: rgba(255,255,255,.30);
+  cursor: default;
+}
+.gitem.is-planned .gitem-dot {
+  background: rgba(255,255,255,.12);
+}
+.gitem.is-planned:hover {
+  background: rgba(255,255,255,.03);
+  color: rgba(255,255,255,.36);
+}
+.gitem.is-planned:hover .gitem-dot {
+  background: rgba(255,255,255,.16);
+}
+.gitem.is-planned .mnav-badge {
+  opacity: .52;
+}
+
+.gitem.is-admin-only,
+.gitem.is-hidden {
+  color: rgba(255,255,255,.34);
+  cursor: default;
+}
+.gitem.is-admin-only .gitem-dot,
+.gitem.is-hidden .gitem-dot {
+  background: rgba(255,255,255,.14);
+}
+.gitem.is-admin-only:hover,
+.gitem.is-hidden:hover {
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.40);
+}
+.gitem.is-admin-only:hover .gitem-dot,
+.gitem.is-hidden:hover .gitem-dot {
+  background: rgba(255,255,255,.18);
+}
+.gitem.is-admin-only .mnav-badge,
+.gitem.is-hidden .mnav-badge {
+  opacity: .68;
+}
+
+.gitem.is-planned.on,
+.gitem.is-admin-only.on,
+.gitem.is-hidden.on {
+  background: rgba(84,81,232,.22);
+  color: #fff;
+  font-weight: 600;
+  cursor: default;
+}
+.gitem.is-planned.on .gitem-dot,
+.gitem.is-admin-only.on .gitem-dot,
+.gitem.is-hidden.on .gitem-dot {
+  background: #8B7FF8;
+  box-shadow: 0 0 4px rgba(139,127,248,.55);
+}
+
 /* ============================================================
  * Per-menu status / count badges (.mnav-badge)
  * ============================================================ */

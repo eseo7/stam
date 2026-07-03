@@ -140,6 +140,8 @@
         }
       }
       if (!item) return;
+      var status = item.getAttribute('data-status');
+      if (status === 'planned' || status === 'admin' || status === 'hidden') return;
       var id = item.getAttribute('data-id');
       if (hrefMap[id]) {
         e.stopPropagation();
