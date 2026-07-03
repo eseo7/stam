@@ -172,3 +172,11 @@ Verified:
 - It does not call Firestore write methods.
 - It renders non-deleted service results into `#rq-tbody`.
 - It updates summary counts from service results.
+- Static sample rows are removed from `#rq-tbody`; the list is rendered only from Firestore read results.
+
+Optional QA seed (maintainer / staging only):
+
+```bash
+node scripts/seed-stam-demo-requirements.mjs --uid <firebaseAuthUid> --dry-run
+node scripts/seed-stam-demo-requirements.mjs --uid <firebaseAuthUid>
+```
