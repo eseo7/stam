@@ -170,6 +170,23 @@ await loadBrowserScript(context, 'stam/js/stam.requirements-service.js');
 assert.ok(window.STAM.requirementsFirestoreAdapter);
 assert.ok(window.STAM.requirementsService);
 assert.equal(window.STAM.requirementsService.ACTIONS.CREATE, 'requirement.create');
+[
+  'normalizeRequirement',
+  'validateRequirementInput',
+  'buildCreatePayload',
+  'buildUpdatePatch',
+].forEach((name) => {
+  assert.equal(typeof window.STAM.requirementsService[name], 'function');
+  assert.equal(typeof window.STAM.requirementsServiceContract[name], 'function');
+});
+
+const invalidCreate = window.STAM.requirementsServiceContract.validateRequirementInput({}, 'create');
+assert.equal(invalidCreate.valid, false);
+assert.equal(invalidCreate.errors[0].field, 'title');
+
+const invalidUpdate = window.STAM.requirementsServiceContract.validateRequirementInput({ tags: 'bad' }, 'update');
+assert.equal(invalidUpdate.valid, false);
+assert.equal(invalidUpdate.errors[0].field, 'tags');
 
 const authCalls = [];
 const adapter = createFakeAdapter();
@@ -181,6 +198,51 @@ const service = window.STAM.requirementsServiceContract.createService({
     return true;
   },
 });
+
+const helperCreate = service.buildCreatePayload({
+  projectId: 'P1',
+  title: 'Helper create',
+  sortOrder: '3',
+  tags: [' helper ', '', 'contract'],
+}, {
+  actorUid: 'helper-user',
+  actorName: 'Helper User',
+});
+assert.equal(helperCreate.projectId, 'P1');
+assert.equal(helperCreate.title, 'Helper create');
+assert.equal(helperCreate.createdAt, '2026-07-03T00:00:00.000Z');
+assert.equal(helperCreate.createdBy, 'helper-user');
+assert.equal(helperCreate.updatedBy, 'helper-user');
+assert.equal(helperCreate.sortOrder, 3);
+assert.deepEqual(helperCreate.tags, ['helper', 'contract']);
+
+const helperPatch = service.buildUpdatePatch({
+  id: 'MUST-NOT-LEAK',
+  projectId: 'MUST-NOT-LEAK',
+  title: 'Helper patch',
+  sortOrder: '7',
+  tags: ['next'],
+}, {
+  actorUid: 'patch-user',
+});
+assert.equal(helperPatch.id, undefined);
+assert.equal(helperPatch.projectId, undefined);
+assert.equal(helperPatch.title, 'Helper patch');
+assert.equal(helperPatch.updatedAt, '2026-07-03T00:00:00.000Z');
+assert.equal(helperPatch.updatedBy, 'patch-user');
+assert.equal(helperPatch.sortOrder, 7);
+assert.deepEqual(helperPatch.tags, ['next']);
+
+const normalized = window.STAM.requirementsService.normalizeRequirement({
+  id: 'REQ-N',
+  projectId: 'P1',
+  title: ' Normalized ',
+  tags: [' one ', ''],
+  isDeleted: false,
+});
+assert.equal(normalized.title, 'Normalized');
+assert.equal(normalized.status, 'draft');
+assert.deepEqual(normalized.tags, ['one']);
 
 const list = await service.listByProject('P1', {}, { actorUid: 'u2' });
 assert.equal(list.length, 1);

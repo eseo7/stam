@@ -80,18 +80,63 @@
     }).sort();
   }
 
-  function baseRequirement(projectId, input, context, clock) {
+  function validateRequirementInput(input, mode) {
     var source = input || {};
+    var m = clean(mode) || 'create';
+    var errors = [];
+    if (m !== 'create' && m !== 'update') {
+      errors.push({ field: 'mode', message: 'mode must be create or update' });
+    }
+    if (m === 'create' && !clean(source.title)) {
+      errors.push({ field: 'title', message: 'title is required' });
+    }
+    if (m === 'update' && Object.keys(source).length === 0) {
+      errors.push({ field: 'patch', message: 'at least one field is required' });
+    }
+    if (source.tags !== undefined && !Array.isArray(source.tags)) {
+      errors.push({ field: 'tags', message: 'tags must be an array' });
+    }
+    if (source.sortOrder !== undefined && source.sortOrder !== null && source.sortOrder !== '') {
+      var sortOrder = Number(source.sortOrder);
+      if (!Number.isFinite(sortOrder)) {
+        errors.push({ field: 'sortOrder', message: 'sortOrder must be a number' });
+      }
+    }
+    return {
+      valid: errors.length === 0,
+      mode: m,
+      errors: errors,
+    };
+  }
+
+  function assertValidInput(input, mode) {
+    var result = validateRequirementInput(input, mode);
+    if (!result.valid) {
+      throw new Error('requirementsService: invalid ' + result.mode + ' input: ' + result.errors.map(function (err) {
+        return err.field + ' ' + err.message;
+      }).join(', '));
+    }
+    return result;
+  }
+
+  function projectIdFromInput(input, context) {
+    var source = input || {};
+    var ctx = context || {};
+    return clean(source.projectId || ctx.projectId);
+  }
+
+  function buildCreatePayload(input, context, clock) {
+    var source = input || {};
+    assertValidInput(source, 'create');
+    var projectId = requireProjectId(projectIdFromInput(source, context));
     var actor = actorFromContext(context);
     var t = nowIso(clock);
-    var title = clean(source.title);
-    if (!title) throw new Error('requirementsService: title is required');
 
     return {
       id: clean(source.id) || undefined,
       projectId: projectId,
       code: clean(source.code),
-      title: title,
+      title: clean(source.title),
       description: clean(source.description),
       status: clean(source.status) || DEFAULT_STATUS,
       ownerUid: clean(source.ownerUid) || actor.uid,
@@ -112,7 +157,7 @@
     };
   }
 
-  function toDomainRequirement(raw) {
+  function normalizeRequirement(raw) {
     if (!raw) return null;
     return {
       id: clean(raw.id),
@@ -139,7 +184,9 @@
     };
   }
 
-  function sanitizePatch(patch) {
+  function buildUpdatePatch(patch, context, clock) {
+    assertValidInput(patch || {}, 'update');
+    var actor = actorFromContext(context);
     var source = Object.assign({}, patch || {});
     [
       'id',
@@ -154,6 +201,8 @@
     });
     if (source.tags !== undefined) source.tags = normalizeTags(source.tags);
     if (source.sortOrder !== undefined) source.sortOrder = normalizeSortOrder(source.sortOrder);
+    source.updatedAt = nowIso(clock);
+    source.updatedBy = actor.uid;
     return source;
   }
 
@@ -233,7 +282,7 @@
       return check(ACTIONS.READ, pid, q, context).then(function () {
         return adapter.listByProject(pid, q);
       }).then(function (items) {
-        return (items || []).map(toDomainRequirement).filter(Boolean);
+        return (items || []).map(normalizeRequirement).filter(Boolean);
       });
     }
 
@@ -242,36 +291,33 @@
       var rid = requireRequirementId(requirementId);
       return check(ACTIONS.READ, pid, { id: rid }, context).then(function () {
         return adapter.getById(pid, rid);
-      }).then(toDomainRequirement);
+      }).then(normalizeRequirement);
     }
 
     function create(projectId, input, context) {
       var pid = requireProjectId(projectId);
-      var requirement = baseRequirement(pid, input, context, clock);
+      var requirement = buildCreatePayload(Object.assign({}, input || {}, { projectId: pid }), context, clock);
       return check(ACTIONS.CREATE, pid, requirement, context).then(function () {
         return adapter.create(pid, requirement);
       }).then(function (saved) {
-        return toDomainRequirement(saved || requirement);
+        return normalizeRequirement(saved || requirement);
       });
     }
 
     function update(projectId, requirementId, patch, context) {
       var pid = requireProjectId(projectId);
       var rid = requireRequirementId(requirementId);
-      var actor = actorFromContext(context);
-      var sanitized = sanitizePatch(patch);
+      var sanitized = buildUpdatePatch(patch, context, clock);
       return check(ACTIONS.UPDATE, pid, { id: rid, patch: sanitized }, context).then(function () {
         return adapter.getById(pid, rid);
       }).then(function (currentRaw) {
-        var current = toDomainRequirement(currentRaw);
+        var current = normalizeRequirement(currentRaw);
         if (!current) throw new Error('requirementsService: requirement not found');
         var nextPatch = Object.assign({}, sanitized, {
-          updatedAt: nowIso(clock),
-          updatedBy: actor.uid,
           version: current.version + 1,
         });
         return adapter.update(pid, rid, nextPatch);
-      }).then(toDomainRequirement);
+      }).then(normalizeRequirement);
     }
 
     function softDelete(projectId, requirementId, reason, context) {
@@ -281,7 +327,7 @@
       return check(ACTIONS.DELETE, pid, { id: rid, reason: reason || '' }, context).then(function () {
         return adapter.getById(pid, rid);
       }).then(function (currentRaw) {
-        var current = toDomainRequirement(currentRaw);
+        var current = normalizeRequirement(currentRaw);
         if (!current) throw new Error('requirementsService: requirement not found');
         var t = nowIso(clock);
         var patch = {
@@ -294,7 +340,7 @@
         };
         if (reason) patch.deleteReason = clean(reason);
         return adapter.softDelete(pid, rid, patch);
-      }).then(toDomainRequirement);
+      }).then(normalizeRequirement);
     }
 
     return {
@@ -304,7 +350,15 @@
       create: create,
       update: update,
       softDelete: softDelete,
-      toDomainRequirement: toDomainRequirement,
+      normalizeRequirement: normalizeRequirement,
+      validateRequirementInput: validateRequirementInput,
+      buildCreatePayload: function (input, context) {
+        return buildCreatePayload(input, context, clock);
+      },
+      buildUpdatePatch: function (patch, context) {
+        return buildUpdatePatch(patch, context, clock);
+      },
+      toDomainRequirement: normalizeRequirement,
       buildAuditEvent: function (action, before, after, context) {
         return buildAuditEvent(action, before, after, context, clock);
       },
@@ -316,7 +370,11 @@
   window.STAM.requirementsServiceContract = {
     ACTIONS: ACTIONS,
     createService: createService,
-    toDomainRequirement: toDomainRequirement,
+    normalizeRequirement: normalizeRequirement,
+    validateRequirementInput: validateRequirementInput,
+    buildCreatePayload: buildCreatePayload,
+    buildUpdatePatch: buildUpdatePatch,
+    toDomainRequirement: normalizeRequirement,
     buildAuditEvent: buildAuditEvent,
   };
 }());

@@ -66,6 +66,15 @@ Methods:
 | `softDelete(projectId, requirementId, reason, context)` | Mark requirement deleted | `requirement.delete` |
 | `buildAuditEvent(action, before, after, context)` | Build portable audit event shape | N/A helper |
 
+Public contract helpers are exposed on both `STAM.requirementsService` and `STAM.requirementsServiceContract`:
+
+| Helper | Purpose |
+| --- | --- |
+| `normalizeRequirement(raw)` | Convert adapter/raw data into the portable Requirement Domain Model. |
+| `validateRequirementInput(input, mode)` | Validate create/update input and return `{ valid, mode, errors }`. |
+| `buildCreatePayload(input, context)` | Build a create payload with common metadata defaults. |
+| `buildUpdatePatch(patch, context)` | Build a sanitized update patch with update metadata. |
+
 ## Firestore Adapter Contract
 
 Global namespace:
@@ -165,6 +174,8 @@ Verified:
 - `create()` fills common metadata and default status fields.
 - `update()` prevents ID/project reassignment and increments version.
 - `softDelete()` sets soft delete fields and increments version.
+- `normalizeRequirement()`, `validateRequirementInput()`, `buildCreatePayload()`, and `buildUpdatePatch()` are exposed on both public service contract objects.
+- `buildCreatePayload()` fills common metadata while `buildUpdatePatch()` strips immutable fields.
 - `buildAuditEvent()` returns portable audit field shape.
 - Firestore adapter encapsulates `projects/{projectId}/requirements`.
 
