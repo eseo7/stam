@@ -2,7 +2,7 @@
 
 ## Purpose
 
-PR #316 implements the **first CSS layout baseline** for STAM product App Shell, Project Overview (A1), and Requirements board — grounded in [STAM Mobile Product Usage Baseline v1](../stam/docs/reports/STAM_Mobile_Product_Usage_Baseline_v1.md) (PR #315).
+PR #316 implements the **first CSS layout baseline** for STAM product App Shell, Project Overview (A1), and Requirements board — grounded in [STAM Mobile Product Usage Baseline v1](../../stam/docs/reports/STAM_Mobile_Product_Usage_Baseline_v1.md) (PR #315).
 
 Mobile is **action/review-first**, not shrunk desktop. This PR delivers minimum-usable layout at phone/tablet widths without changing pages, JS, or data logic.
 
@@ -80,6 +80,24 @@ Open hosted staging or local static server under `stam/`:
 1. **Project Overview** — resize to 390 / 430 / 768: no horizontal page scroll; KPI + cards readable; tables scroll inside cards.
 2. **Requirements** — same widths: header/toolbar usable; table scrolls; summary strip visible; drawer opens full-width on narrow view.
 3. **1024+** — layout matches pre-PR desktop behavior (regression).
+
+### Requirements drawer viewport QA (390 / 430 / 768)
+
+Manual QA on `stam/pages/boards/requirements.html` (detail drawer `#rq-dw-detail`, register drawer `#rq-dw-register`):
+
+| Viewport | Drawer panel | Viewport overflow | Result |
+| --- | --- | --- | --- |
+| **390px** | `100vw` × `100dvh`, `right: 0` (`stam.drawer.css` `@media max-width: 640px`) | None — panel contained in viewport | **PASS** |
+| **430px** | Same fullscreen contract | None | **PASS** |
+| **768px** | `min(760px, calc(100vw - 32px))` — fits within tablet width | None | **PASS** |
+
+**Notes**
+
+- No additional drawer width CSS was required in this PR; shared `stam.drawer.css` already sets fullscreen drawer at ≤640px.
+- PR #316 adds horizontal scroll for `.rq-dw-tabs` at ≤767px only (tab labels); drawer shell width unchanged.
+- Form body uses `stam-form-grid` single-column at ≤640px (`stam.form-controls.css`) — no drawer body horizontal bleed observed.
+
+**How to re-verify:** open Requirements → click a table row (detail drawer) or **요구사항 등록** (register drawer) → DevTools device mode 390 / 430 / 768 → confirm drawer right edge aligns with viewport and no page-level horizontal scroll behind scrim.
 
 ## Follow-up (out of scope)
 
