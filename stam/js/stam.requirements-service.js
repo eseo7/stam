@@ -17,10 +17,91 @@
   };
 
   var DEFAULT_STATUS = 'draft';
+  var DEFAULT_PRIORITY = 'normal';
   var DEFAULT_VISIBILITY = 'project';
   var DEFAULT_REVIEW_STATUS = 'Review Needed';
   var DEFAULT_APPROVAL_STATUS = 'none';
   var DEFAULT_SOURCE = 'web';
+  var ENUMS = {
+    status: {
+      fallback: DEFAULT_STATUS,
+      values: {
+        draft: 'draft',
+        reviewing: 'reviewing',
+        confirmed: 'confirmed',
+        rejected: 'rejected',
+        deleted: 'deleted',
+        active: 'draft',
+        pending: 'reviewing',
+        approved: 'confirmed',
+        done: 'confirmed',
+        hold: 'rejected',
+        '작성중': 'draft',
+        '검토요청': 'reviewing',
+        '검토중': 'reviewing',
+        '검토완료': 'confirmed',
+        '승인완료': 'confirmed',
+        '보류': 'rejected',
+      },
+    },
+    priority: {
+      fallback: DEFAULT_PRIORITY,
+      values: {
+        low: 'low',
+        normal: 'normal',
+        medium: 'normal',
+        mid: 'normal',
+        high: 'high',
+        urgent: 'urgent',
+        critical: 'urgent',
+        '낮음': 'low',
+        '보통': 'normal',
+        '중간': 'normal',
+        '높음': 'high',
+        '긴급': 'urgent',
+      },
+    },
+    visibility: {
+      fallback: DEFAULT_VISIBILITY,
+      values: {
+        project: 'project',
+        internal: 'internal',
+        customer: 'customer',
+        private: 'private',
+      },
+    },
+    reviewStatus: {
+      fallback: DEFAULT_REVIEW_STATUS,
+      values: {
+        'review needed': 'Review Needed',
+        needed: 'Review Needed',
+        none: 'Review Needed',
+        'in review': 'In Review',
+        reviewing: 'In Review',
+        approved: 'Approved',
+        rejected: 'Rejected',
+        '검토필요': 'Review Needed',
+        '검토요청': 'In Review',
+        '검토중': 'In Review',
+        '검토완료': 'Approved',
+        '반려': 'Rejected',
+      },
+    },
+    approvalStatus: {
+      fallback: DEFAULT_APPROVAL_STATUS,
+      values: {
+        none: 'none',
+        pending: 'pending',
+        approved: 'approved',
+        rejected: 'rejected',
+        '미요청': 'none',
+        '요청중': 'pending',
+        '승인': 'approved',
+        '승인완료': 'approved',
+        '반려': 'rejected',
+      },
+    },
+  };
 
   function nowIso(clock) {
     return clock ? clock() : new Date().toISOString();
@@ -71,6 +152,23 @@
     return Number.isFinite(n) ? n : null;
   }
 
+  function normalizeEnum(field, value) {
+    var def = ENUMS[field];
+    if (!def) return clean(value);
+    var raw = clean(value);
+    if (!raw) return def.fallback;
+    var normalizedKey = raw.toLowerCase();
+    return def.values[raw] || def.values[normalizedKey] || def.fallback;
+  }
+
+  function isSupportedEnum(field, value) {
+    var def = ENUMS[field];
+    if (!def) return true;
+    var raw = clean(value);
+    if (!raw) return true;
+    return !!(def.values[raw] || def.values[raw.toLowerCase()]);
+  }
+
   function changedFields(before, after) {
     var keys = {};
     Object.keys(before || {}).forEach(function (key) { keys[key] = true; });
@@ -102,6 +200,11 @@
         errors.push({ field: 'sortOrder', message: 'sortOrder must be a number' });
       }
     }
+    ['status', 'priority', 'visibility', 'reviewStatus', 'approvalStatus'].forEach(function (field) {
+      if (source[field] !== undefined && !isSupportedEnum(field, source[field])) {
+        errors.push({ field: field, message: field + ' is not a supported value' });
+      }
+    });
     return {
       valid: errors.length === 0,
       mode: m,
@@ -138,7 +241,8 @@
       code: clean(source.code),
       title: clean(source.title),
       description: clean(source.description),
-      status: clean(source.status) || DEFAULT_STATUS,
+      status: normalizeEnum('status', source.status),
+      priority: normalizeEnum('priority', source.priority),
       ownerUid: clean(source.ownerUid) || actor.uid,
       ownerName: clean(source.ownerName) || actor.name,
       createdAt: source.createdAt || t,
@@ -151,9 +255,9 @@
       version: Number.isFinite(Number(source.version)) ? Number(source.version) : 1,
       sortOrder: normalizeSortOrder(source.sortOrder),
       tags: normalizeTags(source.tags),
-      visibility: clean(source.visibility) || DEFAULT_VISIBILITY,
-      reviewStatus: clean(source.reviewStatus) || DEFAULT_REVIEW_STATUS,
-      approvalStatus: clean(source.approvalStatus) || DEFAULT_APPROVAL_STATUS,
+      visibility: normalizeEnum('visibility', source.visibility),
+      reviewStatus: normalizeEnum('reviewStatus', source.reviewStatus),
+      approvalStatus: normalizeEnum('approvalStatus', source.approvalStatus),
     };
   }
 
@@ -165,7 +269,8 @@
       code: clean(raw.code),
       title: clean(raw.title),
       description: clean(raw.description),
-      status: clean(raw.status) || DEFAULT_STATUS,
+      status: normalizeEnum('status', raw.status),
+      priority: normalizeEnum('priority', raw.priority),
       ownerUid: clean(raw.ownerUid),
       ownerName: clean(raw.ownerName),
       createdAt: raw.createdAt || null,
@@ -178,9 +283,9 @@
       version: Number.isFinite(Number(raw.version)) ? Number(raw.version) : 1,
       sortOrder: normalizeSortOrder(raw.sortOrder),
       tags: normalizeTags(raw.tags),
-      visibility: clean(raw.visibility) || DEFAULT_VISIBILITY,
-      reviewStatus: clean(raw.reviewStatus) || DEFAULT_REVIEW_STATUS,
-      approvalStatus: clean(raw.approvalStatus) || DEFAULT_APPROVAL_STATUS,
+      visibility: normalizeEnum('visibility', raw.visibility),
+      reviewStatus: normalizeEnum('reviewStatus', raw.reviewStatus),
+      approvalStatus: normalizeEnum('approvalStatus', raw.approvalStatus),
     };
   }
 
@@ -201,6 +306,9 @@
     });
     if (source.tags !== undefined) source.tags = normalizeTags(source.tags);
     if (source.sortOrder !== undefined) source.sortOrder = normalizeSortOrder(source.sortOrder);
+    ['status', 'priority', 'visibility', 'reviewStatus', 'approvalStatus'].forEach(function (field) {
+      if (source[field] !== undefined) source[field] = normalizeEnum(field, source[field]);
+    });
     source.updatedAt = nowIso(clock);
     source.updatedBy = actor.uid;
     return source;

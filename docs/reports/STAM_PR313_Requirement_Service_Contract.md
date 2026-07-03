@@ -75,6 +75,16 @@ Public contract helpers are exposed on both `STAM.requirementsService` and `STAM
 | `buildCreatePayload(input, context)` | Build a create payload with common metadata defaults. |
 | `buildUpdatePatch(patch, context)` | Build a sanitized update patch with update metadata. |
 
+The service normalizes enum-like values before returning Domain Model objects or adapter payloads:
+
+| Field | Default | Normalized examples |
+| --- | --- | --- |
+| `status` | `draft` | `검토요청 -> reviewing`, `approved -> confirmed`, `승인완료 -> confirmed` |
+| `priority` | `normal` | `medium -> normal`, `높음 -> high`, `긴급 -> urgent` |
+| `visibility` | `project` | `project`, `internal`, `customer`, `private` |
+| `reviewStatus` | `Review Needed` | `검토중 -> In Review`, `approved -> Approved`, `반려 -> Rejected` |
+| `approvalStatus` | `none` | `요청중 -> pending`, `승인 -> approved`, `반려 -> rejected` |
+
 ## Firestore Adapter Contract
 
 Global namespace:
@@ -101,6 +111,7 @@ The service normalizes the common metadata baseline:
 - `title`
 - `description`
 - `status`
+- `priority`
 - `ownerUid`
 - `ownerName`
 - `createdAt`
@@ -172,6 +183,9 @@ Verified:
 - Firestore adapter loads without touching Firebase until method call.
 - `listByProject()` uses `requirement.read`.
 - `create()` fills common metadata and default status fields.
+- `priority` is included in the Requirement Domain Model with default `normal`.
+- `status`, `priority`, `visibility`, `reviewStatus`, and `approvalStatus` are normalized in create payloads, update patches, and raw Domain Model conversion.
+- Unsupported enum values are rejected by `validateRequirementInput()`.
 - `update()` prevents ID/project reassignment and increments version.
 - `softDelete()` sets soft delete fields and increments version.
 - `normalizeRequirement()`, `validateRequirementInput()`, `buildCreatePayload()`, and `buildUpdatePatch()` are exposed on both public service contract objects.

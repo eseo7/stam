@@ -36,6 +36,7 @@ function createFakeAdapter() {
       title: 'Existing requirement',
       description: 'Before',
       status: 'draft',
+      priority: 'normal',
       ownerUid: 'u1',
       ownerName: 'Owner',
       createdAt: '2026-01-01T00:00:00.000Z',
@@ -94,6 +95,7 @@ function createFakeFirestore() {
       data: () => ({
         title: 'A',
         projectId: 'P1',
+        priority: '높음',
         isDeleted: false,
         sortOrder: 2,
       }),
@@ -188,6 +190,10 @@ const invalidUpdate = window.STAM.requirementsServiceContract.validateRequiremen
 assert.equal(invalidUpdate.valid, false);
 assert.equal(invalidUpdate.errors[0].field, 'tags');
 
+const invalidEnum = window.STAM.requirementsServiceContract.validateRequirementInput({ priority: 'highest' }, 'update');
+assert.equal(invalidEnum.valid, false);
+assert.equal(invalidEnum.errors[0].field, 'priority');
+
 const authCalls = [];
 const adapter = createFakeAdapter();
 const service = window.STAM.requirementsServiceContract.createService({
@@ -202,6 +208,11 @@ const service = window.STAM.requirementsServiceContract.createService({
 const helperCreate = service.buildCreatePayload({
   projectId: 'P1',
   title: 'Helper create',
+  status: '검토요청',
+  priority: '높음',
+  visibility: 'customer',
+  reviewStatus: '검토중',
+  approvalStatus: '요청중',
   sortOrder: '3',
   tags: [' helper ', '', 'contract'],
 }, {
@@ -210,6 +221,11 @@ const helperCreate = service.buildCreatePayload({
 });
 assert.equal(helperCreate.projectId, 'P1');
 assert.equal(helperCreate.title, 'Helper create');
+assert.equal(helperCreate.status, 'reviewing');
+assert.equal(helperCreate.priority, 'high');
+assert.equal(helperCreate.visibility, 'customer');
+assert.equal(helperCreate.reviewStatus, 'In Review');
+assert.equal(helperCreate.approvalStatus, 'pending');
 assert.equal(helperCreate.createdAt, '2026-07-03T00:00:00.000Z');
 assert.equal(helperCreate.createdBy, 'helper-user');
 assert.equal(helperCreate.updatedBy, 'helper-user');
@@ -220,6 +236,11 @@ const helperPatch = service.buildUpdatePatch({
   id: 'MUST-NOT-LEAK',
   projectId: 'MUST-NOT-LEAK',
   title: 'Helper patch',
+  status: 'approved',
+  priority: 'medium',
+  visibility: 'private',
+  reviewStatus: 'approved',
+  approvalStatus: '승인',
   sortOrder: '7',
   tags: ['next'],
 }, {
@@ -228,6 +249,11 @@ const helperPatch = service.buildUpdatePatch({
 assert.equal(helperPatch.id, undefined);
 assert.equal(helperPatch.projectId, undefined);
 assert.equal(helperPatch.title, 'Helper patch');
+assert.equal(helperPatch.status, 'confirmed');
+assert.equal(helperPatch.priority, 'normal');
+assert.equal(helperPatch.visibility, 'private');
+assert.equal(helperPatch.reviewStatus, 'Approved');
+assert.equal(helperPatch.approvalStatus, 'approved');
 assert.equal(helperPatch.updatedAt, '2026-07-03T00:00:00.000Z');
 assert.equal(helperPatch.updatedBy, 'patch-user');
 assert.equal(helperPatch.sortOrder, 7);
@@ -237,11 +263,20 @@ const normalized = window.STAM.requirementsService.normalizeRequirement({
   id: 'REQ-N',
   projectId: 'P1',
   title: ' Normalized ',
+  status: '승인완료',
+  priority: '긴급',
+  visibility: 'internal',
+  reviewStatus: '반려',
+  approvalStatus: '반려',
   tags: [' one ', ''],
   isDeleted: false,
 });
 assert.equal(normalized.title, 'Normalized');
-assert.equal(normalized.status, 'draft');
+assert.equal(normalized.status, 'confirmed');
+assert.equal(normalized.priority, 'urgent');
+assert.equal(normalized.visibility, 'internal');
+assert.equal(normalized.reviewStatus, 'Rejected');
+assert.equal(normalized.approvalStatus, 'rejected');
 assert.deepEqual(normalized.tags, ['one']);
 
 const list = await service.listByProject('P1', {}, { actorUid: 'u2' });
@@ -260,6 +295,7 @@ const created = await service.create('P1', {
 });
 assert.equal(created.projectId, 'P1');
 assert.equal(created.status, 'draft');
+assert.equal(created.priority, 'normal');
 assert.equal(created.isDeleted, false);
 assert.equal(created.version, 1);
 assert.deepEqual(created.tags, ['alpha', 'beta']);
