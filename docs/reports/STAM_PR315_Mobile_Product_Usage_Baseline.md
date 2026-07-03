@@ -6,14 +6,14 @@ PR #315 establishes the official STAM **mobile product usage baseline** — defi
 
 Reference:
 
-- `docs/reports/STAM_Mobile_Product_Usage_Baseline_v1.md`
+- `stam/docs/reports/STAM_Mobile_Product_Usage_Baseline_v1.md`
 - `stam/docs/STAM-Mobile-Core-Workflow-Baseline-v1.html` (visual preview, PR #211)
 
 ## Scope
 
 ### Added
 
-- `docs/reports/STAM_Mobile_Product_Usage_Baseline_v1.md`
+- `stam/docs/reports/STAM_Mobile_Product_Usage_Baseline_v1.md`
 - `docs/reports/STAM_PR315_Mobile_Product_Usage_Baseline.md`
 
 ### Updated (index link only)
@@ -80,7 +80,7 @@ STAM Mobile is an action-focused review, approval, access, and notification chan
 
 Manual:
 
-- Open `docs/reports/STAM_Mobile_Product_Usage_Baseline_v1.md` and confirm § Core Mobile Jobs, § Desktop vs Mobile matrix, § Evaluation Criteria.
+- Open `stam/docs/reports/STAM_Mobile_Product_Usage_Baseline_v1.md` and confirm § Core Mobile Jobs, § Desktop vs Mobile matrix, § Evaluation Criteria.
 - Open `stam/docs/STAM-Docs-Index.html` and confirm link under §01 기준 문서.
 
 No automated test required (documentation-only PR).
