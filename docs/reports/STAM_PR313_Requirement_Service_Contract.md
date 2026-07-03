@@ -75,15 +75,15 @@ Public contract helpers are exposed on both `STAM.requirementsService` and `STAM
 | `buildCreatePayload(input, context)` | Build a create payload with common metadata defaults. |
 | `buildUpdatePatch(patch, context)` | Build a sanitized update patch with update metadata. |
 
-The service normalizes enum-like values before returning Domain Model objects or adapter payloads:
+The service normalizes enum values before returning Domain Model objects or adapter payloads. Each enum has a fixed value set and a default. Any value outside the set (or an empty value) is normalized to the default instead of raising a validation error:
 
-| Field | Default | Normalized examples |
-| --- | --- | --- |
-| `status` | `draft` | `검토요청 -> reviewing`, `approved -> confirmed`, `승인완료 -> confirmed` |
-| `priority` | `normal` | `medium -> normal`, `높음 -> high`, `긴급 -> urgent` |
-| `visibility` | `project` | `project`, `internal`, `customer`, `private` |
-| `reviewStatus` | `Review Needed` | `검토중 -> In Review`, `approved -> Approved`, `반려 -> Rejected` |
-| `approvalStatus` | `none` | `요청중 -> pending`, `승인 -> approved`, `반려 -> rejected` |
+| Field | Allowed values | Default | Out-of-set example |
+| --- | --- | --- | --- |
+| `status` | `draft`, `active`, `review`, `approved`, `archived` | `draft` | `reviewing -> draft` |
+| `priority` | `low`, `normal`, `high`, `critical` | `normal` | `urgent -> normal` |
+| `visibility` | `project`, `internal`, `customer`, `private` | `project` | `external -> project` |
+
+`reviewStatus` (default `Review Needed`) and `approvalStatus` (default `none`) are metadata strings that fall back to their default only when empty.
 
 ## Firestore Adapter Contract
 
@@ -184,8 +184,8 @@ Verified:
 - `listByProject()` uses `requirement.read`.
 - `create()` fills common metadata and default status fields.
 - `priority` is included in the Requirement Domain Model with default `normal`.
-- `status`, `priority`, `visibility`, `reviewStatus`, and `approvalStatus` are normalized in create payloads, update patches, and raw Domain Model conversion.
-- Unsupported enum values are rejected by `validateRequirementInput()`.
+- `status`, `priority`, and `visibility` are normalized against fixed value sets in create payloads, update patches, and raw Domain Model conversion.
+- Out-of-set enum values are normalized to the field default rather than rejected by `validateRequirementInput()`.
 - `update()` prevents ID/project reassignment and increments version.
 - `softDelete()` sets soft delete fields and increments version.
 - `normalizeRequirement()`, `validateRequirementInput()`, `buildCreatePayload()`, and `buildUpdatePatch()` are exposed on both public service contract objects.

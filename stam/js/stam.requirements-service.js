@@ -16,91 +16,27 @@
     DELETE: 'requirement.delete',
   };
 
+  var STATUS_VALUES = ['draft', 'active', 'review', 'approved', 'archived'];
+  var PRIORITY_VALUES = ['low', 'normal', 'high', 'critical'];
+  var VISIBILITY_VALUES = ['project', 'internal', 'customer', 'private'];
+
   var DEFAULT_STATUS = 'draft';
   var DEFAULT_PRIORITY = 'normal';
   var DEFAULT_VISIBILITY = 'project';
   var DEFAULT_REVIEW_STATUS = 'Review Needed';
   var DEFAULT_APPROVAL_STATUS = 'none';
   var DEFAULT_SOURCE = 'web';
-  var ENUMS = {
-    status: {
-      fallback: DEFAULT_STATUS,
-      values: {
-        draft: 'draft',
-        reviewing: 'reviewing',
-        confirmed: 'confirmed',
-        rejected: 'rejected',
-        deleted: 'deleted',
-        active: 'draft',
-        pending: 'reviewing',
-        approved: 'confirmed',
-        done: 'confirmed',
-        hold: 'rejected',
-        '작성중': 'draft',
-        '검토요청': 'reviewing',
-        '검토중': 'reviewing',
-        '검토완료': 'confirmed',
-        '승인완료': 'confirmed',
-        '보류': 'rejected',
-      },
-    },
-    priority: {
-      fallback: DEFAULT_PRIORITY,
-      values: {
-        low: 'low',
-        normal: 'normal',
-        medium: 'normal',
-        mid: 'normal',
-        high: 'high',
-        urgent: 'urgent',
-        critical: 'urgent',
-        '낮음': 'low',
-        '보통': 'normal',
-        '중간': 'normal',
-        '높음': 'high',
-        '긴급': 'urgent',
-      },
-    },
-    visibility: {
-      fallback: DEFAULT_VISIBILITY,
-      values: {
-        project: 'project',
-        internal: 'internal',
-        customer: 'customer',
-        private: 'private',
-      },
-    },
-    reviewStatus: {
-      fallback: DEFAULT_REVIEW_STATUS,
-      values: {
-        'review needed': 'Review Needed',
-        needed: 'Review Needed',
-        none: 'Review Needed',
-        'in review': 'In Review',
-        reviewing: 'In Review',
-        approved: 'Approved',
-        rejected: 'Rejected',
-        '검토필요': 'Review Needed',
-        '검토요청': 'In Review',
-        '검토중': 'In Review',
-        '검토완료': 'Approved',
-        '반려': 'Rejected',
-      },
-    },
-    approvalStatus: {
-      fallback: DEFAULT_APPROVAL_STATUS,
-      values: {
-        none: 'none',
-        pending: 'pending',
-        approved: 'approved',
-        rejected: 'rejected',
-        '미요청': 'none',
-        '요청중': 'pending',
-        '승인': 'approved',
-        '승인완료': 'approved',
-        '반려': 'rejected',
-      },
-    },
+
+  var ENUM_VALUES = {
+    status: STATUS_VALUES,
+    priority: PRIORITY_VALUES,
+    visibility: VISIBILITY_VALUES,
+  };
+
+  var ENUM_DEFAULTS = {
+    status: DEFAULT_STATUS,
+    priority: DEFAULT_PRIORITY,
+    visibility: DEFAULT_VISIBILITY,
   };
 
   function nowIso(clock) {
@@ -153,20 +89,11 @@
   }
 
   function normalizeEnum(field, value) {
-    var def = ENUMS[field];
-    if (!def) return clean(value);
-    var raw = clean(value);
-    if (!raw) return def.fallback;
-    var normalizedKey = raw.toLowerCase();
-    return def.values[raw] || def.values[normalizedKey] || def.fallback;
-  }
-
-  function isSupportedEnum(field, value) {
-    var def = ENUMS[field];
-    if (!def) return true;
-    var raw = clean(value);
-    if (!raw) return true;
-    return !!(def.values[raw] || def.values[raw.toLowerCase()]);
+    var values = ENUM_VALUES[field];
+    if (!values) return clean(value);
+    var raw = clean(value).toLowerCase();
+    if (!raw) return ENUM_DEFAULTS[field];
+    return values.indexOf(raw) >= 0 ? raw : ENUM_DEFAULTS[field];
   }
 
   function changedFields(before, after) {
@@ -200,11 +127,6 @@
         errors.push({ field: 'sortOrder', message: 'sortOrder must be a number' });
       }
     }
-    ['status', 'priority', 'visibility', 'reviewStatus', 'approvalStatus'].forEach(function (field) {
-      if (source[field] !== undefined && !isSupportedEnum(field, source[field])) {
-        errors.push({ field: field, message: field + ' is not a supported value' });
-      }
-    });
     return {
       valid: errors.length === 0,
       mode: m,
@@ -256,8 +178,8 @@
       sortOrder: normalizeSortOrder(source.sortOrder),
       tags: normalizeTags(source.tags),
       visibility: normalizeEnum('visibility', source.visibility),
-      reviewStatus: normalizeEnum('reviewStatus', source.reviewStatus),
-      approvalStatus: normalizeEnum('approvalStatus', source.approvalStatus),
+      reviewStatus: clean(source.reviewStatus) || DEFAULT_REVIEW_STATUS,
+      approvalStatus: clean(source.approvalStatus) || DEFAULT_APPROVAL_STATUS,
     };
   }
 
@@ -284,8 +206,8 @@
       sortOrder: normalizeSortOrder(raw.sortOrder),
       tags: normalizeTags(raw.tags),
       visibility: normalizeEnum('visibility', raw.visibility),
-      reviewStatus: normalizeEnum('reviewStatus', raw.reviewStatus),
-      approvalStatus: normalizeEnum('approvalStatus', raw.approvalStatus),
+      reviewStatus: clean(raw.reviewStatus) || DEFAULT_REVIEW_STATUS,
+      approvalStatus: clean(raw.approvalStatus) || DEFAULT_APPROVAL_STATUS,
     };
   }
 
@@ -306,7 +228,7 @@
     });
     if (source.tags !== undefined) source.tags = normalizeTags(source.tags);
     if (source.sortOrder !== undefined) source.sortOrder = normalizeSortOrder(source.sortOrder);
-    ['status', 'priority', 'visibility', 'reviewStatus', 'approvalStatus'].forEach(function (field) {
+    ['status', 'priority', 'visibility'].forEach(function (field) {
       if (source[field] !== undefined) source[field] = normalizeEnum(field, source[field]);
     });
     source.updatedAt = nowIso(clock);
