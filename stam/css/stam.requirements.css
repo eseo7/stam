@@ -219,6 +219,108 @@ select.rq-inp { cursor:pointer;-webkit-appearance:none;appearance:none;backgroun
 [data-theme="dark"] .rq-cs-opt.is-placeholder { color:var(--t3);background:transparent }
 [data-theme="dark"] .rq-cs-opt:hover,[data-theme="dark"] .rq-cs-opt.is-active { background:rgba(255,255,255,.06);color:var(--t1) }
 
+/* ============================================================
+ * Mobile Layout Baseline v1 (PR #316) — Requirements board
+ * Class: D-P board · mobile = read/review-first, table scroll
+ * ============================================================ */
+
+@media (max-width: 1023px) {
+  .req-page {
+    padding: 16px 20px 56px;
+  }
+}
+
+@media (max-width: 767px) {
+  .req-page {
+    padding: 12px 12px 48px;
+  }
+
+  .req-page .stam-board-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+
+  .req-page .stam-board-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+
+  .req-page .stam-board-action-btn {
+    flex: 1 1 calc(50% - 4px);
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .req-page .stam-summary-meta {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
+
+  .req-page .rq-toolbar.stam-board-toolbar {
+    margin-bottom: 10px;
+  }
+
+  .req-page .stam-board-toolbar-base {
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .req-page .rq-search.stam-board-search {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .req-page .rq-toolbar-sep {
+    display: none;
+  }
+
+  .req-page .rq-filter-btn,
+  .req-page .stam-board-delete {
+    flex: 1 1 auto;
+  }
+
+  .req-page .rq-tbl-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .req-page .rq-fgrid,
+  .req-page .rq-igrid {
+    grid-template-columns: 1fr;
+  }
+
+  .req-page .rq-fgrid .full,
+  .req-page .rq-ic.full {
+    grid-column: 1;
+  }
+
+  .req-page .rq-dw-tabs.stam-drawer-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .req-page .rq-dw-tab.stam-drawer-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 430px) {
+  .req-page .stam-board-actions {
+    flex-direction: column;
+  }
+
+  .req-page .stam-board-action-btn {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+}
+
 /* ── Date / datetime-local input dark mode ── */
 .rq-inp[type="date"],.rq-inp[type="datetime-local"] { color-scheme:light }
 [data-theme="dark"] .rq-inp[type="date"],
