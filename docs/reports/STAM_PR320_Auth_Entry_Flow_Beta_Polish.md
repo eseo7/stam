@@ -44,12 +44,19 @@ flowchart LR
 
 ## 수정 파일
 
-- `stam/pages/auth/*.html` (5)
+- `stam/pages/auth/login.html`
+- `stam/pages/auth/projects.html`
+- `stam/pages/auth/access-pending.html`
+- `stam/pages/auth/no-project.html`
 - `stam/js/stam.auth-bootstrap.js`
 - `stam/js/stam.auth-project-list.js`
 - `stam/css/stam.auth.css`
 - `scripts/test-auth-entry-flow-contract.mjs`
 - `docs/reports/STAM_PR320_Auth_Entry_Flow_Beta_Polish.md`
+
+## 검토 대상 · 변경 없음
+
+- `stam/pages/auth/access-denied.html` — 기존 사용자 문구 유지. `contact-admin` 버튼은 `stam.auth-bootstrap.js` 공통 처리로 동작 적용.
 
 ## 미변경
 
