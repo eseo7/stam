@@ -15,6 +15,7 @@ Reference:
 Modified:
 
 - `stam/pages/boards/requirements.html`
+- `stam/js/stam.requirements.js`
 
 Added:
 
@@ -61,17 +62,73 @@ Then it loads the PR #313 service/adapter and PR #314 read-only list binding:
 
 The Local Core DB v2 list/CRUD scripts are no longer loaded as the Requirements list source.
 
+## Auth / Project Guard
+
+`stam.requirements-firestore-list.js` now gates the screen before reading requirements:
+
+```js
+var ROUTES = {
+  login: '/pages/auth/login.html',
+  projects: '/pages/auth/projects.html',
+  accessDenied: '/pages/auth/access-denied.html'
+};
+```
+
+Guard behavior:
+
+- missing `projectId` redirects to `/pages/auth/projects.html`
+- signed-out user redirects to `/pages/auth/login.html`
+- missing or inactive `projects/{projectId}/members/{uid}` redirects to `/pages/auth/access-denied.html`
+- missing project document redirects to `/pages/auth/projects.html`
+
+The guard performs only read operations:
+
+- `projects/{projectId}/members/{uid}.get()`
+- `projects/{projectId}.get()`
+
+## Project / Member Context
+
+After guard success, the screen updates existing context surfaces from the project/member read result:
+
+- `[data-stam-project-context]`
+- `[data-stam-topbar]`
+- `[data-stam-left-nav]`
+- `window.STAM.currentProjectContext`
+- `document.title`
+
+The existing renderers are reused:
+
+- `STAM.projectContextRender.init()`
+- `STAM.topbarRender.init()`
+- `STAM.navRender.init('B1')`
+
 ## Rendering Behavior
 
 `stam.requirements-firestore-list.js`:
 
 - resolves `projectId` from `?projectId=` or `sessionStorage['stam:selectedProjectId']`
-- waits for Firebase Auth state when available
+- waits for Firebase Auth state and verifies active project membership
 - calls `STAM.requirementsService.listByProject(projectId, { includeDeleted: false }, context)`
 - filters soft-deleted items defensively
 - renders rows into `#rq-tbody`
 - updates the existing summary strip and footer count
 - refreshes `STAMBoardList` selection state after row replacement
+
+## Detail Read-only Binding
+
+`stam.requirements.js` delegates row activation to the read-only list helper when available:
+
+```js
+STAM.requirementsFirestoreList.openDetailFromRow(row)
+```
+
+The helper reads detail data only through:
+
+```js
+STAM.requirementsService.getById(projectId, requirementId, context)
+```
+
+It updates the existing detail drawer shell and does not call create/update/delete methods.
 
 ## No UI Write Wiring
 
@@ -84,7 +141,7 @@ The Local Core DB v2 list/CRUD scripts are no longer loaded as the Requirements 
 ## Governance Result
 
 - Product page changed: `stam/pages/boards/requirements.html` only
-- Existing screen JS changed: none
+- Existing screen JS changed: `stam/js/stam.requirements.js` row activation delegates to read-only detail helper
 - New JS: `stam/js/stam.requirements-firestore-list.js`
 - CSS changes: none
 - Firestore rules changes: none
@@ -105,6 +162,9 @@ node scripts/test-requirements-firestore-list-contract.mjs
 Verified:
 
 - `stam.requirements-firestore-list.js` calls only `listByProject()`.
+- Auth/project guard reads project and member documents before list loading.
+- Project/member read result updates topbar, project context, left nav context, and document title.
+- Row activation reads detail through `getById()` and updates the existing detail drawer shell.
 - It does not construct `projects/{projectId}/requirements` Firestore paths directly.
 - It does not call create/update/softDelete.
 - It does not call Firestore write methods.

@@ -61,7 +61,14 @@
   if (listRoot && window.STAMBoardList) {
     boardApi = window.STAMBoardList.init(listRoot, {
       deleteBtn: '#rq-del-btn',
-      onRowActivate: function () { openDrawer('detail'); },
+      onRowActivate: function (row) {
+        var listApi = window.STAM && window.STAM.requirementsFirestoreList;
+        if (listApi && typeof listApi.openDetailFromRow === 'function') {
+          listApi.openDetailFromRow(row).then(function () { openDrawer('detail'); });
+          return;
+        }
+        openDrawer('detail');
+      },
     });
   }
 
