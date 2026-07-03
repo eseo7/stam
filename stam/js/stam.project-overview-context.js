@@ -15,6 +15,7 @@
 
   var STORAGE_PROJECT_ID = 'stam:selectedProjectId';
   var STORAGE_PROJECT_NAME = 'stam:selectedProjectName';
+  var STORAGE_ENTRY_NOTICE = 'stam:entryNotice';
   var CLIENT_CTX_FALLBACK = 'STAM';
 
   function getAuth() {
@@ -175,8 +176,16 @@
     }
   }
 
-  function failWithMessage(message, path) {
-    window.alert(message);
+  function storeEntryNotice(message) {
+    try {
+      if (message) {
+        sessionStorage.setItem(STORAGE_ENTRY_NOTICE, String(message));
+      }
+    } catch (err) { /* ignore */ }
+  }
+
+  function redirectWithNotice(message, path) {
+    storeEntryNotice(message);
     redirect(path || ROUTES.projects);
   }
 
@@ -196,7 +205,10 @@
     var auth = getAuth();
     var db = getFirestore();
     if (!auth || !db) {
-      failWithMessage('Firebase를 사용할 수 없습니다. Hosting 환경에서 확인해 주세요.', ROUTES.projects);
+      redirectWithNotice(
+        '프로젝트 정보를 불러올 준비가 되지 않았습니다. 잠시 후 다시 시도해 주세요.',
+        ROUTES.projects
+      );
       return;
     }
 
@@ -221,7 +233,10 @@
           revealPage();
         })
         .catch(function () {
-          failWithMessage('프로젝트 정보를 불러오지 못했습니다.', ROUTES.projects);
+          redirectWithNotice(
+            '프로젝트 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.',
+            ROUTES.projects
+          );
         });
     });
   }
