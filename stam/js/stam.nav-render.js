@@ -145,7 +145,12 @@
       var id = item.getAttribute('data-id');
       if (hrefMap[id]) {
         e.stopPropagation();
-        window.location.href = hrefMap[id];
+        var target = hrefMap[id];
+        var guard = window.STAM && window.STAM.projectContextGuard;
+        if (guard && typeof guard.withProjectId === 'function') {
+          target = guard.withProjectId(target);
+        }
+        window.location.href = target;
       }
     });
   }
