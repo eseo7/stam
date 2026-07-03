@@ -21,6 +21,7 @@ Added:
 
 - `stam/js/stam.requirements-firestore-list.js`
 - `scripts/test-requirements-firestore-list-contract.mjs`
+- `scripts/seed-stam-demo-requirements.mjs` (QA helper only; not product runtime)
 - `docs/reports/STAM_PR314_Requirement_List_Firestore_Read.md`
 
 ## Read-only Runtime Contract
@@ -137,6 +138,7 @@ It updates the existing detail drawer shell and does not call create/update/dele
 - Delete buttons remain UI controls only.
 - No Firestore write path is exposed by this PR.
 - No product runtime seed helper is added or auto-executed.
+- Optional maintainer-only QA seed helper: `scripts/seed-stam-demo-requirements.mjs`
 
 ## Governance Result
 
