@@ -72,13 +72,10 @@
       tab.addEventListener('click', function () {
         tabs.forEach(function (t) { t.classList.remove('on'); });
         tab.classList.add('on');
-        tabNames.forEach(function (name) {
-          var panel = document.getElementById('os-tab-' + name);
-          if (panel) panel.style.display = '';
-        });
         tabNames.forEach(function (name, i) {
           var panel = document.getElementById('os-tab-' + name);
-          if (panel) panel.style.display = (i === idx) ? '' : 'none';
+          if (!panel) return;
+          panel.classList.toggle('is-active', i === idx);
         });
       });
     });
