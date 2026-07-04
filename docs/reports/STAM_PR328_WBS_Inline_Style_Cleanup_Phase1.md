@@ -28,19 +28,24 @@
 
 - `stam/pages/boards/wbs.html`
 - `stam/css/stam.wbs.css`
-- `scripts/test-wbs-no-inline-style.mjs` (신규)
 - `docs/reports/STAM_PR328_WBS_Inline_Style_Cleanup_Phase1.md` (신규)
 
 ## 미변경
 
 - `stam/js/**` — 기능 로직 변경 없음
+- `scripts/**` — **신규 test script 추가 없음**
 - Firestore / localStorage / 데이터
 - UI 문구·버튼 동작·화면 구조
 
 ## 검증
 
+별도 신규 script 추가 없음. inline style 제거는 `rg`로 확인:
+
 ```bash
-node scripts/test-wbs-no-inline-style.mjs
+git diff --name-only main...HEAD
+rg 'style=' stam/pages/boards/wbs.html
+rg -n 'style=' stam/pages/boards/wbs.html
+rg '<style|<script' stam/pages/boards/wbs.html
 node scripts/test-requirements-no-inline-style.mjs
 node scripts/test-project-context-guard-contract.mjs
 node scripts/test-nav-live-dimmed-contract.mjs
@@ -51,5 +56,6 @@ node scripts/test-nav-live-dimmed-contract.mjs
 | 항목 | 결과 |
 |------|------|
 | 신규 CSS/JS 파일 | 0 |
+| `scripts/**` 신규 추가 | 0 |
 | inline style/script 추가 | 없음 |
 | `stam/js/**` 변경 | 없음 |
