@@ -71,8 +71,18 @@
     return fallback;
   }
 
+  function bindThemeToggleClicks() {
+    document.addEventListener('click', function (event) {
+      var btn = event.target.closest('[data-theme-toggle]');
+      if (!btn) return;
+      if (btn.hasAttribute('onclick')) return;
+      toggleTheme();
+    });
+  }
+
   /* 스크립트 로드 즉시 복원 — 하드코딩된 html data-theme 덮어쓰기 */
   initTheme();
+  bindThemeToggleClicks();
 
   document.addEventListener('DOMContentLoaded', function () {
     syncToggleButtons(getTheme());
