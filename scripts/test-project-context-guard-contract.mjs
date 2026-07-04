@@ -31,6 +31,8 @@ const livePages = [
   'stam/pages/boards/menu-screen-list.html',
   'stam/pages/boards/wbs.html',
   'stam/pages/boards/screen-specification.html',
+  'stam/pages/boards/functional-specification.html',
+  'stam/pages/boards/open-scenario.html',
 ];
 for (const rel of livePages) {
   const html = await readFile(path.join(ROOT, rel), 'utf8');
