@@ -633,10 +633,11 @@ STAM은 전체 제품 구조를 유지하면서 단계적으로 구현해야 한
 
 전체 메뉴와 전체 산출물을 한 번에 풀스택으로 구현하면 Auth, DB, 권한, 저장, 화면, 연결, 내보내기, 변경이력까지 모두 동시에 열린다. 그러면 화면은 많아져도 실제 시스템은 얕아진다.
 
-그래서 1차는 핵심 산출물 중심으로 줄였다.
+그래서 1차는 핵심 산출물 중심으로 줄였다. DB 연결 순서는 **`요구사항정의서 → 기능정의서 → WBS → 화면설계서`** 로 고정한다.
 
 ```txt
-요구사항
+요구사항정의서
+기능정의서
 WBS
 화면설계서
 ```
@@ -650,7 +651,7 @@ WBS
 
 ### 다시 열 조건
 
-- 3개 핵심 산출물의 Auth/DB/CRUD/권한/연결이 안정화될 것
+- 4개 핵심 산출물의 Auth/DB/CRUD/권한/연결이 안정화될 것
 - 공통 CRUD 패턴이 잡힐 것
 - 화면설계서 데이터 분리가 흔들리지 않을 것
 
@@ -660,7 +661,7 @@ WBS
 
 ### 왜 그렇게 정했나
 
-요구사항, WBS, 화면설계서는 서로 연결되어야 한다. 하지만 각 문서 안에 서로의 ID 배열을 중복 저장하면 동기화 문제가 생긴다.
+요구사항정의서, 기능정의서, WBS, 화면설계서는 서로 연결되어야 한다. 하지만 각 문서 안에 서로의 ID 배열을 중복 저장하면 동기화 문제가 생긴다.
 
 그래서 연결을 별도 collection/layer로 두는 방향이 맞다.
 
@@ -682,7 +683,7 @@ artifactLinks = 산출물 간 연결을 표현하는 최소 링크 레이어
 
 ### 다시 열 조건
 
-- 요구사항/WBS/화면설계서 CRUD가 안정화될 것
+- 요구사항정의서 / 기능정의서 / WBS / 화면설계서 CRUD가 안정화될 것
 - 연결 생성/삭제 UX가 실제로 검증될 것
 - 역방향 표시, 영향도 분석, 연결 누락 경고가 필요해질 것
 
@@ -763,7 +764,7 @@ Rules syntax check, membership path, active member 조건, project subcollection
 
 - 실제 Auth bootstrap이 붙을 것
 - active project list 조회가 구현될 것
-- 요구사항/WBS/화면설계서 CRUD가 write rules를 필요로 할 것
+- 요구사항정의서 / 기능정의서 / WBS / 화면설계서 CRUD가 write rules를 필요로 할 것
 - role별 action 정책이 UI와 함께 확정될 것
 
 ---
@@ -1130,3 +1131,26 @@ PR 본문보다 diff를 먼저 봤는가?
 ```txt
 STAM에서는 빨리 만든 화면보다, 다시 안 갈아엎어도 되는 구조가 우선이다.
 ```
+
+---
+
+## 4-8. PR #351 — 1차 실제 구현 Gate 문서 고정
+
+**일자:** 2026-07-05  
+**문서:** `docs/ops/STAM-Phase1-Implementation-Gate.md`
+
+### 왜 지금 고정했나
+
+PR #350으로 B5 inline cleanup이 끝났고, Auth read gate·Requirements read는 이미 동작 중이다. 이 시점에서 구현 PR을 더 열기 전에 **1차 실제 구현 범위·순서·완료 조건**을 ops 문서로 고정하지 않으면, Rules write / CRUD UI / Left Nav Live 승격이 다시 섞인다.
+
+### 결정
+
+- 1차 실제 구현 Gate 통과 조건을 문서로 고정한다 (`요구사항정의서 → 기능정의서 → WBS → 화면설계서` CRUD + artifactLinks + role write).
+- Google only Auth·`firebaseConfig` 제품 코드 금지·project subcollection layout은 **유지**한다.
+- 다음 우선 구현은 **Requirements write rules + CRUD** 한 축만 연다. 이후 **기능정의서 → WBS → 화면설계서** 순으로 DB 연결한다.
+- 본 결정은 구현 PR이 아니라 **docs-only Gate PR**에서만 기록한다.
+
+### 다시 열 조건
+
+- Gate 문서의 8항 체크리스트 전부 PASS 시 1차 실제 구현 단계 완료로 판정.
+- 범위 변경은 본 Gate 문서 또는 `STAM-Phase-1-Productization-Scope.html` 선행 갱신 후에만 허용.
