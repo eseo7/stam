@@ -1130,3 +1130,26 @@ PR 본문보다 diff를 먼저 봤는가?
 ```txt
 STAM에서는 빨리 만든 화면보다, 다시 안 갈아엎어도 되는 구조가 우선이다.
 ```
+
+---
+
+## 4-8. PR #351 — 1차 실제 구현 Gate 문서 고정
+
+**일자:** 2026-07-05  
+**문서:** `docs/ops/STAM-Phase1-Implementation-Gate.md`
+
+### 왜 지금 고정했나
+
+PR #350으로 B5 inline cleanup이 끝났고, Auth read gate·Requirements read는 이미 동작 중이다. 이 시점에서 구현 PR을 더 열기 전에 **1차 실제 구현 범위·순서·완료 조건**을 ops 문서로 고정하지 않으면, Rules write / CRUD UI / Left Nav Live 승격이 다시 섞인다.
+
+### 결정
+
+- 1차 실제 구현 Gate 통과 조건을 문서로 고정한다 (요구사항·WBS·화면설계서 CRUD + artifactLinks + role write).
+- Google only Auth·`firebaseConfig` 제품 코드 금지·project subcollection layout은 **유지**한다.
+- 다음 우선 구현은 **Requirements write rules + CRUD** 한 축만 연다.
+- 본 결정은 구현 PR이 아니라 **docs-only Gate PR**에서만 기록한다.
+
+### 다시 열 조건
+
+- Gate 문서의 8항 체크리스트 전부 PASS 시 1차 실제 구현 단계 완료로 판정.
+- 범위 변경은 본 Gate 문서 또는 `STAM-Phase-1-Productization-Scope.html` 선행 갱신 후에만 허용.
