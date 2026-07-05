@@ -33,7 +33,7 @@ STAM을 **정적 Preview / 문서 정리 단계**에서 **1차 실제 구현 단
 ```
 
 - 전체 IA(정보 구조)는 **숨기지 않는다**.
-- 1차 핵심 산출물 3종만 **실제 DB 저장형 CRUD**로 연다.
+- 1차 핵심 산출물 4종만 **실제 DB 저장형 CRUD**로 연다 (`요구사항정의서 → 기능정의서 → WBS → 화면설계서`).
 - Auth / Project / Permission / Rules는 **단계적으로** 열되, 각 단계의 완료 조건을 Gate로 검증한다.
 - 기존 Preview·가이드·정적 화면은 **기준서로 재활용**하되, 제품 구현 우선순위보다 앞서지 않는다.
 
@@ -43,7 +43,7 @@ STAM을 **정적 Preview / 문서 정리 단계**에서 **1차 실제 구현 단
 |------|-------------------|
 | **Auth** | Google 로그인 단일 provider, 로그인 후 membership gate, 5개 auth 화면 |
 | **Project Context** | 프로젝트 선택 → `projectId` 컨텍스트 유지 → Workspace 진입 |
-| **핵심 산출물 CRUD** | 요구사항(`requirements`) · WBS(`wbsItems`) · 화면설계서(`screenSpecs` + `screenFields` / `screenActions`) |
+| **핵심 산출물 CRUD** | 요구사항정의서(`requirements`) · 기능정의서(`functionalSpecifications`) · WBS(`wbsItems`) · 화면설계서(`screenSpecs` + `screenFields` / `screenActions`) |
 | **연결** | `artifactLinks` 최소 수동 연결 (`related` 중심) |
 | **권한** | Owner / Admin / Editor / Viewer 4 role 기준 read / write gate |
 | **Audit** | `createdAt` / `createdBy` / `updatedAt` / `updatedBy` / `status` 기본 필드 |
@@ -59,7 +59,7 @@ STAM을 **정적 Preview / 문서 정리 단계**에서 **1차 실제 구현 단
 | `projectInvites` 자동 초대 흐름 | Admin 수동 멤버 등록 |
 | Tenant 관리 / 조직 전환 UI | `tenantId` 필드만 유지 |
 | Billing / 요금제 Locked | 후속 |
-| 기능정의서 · 프로그램목록 · API 명세 등 비핵심 산출물 Live화 | Preview / Planned 유지 |
+| 프로그램목록 · API 명세 등 기타 산출물 Live화 | Preview / Planned 유지 |
 | collectionGroup 기반 전역 검색 | project-scoped query 우선 |
 | PostgreSQL / API 서버 이전 | Firebase 단기 유지 (`STAM-Backend-Architecture-API-Boundary-Guide`) |
 
@@ -72,7 +72,7 @@ STAM을 **정적 Preview / 문서 정리 단계**에서 **1차 실제 구현 단
 | `project-context-guard` | **동작 중** | Firebase 미사용, client-only |
 | Requirements Firestore **read** | **동작 중** | PR #314 |
 | Requirements Firestore **write** | **미개방** | adapter 존재, rules deny |
-| WBS / 화면설계서 Firestore 연결 | **미연결** | 정적 Preview 화면 |
+| 기능정의서 / WBS / 화면설계서 Firestore 연결 | **미연결** | 정적 Preview 화면 |
 | `artifactLinks` CRUD | **미구현** | rules read gate만 존재 |
 | Role-based write rules | **미개방** | PR #306+ 예정 |
 | `users` doc client 생성 | **미구현** | self-read only |
@@ -180,6 +180,7 @@ tenants/{tenantId}          ← rules fully closed (1차)
 projects/{projectId}
 projects/{projectId}/members/{uid}    ← canonical membership path; doc id == Firebase Auth uid
 projects/{projectId}/requirements/{requirementId}
+projects/{projectId}/functionalSpecifications/{functionalSpecId}
 projects/{projectId}/wbsItems/{wbsItemId}
 projects/{projectId}/screenSpecs/{screenSpecId}
 projects/{projectId}/screenFields/{fieldId}
@@ -246,6 +247,20 @@ projects/{projectId}/artifactLinks/{linkId}
 
 > Domain Model 상세: `stam/js/stam.requirements-service.js`, `docs/reports/STAM_PR313_Requirement_Service_Contract.md`
 
+#### `projects/{projectId}/functionalSpecifications/{functionalSpecId}`
+
+| 필드 | 타입 | 비고 |
+|------|------|------|
+| `functionalSpecId` | string | == doc id |
+| `projectId` | string | |
+| `requirementId` | string | optional — 요구사항 연결 |
+| `title` | string | |
+| `description` | string | |
+| `status` | string | enum |
+| `ownerId` | string | optional |
+| `deleted` | boolean | soft delete |
+| `createdAt` / `createdBy` / `updatedAt` / `updatedBy` | audit | 1차 포함 |
+
 #### `projects/{projectId}/wbsItems/{wbsItemId}`
 
 | 필드 | 타입 | 비고 |
@@ -283,7 +298,7 @@ projects/{projectId}/artifactLinks/{linkId}
 |------|------|------|
 | `linkId` | string | |
 | `projectId` | string | |
-| `sourceType` / `sourceId` | string | `requirement` / `wbsItem` / `screenSpec` |
+| `sourceType` / `sourceId` | string | `requirement` / `functionalSpecification` / `wbsItem` / `screenSpec` |
 | `targetType` / `targetId` | string | |
 | `relationType` | string | 1차: `related` only |
 | audit fields | | |
@@ -294,9 +309,10 @@ projects/{projectId}/artifactLinks/{linkId}
 |------|------|------|
 | **단계 0** | **완료** | deny-by-default + active-member read gate + `collectionGroup('members')` discovery |
 | **단계 1** | 예정 | role-scoped write open (`requirements` 우선) |
-| **단계 2** | 예정 | `wbsItems` / `screenSpecs` / `screenFields` / `screenActions` write |
-| **단계 3** | 예정 | `artifactLinks` write + `users` bootstrap |
-| **단계 4** | 후속 | field validation, `changeLogs`, invites |
+| **단계 2** | 예정 | `functionalSpecifications` write |
+| **단계 3** | 예정 | `wbsItems` / `screenSpecs` / `screenFields` / `screenActions` write |
+| **단계 4** | 예정 | `artifactLinks` write + `users` bootstrap |
+| **단계 5** | 후속 | field validation, `changeLogs`, invites |
 
 현재 rules: **모든 write deny**. read는 active member + own membership discovery만 허용.
 
@@ -335,7 +351,8 @@ projects/{projectId}/artifactLinks/{linkId}
 | **Live** | B2 | 메뉴구조/화면목록 (`menu-screen-list.html`) — 정적 |
 | **Live** | B3 | WBS (`wbs.html`) — 정적 |
 | **Live** | B4 | 화면설계서 (`screen-specification.html`) — 정적 |
-| **Preview** | B5, B8, B9, B10, C8, E7 | 기능정의서 등 Preview 화면 |
+| **Preview** | B5 | 기능정의서 (`functional-specification.html`) — 정적 (PR #350 inline cleanup 완료) |
+| **Preview** | B8, B9, B10, C8, E7 | 기타 Preview 화면 |
 | **Admin** | F3, F4, F11 | 관리자 메뉴 |
 | **Hidden** | B6, B7 | 숨김 |
 | **Planned** | 나머지 전부 | 딤 + 클릭 차단 |
@@ -345,13 +362,14 @@ projects/{projectId}/artifactLinks/{linkId}
 | 메뉴 | 1차 목표 |
 |------|----------|
 | A1 Project Overview | Firestore project context (현재 부분 동작) |
-| B1 요구사항 | **read + write CRUD** |
+| B1 요구사항정의서 | **read + write CRUD** |
+| B5 기능정의서 | **read + write CRUD** |
 | B3 WBS | **read + write CRUD** |
 | B4 화면설계서 | **read + write CRUD** (screenFields/screenActions 포함) |
 | F* 멤버/권한 | **read** (write는 후속 가능) |
 
 B2(메뉴구조/화면목록)는 1차 핵심 산출물이 아니므로 **Preview 전환 검토** 대상이다.  
-B5(기능정의서)는 PR #350 inline cleanup 완료 — **Preview 유지**.
+B5(기능정의서)는 PR #350 inline cleanup 완료 — 1차 Gate 통과 시 **Live 승격** 대상 (`요구사항정의서 → 기능정의서 → WBS → 화면설계서` 순서).
 
 ### 5-4. Live 승격 Gate 조건
 
@@ -388,41 +406,50 @@ B5(기능정의서)는 PR #350 inline cleanup 완료 — **Preview 유지**.
 | 1-3 | Requirements write smoke QA | QA doc | P1 active, staging |
 
 **선행:** `stam.requirements-service.js` / `stam.requirements-firestore-adapter.js` (PR #313)  
-**금지:** WBS / screen spec 동시 write 개방
+**금지:** 기능정의서 / WBS / 화면설계서 동시 write 개방
 
-### 단계 2 — WBS Firestore 연결
-
-| 순서 | 작업 | 성격 |
-|------|------|------|
-| 2-1 | WBS domain service + Firestore adapter (Requirements 패턴 복제) | dev |
-| 2-2 | `wbsItems` read UI binding | dev |
-| 2-3 | `wbsItems` write rules + CRUD UI | security + dev |
-| 2-4 | WBS smoke QA | QA doc |
-
-### 단계 3 — 화면설계서 Firestore 연결
+### 단계 2 — 기능정의서 Firestore 연결
 
 | 순서 | 작업 | 성격 |
 |------|------|------|
-| 3-1 | `screenSpecs` service + adapter + read binding | dev |
-| 3-2 | `screenSpecs` write rules + master CRUD | security + dev |
-| 3-3 | `screenFields` / `screenActions` 최소 CRUD (별도 PR 권장) | dev |
-| 3-4 | Screen spec smoke QA | QA doc |
+| 2-1 | 기능정의서 domain service + Firestore adapter (Requirements 패턴 복제) | dev |
+| 2-2 | `functionalSpecifications` read UI binding | dev |
+| 2-3 | `functionalSpecifications` write rules + CRUD UI | security + dev |
+| 2-4 | 기능정의서 smoke QA | QA doc |
 
-### 단계 4 — 연결 · Auth 보강
+### 단계 3 — WBS Firestore 연결
 
 | 순서 | 작업 | 성격 |
 |------|------|------|
-| 4-1 | `artifactLinks` read/write + 상세 화면 연결정보 탭 | dev |
-| 4-2 | `users/{uid}` bootstrap on first login (server or controlled client) | dev |
-| 4-3 | Role-based UI action disable (Owner/Admin/Editor/Viewer) | dev + ui |
+| 3-1 | WBS domain service + Firestore adapter (Requirements 패턴 복제) | dev |
+| 3-2 | `wbsItems` read UI binding | dev |
+| 3-3 | `wbsItems` write rules + CRUD UI | security + dev |
+| 3-4 | WBS smoke QA | QA doc |
 
-### 단계 5 — 1차 실제 구현 Gate 최종 검증
+### 단계 4 — 화면설계서 Firestore 연결
+
+| 순서 | 작업 | 성격 |
+|------|------|------|
+| 4-1 | `screenSpecs` service + adapter + read binding | dev |
+| 4-2 | `screenSpecs` write rules + master CRUD | security + dev |
+| 4-3 | `screenFields` / `screenActions` 최소 CRUD (별도 PR 권장) | dev |
+| 4-4 | Screen spec smoke QA | QA doc |
+
+### 단계 5 — 연결 · Auth 보강
+
+| 순서 | 작업 | 성격 |
+|------|------|------|
+| 5-1 | `artifactLinks` read/write + 상세 화면 연결정보 탭 | dev |
+| 5-2 | `users/{uid}` bootstrap on first login (server or controlled client) | dev |
+| 5-3 | Role-based UI action disable (Owner/Admin/Editor/Viewer) | dev + ui |
+
+### 단계 6 — 1차 실제 구현 Gate 최종 검증
 
 | 항목 | 완료 조건 |
 |------|-----------|
-| Golden Path | login → project select → Requirements/WBS/Screen Spec CRUD |
+| Golden Path | login → project select → 요구사항정의서 → 기능정의서 → WBS → 화면설계서 CRUD |
 | Rules | role-scoped write, deny-by-default 유지, syntax check PASS |
-| Left Nav | B1/B3/B4 Live, 핵심 3산출물 CRUD 동작 |
+| Left Nav | B1/B5/B3/B4 Live, 핵심 4산출물 CRUD 동작 |
 | QA | Beta access matrix 전 시나리오 PASS |
 | Governance | 신규 CSS/JS 0건 원칙 유지 (기존 파일 확장은 별도 승인) |
 
@@ -457,7 +484,7 @@ B5(기능정의서)는 PR #350 inline cleanup 완료 — **Preview 유지**.
 **1차 실제 구현 Gate 통과** = 아래 전부 YES.
 
 - [ ] Google 로그인 → 프로젝트 선택 → Workspace 진입 Golden Path staging PASS
-- [ ] 요구사항 / WBS / 화면설계서 **실제 Firestore CRUD** 동작
+- [ ] 요구사항정의서 / 기능정의서 / WBS / 화면설계서 **실제 Firestore CRUD** 동작 (`요구사항정의서 → 기능정의서 → WBS → 화면설계서`)
 - [ ] `artifactLinks` 최소 수동 연결 동작
 - [ ] role 기준 write rules 적용, deny-by-default 유지
 - [ ] Left Nav Live 메뉴가 실제 DB 화면과 일치

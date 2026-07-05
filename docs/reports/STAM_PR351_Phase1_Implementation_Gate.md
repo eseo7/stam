@@ -86,8 +86,9 @@ scripts/**
 | `stam.requirements-firestore-list.js` | Requirements list UI read binding | ✓ | 없음 |
 | `stam.requirements.js` | Requirements screen (list helper delegate) | ✓ | 없음 |
 
-**미존재 (1차 우선 구현 대상):**
+**미존재 (1차 우선 구현 대상, `요구사항정의서 → 기능정의서 → WBS → 화면설계서` 순서):**
 
+- `stam.functional-spec-service.js` / `stam.functional-spec-firestore-adapter.js`
 - `stam.wbs-service.js` / `stam.wbs-firestore-adapter.js`
 - `stam.screen-spec-service.js` / adapter
 - `stam.artifact-links-*`
@@ -165,7 +166,7 @@ SDK 패턴 (전 화면 공통):
 | Project context guard | **동작 중** |
 | Requirements Firestore read | **동작 중** (PR #314, #326 smoke PASS) |
 | Requirements Firestore write | **미개방** (adapter만 존재) |
-| WBS / Screen Spec Firestore | **미연결** |
+| 기능정의서 / WBS / Screen Spec Firestore | **미연결** |
 | artifactLinks | **rules read gate만** |
 | Role-based write rules | **미개방** |
 | users client bootstrap | **미구현** |
@@ -182,19 +183,19 @@ SSOT: `stam/js/stam.shell.js` → `stam.nav-render.js`
 | Hidden | B6, B7 |
 | Planned | 나머지 |
 
-1차 실제 구현 완료 시 목표: B1/B3/B4를 **실제 Firestore CRUD Live**로 승격. B2는 Preview 전환 검토.
+1차 실제 구현 완료 시 목표: B1/B5/B3/B4를 **실제 Firestore CRUD Live**로 승격 (`요구사항정의서 → 기능정의서 → WBS → 화면설계서`). B2는 Preview 전환 검토.
 
 ## 8. Gate 문서 핵심 결정 (요약)
 
 상세는 `docs/ops/STAM-Phase1-Implementation-Gate.md` 참조.
 
-1. **1차 실제 구현 범위** — 요구사항 / WBS / 화면설계서 3산출물 CRUD + artifactLinks 최소 연결
+1. **1차 실제 구현 범위** — 요구사항정의서 / 기능정의서 / WBS / 화면설계서 4산출물 CRUD + artifactLinks 최소 연결
 2. **Google 로그인** — 단일 provider, `firebaseConfig` 제품 코드 금지 유지
 3. **Workspace 진입** — login → gate → projects → overview → 산출물 (projectId 유지)
 4. **Firestore layout** — `projects/{projectId}/**` subcollections 채택
 5. **Rules** — 단계 0(read) 완료 → 단계 1(requirements write) 우선
 6. **Left Nav** — Live/Preview/Planned 구분 유지, CRUD 완료 시에만 Live 승격
-7. **다음 PR 순서** — Requirements write → WBS → Screen Spec → artifactLinks → Gate 최종 QA
+7. **다음 PR 순서** — Requirements write rules + CRUD → 기능정의서 → WBS → 화면설계서 → artifactLinks → Gate 최종 QA
 
 ## 9. 검증
 
@@ -227,11 +228,12 @@ rg -i '\bMVP\b' docs/ops/STAM-Phase1-Implementation-Gate.md docs/reports/STAM_PR
 | 순서 | 작업 |
 |------|------|
 | 1 | Requirements write rules + CRUD UI |
-| 2 | WBS service/adapter + read/write |
-| 3 | Screen spec service/adapter + CRUD |
-| 4 | screenFields / screenActions |
-| 5 | artifactLinks + users bootstrap |
-| 6 | 1차 실제 구현 Gate 최종 QA |
+| 2 | 기능정의서 service/adapter + read/write |
+| 3 | WBS service/adapter + read/write |
+| 4 | Screen spec service/adapter + CRUD |
+| 5 | screenFields / screenActions |
+| 6 | artifactLinks + users bootstrap |
+| 7 | 1차 실제 구현 Gate 최종 QA |
 
 ---
 
