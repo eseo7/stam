@@ -1,8 +1,9 @@
 # STAM 1차 실제 구현 Gate
 
 > **문서 성격:** 운영 기준서 (docs-only)  
-> **기준 main:** PR #350 merge 이후 (`69abcf6`)  
-> **선행 완료:** PR #350 — B5 `functional-specification.html` 정적 HTML inline style 0건  
+> **기준 main:** PR #351 merge 이후 (`a005a0d`)  
+> **선행 완료:** PR #351 — 1차 실제 구현 Gate 문서 고정  
+> **Auth/DB 기술 기준:** `docs/ops/STAM-Auth-Firestore-Workspace-Technical-Plan.md` (PR #352)  
 > **관련 canonical scope:** `stam/docs/STAM-Phase-1-Productization-Scope.html` (PR #294)
 
 ---
@@ -475,7 +476,9 @@ B5(기능정의서)는 PR #350 inline cleanup 완료 — 1차 Gate 통과 시 **
 | Membership gate | `stam/docs/STAM-Firestore-Project-Membership-Gate-Guide.html` |
 | Beta seed / access matrix | `docs/beta/STAM_Beta_Seed_Data_Access_Matrix_v1.md` |
 | Agent 판단 playbook | `docs/ops/STAM-Decisions-and-Heuristics.md` |
+| Auth / Firestore / Workspace 기술 기준 | `docs/ops/STAM-Auth-Firestore-Workspace-Technical-Plan.md` |
 | PR #351 조사 리포트 | `docs/reports/STAM_PR351_Phase1_Implementation_Gate.md` |
+| PR #352 조사 리포트 | `docs/reports/STAM_PR352_Auth_Firestore_Workspace_Technical_Plan.md` |
 
 ---
 
