@@ -120,3 +120,14 @@ rg 'projects/|collectionGroup' stam/js/stam.auth.js
 ```bash
 npx -y firebase-tools@13.35.1 emulators:exec --only firestore --project demo-rules-compile "echo RULES_OK"
 ```
+
+## 11. 조건부 merge · merge 후 조치
+
+| 항목 | 내용 |
+|------|------|
+| merge 허용 | 코드/rules 범위 QA PASS, Hosting Preview PASS |
+| merge 차단 아님 | Rules Deploy workflow FAIL (IAM 403) — **infra issue**, rules 문법 아님 |
+| **merge 후 필수** | staging `firestore.rules` **별도 deploy** (`firebase-firestore-rules-staging.yml` 또는 maintainer CLI) |
+| deploy 전 동작 | preview 환경에서 `users/{uid}` client write는 **기존 staging rules에 의해 deny** |
+
+Rules Deploy PR preview workflow green은 infra 권한 수정 전까지 기대하지 않는다.
