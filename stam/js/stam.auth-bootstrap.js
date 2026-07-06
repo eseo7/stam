@@ -41,6 +41,21 @@
     });
   }
 
+  function updateUserAccountDisplay(user) {
+    if (!user) return;
+
+    var email = user.email || '—';
+    var displayName = user.displayName || user.email || '—';
+
+    document.querySelectorAll('[data-stam-user-email]').forEach(function (el) {
+      el.textContent = email;
+    });
+    document.querySelectorAll('[data-stam-user-display-name]').forEach(function (el) {
+      el.textContent = displayName;
+    });
+    updateAccountEmail(user.email || user.displayName || '—');
+  }
+
   function setGoogleButtonBusy(busy) {
     document.querySelectorAll('[data-stam-auth-action="google-sign-in"]').forEach(function (btn) {
       btn.disabled = !!busy;
@@ -104,19 +119,30 @@
   }
 
   function handleSignedIn(user, screen) {
-    updateAccountEmail(user.email || user.displayName || '—');
+    updateUserAccountDisplay(user);
 
+    var bootstrap = window.STAM && window.STAM.authUserBootstrap;
     var gate = window.STAM && window.STAM.authMembershipGate;
-    if (!gate || typeof gate.resolveTargetScreen !== 'function') {
-      if (screen === 'login') {
-        redirectTo('project-select');
-      }
-      return;
-    }
 
-    gate.resolveTargetScreen(user)
-      .then(function (targetScreen) {
-        applyMembershipRouteGuard(screen, targetScreen);
+    var bootstrapPromise = (bootstrap && typeof bootstrap.bootstrapUser === 'function')
+      ? bootstrap.bootstrapUser(user)
+      : Promise.resolve();
+
+    bootstrapPromise
+      .catch(function () {
+        /* bootstrap failure is non-fatal; membership gate still routes access */
+      })
+      .then(function () {
+        if (!gate || typeof gate.resolveTargetScreen !== 'function') {
+          if (screen === 'login') {
+            redirectTo('project-select');
+          }
+          return;
+        }
+
+        return gate.resolveTargetScreen(user).then(function (targetScreen) {
+          applyMembershipRouteGuard(screen, targetScreen);
+        });
       })
       .catch(function () {
         if (screen === 'login') {
