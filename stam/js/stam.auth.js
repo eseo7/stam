@@ -1,8 +1,9 @@
 /* ============================================================
- * STAM Auth — Google Provider skeleton (PR #354)
- * Scope: sign-in/out, auth state, route guard, user display.
- * No Firestore read/write. No users/{uid} upsert.
- * Depends: /__/firebase/init.js (auto-init), firebase-auth v8 compat
+ * STAM Auth — Google Provider + users/{uid} bootstrap (PR #354–#355)
+ * Scope: sign-in/out, auth state, route guard, user display,
+ *        users/{uid} Firestore create/update on login.
+ * No project/members Firestore. No membership gate in this phase.
+ * Depends: /__/firebase/init.js (auto-init), firebase-auth/firestore v8
  * ============================================================ */
 (function () {
   'use strict';
@@ -40,6 +41,79 @@
       return null;
     }
     return firebase.auth();
+  }
+
+  function getFirestore() {
+    if (typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length) {
+      return null;
+    }
+    if (typeof firebase.firestore !== 'function') {
+      return null;
+    }
+    return firebase.firestore();
+  }
+
+  function normalizeEmail(email) {
+    if (!email || typeof email !== 'string') return '';
+    return email.trim().toLowerCase();
+  }
+
+  function buildUserProfileFields(user) {
+    return {
+      email: user.email || '',
+      emailNormalized: normalizeEmail(user.email),
+      displayName: user.displayName || '',
+      photoURL: user.photoURL || '',
+    };
+  }
+
+  var bootstrapPromiseByUid = {};
+
+  function bootstrapUserDoc(user) {
+    var db = getFirestore();
+    if (!db || !user || !user.uid) {
+      return Promise.reject(new Error('User bootstrap unavailable'));
+    }
+
+    if (bootstrapPromiseByUid[user.uid]) {
+      return bootstrapPromiseByUid[user.uid];
+    }
+
+    var ref = db.collection('users').doc(user.uid);
+    var profile = buildUserProfileFields(user);
+    var now = firebase.firestore.FieldValue.serverTimestamp();
+
+    var promise = ref.get().then(function (snap) {
+      if (!snap.exists) {
+        return ref.set({
+          userId: user.uid,
+          email: profile.email,
+          emailNormalized: profile.emailNormalized,
+          displayName: profile.displayName,
+          photoURL: profile.photoURL,
+          provider: 'google',
+          status: 'active',
+          createdAt: now,
+          updatedAt: now,
+          lastLoginAt: now,
+        });
+      }
+
+      return ref.update({
+        email: profile.email,
+        emailNormalized: profile.emailNormalized,
+        displayName: profile.displayName,
+        photoURL: profile.photoURL,
+        updatedAt: now,
+        lastLoginAt: now,
+      });
+    });
+
+    bootstrapPromiseByUid[user.uid] = promise;
+
+    return promise.finally(function () {
+      delete bootstrapPromiseByUid[user.uid];
+    });
   }
 
   function getCurrentUser() {
@@ -155,16 +229,31 @@
   }
 
   function handleSignedIn(user, screen) {
-    renderAuthUser(user);
+    bootstrapUserDoc(user)
+      .then(function () {
+        renderAuthUser(user);
 
-    if (screen === 'login') {
-      redirectTo('project-select');
-      return;
-    }
+        if (screen === 'login') {
+          redirectTo('project-select');
+          return;
+        }
 
-    if (screen === 'project-select') {
-      renderProjectSelectSkeleton();
-    }
+        if (screen === 'project-select') {
+          renderProjectSelectSkeleton();
+        }
+      })
+      .catch(function () {
+        if (screen === 'login') {
+          showAuthMessage('계정 정보를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          return;
+        }
+
+        renderAuthUser(user);
+
+        if (screen === 'project-select') {
+          renderProjectSelectSkeleton();
+        }
+      });
   }
 
   function handleAuthState(user) {
@@ -269,5 +358,7 @@
     signInWithGoogle: signInWithGoogle,
     signOut: signOut,
     renderAuthUser: renderAuthUser,
+    bootstrapUserDoc: bootstrapUserDoc,
+    normalizeEmail: normalizeEmail,
   };
 }());

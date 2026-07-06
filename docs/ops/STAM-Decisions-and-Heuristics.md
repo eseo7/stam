@@ -1178,3 +1178,27 @@ PR #351으로 1차 Gate(범위·순서·완료 조건)는 고정됐지만, Auth 
 
 - Auth A1·A2 PR 완료 후 Console 수동 seed 없이 Golden Path 재현.
 - 구조 변경 시 본 Technical Plan 또는 Gate 문서 선행 갱신.
+
+---
+
+## 4-10. PR #355 — users/{uid} bootstrap 구현
+
+**일자:** 2026-07-06  
+**문서:** `stam/js/stam.auth.js`, `firestore.rules`
+
+### 왜 지금 구현했나
+
+PR #354 Skeleton은 Firestore 없이 Auth만 연결했다. Technical Plan Golden Path 2단계(`users/{uid}` upsert)를 열지 않으면 membership gate·프로젝트 목록 PR이 Console 수동 seed에 의존한다.
+
+### 결정
+
+- Google 로그인 `onAuthStateChanged` 직후 `users/{uid}` **create/update** (client write + rules whitelist).
+- create: `status: active`, `provider: google`, `createdAt`/`updatedAt`/`lastLoginAt`.
+- update: profile + `updatedAt`/`lastLoginAt`만 — **`status` client 변경 금지**.
+- Firestore 범위는 **`users/{uid}` only** — projects/members/산출물 write 없음.
+- membership gate routing 재연결은 **후속 PR**.
+
+### 다시 열 조건
+
+- membership gate PR에서 `collectionGroup('members')` read routing 복원.
+- rules 배포 후 staging에서 신규 Google 계정 login → `users/{uid}` doc 생성 QA.
