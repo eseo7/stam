@@ -19,6 +19,12 @@ service cloud.firestore {
      *   emailNormalized. This enables login-time routing before a projectId
      *   has been selected.
      *
+     * PR #355:
+     *   Signed-in users may create or update only their own `users/{uid}`
+     *   document for Google login bootstrap. Client cannot change `status`,
+     *   `provider`, `userId`, or `createdAt` on update. Project writes remain
+     *   closed.
+     *
      *   - Rules gate is UID-based: allowed iff `projects/{projectId}/
      *     members/{request.auth.uid}` exists and .status == "active".
      *   - `email` / `emailNormalized` are stored on the member doc for
@@ -79,13 +85,75 @@ service cloud.firestore {
       );
     }
 
+    // ── users/{uid} bootstrap helpers (PR #355) ───────────────────
+    // Path variable userId must be passed into helpers explicitly.
+    function userBootstrapKeys() {
+      return [
+        'userId',
+        'email',
+        'emailNormalized',
+        'displayName',
+        'photoURL',
+        'provider',
+        'status',
+        'createdAt',
+        'updatedAt',
+        'lastLoginAt',
+      ];
+    }
+    function isValidUserBootstrapCreate(userId) {
+      let data = request.resource.data;
+      return signedIn()
+          && userId == uid()
+          && data.userId == uid()
+          && data.provider == 'google'
+          && data.status == 'active'
+          && data.email is string
+          && data.emailNormalized is string
+          && data.displayName is string
+          && data.photoURL is string
+          && data.emailNormalized == data.email.lower()
+          && data.keys().hasOnly(userBootstrapKeys())
+          && data.createdAt == request.time
+          && data.updatedAt == request.time
+          && data.lastLoginAt == request.time;
+    }
+    function isValidUserBootstrapUpdate(userId) {
+      let data = request.resource.data;
+      let prev = resource.data;
+      return signedIn()
+          && userId == uid()
+          && data.userId == prev.userId
+          && data.userId == uid()
+          && data.provider == prev.provider
+          && data.status == prev.status
+          && data.createdAt == prev.createdAt
+          && data.email is string
+          && data.emailNormalized is string
+          && data.displayName is string
+          && data.photoURL is string
+          && data.emailNormalized == data.email.lower()
+          && data.updatedAt == request.time
+          && data.lastLoginAt == request.time
+          && data.diff(prev).affectedKeys().hasOnly([
+            'email',
+            'emailNormalized',
+            'displayName',
+            'photoURL',
+            'updatedAt',
+            'lastLoginAt',
+          ]);
+    }
+
     // ── users/{userId} ────────────────────────────────────────────
-    // A signed-in user can read their own /users/{uid} doc only. No
-    // one can write /users/** in this PR — user doc creation happens
-    // through a server-side bootstrap that lands in a later PR.
+    // PR #355: signed-in user may bootstrap their own users/{uid} doc.
+    // Self-read only. No delete. status/provider/createdAt are immutable
+    // from the client on update.
     match /users/{userId} {
       allow read: if signedIn() && userId == uid();
-      allow write: if false;
+      allow create: if isValidUserBootstrapCreate(userId);
+      allow update: if isValidUserBootstrapUpdate(userId);
+      allow delete: if false;
     }
 
     // ── tenants/{tenantId} ────────────────────────────────────────
