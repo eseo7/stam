@@ -86,7 +86,8 @@ service cloud.firestore {
     }
 
     // ── users/{uid} bootstrap helpers (PR #355) ───────────────────
-    function userBootstrapKeySet() {
+    // Path variable userId must be passed into helpers explicitly.
+    function userBootstrapKeys() {
       return [
         'userId',
         'email',
@@ -100,7 +101,7 @@ service cloud.firestore {
         'lastLoginAt',
       ];
     }
-    function isValidUserBootstrapCreate() {
+    function isValidUserBootstrapCreate(userId) {
       let data = request.resource.data;
       return signedIn()
           && userId == uid()
@@ -112,12 +113,12 @@ service cloud.firestore {
           && data.displayName is string
           && data.photoURL is string
           && data.emailNormalized == data.email.lower()
-          && data.keys().hasOnly(userBootstrapKeySet())
+          && data.keys().hasOnly(userBootstrapKeys())
           && data.createdAt == request.time
           && data.updatedAt == request.time
           && data.lastLoginAt == request.time;
     }
-    function isValidUserBootstrapUpdate() {
+    function isValidUserBootstrapUpdate(userId) {
       let data = request.resource.data;
       let prev = resource.data;
       return signedIn()
@@ -150,8 +151,8 @@ service cloud.firestore {
     // from the client on update.
     match /users/{userId} {
       allow read: if signedIn() && userId == uid();
-      allow create: if isValidUserBootstrapCreate();
-      allow update: if isValidUserBootstrapUpdate();
+      allow create: if isValidUserBootstrapCreate(userId);
+      allow update: if isValidUserBootstrapUpdate(userId);
       allow delete: if false;
     }
 

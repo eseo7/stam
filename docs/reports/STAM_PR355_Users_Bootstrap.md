@@ -103,3 +103,20 @@ rg 'projects/|collectionGroup' stam/js/stam.auth.js
 ## 10. Rules 배포
 
 `firestore.rules` 변경 포함. merge 후 staging rules deploy workflow 또는 maintainer 수동 배포 필요.
+
+### PR Preview Rules Deploy 실패 분류 (Run `28792477329`)
+
+| 분류 | 결과 |
+|------|------|
+| Firestore rules 문법/컴파일 | **해당 없음** — emulator compile PASS |
+| rules 함수/변수 참조 | **보정** — `userId`를 helper 인자로 명시 전달 |
+| deploy 권한/환경 | **원인** — `serviceusage.googleapis.com` 403 (`Permission denied to get service [firestore.googleapis.com]`) |
+| Firebase project/target | `stam-preview-hosting` — deploy 단계 전 API check에서 차단 |
+
+**조치 (infra, 본 PR 범위 외):** `FIREBASE_SERVICE_ACCOUNT_STAM_PREVIEW_HOSTING`에 Service Usage 조회 권한 부여, 또는 workflow에서 rules compile-only 검증 분리. `.github/workflows/**`는 본 보정 PR에서 수정하지 않음.
+
+**로컬 rules compile 검증:**
+
+```bash
+npx -y firebase-tools@13.35.1 emulators:exec --only firestore --project demo-rules-compile "echo RULES_OK"
+```
