@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="../../css/stam.shell.css">
   <link rel="stylesheet" href="../../css/stam.components.css">
   <link rel="stylesheet" href="../../css/stam.auth.css">
+  <link rel="stylesheet" href="../../css/stam.form-controls.css">
 </head>
 <body class="stam-auth-page" data-stam-auth-screen="no-project">
 
@@ -31,22 +32,25 @@
 
         <span class="status-badge s-todo">프로젝트 없음</span>
 
-        <h1 class="stam-auth-title">접속 가능한 프로젝트가 없습니다</h1>
+        <h1 class="stam-auth-title">첫 프로젝트를 만들어 주세요</h1>
 
         <p class="stam-auth-desc">
-          Google 로그인은 완료되었지만<br>
-          참여 중인 프로젝트를 찾을 수 없습니다.
+          Google 로그인은 완료되었습니다.<br>
+          새 프로젝트를 만들면 Owner 권한으로 바로 시작할 수 있습니다.
         </p>
 
         <p class="stam-auth-desc stam-auth-desc--sub">
-          STAM은 초대 기반 서비스입니다.<br>
-          프로젝트 관리자의 초대를 받은 뒤 다시 로그인해 주세요.
+          프로젝트 멤버 초대와 세부 권한 관리는 이후 단계에서 확장됩니다.
         </p>
 
-        <div class="stam-auth-state-card">
+        <div class="stam-auth-state-card" data-stam-user-info>
           <div class="stam-auth-state-card__row">
             <span class="stam-auth-state-card__label">로그인 계정</span>
-            <span class="stam-auth-state-card__value">sample@example.com</span>
+            <span class="stam-auth-state-card__value" data-stam-user-email>—</span>
+          </div>
+          <div class="stam-auth-state-card__row">
+            <span class="stam-auth-state-card__label">표시 이름</span>
+            <span class="stam-auth-state-card__value" data-stam-user-display-name>—</span>
           </div>
           <div class="stam-auth-state-card__row">
             <span class="stam-auth-state-card__label">프로젝트 연결</span>
@@ -54,8 +58,19 @@
           </div>
         </div>
 
+        <div class="stam-auth-btn-stack" data-stam-project-create-root>
+          <div class="stam-form-field">
+            <label class="stam-label" for="stam-no-project-create-name">프로젝트 이름</label>
+            <input class="stam-input" id="stam-no-project-create-name" type="text" data-stam-project-create-name placeholder="프로젝트 이름을 입력하세요" maxlength="80">
+          </div>
+          <button class="stam-btn stam-btn--lg stam-btn--primary stam-btn--block" type="button" data-stam-auth-action="create-project">
+            <span class="stam-btn__label">새 프로젝트 만들기</span>
+          </button>
+          <p class="stam-auth-helper" data-stam-project-create-message hidden></p>
+        </div>
+
         <div class="stam-auth-btn-stack">
-          <button class="stam-btn stam-btn--lg stam-btn--secondary stam-btn--block" type="button" data-stam-auth-action="sign-out">로그아웃</button>
+          <button class="stam-btn stam-btn--md stam-btn--secondary stam-btn--block" type="button" data-stam-auth-action="sign-out">로그아웃</button>
         </div>
 
         <div class="stam-auth-link-row">
@@ -71,6 +86,8 @@
   <script src="/__/firebase/8.10.1/firebase-firestore.js"></script>
   <script src="/__/firebase/init.js"></script>
   <script src="../../js/stam.auth-membership-gate.js"></script>
+  <script src="../../js/stam.auth-user-bootstrap.js"></script>
+  <script src="../../js/stam.auth-project-create.js"></script>
   <script src="../../js/stam.auth-bootstrap.js"></script>
   <script src="../../js/stam.theme.js"></script>
 

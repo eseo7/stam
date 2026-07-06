@@ -78,14 +78,49 @@ service cloud.firestore {
         resource.data.emailNormalized == authEmailNormalized()
       );
     }
+    function isSelfUserDoc(userId) {
+      return signedIn() && userId == uid();
+    }
+    function validUserBootstrapWrite() {
+      return request.resource.data.provider == 'google'
+          && request.resource.data.status == 'active'
+          && request.resource.data.email == request.auth.token.email
+          && request.resource.data.emailNormalized == authEmailNormalized();
+    }
+    function validProjectCreate() {
+      return signedIn()
+          && request.resource.data.ownerUserId == uid()
+          && request.resource.data.createdBy == uid()
+          && request.resource.data.updatedBy == uid()
+          && request.resource.data.status == 'active';
+    }
+    function validOwnerMemberCreate(projectId, memberUid) {
+      return signedIn()
+          && memberUid == uid()
+          && !exists(memberPath(projectId))
+          && get(/databases/$(database)/documents/projects/$(projectId)).data.ownerUserId == uid()
+          && request.resource.data.userId == uid()
+          && request.resource.data.projectId == projectId
+          && request.resource.data.role == 'owner'
+          && request.resource.data.status == 'active'
+          && request.resource.data.email == request.auth.token.email
+          && request.resource.data.emailNormalized == authEmailNormalized();
+    }
 
     // ── users/{userId} ────────────────────────────────────────────
-    // A signed-in user can read their own /users/{uid} doc only. No
-    // one can write /users/** in this PR — user doc creation happens
-    // through a server-side bootstrap that lands in a later PR.
+    // Signed-in users bootstrap their own profile on Google login.
+    // Disabled users cannot self-update. Status changes stay closed.
     match /users/{userId} {
-      allow read: if signedIn() && userId == uid();
-      allow write: if false;
+      allow read: if isSelfUserDoc(userId);
+      allow create: if isSelfUserDoc(userId)
+          && validUserBootstrapWrite();
+      allow update: if isSelfUserDoc(userId)
+          && resource.data.status != 'disabled'
+          && request.resource.data.status == resource.data.status
+          && request.resource.data.provider == resource.data.provider
+          && request.resource.data.email == request.auth.token.email
+          && request.resource.data.emailNormalized == authEmailNormalized();
+      allow delete: if false;
     }
 
     // ── tenants/{tenantId} ────────────────────────────────────────
@@ -101,7 +136,8 @@ service cloud.firestore {
     // Writes are closed everywhere here; role-scoped writes land later.
     match /projects/{projectId} {
       allow get, list: if canReadProject(projectId);
-      allow create, update, delete: if false;
+      allow create: if validProjectCreate();
+      allow update, delete: if false;
 
       match /members/{memberUid} {
         allow get: if signedIn() && (
@@ -112,7 +148,8 @@ service cloud.firestore {
           isOwnMembershipRecord() ||
           canReadProject(projectId)
         );
-        allow create, update, delete: if false;
+        allow create: if validOwnerMemberCreate(projectId, memberUid);
+        allow update, delete: if false;
       }
 
       match /requirements/{requirementId} {

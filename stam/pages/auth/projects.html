@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="../../css/stam.shell.css">
   <link rel="stylesheet" href="../../css/stam.components.css">
   <link rel="stylesheet" href="../../css/stam.auth.css">
+  <link rel="stylesheet" href="../../css/stam.form-controls.css">
 </head>
 <body class="stam-auth-page" data-stam-auth-screen="project-select">
 
@@ -28,12 +29,34 @@
         <h1 class="stam-auth-title">안녕하세요</h1>
         <p class="stam-auth-desc">참여 중인 프로젝트를 선택해 주세요.</p>
 
+        <div class="stam-auth-state-card" data-stam-user-info>
+          <div class="stam-auth-state-card__row">
+            <span class="stam-auth-state-card__label">로그인 계정</span>
+            <span class="stam-auth-state-card__value" data-stam-user-email>—</span>
+          </div>
+          <div class="stam-auth-state-card__row">
+            <span class="stam-auth-state-card__label">표시 이름</span>
+            <span class="stam-auth-state-card__value" data-stam-user-display-name>—</span>
+          </div>
+        </div>
+
         <div data-stam-project-list-root>
           <p class="stam-auth-helper" data-stam-project-list-loading>프로젝트 목록을 불러오는 중…</p>
           <div data-stam-project-list-cards></div>
         </div>
 
         <p class="stam-auth-helper">접근 권한이 활성화된 프로젝트만 표시됩니다. 프로젝트를 선택하면 Project Overview로 이동합니다.</p>
+
+        <div class="stam-auth-btn-stack" data-stam-project-create-root>
+          <div class="stam-form-field">
+            <label class="stam-label" for="stam-project-create-name">새 프로젝트 이름</label>
+            <input class="stam-input" id="stam-project-create-name" type="text" data-stam-project-create-name placeholder="프로젝트 이름을 입력하세요" maxlength="80">
+          </div>
+          <button class="stam-btn stam-btn--md stam-btn--secondary stam-btn--block" type="button" data-stam-auth-action="create-project">
+            <span class="stam-btn__label">새 프로젝트 만들기</span>
+          </button>
+          <p class="stam-auth-helper" data-stam-project-create-message hidden></p>
+        </div>
 
         <div class="stam-auth-link-row">
           <button class="stam-btn stam-btn--text" type="button" data-stam-auth-action="sign-out">로그아웃</button>
@@ -48,7 +71,9 @@
   <script src="/__/firebase/8.10.1/firebase-firestore.js"></script>
   <script src="/__/firebase/init.js"></script>
   <script src="../../js/stam.auth-membership-gate.js"></script>
+  <script src="../../js/stam.auth-user-bootstrap.js"></script>
   <script src="../../js/stam.auth-project-list.js"></script>
+  <script src="../../js/stam.auth-project-create.js"></script>
   <script src="../../js/stam.auth-bootstrap.js"></script>
   <script src="../../js/stam.theme.js"></script>
 
