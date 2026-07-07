@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../../css/stam.tokens.css">
   <link rel="stylesheet" href="../../css/stam.shell.css">
   <link rel="stylesheet" href="../../css/stam.components.css">
+  <link rel="stylesheet" href="../../css/stam.form-controls.css">
   <link rel="stylesheet" href="../../css/stam.auth.css">
 </head>
 <body class="stam-auth-page" data-stam-auth-screen="project-select">
@@ -38,6 +39,22 @@
         <div data-stam-project-list-root>
           <p class="stam-auth-helper" data-stam-project-list-loading>프로젝트 목록을 불러오는 중…</p>
           <div data-stam-project-list-cards></div>
+
+          <div class="stam-auth-btn-stack" data-stam-project-create-root>
+            <button class="stam-btn stam-btn--md stam-btn--secondary stam-btn--block" type="button" data-stam-project-create-show>새 프로젝트 만들기</button>
+
+            <div class="stam-auth-state-card" data-stam-project-create-panel hidden>
+              <div class="stam-form-field">
+                <label class="stam-label" for="stam-project-create-name">프로젝트 이름 <span class="req" aria-hidden="true">*</span></label>
+                <input class="stam-input" id="stam-project-create-name" type="text" data-stam-project-create-name maxlength="60" autocomplete="off" placeholder="예: 고객 포털 개편">
+              </div>
+              <p class="stam-auth-helper" data-stam-project-create-message hidden></p>
+              <div class="stam-auth-btn-stack">
+                <button class="stam-btn stam-btn--md stam-btn--primary stam-btn--block" type="button" data-stam-project-create-submit><span class="stam-btn__label">프로젝트 만들기</span></button>
+                <button class="stam-btn stam-btn--md stam-btn--secondary stam-btn--block" type="button" data-stam-project-create-cancel>취소</button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <p class="stam-auth-helper">접근 권한이 활성화된 프로젝트만 표시됩니다. 프로젝트를 선택하면 Project Overview로 이동합니다.</p>

@@ -24,7 +24,8 @@ assert.equal(/\.set\(|\.update\(|\.add\(|\.delete\(/.test(gateSource), false);
 assert.match(projectListSource, /collectionGroup\('members'\)/);
 assert.match(projectListSource, /sessionStorage\.setItem\('stam:selectedProjectId'/);
 assert.match(projectListSource, /project-overview\.html\?projectId=/);
-assert.equal(/\.set\(|\.update\(|\.add\(|\.delete\(/.test(projectListSource), false);
+assert.match(projectListSource, /createProjectWithOwner/);
+assert.equal(/requirementsService\.(create|update|softDelete)/.test(projectListSource), false);
 
 const authPages = [
   'login.html',
@@ -43,10 +44,13 @@ for (const page of authPages) {
 const projectsHtml = await readFile(path.join(AUTH_PAGES_DIR, 'projects.html'), 'utf8');
 assert.match(projectsHtml, /stam\.auth-project-list\.js/);
 
-for (const page of ['login.html', 'access-pending.html', 'access-denied.html', 'no-project.html']) {
+for (const page of ['login.html', 'access-pending.html', 'access-denied.html']) {
   const html = await readFile(path.join(AUTH_PAGES_DIR, page), 'utf8');
   assert.equal(/stam\.auth-project-list\.js/.test(html), false, `${page} must not load project list`);
 }
+
+const noProjectHtml = await readFile(path.join(AUTH_PAGES_DIR, 'no-project.html'), 'utf8');
+assert.match(noProjectHtml, /stam\.auth-project-list\.js/);
 
 function createGateContext() {
   const context = vm.createContext({
