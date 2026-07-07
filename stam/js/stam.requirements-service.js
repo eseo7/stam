@@ -16,6 +16,9 @@
     DELETE: 'requirement.delete',
   };
 
+  var WRITE_ROLES = ['owner', 'admin', 'editor'];
+  var READ_ROLES = ['owner', 'admin', 'editor', 'viewer'];
+
   var STATUS_VALUES = ['draft', 'active', 'review', 'approved', 'archived'];
   var PRIORITY_VALUES = ['low', 'normal', 'high', 'critical'];
   var VISIBILITY_VALUES = ['project', 'internal', 'customer', 'private'];
@@ -259,6 +262,45 @@
     return Promise.resolve(true);
   }
 
+  function normalizeMemberRole(role) {
+    return clean(role).toLowerCase();
+  }
+
+  function canWriteRequirements(role) {
+    return WRITE_ROLES.indexOf(normalizeMemberRole(role)) >= 0;
+  }
+
+  function canReadRequirements(role) {
+    return READ_ROLES.indexOf(normalizeMemberRole(role)) >= 0;
+  }
+
+  function actionRequiresWrite(action) {
+    return action === ACTIONS.CREATE || action === ACTIONS.UPDATE;
+  }
+
+  function createMemberRoleAuthorize(getMemberRole) {
+    var resolveRole = typeof getMemberRole === 'function'
+      ? getMemberRole
+      : function (request) {
+        var ctx = request && request.context ? request.context : {};
+        return ctx.memberRole || ctx.role || '';
+      };
+
+    return function authorize(action, request) {
+      var role = normalizeMemberRole(resolveRole(request));
+      if (action === ACTIONS.DELETE) {
+        return false;
+      }
+      if (actionRequiresWrite(action)) {
+        return canWriteRequirements(role);
+      }
+      if (action === ACTIONS.READ) {
+        return canReadRequirements(role);
+      }
+      return false;
+    };
+  }
+
   function resolveAdapter(adapter) {
     if (adapter) return adapter;
     return {
@@ -399,6 +441,8 @@
   window.STAM.requirementsService = createService();
   window.STAM.requirementsServiceContract = {
     ACTIONS: ACTIONS,
+    WRITE_ROLES: WRITE_ROLES,
+    READ_ROLES: READ_ROLES,
     createService: createService,
     normalizeRequirement: normalizeRequirement,
     validateRequirementInput: validateRequirementInput,
@@ -406,5 +450,9 @@
     buildUpdatePatch: buildUpdatePatch,
     toDomainRequirement: normalizeRequirement,
     buildAuditEvent: buildAuditEvent,
+    normalizeMemberRole: normalizeMemberRole,
+    canWriteRequirements: canWriteRequirements,
+    canReadRequirements: canReadRequirements,
+    createMemberRoleAuthorize: createMemberRoleAuthorize,
   };
 }());

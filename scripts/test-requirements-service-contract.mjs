@@ -372,6 +372,27 @@ assert.deepEqual(audit.changedFields, ['title']);
 assert.equal(audit.requestId, 'req-2');
 assert.equal(audit.source, 'test');
 
+const roleContract = window.STAM.requirementsServiceContract;
+assert.equal(JSON.stringify(roleContract.WRITE_ROLES), JSON.stringify(['owner', 'admin', 'editor']));
+assert.equal(JSON.stringify(roleContract.READ_ROLES), JSON.stringify(['owner', 'admin', 'editor', 'viewer']));
+assert.equal(roleContract.canWriteRequirements('editor'), true);
+assert.equal(roleContract.canWriteRequirements('viewer'), false);
+assert.equal(roleContract.canReadRequirements('viewer'), true);
+
+const roleAuthorize = roleContract.createMemberRoleAuthorize((request) => request.context.memberRole);
+assert.equal(roleAuthorize(roleContract.ACTIONS.CREATE, { context: { memberRole: 'admin' } }), true);
+assert.equal(roleAuthorize(roleContract.ACTIONS.UPDATE, { context: { memberRole: 'viewer' } }), false);
+assert.equal(roleAuthorize(roleContract.ACTIONS.DELETE, { context: { memberRole: 'owner' } }), false);
+
+const deniedService = window.STAM.requirementsServiceContract.createService({
+  adapter,
+  authorize: roleAuthorize,
+});
+await assert.rejects(
+  () => deniedService.create('P1', { title: 'Blocked' }, { memberRole: 'viewer' }),
+  /permission denied/,
+);
+
 const fakeFirestore = createFakeFirestore();
 const firestoreAdapter = window.STAM.requirementsFirestoreAdapter.create({ firestore: fakeFirestore });
 const adapterList = await firestoreAdapter.listByProject('P1', {});

@@ -19,10 +19,9 @@ service cloud.firestore {
      *   emailNormalized. This enables login-time routing before a projectId
      *   has been selected.
      *
-     * PR #357:
-     *   Signed-in users may atomically create `projects/{projectId}` and their own
-     *   `projects/{projectId}/members/{uid}` as owner/active. Project/member update
-     *   and delete remain closed. Artifact writes remain closed.
+     * PR #358:
+     *   Requirements write opened for active members with role owner/admin/editor.
+     *   Viewer remains read-only. Requirement delete stays closed.
      *
      *   Signed-in users may create or update only their own `users/{uid}`
      *   document for Google login bootstrap. Client cannot change `status`,
@@ -75,6 +74,16 @@ service cloud.firestore {
           && memberData(projectId).userId == uid()
           && memberData(projectId).projectId == projectId
           && memberData(projectId).status == "active";
+    }
+    function memberRole(projectId) {
+      return memberData(projectId).role;
+    }
+    function isRequirementWriter(projectId) {
+      return isActiveProjectMember(projectId) && (
+        memberRole(projectId) == "owner" ||
+        memberRole(projectId) == "admin" ||
+        memberRole(projectId) == "editor"
+      );
     }
     function canReadProject(projectId) {
       return isActiveProjectMember(projectId);
@@ -176,6 +185,129 @@ service cloud.firestore {
           && projectAfter.projectId == projectId
           && projectAfter.ownerUid == uid()
           && projectAfter.createdBy == uid();
+    }
+
+    // ── Requirements write helpers (PR #358) ──────────────────────
+    function isValidRequirementTitle(title) {
+      return title is string
+          && title.size() >= 2
+          && title.size() <= 120;
+    }
+    function isValidRequirementStatus(status) {
+      return status is string && (
+        status == 'draft' ||
+        status == 'active' ||
+        status == 'review' ||
+        status == 'approved' ||
+        status == 'archived'
+      );
+    }
+    function isValidRequirementPriority(priority) {
+      return priority is string && (
+        priority == 'low' ||
+        priority == 'normal' ||
+        priority == 'high' ||
+        priority == 'critical'
+      );
+    }
+    function isValidRequirementVisibility(visibility) {
+      return visibility is string && (
+        visibility == 'project' ||
+        visibility == 'internal' ||
+        visibility == 'customer' ||
+        visibility == 'private'
+      );
+    }
+    function requirementWriteKeys() {
+      return [
+        'id',
+        'projectId',
+        'code',
+        'title',
+        'description',
+        'status',
+        'priority',
+        'ownerUid',
+        'ownerName',
+        'createdAt',
+        'createdBy',
+        'updatedAt',
+        'updatedBy',
+        'deletedAt',
+        'deletedBy',
+        'isDeleted',
+        'version',
+        'sortOrder',
+        'tags',
+        'visibility',
+        'reviewStatus',
+        'approvalStatus',
+      ];
+    }
+    function requirementCreateCoreValid(data, requirementId) {
+      return data.id == requirementId
+          && data.projectId is string
+          && isValidRequirementTitle(data.title)
+          && isValidRequirementStatus(data.status)
+          && isValidRequirementPriority(data.priority)
+          && data.createdBy is string
+          && data.updatedBy is string
+          && data.isDeleted == false
+          && data.deletedAt == null
+          && data.deletedBy == null
+          && data.version is int
+          && data.version == 1
+          && data.keys().hasOnly(requirementWriteKeys())
+          && (!data.keys().hasAny(['code']) || data.code is string)
+          && (!data.keys().hasAny(['description']) || data.description is string)
+          && (!data.keys().hasAny(['ownerUid']) || data.ownerUid is string)
+          && (!data.keys().hasAny(['ownerName']) || data.ownerName is string)
+          && (!data.keys().hasAny(['sortOrder']) || data.sortOrder is int)
+          && (!data.keys().hasAny(['tags']) || data.tags is list)
+          && (!data.keys().hasAny(['visibility']) || isValidRequirementVisibility(data.visibility))
+          && (!data.keys().hasAny(['reviewStatus']) || data.reviewStatus is string)
+          && (!data.keys().hasAny(['approvalStatus']) || data.approvalStatus is string);
+    }
+    function isValidRequirementCreate(projectId, requirementId) {
+      let data = request.resource.data;
+      return isRequirementWriter(projectId)
+          && data.projectId == projectId
+          && requirementCreateCoreValid(data, requirementId)
+          && data.createdBy == uid()
+          && data.updatedBy == uid()
+          && data.createdAt == request.time
+          && data.updatedAt == request.time;
+    }
+    function isValidRequirementUpdate(projectId, requirementId) {
+      let data = request.resource.data;
+      let prev = resource.data;
+      return isRequirementWriter(projectId)
+          && data.id == requirementId
+          && data.projectId == projectId
+          && data.projectId == prev.projectId
+          && data.id == prev.id
+          && isValidRequirementTitle(data.title)
+          && isValidRequirementStatus(data.status)
+          && isValidRequirementPriority(data.priority)
+          && data.createdBy == prev.createdBy
+          && data.createdAt == prev.createdAt
+          && data.isDeleted == prev.isDeleted
+          && data.deletedAt == prev.deletedAt
+          && data.deletedBy == prev.deletedBy
+          && data.version is int
+          && data.version == prev.version + 1
+          && data.keys().hasOnly(requirementWriteKeys())
+          && (!data.keys().hasAny(['code']) || data.code is string)
+          && (!data.keys().hasAny(['description']) || data.description is string)
+          && (!data.keys().hasAny(['ownerUid']) || data.ownerUid is string)
+          && (!data.keys().hasAny(['ownerName']) || data.ownerName is string)
+          && (!data.keys().hasAny(['sortOrder']) || data.sortOrder is int)
+          && (!data.keys().hasAny(['tags']) || data.tags is list)
+          && (!data.keys().hasAny(['visibility']) || isValidRequirementVisibility(data.visibility))
+          && (!data.keys().hasAny(['reviewStatus']) || data.reviewStatus is string)
+          && (!data.keys().hasAny(['approvalStatus']) || data.approvalStatus is string)
+          && data.updatedBy == uid()
+          && data.updatedAt == request.time;
     }
 
     // ── users/{uid} bootstrap helpers (PR #355) ───────────────────
@@ -280,7 +412,9 @@ service cloud.firestore {
 
       match /requirements/{requirementId} {
         allow get, list: if canReadProject(projectId);
-        allow create, update, delete: if false;
+        allow create: if isValidRequirementCreate(projectId, requirementId);
+        allow update: if isValidRequirementUpdate(projectId, requirementId);
+        allow delete: if false;
       }
 
       match /wbsItems/{wbsItemId} {

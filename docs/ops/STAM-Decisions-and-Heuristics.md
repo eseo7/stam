@@ -1250,3 +1250,29 @@ PR #356까지 read-only membership gate만 완료되어 신규 사용자는 no-p
 
 - Requirements write rules PR.
 - 멤버 초대/관리 UI PR.
+
+---
+
+## 4-13. PR #358 — requirements write rules by role
+
+**일자:** 2026-07-07  
+**문서:** `firestore.rules`, `stam/js/stam.requirements-service.js`
+
+### 왜 지금 구현했나
+
+PR #357까지 프로젝트 생성·owner member 등록까지 Golden Path가 완성됐지만 산출물 write는 전부 deny 상태다. Phase 1 Gate §6 단계 1(요구사항정의서)을 열기 위해 **requirements subcollection만** role-scoped write를 먼저 개방한다. UI CRUD와 delete는 후속 PR로 분리해 rules·service contract만 검증 가능하게 한다.
+
+### 결정
+
+- Firestore: `isRequirementWriter` — active member + role ∈ {owner, admin, editor}.
+- create/update validation: `data.id == requirementId`, keys `hasOnly(requirementWriteKeys())`, title **2–120자**, `status`/`priority` enum 필수, audit fields 보존·갱신.
+- delete: **deny 유지** (soft delete rules 후속).
+- `viewer`: read only — write rules + service `createMemberRoleAuthorize` 모두 deny.
+- Service: role authorize skeleton만 추가; default runtime service는 allow-all 유지 (UI wiring 전).
+- functionalSpecs / wbsItems / screenSpecs / screenFields / screenActions / artifactLinks write: **계속 deny**.
+
+### 다시 열 조건
+
+- Requirements CRUD UI wiring PR (service + boards UI).
+- requirement delete rules PR.
+- staging emulator/browser QA with role matrix (owner vs viewer write deny).
