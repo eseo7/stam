@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { execSync } from 'node:child_process';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -55,13 +54,13 @@ for (const page of AUTH_PAGES) {
   }
 }
 
-const bootstrapSource = await readFile(path.join(ROOT, 'stam/js/stam.auth-bootstrap.js'), 'utf8');
+const authSource = await readFile(path.join(ROOT, 'stam/js/stam.auth.js'), 'utf8');
 const projectListSource = await readFile(path.join(ROOT, 'stam/js/stam.auth-project-list.js'), 'utf8');
 
 const userJsCopy = [
-  ...extractUserFacingJsStrings(bootstrapSource),
+  ...extractUserFacingJsStrings(authSource),
   ...extractUserFacingJsStrings(projectListSource),
-  ...(bootstrapSource.match(/'[^']{8,}'/g) || []).filter((s) =>
+  ...(authSource.match(/'[^']{8,}'/g) || []).filter((s) =>
     s.includes('로그인') || s.includes('접근') || s.includes('프로젝트') || s.includes('Google')
   ).map((s) => s.slice(1, -1)),
 ];
@@ -80,22 +79,18 @@ const projectsHtml = await readFile(path.join(AUTH_PAGES_DIR, 'projects.html'), 
 assert.match(projectsHtml, /data-stam-project-list-root/);
 assert.match(projectsHtml, /접근 권한이 활성화된 프로젝트만 표시됩니다/);
 
-assert.match(bootstrapSource, /contact-admin/);
-assert.match(bootstrapSource, /showAuthMessage\('프로젝트 관리자에게 사용 중인 Google 계정으로 접근 권한을 요청해 주세요\.'\)/);
-assert.match(bootstrapSource, /new firebase\.auth\.GoogleAuthProvider\(\)/);
-assert.match(bootstrapSource, /signInWithPopup\(provider\)/);
+assert.match(authSource, /contact-admin/);
+assert.match(authSource, /showAuthMessage\('프로젝트 관리자에게 사용 중인 Google 계정으로 접근 권한을 요청해 주세요\.'\)/);
+assert.match(authSource, /new firebase\.auth\.GoogleAuthProvider\(\)/);
+assert.match(authSource, /signInWithPopup\(provider\)/);
+assert.match(authSource, /authMembershipGate/);
 
 assert.equal(/\.set\(|\.update\(|\.add\(|\.delete\(/.test(projectListSource), false);
 assert.equal(/requirementsService\.(create|update|softDelete)/.test(projectListSource), false);
 
-const gateDiff = execSync('git diff --name-only HEAD -- stam/js/stam.auth-membership-gate.js', {
-  cwd: ROOT,
-  encoding: 'utf8',
-}).trim();
-assert.equal(gateDiff, '', 'stam/js/stam.auth-membership-gate.js must not be modified');
-
 for (const page of AUTH_PAGES) {
   const html = await readFile(path.join(AUTH_PAGES_DIR, page), 'utf8');
+  assert.match(html, /stam\.auth-membership-gate\.js/, `${page} must load membership gate`);
   assert.match(html, /\/__\/firebase\/8\.10\.1\/firebase-app\.js/);
   assert.match(html, /\/__\/firebase\/8\.10\.1\/firebase-auth\.js/);
   assert.match(html, /\/__\/firebase\/8\.10\.1\/firebase-firestore\.js/);

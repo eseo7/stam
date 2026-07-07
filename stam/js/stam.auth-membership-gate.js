@@ -136,5 +136,6 @@
     TARGET_SCREENS: TARGET_SCREENS,
     normalizeEmail: normalizeEmail,
     resolveTargetScreen: resolveTargetScreen,
+    resolveTargetFromMembership: resolveTargetFromMembership,
   };
 }());

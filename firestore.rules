@@ -19,7 +19,11 @@ service cloud.firestore {
      *   emailNormalized. This enables login-time routing before a projectId
      *   has been selected.
      *
-     * PR #355:
+     * PR #356:
+ *   Client membership gate read wired in stam.auth.js +
+ *   stam.auth-project-list.js. Rules unchanged from PR #355
+ *   (collectionGroup members discovery + active project read).
+ *
      *   Signed-in users may create or update only their own `users/{uid}`
      *   document for Google login bootstrap. Client cannot change `status`,
      *   `provider`, `userId`, or `createdAt` on update. Project writes remain
