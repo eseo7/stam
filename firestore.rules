@@ -19,10 +19,9 @@ service cloud.firestore {
      *   emailNormalized. This enables login-time routing before a projectId
      *   has been selected.
      *
-     * PR #357:
-     *   Signed-in users may atomically create `projects/{projectId}` and their own
-     *   `projects/{projectId}/members/{uid}` as owner/active. Project/member update
-     *   and delete remain closed. Artifact writes remain closed.
+     * PR #358:
+     *   Requirements write opened for active members with role owner/admin/editor.
+     *   Viewer remains read-only. Requirement delete stays closed.
      *
      *   Signed-in users may create or update only their own `users/{uid}`
      *   document for Google login bootstrap. Client cannot change `status`,
@@ -75,6 +74,16 @@ service cloud.firestore {
           && memberData(projectId).userId == uid()
           && memberData(projectId).projectId == projectId
           && memberData(projectId).status == "active";
+    }
+    function memberRole(projectId) {
+      return memberData(projectId).role;
+    }
+    function isRequirementWriter(projectId) {
+      return isActiveProjectMember(projectId) && (
+        memberRole(projectId) == "owner" ||
+        memberRole(projectId) == "admin" ||
+        memberRole(projectId) == "editor"
+      );
     }
     function canReadProject(projectId) {
       return isActiveProjectMember(projectId);
@@ -176,6 +185,47 @@ service cloud.firestore {
           && projectAfter.projectId == projectId
           && projectAfter.ownerUid == uid()
           && projectAfter.createdBy == uid();
+    }
+
+    // ── Requirements write helpers (PR #358) ──────────────────────
+    function isValidRequirementTitle(title) {
+      return title is string
+          && title.size() >= 1
+          && title.size() <= 200;
+    }
+    function requirementCreateCoreValid(data) {
+      return data.projectId is string
+          && isValidRequirementTitle(data.title)
+          && data.createdBy is string
+          && data.updatedBy is string
+          && (!data.keys().hasAny(['isDeleted']) || data.isDeleted == false)
+          && (!data.keys().hasAny(['deletedAt']) || data.deletedAt == null)
+          && (!data.keys().hasAny(['deletedBy']) || data.deletedBy == null);
+    }
+    function isValidRequirementCreate(projectId) {
+      let data = request.resource.data;
+      return isRequirementWriter(projectId)
+          && data.projectId == projectId
+          && requirementCreateCoreValid(data)
+          && data.createdBy == uid()
+          && data.updatedBy == uid()
+          && data.createdAt == request.time
+          && data.updatedAt == request.time;
+    }
+    function isValidRequirementUpdate(projectId) {
+      let data = request.resource.data;
+      let prev = resource.data;
+      return isRequirementWriter(projectId)
+          && data.projectId == projectId
+          && data.projectId == prev.projectId
+          && isValidRequirementTitle(data.title)
+          && data.createdBy == prev.createdBy
+          && data.createdAt == prev.createdAt
+          && data.isDeleted == prev.isDeleted
+          && data.deletedAt == prev.deletedAt
+          && data.deletedBy == prev.deletedBy
+          && data.updatedBy == uid()
+          && data.updatedAt == request.time;
     }
 
     // ── users/{uid} bootstrap helpers (PR #355) ───────────────────
@@ -280,7 +330,9 @@ service cloud.firestore {
 
       match /requirements/{requirementId} {
         allow get, list: if canReadProject(projectId);
-        allow create, update, delete: if false;
+        allow create: if isValidRequirementCreate(projectId);
+        allow update: if isValidRequirementUpdate(projectId);
+        allow delete: if false;
       }
 
       match /wbsItems/{wbsItemId} {
