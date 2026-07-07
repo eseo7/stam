@@ -1,9 +1,12 @@
 /* ============================================================
  * STAM Auth — Google Provider + users/{uid} bootstrap (PR #354–#355)
+ *        + membership gate routing (PR #356)
  * Scope: sign-in/out, auth state, route guard, user display,
- *        users/{uid} Firestore create/update on login.
- * No project/members Firestore. No membership gate in this phase.
- * Depends: /__/firebase/init.js (auto-init), firebase-auth/firestore v8
+ *        users/{uid} Firestore create/update on login,
+ *        membership gate → auth screen routing (read-only).
+ * Project list rendering: stam.auth-project-list.js
+ * Depends: /__/firebase/init.js (auto-init), firebase-auth/firestore v8,
+ *          stam.auth-membership-gate.js
  * ============================================================ */
 (function () {
   'use strict';
@@ -205,21 +208,26 @@
     });
   }
 
-  function renderProjectSelectSkeleton() {
-    if (getScreen() !== 'project-select') return;
-
-    var loading = document.querySelector('[data-stam-project-list-loading]');
-    if (loading) {
-      loading.textContent = '프로젝트 목록 연결은 다음 단계에서 제공됩니다.';
-      loading.removeAttribute('data-stam-project-list-loading');
-      loading.setAttribute('data-stam-project-list-skeleton', '');
+  function applyMembershipRouteGuard(screen, targetScreen) {
+    if (targetScreen === screen) {
+      return;
     }
 
-    document.querySelectorAll('[data-stam-auth-action="create-project"]').forEach(function (btn) {
-      btn.disabled = true;
-      btn.classList.add('is-disabled');
-      btn.setAttribute('aria-disabled', 'true');
-    });
+    if (screen === 'login') {
+      redirectTo(targetScreen);
+      return;
+    }
+
+    if (screen === 'project-select') {
+      if (targetScreen !== 'project-select') {
+        redirectTo(targetScreen);
+      }
+      return;
+    }
+
+    if (targetScreen === 'project-select') {
+      redirectTo(targetScreen);
+    }
   }
 
   function handleSignedOut(screen) {
@@ -228,19 +236,22 @@
     }
   }
 
+  function resolveMembershipTarget(user) {
+    var gate = window.STAM && window.STAM.authMembershipGate;
+    if (!gate || typeof gate.resolveTargetScreen !== 'function') {
+      return Promise.resolve('project-select');
+    }
+    return gate.resolveTargetScreen(user);
+  }
+
   function handleSignedIn(user, screen) {
     bootstrapUserDoc(user)
       .then(function () {
         renderAuthUser(user);
-
-        if (screen === 'login') {
-          redirectTo('project-select');
-          return;
-        }
-
-        if (screen === 'project-select') {
-          renderProjectSelectSkeleton();
-        }
+        return resolveMembershipTarget(user);
+      })
+      .then(function (targetScreen) {
+        applyMembershipRouteGuard(screen, targetScreen);
       })
       .catch(function () {
         if (screen === 'login') {
@@ -250,9 +261,15 @@
 
         renderAuthUser(user);
 
-        if (screen === 'project-select') {
-          renderProjectSelectSkeleton();
-        }
+        resolveMembershipTarget(user)
+          .then(function (targetScreen) {
+            applyMembershipRouteGuard(screen, targetScreen);
+          })
+          .catch(function () {
+            if (screen !== 'login') {
+              showAuthMessage('접근 권한 확인 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+            }
+          });
       });
   }
 

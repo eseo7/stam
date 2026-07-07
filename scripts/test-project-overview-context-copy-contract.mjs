@@ -55,12 +55,6 @@ const guardDiff = execSync('git diff --name-only HEAD -- stam/js/stam.project-co
 }).trim();
 assert.equal(guardDiff, '', 'stam/js/stam.project-context-guard.js must not be modified');
 
-const gateDiff = execSync('git diff --name-only HEAD -- stam/js/stam.auth-membership-gate.js', {
-  cwd: ROOT,
-  encoding: 'utf8',
-}).trim();
-assert.equal(gateDiff, '', 'stam/js/stam.auth-membership-gate.js must not be modified');
-
 const navDataDiff = execSync('git diff --name-only HEAD -- stam/js/stam.nav-data.js', {
   cwd: ROOT,
   encoding: 'utf8',

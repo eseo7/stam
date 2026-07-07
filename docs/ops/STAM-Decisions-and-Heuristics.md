@@ -1202,3 +1202,27 @@ PR #354 Skeleton은 Firestore 없이 Auth만 연결했다. Technical Plan Golden
 
 - membership gate PR에서 `collectionGroup('members')` read routing 복원.
 - rules 배포 후 staging에서 신규 Google 계정 login → `users/{uid}` doc 생성 QA.
+
+---
+
+## 4-11. PR #356 — membership gate + project list Firestore read
+
+**일자:** 2026-07-07  
+**문서:** `stam/js/stam.auth.js`, `stam/js/stam.auth-membership-gate.js`, `stam/js/stam.auth-project-list.js`, auth 5 HTML
+
+### 왜 지금 구현했나
+
+PR #355까지 `users/{uid}` bootstrap만 완료되어 로그인 후 skeleton으로 `projects.html`에 고정 redirect됐다. Golden Path 4–6단계(membership gate → 프로젝트 목록 → 선택 → Overview)를 열지 않으면 beta access matrix QA와 Workspace 진입이 불가능하다.
+
+### 결정
+
+- `stam.auth.js`에서 bootstrap 후 `STAM.authMembershipGate.resolveTargetScreen` 호출 → auth 5화면 분기.
+- `stam.auth-project-list.js`로 active membership 프로젝트 카드만 Firestore read 후 렌더.
+- 프로젝트 선택 시 `sessionStorage` (`stam:selectedProjectId`) + `project-overview.html?projectId=` 이동.
+- Firestore write 범위는 PR #355와 동일 (`users/{uid}` only).
+- 프로젝트/members create·update는 **후속 PR (A2)**.
+
+### 다시 열 조건
+
+- 프로젝트 생성 PR에서 `projects/{projectId}` + `members/{uid}` owner write rules + UI.
+- staging에서 P1–P8 access matrix browser QA.

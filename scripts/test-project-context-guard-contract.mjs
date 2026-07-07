@@ -45,12 +45,6 @@ const navDataDiff = execSync('git diff --name-only HEAD -- stam/js/stam.nav-data
 }).trim();
 assert.equal(navDataDiff, '', 'stam/js/stam.nav-data.js must not be modified');
 
-const gateDiff = execSync('git diff --name-only HEAD -- stam/js/stam.auth-membership-gate.js', {
-  cwd: ROOT,
-  encoding: 'utf8',
-}).trim();
-assert.equal(gateDiff, '', 'stam/js/stam.auth-membership-gate.js must not be modified');
-
 function createGuardContext(options) {
   options = options || {};
   const storage = Object.assign({}, options.storage || {});
