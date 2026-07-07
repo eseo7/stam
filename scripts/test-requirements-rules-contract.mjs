@@ -11,9 +11,31 @@ const serviceSource = await readFile(path.join(ROOT, 'stam/js/stam.requirements-
 assert.match(rulesSource, /PR #358/);
 assert.match(rulesSource, /function memberRole\(projectId\)/);
 assert.match(rulesSource, /function isRequirementWriter\(projectId\)/);
-assert.match(rulesSource, /function isValidRequirementCreate\(projectId\)/);
-assert.match(rulesSource, /function isValidRequirementUpdate\(projectId\)/);
+assert.match(rulesSource, /function isValidRequirementCreate\(projectId, requirementId\)/);
+assert.match(rulesSource, /function isValidRequirementUpdate\(projectId, requirementId\)/);
 assert.match(rulesSource, /function isValidRequirementTitle\(title\)/);
+assert.match(rulesSource, /function isValidRequirementStatus\(status\)/);
+assert.match(rulesSource, /function isValidRequirementPriority\(priority\)/);
+assert.match(rulesSource, /function requirementWriteKeys\(\)/);
+assert.match(rulesSource, /data\.id == requirementId/);
+assert.match(rulesSource, /data\.keys\(\)\.hasOnly\(requirementWriteKeys\(\)\)/);
+assert.match(rulesSource, /title\.size\(\) >= 2/);
+assert.match(rulesSource, /title\.size\(\) <= 120/);
+assert.equal(/title\.size\(\) <= 200/.test(rulesSource), false, 'title max must not stay at 200');
+
+const requirementHelpers = rulesSource.match(
+  /\/\/ ── Requirements write helpers \(PR #358\)[\s\S]*?\/\/ ── users\/\{uid\} bootstrap helpers/,
+);
+assert.ok(requirementHelpers, 'requirements helper block must exist');
+const helperBlock = requirementHelpers[0];
+assert.match(helperBlock, /status == 'draft'/);
+assert.match(helperBlock, /status == 'archived'/);
+assert.match(helperBlock, /priority == 'critical'/);
+assert.match(helperBlock, /'id',\s*\n\s*'projectId',\s*\n\s*'code',\s*\n\s*'title'/);
+assert.match(helperBlock, /isValidRequirementStatus\(data\.status\)/);
+assert.match(helperBlock, /isValidRequirementPriority\(data\.priority\)/);
+assert.match(helperBlock, /data\.version == 1/);
+assert.match(helperBlock, /data\.version == prev\.version \+ 1/);
 
 // ── Requirements match block ─────────────────────────────────────
 assert.match(
@@ -22,11 +44,11 @@ assert.match(
 );
 assert.match(
   rulesSource,
-  /match \/requirements\/\{requirementId\}[\s\S]*allow create: if isValidRequirementCreate\(projectId\);/,
+  /match \/requirements\/\{requirementId\}[\s\S]*allow create: if isValidRequirementCreate\(projectId, requirementId\);/,
 );
 assert.match(
   rulesSource,
-  /match \/requirements\/\{requirementId\}[\s\S]*allow update: if isValidRequirementUpdate\(projectId\);/,
+  /match \/requirements\/\{requirementId\}[\s\S]*allow update: if isValidRequirementUpdate\(projectId, requirementId\);/,
 );
 assert.match(
   rulesSource,

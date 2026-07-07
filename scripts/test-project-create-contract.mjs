@@ -25,7 +25,7 @@ assert.match(rulesSource, /isValidProjectCreate\(projectId\)/);
 assert.match(rulesSource, /isValidOwnerMemberCreate\(projectId, memberUid\)/);
 assert.match(rulesSource, /allow create: if isValidProjectCreate\(projectId\)/);
 assert.match(rulesSource, /allow create: if isValidOwnerMemberCreate\(projectId, memberUid\)/);
-assert.match(rulesSource, /match \/requirements\/\{requirementId\}[\s\S]*allow create: if isValidRequirementCreate\(projectId\);/);
+assert.match(rulesSource, /match \/requirements\/\{requirementId\}[\s\S]*allow create: if isValidRequirementCreate\(projectId, requirementId\);/);
 assert.match(rulesSource, /match \/requirements\/\{requirementId\}[\s\S]*allow delete: if false;/);
 
 assert.match(projectsHtml, /data-stam-project-create-show/);

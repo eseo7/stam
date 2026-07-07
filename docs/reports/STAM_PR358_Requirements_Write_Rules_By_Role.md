@@ -56,9 +56,26 @@ PR #357 project create 이후, `projects/{projectId}/requirements/{requirementId
 |--------|------|
 | `memberRole(projectId)` | active member doc의 `role` |
 | `isRequirementWriter(projectId)` | active + role ∈ {owner, admin, editor} |
-| `isValidRequirementTitle(title)` | string, 1–200자 |
-| `isValidRequirementCreate(projectId)` | writer + `projectId` 일치 + `createdBy`/`updatedBy` == uid + timestamps |
-| `isValidRequirementUpdate(projectId)` | writer + immutable fields 보존 (`createdBy`, `createdAt`, soft-delete fields) |
+| `isValidRequirementTitle(title)` | string, **2–120자** |
+| `isValidRequirementStatus(status)` | enum: draft / active / review / approved / archived |
+| `isValidRequirementPriority(priority)` | enum: low / normal / high / critical |
+| `requirementWriteKeys()` | payload key whitelist (service domain model 기준) |
+| `isValidRequirementCreate(projectId, requirementId)` | writer + `data.id == requirementId` + keys whitelist + status/priority 필수 |
+| `isValidRequirementUpdate(projectId, requirementId)` | writer + immutable fields 보존 + version +1 + keys whitelist |
+
+### Create payload 필수 조건
+
+| 항목 | 검증 |
+|------|------|
+| `id` | == path `requirementId` |
+| `projectId` | == path `projectId` |
+| `title` | 2–120자 string |
+| `status` | service enum |
+| `priority` | service enum |
+| `version` | `1` |
+| `isDeleted` | `false` |
+| `deletedAt` / `deletedBy` | `null` |
+| keys | `hasOnly(requirementWriteKeys())` — 임의 필드 주입 금지 |
 
 ## 6. Service skeleton
 
