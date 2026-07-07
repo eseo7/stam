@@ -1,7 +1,6 @@
 /* ============================================================
- * STAM Auth Project List — Firestore read-only (project-select)
- * Scope: list active memberships + project docs, render cards.
- * No Firestore writes. Project Overview navigation enabled (read-only guard on target page).
+ * STAM Auth Project List — Firestore read + project create (PR #356–#357)
+ * Scope: list active memberships, render cards, create project + owner member.
  * Depends: firebase-firestore v8, stam.auth-membership-gate patterns
  * ============================================================ */
 (function () {
@@ -13,6 +12,9 @@
     editor: { className: 'guide', label: 'Editor' },
     viewer: { className: 'guide', label: 'Viewer' },
   };
+
+  var PROJECT_NAME_MIN = 2;
+  var PROJECT_NAME_MAX = 60;
 
   function getScreen() {
     var body = document.body;
@@ -143,6 +145,84 @@
     });
   }
 
+  function validateProjectName(rawName) {
+    var name = String(rawName == null ? '' : rawName).trim();
+    if (name.length < PROJECT_NAME_MIN) {
+      return { ok: false, message: '프로젝트 이름은 2자 이상 입력해 주세요.' };
+    }
+    if (name.length > PROJECT_NAME_MAX) {
+      return { ok: false, message: '프로젝트 이름은 60자 이하로 입력해 주세요.' };
+    }
+    return { ok: true, value: name };
+  }
+
+  function buildTenantId(uid) {
+    var prefix = String(uid || '').slice(0, 8);
+    return prefix ? 'personal-' + prefix : 'default';
+  }
+
+  function createProjectWithOwner(user, projectName) {
+    var db = getFirestore();
+    if (!db || !user || !user.uid) {
+      return Promise.reject(new Error('Firestore or user unavailable'));
+    }
+
+    var validation = validateProjectName(projectName);
+    if (!validation.ok) {
+      return Promise.reject(new Error(validation.message));
+    }
+
+    var trimmedName = validation.value;
+    var email = user.email || '';
+    if (!email) {
+      return Promise.reject(new Error('로그인 계정 이메일을 확인할 수 없습니다.'));
+    }
+
+    var projectRef = db.collection('projects').doc();
+    var projectId = projectRef.id;
+    var memberRef = projectRef.collection('members').doc(user.uid);
+    var now = firebase.firestore.FieldValue.serverTimestamp();
+    var tenantId = buildTenantId(user.uid);
+    var emailNormalized = normalizeEmail(email);
+
+    var batch = db.batch();
+    batch.set(projectRef, {
+      projectId: projectId,
+      projectName: trimmedName,
+      name: trimmedName,
+      status: 'active',
+      tenantId: tenantId,
+      ownerUid: user.uid,
+      ownerEmail: email,
+      createdBy: user.uid,
+      createdAt: now,
+      updatedAt: now,
+      lastOpenedAt: now,
+    });
+    batch.set(memberRef, {
+      userId: user.uid,
+      projectId: projectId,
+      projectName: trimmedName,
+      tenantId: tenantId,
+      email: email,
+      emailNormalized: emailNormalized,
+      displayName: user.displayName || '',
+      role: 'owner',
+      status: 'active',
+      joinedAt: now,
+      createdAt: now,
+      updatedAt: now,
+      createdBy: user.uid,
+    });
+
+    return batch.commit().then(function () {
+      return {
+        projectId: projectId,
+        projectName: trimmedName,
+      };
+    });
+  }
+
   function projectInitials(name) {
     var text = String(name || '').trim();
     if (!text) return 'PR';
@@ -242,7 +322,7 @@
     hideLoading(root);
 
     if (!projects.length) {
-      setLoading(root, '접근 가능한 프로젝트가 없습니다. 초대 상태를 확인해 주세요.');
+      setLoading(root, '접근 가능한 프로젝트가 없습니다. 새 프로젝트를 만들거나 초대 상태를 확인해 주세요.');
       return;
     }
 
@@ -255,6 +335,95 @@
     var cardsHost = root.querySelector('[data-stam-project-list-cards]');
     if (cardsHost) clearNode(cardsHost);
     setLoading(root, message);
+  }
+
+  function setCreateMessage(root, message) {
+    var el = root.querySelector('[data-stam-project-create-message]');
+    if (!el) return;
+    if (!message) {
+      el.textContent = '';
+      el.hidden = true;
+      return;
+    }
+    el.textContent = message;
+    el.hidden = false;
+  }
+
+  function setCreatePanelOpen(root, open) {
+    var panel = root.querySelector('[data-stam-project-create-panel]');
+    var showBtn = root.querySelector('[data-stam-project-create-show]');
+    if (panel) panel.hidden = !open;
+    if (showBtn) showBtn.hidden = !!open;
+  }
+
+  function setCreateBusy(root, busy) {
+    root.querySelectorAll('[data-stam-project-create-submit], [data-stam-project-create-cancel], [data-stam-project-create-show]').forEach(function (btn) {
+      btn.disabled = !!busy;
+      btn.classList.toggle('is-disabled', !!busy);
+    });
+    var submit = root.querySelector('[data-stam-project-create-submit]');
+    if (submit) {
+      var label = submit.querySelector('.stam-btn__label');
+      if (label) {
+        label.textContent = busy ? '프로젝트 만드는 중…' : '프로젝트 만들기';
+      } else {
+        submit.textContent = busy ? '프로젝트 만드는 중…' : '프로젝트 만들기';
+      }
+    }
+  }
+
+  function bindProjectCreateHandlers(root, user) {
+    if (root.getAttribute('data-stam-project-create-bound') === 'true') {
+      return;
+    }
+    root.setAttribute('data-stam-project-create-bound', 'true');
+
+    var nameInput = root.querySelector('[data-stam-project-create-name]');
+
+    root.addEventListener('click', function (event) {
+      var showBtn = event.target.closest('[data-stam-project-create-show]');
+      if (showBtn && !showBtn.disabled) {
+        setCreateMessage(root, '');
+        setCreatePanelOpen(root, true);
+        if (nameInput) nameInput.focus();
+        return;
+      }
+
+      var cancelBtn = event.target.closest('[data-stam-project-create-cancel]');
+      if (cancelBtn && !cancelBtn.disabled) {
+        setCreateMessage(root, '');
+        setCreatePanelOpen(root, false);
+        if (nameInput) nameInput.value = '';
+        return;
+      }
+
+      var submitBtn = event.target.closest('[data-stam-project-create-submit]');
+      if (!submitBtn || submitBtn.disabled) return;
+
+      var rawName = nameInput ? nameInput.value : '';
+      var validation = validateProjectName(rawName);
+      if (!validation.ok) {
+        setCreateMessage(root, validation.message);
+        return;
+      }
+
+      setCreateMessage(root, '');
+      setCreateBusy(root, true);
+
+      createProjectWithOwner(user, validation.value)
+        .then(function (created) {
+          openProjectOverview(created.projectId, created.projectName);
+        })
+        .catch(function (err) {
+          var message = (err && err.message)
+            ? err.message
+            : '프로젝트를 만들지 못했습니다. 잠시 후 다시 시도해 주세요.';
+          setCreateMessage(root, message);
+        })
+        .finally(function () {
+          setCreateBusy(root, false);
+        });
+    });
   }
 
   function initProjectList() {
@@ -274,6 +443,7 @@
     auth.onAuthStateChanged(function (user) {
       if (!user) return;
 
+      bindProjectCreateHandlers(root, user);
       setLoading(root, '프로젝트 목록을 불러오는 중…');
 
       loadActiveProjects(user)
@@ -286,11 +456,39 @@
     });
   }
 
-  document.addEventListener('DOMContentLoaded', initProjectList);
+  function initProjectCreateOnly() {
+    if (getScreen() !== 'no-project') return;
+
+    var root = document.querySelector('[data-stam-project-create-root]');
+    if (!root) return;
+
+    var auth = getAuth();
+    if (!auth) {
+      setCreateMessage(root, '로그인 기능을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      return;
+    }
+
+    auth.onAuthStateChanged(function (user) {
+      if (!user) return;
+      bindProjectCreateHandlers(root, user);
+      setCreatePanelOpen(root, true);
+    });
+  }
+
+  function initAuthProjectList() {
+    initProjectList();
+    initProjectCreateOnly();
+  }
+
+  document.addEventListener('DOMContentLoaded', initAuthProjectList);
 
   window.STAM = window.STAM || {};
   window.STAM.authProjectList = {
     loadActiveProjects: loadActiveProjects,
     renderProjectList: renderProjectList,
+    validateProjectName: validateProjectName,
+    buildTenantId: buildTenantId,
+    createProjectWithOwner: createProjectWithOwner,
+    openProjectOverview: openProjectOverview,
   };
 }());

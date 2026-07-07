@@ -19,11 +19,11 @@ service cloud.firestore {
      *   emailNormalized. This enables login-time routing before a projectId
      *   has been selected.
      *
-     * PR #356:
- *   Client membership gate read wired in stam.auth.js +
- *   stam.auth-project-list.js. Rules unchanged from PR #355
- *   (collectionGroup members discovery + active project read).
- *
+     * PR #357:
+     *   Signed-in users may atomically create `projects/{projectId}` and their own
+     *   `projects/{projectId}/members/{uid}` as owner/active. Project/member update
+     *   and delete remain closed. Artifact writes remain closed.
+     *
      *   Signed-in users may create or update only their own `users/{uid}`
      *   document for Google login bootstrap. Client cannot change `status`,
      *   `provider`, `userId`, or `createdAt` on update. Project writes remain
@@ -87,6 +87,95 @@ service cloud.firestore {
         resource.data.userId == uid() ||
         resource.data.emailNormalized == authEmailNormalized()
       );
+    }
+
+    // ── Project create helpers (PR #357) ─────────────────────────
+    function projectDocPath(projectId) {
+      return /databases/$(database)/documents/projects/$(projectId);
+    }
+    function projectCreateKeys() {
+      return [
+        'projectId',
+        'projectName',
+        'name',
+        'status',
+        'tenantId',
+        'ownerUid',
+        'ownerEmail',
+        'createdBy',
+        'createdAt',
+        'updatedAt',
+        'lastOpenedAt',
+      ];
+    }
+    function isValidProjectName(name) {
+      return name is string
+          && name.size() >= 2
+          && name.size() <= 60;
+    }
+    function isValidProjectCreate(projectId) {
+      let data = request.resource.data;
+      return signedIn()
+          && !exists(projectDocPath(projectId))
+          && data.projectId == projectId
+          && data.status == 'active'
+          && data.ownerUid == uid()
+          && data.createdBy == uid()
+          && data.ownerEmail is string
+          && data.ownerEmail == request.auth.token.email
+          && data.tenantId is string
+          && data.tenantId.size() >= 1
+          && isValidProjectName(data.projectName)
+          && isValidProjectName(data.name)
+          && data.name == data.projectName
+          && data.keys().hasOnly(projectCreateKeys())
+          && data.createdAt == request.time
+          && data.updatedAt == request.time
+          && data.lastOpenedAt == request.time;
+    }
+    function ownerMemberCreateKeys() {
+      return [
+        'userId',
+        'projectId',
+        'projectName',
+        'tenantId',
+        'email',
+        'emailNormalized',
+        'displayName',
+        'role',
+        'status',
+        'joinedAt',
+        'createdAt',
+        'updatedAt',
+        'createdBy',
+      ];
+    }
+    function isValidOwnerMemberCreate(projectId, memberUid) {
+      let data = request.resource.data;
+      let projectAfter = getAfter(projectDocPath(projectId)).data;
+      return signedIn()
+          && memberUid == uid()
+          && !exists(memberPath(projectId))
+          && data.userId == uid()
+          && data.projectId == projectId
+          && data.role == 'owner'
+          && data.status == 'active'
+          && data.createdBy == uid()
+          && data.email is string
+          && data.emailNormalized is string
+          && data.emailNormalized == data.email.lower()
+          && data.email == request.auth.token.email
+          && data.displayName is string
+          && data.tenantId == projectAfter.tenantId
+          && data.projectName == projectAfter.projectName
+          && isValidProjectName(data.projectName)
+          && data.keys().hasOnly(ownerMemberCreateKeys())
+          && data.joinedAt == request.time
+          && data.createdAt == request.time
+          && data.updatedAt == request.time
+          && projectAfter.projectId == projectId
+          && projectAfter.ownerUid == uid()
+          && projectAfter.createdBy == uid();
     }
 
     // ── users/{uid} bootstrap helpers (PR #355) ───────────────────
@@ -173,7 +262,8 @@ service cloud.firestore {
     // Writes are closed everywhere here; role-scoped writes land later.
     match /projects/{projectId} {
       allow get, list: if canReadProject(projectId);
-      allow create, update, delete: if false;
+      allow create: if isValidProjectCreate(projectId);
+      allow update, delete: if false;
 
       match /members/{memberUid} {
         allow get: if signedIn() && (
@@ -184,7 +274,8 @@ service cloud.firestore {
           isOwnMembershipRecord() ||
           canReadProject(projectId)
         );
-        allow create, update, delete: if false;
+        allow create: if isValidOwnerMemberCreate(projectId, memberUid);
+        allow update, delete: if false;
       }
 
       match /requirements/{requirementId} {
