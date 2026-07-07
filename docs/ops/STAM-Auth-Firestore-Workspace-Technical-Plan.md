@@ -379,8 +379,8 @@ Auth(A1·A2)는 Requirements write(1)와 **병렬 가능**하나, Golden Path QA
 
 후속 Auth PR 묶음이 아래를 만족하면 **Auth/Workspace 기술 기준 구현 완료**로 판정한다.
 
-- [ ] Google 로그인 → `users/{uid}` upsert (수동 Console 불필요)
-- [x] membership gate 5분기 (P1–P8 beta matrix) — **PR #356 client routing**
+- [x] Google 로그인 → `users/{uid}` upsert (PR #355)
+- [x] membership gate client routing 5분기 (PR #356)
 - [ ] 프로젝트 생성 → owner/active member 자동 등록
 - [x] 프로젝트 선택 → Overview → 산출물 화면 `projectId` 유지 (read path)
 - [ ] membership gate 5분기 staging QA (P1–P8 beta matrix) PASS
