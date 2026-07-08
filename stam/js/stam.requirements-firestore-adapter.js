@@ -151,16 +151,11 @@
       });
     }
 
-    function softDelete(projectId, requirementId, patch) {
-      return update(projectId, requirementId, patch);
-    }
-
     return {
       listByProject: listByProject,
       getById: getById,
       create: create,
       update: update,
-      softDelete: softDelete,
     };
   }
 

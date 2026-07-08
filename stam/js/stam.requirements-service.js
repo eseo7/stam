@@ -316,9 +316,6 @@
       update: function () {
         return defaultAdapter().update.apply(null, arguments);
       },
-      softDelete: function () {
-        return defaultAdapter().softDelete.apply(null, arguments);
-      },
     };
   }
 
@@ -411,7 +408,7 @@
           version: current.version + 1,
         };
         if (reason) patch.deleteReason = clean(reason);
-        return adapter.softDelete(pid, rid, patch);
+        return adapter.update(pid, rid, patch);
       }).then(normalizeRequirement);
     }
 

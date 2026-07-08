@@ -48,5 +48,13 @@ assert.doesNotMatch(pageSource, /stam\.requirements-crud\.js/);
 
 assert.match(adapterSource, /serverTimestamp/);
 assert.match(adapterSource, /applyWriteTimestamps/);
+assert.equal(/softDelete\s*:/.test(adapterSource), false);
+assert.equal(/function\s+softDelete/.test(adapterSource), false);
+
+assert.match(crudSource, /bindDeleteGuards/);
+assert.match(crudSource, /setButtonDisabled\(document\.getElementById\('rq-del-btn'\), true/);
+assert.match(crudSource, /setButtonDisabled\(document\.getElementById\('rq-det-del-btn'\), true/);
+assert.match(pageSource, /id="rq-del-btn"[^>]*disabled/);
+assert.match(pageSource, /id="rq-det-del-btn"/);
 
 console.log('requirements crud ui contract: PASS');

@@ -3,6 +3,9 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
 const ROOT = new URL('../', import.meta.url);
+const adapterSource = await readFile(new URL('stam/js/stam.requirements-firestore-adapter.js', ROOT), 'utf8');
+assert.equal(/softDelete\s*:/.test(adapterSource), false);
+assert.equal(/function\s+softDelete/.test(adapterSource), false);
 
 async function loadBrowserScript(context, path) {
   const code = await readFile(new URL(path, ROOT), 'utf8');
@@ -89,10 +92,6 @@ function createFakeAdapter() {
       const next = { ...current, ...patch };
       store.set(requirementId, next);
       return Promise.resolve({ ...next });
-    },
-    softDelete(projectId, requirementId, patch) {
-      this.calls.push(['softDelete', projectId, requirementId, patch]);
-      return this.update(projectId, requirementId, patch);
     },
   };
 }
@@ -370,6 +369,8 @@ assert.equal(deleted.deletedAt, '2026-07-03T00:00:00.000Z');
 assert.equal(deleted.deletedBy, 'u4');
 assert.equal(deleted.version, 4);
 assert.deepEqual(authCalls.at(-1), ['requirement.delete', 'P1']);
+assert.deepEqual(adapter.calls.at(-1)[0], 'update');
+assert.equal(adapter.calls.some((call) => call[0] === 'softDelete'), false);
 
 const audit = service.buildAuditEvent('update', { id: 'REQ-1', title: 'A', projectId: 'P1' }, { id: 'REQ-1', title: 'B', projectId: 'P1' }, {
   actorUid: 'u5',
@@ -394,6 +395,13 @@ const roleAuthorize = roleContract.createMemberRoleAuthorize((request) => reques
 assert.equal(roleAuthorize(roleContract.ACTIONS.CREATE, { context: { memberRole: 'admin' } }), true);
 assert.equal(roleAuthorize(roleContract.ACTIONS.UPDATE, { context: { memberRole: 'viewer' } }), false);
 assert.equal(roleAuthorize(roleContract.ACTIONS.DELETE, { context: { memberRole: 'owner' } }), false);
+for (const role of ['owner', 'admin', 'editor', 'viewer', 'guest', '']) {
+  assert.equal(
+    roleAuthorize(roleContract.ACTIONS.DELETE, { context: { memberRole: role } }),
+    false,
+    `delete must deny role=${role || '(empty)'}`,
+  );
+}
 
 const deniedService = window.STAM.requirementsServiceContract.createService({
   adapter,

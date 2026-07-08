@@ -107,10 +107,6 @@ function createFakeAdapter() {
       store.set(requirementId, next);
       return Promise.resolve({ ...next });
     },
-    softDelete(projectId, requirementId, patch) {
-      this.calls.push(['softDelete', projectId, requirementId, patch]);
-      return this.update(projectId, requirementId, patch);
-    },
   };
 }
 
