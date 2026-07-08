@@ -1323,7 +1323,31 @@ PR #360에서 CRUD UI가 `createMemberRoleAuthorize` runtime rebind에 의존하
 ### 다시 열 조건
 
 - requirement soft delete/archive policy PR (rules + service + UI).
-- staging emulator/browser live create/update QA (maintainer 선택).
+- ~~staging emulator/browser live create/update QA (maintainer 선택).~~ → PR #363
+
+---
+
+## 4-17. PR #363 — requirements CRUD live/browser QA evidence
+
+**일자:** 2026-07-08  
+**문서:** `docs/reports/STAM_PR363_Requirements_CRUD_Live_QA.md`
+
+### 왜 지금 구현했나
+
+PR #360–#362에서 Requirements read/create/update UI wiring·deny-by-default·list escape 보강이 완료됐지만, **실제 브라우저 기준** QA 증빙이 contract smoke(PR #359)와 wiring QA(PR #360–#362)에만 분산돼 있었다. A3c gate로 staging 배포·browser UI·contract 3계층 증빙을 한 리포트에 고정한다.
+
+### 결정
+
+- **기능 구현 PR 아님** — `docs/reports` + ops gate 기록만.
+- Staging Preview: 미인증 redirect, firestore-list/crud bundle, delete `disabled` HTML 검증.
+- Browser UI harness (Chromium + 실제 `stam.requirements-firestore-*.js`): owner write / viewer block / escape / delete deny / service.create·update 경유.
+- Contract smoke 6종 재실행 PASS.
+- Google OAuth 없는 Cloud Agent 환경에서는 인증 staging live Firestore write는 maintainer spot-check로 분리(리포트 §8).
+
+### 다시 열 조건
+
+- requirement delete policy PR.
+- P2/P3 인증 staging spot-check (선택).
 
 ---
 
@@ -1348,4 +1372,4 @@ PR #358–#359에서 rules·service authorize·role matrix smoke가 완료됐다
 ### 다시 열 조건
 
 - requirement delete rules + UI PR.
-- staging emulator/browser live create/update QA (maintainer 선택).
+- ~~staging emulator/browser live create/update QA (maintainer 선택).~~ → PR #363
