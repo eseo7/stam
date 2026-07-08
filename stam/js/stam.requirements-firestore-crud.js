@@ -77,6 +77,34 @@
     return roleContract.canWriteRequirements(memberRole());
   }
 
+  function writeGuard() {
+    var api = listApi();
+    if (!api || typeof api.getState !== 'function') {
+      alert(WRITE_DENIED_MSG);
+      return null;
+    }
+
+    var snapshot = api.getState() || {};
+    var role = clean(snapshot.member && snapshot.member.role).toLowerCase();
+    var projectId = clean(snapshot.projectId);
+
+    if (!projectId) {
+      alert('프로젝트를 선택한 뒤 다시 시도하세요.');
+      return null;
+    }
+
+    if (['owner', 'admin', 'editor'].indexOf(role) < 0) {
+      alert(WRITE_DENIED_MSG);
+      return null;
+    }
+
+    return {
+      snapshot: snapshot,
+      projectId: projectId,
+      memberRole: role
+    };
+  }
+
   function serviceContext(source) {
     var api = listApi();
     if (api && typeof api.serviceContext === 'function') {
@@ -242,20 +270,12 @@
   }
 
   function submitRegister() {
-    if (!canWrite()) {
-      alert(WRITE_DENIED_MSG);
-      return Promise.resolve();
-    }
+    var guard = writeGuard();
+    if (!guard) return Promise.resolve();
     var regDrawer = document.getElementById('rq-dw-register');
     var svc = service();
-    var api = listApi();
     if (!regDrawer || !svc || typeof svc.create !== 'function') return Promise.resolve();
-    var snapshot = api && typeof api.getState === 'function' ? api.getState() : {};
-    var projectId = snapshot.projectId;
-    if (!projectId) {
-      alert('프로젝트를 선택한 뒤 다시 시도하세요.');
-      return Promise.resolve();
-    }
+    var projectId = guard.projectId;
 
     var title = getVal(regDrawer, '요구사항명');
     var description = getVal(regDrawer, '상세 요구사항');
@@ -322,17 +342,13 @@
   }
 
   function submitEdit() {
-    if (!canWrite()) {
-      alert(WRITE_DENIED_MSG);
-      return Promise.resolve();
-    }
+    var guard = writeGuard();
+    if (!guard) return Promise.resolve();
     var editDrawer = document.getElementById('rq-dw-edit');
     var svc = service();
-    var api = listApi();
     if (!editDrawer || !svc || typeof svc.update !== 'function') return Promise.resolve();
-    var snapshot = api && typeof api.getState === 'function' ? api.getState() : {};
-    var projectId = snapshot.projectId;
-    var item = snapshot.currentItem;
+    var projectId = guard.projectId;
+    var item = guard.snapshot.currentItem;
     if (!projectId || !item || !item.id) {
       alert('수정할 요구사항을 다시 선택하세요.');
       return Promise.resolve();
@@ -450,6 +466,7 @@
     submitEdit: submitEdit,
     prefillEdit: prefillEdit,
     canWrite: canWrite,
+    writeGuard: writeGuard,
     memberRole: memberRole,
   };
 }());
