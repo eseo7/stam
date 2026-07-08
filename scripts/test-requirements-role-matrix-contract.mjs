@@ -261,14 +261,20 @@ await assert.rejects(
   () => roleBoundService.update('P359', 'REQ-VIEWER', { title: 'Viewer blocked' }, { memberRole: 'viewer' }),
   /permission denied/,
 );
-await assert.rejects(
-  () => roleBoundService.softDelete('P359', 'REQ-DELETE', 'blocked', { memberRole: 'owner' }),
-  /permission denied/,
-);
+assert.equal(typeof roleBoundService.softDelete, 'undefined');
+assert.equal(typeof runtimeService.softDelete, 'undefined');
 
-// Default runtime service at script load remains allow-all; list wiring rebinds after guard.
+// Default runtime service is deny-by-default until list wiring rebinds with role authorize.
 assert.equal(typeof contract.createService, 'function');
 assert.equal(typeof runtimeService.create, 'function');
+await assert.rejects(
+  () => runtimeService.listByProject('P359', {}, { memberRole: 'owner' }),
+  /permission denied/,
+);
+await assert.rejects(
+  () => runtimeService.create('P359', { title: 'Blocked default runtime' }, { memberRole: 'owner' }),
+  /permission denied/,
+);
 
 console.log('\nrequirements role matrix (PR #358 contract evidence):');
 printMatrixEvidence(evidenceRows);

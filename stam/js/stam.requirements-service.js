@@ -259,7 +259,7 @@
   }
 
   function defaultAuthorize() {
-    return Promise.resolve(true);
+    return Promise.resolve(false);
   }
 
   function normalizeMemberRole(role) {
@@ -389,36 +389,12 @@
       }).then(normalizeRequirement);
     }
 
-    function softDelete(projectId, requirementId, reason, context) {
-      var pid = requireProjectId(projectId);
-      var rid = requireRequirementId(requirementId);
-      var actor = actorFromContext(context);
-      return check(ACTIONS.DELETE, pid, { id: rid, reason: reason || '' }, context).then(function () {
-        return adapter.getById(pid, rid);
-      }).then(function (currentRaw) {
-        var current = normalizeRequirement(currentRaw);
-        if (!current) throw new Error('requirementsService: requirement not found');
-        var t = nowIso(clock);
-        var patch = {
-          isDeleted: true,
-          deletedAt: t,
-          deletedBy: actor.uid,
-          updatedAt: t,
-          updatedBy: actor.uid,
-          version: current.version + 1,
-        };
-        if (reason) patch.deleteReason = clean(reason);
-        return adapter.update(pid, rid, patch);
-      }).then(normalizeRequirement);
-    }
-
     return {
       ACTIONS: ACTIONS,
       listByProject: listByProject,
       getById: getById,
       create: create,
       update: update,
-      softDelete: softDelete,
       normalizeRequirement: normalizeRequirement,
       validateRequirementInput: validateRequirementInput,
       buildCreatePayload: function (input, context) {
