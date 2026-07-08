@@ -258,6 +258,7 @@ const listCall = calls.find((call) => call.method === 'listByProject');
 assert.equal(listCall.projectId, 'P314');
 assert.equal(listCall.query.includeDeleted, false);
 assert.equal(listCall.context.actorUid, 'qa-user');
+assert.equal(listCall.context.memberRole, 'admin');
 assert.equal(listCall.context.source, 'requirements-firestore-list');
 assert.match(tbody.innerHTML, /REQ-001/);
 assert.doesNotMatch(tbody.innerHTML, /REQ-002/);

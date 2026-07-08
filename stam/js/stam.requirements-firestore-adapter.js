@@ -34,6 +34,25 @@
     throw new Error('requirementsFirestoreAdapter: Firestore is not available');
   }
 
+  function serverTimestamp() {
+    if (window.firebase && window.firebase.firestore && window.firebase.firestore.FieldValue) {
+      return window.firebase.firestore.FieldValue.serverTimestamp();
+    }
+    throw new Error('requirementsFirestoreAdapter: server timestamp is not available');
+  }
+
+  function applyWriteTimestamps(payload, mode) {
+    var next = Object.assign({}, payload || {});
+    if (mode === 'create') {
+      next.createdAt = serverTimestamp();
+      next.updatedAt = serverTimestamp();
+    } else if (mode === 'update') {
+      next.updatedAt = serverTimestamp();
+      delete next.createdAt;
+    }
+    return next;
+  }
+
   function collectionRef(db, projectId) {
     return db.collection('projects').doc(projectId).collection(COLLECTION);
   }
@@ -117,15 +136,16 @@
       var ref = input.id ? collectionRef(db(), pid).doc(input.id) : collectionRef(db(), pid).doc();
       input.id = input.id || ref.id;
       input.projectId = input.projectId || pid;
-      return ref.set(input).then(function () {
-        return input;
+      var writePayload = applyWriteTimestamps(input, 'create');
+      return ref.set(writePayload).then(function () {
+        return getById(pid, input.id);
       });
     }
 
     function update(projectId, requirementId, patch) {
       var pid = requireProjectId(projectId);
       var rid = requireRequirementId(requirementId);
-      var nextPatch = Object.assign({}, patch || {});
+      var nextPatch = applyWriteTimestamps(Object.assign({}, patch || {}), 'update');
       return collectionRef(db(), pid).doc(rid).update(nextPatch).then(function () {
         return getById(pid, rid);
       });

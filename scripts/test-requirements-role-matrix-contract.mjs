@@ -270,7 +270,7 @@ await assert.rejects(
   /permission denied/,
 );
 
-// Default runtime service remains allow-all until UI wiring lands.
+// Default runtime service at script load remains allow-all; list wiring rebinds after guard.
 assert.equal(typeof contract.createService, 'function');
 assert.equal(typeof runtimeService.create, 'function');
 

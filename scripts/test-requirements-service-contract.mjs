@@ -11,6 +11,17 @@ async function loadBrowserScript(context, path) {
 
 function createContext() {
   const window = {};
+  window.firebase = {
+    firestore: Object.assign(function firestore() {
+      return null;
+    }, {
+      FieldValue: {
+        serverTimestamp() {
+          return { __serverTimestamp: true };
+        },
+      },
+    }),
+  };
   const context = vm.createContext({
     window,
     console,
@@ -402,7 +413,8 @@ assert.deepEqual(fakeFirestore.paths.at(-1), ['getCollection', 'projects/P1/requ
 
 const adapterCreated = await firestoreAdapter.create('P1', { id: 'REQ-C', title: 'Created' });
 assert.equal(adapterCreated.projectId, 'P1');
-assert.deepEqual(fakeFirestore.paths.at(-1)[0], 'set');
-assert.equal(fakeFirestore.paths.at(-1)[1], 'projects/P1/requirements/REQ-C');
+const setCall = fakeFirestore.paths.find((entry) => entry[0] === 'set' && entry[1] === 'projects/P1/requirements/REQ-C');
+assert.ok(setCall, 'expected Firestore set on create');
+assert.ok(setCall[2].createdAt && setCall[2].updatedAt, 'expected server timestamps on create payload');
 
 console.log('requirements service contract: PASS');
