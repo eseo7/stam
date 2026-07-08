@@ -3,6 +3,12 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import path from 'node:path';
 
+/**
+ * STAM PR #358 — Firestore rules + service role skeleton structure contract.
+ * Cross-role smoke matrix (owner/admin/editor/viewer × read/create/update/delete):
+ *   node scripts/test-requirements-role-matrix-contract.mjs  (PR #359)
+ */
+
 const ROOT = path.resolve(import.meta.dirname, '..');
 const rulesSource = await readFile(path.join(ROOT, 'firestore.rules'), 'utf8');
 const serviceSource = await readFile(path.join(ROOT, 'stam/js/stam.requirements-service.js'), 'utf8');
