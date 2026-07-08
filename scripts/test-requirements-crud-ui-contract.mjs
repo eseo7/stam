@@ -45,6 +45,11 @@ assert.equal(/requirementArtifacts/.test(crudSource), false);
 assert.match(listSource, /bindAuthorizedService/);
 assert.match(listSource, /memberRole: state\.member && state\.member\.role/);
 assert.match(listSource, /createMemberRoleAuthorize/);
+const loadFn = listSource.match(/function load\(\) \{[\s\S]*?\n  \}/);
+assert.ok(loadFn, 'load() function must exist');
+assert.doesNotMatch(loadFn[0], /var svc = service\(\);[\s\S]*?bindAuthorizedService/);
+assert.match(loadFn[0], /bindAuthorizedService\([\s\S]*?var svc = service\(\)/);
+assert.match(listSource, /\.replace\(\/&\/g, '&amp;'\)/);
 
 assert.match(pageSource, /stam\.requirements-firestore-crud\.js/);
 assert.match(pageSource, /stam\.requirements-firestore-list\.js/);

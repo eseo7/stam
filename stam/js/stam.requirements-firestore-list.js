@@ -34,9 +34,13 @@
   }
 
   function esc(value) {
-    return String(value == null ? '' : value).replace(/[&<>"]/g, function (char) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char];
-    });
+    if (value == null) return '';
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   function clean(value) {
@@ -546,17 +550,16 @@
 
   function load() {
     var projectId = resolveProjectId();
-    var svc = service();
     renderLoading();
-
-    if (!svc || typeof svc.listByProject !== 'function') {
-      renderError();
-      return Promise.resolve([]);
-    }
 
     return guardProjectAccess(projectId).then(function (guard) {
       if (!guard) return [];
       bindAuthorizedService(guard.member && guard.member.role);
+      var svc = service();
+      if (!svc || typeof svc.listByProject !== 'function') {
+        renderError();
+        return [];
+      }
       var context = serviceContext('requirements-firestore-list');
       return svc.listByProject(projectId, DEFAULT_QUERY, context);
     }).then(function (items) {

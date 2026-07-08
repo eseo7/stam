@@ -244,6 +244,22 @@ assert.equal(helperCreate.createdBy, 'helper-user');
 assert.equal(helperCreate.updatedBy, 'helper-user');
 assert.equal(helperCreate.sortOrder, 3);
 assert.deepEqual(helperCreate.tags, ['helper', 'contract']);
+assert.equal(helperCreate.deletedAt, null);
+assert.equal(helperCreate.deletedBy, null);
+assert.equal(helperCreate.isDeleted, false);
+
+const helperCreateDeleteInjection = service.buildCreatePayload({
+  projectId: 'P1',
+  title: 'Injected delete fields',
+  deletedAt: '2026-07-03T00:00:00.000Z',
+  deletedBy: 'attacker',
+  isDeleted: true,
+}, {
+  actorUid: 'helper-user',
+});
+assert.equal(helperCreateDeleteInjection.deletedAt, null);
+assert.equal(helperCreateDeleteInjection.deletedBy, null);
+assert.equal(helperCreateDeleteInjection.isDeleted, false);
 
 const helperCreateDefaults = service.buildCreatePayload({
   projectId: 'P1',
@@ -337,6 +353,9 @@ const created = await service.create('P1', {
   code: 'REQ-NEW',
   title: 'New requirement',
   tags: [' alpha ', '', 'beta'],
+  deletedAt: '2026-07-03T00:00:00.000Z',
+  deletedBy: 'attacker',
+  isDeleted: true,
 }, {
   actorUid: 'u2',
   actorName: 'Writer',
@@ -346,6 +365,8 @@ assert.equal(created.projectId, 'P1');
 assert.equal(created.status, 'draft');
 assert.equal(created.priority, 'normal');
 assert.equal(created.isDeleted, false);
+assert.equal(created.deletedAt, null);
+assert.equal(created.deletedBy, null);
 assert.equal(created.version, 1);
 assert.deepEqual(created.tags, ['alpha', 'beta']);
 assert.deepEqual(authCalls.at(-1), ['requirement.create', 'P1']);
