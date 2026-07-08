@@ -3,9 +3,12 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
 const ROOT = new URL('../', import.meta.url);
+const serviceSource = await readFile(new URL('stam/js/stam.requirements-service.js', ROOT), 'utf8');
 const adapterSource = await readFile(new URL('stam/js/stam.requirements-firestore-adapter.js', ROOT), 'utf8');
 assert.equal(/softDelete\s*:/.test(adapterSource), false);
 assert.equal(/function\s+softDelete/.test(adapterSource), false);
+assert.equal(/softDelete\s*:/.test(serviceSource), false);
+assert.equal(/function\s+softDelete/.test(serviceSource), false);
 
 async function loadBrowserScript(context, path) {
   const code = await readFile(new URL(path, ROOT), 'utf8');
@@ -361,16 +364,18 @@ assert.equal(updated.version, 3);
 assert.equal(updated.updatedBy, 'u3');
 assert.deepEqual(authCalls.at(-1), ['requirement.update', 'P1']);
 
-const deleted = await service.softDelete('P1', 'REQ-1', 'duplicate', {
-  actorUid: 'u4',
-});
-assert.equal(deleted.isDeleted, true);
-assert.equal(deleted.deletedAt, '2026-07-03T00:00:00.000Z');
-assert.equal(deleted.deletedBy, 'u4');
-assert.equal(deleted.version, 4);
-assert.deepEqual(authCalls.at(-1), ['requirement.delete', 'P1']);
-assert.deepEqual(adapter.calls.at(-1)[0], 'update');
-assert.equal(adapter.calls.some((call) => call[0] === 'softDelete'), false);
+assert.equal(typeof service.softDelete, 'undefined');
+assert.equal(typeof window.STAM.requirementsService.softDelete, 'undefined');
+
+const defaultRuntimeService = window.STAM.requirementsService;
+await assert.rejects(
+  () => defaultRuntimeService.listByProject('P1', {}, { actorUid: 'u0' }),
+  /permission denied/,
+);
+await assert.rejects(
+  () => defaultRuntimeService.create('P1', { title: 'Blocked default' }, { actorUid: 'u0' }),
+  /permission denied/,
+);
 
 const audit = service.buildAuditEvent('update', { id: 'REQ-1', title: 'A', projectId: 'P1' }, { id: 'REQ-1', title: 'B', projectId: 'P1' }, {
   actorUid: 'u5',

@@ -23,6 +23,7 @@ const crudSource = await readFile(path.join(ROOT, 'stam/js/stam.requirements-fir
 const listSource = await readFile(path.join(ROOT, 'stam/js/stam.requirements-firestore-list.js'), 'utf8');
 const pageSource = await readFile(path.join(ROOT, 'stam/pages/boards/requirements.html'), 'utf8');
 const adapterSource = await readFile(path.join(ROOT, 'stam/js/stam.requirements-firestore-adapter.js'), 'utf8');
+const serviceSource = await readFile(path.join(ROOT, 'stam/js/stam.requirements-service.js'), 'utf8');
 
 assert.match(crudSource, /svc\.create\(projectId, input, context\)/);
 assert.match(crudSource, /svc\.update\(projectId, item\.id, patch, context\)/);
@@ -53,6 +54,9 @@ assert.match(adapterSource, /serverTimestamp/);
 assert.match(adapterSource, /applyWriteTimestamps/);
 assert.equal(/softDelete\s*:/.test(adapterSource), false);
 assert.equal(/function\s+softDelete/.test(adapterSource), false);
+assert.equal(/softDelete\s*:/.test(serviceSource), false);
+assert.equal(/function\s+softDelete/.test(serviceSource), false);
+assert.match(serviceSource, /function defaultAuthorize\(\) \{[\s\S]*?return Promise\.resolve\(false\);/);
 
 assert.match(crudSource, /bindDeleteGuards/);
 assert.match(crudSource, /setButtonDisabled\(document\.getElementById\('rq-del-btn'\), true/);
