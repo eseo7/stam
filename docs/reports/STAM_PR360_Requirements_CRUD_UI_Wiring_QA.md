@@ -45,7 +45,7 @@
 |------|------|
 | `stam/js/stam.requirements-firestore-crud.js` | **신규** — create/update UI wiring, viewer read-only guard |
 | `stam/js/stam.requirements-firestore-list.js` | role-bound service rebind, `memberRole` context, `getState` |
-| `stam/js/stam.requirements-firestore-adapter.js` | write 시 `serverTimestamp()` 적용 (rules `request.time` 정합) |
+| `stam/js/stam.requirements-firestore-adapter.js` | write 시 `serverTimestamp()` 적용 (rules `request.time` 정합); **`softDelete` 미변경** (PR #313 contract 잔존) |
 | `stam/pages/boards/requirements.html` | crud script 로드 |
 | `scripts/test-requirements-crud-ui-contract.mjs` | **신규** — wiring boundary contract |
 | `scripts/test-requirements-firestore-list-contract.mjs` | `memberRole` context assertion |
@@ -71,7 +71,7 @@ node scripts/test-requirements-no-inline-style.mjs
 | Service | `create` / `update` / `listByProject` / `getById` only |
 | Authorize | `createMemberRoleAuthorize` — list guard 후 runtime rebind |
 | Context | `actorUid`, `actorName`, `memberRole`, `projectId`, `source` |
-| Adapter | `projects/{projectId}/requirements/{id}` — service 경유만 |
+| Adapter | `projects/{projectId}/requirements/{id}` — service 경유만; `softDelete` export는 PR #313 port 잔존 (본 PR 미호출) |
 | Delete | UI disabled + `softDelete` 미호출 |
 | Related artifacts | `persistRelatedArtifactsFromRequirement` **미연결** |
 
@@ -97,8 +97,38 @@ node scripts/test-requirements-no-inline-style.mjs
 | inline style/script (HTML diff) | **없음** |
 | 금지 경로 | nav-data, firestore.rules, workflows, package.json **미변경** |
 
-## 10. 후속 PR
+## 10. softDelete() 출처·계약 확인 (Ready 전 점검)
 
-1. requirement delete (soft delete rules + UI)
+| 질문 | 결과 |
+|------|------|
+| PR #360에서 `softDelete()` 신규 추가? | **아니오** — PR #313 (`d8fa0ac`) Requirement Service Contract에서 adapter port로 최초 도입 |
+| PR #360 adapter diff에 `softDelete` 변경? | **없음** — `serverTimestamp()` / `applyWriteTimestamps()` (create·update write 정합)만 추가 |
+| 이번 PR에서 `softDelete` export 필요? | **간접 유지** — service contract(PR #313) adapter port 5종(`listByProject` / `getById` / `create` / `update` / `softDelete`) 완결; UI wiring은 create·update만 사용 |
+| 이번 PR에서 adapter `softDelete` 제거 가능? | **불가** — PR #360 범위 밖(기존 contract surface); 제거 시 `test-requirements-service-contract.mjs` 및 service→adapter 위임 깨짐 |
+
+### delete 미개방 근거 (미호출 + service/rules deny)
+
+| 계층 | 근거 |
+|------|------|
+| **UI** | `stam.requirements-firestore-crud.js` — 삭제 버튼 `disabled` + `DELETE_DENIED_MSG`; `test-requirements-crud-ui-contract.mjs`가 `\.softDelete\(` 미포함 assert |
+| **List wiring** | `stam.requirements-firestore-list.js` — `create` / `update` / `softDelete` 미호출 (`test-requirements-firestore-list-contract.mjs`) |
+| **Service authorize** | `createMemberRoleAuthorize` — `ACTIONS.DELETE`(`requirement.delete`) 전 role **deny** (`test-requirements-role-matrix-contract.mjs`, `test-requirements-rules-contract.mjs`) |
+| **Firestore rules** | `projects/{projectId}/requirements/{requirementId}` — `allow delete: if false` (soft delete는 update patch 경로; delete action 자체는 rules·UI 모두 미개방) |
+
+```bash
+# adapter: PR #360 diff에 softDelete 변경 없음 확인
+git diff main...HEAD -- stam/js/stam.requirements-firestore-adapter.js
+
+# softDelete 최초 도입 커밋
+git log --oneline -- stam/js/stam.requirements-firestore-adapter.js
+# → d8fa0ac feat: add requirement service contract (#313)
+# → 186a5dd feat(requirements): wire CRUD UI to Firestore service (PR #360)
+```
+
+**결론:** adapter `softDelete` export는 PR #313 contract 잔존 surface이며, PR #360은 delete를 개방하지 않는다. Ready 전 별도 adapter 제거 작업은 불필요.
+
+## 11. 후속 PR
+
+1. requirement delete (soft delete rules + UI + service authorize 개방)
 2. staging emulator/browser role matrix QA (선택)
 3. functionalSpecs / WBS / screenSpecs write 단계별 개방
