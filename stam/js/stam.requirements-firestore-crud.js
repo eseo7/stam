@@ -73,7 +73,7 @@
 
   function canWrite() {
     var roleContract = contract();
-    if (!roleContract || typeof roleContract.canWriteRequirements !== 'function') return true;
+    if (!roleContract || typeof roleContract.canWriteRequirements !== 'function') return false;
     return roleContract.canWriteRequirements(memberRole());
   }
 

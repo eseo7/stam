@@ -33,6 +33,7 @@ assert.equal(/firestore\(\)/.test(crudSource), false);
 assert.match(crudSource, /requirements-firestore-create/);
 assert.match(crudSource, /requirements-firestore-update/);
 assert.match(crudSource, /canWriteRequirements/);
+assert.match(crudSource, /if \(!roleContract \|\| typeof roleContract\.canWriteRequirements !== 'function'\) return false/);
 assert.match(crudSource, /function writeGuard\(\)/);
 assert.match(crudSource, /var guard = writeGuard\(\)/);
 assert.match(crudSource, /DELETE_DENIED_MSG/);
