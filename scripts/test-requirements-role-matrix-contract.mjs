@@ -107,10 +107,6 @@ function createFakeAdapter() {
       store.set(requirementId, next);
       return Promise.resolve({ ...next });
     },
-    softDelete(projectId, requirementId, patch) {
-      this.calls.push(['softDelete', projectId, requirementId, patch]);
-      return this.update(projectId, requirementId, patch);
-    },
   };
 }
 
@@ -270,7 +266,7 @@ await assert.rejects(
   /permission denied/,
 );
 
-// Default runtime service remains allow-all until UI wiring lands.
+// Default runtime service at script load remains allow-all; list wiring rebinds after guard.
 assert.equal(typeof contract.createService, 'function');
 assert.equal(typeof runtimeService.create, 'function');
 

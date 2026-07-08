@@ -1297,5 +1297,30 @@ PR #358에서 requirements write rules와 service role authorize skeleton을 열
 
 ### 다시 열 조건
 
-- Requirements CRUD UI wiring PR.
+- ~~Requirements CRUD UI wiring PR.~~ → PR #360
 - staging emulator/browser live write QA (maintainer 선택).
+
+---
+
+## 4-15. PR #360 — requirements CRUD UI wiring (Firestore)
+
+**일자:** 2026-07-08  
+**문서:** `stam/js/stam.requirements-firestore-crud.js`, `docs/reports/STAM_PR360_Requirements_CRUD_UI_Wiring_QA.md`
+
+### 왜 지금 구현했나
+
+PR #358–#359에서 rules·service authorize·role matrix smoke가 완료됐다. 제품 Requirements 화면은 list read만 Firestore-backed였고, register/edit drawer는 static mock 상태였다. A3b에서 read/create/update만 service에 연결한다.
+
+### 결정
+
+- `stam.requirements-firestore-crud.js` **신규** — register/edit → `requirementsService.create/update`.
+- `stam.requirements-firestore-list.js` — guard 후 `createMemberRoleAuthorize` runtime rebind, `memberRole` context 전달.
+- `stam.requirements-firestore-adapter.js` — write payload에 `serverTimestamp()` (rules `request.time` 정합).
+- viewer: 등록·수정 버튼 disabled; delete 버튼은 모든 role에서 disabled 유지.
+- related artifact persistence, delete, 기타 산출물 write **미연결**.
+- `stam.requirements-crud.js` (Local Core DB)는 제품 HTML에 로드하지 않음.
+
+### 다시 열 조건
+
+- requirement delete rules + UI PR.
+- staging emulator/browser live create/update QA (maintainer 선택).

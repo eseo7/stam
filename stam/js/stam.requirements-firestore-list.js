@@ -25,6 +25,7 @@
     member: null,
     user: null,
     items: [],
+    currentItem: null,
   };
 
   function ready(fn) {
@@ -242,6 +243,31 @@
     return window.STAM && window.STAM.requirementsService;
   }
 
+  function serviceContract() {
+    return window.STAM && window.STAM.requirementsServiceContract;
+  }
+
+  function bindAuthorizedService(memberRole) {
+    var contract = serviceContract();
+    if (!contract || typeof contract.createService !== 'function') return;
+    if (typeof contract.createMemberRoleAuthorize !== 'function') return;
+    var authorize = contract.createMemberRoleAuthorize(function (request) {
+      var ctx = request && request.context ? request.context : {};
+      return ctx.memberRole || ctx.role || memberRole || '';
+    });
+    window.STAM.requirementsService = contract.createService({ authorize: authorize });
+  }
+
+  function serviceContext(source) {
+    return {
+      actorUid: state.user && state.user.uid,
+      actorName: state.user && (state.user.displayName || state.user.email),
+      memberRole: state.member && state.member.role,
+      projectId: state.projectId,
+      source: source || 'requirements-firestore',
+    };
+  }
+
   function tbody() {
     return document.getElementById('rq-tbody');
   }
@@ -372,6 +398,7 @@
   }
 
   function renderDetail(item) {
+    state.currentItem = item || null;
     var status = statusInfo(item);
     var priority = priorityInfo(item);
     var code = clean(item.code) || clean(item.id) || 'REQ';
@@ -408,11 +435,7 @@
     var id = row && clean(row.getAttribute('data-rq-id'));
     var svc = service();
     if (!id || !state.projectId || !svc || typeof svc.getById !== 'function') return Promise.resolve(null);
-    var context = {
-      actorUid: state.user && state.user.uid,
-      actorName: state.user && (state.user.displayName || state.user.email),
-      source: 'requirements-firestore-detail',
-    };
+    var context = serviceContext('requirements-firestore-detail');
     return svc.getById(state.projectId, id, context).then(function (item) {
       if (item) renderDetail(item);
       return item;
@@ -533,12 +556,8 @@
 
     return guardProjectAccess(projectId).then(function (guard) {
       if (!guard) return [];
-      var activeUser = guard.user || currentUser();
-      var context = {
-        actorUid: activeUser && activeUser.uid,
-        actorName: activeUser && (activeUser.displayName || activeUser.email),
-        source: 'requirements-firestore-list',
-      };
+      bindAuthorizedService(guard.member && guard.member.role);
+      var context = serviceContext('requirements-firestore-list');
       return svc.listByProject(projectId, DEFAULT_QUERY, context);
     }).then(function (items) {
       var list = (items || []).filter(function (item) { return item && item.isDeleted !== true; });
@@ -563,6 +582,18 @@
     resolveProjectId: resolveProjectId,
     statusInfo: statusInfo,
     priorityInfo: priorityInfo,
+    bindAuthorizedService: bindAuthorizedService,
+    serviceContext: serviceContext,
+    getState: function () {
+      return {
+        projectId: state.projectId,
+        project: state.project,
+        member: state.member,
+        user: state.user,
+        items: state.items,
+        currentItem: state.currentItem,
+      };
+    },
   };
 
   ready(load);

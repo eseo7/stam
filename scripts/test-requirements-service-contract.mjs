@@ -3,6 +3,9 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
 const ROOT = new URL('../', import.meta.url);
+const adapterSource = await readFile(new URL('stam/js/stam.requirements-firestore-adapter.js', ROOT), 'utf8');
+assert.equal(/softDelete\s*:/.test(adapterSource), false);
+assert.equal(/function\s+softDelete/.test(adapterSource), false);
 
 async function loadBrowserScript(context, path) {
   const code = await readFile(new URL(path, ROOT), 'utf8');
@@ -11,6 +14,17 @@ async function loadBrowserScript(context, path) {
 
 function createContext() {
   const window = {};
+  window.firebase = {
+    firestore: Object.assign(function firestore() {
+      return null;
+    }, {
+      FieldValue: {
+        serverTimestamp() {
+          return { __serverTimestamp: true };
+        },
+      },
+    }),
+  };
   const context = vm.createContext({
     window,
     console,
@@ -78,10 +92,6 @@ function createFakeAdapter() {
       const next = { ...current, ...patch };
       store.set(requirementId, next);
       return Promise.resolve({ ...next });
-    },
-    softDelete(projectId, requirementId, patch) {
-      this.calls.push(['softDelete', projectId, requirementId, patch]);
-      return this.update(projectId, requirementId, patch);
     },
   };
 }
@@ -359,6 +369,8 @@ assert.equal(deleted.deletedAt, '2026-07-03T00:00:00.000Z');
 assert.equal(deleted.deletedBy, 'u4');
 assert.equal(deleted.version, 4);
 assert.deepEqual(authCalls.at(-1), ['requirement.delete', 'P1']);
+assert.deepEqual(adapter.calls.at(-1)[0], 'update');
+assert.equal(adapter.calls.some((call) => call[0] === 'softDelete'), false);
 
 const audit = service.buildAuditEvent('update', { id: 'REQ-1', title: 'A', projectId: 'P1' }, { id: 'REQ-1', title: 'B', projectId: 'P1' }, {
   actorUid: 'u5',
@@ -383,6 +395,13 @@ const roleAuthorize = roleContract.createMemberRoleAuthorize((request) => reques
 assert.equal(roleAuthorize(roleContract.ACTIONS.CREATE, { context: { memberRole: 'admin' } }), true);
 assert.equal(roleAuthorize(roleContract.ACTIONS.UPDATE, { context: { memberRole: 'viewer' } }), false);
 assert.equal(roleAuthorize(roleContract.ACTIONS.DELETE, { context: { memberRole: 'owner' } }), false);
+for (const role of ['owner', 'admin', 'editor', 'viewer', 'guest', '']) {
+  assert.equal(
+    roleAuthorize(roleContract.ACTIONS.DELETE, { context: { memberRole: role } }),
+    false,
+    `delete must deny role=${role || '(empty)'}`,
+  );
+}
 
 const deniedService = window.STAM.requirementsServiceContract.createService({
   adapter,
@@ -402,7 +421,8 @@ assert.deepEqual(fakeFirestore.paths.at(-1), ['getCollection', 'projects/P1/requ
 
 const adapterCreated = await firestoreAdapter.create('P1', { id: 'REQ-C', title: 'Created' });
 assert.equal(adapterCreated.projectId, 'P1');
-assert.deepEqual(fakeFirestore.paths.at(-1)[0], 'set');
-assert.equal(fakeFirestore.paths.at(-1)[1], 'projects/P1/requirements/REQ-C');
+const setCall = fakeFirestore.paths.find((entry) => entry[0] === 'set' && entry[1] === 'projects/P1/requirements/REQ-C');
+assert.ok(setCall, 'expected Firestore set on create');
+assert.ok(setCall[2].createdAt && setCall[2].updatedAt, 'expected server timestamps on create payload');
 
 console.log('requirements service contract: PASS');
