@@ -9,6 +9,15 @@ assert.equal(/requirementsService\.(create|update|softDelete)/.test(listSource),
 assert.equal(/collection\(['"]requirements['"]\)/.test(listSource), false);
 assert.equal(/\.set\(|\.update\(|\.add\(|\.delete\(/.test(listSource), false);
 assert.ok(listSource.includes('listByProject(projectId, DEFAULT_QUERY, context)'));
+const loadFn = listSource.match(/function load\(\) \{[\s\S]*?\n  \}/);
+assert.ok(loadFn, 'load() function must exist');
+assert.doesNotMatch(
+  loadFn[0],
+  /var svc = service\(\);[\s\S]*?bindAuthorizedService/,
+  'load() must bind authorized service before capturing service()',
+);
+assert.match(loadFn[0], /bindAuthorizedService\([\s\S]*?var svc = service\(\)/);
+assert.match(listSource, /\.replace\(\/&\/g, '&amp;'\)/);
 
 function fakeElement() {
   return {
@@ -45,6 +54,75 @@ const tabHistory = fakeElement();
 
 const calls = [];
 const redirects = [];
+let denyListCalls = 0;
+let boundListCalls = 0;
+
+const boundService = {
+  listByProject(projectId, query, callContext) {
+    boundListCalls += 1;
+    calls.push({ method: 'listByProject', projectId, query, context: callContext });
+    return Promise.resolve([
+      {
+        id: 'REQ-001',
+        projectId,
+        code: 'REQ-001',
+        title: '<script>alert("xss")</script>',
+        status: 'review',
+        priority: 'critical',
+        ownerName: 'QA & User',
+        updatedAt: '2026-07-03T00:00:00.000Z',
+        linkedScreenSpec: 'SCR-001',
+        isDeleted: false,
+      },
+      {
+        id: 'REQ-002',
+        projectId,
+        code: 'REQ-002',
+        title: 'Deleted should be filtered',
+        status: 'draft',
+        priority: 'normal',
+        isDeleted: true,
+      },
+    ]);
+  },
+  getById(projectId, requirementId, callContext) {
+    calls.push({ method: 'getById', projectId, requirementId, context: callContext });
+    return Promise.resolve({
+      id: requirementId,
+      projectId,
+      code: requirementId,
+      title: 'Firestore detail contract',
+      description: 'Read-only detail body',
+      status: 'approved',
+      priority: 'high',
+      ownerName: 'Detail Owner',
+      updatedAt: '2026-07-03T00:00:00.000Z',
+      linkedScreenSpec: 'SCR-002',
+      linkedWbs: 'WBS-002',
+      reviewStatus: 'Approved',
+      isDeleted: false,
+    });
+  },
+  create() {
+    throw new Error('create must not be called');
+  },
+  update() {
+    throw new Error('update must not be called');
+  },
+  softDelete() {
+    throw new Error('softDelete must not be called');
+  },
+};
+
+const denyService = {
+  listByProject() {
+    denyListCalls += 1;
+    return Promise.reject(new Error('requirementsService: permission denied for requirement.read'));
+  },
+  getById() {
+    return Promise.reject(new Error('requirementsService: permission denied for requirement.read'));
+  },
+};
 const context = vm.createContext({
   window: {
     location: {
@@ -121,59 +199,41 @@ const context = vm.createContext({
       },
     },
     STAM: {
-      requirementsService: {
-        listByProject(projectId, query, callContext) {
-          calls.push({ method: 'listByProject', projectId, query, context: callContext });
-          return Promise.resolve([
-            {
-              id: 'REQ-001',
-              projectId,
-              code: 'REQ-001',
-              title: 'Firestore read contract',
-              status: 'review',
-              priority: 'critical',
-              ownerName: 'QA User',
-              updatedAt: '2026-07-03T00:00:00.000Z',
-              linkedScreenSpec: 'SCR-001',
-              isDeleted: false,
+      requirementsService: denyService,
+      requirementsServiceContract: {
+        createMemberRoleAuthorize(getMemberRole) {
+          return function authorize(action, request) {
+            const role = getMemberRole(request);
+            return action === 'requirement.read' && role === 'admin';
+          };
+        },
+        createService({ authorize }) {
+          return {
+            listByProject(projectId, query, callContext) {
+              const allowed = authorize('requirement.read', {
+                action: 'requirement.read',
+                projectId,
+                payload: query,
+                context: callContext,
+              });
+              if (!allowed) {
+                return Promise.reject(new Error('requirementsService: permission denied for requirement.read'));
+              }
+              return boundService.listByProject(projectId, query, callContext);
             },
-            {
-              id: 'REQ-002',
-              projectId,
-              code: 'REQ-002',
-              title: 'Deleted should be filtered',
-              status: 'draft',
-              priority: 'normal',
-              isDeleted: true,
+            getById(projectId, requirementId, callContext) {
+              const allowed = authorize('requirement.read', {
+                action: 'requirement.read',
+                projectId,
+                payload: { id: requirementId },
+                context: callContext,
+              });
+              if (!allowed) {
+                return Promise.reject(new Error('requirementsService: permission denied for requirement.read'));
+              }
+              return boundService.getById(projectId, requirementId, callContext);
             },
-          ]);
-        },
-        getById(projectId, requirementId, callContext) {
-          calls.push({ method: 'getById', projectId, requirementId, context: callContext });
-          return Promise.resolve({
-            id: requirementId,
-            projectId,
-            code: requirementId,
-            title: 'Firestore detail contract',
-            description: 'Read-only detail body',
-            status: 'approved',
-            priority: 'high',
-            ownerName: 'Detail Owner',
-            updatedAt: '2026-07-03T00:00:00.000Z',
-            linkedScreenSpec: 'SCR-002',
-            linkedWbs: 'WBS-002',
-            reviewStatus: 'Approved',
-            isDeleted: false,
-          });
-        },
-        create() {
-          throw new Error('create must not be called');
-        },
-        update() {
-          throw new Error('update must not be called');
-        },
-        softDelete() {
-          throw new Error('softDelete must not be called');
+          };
         },
       },
     },
@@ -255,6 +315,8 @@ for (let i = 0; i < 20; i += 1) {
 }
 
 const listCall = calls.find((call) => call.method === 'listByProject');
+assert.equal(denyListCalls, 0, 'deny-by-default service must not be used after bindAuthorizedService');
+assert.equal(boundListCalls, 1, 'role-bound service must handle listByProject');
 assert.equal(listCall.projectId, 'P314');
 assert.equal(listCall.query.includeDeleted, false);
 assert.equal(listCall.context.actorUid, 'qa-user');
@@ -262,6 +324,10 @@ assert.equal(listCall.context.memberRole, 'admin');
 assert.equal(listCall.context.source, 'requirements-firestore-list');
 assert.match(tbody.innerHTML, /REQ-001/);
 assert.doesNotMatch(tbody.innerHTML, /REQ-002/);
+assert.doesNotMatch(tbody.innerHTML, /<script>/);
+assert.match(tbody.innerHTML, /&lt;script&gt;alert\(&quot;xss&quot;\)&lt;\/script&gt;/);
+assert.match(tbody.innerHTML, /QA &amp; User/);
+assert.doesNotMatch(tbody.innerHTML, /요구사항을 불러오지 못했습니다/);
 assert.equal(summaryNums[0].textContent, 1);
 assert.equal(summaryNums[2].textContent, 1);
 assert.equal(summaryNums[6].textContent, 0);
