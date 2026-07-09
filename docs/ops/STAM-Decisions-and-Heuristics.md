@@ -1420,3 +1420,30 @@ PR #364 maintainer live QA에서 owner create가 `Missing or insufficient permis
 
 - PR #364 maintainer create/update persistence QA 재실행.
 - requirement delete rules + UI PR.
+
+---
+
+## 4-20. FS-1 / FS-2 — functionalSpecifications rules + service/adapter
+
+**일자:** 2026-07-09  
+**문서:** `firestore.rules`, `stam/js/stam.functional-spec-service.js`, `stam/js/stam.functional-spec-firestore-adapter.js`, `docs/reports/STAM_FS1_FunctionalSpec_Write_Rules_By_Role.md`, `docs/reports/STAM_FS2_FunctionalSpec_Service_Adapter_QA.md`, `docs/reports/STAM_FunctionalSpec_DB_Connection_Inventory.md`
+
+### 왜 지금 구현했나
+
+PR #368 inventory와 Requirements CRUD 라인(#364–#367) 완료 후, Gate §6 단계 2(기능정의서)를 열기 위해 **functionalSpecifications** subcollection write rules(FS-1)와 domain service/adapter(FS-2)를 Requirements 패턴으로 분리 구현한다.
+
+### 결정
+
+- Firestore collection 명: **`functionalSpecifications`** (`functionalDefinitions`는 local/prototype only).
+- FS-1: `isFunctionalSpecWriter` — active member + role ∈ {owner, admin, editor}; delete **deny**.
+- FS-2: `STAM.functionalSpecService` + `STAM.functionalSpecFirestoreAdapter` — create/update/read service API; **default runtime deny-by-default**; delete/softDelete **미노출**.
+- 요구사항 연결 1차: `requirementId` / `requirementCode` / `requirementTitle` — **optional** snapshot fields.
+- `FN_###` code counter / requirement picker — **FS-6 후속**.
+- Local IndexedDB `stam.functional-definition-crud.js` softDelete — Firestore 1차 정책과 **불일치** (inventory §9); UI 정렬은 FS-5.
+- UI/pages/script tag/nav **미연결** (FS-4~).
+
+### 다시 열 조건
+
+- FS-3 role matrix smoke QA.
+- FS-4 list read binding + FS-5 CRUD UI wiring.
+- maintainer live Firestore persistence QA (후속 evidence PR).
