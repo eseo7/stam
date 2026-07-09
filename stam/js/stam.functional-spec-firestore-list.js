@@ -1,0 +1,566 @@
+/* ============================================================================
+ * STAM Functional Specification Firestore List
+ * ----------------------------------------------------------------------------
+ * Read-only list binding for functional-specification.html (FS-4).
+ * Source contract:
+ *   STAM.functionalSpecService.listByProject(projectId, query, context)
+ *
+ * No Firestore path construction, no create/update/delete/softDelete/remove calls.
+ * ========================================================================== */
+(function () {
+  'use strict';
+
+  var STORAGE_PROJECT_ID = 'stam:selectedProjectId';
+  var STORAGE_PROJECT_NAME = 'stam:selectedProjectName';
+  var DEFAULT_QUERY = { includeDeleted: false };
+  var ROUTES = {
+    login: '/pages/auth/login.html',
+    projects: '/pages/auth/projects.html',
+    accessDenied: '/pages/auth/access-denied.html',
+  };
+
+  var FUNCTION_TYPE_LABELS = {
+    view: '조회',
+    create: '등록',
+    update: '수정',
+    delete: '삭제',
+    approve: '승인',
+    notify: '알림',
+    export: '보내기',
+    integrate: '연동',
+  };
+
+  var AVA_CLASSES = ['fn-ava--bg-5451e8', 'fn-ava--bg-8b5cf6', 'fn-ava--bg-10b981'];
+
+  var state = {
+    projectId: '',
+    project: null,
+    member: null,
+    user: null,
+    items: [],
+  };
+
+  function ready(fn) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
+  }
+
+  function esc(value) {
+    if (value == null) return '';
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function clean(value) {
+    return String(value == null ? '' : value).trim();
+  }
+
+  function queryParam(name) {
+    try {
+      return clean(new URLSearchParams(window.location.search).get(name));
+    } catch (err) {
+      return '';
+    }
+  }
+
+  function storedProjectId() {
+    try {
+      return clean(sessionStorage.getItem(STORAGE_PROJECT_ID));
+    } catch (err) {
+      return '';
+    }
+  }
+
+  function resolveProjectId() {
+    return queryParam('projectId') || storedProjectId();
+  }
+
+  function firestore() {
+    if (!window.firebase || !window.firebase.firestore) return null;
+    try {
+      return window.firebase.firestore();
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function redirect(path) {
+    window.location.replace(path);
+  }
+
+  function authReady() {
+    if (!window.firebase || !window.firebase.auth) return Promise.resolve(null);
+    try {
+      var auth = window.firebase.auth();
+      if (auth.currentUser) return Promise.resolve(auth.currentUser);
+      return new Promise(function (resolve) {
+        var unsubscribe = auth.onAuthStateChanged(function (user) {
+          if (unsubscribe) unsubscribe();
+          resolve(user || null);
+        });
+      });
+    } catch (err) {
+      return Promise.resolve(null);
+    }
+  }
+
+  function verifyProjectAccess(db, user, projectId) {
+    var memberRef = db.collection('projects').doc(projectId).collection('members').doc(user.uid);
+    var projectRef = db.collection('projects').doc(projectId);
+    return memberRef.get().then(function (memberSnap) {
+      if (!memberSnap.exists) return { ok: false, reason: 'no-member' };
+      var member = memberSnap.data() || {};
+      if (member.status !== 'active') return { ok: false, reason: 'inactive' };
+      return projectRef.get().then(function (projectSnap) {
+        if (!projectSnap.exists) return { ok: false, reason: 'no-project' };
+        return {
+          ok: true,
+          project: projectSnap.data() || {},
+          member: member,
+        };
+      });
+    });
+  }
+
+  function roleLabel(role) {
+    var value = clean(role);
+    if (!value) return 'Member';
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  }
+
+  function statusLabel(status) {
+    var value = clean(status).toLowerCase();
+    if (value === 'archived') return '보관';
+    return value || '진행중';
+  }
+
+  function updatedLabel(value) {
+    if (!value) return '';
+    if (typeof value.toDate === 'function') {
+      try {
+        return '업데이트 ' + value.toDate().toLocaleString('ko-KR');
+      } catch (err) {
+        return '';
+      }
+    }
+    return '업데이트 ' + String(value);
+  }
+
+  function applyProjectContext(projectId, project, member) {
+    var name = clean(project.name || project.projectName) || projectId;
+    var client = clean(project.client || project.clientName) || 'STAM';
+    var stage = clean(project.stage || project.description) || name;
+    var status = statusLabel(project.status);
+    var role = roleLabel(member.role);
+    var updated = updatedLabel(project.updatedAt);
+
+    try {
+      sessionStorage.setItem(STORAGE_PROJECT_ID, projectId);
+      sessionStorage.setItem(STORAGE_PROJECT_NAME, name);
+    } catch (err) { /* ignore */ }
+
+    var ctx = document.querySelector('[data-stam-project-context]');
+    if (ctx) {
+      ctx.setAttribute('data-pc-title', name);
+      ctx.setAttribute('data-pc-client', client);
+      ctx.setAttribute('data-pc-stage', stage);
+      ctx.setAttribute('data-pc-status', status);
+      ctx.setAttribute('data-pc-role', role);
+      if (updated) ctx.setAttribute('data-pc-updated', updated);
+    }
+
+    var topbar = document.querySelector('[data-stam-topbar]');
+    if (topbar) {
+      topbar.setAttribute('data-tb-crumbs', '내 프로젝트|' + name + '|기능정의서');
+      topbar.setAttribute('data-tb-client', client);
+    }
+
+    var leftNav = document.querySelector('[data-stam-left-nav]');
+    if (leftNav) {
+      leftNav.setAttribute('data-project-title', name);
+      leftNav.setAttribute('data-project-stage', stage);
+      leftNav.setAttribute('data-project-status', status);
+      leftNav.setAttribute('data-project-role', role);
+    }
+
+    window.STAM = window.STAM || {};
+    window.STAM.currentProjectContext = {
+      title: name,
+      stage: stage,
+      status: status,
+      role: role,
+    };
+
+    document.title = '기능정의서 — ' + name + ' — STAM';
+    if (window.STAM.projectContextRender && typeof window.STAM.projectContextRender.init === 'function') {
+      window.STAM.projectContextRender.init();
+    }
+    if (window.STAM.topbarRender && typeof window.STAM.topbarRender.init === 'function') {
+      window.STAM.topbarRender.init();
+    }
+    if (window.STAM.navRender && typeof window.STAM.navRender.init === 'function') {
+      window.STAM.navRender.init('B5');
+    }
+  }
+
+  function guardProjectAccess(projectId) {
+    if (!projectId) {
+      redirect(ROUTES.projects);
+      return Promise.resolve(null);
+    }
+    var db = firestore();
+    if (!db) {
+      renderError();
+      return Promise.resolve(null);
+    }
+    return authReady().then(function (user) {
+      if (!user) {
+        redirect(ROUTES.login);
+        return null;
+      }
+      return verifyProjectAccess(db, user, projectId).then(function (result) {
+        if (!result.ok) {
+          if (result.reason === 'no-member' || result.reason === 'inactive') {
+            redirect(ROUTES.accessDenied);
+          } else {
+            redirect(ROUTES.projects);
+          }
+          return null;
+        }
+        state.projectId = projectId;
+        state.project = result.project;
+        state.member = result.member;
+        state.user = user;
+        applyProjectContext(projectId, result.project, result.member);
+        return {
+          projectId: projectId,
+          user: user,
+          project: result.project,
+          member: result.member,
+        };
+      });
+    });
+  }
+
+  function service() {
+    return window.STAM && window.STAM.functionalSpecService;
+  }
+
+  function serviceContract() {
+    return window.STAM && window.STAM.functionalSpecServiceContract;
+  }
+
+  function bindAuthorizedService(memberRole) {
+    var contract = serviceContract();
+    if (!contract || typeof contract.createService !== 'function') return;
+    if (typeof contract.createMemberRoleAuthorize !== 'function') return;
+    var authorize = contract.createMemberRoleAuthorize(function (request) {
+      var ctx = request && request.context ? request.context : {};
+      return ctx.memberRole || ctx.role || memberRole || '';
+    });
+    window.STAM.functionalSpecService = contract.createService({ authorize: authorize });
+  }
+
+  function serviceContext(source) {
+    return {
+      actorUid: state.user && state.user.uid,
+      actorName: state.user && (state.user.displayName || state.user.email),
+      memberRole: state.member && state.member.role,
+      projectId: state.projectId,
+      source: source || 'functional-spec-firestore',
+    };
+  }
+
+  function tbody() {
+    return document.getElementById('fn-tbody');
+  }
+
+  function listRoot() {
+    return document.querySelector('[data-stam-board-list]');
+  }
+
+  function refreshBoardList() {
+    var root = listRoot();
+    if (root && window.STAMBoardList && typeof window.STAMBoardList.refresh === 'function') {
+      window.STAMBoardList.refresh(root);
+    }
+  }
+
+  function dpart(value) {
+    return String(value || '').replace('T', ' ').slice(0, 10);
+  }
+
+  function valueOf(item, keys, fallback) {
+    for (var i = 0; i < keys.length; i++) {
+      var value = item[keys[i]];
+      if (value != null && clean(value) !== '') return value;
+    }
+    return fallback;
+  }
+
+  function getTimestampMs(value) {
+    if (!value) return 0;
+    if (typeof value.toMillis === 'function') return value.toMillis();
+    if (typeof value.seconds === 'number') return value.seconds * 1000;
+    if (typeof value === 'string') {
+      var parsed = Date.parse(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
+  }
+
+  function latestSortTime(item) {
+    return getTimestampMs(item && item.updatedAt) || getTimestampMs(item && item.createdAt);
+  }
+
+  function sortFunctionalSpecsByLatest(list) {
+    return (list || []).slice().sort(function (a, b) {
+      var aTime = latestSortTime(a);
+      var bTime = latestSortTime(b);
+      if (bTime !== aTime) return bTime - aTime;
+      var ac = clean(a && (a.code || a.id));
+      var bc = clean(b && (b.code || b.id));
+      return bc.localeCompare(ac);
+    });
+  }
+
+  function formatFunctionalSpecCode(item) {
+    if (item && clean(item.code)) return clean(item.code);
+    return '-';
+  }
+
+  function statusInfo(item) {
+    var status = clean(item.status).toLowerCase();
+    var reviewStatus = clean(item.reviewStatus).toLowerCase();
+    if (status === 'approved') return { label: '승인완료', cls: 'fn-chip-approved' };
+    if (status === 'hold') return { label: '보류', cls: 'fn-chip-hold' };
+    if (status === 'done') return { label: '검토완료', cls: 'fn-chip-done' };
+    if (status === 'review') {
+      return reviewStatus === 'approved'
+        ? { label: '검토완료', cls: 'fn-chip-done' }
+        : { label: '검토요청', cls: 'fn-chip-review' };
+    }
+    return { label: '작성중', cls: 'fn-chip-draft' };
+  }
+
+  function priorityInfo(item) {
+    var priority = clean(item.priority).toLowerCase();
+    if (priority === 'high') return { label: '높음', cls: 'fn-chip-high' };
+    if (priority === 'low') return { label: '낮음', cls: 'fn-chip-low' };
+    return { label: '중간', cls: 'fn-chip-mid' };
+  }
+
+  function functionTypeLabel(item) {
+    var raw = clean(item.functionType).toLowerCase();
+    if (raw && FUNCTION_TYPE_LABELS[raw]) return FUNCTION_TYPE_LABELS[raw];
+    return clean(item.functionType) || '기능';
+  }
+
+  function ownerText(item) {
+    return clean(valueOf(item, ['ownerName', 'ownerUid', 'createdBy'], '미지정')) || '미지정';
+  }
+
+  function avaClass(name) {
+    var h = 0;
+    var s = String(name || '?');
+    for (var i = 0; i < s.length; i++) h = (h + s.charCodeAt(i)) % AVA_CLASSES.length;
+    return AVA_CLASSES[h];
+  }
+
+  function requirementChip(item) {
+    var code = clean(valueOf(item, ['requirementCode', 'requirementId'], ''));
+    if (code) return '<span class="fn-link-chip">' + esc(code) + '</span>';
+    return '<span class="fn-chip fn-chip-hold">연결 필요</span>';
+  }
+
+  function screenChip(item) {
+    var screen = clean(valueOf(item, ['linkedScreen'], ''));
+    if (screen) return '<span class="fn-link-chip fn-link-chip-scr">' + esc(screen) + '</span>';
+    return '<span class="fn-updated-cell">—</span>';
+  }
+
+  function rowHtml(item) {
+    var status = statusInfo(item);
+    var priority = priorityInfo(item);
+    var owner = ownerText(item);
+    var initial = esc(owner.charAt(0) || '?');
+    var code = formatFunctionalSpecCode(item);
+    var title = clean(item.title) || '(제목 없음)';
+    var updated = dpart(item.updatedAt || item.createdAt) || '—';
+
+    return '<tr class="fn-data-row stam-table-row" data-fn-id="' + esc(item.id) + '">' +
+      '<td class="fn-ch stam-check-cell"><input type="checkbox" class="fn-cb stam-check" onclick="event.stopPropagation()"></td>' +
+      '<td><div class="fn-id-cell"><span class="fn-fn-id">' + esc(code) + '</span>' +
+      '<span class="fn-fn-name">' + esc(title) + '</span></div></td>' +
+      '<td>' + requirementChip(item) + '</td>' +
+      '<td>' + screenChip(item) + '</td>' +
+      '<td><span class="fn-chip fn-chip-type">' + esc(functionTypeLabel(item)) + '</span></td>' +
+      '<td><span class="fn-chip ' + priority.cls + '">' + esc(priority.label) + '</span></td>' +
+      '<td><span class="fn-chip ' + status.cls + '">' + esc(status.label) + '</span></td>' +
+      '<td><div class="fn-who">' +
+      '<span class="fn-ava ' + avaClass(owner) + '">' + initial + '</span>' +
+      '<span class="fn-owner-name">' + esc(owner) + '</span></div></td>' +
+      '<td class="fn-updated-cell">' + esc(updated) + '</td>' +
+      '</tr>';
+  }
+
+  function statusMessageRow(title, desc, modifier) {
+    var mod = clean(modifier) || 'status';
+    return '<tr class="fn-empty-row fn-empty-row--' + esc(mod) + '"><td colspan="9">' +
+      '<div class="stam-board-desc">' + esc(title) + '</div>' +
+      '<div class="fn-page-hdr-desc">' + esc(desc) + '</div>' +
+      '</td></tr>';
+  }
+
+  function emptyStateRow(title, desc) {
+    return statusMessageRow(title, desc, 'empty');
+  }
+
+  function renderRows(items) {
+    var body = tbody();
+    if (!body) return;
+    if (!items.length) {
+      body.innerHTML = emptyStateRow(
+        '등록된 기능정의가 없습니다',
+        '등록 버튼을 눌러 직접 추가하거나, 요구사항 가져오기를 통해 초안을 생성하세요.'
+      );
+      refreshBoardList();
+      return;
+    }
+    body.innerHTML = items.map(rowHtml).join('');
+    refreshBoardList();
+  }
+
+  function setSummary(items) {
+    var total = items.length;
+    var nums = document.querySelectorAll('.fn-ss-num');
+    if (nums[0]) nums[0].textContent = total;
+    if (nums[1]) nums[1].textContent = items.filter(function (item) { return item.status === 'draft'; }).length;
+    if (nums[2]) nums[2].textContent = items.filter(function (item) {
+      return item.status === 'review' || item.status === 'done';
+    }).length;
+    if (nums[3]) nums[3].textContent = items.filter(function (item) { return item.status === 'approved'; }).length;
+    if (nums[4]) nums[4].textContent = items.filter(function (item) { return item.status === 'hold'; }).length;
+    if (nums[5]) nums[5].textContent = items.filter(function (item) {
+      return !!clean(valueOf(item, ['requirementCode', 'requirementId'], ''));
+    }).length;
+    if (nums[6]) nums[6].textContent = items.filter(function (item) {
+      return !!clean(valueOf(item, ['linkedScreen'], ''));
+    }).length;
+
+    var highPriority = document.querySelectorAll('.fn-ss-meta-val')[0];
+    var recent = document.querySelectorAll('.fn-ss-meta-val')[1];
+    var unlinked = document.querySelectorAll('.fn-ss-meta-val')[2];
+    if (highPriority) {
+      highPriority.textContent = items.filter(function (item) { return item.priority === 'high'; }).length + '건';
+    }
+    if (recent) recent.textContent = '—';
+    if (unlinked) {
+      unlinked.textContent = items.filter(function (item) {
+        return !clean(valueOf(item, ['requirementCode', 'requirementId'], ''));
+      }).length + '건';
+    }
+
+    var count = document.querySelector('.stam-board-count');
+    if (count) count.innerHTML = '총 <b>' + total + '</b>건 중 <b>' + total + '</b>건 표시';
+  }
+
+  function addSourceBadge() {
+    var titleEl = document.querySelector('.fn-page-hdr-title');
+    if (
+      titleEl
+      && typeof titleEl.insertAdjacentHTML === 'function'
+      && !document.getElementById('fsl-srcbadge')
+    ) {
+      titleEl.insertAdjacentHTML('beforeend',
+        '<span id="fsl-srcbadge" class="fn-chip fn-chip-type fn-chip-ml">Firestore</span>');
+    }
+  }
+
+  function renderLoading() {
+    var body = tbody();
+    if (body) {
+      body.innerHTML = statusMessageRow(
+        '기능정의 목록을 불러오는 중입니다.',
+        'Firestore에서 목록을 읽어오고 있습니다.',
+        'loading'
+      );
+    }
+  }
+
+  function renderError() {
+    var body = tbody();
+    if (body) {
+      body.innerHTML = statusMessageRow(
+        '기능정의 목록을 불러오지 못했습니다.',
+        '잠시 후 다시 시도해 주세요.',
+        'error'
+      );
+    }
+    setSummary([]);
+    refreshBoardList();
+  }
+
+  function load() {
+    var projectId = resolveProjectId();
+    renderLoading();
+
+    return guardProjectAccess(projectId).then(function (guard) {
+      if (!guard) return [];
+      bindAuthorizedService(guard.member && guard.member.role);
+      var svc = service();
+      if (!svc || typeof svc.listByProject !== 'function') {
+        renderError();
+        return [];
+      }
+      var context = serviceContext('functional-spec-firestore-list');
+      return svc.listByProject(projectId, DEFAULT_QUERY, context);
+    }).then(function (items) {
+      var list = sortFunctionalSpecsByLatest(
+        (items || []).filter(function (item) { return item && item.isDeleted !== true; })
+      );
+      state.items = list;
+      renderRows(list);
+      setSummary(list);
+      addSourceBadge();
+      return list;
+    }).catch(function () {
+      state.items = [];
+      renderError();
+      return [];
+    });
+  }
+
+  window.STAM = window.STAM || {};
+  window.STAM.functionalSpecFirestoreList = {
+    load: load,
+    guardProjectAccess: guardProjectAccess,
+    applyProjectContext: applyProjectContext,
+    renderRows: renderRows,
+    emptyStateRow: emptyStateRow,
+    setSummary: setSummary,
+    resolveProjectId: resolveProjectId,
+    statusInfo: statusInfo,
+    priorityInfo: priorityInfo,
+    formatFunctionalSpecCode: formatFunctionalSpecCode,
+    getTimestampMs: getTimestampMs,
+    sortFunctionalSpecsByLatest: sortFunctionalSpecsByLatest,
+    bindAuthorizedService: bindAuthorizedService,
+    serviceContext: serviceContext,
+    getState: function () {
+      return {
+        projectId: state.projectId,
+        project: state.project,
+        member: state.member,
+        user: state.user,
+        items: state.items,
+      };
+    },
+  };
+
+  ready(load);
+}());

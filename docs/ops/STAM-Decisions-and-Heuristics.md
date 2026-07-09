@@ -1470,3 +1470,27 @@ FS-1 rules와 FS-2 service/adapter merge 후, list/CRUD UI wiring(FS-4~) 전에 
 - FS-4 list read binding.
 - FS-5 CRUD UI wiring.
 - maintainer live Firestore persistence QA (FS-7 evidence PR).
+
+---
+
+## 4-22. FS-4 — functionalSpecifications Firestore list read UI binding
+
+**일자:** 2026-07-09  
+**문서:** `stam/js/stam.functional-spec-firestore-list.js`, `stam/pages/boards/functional-specification.html`, `docs/reports/STAM_FS4_FunctionalSpec_List_Read_QA.md`
+
+### 왜 지금 구현했나
+
+FS-2 service/adapter와 FS-3 role matrix 완료 후, B5 기능정의서 화면의 Local IndexedDB/mock 목록을 **Firestore read-only list**로 전환한다. CRUD 저장 연결은 FS-5로 분리한다.
+
+### 결정
+
+- `stam.functional-spec-firestore-list.js` **신규** — `listByProject` read-only binding, loading/empty/error, `state.items` sync.
+- `functional-specification.html` — Firebase Hosting init + service/adapter/list scripts; static tbody 제거; local cycle/crud scripts 제거.
+- create/update/delete/softDelete UI 저장 **미연결** (FS-5).
+- service/adapter/rules/nav-data/css **미변경**.
+
+### 다시 열 조건
+
+- FS-5 CRUD UI wiring.
+- FS-6 `FN_###` counter + requirement picker.
+- maintainer live Firestore persistence QA (FS-7).
