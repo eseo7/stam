@@ -225,6 +225,7 @@ service cloud.firestore {
         'code',
         'title',
         'description',
+        'background',
         'status',
         'priority',
         'ownerUid',
@@ -260,6 +261,7 @@ service cloud.firestore {
           && data.keys().hasOnly(requirementWriteKeys())
           && (!data.keys().hasAny(['code']) || data.code is string)
           && (!data.keys().hasAny(['description']) || data.description is string)
+          && (!data.keys().hasAny(['background']) || data.background is string)
           && (!data.keys().hasAny(['ownerUid']) || data.ownerUid is string)
           && (!data.keys().hasAny(['ownerName']) || data.ownerName is string)
           && (!data.keys().hasAny(['sortOrder']) || data.sortOrder is int)
@@ -299,6 +301,7 @@ service cloud.firestore {
           && data.keys().hasOnly(requirementWriteKeys())
           && (!data.keys().hasAny(['code']) || data.code is string)
           && (!data.keys().hasAny(['description']) || data.description is string)
+          && (!data.keys().hasAny(['background']) || data.background is string)
           && (!data.keys().hasAny(['ownerUid']) || data.ownerUid is string)
           && (!data.keys().hasAny(['ownerName']) || data.ownerName is string)
           && (!data.keys().hasAny(['sortOrder']) || data.sortOrder is int)

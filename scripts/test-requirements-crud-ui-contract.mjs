@@ -71,6 +71,10 @@ assert.match(crudSource, /applyWriteAccessUI: applyWriteAccessUI/);
 assert.match(crudSource, /setButtonDisabled\(document\.getElementById\('rq-reg-btn'\), !writable/);
 assert.match(crudSource, /setButtonDisabled\(document\.getElementById\('rq-del-btn'\), true/);
 assert.match(crudSource, /setButtonDisabled\(document\.getElementById\('rq-det-del-btn'\), true/);
+assert.match(crudSource, /background: getVal\(regDrawer, '배경'\)/);
+assert.match(crudSource, /background: getVal\(editDrawer, '배경'\)/);
+assert.match(crudSource, /function requirementDisplayCode\(item\)/);
+assert.match(listSource, /function formatRequirementCode\(item\)/);
 assert.match(pageSource, /id="rq-del-btn"[^>]*disabled/);
 assert.match(pageSource, /id="rq-det-del-btn"/);
 

@@ -196,8 +196,14 @@
     return APPROVAL_KO_TO_DOMAIN[ko] || 'none';
   }
 
-  function approvalToKo(value) {
-    return APPROVAL_DOMAIN_TO_KO[clean(value).toLowerCase()] || '미승인';
+  function requirementDisplayCode(item) {
+    var api = listApi();
+    if (api && typeof api.formatRequirementCode === 'function') {
+      return api.formatRequirementCode(item);
+    }
+    if (item && clean(item.code)) return clean(item.code);
+    if (item && item.id) return 'RQ-' + String(item.id).slice(0, 8).toUpperCase();
+    return '-';
   }
 
   function setButtonDisabled(el, disabled, title) {
@@ -259,7 +265,8 @@
     var approvalKo = getVal(regDrawer, '승인 상태');
     return {
       title: title,
-      description: description || getVal(regDrawer, '배경'),
+      description: description,
+      background: getVal(regDrawer, '배경'),
       status: mapped.status,
       priority: priorityFromKo(getVal(regDrawer, '우선순위') || '보통'),
       ownerName: ownerName,
@@ -305,7 +312,7 @@
   function prefillEdit(item) {
     var editDrawer = document.getElementById('rq-dw-edit');
     if (!editDrawer || !item) return;
-    var code = clean(item.code) || clean(item.id) || 'REQ';
+    var code = requirementDisplayCode(item);
     var sumId = editDrawer.querySelector('.rq-edit-sum-id');
     if (sumId) sumId.textContent = code;
     var badge = editDrawer.querySelector('.rq-req-badge');
@@ -333,6 +340,7 @@
     return {
       title: getVal(editDrawer, '요구사항명'),
       description: getVal(editDrawer, '상세 요구사항'),
+      background: getVal(editDrawer, '배경'),
       status: mapped.status,
       priority: priorityFromKo(getVal(editDrawer, '우선순위') || '보통'),
       ownerName: getVal(editDrawer, '담당자'),

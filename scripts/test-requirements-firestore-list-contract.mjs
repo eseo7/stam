@@ -19,6 +19,8 @@ assert.doesNotMatch(
 assert.match(loadFn[0], /bindAuthorizedService\([\s\S]*?var svc = service\(\)/);
 assert.match(listSource, /function refreshCrudAccessUI\(\)/);
 assert.match(loadFn[0], /refreshCrudAccessUI\(\)/);
+assert.match(listSource, /function formatRequirementCode\(item\)/);
+assert.match(loadFn[0], /state\.items = list/);
 assert.match(listSource, /\.replace\(\/&\/g, '&amp;'\)/);
 
 function fakeElement() {
@@ -340,6 +342,8 @@ assert.match(tbody.innerHTML, /&lt;script&gt;alert\(&quot;xss&quot;\)&lt;\/scrip
 assert.match(tbody.innerHTML, /QA &amp; User/);
 assert.doesNotMatch(tbody.innerHTML, /요구사항을 불러오지 못했습니다/);
 assert.equal(summaryNums[0].textContent, 1);
+assert.equal(context.window.STAM.requirementsFirestoreList.getState().items.length, 1);
+assert.equal(context.window.STAM.requirementsFirestoreList.getState().items[0].id, 'REQ-001');
 assert.equal(summaryNums[2].textContent, 1);
 assert.equal(summaryNums[6].textContent, 0);
 assert.match(count.innerHTML, /총 <b>1<\/b>건/);
@@ -359,6 +363,22 @@ assert.equal(detailCall.projectId, 'P314');
 assert.equal(detailCall.requirementId, 'REQ-001');
 assert.equal(detailCall.context.source, 'requirements-firestore-detail');
 assert.equal(detailBadge.textContent, 'REQ-001');
+assert.equal(
+  context.window.STAM.requirementsFirestoreList.formatRequirementCode({ id: 'LfwDuRkUq5uW3HCUOMSj' }),
+  'RQ-LFWDURKU',
+);
+tbody.innerHTML = '';
+context.window.STAM.requirementsFirestoreList.renderRows([
+  {
+    id: 'LfwDuRkUq5uW3HCUOMSj',
+    title: 'No code row',
+    status: 'draft',
+    priority: 'normal',
+  },
+]);
+assert.match(tbody.innerHTML, /RQ-LFWDURKU/);
+assert.match(tbody.innerHTML, /data-rq-id="LfwDuRkUq5uW3HCUOMSj"/);
+assert.doesNotMatch(tbody.innerHTML, /<span class="rq-req-id">LfwDuRkUq5uW3HCUOMSj<\/span>/);
 assert.equal(detailTitle.textContent, 'Firestore detail contract');
 assert.match(detailMeta.innerHTML, /승인완료/);
 assert.match(tabInfo.innerHTML, /Firestore detail contract/);

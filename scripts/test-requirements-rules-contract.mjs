@@ -38,6 +38,8 @@ assert.match(helperBlock, /status == 'draft'/);
 assert.match(helperBlock, /status == 'archived'/);
 assert.match(helperBlock, /priority == 'critical'/);
 assert.match(helperBlock, /'id',\s*\n\s*'projectId',\s*\n\s*'code',\s*\n\s*'title'/);
+assert.match(helperBlock, /'background',/);
+assert.match(helperBlock, /\(!data\.keys\(\)\.hasAny\(\['background'\]\) \|\| data\.background is string\)/);
 assert.match(helperBlock, /isValidRequirementStatus\(data\.status\)/);
 assert.match(helperBlock, /isValidRequirementPriority\(data\.priority\)/);
 assert.match(helperBlock, /data\.version == 1/);
@@ -52,6 +54,16 @@ assert.match(
   serviceSource,
   /!Number\.isFinite\(n\) \|\| !Number\.isInteger\(n\)/,
   'normalizeSortOrder must reject non-integer values for rules sortOrder is int',
+);
+assert.match(
+  serviceSource,
+  /background: clean\(source\.background\)/,
+  'create payload must include background field (PR #367)',
+);
+assert.match(
+  serviceSource,
+  /background: clean\(raw\.background\)/,
+  'normalizeRequirement must include background field (PR #367)',
 );
 assert.match(
   serviceSource,

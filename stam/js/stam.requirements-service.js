@@ -168,6 +168,7 @@
       code: clean(source.code),
       title: clean(source.title),
       description: clean(source.description),
+      background: clean(source.background),
       status: normalizeEnum('status', source.status),
       priority: normalizeEnum('priority', source.priority),
       ownerUid: clean(source.ownerUid) || actor.uid,
@@ -201,6 +202,7 @@
       code: clean(raw.code),
       title: clean(raw.title),
       description: clean(raw.description),
+      background: clean(raw.background),
       status: normalizeEnum('status', raw.status),
       priority: normalizeEnum('priority', raw.priority),
       ownerUid: clean(raw.ownerUid),
@@ -239,6 +241,7 @@
       delete source[key];
     });
     if (source.tags !== undefined) source.tags = normalizeTags(source.tags);
+    if (source.background !== undefined) source.background = clean(source.background);
     ['status', 'priority', 'visibility'].forEach(function (field) {
       if (source[field] !== undefined) source[field] = normalizeEnum(field, source[field]);
     });

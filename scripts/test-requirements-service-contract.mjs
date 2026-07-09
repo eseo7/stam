@@ -227,6 +227,7 @@ const helperCreate = service.buildCreatePayload({
   reviewStatus: 'In Review',
   approvalStatus: 'pending',
   sortOrder: '3',
+  background: ' Business background ',
   tags: [' helper ', '', 'contract'],
 }, {
   actorUid: 'helper-user',
@@ -234,6 +235,7 @@ const helperCreate = service.buildCreatePayload({
 });
 assert.equal(helperCreate.projectId, 'P1');
 assert.equal(helperCreate.title, 'Helper create');
+assert.equal(helperCreate.background, 'Business background');
 assert.equal(helperCreate.status, 'active');
 assert.equal(helperCreate.priority, 'high');
 assert.equal(helperCreate.visibility, 'customer');
@@ -308,6 +310,7 @@ const helperPatch = service.buildUpdatePatch({
   id: 'MUST-NOT-LEAK',
   projectId: 'MUST-NOT-LEAK',
   title: 'Helper patch',
+  background: ' Updated background ',
   status: 'approved',
   priority: 'critical',
   visibility: 'private',
@@ -319,6 +322,7 @@ const helperPatch = service.buildUpdatePatch({
 assert.equal(helperPatch.id, undefined);
 assert.equal(helperPatch.projectId, undefined);
 assert.equal(helperPatch.title, 'Helper patch');
+assert.equal(helperPatch.background, 'Updated background');
 assert.equal(helperPatch.status, 'approved');
 assert.equal(helperPatch.priority, 'critical');
 assert.equal(helperPatch.visibility, 'private');
@@ -364,9 +368,11 @@ const normalized = window.STAM.requirementsService.normalizeRequirement({
   reviewStatus: 'Rejected',
   approvalStatus: 'rejected',
   tags: [' one ', ''],
+  background: ' Stored background ',
   isDeleted: false,
 });
 assert.equal(normalized.title, 'Normalized');
+assert.equal(normalized.background, 'Stored background');
 assert.equal(normalized.status, 'approved');
 assert.equal(normalized.priority, 'critical');
 assert.equal(normalized.visibility, 'internal');
