@@ -1,0 +1,78 @@
+/* ============================================================================
+ * STAM Board Empty / Loading / Error State (shared)
+ * Used by board list modules (requirements, functional-spec, future boards).
+ * ========================================================================== */
+
+.stam-board-empty-row td {
+  padding: 0;
+  border-bottom: 0;
+  vertical-align: middle;
+}
+
+.stam-board-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  min-height: 240px;
+  padding: 48px 24px;
+  box-sizing: border-box;
+}
+
+.stam-board-empty-state--status {
+  min-height: 180px;
+  gap: 6px;
+  padding: 40px 24px;
+}
+
+.stam-board-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-lg);
+  background: var(--bg-sur2);
+  color: var(--t3);
+  margin-bottom: 4px;
+  flex-shrink: 0;
+}
+
+.stam-board-empty-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t1);
+  line-height: 1.45;
+  max-width: 100%;
+}
+
+.stam-board-empty-desc {
+  font-size: 12px;
+  color: var(--t3);
+  line-height: 1.65;
+  max-width: 360px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.stam-board-empty-action {
+  margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+  .stam-board-empty-state {
+    min-height: 200px;
+    padding: 40px 16px;
+  }
+
+  .stam-board-empty-state--status {
+    min-height: 160px;
+    padding: 32px 16px;
+  }
+
+  .stam-board-empty-desc {
+    max-width: 100%;
+  }
+}

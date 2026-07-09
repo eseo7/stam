@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
 const ROOT = new URL('../', import.meta.url);
+const boardEmptySource = await readFile(new URL('stam/js/stam.board-empty-state.js', ROOT), 'utf8');
 const listSource = await readFile(new URL('stam/js/stam.functional-spec-firestore-list.js', ROOT), 'utf8');
 const serviceSource = await readFile(new URL('stam/js/stam.functional-spec-service.js', ROOT), 'utf8');
 const pageSource = await readFile(new URL('stam/pages/boards/functional-specification.html', ROOT), 'utf8');
@@ -28,7 +29,10 @@ assert.match(loadFn[0], /sortFunctionalSpecsByLatest\(/);
 assert.match(loadFn[0], /state\.items = list/);
 assert.match(listSource, /\.replace\(\/&\/g, '&amp;'\)/);
 
-assert.match(pageSource, /stam\.functional-spec-firestore-adapter\.js/);
+assert.match(listSource, /boardEmptyState\(\)/);
+assert.doesNotMatch(listSource, /fn-empty-row/);
+assert.match(pageSource, /stam\.board-empty-state\.js/);
+assert.match(pageSource, /stam\.board-empty-state\.css/);
 assert.match(pageSource, /stam\.functional-spec-service\.js/);
 assert.match(pageSource, /stam\.functional-spec-firestore-list\.js/);
 assert.doesNotMatch(pageSource, /stam\.functional-definition-cycle\.js/);
@@ -256,6 +260,7 @@ context.window.STAM.functionalSpecService = context.window.STAM.functionalSpecSe
   },
 });
 
+vm.runInContext(boardEmptySource, context, { filename: 'stam.board-empty-state.js' });
 vm.runInContext(listSource, context, { filename: 'stam.functional-spec-firestore-list.js' });
 for (let i = 0; i < 20; i += 1) {
   await Promise.resolve();
@@ -321,5 +326,6 @@ assert.match(tbody.innerHTML, /조회/);
 tbody.innerHTML = '';
 context.window.STAM.functionalSpecFirestoreList.renderRows([]);
 assert.match(tbody.innerHTML, /등록된 기능정의가 없습니다/);
+assert.match(tbody.innerHTML, /stam-board-empty-state/);
 
 console.log('functional spec list contract: PASS');

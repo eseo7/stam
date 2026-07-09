@@ -487,37 +487,18 @@
     });
   }
 
-  function emptyStateIconHtml() {
-    if (typeof window.renderStamIcon === 'function') {
-      return '<div class="rq-empty-state-icon" aria-hidden="true">' +
-        window.renderStamIcon('clipboard-check', { className: 'is-lg' }) +
-        '</div>';
-    }
-    return '<div class="rq-empty-state-icon" data-stam-icon="clipboard-check" data-stam-icon-class="is-lg"></div>';
-  }
-
-  function hydrateEmptyStateIcons(root) {
-    if (root && typeof window.hydrateStamIcons === 'function') {
-      window.hydrateStamIcons(root);
-    }
+  function boardEmptyState() {
+    return window.STAM && window.STAM.boardEmptyState;
   }
 
   function emptyStateRow(title, desc) {
-    return '<tr class="rq-empty-row rq-empty-row--empty"><td colspan="9">' +
-      '<div class="rq-empty-state">' +
-      emptyStateIconHtml() +
-      '<div class="rq-empty-state-title">' + esc(title) + '</div>' +
-      '<div class="rq-empty-state-desc">' + esc(desc) + '</div>' +
-      '</div></td></tr>';
-  }
-
-  function statusMessageRow(title, desc, modifier) {
-    var mod = clean(modifier);
-    return '<tr class="rq-empty-row rq-empty-row--' + esc(mod || 'status') + '"><td colspan="9">' +
-      '<div class="rq-empty-state rq-empty-state--status">' +
-      '<div class="rq-empty-state-title">' + esc(title) + '</div>' +
-      '<div class="rq-empty-state-desc">' + esc(desc) + '</div>' +
-      '</div></td></tr>';
+    var api = boardEmptyState();
+    if (!api || typeof api.emptyRow !== 'function') return '';
+    return api.emptyRow({
+      colspan: 9,
+      title: title,
+      description: desc,
+    });
   }
 
   function renderRows(items) {
@@ -528,7 +509,10 @@
         '등록된 요구사항이 없습니다',
         '등록 버튼을 눌러 직접 추가하거나, 요구사항 가져오기를 통해 초안을 생성하세요.'
       );
-      hydrateEmptyStateIcons(body);
+      var emptyApi = boardEmptyState();
+      if (emptyApi && typeof emptyApi.hydrateIcons === 'function') {
+        emptyApi.hydrateIcons(body);
+      }
       refreshBoardList();
       return;
     }
@@ -573,15 +557,25 @@
 
   function renderLoading() {
     var body = tbody();
-    if (body) {
-      body.innerHTML = statusMessageRow('요구사항을 불러오는 중입니다.', '목록을 불러오고 있습니다.', 'loading');
+    var api = boardEmptyState();
+    if (body && api && typeof api.loadingRow === 'function') {
+      body.innerHTML = api.loadingRow({
+        colspan: 9,
+        title: '요구사항을 불러오는 중입니다.',
+        description: '목록을 불러오고 있습니다.',
+      });
     }
   }
 
   function renderError() {
     var body = tbody();
-    if (body) {
-      body.innerHTML = statusMessageRow('요구사항을 불러오지 못했습니다.', '잠시 후 다시 시도해 주세요.', 'error');
+    var api = boardEmptyState();
+    if (body && api && typeof api.errorRow === 'function') {
+      body.innerHTML = api.errorRow({
+        colspan: 9,
+        title: '요구사항을 불러오지 못했습니다.',
+        description: '잠시 후 다시 시도해 주세요.',
+      });
     }
     setSummary([]);
     refreshBoardList();
