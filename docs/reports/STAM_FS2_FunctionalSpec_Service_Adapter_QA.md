@@ -26,9 +26,9 @@ FS-1 `functionalSpecifications` write rules 이후, **domain service + Firestore
 | 항목 | 내용 |
 |------|------|
 | Runtime API | `listByProject`, `getById`, `create`, `update` |
-| Actions | `functionalSpec.read` / `.create` / `.update` / `.delete` |
+| Actions | `functionalSpec.read` / `.create` / `.update` (**delete action 없음**) |
 | Default runtime | **deny-by-default** (`defaultAuthorize` → false) |
-| Role wrapper | `createMemberRoleAuthorize` — owner/admin/editor write, viewer read, **delete 항상 deny** |
+| Role wrapper | `createMemberRoleAuthorize` — owner/admin/editor write, viewer read |
 | Create 필수 | `title`, `status`, `priority` (rules enum 정합) |
 | Status enum | `draft` / `review` / `done` / `approved` / `hold` |
 | Priority enum | `high` / `mid` / `low` |

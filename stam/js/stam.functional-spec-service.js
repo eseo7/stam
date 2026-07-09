@@ -13,7 +13,6 @@
     READ: 'functionalSpec.read',
     CREATE: 'functionalSpec.create',
     UPDATE: 'functionalSpec.update',
-    DELETE: 'functionalSpec.delete',
   };
 
   var WRITE_ROLES = ['owner', 'admin', 'editor'];
@@ -307,9 +306,6 @@
 
     return function authorize(action, request) {
       var role = normalizeMemberRole(resolveRole(request));
-      if (action === ACTIONS.DELETE) {
-        return false;
-      }
       if (actionRequiresWrite(action)) {
         return canWriteFunctionalSpecs(role);
       }

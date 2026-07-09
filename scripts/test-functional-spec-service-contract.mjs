@@ -9,8 +9,13 @@ const rulesSource = await readFile(new URL('firestore.rules', ROOT), 'utf8');
 
 assert.equal(/softDelete\s*:/.test(adapterSource), false);
 assert.equal(/function\s+softDelete/.test(adapterSource), false);
+assert.equal(/function\s+delete\s*\(/.test(adapterSource), false);
+assert.equal(/function\s+remove\s*\(/.test(adapterSource), false);
 assert.equal(/softDelete\s*:/.test(serviceSource), false);
 assert.equal(/function\s+softDelete/.test(serviceSource), false);
+assert.equal(/function\s+delete\s*\(/.test(serviceSource), false);
+assert.equal(/function\s+remove\s*\(/.test(serviceSource), false);
+assert.doesNotMatch(serviceSource, /DELETE:\s*'functionalSpec\.delete'/);
 assert.match(adapterSource, /COLLECTION = 'functionalSpecifications'/);
 assert.doesNotMatch(adapterSource, /allocateFunctionalSpecCode|formatFunctionalSpecCode|counters/);
 assert.match(rulesSource, /function functionalSpecWriteKeys\(\)/);
@@ -211,7 +216,14 @@ await loadBrowserScript(context, 'stam/js/stam.functional-spec-service.js');
 assert.ok(window.STAM.functionalSpecFirestoreAdapter);
 assert.equal(window.STAM.functionalSpecFirestoreAdapter.COLLECTION, 'functionalSpecifications');
 assert.ok(window.STAM.functionalSpecService);
+assert.deepEqual(
+  Object.keys(window.STAM.functionalSpecService.ACTIONS).sort(),
+  ['CREATE', 'READ', 'UPDATE'],
+);
+assert.equal(window.STAM.functionalSpecService.ACTIONS.READ, 'functionalSpec.read');
 assert.equal(window.STAM.functionalSpecService.ACTIONS.CREATE, 'functionalSpec.create');
+assert.equal(window.STAM.functionalSpecService.ACTIONS.UPDATE, 'functionalSpec.update');
+assert.equal('DELETE' in window.STAM.functionalSpecService.ACTIONS, false);
 [
   'normalizeFunctionalSpec',
   'validateFunctionalSpecInput',
@@ -384,8 +396,12 @@ assert.equal(updated.version, 3);
 assert.equal(updated.updatedBy, 'u3');
 assert.deepEqual(authCalls.at(-1), ['functionalSpec.update', 'P1']);
 
+assert.equal(typeof service.delete, 'undefined');
 assert.equal(typeof service.softDelete, 'undefined');
+assert.equal(typeof service.remove, 'undefined');
+assert.equal(typeof window.STAM.functionalSpecService.delete, 'undefined');
 assert.equal(typeof window.STAM.functionalSpecService.softDelete, 'undefined');
+assert.equal(typeof window.STAM.functionalSpecService.remove, 'undefined');
 
 const defaultRuntimeService = window.STAM.functionalSpecService;
 await assert.rejects(
@@ -405,16 +421,14 @@ assert.equal(roleContract.canWriteFunctionalSpecs('viewer'), false);
 assert.equal(roleContract.canReadFunctionalSpecs('viewer'), true);
 
 const roleAuthorize = roleContract.createMemberRoleAuthorize((request) => request.context.memberRole);
+assert.deepEqual(
+  Object.keys(roleContract.ACTIONS).sort(),
+  ['CREATE', 'READ', 'UPDATE'],
+);
+assert.equal('DELETE' in roleContract.ACTIONS, false);
 assert.equal(roleAuthorize(roleContract.ACTIONS.CREATE, { context: { memberRole: 'admin' } }), true);
 assert.equal(roleAuthorize(roleContract.ACTIONS.UPDATE, { context: { memberRole: 'viewer' } }), false);
-assert.equal(roleAuthorize(roleContract.ACTIONS.DELETE, { context: { memberRole: 'owner' } }), false);
-for (const role of ['owner', 'admin', 'editor', 'viewer', 'guest', '']) {
-  assert.equal(
-    roleAuthorize(roleContract.ACTIONS.DELETE, { context: { memberRole: role } }),
-    false,
-    `delete must deny role=${role || '(empty)'}`,
-  );
-}
+assert.equal(roleAuthorize(roleContract.ACTIONS.READ, { context: { memberRole: 'viewer' } }), true);
 
 const deniedService = window.STAM.functionalSpecServiceContract.createService({
   adapter,
@@ -427,6 +441,9 @@ await assert.rejects(
 
 const fakeFirestore = createFakeFirestore();
 const firestoreAdapter = window.STAM.functionalSpecFirestoreAdapter.create({ firestore: fakeFirestore });
+assert.equal(typeof firestoreAdapter.delete, 'undefined');
+assert.equal(typeof firestoreAdapter.softDelete, 'undefined');
+assert.equal(typeof firestoreAdapter.remove, 'undefined');
 const adapterList = await firestoreAdapter.listByProject('P1', {});
 assert.equal(adapterList.length, 1);
 assert.equal(adapterList[0].id, 'FN-A');

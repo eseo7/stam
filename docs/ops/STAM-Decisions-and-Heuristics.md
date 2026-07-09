@@ -1436,7 +1436,7 @@ PR #368 inventory와 Requirements CRUD 라인(#364–#367) 완료 후, Gate §6 
 
 - Firestore collection 명: **`functionalSpecifications`** (`functionalDefinitions`는 local/prototype only).
 - FS-1: `isFunctionalSpecWriter` — active member + role ∈ {owner, admin, editor}; delete **deny**.
-- FS-2: `STAM.functionalSpecService` + `STAM.functionalSpecFirestoreAdapter` — create/update/read service API; **default runtime deny-by-default**; delete/softDelete **미노출**.
+- FS-2: `STAM.functionalSpecService` + `STAM.functionalSpecFirestoreAdapter` — create/update/read service API; **default runtime deny-by-default**; Actions는 read/create/update만 (`functionalSpec.delete` action **없음**); delete/softDelete/remove **미노출**.
 - 요구사항 연결 1차: `requirementId` / `requirementCode` / `requirementTitle` — **optional** snapshot fields.
 - `FN_###` code counter / requirement picker — **FS-6 후속**.
 - Local IndexedDB `stam.functional-definition-crud.js` softDelete — Firestore 1차 정책과 **불일치** (inventory §9); UI 정렬은 FS-5.
