@@ -287,7 +287,7 @@ projects/{projectId}/functionalSpecifications/{functionalSpecId}
 | 변경 이력 탭 (`artifactChanges`) | Local 전용; Firestore `changeLogs` deferred |
 | Board Factory v2 Firestore wiring | v1 제품 경로 우선 |
 | Local IndexedDB → Firestore migration | 별도 결정 |
-|보내기 / 임시저장 버튼 | 동작 없음 유지 |
+| 보내기 / 임시저장 버튼 | 동작 없음 유지 |
 | B5 Preview → Live 승격 | DB+QA 완료 후 shell PR |
 
 ---
