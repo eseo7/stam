@@ -159,8 +159,9 @@
     var projectId = requireProjectId(projectIdFromInput(source, context));
     var actor = actorFromContext(context);
     var t = nowIso(clock);
+    var sortOrder = normalizeSortOrder(source.sortOrder);
 
-    return {
+    var payload = {
       id: clean(source.id) || undefined,
       projectId: projectId,
       code: clean(source.code),
@@ -178,12 +179,17 @@
       deletedBy: null,
       isDeleted: false,
       version: Number.isFinite(Number(source.version)) ? Number(source.version) : 1,
-      sortOrder: normalizeSortOrder(source.sortOrder),
       tags: normalizeTags(source.tags),
       visibility: normalizeEnum('visibility', source.visibility),
       reviewStatus: clean(source.reviewStatus) || DEFAULT_REVIEW_STATUS,
       approvalStatus: clean(source.approvalStatus) || DEFAULT_APPROVAL_STATUS,
     };
+
+    if (sortOrder != null) {
+      payload.sortOrder = sortOrder;
+    }
+
+    return payload;
   }
 
   function normalizeRequirement(raw) {

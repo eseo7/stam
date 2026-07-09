@@ -275,6 +275,25 @@ assert.equal(helperCreateDefaults.priority, 'normal');
 assert.equal(helperCreateDefaults.visibility, 'project');
 assert.equal(helperCreateDefaults.reviewStatus, 'Review Needed');
 assert.equal(helperCreateDefaults.approvalStatus, 'none');
+assert.equal('sortOrder' in helperCreateDefaults, false, 'create payload must omit sortOrder when unset');
+
+const helperCreateSortOrderNull = service.buildCreatePayload({
+  projectId: 'P1',
+  title: 'No sort order',
+  sortOrder: null,
+}, {
+  actorUid: 'helper-user',
+});
+assert.equal('sortOrder' in helperCreateSortOrderNull, false);
+
+const helperCreateSortOrderEmpty = service.buildCreatePayload({
+  projectId: 'P1',
+  title: 'Empty sort order',
+  sortOrder: '',
+}, {
+  actorUid: 'helper-user',
+});
+assert.equal('sortOrder' in helperCreateSortOrderEmpty, false);
 
 const helperPatch = service.buildUpdatePatch({
   id: 'MUST-NOT-LEAK',
