@@ -337,7 +337,6 @@
 
   function formatRequirementCode(item) {
     if (item && clean(item.code)) return clean(item.code);
-    if (item && item.id) return 'RQ-' + String(item.id).slice(0, 8).toUpperCase();
     return '-';
   }
 

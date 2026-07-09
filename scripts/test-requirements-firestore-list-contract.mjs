@@ -365,19 +365,19 @@ assert.equal(detailCall.context.source, 'requirements-firestore-detail');
 assert.equal(detailBadge.textContent, 'REQ-001');
 assert.equal(
   context.window.STAM.requirementsFirestoreList.formatRequirementCode({ id: 'LfwDuRkUq5uW3HCUOMSj' }),
-  'RQ-LFWDURKU',
+  '-',
 );
 tbody.innerHTML = '';
 context.window.STAM.requirementsFirestoreList.renderRows([
   {
     id: 'LfwDuRkUq5uW3HCUOMSj',
-    title: 'No code row',
+    code: 'REQ_002',
+    title: 'Sequenced code row',
     status: 'draft',
     priority: 'normal',
   },
 ]);
-assert.match(tbody.innerHTML, /RQ-LFWDURKU/);
-assert.match(tbody.innerHTML, /data-rq-id="LfwDuRkUq5uW3HCUOMSj"/);
+assert.match(tbody.innerHTML, /REQ_002/);
 assert.doesNotMatch(tbody.innerHTML, /<span class="rq-req-id">LfwDuRkUq5uW3HCUOMSj<\/span>/);
 assert.equal(detailTitle.textContent, 'Firestore detail contract');
 assert.match(detailMeta.innerHTML, /승인완료/);

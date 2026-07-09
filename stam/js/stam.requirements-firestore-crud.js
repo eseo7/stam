@@ -202,8 +202,15 @@
       return api.formatRequirementCode(item);
     }
     if (item && clean(item.code)) return clean(item.code);
-    if (item && item.id) return 'RQ-' + String(item.id).slice(0, 8).toUpperCase();
     return '-';
+  }
+
+  function ensureClosedDeleteButtonVisible(btn) {
+    if (!btn) return;
+    btn.classList.add('stam-btn--danger-outline');
+    if (btn.id === 'rq-del-btn') {
+      btn.classList.add('stam-board-delete', 'stam-delete-btn');
+    }
   }
 
   function setButtonDisabled(el, disabled, title) {
@@ -218,8 +225,12 @@
     var writable = canWrite();
     setButtonDisabled(document.getElementById('rq-reg-btn'), !writable, WRITE_DENIED_MSG);
     setButtonDisabled(document.querySelector('#rq-dw-detail [data-rq-open="edit"]'), !writable, WRITE_DENIED_MSG);
-    setButtonDisabled(document.getElementById('rq-del-btn'), true, DELETE_DENIED_MSG);
-    setButtonDisabled(document.getElementById('rq-det-del-btn'), true, DELETE_DENIED_MSG);
+    var toolbarDelete = document.getElementById('rq-del-btn');
+    var detailDelete = document.getElementById('rq-det-del-btn');
+    ensureClosedDeleteButtonVisible(toolbarDelete);
+    ensureClosedDeleteButtonVisible(detailDelete);
+    setButtonDisabled(toolbarDelete, true, DELETE_DENIED_MSG);
+    setButtonDisabled(detailDelete, true, DELETE_DENIED_MSG);
   }
 
   function closeDrawersAndRefresh() {

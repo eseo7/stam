@@ -9,6 +9,8 @@
   'use strict';
 
   var COLLECTION = 'requirements';
+  var COUNTER_DOC_ID = 'requirements';
+  var CODE_PREFIX = 'REQ_';
 
   function clean(value) {
     return String(value == null ? '' : value).trim();
@@ -55,6 +57,32 @@
 
   function collectionRef(db, projectId) {
     return db.collection('projects').doc(projectId).collection(COLLECTION);
+  }
+
+  function counterRef(db, projectId) {
+    return db.collection('projects').doc(projectId).collection('counters').doc(COUNTER_DOC_ID);
+  }
+
+  function formatRequirementCodeNumber(lastNumber) {
+    var n = Number(lastNumber);
+    if (!Number.isFinite(n) || n < 1) return CODE_PREFIX + '001';
+    return CODE_PREFIX + String(Math.floor(n)).padStart(3, '0');
+  }
+
+  function allocateRequirementCode(db, projectId) {
+    return db.runTransaction(function (transaction) {
+      var cref = counterRef(db, projectId);
+      return transaction.get(cref).then(function (snap) {
+        var lastNumber = 0;
+        if (snap.exists) {
+          var counterData = snap.data() || {};
+          lastNumber = Number.isFinite(Number(counterData.lastNumber)) ? Number(counterData.lastNumber) : 0;
+        }
+        var nextNumber = lastNumber + 1;
+        transaction.set(cref, { lastNumber: nextNumber }, { merge: true });
+        return formatRequirementCodeNumber(nextNumber);
+      });
+    });
   }
 
   function toPlainTimestamp(value) {
@@ -136,9 +164,15 @@
       var ref = input.id ? collectionRef(db(), pid).doc(input.id) : collectionRef(db(), pid).doc();
       input.id = input.id || ref.id;
       input.projectId = input.projectId || pid;
-      var writePayload = applyWriteTimestamps(input, 'create');
-      return ref.set(writePayload).then(function () {
-        return getById(pid, input.id);
+      var codePromise = clean(input.code)
+        ? Promise.resolve(clean(input.code))
+        : allocateRequirementCode(db(), pid);
+      return codePromise.then(function (code) {
+        input.code = code;
+        var writePayload = applyWriteTimestamps(input, 'create');
+        return ref.set(writePayload).then(function () {
+          return getById(pid, input.id);
+        });
       });
     }
 
@@ -162,6 +196,8 @@
   window.STAM = window.STAM || {};
   window.STAM.requirementsFirestoreAdapter = {
     COLLECTION: COLLECTION,
+    COUNTER_DOC_ID: COUNTER_DOC_ID,
+    formatRequirementCodeNumber: formatRequirementCodeNumber,
     create: createAdapter,
   };
 }());

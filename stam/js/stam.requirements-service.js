@@ -161,14 +161,13 @@
     var actor = actorFromContext(context);
     var t = nowIso(clock);
     var sortOrder = normalizeSortOrder(source.sortOrder);
+    var background = clean(source.background);
 
     var payload = {
       id: clean(source.id) || undefined,
       projectId: projectId,
-      code: clean(source.code),
       title: clean(source.title),
       description: clean(source.description),
-      background: clean(source.background),
       status: normalizeEnum('status', source.status),
       priority: normalizeEnum('priority', source.priority),
       ownerUid: clean(source.ownerUid) || actor.uid,
@@ -187,6 +186,9 @@
       approvalStatus: clean(source.approvalStatus) || DEFAULT_APPROVAL_STATUS,
     };
 
+    var code = clean(source.code);
+    if (code) payload.code = code;
+    if (background) payload.background = background;
     if (sortOrder != null) {
       payload.sortOrder = sortOrder;
     }

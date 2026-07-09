@@ -245,6 +245,19 @@ service cloud.firestore {
         'approvalStatus',
       ];
     }
+    function isValidRequirementsCounterWrite() {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['lastNumber'])
+          && data.lastNumber is int
+          && data.lastNumber >= 1
+          && (
+            resource == null && data.lastNumber == 1
+            || resource != null
+                && resource.data.keys().hasOnly(['lastNumber'])
+                && resource.data.lastNumber is int
+                && data.lastNumber == resource.data.lastNumber + 1
+          );
+    }
     function requirementCreateCoreValid(data, requirementId) {
       return data.id == requirementId
           && data.projectId is string
@@ -417,6 +430,14 @@ service cloud.firestore {
         allow get, list: if canReadProject(projectId);
         allow create: if isValidRequirementCreate(projectId, requirementId);
         allow update: if isValidRequirementUpdate(projectId, requirementId);
+        allow delete: if false;
+      }
+
+      match /counters/{counterId} {
+        allow get, list: if canReadProject(projectId);
+        allow create, update: if isRequirementWriter(projectId)
+            && counterId == 'requirements'
+            && isValidRequirementsCounterWrite();
         allow delete: if false;
       }
 
