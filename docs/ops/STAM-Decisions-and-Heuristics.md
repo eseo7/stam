@@ -1444,6 +1444,29 @@ PR #368 inventory와 Requirements CRUD 라인(#364–#367) 완료 후, Gate §6 
 
 ### 다시 열 조건
 
-- FS-3 role matrix smoke QA.
+- ~~FS-3 role matrix smoke QA.~~ → FS-3
 - FS-4 list read binding + FS-5 CRUD UI wiring.
 - maintainer live Firestore persistence QA (후속 evidence PR).
+
+---
+
+## 4-21. FS-3 — functionalSpecifications role matrix smoke QA helper
+
+**일자:** 2026-07-09  
+**문서:** `scripts/test-functional-spec-role-matrix-contract.mjs`, `docs/reports/STAM_FS3_FunctionalSpec_Role_Matrix_Smoke_QA.md`
+
+### 왜 지금 구현했나
+
+FS-1 rules와 FS-2 service/adapter merge 후, list/CRUD UI wiring(FS-4~) 전에 **functionalSpecifications role × action 매트릭스**를 자동 smoke helper로 검증한다. Requirements PR #359 analog이며, FS-2 계약(delete action 없음)을 반영한다.
+
+### 결정
+
+- `scripts/test-functional-spec-role-matrix-contract.mjs` **신규** — owner/admin/editor/viewer/guest/empty/unknown × read/create/update + rules delete deny + service delete action 없음.
+- 제품 UI, `firestore.rules`, `stam/js/**`, pages/css/nav **미변경**.
+- QA HTML page **미추가** (repo dev/qa page 패턴 없음).
+
+### 다시 열 조건
+
+- FS-4 list read binding.
+- FS-5 CRUD UI wiring.
+- maintainer live Firestore persistence QA (FS-7 evidence PR).
