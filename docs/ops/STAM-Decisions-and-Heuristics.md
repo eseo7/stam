@@ -1518,3 +1518,22 @@ PR #372 merge 시 preview smoke evidence가 별도 리포트로 남지 않았고
 
 - staging Hosting 재배포 후 smoke 재실행.
 - FS-5 CRUD UI + Drawer binding.
+
+---
+
+## 4-24. Board Empty State — common component (PR #374 merge gate)
+
+### 왜 지금 했나
+
+FS-5 PR #374에서 기능정의서 empty state를 요구사항정의서 로컬 구현에 “비슷하게 복붙”하는 방식은 승인하지 않음. 게시판/산출물 화면이 늘어날수록 list 모듈마다 empty/loading/error 마크업이 복제되는 것을 막기 위해 **공통 컴포넌트 선행**이 필요하다.
+
+### 결정
+
+- `stam/js/stam.board-empty-state.js` + `stam/css/stam.board-empty-state.css` — `window.STAM.boardEmptyState` (`emptyRow` / `loadingRow` / `errorRow` / `messageRow`).
+- `stam.requirements-firestore-list.js`, `stam.functional-spec-firestore-list.js` — 로컬 `rq-empty-state` / `fn-empty-row` 제거, 공통 API 사용.
+- PR #374 FS-5 — **merge 보류** (empty state 복붙 보정 금지). 본 PR merge 후 FS-5 rebase/재개.
+
+### 다시 열 조건
+
+- Board empty state PR merge.
+- FS-5 #374 rebase + smoke 재확인.

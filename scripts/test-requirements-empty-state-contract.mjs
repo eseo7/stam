@@ -3,8 +3,9 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
 const ROOT = new URL('../', import.meta.url);
+const boardEmptySource = await readFile(new URL('stam/js/stam.board-empty-state.js', ROOT), 'utf8');
 const listSource = await readFile(new URL('stam/js/stam.requirements-firestore-list.js', ROOT), 'utf8');
-const cssSource = await readFile(new URL('stam/css/stam.requirements.css', ROOT), 'utf8');
+const cssSource = await readFile(new URL('stam/css/stam.board-empty-state.css', ROOT), 'utf8');
 
 const FORBIDDEN_UI_PHRASES = [
   'Firestore requirements',
@@ -17,10 +18,10 @@ for (const phrase of FORBIDDEN_UI_PHRASES) {
   assert.equal(listSource.includes(phrase), false, `forbidden UI phrase found: ${phrase}`);
 }
 
-assert.match(listSource, /emptyStateRow\(/);
+assert.match(listSource, /boardEmptyState\(\)/);
 assert.match(listSource, /등록된 요구사항이 없습니다/);
-assert.match(listSource, /rq-empty-state/);
-assert.match(cssSource, /\.rq-empty-state\s*\{/);
+assert.doesNotMatch(listSource, /rq-empty-state/);
+assert.match(cssSource, /\.stam-board-empty-state\s*\{/);
 assert.match(cssSource, /min-height:\s*240px/);
 assert.match(cssSource, /text-align:\s*center/);
 
@@ -82,20 +83,21 @@ const context = vm.createContext({
 context.window.window = context.window;
 context.window.document = context.document;
 
+vm.runInContext(boardEmptySource, context, { filename: 'stam.board-empty-state.js' });
 vm.runInContext(listSource, context, { filename: 'stam.requirements-firestore-list.js' });
 
 const emptyHtml = context.window.STAM.requirementsFirestoreList.emptyStateRow(
   '등록된 요구사항이 없습니다',
   '등록 버튼을 눌러 직접 추가하거나, 요구사항 가져오기를 통해 초안을 생성하세요.'
 );
-assert.match(emptyHtml, /rq-empty-state/);
-assert.match(emptyHtml, /rq-empty-state-title/);
-assert.match(emptyHtml, /rq-empty-state-desc/);
+assert.match(emptyHtml, /stam-board-empty-state/);
+assert.match(emptyHtml, /stam-board-empty-title/);
+assert.match(emptyHtml, /stam-board-empty-desc/);
 assert.match(emptyHtml, /clipboard-check/);
 
 context.window.STAM.requirementsFirestoreList.renderRows([]);
 assert.match(tbody.innerHTML, /등록된 요구사항이 없습니다/);
-assert.match(tbody.innerHTML, /rq-empty-state/);
+assert.match(tbody.innerHTML, /stam-board-empty-state/);
 assert.doesNotMatch(tbody.innerHTML, /Firestore/i);
 
 console.log('requirements empty state contract: PASS');

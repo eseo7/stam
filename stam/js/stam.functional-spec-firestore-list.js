@@ -408,16 +408,18 @@
       '</tr>';
   }
 
-  function statusMessageRow(title, desc, modifier) {
-    var mod = clean(modifier) || 'status';
-    return '<tr class="fn-empty-row fn-empty-row--' + esc(mod) + '"><td colspan="9">' +
-      '<div class="stam-board-desc">' + esc(title) + '</div>' +
-      '<div class="fn-page-hdr-desc">' + esc(desc) + '</div>' +
-      '</td></tr>';
+  function boardEmptyState() {
+    return window.STAM && window.STAM.boardEmptyState;
   }
 
   function emptyStateRow(title, desc) {
-    return statusMessageRow(title, desc, 'empty');
+    var api = boardEmptyState();
+    if (!api || typeof api.emptyRow !== 'function') return '';
+    return api.emptyRow({
+      colspan: 9,
+      title: title,
+      description: desc,
+    });
   }
 
   function renderRows(items) {
@@ -428,6 +430,10 @@
         '등록된 기능정의가 없습니다',
         '등록 버튼을 눌러 직접 추가하거나, 요구사항 가져오기를 통해 초안을 생성하세요.'
       );
+      var emptyApi = boardEmptyState();
+      if (emptyApi && typeof emptyApi.hydrateIcons === 'function') {
+        emptyApi.hydrateIcons(body);
+      }
       refreshBoardList();
       return;
     }
@@ -483,23 +489,25 @@
 
   function renderLoading() {
     var body = tbody();
-    if (body) {
-      body.innerHTML = statusMessageRow(
-        '기능정의 목록을 불러오는 중입니다.',
-        'Firestore에서 목록을 읽어오고 있습니다.',
-        'loading'
-      );
+    var api = boardEmptyState();
+    if (body && api && typeof api.loadingRow === 'function') {
+      body.innerHTML = api.loadingRow({
+        colspan: 9,
+        title: '기능정의 목록을 불러오는 중입니다.',
+        description: '목록을 불러오고 있습니다.',
+      });
     }
   }
 
   function renderError() {
     var body = tbody();
-    if (body) {
-      body.innerHTML = statusMessageRow(
-        '기능정의 목록을 불러오지 못했습니다.',
-        '잠시 후 다시 시도해 주세요.',
-        'error'
-      );
+    var api = boardEmptyState();
+    if (body && api && typeof api.errorRow === 'function') {
+      body.innerHTML = api.errorRow({
+        colspan: 9,
+        title: '기능정의 목록을 불러오지 못했습니다.',
+        description: '잠시 후 다시 시도해 주세요.',
+      });
     }
     setSummary([]);
     refreshBoardList();
