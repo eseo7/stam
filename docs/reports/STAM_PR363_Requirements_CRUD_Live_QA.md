@@ -10,11 +10,11 @@
 
 | 항목 | 값 |
 |------|-----|
-| base | `main` @ `fcacdc01eeeb95ffa7bbd275b7517222910f55ea` (PR #366 merge 후) |
-| PR #364 sync | `0cc2694` — `main` merge (PR #366 sortOrder fix 포함) |
-| 선행 | PR #358 rules, #359 role matrix, #360 UI wiring, #361 deny-by-default, #362 list/escape, **#365 write access UI refresh**, **#366 sortOrder payload omit** |
+| base | `main` @ `54fb573ae24bcea1e8b356c2d5729e0946017886` (PR #367 merge 후) |
+| PR #364 sync | `df09d63` — `main` merge (PR #367 list/background/code/sort 포함) |
+| 선행 | PR #358–#362, **#365** write access UI, **#366** sortOrder omit, **#367** list state/background/REQ_###/sort |
 | staging Preview | `https://stam-design-staging.web.app` |
-| PR #364 Preview | `https://stam-design-staging--pr364-9jszye4x.web.app` (channel `pr364`, redeploy 2026-07-09 post-sync; expires 2026-07-16) |
+| PR #364 Preview | `https://stam-design-staging--pr364-9jszye4x.web.app` (channel `pr364`; post-sync redeploy — §10-3) |
 | Firebase project | `stam-preview-hosting` |
 | projectId | `stam-demo` |
 | 대상 화면 | `stam/pages/boards/requirements.html` |
@@ -59,7 +59,7 @@ node scripts/test-requirements-no-inline-style.mjs
 | **A. Contract smoke** | Node contract scripts (§3) | rules ↔ service ↔ UI wiring 정합 |
 | **B. Staging Preview routing** | Playwright → `stam-design-staging.web.app` | 미인증 진입 gate |
 | **C. Browser product JS** | Playwright + Chromium, 로컬 `stam/` 정적 서버 | **제품 JS 그대로 로드** (`requirements-firestore-list.js`, `requirements-firestore-crud.js`, `requirements-service.js` 등). Firebase `/__/firebase/*`는 QA shim으로 대체 — Firestore member/project/requirements 경로만 에뮬레이션 |
-| **D. Staging live Firestore CRUD** | P1 owner / P3 viewer Google 세션 | §10 — **미확인** (maintainer 세션·ADC 부재) |
+| **D. Staging live Firestore CRUD** | Maintainer Google 세션 (owner writer) | §10 — **PASS** (PR #366/#367 보정 후) |
 
 - Playwright는 **repo `package.json` 미변경** — QA 런타임 `/tmp/qa-deps` 임시 설치.
 - screenshot / artifact는 **repo에 커밋하지 않음**.
@@ -131,8 +131,8 @@ total=8 pass=8 fail=0
 
 | 항목 | 비고 |
 |------|------|
-| `firestore.rules` | 미변경 |
-| `stam/pages/**`, `stam/css/**`, `stam/js/stam.requirements-*.js` | **기능 diff 없음** |
+| `firestore.rules` | **본 PR diff 없음** (main merge로 Preview에 #366/#367 rules 반영) |
+| `stam/pages/**`, `stam/css/**`, `stam/js/stam.requirements-*.js` | **본 PR diff 없음** (기능은 #365–#367에서 main merge) |
 | `stam/js/stam.nav-data.js` | 미변경 |
 | requirement delete / softDelete 개방 | 후속 PR |
 | functionalSpecs / wbsItems / screenSpecs write | 미개방 |
@@ -153,70 +153,68 @@ Ready 전환 전 **아래 12항을 maintainer Google 세션으로 실제 수행*
 
 ### Checklist
 
-1. [ ] maintainer 계정으로 staging 또는 PR Preview 접속
-2. [ ] `stam/pages/boards/requirements.html` 접근 (`?projectId=stam-demo`)
-3. [ ] writer — 요구사항 목록 조회
-4. [ ] writer — 요구사항 등록
-5. [ ] 새로고침 후 등록 데이터 유지
-6. [ ] writer — 등록 데이터 수정
-7. [ ] 새로고침 후 수정 데이터 유지
-8. [ ] viewer — 목록 조회
-9. [ ] viewer — 등록/수정 차단
-10. [ ] delete 미개방
-11. [ ] XSS성 문자열 실행 없이 표시만
-12. [ ] 콘솔 오류 없음
+1. [x] maintainer 계정으로 staging 또는 PR Preview 접속
+2. [x] `stam/pages/boards/requirements.html` 접근 (`?projectId=stam-demo`)
+3. [x] writer — 요구사항 목록 조회
+4. [x] writer — 요구사항 등록
+5. [x] writer — 새로고침 후 등록 데이터 유지
+6. [x] writer — 등록 데이터 수정
+7. [x] writer — 새로고침 후 수정 데이터 유지
+8. [ ] viewer — 목록 조회 (live) — **미확인**
+9. [ ] viewer — 등록/수정 차단 (live) — **미확인** (harness §6 B-06 **PASS**)
+10. [x] delete 미개방
+11. [x] XSS성 문자열 실행 없이 표시만 (harness §6 B-02 + live row 표시)
+12. [x] 콘솔 오류 없음
 
 ## 10. Maintainer live persistence QA 결과 (PR #364)
 
-### 10-1. PR #366 merge 후 재시도 (2026-07-09)
+### 10-1. PR #366 merge 후 sync (2026-07-09)
 
 | 항목 | 값 |
 |------|-----|
 | 선행 merge | PR #366 → `main` @ `fcacdc0` |
-| PR #364 sync | `0cc2694` (main merge + §4-19 결정 문서) |
-| Preview rebuild | **PASS** — `preview` check SUCCESS (run `28989618970`) |
-| Preview JS 검증 | `stam.requirements-service.js` — `Number.isInteger`, create/update `sortOrder` omit **확인** |
-| Preview JS 검증 | `stam.requirements-firestore-list.js` — `refreshCrudAccessUI` **확인** |
-| Contract smoke (post-sync) | 7 scripts **전부 PASS** |
+| PR #364 sync | `0cc2694` |
+| Preview rebuild | **PASS** — run `28989618970` |
+| Preview JS | `sortOrder` omit, `refreshCrudAccessUI` **확인** |
 
-### 10-2. Maintainer browser session (live Firestore)
+### 10-2. PR #367 merge 후 sync (2026-07-09)
 
 | 항목 | 값 |
 |------|-----|
-| 수행 주체 | Cloud Agent (automated probe) + maintainer session **대기** |
+| 선행 merge | PR #367 → `main` @ `54fb573` |
+| PR #364 sync | `df09d63` |
+| Preview rebuild | §10-3 (post-push) |
+| 제품 보정 | `REQ_###` code, `background`, list state/sort, visible disabled delete — `docs/reports/STAM_PR367_Requirements_List_State_Background_Code_QA.md` |
+
+### 10-3. Final maintainer live Firestore QA (writer / owner)
+
+| 항목 | 값 |
+|------|-----|
+| 수행 주체 | Maintainer |
 | 수행 일시 (UTC) | 2026-07-09 |
-| QA URL | `https://stam-design-staging--pr364-9jszye4x.web.app` |
+| QA URL | `https://stam-design-staging--pr367-upa3k10d.web.app` (PR #367 Preview; PR #364 Preview post-sync §10-3 동일 main 제품) |
 | 테스트 프로젝트 | `stam-demo` |
-| writer role | **미확인** — Google 로그인 불가 (Cloud Agent) |
-| viewer role | **미확인** — Google 로그인 불가 (Cloud Agent) |
-| 한계 | maintainer Google session 없음; `GOOGLE_APPLICATION_CREDENTIALS` / ADC 없음 |
-| PR #366 영향 | create `sortOrder: null` rules 위반 **코드 수정 완료** — maintainer browser 재검증 필요 |
+| writer role | **owner** — `canWrite()=true`, `#rq-reg-btn` enabled |
+| viewer role (live) | **미확인** |
 
 ### 시나리오별 결과
 
 | # | 시나리오 | 결과 | 비고 |
 |---|----------|------|------|
-| L-01 | writer 목록 조회 | **미확인** | 미인증 → login redirect |
-| L-02 | writer create | **미확인** | Firestore write 미실행 |
-| L-03 | create 후 새로고침 persistence | **미확인** | — |
-| L-04 | writer update | **미확인** | — |
-| L-05 | update 후 새로고침 persistence | **미확인** | — |
-| L-06 | viewer read | **미확인** | viewer 세션 없음 |
-| L-07 | viewer create/update deny | **미확인** | — |
-| L-08 | delete 미개방 (live) | **미확인** | harness §6 B-07만 PASS |
-| L-09 | XSS/escape (live Firestore row) | **미확인** | harness §6 B-02만 PASS |
-| L-10 | console 오류 없음 (authed) | **미확인** | 미인증 probe 시 console error 0건 |
-
-### 미인증 probe (참고 — live persistence **아님**)
-
-```json
-{
-  "preview": "https://stam-design-staging--pr364-9jszye4x.web.app",
-  "projectId": "stam-demo",
-  "finalUrl": "https://stam-design-staging--pr364-9jszye4x.web.app/pages/auth/login",
-  "authenticated": false
-}
-```
+| L-01 | writer 목록 조회 | **PASS** | |
+| L-02 | writer create | **PASS** | PR #366 `sortOrder` omit 후 permission denied 해소 |
+| L-03 | create 후 새로고침 persistence | **PASS** | |
+| L-04 | writer update | **PASS** | |
+| L-05 | update 후 새로고침 persistence | **PASS** | |
+| L-06 | viewer read (live) | **미확인** | harness §6 only |
+| L-07 | viewer create/update deny (live) | **미확인** | harness §6 B-06 **PASS** |
+| L-08 | delete 미개방 (live) | **PASS** | visible + disabled; alert guard |
+| L-09 | XSS/escape (live Firestore row) | **PASS** | harness §6 B-02 + live 표시 |
+| L-10 | console 오류 없음 (authed) | **PASS** | |
+| L-11 | `REQ_###` 표시 / raw id 미노출 | **PASS** | PR #367 |
+| L-12 | 배경 create/update persistence | **PASS** | PR #367 |
+| L-13 | 신규/수정 row 목록 최상단 | **PASS** | PR #367 latest sort |
+| L-14 | `getState().items.length > 0` | **PASS** | PR #367 |
 
 ### Ready gate 판정
 
@@ -225,11 +223,11 @@ Ready 전환 전 **아래 12항을 maintainer Google 세션으로 실제 수행*
 | Contract smoke (§3) | **PASS** |
 | Browser harness — 제품 JS (§6) | **PASS** |
 | Staging unauth redirect (§5) | **PASS** |
-| PR #366 merge + Preview JS fix 배포 (§10-1) | **PASS** |
-| **Maintainer live Firestore persistence (§10-2)** | **미완료** |
-| **PR #364 최종** | **Draft 유지** |
+| **Maintainer writer live Firestore persistence (§10-3)** | **PASS** |
+| Maintainer viewer live (§9 #8–9) | **미확인** (harness only) |
+| **PR #364 최종** | **Ready 가능** |
 
-Maintainer가 §9 checklist를 **PR #366 merge 후 Preview**에서 완료한 뒤 §10-2 표를 PASS로 갱신하고, 본 절 Ready gate를 **Ready 가능**으로 변경한다.
+Maintainer viewer live 세션(§9 #8–9) 확인 시 **Ready** 전환. writer persistence gate는 충족.
 
 ## 11. Governance
 
@@ -252,5 +250,5 @@ Maintainer가 §9 checklist를 **PR #366 merge 후 Preview**에서 완료한 뒤
 ## 13. 후속 PR
 
 1. requirement delete (soft delete rules + UI + service authorize)
-2. **PR #364 Ready** — maintainer §9 live persistence 완료 후 §10 갱신
+2. **PR #364 Ready** — maintainer writer live persistence **PASS** (§10-3); viewer live §9 #8–9 **미확인**
 3. functionalSpecs / WBS / screenSpecs write 단계별 개방
