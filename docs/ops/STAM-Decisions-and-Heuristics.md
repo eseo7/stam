@@ -1300,7 +1300,7 @@ PR #358에서 requirements write rules와 service role authorize skeleton을 열
 
 - ~~Requirements CRUD UI wiring PR.~~ → PR #360
 - ~~default runtime allow-all hardening.~~ → PR #361
-- staging emulator/browser live write QA (maintainer 선택).
+- ~~staging emulator/browser live write QA (maintainer 선택).~~ → PR #363 browser QA evidence
 
 ---
 
@@ -1323,7 +1323,7 @@ PR #360에서 CRUD UI가 `createMemberRoleAuthorize` runtime rebind에 의존하
 ### 다시 열 조건
 
 - requirement soft delete/archive policy PR (rules + service + UI).
-- staging emulator/browser live create/update QA (maintainer 선택).
+- ~~staging emulator/browser live create/update QA (maintainer 선택).~~ → PR #363 browser QA evidence
 
 ---
 
@@ -1347,8 +1347,33 @@ PR #358–#359에서 rules·service authorize·role matrix smoke가 완료됐다
 
 ### 다시 열 조건
 
+- ~~staging emulator/browser live create/update QA (maintainer 선택).~~ → PR #363 browser QA evidence
 - requirement delete rules + UI PR.
-- staging emulator/browser live create/update QA (maintainer 선택).
+
+---
+
+## 4-17. PR #363 — requirements CRUD live/browser QA evidence
+
+**일자:** 2026-07-09  
+**문서:** `docs/reports/STAM_PR363_Requirements_CRUD_Live_QA.md`
+
+### 왜 지금 구현했나
+
+PR #360–#362에서 Requirements CRUD UI·service·list escape가 contract로 검증됐지만, **실제 브라우저**에서 list/create/update/viewer block/delete closed/escape 표시에 대한 live QA 증빙이 없었다. 기능 PR과 분리해 evidence-only PR로 Chromium browser QA를 남긴다.
+
+### 결정
+
+- **기능 코드·rules·nav·pages/css/js diff 없음** — docs/reports + ops gate만 갱신.
+- 사전 contract 7종 **전부 PASS** (main @ `5616295`).
+- Staging Preview: 미인증 `requirements?projectId=stam-demo` → `login.html` redirect **PASS**.
+- Chromium + 제품 JS 로드 browser QA: list read, create/update submit, viewer UI disabled, delete alert guard, HTML escape **PASS**.
+- Staging maintainer Google 세션 Firestore persistence QA (writer): **PASS** (PR #366/#367 보정 후; 리포트 §10-3). Viewer live §9 #8–9 **미확인**.
+- Playwright는 repo `package.json` **미추가** (임시 QA 런타임 only).
+
+### 다시 열 조건
+
+- maintainer viewer live §9 #8–9 확인 (선택) 후 **Ready** 전환.
+- requirement delete rules + UI PR.
 
 ---
 
