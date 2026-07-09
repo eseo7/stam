@@ -11,7 +11,7 @@
 | 항목 | 값 |
 |------|-----|
 | base | `main` @ `54fb573ae24bcea1e8b356c2d5729e0946017886` (PR #367 merge 후) |
-| PR #364 sync | `df09d63` — `main` merge (PR #367 list/background/code/sort 포함) |
+| PR #364 sync | `df09d63` — `main` merge; evidence `ea59bbd` |
 | 선행 | PR #358–#362, **#365** write access UI, **#366** sortOrder omit, **#367** list state/background/REQ_###/sort |
 | staging Preview | `https://stam-design-staging.web.app` |
 | PR #364 Preview | `https://stam-design-staging--pr364-9jszye4x.web.app` (channel `pr364`; post-sync redeploy — §10-3) |
@@ -183,7 +183,9 @@ Ready 전환 전 **아래 12항을 maintainer Google 세션으로 실제 수행*
 |------|-----|
 | 선행 merge | PR #367 → `main` @ `54fb573` |
 | PR #364 sync | `df09d63` |
-| Preview rebuild | §10-3 (post-push) |
+| Evidence HEAD | `ea59bbd` |
+| Preview rebuild | **PASS** — run `29003778666` |
+| Preview URL | `https://stam-design-staging--pr364-9jszye4x.web.app` (channel `pr364`) |
 | 제품 보정 | `REQ_###` code, `background`, list state/sort, visible disabled delete — `docs/reports/STAM_PR367_Requirements_List_State_Background_Code_QA.md` |
 
 ### 10-3. Final maintainer live Firestore QA (writer / owner)
@@ -192,7 +194,7 @@ Ready 전환 전 **아래 12항을 maintainer Google 세션으로 실제 수행*
 |------|-----|
 | 수행 주체 | Maintainer |
 | 수행 일시 (UTC) | 2026-07-09 |
-| QA URL | `https://stam-design-staging--pr367-upa3k10d.web.app` (PR #367 Preview; PR #364 Preview post-sync §10-3 동일 main 제품) |
+| QA URL | `https://stam-design-staging--pr364-9jszye4x.web.app` (PR #364 Preview post-#367 sync; run `29003778666`) |
 | 테스트 프로젝트 | `stam-demo` |
 | writer role | **owner** — `canWrite()=true`, `#rq-reg-btn` enabled |
 | viewer role (live) | **미확인** |
