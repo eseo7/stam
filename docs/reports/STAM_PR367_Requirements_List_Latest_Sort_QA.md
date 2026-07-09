@@ -25,13 +25,13 @@ node scripts/test-requirements-firestore-list-contract.mjs
 |------|------|
 | **PASS** | `REQ-003` (newer `updatedAt`)가 `REQ-001`보다 먼저 렌더 |
 
-## 4. Maintainer re-QA
+## 4. Maintainer re-QA (2026-07-09)
 
-| # | 시나리오 | 기대 |
-|---|----------|------|
-| L-01 | 신규 등록 직후 목록 | 방금 등록한 항목이 **최상단** |
-| L-02 | 기존 문서 수정 후 목록 refresh | 수정한 항목이 **최상단** |
-| L-03 | `updatedAt` 동일 시 | `code`/`id` fallback 정렬 (안정적 표시) |
+| # | 시나리오 | 결과 | 비고 |
+|---|----------|------|------|
+| L-01 | 신규 등록 직후 목록 최상단 | **PASS** | maintainer 확인 |
+| L-02 | 기존 문서 수정 후 refresh 최상단 | **PASS** | maintainer 확인 |
+| L-03 | `updatedAt` 동일 시 code/id fallback | **미확인** | contract only |
 
 ## 5. 범위 외
 
