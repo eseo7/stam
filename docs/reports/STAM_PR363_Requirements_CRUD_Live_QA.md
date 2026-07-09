@@ -13,6 +13,7 @@
 | base | `main` @ `5616295c3de95814bf46b7b8f2f1e892e32876e7` |
 | 선행 | PR #358 rules, #359 role matrix, #360 UI wiring, #361 deny-by-default, #362 list/escape |
 | staging Preview | `https://stam-design-staging.web.app` |
+| PR #364 Preview | `https://stam-design-staging--pr364-9jszye4x.web.app` (channel expires 2026-07-16) |
 | Firebase project | `stam-preview-hosting` |
 | projectId | `stam-demo` |
 | 대상 화면 | `stam/pages/boards/requirements.html` |
@@ -57,7 +58,7 @@ node scripts/test-requirements-no-inline-style.mjs
 | **A. Contract smoke** | Node contract scripts (§3) | rules ↔ service ↔ UI wiring 정합 |
 | **B. Staging Preview routing** | Playwright → `stam-design-staging.web.app` | 미인증 진입 gate |
 | **C. Browser product JS** | Playwright + Chromium, 로컬 `stam/` 정적 서버 | **제품 JS 그대로 로드** (`requirements-firestore-list.js`, `requirements-firestore-crud.js`, `requirements-service.js` 등). Firebase `/__/firebase/*`는 QA shim으로 대체 — Firestore member/project/requirements 경로만 에뮬레이션 |
-| **D. Staging live Firestore CRUD** | P1 owner / P3 viewer Google 세션 | Cloud Agent 환경에 maintainer Google 세션·ADC **없음** — §9 maintainer checklist로 분리 |
+| **D. Staging live Firestore CRUD** | P1 owner / P3 viewer Google 세션 | §10 — **미확인** (maintainer 세션·ADC 부재) |
 
 - Playwright는 **repo `package.json` 미변경** — QA 런타임 `/tmp/qa-deps` 임시 설치.
 - screenshot / artifact는 **repo에 커밋하지 않음**.
@@ -137,31 +138,85 @@ total=8 pass=8 fail=0
 | 멤버 초대/수정/삭제, project update/delete | 미개방 |
 | 신규 dev/qa page | 미추가 |
 
-## 9. Staging live Firestore CRUD — maintainer checklist (선택 후속)
+## 9. Maintainer live persistence — 실행 절차 (Ready gate)
 
-Cloud Agent 런타임에는 PR #324 P1 maintainer Google 세션 및 `GOOGLE_APPLICATION_CREDENTIALS`가 없어 **staging 실제 Firestore write persistence**는 본 PR 실행에서 수행하지 않았다. maintainer는 아래를 추가 확인한다.
+Ready 전환 전 **아래 12항을 maintainer Google 세션으로 실제 수행**해야 한다. Cloud Agent는 본 절차를 대행할 수 없다 (§10).
 
-### P1 (owner @ stam-demo)
+### 사전 조건
 
-- [ ] Google 로그인 → `requirements.html?projectId=stam-demo`
-- [ ] 기존 목록 read PASS
-- [ ] 등록 drawer → 저장 → Firestore `projects/stam-demo/requirements/{id}` 신규 doc
-- [ ] 행 선택 → 수정 drawer → 저장 → 동일 doc field 갱신
-- [ ] 삭제 버튼 disabled + alert
-- [ ] 콘솔 오류 없음
+- Firebase project: `stam-preview-hosting`
+- 테스트 프로젝트: `stam-demo`
+- writer: P1 (`owner`, `air***7@gmail.com` — PR #324 seed) 또는 P2 (`editor`)
+- viewer: P3 (`viewer`, `beta-viewer@…` — §4.2 matrix)
+- URL: staging live **또는** PR #364 preview channel
 
-### P3 (viewer @ stam-demo)
+### Checklist
 
-- [ ] 목록 read PASS
-- [ ] 등록/수정 버튼 disabled
-- [ ] 저장 시도 없음 (writeGuard 미발동 확인)
+1. [ ] maintainer 계정으로 staging 또는 PR Preview 접속
+2. [ ] `stam/pages/boards/requirements.html` 접근 (`?projectId=stam-demo`)
+3. [ ] writer — 요구사항 목록 조회
+4. [ ] writer — 요구사항 등록
+5. [ ] 새로고침 후 등록 데이터 유지
+6. [ ] writer — 등록 데이터 수정
+7. [ ] 새로고침 후 수정 데이터 유지
+8. [ ] viewer — 목록 조회
+9. [ ] viewer — 등록/수정 차단
+10. [ ] delete 미개방
+11. [ ] XSS성 문자열 실행 없이 표시만
+12. [ ] 콘솔 오류 없음
 
-### Escape (데이터 준비 시)
+## 10. Maintainer live persistence QA 결과 (PR #364)
 
-- [ ] maintainer seed 또는 등록으로 `title`에 `<>&"'` 포함 row 생성
-- [ ] table/detail에 **literal text**로 표시, script 실행 없음
+| 항목 | 값 |
+|------|-----|
+| 수행 주체 | Cloud Agent (automated probe) |
+| 수행 일시 (UTC) | 2026-07-09 |
+| QA URL (시도) | `https://stam-design-staging--pr364-9jszye4x.web.app` |
+| staging URL (참고) | `https://stam-design-staging.web.app` |
+| 테스트 프로젝트 | `stam-demo` |
+| writer role | **미확인** — Google 로그인 불가 |
+| viewer role | **미확인** — Google 로그인 불가 |
+| 한계 | maintainer Google session 없음; `GOOGLE_APPLICATION_CREDENTIALS` / ADC 없음; repo secrets 조회 권한 없음 |
 
-## 10. Governance
+### 시나리오별 결과
+
+| # | 시나리오 | 결과 | 비고 |
+|---|----------|------|------|
+| L-01 | writer 목록 조회 | **미확인** | 미인증 → login redirect |
+| L-02 | writer create | **미확인** | Firestore write 미실행 |
+| L-03 | create 후 새로고침 persistence | **미확인** | — |
+| L-04 | writer update | **미확인** | — |
+| L-05 | update 후 새로고침 persistence | **미확인** | — |
+| L-06 | viewer read | **미확인** | viewer 세션 없음 |
+| L-07 | viewer create/update deny | **미확인** | — |
+| L-08 | delete 미개방 (live) | **미확인** | harness §6 B-07만 PASS |
+| L-09 | XSS/escape (live Firestore row) | **미확인** | harness §6 B-02만 PASS |
+| L-10 | console 오류 없음 (authed) | **미확인** | 미인증 probe 시 console error 0건 |
+
+### 미인증 probe (참고 — live persistence **아님**)
+
+```json
+{
+  "preview": "https://stam-design-staging--pr364-9jszye4x.web.app",
+  "projectId": "stam-demo",
+  "finalUrl": "https://stam-design-staging--pr364-9jszye4x.web.app/pages/auth/login",
+  "authenticated": false
+}
+```
+
+### Ready gate 판정
+
+| 구분 | 상태 |
+|------|------|
+| Contract smoke (§3) | **PASS** |
+| Browser harness — 제품 JS (§6) | **PASS** |
+| Staging unauth redirect (§5) | **PASS** |
+| **Maintainer live Firestore persistence (§10)** | **미완료** |
+| **PR #364 최종** | **Draft 유지** |
+
+Maintainer가 §9 checklist를 완료한 뒤 §10 표를 PASS로 갱신하고, 본 절 Ready gate를 **Ready 가능**으로 변경한다.
+
+## 11. Governance
 
 | 항목 | 결과 |
 |------|------|
@@ -171,7 +226,7 @@ Cloud Agent 런타임에는 PR #324 P1 maintainer Google 세션 및 `GOOGLE_APPL
 | inline style/script (diff) | **없음** |
 | 금지 경로 변경 | **없음** |
 
-## 11. 산출물
+## 12. 산출물
 
 | 파일 | 변경 |
 |------|------|
@@ -179,8 +234,8 @@ Cloud Agent 런타임에는 PR #324 P1 maintainer Google 세션 및 `GOOGLE_APPL
 | `docs/ops/STAM-Auth-Firestore-Workspace-Technical-Plan.md` | A3c live browser QA gate |
 | `docs/ops/STAM-Decisions-and-Heuristics.md` | §4-17 PR #363 결정 |
 
-## 12. 후속 PR
+## 13. 후속 PR
 
 1. requirement delete (soft delete rules + UI + service authorize)
-2. staging maintainer live Firestore persistence QA (§9 checklist — 선택)
+2. **PR #364 Ready** — maintainer §9 live persistence 완료 후 §10 갱신
 3. functionalSpecs / WBS / screenSpecs write 단계별 개방
