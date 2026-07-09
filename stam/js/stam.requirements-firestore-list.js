@@ -340,6 +340,32 @@
     return '-';
   }
 
+  function getTimestampMs(value) {
+    if (!value) return 0;
+    if (typeof value.toMillis === 'function') return value.toMillis();
+    if (typeof value.seconds === 'number') return value.seconds * 1000;
+    if (typeof value === 'string') {
+      var parsed = Date.parse(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
+  }
+
+  function latestSortTime(item) {
+    return getTimestampMs(item && item.updatedAt) || getTimestampMs(item && item.createdAt);
+  }
+
+  function sortRequirementsByLatest(list) {
+    return (list || []).slice().sort(function (a, b) {
+      var aTime = latestSortTime(a);
+      var bTime = latestSortTime(b);
+      if (bTime !== aTime) return bTime - aTime;
+      var ac = clean(a && (a.code || a.id));
+      var bc = clean(b && (b.code || b.id));
+      return bc.localeCompare(ac);
+    });
+  }
+
   function linkChip(value) {
     var text = clean(value);
     if (!text) return '<span class="rq-link-chip-none">미연결</span>';
@@ -576,7 +602,9 @@
       var context = serviceContext('requirements-firestore-list');
       return svc.listByProject(projectId, DEFAULT_QUERY, context);
     }).then(function (items) {
-      var list = (items || []).filter(function (item) { return item && item.isDeleted !== true; });
+      var list = sortRequirementsByLatest(
+        (items || []).filter(function (item) { return item && item.isDeleted !== true; })
+      );
       state.items = list;
       renderRows(list);
       setSummary(list);
@@ -603,6 +631,8 @@
     statusInfo: statusInfo,
     priorityInfo: priorityInfo,
     formatRequirementCode: formatRequirementCode,
+    getTimestampMs: getTimestampMs,
+    sortRequirementsByLatest: sortRequirementsByLatest,
     bindAuthorizedService: bindAuthorizedService,
     serviceContext: serviceContext,
     getState: function () {
