@@ -27,18 +27,18 @@
 
 | 파일 | 변경 |
 |------|------|
-| `stam/js/stam.requirements-service.js` | `buildCreatePayload()` — `sortOrder != null` 일 때만 `payload.sortOrder` 설정 |
+| `stam/js/stam.requirements-service.js` | `buildCreatePayload()` / `buildUpdatePatch()` sortOrder omit; `normalizeSortOrder()` int 정합 |
 | `scripts/test-requirements-service-contract.mjs` | omit assert (defaults / null / '') + int 포함 assert 유지 |
 | `scripts/test-requirements-rules-contract.mjs` | rules sortOrder int + service omit cross-ref |
 | `docs/reports/STAM_PR366_Requirements_Create_Payload_Rules_QA.md` | 본 리포트 |
 
 ### 계약 (변경 후)
 
-| `sortOrder` 입력 | create payload |
-|------------------|----------------|
-| 미설정 / `null` / `''` | **키 없음** |
-| 정수 (`3`, `'3'`) | `sortOrder: 3` (int) |
-| 소수 (`3.5`, `'3.5'`) | **키 없음** (rules `is int` 불일치 방지) |
+| `sortOrder` 입력 | create payload | update patch |
+|------------------|----------------|--------------|
+| 미설정 / `null` / `''` | **키 없음** | **키 없음** |
+| 정수 (`3`, `'3'`) | `sortOrder: 3` (int) | `sortOrder: 3` (int) |
+| 소수 (`3.5`, `'3.5'`) | **키 없음** | **키 없음** |
 
 ## 5. 자동 검증
 
@@ -63,7 +63,7 @@ node scripts/test-requirements-role-matrix-contract.mjs
 | 항목 | 비고 |
 |------|------|
 | `firestore.rules` | 미변경 |
-| `buildUpdatePatch` sortOrder null | 본 PR 범위 외 (create only) |
+| `buildUpdatePatch` sortOrder null | **동일 omit** (create와 대칭) |
 | delete / softDelete | 미개방 |
 | pages / css / nav-data | 미변경 |
 

@@ -327,6 +327,22 @@ assert.equal(helperPatch.updatedBy, 'patch-user');
 assert.equal(helperPatch.sortOrder, 7);
 assert.deepEqual(helperPatch.tags, ['next']);
 
+const helperPatchSortOrderNull = service.buildUpdatePatch({
+  title: 'Patch null sort order',
+  sortOrder: null,
+}, {
+  actorUid: 'patch-user',
+});
+assert.equal('sortOrder' in helperPatchSortOrderNull, false);
+
+const helperPatchSortOrderDecimal = service.buildUpdatePatch({
+  title: 'Patch decimal sort order',
+  sortOrder: '3.5',
+}, {
+  actorUid: 'patch-user',
+});
+assert.equal('sortOrder' in helperPatchSortOrderDecimal, false);
+
 const helperPatchDefaults = service.buildUpdatePatch({
   status: 'reviewing',
   priority: 'highest',

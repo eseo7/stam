@@ -225,6 +225,7 @@
     assertValidInput(patch || {}, 'update');
     var actor = actorFromContext(context);
     var source = Object.assign({}, patch || {});
+    var sortOrderInput = source.sortOrder;
     [
       'id',
       'projectId',
@@ -233,14 +234,20 @@
       'deletedAt',
       'deletedBy',
       'isDeleted',
+      'sortOrder',
     ].forEach(function (key) {
       delete source[key];
     });
     if (source.tags !== undefined) source.tags = normalizeTags(source.tags);
-    if (source.sortOrder !== undefined) source.sortOrder = normalizeSortOrder(source.sortOrder);
     ['status', 'priority', 'visibility'].forEach(function (field) {
       if (source[field] !== undefined) source[field] = normalizeEnum(field, source[field]);
     });
+    if (sortOrderInput !== undefined) {
+      var sortOrder = normalizeSortOrder(sortOrderInput);
+      if (sortOrder != null) {
+        source.sortOrder = sortOrder;
+      }
+    }
     source.updatedAt = nowIso(clock);
     source.updatedBy = actor.uid;
     return source;

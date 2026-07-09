@@ -1386,8 +1386,8 @@ PR #364 maintainer live QA에서 owner create가 `Missing or insufficient permis
 
 ### 결정
 
-- `buildCreatePayload()` — `sortOrder`가 null/empty/비정수일 때 **키 omit**; 정수일 때만 포함.
-- `normalizeSortOrder()` — `Number.isInteger` 검사로 rules `sortOrder is int` 정합.
+- `buildCreatePayload()` / `buildUpdatePatch()` — `sortOrder`가 null/empty/비정수일 때 **키 omit**; 정수일 때만 포함.
+- `normalizeSortOrder()` — `Number.isInteger`로 rules `sortOrder is int` 정합.
 - `firestore.rules` **미변경**.
 - delete / viewer deny / 기타 산출물 write **미개방**.
 

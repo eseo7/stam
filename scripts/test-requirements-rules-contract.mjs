@@ -53,6 +53,11 @@ assert.match(
   /!Number\.isFinite\(n\) \|\| !Number\.isInteger\(n\)/,
   'normalizeSortOrder must reject non-integer values for rules sortOrder is int',
 );
+assert.match(
+  serviceSource,
+  /if \(sortOrderInput !== undefined\) \{[\s\S]*if \(sortOrder != null\) \{[\s\S]*source\.sortOrder = sortOrder/,
+  'update patch must omit null/invalid sortOrder for rules compatibility (PR #366)',
+);
 
 // ── Requirements match block ─────────────────────────────────────
 assert.match(
