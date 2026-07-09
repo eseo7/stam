@@ -88,7 +88,8 @@
   function normalizeSortOrder(sortOrder) {
     if (sortOrder == null || sortOrder === '') return null;
     var n = Number(sortOrder);
-    return Number.isFinite(n) ? n : null;
+    if (!Number.isFinite(n) || !Number.isInteger(n)) return null;
+    return n;
   }
 
   function normalizeEnum(field, value) {
@@ -159,8 +160,9 @@
     var projectId = requireProjectId(projectIdFromInput(source, context));
     var actor = actorFromContext(context);
     var t = nowIso(clock);
+    var sortOrder = normalizeSortOrder(source.sortOrder);
 
-    return {
+    var payload = {
       id: clean(source.id) || undefined,
       projectId: projectId,
       code: clean(source.code),
@@ -178,12 +180,17 @@
       deletedBy: null,
       isDeleted: false,
       version: Number.isFinite(Number(source.version)) ? Number(source.version) : 1,
-      sortOrder: normalizeSortOrder(source.sortOrder),
       tags: normalizeTags(source.tags),
       visibility: normalizeEnum('visibility', source.visibility),
       reviewStatus: clean(source.reviewStatus) || DEFAULT_REVIEW_STATUS,
       approvalStatus: clean(source.approvalStatus) || DEFAULT_APPROVAL_STATUS,
     };
+
+    if (sortOrder != null) {
+      payload.sortOrder = sortOrder;
+    }
+
+    return payload;
   }
 
   function normalizeRequirement(raw) {
@@ -218,6 +225,7 @@
     assertValidInput(patch || {}, 'update');
     var actor = actorFromContext(context);
     var source = Object.assign({}, patch || {});
+    var sortOrderInput = source.sortOrder;
     [
       'id',
       'projectId',
@@ -226,14 +234,20 @@
       'deletedAt',
       'deletedBy',
       'isDeleted',
+      'sortOrder',
     ].forEach(function (key) {
       delete source[key];
     });
     if (source.tags !== undefined) source.tags = normalizeTags(source.tags);
-    if (source.sortOrder !== undefined) source.sortOrder = normalizeSortOrder(source.sortOrder);
     ['status', 'priority', 'visibility'].forEach(function (field) {
       if (source[field] !== undefined) source[field] = normalizeEnum(field, source[field]);
     });
+    if (sortOrderInput !== undefined) {
+      var sortOrder = normalizeSortOrder(sortOrderInput);
+      if (sortOrder != null) {
+        source.sortOrder = sortOrder;
+      }
+    }
     source.updatedAt = nowIso(clock);
     source.updatedBy = actor.uid;
     return source;

@@ -275,6 +275,34 @@ assert.equal(helperCreateDefaults.priority, 'normal');
 assert.equal(helperCreateDefaults.visibility, 'project');
 assert.equal(helperCreateDefaults.reviewStatus, 'Review Needed');
 assert.equal(helperCreateDefaults.approvalStatus, 'none');
+assert.equal('sortOrder' in helperCreateDefaults, false, 'create payload must omit sortOrder when unset');
+
+const helperCreateSortOrderNull = service.buildCreatePayload({
+  projectId: 'P1',
+  title: 'No sort order',
+  sortOrder: null,
+}, {
+  actorUid: 'helper-user',
+});
+assert.equal('sortOrder' in helperCreateSortOrderNull, false);
+
+const helperCreateSortOrderEmpty = service.buildCreatePayload({
+  projectId: 'P1',
+  title: 'Empty sort order',
+  sortOrder: '',
+}, {
+  actorUid: 'helper-user',
+});
+assert.equal('sortOrder' in helperCreateSortOrderEmpty, false);
+
+const helperCreateSortOrderDecimal = service.buildCreatePayload({
+  projectId: 'P1',
+  title: 'Decimal sort order',
+  sortOrder: '3.5',
+}, {
+  actorUid: 'helper-user',
+});
+assert.equal('sortOrder' in helperCreateSortOrderDecimal, false, 'create payload must omit non-integer sortOrder');
 
 const helperPatch = service.buildUpdatePatch({
   id: 'MUST-NOT-LEAK',
@@ -298,6 +326,22 @@ assert.equal(helperPatch.updatedAt, '2026-07-03T00:00:00.000Z');
 assert.equal(helperPatch.updatedBy, 'patch-user');
 assert.equal(helperPatch.sortOrder, 7);
 assert.deepEqual(helperPatch.tags, ['next']);
+
+const helperPatchSortOrderNull = service.buildUpdatePatch({
+  title: 'Patch null sort order',
+  sortOrder: null,
+}, {
+  actorUid: 'patch-user',
+});
+assert.equal('sortOrder' in helperPatchSortOrderNull, false);
+
+const helperPatchSortOrderDecimal = service.buildUpdatePatch({
+  title: 'Patch decimal sort order',
+  sortOrder: '3.5',
+}, {
+  actorUid: 'patch-user',
+});
+assert.equal('sortOrder' in helperPatchSortOrderDecimal, false);
 
 const helperPatchDefaults = service.buildUpdatePatch({
   status: 'reviewing',

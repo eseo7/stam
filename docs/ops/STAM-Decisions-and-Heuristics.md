@@ -1398,3 +1398,25 @@ PR #364 maintainer live QA에서 owner 세션 `canWrite() === true`인데 `#rq-r
 - PR #364 maintainer live persistence 재확인 (등록 버튼 활성화 포함).
 - requirement delete rules + UI PR.
 
+---
+
+## 4-19. PR #366 — requirements create payload omit nullable sortOrder
+
+**일자:** 2026-07-09  
+**문서:** `stam/js/stam.requirements-service.js`, `docs/reports/STAM_PR366_Requirements_Create_Payload_Rules_QA.md`
+
+### 왜 지금 구현했나
+
+PR #364 maintainer live QA에서 owner create가 `Missing or insufficient permissions`로 실패했다. member/role은 정상이며, 진단 결과 `buildCreatePayload()`가 `sortOrder: null`을 포함해 rules `data.sortOrder is int` 조건을 위반한 것이 유력하다.
+
+### 결정
+
+- `buildCreatePayload()` / `buildUpdatePatch()` — `sortOrder`가 null/empty/비정수일 때 **키 omit**; 정수일 때만 포함.
+- `normalizeSortOrder()` — `Number.isInteger`로 rules `sortOrder is int` 정합.
+- `firestore.rules` **미변경**.
+- delete / viewer deny / 기타 산출물 write **미개방**.
+
+### 다시 열 조건
+
+- PR #364 maintainer create/update persistence QA 재실행.
+- requirement delete rules + UI PR.
