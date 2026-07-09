@@ -38,6 +38,7 @@
     member: null,
     user: null,
     items: [],
+    currentItem: null,
   };
 
   function ready(fn) {
@@ -290,6 +291,154 @@
     }
   }
 
+  function refreshCrudAccessUI() {
+    var crud = window.STAM && window.STAM.functionalSpecFirestoreCrud;
+    if (crud && typeof crud.applyWriteAccessUI === 'function') {
+      crud.applyWriteAccessUI();
+    }
+  }
+
+  function setText(selector, text) {
+    var el = document.querySelector(selector);
+    if (el) el.textContent = text;
+  }
+
+  function setHtml(selector, html) {
+    var el = document.querySelector(selector);
+    if (el) el.innerHTML = html;
+  }
+
+  function detailDate(value) {
+    return dpart(value) || '—';
+  }
+
+  function linkedCardsHtml(item) {
+    var html = '';
+    var reqCode = clean(valueOf(item, ['requirementCode', 'requirementId'], ''));
+    var reqTitle = clean(item.requirementTitle);
+    if (reqCode) {
+      html += '<div class="fn-linked-card">' +
+        '<span data-stam-icon="link" data-stam-icon-class="is-sm fn-linked-card-icon"></span>' +
+        '<div><div class="fn-linked-card-id">' + esc(reqCode) + '</div>' +
+        '<div class="fn-linked-card-name">' + esc(reqTitle || '연결 요구사항') + '</div></div>' +
+        '<span class="fn-linked-card-tag">요구사항</span></div>';
+    }
+    var screen = clean(item.linkedScreen);
+    if (screen) {
+      html += '<div class="fn-linked-card">' +
+        '<span data-stam-icon="layout" data-stam-icon-class="is-sm fn-linked-card-icon is-screen"></span>' +
+        '<div><div class="fn-linked-card-id is-screen">' + esc(screen) + '</div>' +
+        '<div class="fn-linked-card-name">연결 화면</div></div>' +
+        '<span class="fn-linked-card-tag">화면</span></div>';
+    }
+    if (!html) {
+      return '<div class="fn-iv-muted">연결된 항목이 없습니다</div>';
+    }
+    return html;
+  }
+
+  function linkedBadgeText(item) {
+    var reqCount = clean(valueOf(item, ['requirementCode', 'requirementId'], '')) ? 1 : 0;
+    var screenCount = clean(item.linkedScreen) ? 1 : 0;
+    if (!reqCount && !screenCount) return '연결 없음';
+    return '요구사항 ' + reqCount + ' · 화면 ' + screenCount;
+  }
+
+  function renderDetail(item) {
+    state.currentItem = item || null;
+    if (!item) return;
+    var status = statusInfo(item);
+    var priority = priorityInfo(item);
+    var code = formatFunctionalSpecCode(item);
+    var title = clean(item.title) || '(제목 없음)';
+    var owner = ownerText(item);
+    var ownerInitial = esc(owner.charAt(0) || '?');
+    var typeLabel = functionTypeLabel(item);
+    var updated = detailDate(item.updatedAt || item.createdAt);
+    var reqCode = clean(valueOf(item, ['requirementCode', 'requirementId'], ''));
+
+    setText('#fn-dw-detail .fn-fn-badge', code);
+    setText('#fn-dw-detail .fn-dw-htitle', title);
+    setHtml('#fn-dw-detail .fn-dw-hmeta',
+      '<span class="fn-chip fn-chip-type">' + esc(typeLabel) + '</span>' +
+      '<span class="fn-chip ' + priority.cls + '">' + esc(priority.label) + '</span>' +
+      '<div class="fn-dw-owner"><span class="fn-ava ' + avaClass(owner) + '">' + ownerInitial + '</span>' +
+      '<span class="fn-dw-owner-name">' + esc(owner) + '</span></div>');
+    setText('#fn-dw-detail .fn-iv-id', code);
+    setHtml('#fn-dw-detail .fn-tab-panel:nth-child(1) .fn-ic:nth-child(2) .fn-iv',
+      '<span class="fn-chip fn-chip-type">' + esc(typeLabel) + '</span>');
+    setHtml('#fn-dw-detail .fn-tab-panel:nth-child(1) .fn-ic:nth-child(3) .fn-iv',
+      '<span class="fn-chip ' + priority.cls + '">' + esc(priority.label) + '</span>');
+    setHtml('#fn-dw-detail .fn-tab-panel:nth-child(1) .fn-ic:nth-child(4) .fn-iv',
+      '<span class="fn-chip ' + status.cls + '">' + esc(status.label) + '</span>');
+    setHtml('#fn-dw-detail .fn-tab-panel:nth-child(1) .fn-ic:nth-child(5) .fn-iv',
+      '<span class="fn-ava ' + avaClass(owner) + '">' + ownerInitial + '</span>' + esc(owner));
+    setText('#fn-dw-detail .fn-tab-panel:nth-child(1) .fn-iv-date', updated);
+    setHtml('#fn-dw-detail .fn-tab-panel:nth-child(1) .fn-ic:nth-child(7) .fn-iv',
+      reqCode
+        ? '<span class="fn-link-chip">' + esc(reqCode) + '</span>'
+        : '<span class="fn-iv-muted">미연결</span>');
+    setText('#fn-dw-detail .fn-tab-panel:nth-child(1) .fn-ic:nth-child(8) .fn-iv',
+      clean(item.reviewStatus) || '—');
+    setText('#fn-dw-detail .fn-dw-sec-badge', linkedBadgeText(item));
+    setHtml('#fn-dw-detail .fn-linked-list', linkedCardsHtml(item));
+
+    var contentBoxes = document.querySelectorAll('#fn-dw-detail .fn-tab-panel:nth-child(2) .fn-purp-box');
+    var contentValues = [
+      clean(item.description) || '—',
+      clean(item.inputSpec) || '—',
+      clean(item.businessRule) || '—',
+      clean(item.exceptionRule) || '—',
+      clean(item.apiRef) || '—',
+    ];
+    contentBoxes.forEach(function (box, index) {
+      if (contentValues[index] !== undefined) box.textContent = contentValues[index];
+    });
+
+    setHtml('#fn-dw-detail .fn-tab-panel:nth-child(3) .fn-chg-list',
+      '<div class="fn-iv-muted">변경 이력은 후속 ChangeLog PR에서 연결합니다.</div>');
+    setText('#fn-dw-detail .stam-dw-foot-meta', updated === '—' ? '' : ('최종 변경 ' + updated));
+
+    setText('#fn-dw-edit .fn-fn-badge', code);
+    setText('#fn-dw-edit .fn-dw-htitle', title);
+    setHtml('#fn-dw-edit .fn-dw-hmeta',
+      '<span class="fn-chip fn-chip-type">' + esc(typeLabel) + '</span>' +
+      '<span class="fn-chip ' + priority.cls + '">' + esc(priority.label) + '</span>');
+    var sumId = document.querySelector('#fn-dw-edit .fn-edit-sum-id');
+    if (sumId) sumId.textContent = code;
+    var sumTxt = document.querySelector('#fn-dw-edit .fn-edit-sum-txt');
+    if (sumTxt) {
+      sumTxt.innerHTML = '<span class="fn-edit-sum-id">' + esc(code) + '</span> 수정 모드 — 최종 변경 ' +
+        esc(updated) + ' · 저장 시 변경 이력이 기록됩니다';
+    }
+  }
+
+  function openDetailFromRow(row) {
+    var id = row && clean(row.getAttribute('data-fn-id'));
+    var svc = service();
+    if (!id || !state.projectId || !svc || typeof svc.getById !== 'function') return Promise.resolve(null);
+    var context = serviceContext('functional-spec-firestore-detail');
+    return svc.getById(state.projectId, id, context).then(function (item) {
+      if (item) renderDetail(item);
+      return item;
+    }).catch(function () {
+      return null;
+    });
+  }
+
+  function bindDetailRowActivation() {
+    var body = tbody();
+    if (!body || body.getAttribute('data-fn-detail-bound') === '1') return;
+    if (typeof body.addEventListener !== 'function') return;
+    body.setAttribute('data-fn-detail-bound', '1');
+    body.addEventListener('click', function (event) {
+      if (event.target.closest('input.fn-cb')) return;
+      var row = event.target.closest('.fn-data-row');
+      if (!row) return;
+      openDetailFromRow(row);
+    }, true);
+  }
+
   function dpart(value) {
     return String(value || '').replace('T', ' ').slice(0, 10);
   }
@@ -432,6 +581,7 @@
       return;
     }
     body.innerHTML = items.map(rowHtml).join('');
+    bindDetailRowActivation();
     refreshBoardList();
   }
 
@@ -527,10 +677,12 @@
       renderRows(list);
       setSummary(list);
       addSourceBadge();
+      refreshCrudAccessUI();
       return list;
     }).catch(function () {
       state.items = [];
       renderError();
+      refreshCrudAccessUI();
       return [];
     });
   }
@@ -541,11 +693,14 @@
     guardProjectAccess: guardProjectAccess,
     applyProjectContext: applyProjectContext,
     renderRows: renderRows,
+    renderDetail: renderDetail,
+    openDetailFromRow: openDetailFromRow,
     emptyStateRow: emptyStateRow,
     setSummary: setSummary,
     resolveProjectId: resolveProjectId,
     statusInfo: statusInfo,
     priorityInfo: priorityInfo,
+    functionTypeLabel: functionTypeLabel,
     formatFunctionalSpecCode: formatFunctionalSpecCode,
     getTimestampMs: getTimestampMs,
     sortFunctionalSpecsByLatest: sortFunctionalSpecsByLatest,
@@ -558,6 +713,7 @@
         member: state.member,
         user: state.user,
         items: state.items,
+        currentItem: state.currentItem,
       };
     },
   };

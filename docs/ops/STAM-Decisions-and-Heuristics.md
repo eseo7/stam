@@ -1518,3 +1518,23 @@ PR #372 merge 시 preview smoke evidence가 별도 리포트로 남지 않았고
 
 - staging Hosting 재배포 후 smoke 재실행.
 - FS-5 CRUD UI + Drawer binding.
+
+---
+
+## 4-24. FS-5 — functionalSpecifications CRUD UI wiring
+
+### 왜 지금 했나
+
+FS-4 list read binding·staging 반영 확인 후, B5 기능정의서 등록/수정 Drawer를 Firestore create/update에 연결한다. Drawer FN-001 mock 잔존 정리, delete는 visible+disabled 유지.
+
+### 결정
+
+- `stam.functional-spec-firestore-crud.js` — service create/update only; viewer write UI deny.
+- list module 최소 보정 — `openDetailFromRow` / `renderDetail` / `currentItem`.
+- delete/softDelete API — **미개방**.
+- FN_### counter · requirement picker — **FS-6 후속**.
+
+### 다시 열 조건
+
+- FS-6 counter + picker.
+- FS-7 live QA evidence.
