@@ -23,6 +23,10 @@ service cloud.firestore {
      *   Requirements write opened for active members with role owner/admin/editor.
      *   Viewer remains read-only. Requirement delete stays closed.
      *
+     * FS-1 (functionalSpecifications):
+     *   Functional-spec write opened for active members with role owner/admin/editor.
+     *   Viewer remains read-only. Functional-spec delete stays closed.
+     *   Collection path: projects/{projectId}/functionalSpecifications/{functionalSpecId}
      *   Signed-in users may create or update only their own `users/{uid}`
      *   document for Google login bootstrap. Client cannot change `status`,
      *   `provider`, `userId`, or `createdAt` on update. Project writes remain
@@ -84,6 +88,9 @@ service cloud.firestore {
         memberRole(projectId) == "admin" ||
         memberRole(projectId) == "editor"
       );
+    }
+    function isFunctionalSpecWriter(projectId) {
+      return isRequirementWriter(projectId);
     }
     function canReadProject(projectId) {
       return isActiveProjectMember(projectId);
@@ -326,6 +333,150 @@ service cloud.firestore {
           && data.updatedAt == request.time;
     }
 
+    // ── Functional specifications write helpers (FS-1) ───────────
+    function isValidFunctionalSpecTitle(title) {
+      return title is string
+          && title.size() >= 2
+          && title.size() <= 120;
+    }
+    function isValidFunctionalSpecStatus(status) {
+      return status is string && (
+        status == 'draft' ||
+        status == 'review' ||
+        status == 'done' ||
+        status == 'approved' ||
+        status == 'hold'
+      );
+    }
+    function isValidFunctionalSpecPriority(priority) {
+      return priority is string && (
+        priority == 'high' ||
+        priority == 'mid' ||
+        priority == 'low'
+      );
+    }
+    function isValidFunctionalSpecFunctionType(functionType) {
+      return functionType is string && (
+        functionType == 'view' ||
+        functionType == 'create' ||
+        functionType == 'update' ||
+        functionType == 'delete' ||
+        functionType == 'approve' ||
+        functionType == 'notify' ||
+        functionType == 'export' ||
+        functionType == 'integrate'
+      );
+    }
+    function functionalSpecWriteKeys() {
+      return [
+        'id',
+        'projectId',
+        'code',
+        'title',
+        'description',
+        'status',
+        'priority',
+        'functionType',
+        'ownerUid',
+        'ownerName',
+        'requirementId',
+        'requirementCode',
+        'requirementTitle',
+        'linkedScreen',
+        'inputSpec',
+        'businessRule',
+        'exceptionRule',
+        'apiRef',
+        'note',
+        'reviewStatus',
+        'createdAt',
+        'createdBy',
+        'updatedAt',
+        'updatedBy',
+        'deletedAt',
+        'deletedBy',
+        'isDeleted',
+        'version',
+      ];
+    }
+    function functionalSpecCreateCoreValid(data, functionalSpecId) {
+      return data.id == functionalSpecId
+          && data.projectId is string
+          && isValidFunctionalSpecTitle(data.title)
+          && isValidFunctionalSpecStatus(data.status)
+          && isValidFunctionalSpecPriority(data.priority)
+          && data.createdBy is string
+          && data.updatedBy is string
+          && data.isDeleted == false
+          && data.deletedAt == null
+          && data.deletedBy == null
+          && data.version is int
+          && data.version == 1
+          && data.keys().hasOnly(functionalSpecWriteKeys())
+          && (!data.keys().hasAny(['code']) || data.code is string)
+          && (!data.keys().hasAny(['description']) || data.description is string)
+          && (!data.keys().hasAny(['functionType']) || isValidFunctionalSpecFunctionType(data.functionType))
+          && (!data.keys().hasAny(['ownerUid']) || data.ownerUid is string)
+          && (!data.keys().hasAny(['ownerName']) || data.ownerName is string)
+          && (!data.keys().hasAny(['requirementId']) || data.requirementId is string)
+          && (!data.keys().hasAny(['requirementCode']) || data.requirementCode is string)
+          && (!data.keys().hasAny(['requirementTitle']) || data.requirementTitle is string)
+          && (!data.keys().hasAny(['linkedScreen']) || data.linkedScreen is string)
+          && (!data.keys().hasAny(['inputSpec']) || data.inputSpec is string)
+          && (!data.keys().hasAny(['businessRule']) || data.businessRule is string)
+          && (!data.keys().hasAny(['exceptionRule']) || data.exceptionRule is string)
+          && (!data.keys().hasAny(['apiRef']) || data.apiRef is string)
+          && (!data.keys().hasAny(['note']) || data.note is string)
+          && (!data.keys().hasAny(['reviewStatus']) || data.reviewStatus is string);
+    }
+    function isValidFunctionalSpecCreate(projectId, functionalSpecId) {
+      let data = request.resource.data;
+      return isFunctionalSpecWriter(projectId)
+          && data.projectId == projectId
+          && functionalSpecCreateCoreValid(data, functionalSpecId)
+          && data.createdBy == uid()
+          && data.updatedBy == uid()
+          && data.createdAt == request.time
+          && data.updatedAt == request.time;
+    }
+    function isValidFunctionalSpecUpdate(projectId, functionalSpecId) {
+      let data = request.resource.data;
+      let prev = resource.data;
+      return isFunctionalSpecWriter(projectId)
+          && data.id == functionalSpecId
+          && data.projectId == projectId
+          && data.projectId == prev.projectId
+          && data.id == prev.id
+          && isValidFunctionalSpecTitle(data.title)
+          && isValidFunctionalSpecStatus(data.status)
+          && isValidFunctionalSpecPriority(data.priority)
+          && data.createdBy == prev.createdBy
+          && data.createdAt == prev.createdAt
+          && data.isDeleted == prev.isDeleted
+          && data.deletedAt == prev.deletedAt
+          && data.deletedBy == prev.deletedBy
+          && data.version is int
+          && data.version == prev.version + 1
+          && data.keys().hasOnly(functionalSpecWriteKeys())
+          && (!data.keys().hasAny(['code']) || data.code is string)
+          && (!data.keys().hasAny(['description']) || data.description is string)
+          && (!data.keys().hasAny(['functionType']) || isValidFunctionalSpecFunctionType(data.functionType))
+          && (!data.keys().hasAny(['ownerUid']) || data.ownerUid is string)
+          && (!data.keys().hasAny(['ownerName']) || data.ownerName is string)
+          && (!data.keys().hasAny(['requirementId']) || data.requirementId is string)
+          && (!data.keys().hasAny(['requirementCode']) || data.requirementCode is string)
+          && (!data.keys().hasAny(['requirementTitle']) || data.requirementTitle is string)
+          && (!data.keys().hasAny(['linkedScreen']) || data.linkedScreen is string)
+          && (!data.keys().hasAny(['inputSpec']) || data.inputSpec is string)
+          && (!data.keys().hasAny(['businessRule']) || data.businessRule is string)
+          && (!data.keys().hasAny(['exceptionRule']) || data.exceptionRule is string)
+          && (!data.keys().hasAny(['apiRef']) || data.apiRef is string)
+          && (!data.keys().hasAny(['note']) || data.note is string)
+          && (!data.keys().hasAny(['reviewStatus']) || data.reviewStatus is string)
+          && data.updatedBy == uid()
+          && data.updatedAt == request.time;
+    }
+
     // ── users/{uid} bootstrap helpers (PR #355) ───────────────────
     // Path variable userId must be passed into helpers explicitly.
     function userBootstrapKeys() {
@@ -430,6 +581,13 @@ service cloud.firestore {
         allow get, list: if canReadProject(projectId);
         allow create: if isValidRequirementCreate(projectId, requirementId);
         allow update: if isValidRequirementUpdate(projectId, requirementId);
+        allow delete: if false;
+      }
+
+      match /functionalSpecifications/{functionalSpecId} {
+        allow get, list: if canReadProject(projectId);
+        allow create: if isValidFunctionalSpecCreate(projectId, functionalSpecId);
+        allow update: if isValidFunctionalSpecUpdate(projectId, functionalSpecId);
         allow delete: if false;
       }
 
