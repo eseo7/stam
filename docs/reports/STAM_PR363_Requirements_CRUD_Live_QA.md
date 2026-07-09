@@ -10,10 +10,11 @@
 
 | 항목 | 값 |
 |------|-----|
-| base | `main` @ `5616295c3de95814bf46b7b8f2f1e892e32876e7` |
-| 선행 | PR #358 rules, #359 role matrix, #360 UI wiring, #361 deny-by-default, #362 list/escape |
+| base | `main` @ `fcacdc01eeeb95ffa7bbd275b7517222910f55ea` (PR #366 merge 후) |
+| PR #364 sync | `0cc2694` — `main` merge (PR #366 sortOrder fix 포함) |
+| 선행 | PR #358 rules, #359 role matrix, #360 UI wiring, #361 deny-by-default, #362 list/escape, **#365 write access UI refresh**, **#366 sortOrder payload omit** |
 | staging Preview | `https://stam-design-staging.web.app` |
-| PR #364 Preview | `https://stam-design-staging--pr364-9jszye4x.web.app` (channel expires 2026-07-16) |
+| PR #364 Preview | `https://stam-design-staging--pr364-9jszye4x.web.app` (channel `pr364`, redeploy 2026-07-09 post-sync; expires 2026-07-16) |
 | Firebase project | `stam-preview-hosting` |
 | projectId | `stam-demo` |
 | 대상 화면 | `stam/pages/boards/requirements.html` |
@@ -167,16 +168,29 @@ Ready 전환 전 **아래 12항을 maintainer Google 세션으로 실제 수행*
 
 ## 10. Maintainer live persistence QA 결과 (PR #364)
 
+### 10-1. PR #366 merge 후 재시도 (2026-07-09)
+
 | 항목 | 값 |
 |------|-----|
-| 수행 주체 | Cloud Agent (automated probe) |
+| 선행 merge | PR #366 → `main` @ `fcacdc0` |
+| PR #364 sync | `0cc2694` (main merge + §4-19 결정 문서) |
+| Preview rebuild | **PASS** — `preview` check SUCCESS (run `28989618970`) |
+| Preview JS 검증 | `stam.requirements-service.js` — `Number.isInteger`, create/update `sortOrder` omit **확인** |
+| Preview JS 검증 | `stam.requirements-firestore-list.js` — `refreshCrudAccessUI` **확인** |
+| Contract smoke (post-sync) | 7 scripts **전부 PASS** |
+
+### 10-2. Maintainer browser session (live Firestore)
+
+| 항목 | 값 |
+|------|-----|
+| 수행 주체 | Cloud Agent (automated probe) + maintainer session **대기** |
 | 수행 일시 (UTC) | 2026-07-09 |
-| QA URL (시도) | `https://stam-design-staging--pr364-9jszye4x.web.app` |
-| staging URL (참고) | `https://stam-design-staging.web.app` |
+| QA URL | `https://stam-design-staging--pr364-9jszye4x.web.app` |
 | 테스트 프로젝트 | `stam-demo` |
-| writer role | **미확인** — Google 로그인 불가 |
-| viewer role | **미확인** — Google 로그인 불가 |
-| 한계 | maintainer Google session 없음; `GOOGLE_APPLICATION_CREDENTIALS` / ADC 없음; repo secrets 조회 권한 없음 |
+| writer role | **미확인** — Google 로그인 불가 (Cloud Agent) |
+| viewer role | **미확인** — Google 로그인 불가 (Cloud Agent) |
+| 한계 | maintainer Google session 없음; `GOOGLE_APPLICATION_CREDENTIALS` / ADC 없음 |
+| PR #366 영향 | create `sortOrder: null` rules 위반 **코드 수정 완료** — maintainer browser 재검증 필요 |
 
 ### 시나리오별 결과
 
@@ -211,10 +225,11 @@ Ready 전환 전 **아래 12항을 maintainer Google 세션으로 실제 수행*
 | Contract smoke (§3) | **PASS** |
 | Browser harness — 제품 JS (§6) | **PASS** |
 | Staging unauth redirect (§5) | **PASS** |
-| **Maintainer live Firestore persistence (§10)** | **미완료** |
+| PR #366 merge + Preview JS fix 배포 (§10-1) | **PASS** |
+| **Maintainer live Firestore persistence (§10-2)** | **미완료** |
 | **PR #364 최종** | **Draft 유지** |
 
-Maintainer가 §9 checklist를 완료한 뒤 §10 표를 PASS로 갱신하고, 본 절 Ready gate를 **Ready 가능**으로 변경한다.
+Maintainer가 §9 checklist를 **PR #366 merge 후 Preview**에서 완료한 뒤 §10-2 표를 PASS로 갱신하고, 본 절 Ready gate를 **Ready 가능**으로 변경한다.
 
 ## 11. Governance
 
