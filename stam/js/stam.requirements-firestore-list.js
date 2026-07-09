@@ -487,48 +487,59 @@
     });
   }
 
-  function emptyStateIconHtml() {
-    if (typeof window.renderStamIcon === 'function') {
-      return '<div class="rq-empty-state-icon" aria-hidden="true">' +
-        window.renderStamIcon('clipboard-check', { className: 'is-lg' }) +
-        '</div>';
-    }
-    return '<div class="rq-empty-state-icon" data-stam-icon="clipboard-check" data-stam-icon-class="is-lg"></div>';
+  function uiFeedback() {
+    return window.STAM && window.STAM.uiFeedback;
   }
 
-  function hydrateEmptyStateIcons(root) {
-    if (root && typeof window.hydrateStamIcons === 'function') {
-      window.hydrateStamIcons(root);
-    }
+  function uiMessages() {
+    return window.STAM && window.STAM.uiMessages;
+  }
+
+  function tableColspan() {
+    return 9;
   }
 
   function emptyStateRow(title, desc) {
-    return '<tr class="rq-empty-row rq-empty-row--empty"><td colspan="9">' +
-      '<div class="rq-empty-state">' +
-      emptyStateIconHtml() +
-      '<div class="rq-empty-state-title">' + esc(title) + '</div>' +
-      '<div class="rq-empty-state-desc">' + esc(desc) + '</div>' +
-      '</div></td></tr>';
+    var feedback = uiFeedback();
+    if (!feedback || typeof feedback.tableEmptyRow !== 'function') return '';
+    return feedback.tableEmptyRow({
+      colspan: tableColspan(),
+      title: title,
+      description: desc,
+      icon: 'clipboard-check',
+    });
   }
 
   function statusMessageRow(title, desc, modifier) {
-    var mod = clean(modifier);
-    return '<tr class="rq-empty-row rq-empty-row--' + esc(mod || 'status') + '"><td colspan="9">' +
-      '<div class="rq-empty-state rq-empty-state--status">' +
-      '<div class="rq-empty-state-title">' + esc(title) + '</div>' +
-      '<div class="rq-empty-state-desc">' + esc(desc) + '</div>' +
-      '</div></td></tr>';
+    var feedback = uiFeedback();
+    if (!feedback || typeof feedback.tableMessageRow !== 'function') return '';
+    return feedback.tableMessageRow({
+      colspan: tableColspan(),
+      title: title,
+      description: desc,
+      variant: modifier,
+    });
+  }
+
+  function renderFeedbackRow(html) {
+    var body = tbody();
+    if (!body || !html) return;
+    body.innerHTML = html;
+    var feedback = uiFeedback();
+    if (feedback && typeof feedback.hydrateIcons === 'function') {
+      feedback.hydrateIcons(body);
+    }
   }
 
   function renderRows(items) {
     var body = tbody();
     if (!body) return;
+    var messages = uiMessages() && uiMessages().requirements;
     if (!items.length) {
-      body.innerHTML = emptyStateRow(
-        '등록된 요구사항이 없습니다',
-        '등록 버튼을 눌러 직접 추가하거나, 요구사항 가져오기를 통해 초안을 생성하세요.'
-      );
-      hydrateEmptyStateIcons(body);
+      renderFeedbackRow(emptyStateRow(
+        messages && messages.emptyTitle || '등록된 요구사항이 없습니다',
+        messages && messages.emptyDesc || ''
+      ));
       refreshBoardList();
       return;
     }
@@ -572,17 +583,25 @@
   }
 
   function renderLoading() {
-    var body = tbody();
-    if (body) {
-      body.innerHTML = statusMessageRow('요구사항을 불러오는 중입니다.', '목록을 불러오고 있습니다.', 'loading');
-    }
+    var messages = uiMessages();
+    var req = messages && messages.requirements;
+    var common = messages && messages.common;
+    renderFeedbackRow(statusMessageRow(
+      req && req.loadingTitle || (common && common.loading && common.loading.title) || '',
+      req && req.loadingDesc || (common && common.loading && common.loading.description) || '',
+      'loading'
+    ));
   }
 
   function renderError() {
-    var body = tbody();
-    if (body) {
-      body.innerHTML = statusMessageRow('요구사항을 불러오지 못했습니다.', '잠시 후 다시 시도해 주세요.', 'error');
-    }
+    var messages = uiMessages();
+    var req = messages && messages.requirements;
+    var common = messages && messages.common;
+    renderFeedbackRow(statusMessageRow(
+      req && req.errorTitle || (common && common.networkError && common.networkError.title) || '',
+      common && common.networkError && common.networkError.description || '',
+      'error'
+    ));
     setSummary([]);
     refreshBoardList();
   }

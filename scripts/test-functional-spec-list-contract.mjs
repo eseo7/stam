@@ -3,6 +3,8 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
 const ROOT = new URL('../', import.meta.url);
+const messagesSource = await readFile(new URL('stam/js/stam.ui-messages.js', ROOT), 'utf8');
+const feedbackSource = await readFile(new URL('stam/js/stam.ui-feedback.js', ROOT), 'utf8');
 const listSource = await readFile(new URL('stam/js/stam.functional-spec-firestore-list.js', ROOT), 'utf8');
 const serviceSource = await readFile(new URL('stam/js/stam.functional-spec-service.js', ROOT), 'utf8');
 const pageSource = await readFile(new URL('stam/pages/boards/functional-specification.html', ROOT), 'utf8');
@@ -27,6 +29,10 @@ assert.match(listSource, /function sortFunctionalSpecsByLatest\(list\)/);
 assert.match(loadFn[0], /sortFunctionalSpecsByLatest\(/);
 assert.match(loadFn[0], /state\.items = list/);
 assert.match(listSource, /\.replace\(\/&\/g, '&amp;'\)/);
+assert.match(listSource, /uiFeedback\(\)/);
+assert.match(listSource, /uiMessages\(\)/);
+assert.match(pageSource, /stam\.ui-messages\.js/);
+assert.match(pageSource, /stam\.ui-feedback\.js/);
 
 assert.match(pageSource, /stam\.functional-spec-firestore-adapter\.js/);
 assert.match(pageSource, /stam\.functional-spec-service\.js/);
@@ -188,6 +194,10 @@ const context = vm.createContext({
         calls.push({ method: 'refresh', root });
       },
     },
+    renderStamIcon(name, options) {
+      return '<svg data-icon="' + name + '" class="' + (options && options.className || '') + '"></svg>';
+    },
+    hydrateStamIcons() {},
   },
   document: {
     title: '',
@@ -219,6 +229,8 @@ const context = vm.createContext({
   Array,
   Object,
   Error,
+  Number,
+  Math,
 });
 
 context.window.window = context.window;
@@ -227,6 +239,8 @@ context.window.URLSearchParams = URLSearchParams;
 context.window.Promise = Promise;
 
 vm.runInContext(serviceSource, context, { filename: 'stam.functional-spec-service.js' });
+vm.runInContext(messagesSource, context, { filename: 'stam.ui-messages.js' });
+vm.runInContext(feedbackSource, context, { filename: 'stam.ui-feedback.js' });
 Object.assign(context.window.STAM, {
   projectContextRender: {
     init() {
@@ -321,5 +335,6 @@ assert.match(tbody.innerHTML, /조회/);
 tbody.innerHTML = '';
 context.window.STAM.functionalSpecFirestoreList.renderRows([]);
 assert.match(tbody.innerHTML, /등록된 기능정의가 없습니다/);
+assert.match(tbody.innerHTML, /stam-table-feedback/);
 
 console.log('functional spec list contract: PASS');

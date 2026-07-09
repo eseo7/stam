@@ -3,8 +3,10 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
 const ROOT = new URL('../', import.meta.url);
+const messagesSource = await readFile(new URL('stam/js/stam.ui-messages.js', ROOT), 'utf8');
+const feedbackSource = await readFile(new URL('stam/js/stam.ui-feedback.js', ROOT), 'utf8');
 const listSource = await readFile(new URL('stam/js/stam.requirements-firestore-list.js', ROOT), 'utf8');
-const cssSource = await readFile(new URL('stam/css/stam.requirements.css', ROOT), 'utf8');
+const componentsCssSource = await readFile(new URL('stam/css/stam.components.css', ROOT), 'utf8');
 
 const FORBIDDEN_UI_PHRASES = [
   'Firestore requirements',
@@ -18,11 +20,10 @@ for (const phrase of FORBIDDEN_UI_PHRASES) {
 }
 
 assert.match(listSource, /emptyStateRow\(/);
-assert.match(listSource, /등록된 요구사항이 없습니다/);
-assert.match(listSource, /rq-empty-state/);
-assert.match(cssSource, /\.rq-empty-state\s*\{/);
-assert.match(cssSource, /min-height:\s*240px/);
-assert.match(cssSource, /text-align:\s*center/);
+assert.match(listSource, /uiFeedback\(\)/);
+assert.match(listSource, /uiMessages\(\)/);
+assert.match(componentsCssSource, /\.stam-table-feedback\s*\{/);
+assert.match(componentsCssSource, /text-align:\s*center/);
 
 function fakeElement() {
   return {
@@ -77,25 +78,29 @@ const context = vm.createContext({
   String,
   Array,
   Object,
+  Number,
+  Math,
 });
 
 context.window.window = context.window;
 context.window.document = context.document;
 
+vm.runInContext(messagesSource, context, { filename: 'stam.ui-messages.js' });
+vm.runInContext(feedbackSource, context, { filename: 'stam.ui-feedback.js' });
 vm.runInContext(listSource, context, { filename: 'stam.requirements-firestore-list.js' });
 
 const emptyHtml = context.window.STAM.requirementsFirestoreList.emptyStateRow(
-  '등록된 요구사항이 없습니다',
-  '등록 버튼을 눌러 직접 추가하거나, 요구사항 가져오기를 통해 초안을 생성하세요.'
+  context.window.STAM.uiMessages.requirements.emptyTitle,
+  context.window.STAM.uiMessages.requirements.emptyDesc,
 );
-assert.match(emptyHtml, /rq-empty-state/);
-assert.match(emptyHtml, /rq-empty-state-title/);
-assert.match(emptyHtml, /rq-empty-state-desc/);
+assert.match(emptyHtml, /stam-table-feedback/);
+assert.match(emptyHtml, /stam-table-feedback-title/);
+assert.match(emptyHtml, /stam-table-feedback-desc/);
 assert.match(emptyHtml, /clipboard-check/);
 
 context.window.STAM.requirementsFirestoreList.renderRows([]);
 assert.match(tbody.innerHTML, /등록된 요구사항이 없습니다/);
-assert.match(tbody.innerHTML, /rq-empty-state/);
+assert.match(tbody.innerHTML, /stam-table-feedback/);
 assert.doesNotMatch(tbody.innerHTML, /Firestore/i);
 
 console.log('requirements empty state contract: PASS');

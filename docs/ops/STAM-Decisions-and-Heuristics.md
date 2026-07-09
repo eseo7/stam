@@ -1518,3 +1518,28 @@ PR #372 merge 시 preview smoke evidence가 별도 리포트로 남지 않았고
 
 - staging Hosting 재배포 후 smoke 재실행.
 - FS-5 CRUD UI + Drawer binding.
+
+---
+
+## 4-24. UI Feedback Common Layer — table empty/loading/error
+
+**일자:** 2026-07-09  
+**문서:** `docs/reports/STAM_UI_Feedback_Common_Layer_QA.md`
+
+### 왜 지금 구현했나
+
+요구사항정의서·기능정의서 list JS에 empty/loading/error table row DOM이 각각 복제되어 있었다. 산출물/게시판 화면이 늘어날수록 동일 UI가 화면마다 반복될 위험이 있어, **table feedback만** 공통 layer로 분리한다. alert/confirm/toast·Dialog는 후속 PR로 남긴다.
+
+### 결정
+
+- `stam.ui-messages.js` **신규** — `STAM.uiMessages.common|requirements|functionalSpec` copy SSOT.
+- `stam.ui-feedback.js` **신규** — `tableEmptyRow|tableLoadingRow|tableErrorRow|tableMessageRow` (HTML string, escape only).
+- `stam.components.css` — `.stam-table-feedback-*` 최소 추가 (다크모드·narrow viewport 토큰 기반).
+- `requirements-firestore-list.js` / `functional-spec-firestore-list.js` — local DOM builder 제거, 공통 유틸 wrapper만 유지 (`emptyStateRow` export 호환).
+- CRUD 저장·delete/softDelete·rules·adapter·service **미변경**.
+
+### 다시 열 조건
+
+- UI Dialog common layer.
+- alert/confirm/toast 공통 layer.
+- PR #374 sync/retest.
