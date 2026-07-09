@@ -196,8 +196,21 @@
     return APPROVAL_KO_TO_DOMAIN[ko] || 'none';
   }
 
-  function approvalToKo(value) {
-    return APPROVAL_DOMAIN_TO_KO[clean(value).toLowerCase()] || '미승인';
+  function requirementDisplayCode(item) {
+    var api = listApi();
+    if (api && typeof api.formatRequirementCode === 'function') {
+      return api.formatRequirementCode(item);
+    }
+    if (item && clean(item.code)) return clean(item.code);
+    return '-';
+  }
+
+  function ensureClosedDeleteButtonVisible(btn) {
+    if (!btn) return;
+    btn.classList.add('stam-btn--danger-outline');
+    if (btn.id === 'rq-del-btn') {
+      btn.classList.add('stam-board-delete', 'stam-delete-btn');
+    }
   }
 
   function setButtonDisabled(el, disabled, title) {
@@ -212,8 +225,12 @@
     var writable = canWrite();
     setButtonDisabled(document.getElementById('rq-reg-btn'), !writable, WRITE_DENIED_MSG);
     setButtonDisabled(document.querySelector('#rq-dw-detail [data-rq-open="edit"]'), !writable, WRITE_DENIED_MSG);
-    setButtonDisabled(document.getElementById('rq-del-btn'), true, DELETE_DENIED_MSG);
-    setButtonDisabled(document.getElementById('rq-det-del-btn'), true, DELETE_DENIED_MSG);
+    var toolbarDelete = document.getElementById('rq-del-btn');
+    var detailDelete = document.getElementById('rq-det-del-btn');
+    ensureClosedDeleteButtonVisible(toolbarDelete);
+    ensureClosedDeleteButtonVisible(detailDelete);
+    setButtonDisabled(toolbarDelete, true, DELETE_DENIED_MSG);
+    setButtonDisabled(detailDelete, true, DELETE_DENIED_MSG);
   }
 
   function closeDrawersAndRefresh() {
@@ -259,7 +276,8 @@
     var approvalKo = getVal(regDrawer, '승인 상태');
     return {
       title: title,
-      description: description || getVal(regDrawer, '배경'),
+      description: description,
+      background: getVal(regDrawer, '배경'),
       status: mapped.status,
       priority: priorityFromKo(getVal(regDrawer, '우선순위') || '보통'),
       ownerName: ownerName,
@@ -305,7 +323,7 @@
   function prefillEdit(item) {
     var editDrawer = document.getElementById('rq-dw-edit');
     if (!editDrawer || !item) return;
-    var code = clean(item.code) || clean(item.id) || 'REQ';
+    var code = requirementDisplayCode(item);
     var sumId = editDrawer.querySelector('.rq-edit-sum-id');
     if (sumId) sumId.textContent = code;
     var badge = editDrawer.querySelector('.rq-req-badge');
@@ -333,6 +351,7 @@
     return {
       title: getVal(editDrawer, '요구사항명'),
       description: getVal(editDrawer, '상세 요구사항'),
+      background: getVal(editDrawer, '배경'),
       status: mapped.status,
       priority: priorityFromKo(getVal(editDrawer, '우선순위') || '보통'),
       ownerName: getVal(editDrawer, '담당자'),

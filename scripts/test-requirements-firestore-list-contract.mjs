@@ -19,6 +19,10 @@ assert.doesNotMatch(
 assert.match(loadFn[0], /bindAuthorizedService\([\s\S]*?var svc = service\(\)/);
 assert.match(listSource, /function refreshCrudAccessUI\(\)/);
 assert.match(loadFn[0], /refreshCrudAccessUI\(\)/);
+assert.match(listSource, /function formatRequirementCode\(item\)/);
+assert.match(listSource, /function sortRequirementsByLatest\(list\)/);
+assert.match(loadFn[0], /sortRequirementsByLatest\(/);
+assert.match(loadFn[0], /state\.items = list/);
 assert.match(listSource, /\.replace\(\/&\/g, '&amp;'\)/);
 
 function fakeElement() {
@@ -73,8 +77,18 @@ const boundService = {
         status: 'review',
         priority: 'critical',
         ownerName: 'QA & User',
-        updatedAt: '2026-07-03T00:00:00.000Z',
+        updatedAt: '2026-07-01T00:00:00.000Z',
         linkedScreenSpec: 'SCR-001',
+        isDeleted: false,
+      },
+      {
+        id: 'REQ-003',
+        projectId,
+        code: 'REQ-003',
+        title: 'Latest requirement row',
+        status: 'draft',
+        priority: 'normal',
+        updatedAt: '2026-07-09T00:00:00.000Z',
         isDeleted: false,
       },
       {
@@ -339,10 +353,22 @@ assert.doesNotMatch(tbody.innerHTML, /<script>/);
 assert.match(tbody.innerHTML, /&lt;script&gt;alert\(&quot;xss&quot;\)&lt;\/script&gt;/);
 assert.match(tbody.innerHTML, /QA &amp; User/);
 assert.doesNotMatch(tbody.innerHTML, /요구사항을 불러오지 못했습니다/);
-assert.equal(summaryNums[0].textContent, 1);
+const rowIds = [...tbody.innerHTML.matchAll(/data-rq-id="([^"]+)"/g)].map((match) => match[1]);
+assert.deepEqual(rowIds, ['REQ-003', 'REQ-001'], 'list must render newest updatedAt first');
+assert.equal(summaryNums[0].textContent, 2);
+assert.equal(context.window.STAM.requirementsFirestoreList.getState().items.length, 2);
+assert.equal(context.window.STAM.requirementsFirestoreList.getState().items[0].id, 'REQ-003');
+assert.equal(context.window.STAM.requirementsFirestoreList.getState().items[1].id, 'REQ-001');
+assert.equal(
+  context.window.STAM.requirementsFirestoreList.sortRequirementsByLatest([
+    { id: 'A', updatedAt: '2026-07-01T00:00:00.000Z' },
+    { id: 'B', createdAt: '2026-07-09T00:00:00.000Z' },
+  ])[0].id,
+  'B',
+);
 assert.equal(summaryNums[2].textContent, 1);
 assert.equal(summaryNums[6].textContent, 0);
-assert.match(count.innerHTML, /총 <b>1<\/b>건/);
+assert.match(count.innerHTML, /총 <b>2<\/b>건/);
 assert.equal(projectContext.attrs['data-pc-title'], 'QA Project');
 assert.equal(projectContext.attrs['data-pc-client'], 'QA Client');
 assert.equal(projectContext.attrs['data-pc-role'], 'Admin');
@@ -359,6 +385,22 @@ assert.equal(detailCall.projectId, 'P314');
 assert.equal(detailCall.requirementId, 'REQ-001');
 assert.equal(detailCall.context.source, 'requirements-firestore-detail');
 assert.equal(detailBadge.textContent, 'REQ-001');
+assert.equal(
+  context.window.STAM.requirementsFirestoreList.formatRequirementCode({ id: 'LfwDuRkUq5uW3HCUOMSj' }),
+  '-',
+);
+tbody.innerHTML = '';
+context.window.STAM.requirementsFirestoreList.renderRows([
+  {
+    id: 'LfwDuRkUq5uW3HCUOMSj',
+    code: 'REQ_002',
+    title: 'Sequenced code row',
+    status: 'draft',
+    priority: 'normal',
+  },
+]);
+assert.match(tbody.innerHTML, /REQ_002/);
+assert.doesNotMatch(tbody.innerHTML, /<span class="rq-req-id">LfwDuRkUq5uW3HCUOMSj<\/span>/);
 assert.equal(detailTitle.textContent, 'Firestore detail contract');
 assert.match(detailMeta.innerHTML, /승인완료/);
 assert.match(tabInfo.innerHTML, /Firestore detail contract/);

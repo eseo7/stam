@@ -335,6 +335,37 @@
     return clean(valueOf(item, ['requirementType', 'type', 'category'], '기능')) || '기능';
   }
 
+  function formatRequirementCode(item) {
+    if (item && clean(item.code)) return clean(item.code);
+    return '-';
+  }
+
+  function getTimestampMs(value) {
+    if (!value) return 0;
+    if (typeof value.toMillis === 'function') return value.toMillis();
+    if (typeof value.seconds === 'number') return value.seconds * 1000;
+    if (typeof value === 'string') {
+      var parsed = Date.parse(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
+  }
+
+  function latestSortTime(item) {
+    return getTimestampMs(item && item.updatedAt) || getTimestampMs(item && item.createdAt);
+  }
+
+  function sortRequirementsByLatest(list) {
+    return (list || []).slice().sort(function (a, b) {
+      var aTime = latestSortTime(a);
+      var bTime = latestSortTime(b);
+      if (bTime !== aTime) return bTime - aTime;
+      var ac = clean(a && (a.code || a.id));
+      var bc = clean(b && (b.code || b.id));
+      return bc.localeCompare(ac);
+    });
+  }
+
   function linkChip(value) {
     var text = clean(value);
     if (!text) return '<span class="rq-link-chip-none">미연결</span>';
@@ -346,7 +377,7 @@
     var priority = priorityInfo(item);
     var owner = ownerText(item);
     var initial = esc(owner.charAt(0) || '?');
-    var code = clean(item.code) || clean(item.id) || 'REQ';
+    var code = formatRequirementCode(item);
     var title = clean(item.title) || '(제목 없음)';
     var screen = valueOf(item, ['linkedScreenSpec', 'screenSpecCode', 'screenSpecId'], '');
     var wbs = valueOf(item, ['linkedWbs', 'wbsCode', 'wbsItemId'], '');
@@ -389,7 +420,8 @@
         {
           title: '기본 정보',
           fields: [
-            { label: '요구사항 ID', value: detailValue(item, ['code', 'id']) },
+            { label: '요구사항 ID', value: esc(formatRequirementCode(item)) },
+            { label: '배경', value: detailValue(item, ['background'], '—'), full: true },
             { label: '요구사항명', value: detailValue(item, ['title']) },
             { label: '유형', value: detailValue(item, ['requirementType', 'type', 'category'], '기능') },
             { label: '우선순위', value: priority.label },
@@ -412,7 +444,7 @@
     state.currentItem = item || null;
     var status = statusInfo(item);
     var priority = priorityInfo(item);
-    var code = clean(item.code) || clean(item.id) || 'REQ';
+    var code = formatRequirementCode(item);
     var title = clean(item.title) || '(제목 없음)';
     setText('#rq-dw-detail .rq-req-badge', code);
     setText('#rq-dw-detail .rq-dw-htitle', title);
@@ -570,12 +602,16 @@
       var context = serviceContext('requirements-firestore-list');
       return svc.listByProject(projectId, DEFAULT_QUERY, context);
     }).then(function (items) {
-      var list = (items || []).filter(function (item) { return item && item.isDeleted !== true; });
+      var list = sortRequirementsByLatest(
+        (items || []).filter(function (item) { return item && item.isDeleted !== true; })
+      );
+      state.items = list;
       renderRows(list);
       setSummary(list);
       refreshCrudAccessUI();
       return list;
     }).catch(function () {
+      state.items = [];
       renderError();
       refreshCrudAccessUI();
       return [];
@@ -594,6 +630,9 @@
     resolveProjectId: resolveProjectId,
     statusInfo: statusInfo,
     priorityInfo: priorityInfo,
+    formatRequirementCode: formatRequirementCode,
+    getTimestampMs: getTimestampMs,
+    sortRequirementsByLatest: sortRequirementsByLatest,
     bindAuthorizedService: bindAuthorizedService,
     serviceContext: serviceContext,
     getState: function () {

@@ -101,6 +101,7 @@ function createFakeAdapter() {
 
 function createFakeFirestore() {
   const paths = [];
+  const store = new Map();
   const docs = [
     {
       id: 'REQ-A',
@@ -126,29 +127,47 @@ function createFakeFirestore() {
   ];
 
   function docRef(path) {
+    const key = path.join('/');
     return {
       collection(name) {
         return collectionRef([...path, name]);
       },
       get() {
-        paths.push(['get', path.join('/')]);
+        paths.push(['get', key]);
+        const stored = store.get(key);
+        if (stored) {
+          return Promise.resolve({
+            id: path[path.length - 1],
+            exists: true,
+            data: () => stored,
+          });
+        }
+        if (path[path.length - 2] === 'requirements' && path[path.length - 1] !== 'requirements') {
+          return Promise.resolve({
+            id: path[path.length - 1],
+            exists: true,
+            data: () => ({
+              id: path[path.length - 1],
+              projectId: path[1],
+              title: 'One',
+              isDeleted: false,
+            }),
+          });
+        }
         return Promise.resolve({
           id: path[path.length - 1],
-          exists: true,
-          data: () => ({
-            id: path[path.length - 1],
-            projectId: path[1],
-            title: 'One',
-            isDeleted: false,
-          }),
+          exists: false,
+          data: () => ({}),
         });
       },
-      set(payload) {
-        paths.push(['set', path.join('/'), payload]);
+      set(payload, options) {
+        paths.push(['set', key, payload, options || null]);
+        const prev = store.get(key) || {};
+        store.set(key, options && options.merge ? Object.assign({}, prev, payload) : Object.assign({}, payload));
         return Promise.resolve();
       },
       update(payload) {
-        paths.push(['update', path.join('/'), payload]);
+        paths.push(['update', key, payload]);
         return Promise.resolve();
       },
     };
@@ -172,8 +191,20 @@ function createFakeFirestore() {
 
   return {
     paths,
+    store,
     collection(name) {
       return collectionRef([name]);
+    },
+    runTransaction(fn) {
+      const tx = {
+        get(ref) {
+          return ref.get();
+        },
+        set(ref, data, options) {
+          return ref.set(data, options);
+        },
+      };
+      return Promise.resolve(fn(tx));
     },
   };
 }
@@ -183,6 +214,8 @@ await loadBrowserScript(context, 'stam/js/stam.requirements-firestore-adapter.js
 await loadBrowserScript(context, 'stam/js/stam.requirements-service.js');
 
 assert.ok(window.STAM.requirementsFirestoreAdapter);
+assert.equal(window.STAM.requirementsFirestoreAdapter.formatRequirementCodeNumber(1), 'REQ_001');
+assert.equal(window.STAM.requirementsFirestoreAdapter.formatRequirementCodeNumber(12), 'REQ_012');
 assert.ok(window.STAM.requirementsService);
 assert.equal(window.STAM.requirementsService.ACTIONS.CREATE, 'requirement.create');
 [
@@ -227,6 +260,7 @@ const helperCreate = service.buildCreatePayload({
   reviewStatus: 'In Review',
   approvalStatus: 'pending',
   sortOrder: '3',
+  background: ' Business background ',
   tags: [' helper ', '', 'contract'],
 }, {
   actorUid: 'helper-user',
@@ -234,6 +268,8 @@ const helperCreate = service.buildCreatePayload({
 });
 assert.equal(helperCreate.projectId, 'P1');
 assert.equal(helperCreate.title, 'Helper create');
+assert.equal(helperCreate.background, 'Business background');
+assert.equal('code' in helperCreate, false, 'create payload must omit empty code; adapter allocates REQ_###');
 assert.equal(helperCreate.status, 'active');
 assert.equal(helperCreate.priority, 'high');
 assert.equal(helperCreate.visibility, 'customer');
@@ -304,10 +340,20 @@ const helperCreateSortOrderDecimal = service.buildCreatePayload({
 });
 assert.equal('sortOrder' in helperCreateSortOrderDecimal, false, 'create payload must omit non-integer sortOrder');
 
+const helperCreateBackgroundEmpty = service.buildCreatePayload({
+  projectId: 'P1',
+  title: 'No background',
+  background: '   ',
+}, {
+  actorUid: 'helper-user',
+});
+assert.equal('background' in helperCreateBackgroundEmpty, false, 'create payload must omit empty background');
+
 const helperPatch = service.buildUpdatePatch({
   id: 'MUST-NOT-LEAK',
   projectId: 'MUST-NOT-LEAK',
   title: 'Helper patch',
+  background: ' Updated background ',
   status: 'approved',
   priority: 'critical',
   visibility: 'private',
@@ -319,6 +365,7 @@ const helperPatch = service.buildUpdatePatch({
 assert.equal(helperPatch.id, undefined);
 assert.equal(helperPatch.projectId, undefined);
 assert.equal(helperPatch.title, 'Helper patch');
+assert.equal(helperPatch.background, 'Updated background');
 assert.equal(helperPatch.status, 'approved');
 assert.equal(helperPatch.priority, 'critical');
 assert.equal(helperPatch.visibility, 'private');
@@ -364,9 +411,11 @@ const normalized = window.STAM.requirementsService.normalizeRequirement({
   reviewStatus: 'Rejected',
   approvalStatus: 'rejected',
   tags: [' one ', ''],
+  background: ' Stored background ',
   isDeleted: false,
 });
 assert.equal(normalized.title, 'Normalized');
+assert.equal(normalized.background, 'Stored background');
 assert.equal(normalized.status, 'approved');
 assert.equal(normalized.priority, 'critical');
 assert.equal(normalized.visibility, 'internal');
@@ -491,8 +540,13 @@ assert.deepEqual(fakeFirestore.paths.at(-1), ['getCollection', 'projects/P1/requ
 
 const adapterCreated = await firestoreAdapter.create('P1', { id: 'REQ-C', title: 'Created' });
 assert.equal(adapterCreated.projectId, 'P1');
+assert.equal(adapterCreated.code, 'REQ_001');
 const setCall = fakeFirestore.paths.find((entry) => entry[0] === 'set' && entry[1] === 'projects/P1/requirements/REQ-C');
 assert.ok(setCall, 'expected Firestore set on create');
+assert.equal(setCall[2].code, 'REQ_001');
 assert.ok(setCall[2].createdAt && setCall[2].updatedAt, 'expected server timestamps on create payload');
+const counterSet = fakeFirestore.paths.find((entry) => entry[0] === 'set' && entry[1] === 'projects/P1/counters/requirements');
+assert.ok(counterSet, 'expected counter increment on create');
+assert.equal(counterSet[2].lastNumber, 1);
 
 console.log('requirements service contract: PASS');

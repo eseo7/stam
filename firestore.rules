@@ -225,6 +225,7 @@ service cloud.firestore {
         'code',
         'title',
         'description',
+        'background',
         'status',
         'priority',
         'ownerUid',
@@ -244,6 +245,19 @@ service cloud.firestore {
         'approvalStatus',
       ];
     }
+    function isValidRequirementsCounterWrite() {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['lastNumber'])
+          && data.lastNumber is int
+          && data.lastNumber >= 1
+          && (
+            resource == null && data.lastNumber == 1
+            || resource != null
+                && resource.data.keys().hasOnly(['lastNumber'])
+                && resource.data.lastNumber is int
+                && data.lastNumber == resource.data.lastNumber + 1
+          );
+    }
     function requirementCreateCoreValid(data, requirementId) {
       return data.id == requirementId
           && data.projectId is string
@@ -260,6 +274,7 @@ service cloud.firestore {
           && data.keys().hasOnly(requirementWriteKeys())
           && (!data.keys().hasAny(['code']) || data.code is string)
           && (!data.keys().hasAny(['description']) || data.description is string)
+          && (!data.keys().hasAny(['background']) || data.background is string)
           && (!data.keys().hasAny(['ownerUid']) || data.ownerUid is string)
           && (!data.keys().hasAny(['ownerName']) || data.ownerName is string)
           && (!data.keys().hasAny(['sortOrder']) || data.sortOrder is int)
@@ -299,6 +314,7 @@ service cloud.firestore {
           && data.keys().hasOnly(requirementWriteKeys())
           && (!data.keys().hasAny(['code']) || data.code is string)
           && (!data.keys().hasAny(['description']) || data.description is string)
+          && (!data.keys().hasAny(['background']) || data.background is string)
           && (!data.keys().hasAny(['ownerUid']) || data.ownerUid is string)
           && (!data.keys().hasAny(['ownerName']) || data.ownerName is string)
           && (!data.keys().hasAny(['sortOrder']) || data.sortOrder is int)
@@ -414,6 +430,14 @@ service cloud.firestore {
         allow get, list: if canReadProject(projectId);
         allow create: if isValidRequirementCreate(projectId, requirementId);
         allow update: if isValidRequirementUpdate(projectId, requirementId);
+        allow delete: if false;
+      }
+
+      match /counters/{counterId} {
+        allow get, list: if canReadProject(projectId);
+        allow create, update: if isRequirementWriter(projectId)
+            && counterId == 'requirements'
+            && isValidRequirementsCounterWrite();
         allow delete: if false;
       }
 
