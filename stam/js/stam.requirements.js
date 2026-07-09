@@ -69,6 +69,15 @@
         }
         openDrawer('detail');
       },
+      onSelectionChange: function () {
+        var crud = window.STAM && window.STAM.requirementsFirestoreCrud;
+        if (crud && typeof crud.applyWriteAccessUI === 'function') {
+          crud.applyWriteAccessUI();
+        }
+      },
+      onDelete: function () {
+        alert('요구사항 삭제는 아직 지원되지 않습니다.');
+      },
     });
   }
 

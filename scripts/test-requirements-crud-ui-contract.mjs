@@ -22,6 +22,7 @@ const ROOT = path.resolve(import.meta.dirname, '..');
 const crudSource = await readFile(path.join(ROOT, 'stam/js/stam.requirements-firestore-crud.js'), 'utf8');
 const listSource = await readFile(path.join(ROOT, 'stam/js/stam.requirements-firestore-list.js'), 'utf8');
 const pageSource = await readFile(path.join(ROOT, 'stam/pages/boards/requirements.html'), 'utf8');
+const requirementsPageJs = await readFile(path.join(ROOT, 'stam/js/stam.requirements.js'), 'utf8');
 const adapterSource = await readFile(path.join(ROOT, 'stam/js/stam.requirements-firestore-adapter.js'), 'utf8');
 const serviceSource = await readFile(path.join(ROOT, 'stam/js/stam.requirements-service.js'), 'utf8');
 
@@ -29,7 +30,7 @@ assert.match(crudSource, /svc\.create\(projectId, input, context\)/);
 assert.match(crudSource, /svc\.update\(projectId, item\.id, patch, context\)/);
 assert.equal(/\.softDelete\(/.test(crudSource), false);
 assert.equal(/collection\(['"]requirements['"]\)/.test(crudSource), false);
-assert.equal(/\.set\(|\.add\(|\.delete\(/.test(crudSource), false);
+assert.equal(/\.set\(|\.add\(|\.delete\(/.test(crudSource.replace(/classList\.add/g, '')), false);
 assert.equal(/firestore\(\)/.test(crudSource), false);
 assert.match(crudSource, /requirements-firestore-create/);
 assert.match(crudSource, /requirements-firestore-update/);
@@ -69,8 +70,19 @@ assert.match(serviceSource, /function defaultAuthorize\(\) \{[\s\S]*?return Prom
 assert.match(crudSource, /bindDeleteGuards/);
 assert.match(crudSource, /applyWriteAccessUI: applyWriteAccessUI/);
 assert.match(crudSource, /setButtonDisabled\(document\.getElementById\('rq-reg-btn'\), !writable/);
-assert.match(crudSource, /setButtonDisabled\(document\.getElementById\('rq-del-btn'\), true/);
-assert.match(crudSource, /setButtonDisabled\(document\.getElementById\('rq-det-del-btn'\), true/);
+assert.match(crudSource, /setButtonDisabled\(toolbarDelete, true, DELETE_DENIED_MSG\)/);
+assert.match(crudSource, /setButtonDisabled\(detailDelete, true, DELETE_DENIED_MSG\)/);
+assert.match(crudSource, /background: getVal\(regDrawer, '배경'\)/);
+assert.match(crudSource, /background: getVal\(editDrawer, '배경'\)/);
+assert.match(crudSource, /function requirementDisplayCode\(item\)/);
+assert.match(crudSource, /function ensureClosedDeleteButtonVisible\(btn\)/);
+assert.match(listSource, /function formatRequirementCode\(item\)/);
+assert.match(requirementsPageJs, /onSelectionChange: function \(\)/);
+assert.match(requirementsPageJs, /onDelete: function \(\)/);
+assert.doesNotMatch(pageSource, /배경 <span class="req">\*<\/span>/);
+assert.match(pageSource, /id="rq-del-btn"/);
+assert.match(pageSource, /stam-btn--danger-outline stam-board-delete stam-delete-btn" id="rq-del-btn"/);
+assert.match(pageSource, /id="rq-det-del-btn"[^>]*disabled/);
 assert.match(pageSource, /id="rq-del-btn"[^>]*disabled/);
 assert.match(pageSource, /id="rq-det-del-btn"/);
 

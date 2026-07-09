@@ -12,6 +12,7 @@ import path from 'node:path';
 const ROOT = path.resolve(import.meta.dirname, '..');
 const rulesSource = await readFile(path.join(ROOT, 'firestore.rules'), 'utf8');
 const serviceSource = await readFile(path.join(ROOT, 'stam/js/stam.requirements-service.js'), 'utf8');
+const adapterSource = await readFile(path.join(ROOT, 'stam/js/stam.requirements-firestore-adapter.js'), 'utf8');
 
 // ── Firestore rules: PR #358 helpers ─────────────────────────────
 assert.match(rulesSource, /PR #358/);
@@ -38,6 +39,23 @@ assert.match(helperBlock, /status == 'draft'/);
 assert.match(helperBlock, /status == 'archived'/);
 assert.match(helperBlock, /priority == 'critical'/);
 assert.match(helperBlock, /'id',\s*\n\s*'projectId',\s*\n\s*'code',\s*\n\s*'title'/);
+assert.match(helperBlock, /'background',/);
+assert.match(helperBlock, /function isValidRequirementsCounterWrite\(\)/);
+assert.match(helperBlock, /\(!data\.keys\(\)\.hasAny\(\['background'\]\) \|\| data\.background is string\)/);
+assert.match(
+  rulesSource,
+  /match \/counters\/\{counterId\}[\s\S]*counterId == 'requirements'/,
+);
+assert.match(
+  adapterSource,
+  /formatRequirementCodeNumber/,
+  'adapter must format REQ_### display codes',
+);
+assert.match(
+  adapterSource,
+  /allocateRequirementCode/,
+  'adapter must allocate requirement code via counter transaction',
+);
 assert.match(helperBlock, /isValidRequirementStatus\(data\.status\)/);
 assert.match(helperBlock, /isValidRequirementPriority\(data\.priority\)/);
 assert.match(helperBlock, /data\.version == 1/);
@@ -52,6 +70,16 @@ assert.match(
   serviceSource,
   /!Number\.isFinite\(n\) \|\| !Number\.isInteger\(n\)/,
   'normalizeSortOrder must reject non-integer values for rules sortOrder is int',
+);
+assert.match(
+  serviceSource,
+  /if \(background\) payload\.background = background/,
+  'create payload must include background when provided (PR #367)',
+);
+assert.match(
+  serviceSource,
+  /background: clean\(raw\.background\)/,
+  'normalizeRequirement must include background field (PR #367)',
 );
 assert.match(
   serviceSource,
