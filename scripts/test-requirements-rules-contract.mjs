@@ -48,6 +48,11 @@ assert.match(
   /if \(sortOrder != null\) \{[\s\S]*payload\.sortOrder = sortOrder/,
   'create payload must omit null sortOrder for rules compatibility (PR #366)',
 );
+assert.match(
+  serviceSource,
+  /!Number\.isFinite\(n\) \|\| !Number\.isInteger\(n\)/,
+  'normalizeSortOrder must reject non-integer values for rules sortOrder is int',
+);
 
 // ── Requirements match block ─────────────────────────────────────
 assert.match(

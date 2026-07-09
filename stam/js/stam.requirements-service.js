@@ -88,7 +88,8 @@
   function normalizeSortOrder(sortOrder) {
     if (sortOrder == null || sortOrder === '') return null;
     var n = Number(sortOrder);
-    return Number.isFinite(n) ? n : null;
+    if (!Number.isFinite(n) || !Number.isInteger(n)) return null;
+    return n;
   }
 
   function normalizeEnum(field, value) {

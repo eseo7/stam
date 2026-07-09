@@ -295,6 +295,15 @@ const helperCreateSortOrderEmpty = service.buildCreatePayload({
 });
 assert.equal('sortOrder' in helperCreateSortOrderEmpty, false);
 
+const helperCreateSortOrderDecimal = service.buildCreatePayload({
+  projectId: 'P1',
+  title: 'Decimal sort order',
+  sortOrder: '3.5',
+}, {
+  actorUid: 'helper-user',
+});
+assert.equal('sortOrder' in helperCreateSortOrderDecimal, false, 'create payload must omit non-integer sortOrder');
+
 const helperPatch = service.buildUpdatePatch({
   id: 'MUST-NOT-LEAK',
   projectId: 'MUST-NOT-LEAK',
