@@ -17,6 +17,8 @@ assert.doesNotMatch(
   'load() must bind authorized service before capturing service()',
 );
 assert.match(loadFn[0], /bindAuthorizedService\([\s\S]*?var svc = service\(\)/);
+assert.match(listSource, /function refreshCrudAccessUI\(\)/);
+assert.match(loadFn[0], /refreshCrudAccessUI\(\)/);
 assert.match(listSource, /\.replace\(\/&\/g, '&amp;'\)/);
 
 function fakeElement() {
@@ -56,6 +58,7 @@ const calls = [];
 const redirects = [];
 let denyListCalls = 0;
 let boundListCalls = 0;
+let crudAccessRefreshCalls = 0;
 
 const boundService = {
   listByProject(projectId, query, callContext) {
@@ -200,6 +203,12 @@ const context = vm.createContext({
     },
     STAM: {
       requirementsService: denyService,
+      requirementsFirestoreCrud: {
+        applyWriteAccessUI() {
+          crudAccessRefreshCalls += 1;
+          calls.push({ method: 'applyWriteAccessUI' });
+        },
+      },
       requirementsServiceContract: {
         createMemberRoleAuthorize(getMemberRole) {
           return function authorize(action, request) {
@@ -322,6 +331,8 @@ assert.equal(listCall.query.includeDeleted, false);
 assert.equal(listCall.context.actorUid, 'qa-user');
 assert.equal(listCall.context.memberRole, 'admin');
 assert.equal(listCall.context.source, 'requirements-firestore-list');
+assert.equal(crudAccessRefreshCalls, 1, 'load() must refresh CRUD write access UI after member role is bound');
+assert.ok(calls.some((call) => call.method === 'applyWriteAccessUI'));
 assert.match(tbody.innerHTML, /REQ-001/);
 assert.doesNotMatch(tbody.innerHTML, /REQ-002/);
 assert.doesNotMatch(tbody.innerHTML, /<script>/);

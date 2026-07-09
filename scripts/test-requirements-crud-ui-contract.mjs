@@ -49,6 +49,9 @@ const loadFn = listSource.match(/function load\(\) \{[\s\S]*?\n  \}/);
 assert.ok(loadFn, 'load() function must exist');
 assert.doesNotMatch(loadFn[0], /var svc = service\(\);[\s\S]*?bindAuthorizedService/);
 assert.match(loadFn[0], /bindAuthorizedService\([\s\S]*?var svc = service\(\)/);
+assert.match(listSource, /function refreshCrudAccessUI\(\)/);
+assert.match(listSource, /requirementsFirestoreCrud/);
+assert.match(loadFn[0], /refreshCrudAccessUI\(\)/);
 assert.match(listSource, /\.replace\(\/&\/g, '&amp;'\)/);
 
 assert.match(pageSource, /stam\.requirements-firestore-crud\.js/);
@@ -64,6 +67,8 @@ assert.equal(/function\s+softDelete/.test(serviceSource), false);
 assert.match(serviceSource, /function defaultAuthorize\(\) \{[\s\S]*?return Promise\.resolve\(false\);/);
 
 assert.match(crudSource, /bindDeleteGuards/);
+assert.match(crudSource, /applyWriteAccessUI: applyWriteAccessUI/);
+assert.match(crudSource, /setButtonDisabled\(document\.getElementById\('rq-reg-btn'\), !writable/);
 assert.match(crudSource, /setButtonDisabled\(document\.getElementById\('rq-del-btn'\), true/);
 assert.match(crudSource, /setButtonDisabled\(document\.getElementById\('rq-det-del-btn'\), true/);
 assert.match(pageSource, /id="rq-del-btn"[^>]*disabled/);

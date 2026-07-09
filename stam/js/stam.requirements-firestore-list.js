@@ -287,6 +287,13 @@
     }
   }
 
+  function refreshCrudAccessUI() {
+    var crud = window.STAM && window.STAM.requirementsFirestoreCrud;
+    if (crud && typeof crud.applyWriteAccessUI === 'function') {
+      crud.applyWriteAccessUI();
+    }
+  }
+
   function dpart(value) {
     return String(value || '').replace('T', ' ').slice(0, 10);
   }
@@ -566,9 +573,11 @@
       var list = (items || []).filter(function (item) { return item && item.isDeleted !== true; });
       renderRows(list);
       setSummary(list);
+      refreshCrudAccessUI();
       return list;
     }).catch(function () {
       renderError();
+      refreshCrudAccessUI();
       return [];
     });
   }

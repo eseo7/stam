@@ -1349,3 +1349,26 @@ PR #358–#359에서 rules·service authorize·role matrix smoke가 완료됐다
 
 - requirement delete rules + UI PR.
 - staging emulator/browser live create/update QA (maintainer 선택).
+
+---
+
+## 4-18. PR #365 — requirements write access UI refresh after list load
+
+**일자:** 2026-07-09  
+**문서:** `stam/js/stam.requirements-firestore-list.js`, `docs/reports/STAM_PR365_Requirements_Write_Access_UI_Refresh_QA.md`
+
+### 왜 지금 구현했나
+
+PR #364 maintainer live QA에서 owner 세션 `canWrite() === true`인데 `#rq-reg-btn`이 disabled로 남는 결함이 확인됐다. CRUD init 시점 member role 미준비 + list load 후 UI 미재갱신이 원인이다.
+
+### 결정
+
+- `stam.requirements-firestore-list.js` — `refreshCrudAccessUI()` 추가, `load()` 성공·실패 후 `requirementsFirestoreCrud.applyWriteAccessUI()` 호출.
+- `stam.requirements-firestore-crud.js` — public `applyWriteAccessUI` 재사용; `hookListLoad` 보조 경로 유지.
+- viewer disabled / delete disabled 동작 **유지**.
+- rules / nav / pages / css **미변경**.
+
+### 다시 열 조건
+
+- PR #364 maintainer live persistence 재확인 (등록 버튼 활성화 포함).
+- requirement delete rules + UI PR.
