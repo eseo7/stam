@@ -103,6 +103,10 @@ assert.equal(picker.READ_SOURCE, 'requirementsService.listByProject');
 assert.equal(picker.formatOptionLabel({ code: 'REQ_001', title: 'Alpha' }), 'REQ_001 · Alpha');
 assert.equal(picker.formatRequirementCode({ id: 'raw-doc-id', title: 'Alpha' }), '');
 assert.equal(picker.formatRequirementCode({ code: 'REQ_001', id: 'raw-doc-id' }), 'REQ_001');
+assert.match(pickerSource, /liveContextProviders/);
+assert.match(pickerSource, /function applyLiveContext\(container\)/);
+assert.match(pickerSource, /function formatLoadError\(err\)/);
+assert.match(pickerSource, /state\.loadError/);
 assert.doesNotMatch(pickerSource, /item\.requirementId \|\| item\.id/);
 assert.match(pickerSource, /event\.stopPropagation\(\)/);
 
