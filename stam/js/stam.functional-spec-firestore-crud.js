@@ -523,6 +523,7 @@
       regBtn.setAttribute('data-fn-crud-bound', '1');
       regBtn.addEventListener('click', function () {
         if (!canWrite()) return;
+        refreshRequirementPickerContext();
         setTimeout(resetRegister, 0);
       });
     }
@@ -548,6 +549,7 @@
       btn.setAttribute('data-fn-crud-bound', '1');
       btn.addEventListener('click', function () {
         if (!canWrite()) return;
+        refreshRequirementPickerContext();
         var api = listApi();
         var item = api && typeof api.getState === 'function' ? api.getState().currentItem : null;
         if (item) setTimeout(function () { prefillEdit(item); }, 0);
@@ -557,20 +559,6 @@
     bindDeleteGuards();
     bindSelectionAccessRefresh();
     applyWriteAccessUI();
-  }
-
-  function hookListLoad() {
-    var api = listApi();
-    if (!api || typeof api.load !== 'function' || api.load.__fnCrudHooked) return;
-    var originalLoad = api.load;
-    api.load = function fnCrudLoad() {
-      return originalLoad().then(function (items) {
-        refreshRequirementPickerContext();
-        applyWriteAccessUI();
-        return items;
-      });
-    };
-    api.load.__fnCrudHooked = true;
   }
 
   function init() {
@@ -599,6 +587,22 @@
   } else {
     init();
   }
+
+  function hookListLoad() {
+    var api = listApi();
+    if (!api || typeof api.load !== 'function' || api.load.__fnCrudHooked) return;
+    var originalLoad = api.load;
+    api.load = function fnCrudLoad() {
+      return originalLoad().then(function (items) {
+        refreshRequirementPickerContext();
+        applyWriteAccessUI();
+        return items;
+      });
+    };
+    api.load.__fnCrudHooked = true;
+  }
+
+  hookListLoad();
 
   window.STAM = window.STAM || {};
   window.STAM.functionalSpecFirestoreCrud = {

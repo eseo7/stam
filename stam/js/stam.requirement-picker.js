@@ -27,6 +27,61 @@
       .replace(/"/g, '&quot;');
   }
 
+  var liveContextProviders = {
+    getProjectId: null,
+    getMemberRole: null,
+    getContext: null,
+  };
+
+  function resolveLiveContext(container) {
+    var state = stateOf(container) || {};
+    var projectId = clean(state.projectId);
+    var memberRole = clean(state.memberRole);
+    var context = Object.assign({}, state.context || {});
+    if (!projectId && typeof liveContextProviders.getProjectId === 'function') {
+      projectId = clean(liveContextProviders.getProjectId());
+    }
+    if (!memberRole && typeof liveContextProviders.getMemberRole === 'function') {
+      memberRole = clean(liveContextProviders.getMemberRole());
+    }
+    if (typeof liveContextProviders.getContext === 'function') {
+      context = Object.assign({}, liveContextProviders.getContext(), context);
+    }
+    context = Object.assign({}, context, {
+      projectId: projectId || clean(context.projectId),
+      memberRole: memberRole || clean(context.memberRole),
+    });
+    return {
+      projectId: projectId,
+      memberRole: memberRole,
+      context: context,
+    };
+  }
+
+  function applyLiveContext(container) {
+    var state = stateOf(container);
+    if (!state) return;
+    var next = resolveLiveContext(container);
+    var changed = clean(state.projectId) !== clean(next.projectId)
+      || clean(state.memberRole) !== clean(next.memberRole);
+    if (!changed) return;
+    setState(container, {
+      projectId: next.projectId,
+      memberRole: next.memberRole,
+      context: next.context,
+      items: null,
+      loadError: null,
+      loadingPromise: null,
+    });
+  }
+
+  function formatLoadError(err) {
+    if (!err) return '요구사항 목록을 불러오지 못했습니다.';
+    var message = clean(err.message || err);
+    if (!message) return '요구사항 목록을 불러오지 못했습니다.';
+    return message;
+  }
+
   function requirementsContract() {
     return window.STAM && window.STAM.requirementsServiceContract;
   }
@@ -177,12 +232,22 @@
     if (!optionsHost) return;
     var query = clean(filterText).toLowerCase();
     var selected = getValue(container);
+    var state = stateOf(container);
     var html = '';
 
     html += '<div class="stam-cs-opt is-placeholder' + (hasSelection(selected) ? '' : ' is-sel') + '" role="option" data-stam-requirement-picker-opt="" data-req-id="" data-req-code="" data-req-title="" aria-selected="' + (hasSelection(selected) ? 'false' : 'true') + '">' +
       '<span class="stam-cs-check" aria-hidden="true">' + checkSvg() + '</span>' +
       '<span class="stam-cs-otext">' + esc(UNLINK_LABEL) + '</span>' +
       '</div>';
+
+    if (state && state.loadError) {
+      html += '<div class="stam-cs-opt is-disabled" role="option" aria-disabled="true">' +
+        '<span class="stam-cs-check" aria-hidden="true"></span>' +
+        '<span class="stam-cs-otext">' + esc(formatLoadError(state.loadError)) + '</span>' +
+        '</div>';
+      optionsHost.innerHTML = html;
+      return;
+    }
 
     (items || []).forEach(function (item) {
       var code = formatRequirementCode(item);
@@ -216,6 +281,9 @@
 
   function ensureLoaded(container) {
     var state = stateOf(container);
+    if (!state) return Promise.resolve([]);
+    applyLiveContext(container);
+    state = stateOf(container);
     if (!state) return Promise.resolve([]);
     if (state.items) return Promise.resolve(state.items);
     if (state.loadingPromise) return state.loadingPromise;
@@ -259,7 +327,9 @@
 
     return ensureLoaded(container).then(function (items) {
       renderOptions(container, items, '');
-    }).catch(function () {
+    }).catch(function (err) {
+      var current = stateOf(container);
+      if (current) setState(container, { items: [], loadError: err || current.loadError || new Error('load failed') });
       renderOptions(container, [], '');
     });
   }
@@ -375,10 +445,11 @@
   function refreshContext(container, options) {
     if (!container) return;
     var opts = options || {};
+    var live = resolveLiveContext(container);
     setState(container, {
-      projectId: clean(opts.projectId) || (stateOf(container) && stateOf(container).projectId) || '',
-      context: opts.context || (stateOf(container) && stateOf(container).context) || {},
-      memberRole: clean(opts.memberRole) || (stateOf(container) && stateOf(container).memberRole) || '',
+      projectId: clean(opts.projectId) || live.projectId || '',
+      context: opts.context || live.context || {},
+      memberRole: clean(opts.memberRole) || live.memberRole || '',
       items: null,
       loadError: null,
       loadingPromise: null,
@@ -390,6 +461,9 @@
     var getProjectId = typeof opts.getProjectId === 'function' ? opts.getProjectId : function () { return ''; };
     var getContext = typeof opts.getContext === 'function' ? opts.getContext : function () { return {}; };
     var getMemberRole = typeof opts.getMemberRole === 'function' ? opts.getMemberRole : function () { return ''; };
+    liveContextProviders.getProjectId = getProjectId;
+    liveContextProviders.getContext = getContext;
+    liveContextProviders.getMemberRole = getMemberRole;
 
     document.querySelectorAll('[data-stam-requirement-picker]').forEach(function (container) {
       mount(container, {
