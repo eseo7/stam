@@ -1603,9 +1603,10 @@ FS-6A counter 이후 기능정의서 Drawer의 요구사항 연결이 free-text 
 
 - `STAM.requirementPicker` **신규** — `requirementsService.listByProject` read-only data source.
 - 표시: `REQ_### · title`; 저장: `requirementId` + `requirementCode` + `requirementTitle`.
-- 연결 해제: update patch에서 세 필드 empty string.
+- 연결 해제: CRUD patch는 empty string → adapter `update`에서 `FieldValue.delete()`로 세 필드 **문서 제거**.
+- 표시: `REQ_### · title` only (`requirementCode`/`code`); raw Firestore doc id UI **미노출**.
 - `functional-spec-firestore-crud.js` + `functional-specification.html` wiring only.
-- rules / FN counter adapter / functional-spec service / css / nav **미변경**.
+- rules / FN counter / functional-spec service / css / nav **미변경** (adapter unlink delete만 예외).
 
 ### 다시 열 조건
 

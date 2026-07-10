@@ -314,7 +314,7 @@
 
   function linkedCardsHtml(item) {
     var html = '';
-    var reqCode = clean(valueOf(item, ['requirementCode', 'requirementId'], ''));
+    var reqCode = requirementDisplayCode(item);
     var reqTitle = clean(item.requirementTitle);
     if (reqCode) {
       html += '<div class="fn-linked-card">' +
@@ -338,7 +338,7 @@
   }
 
   function linkedBadgeText(item) {
-    var reqCount = clean(valueOf(item, ['requirementCode', 'requirementId'], '')) ? 1 : 0;
+    var reqCount = hasRequirementLink(item) ? 1 : 0;
     var screenCount = clean(item.linkedScreen) ? 1 : 0;
     if (!reqCount && !screenCount) return '연결 없음';
     return '요구사항 ' + reqCount + ' · 화면 ' + screenCount;
@@ -355,7 +355,7 @@
     var ownerInitial = esc(owner.charAt(0) || '?');
     var typeLabel = functionTypeLabel(item);
     var updated = detailDate(item.updatedAt || item.createdAt);
-    var reqCode = clean(valueOf(item, ['requirementCode', 'requirementId'], ''));
+    var reqCode = requirementDisplayCode(item);
 
     setText('#fn-dw-detail .fn-fn-badge', code);
     setText('#fn-dw-detail .fn-dw-htitle', title);
@@ -520,8 +520,16 @@
     return AVA_CLASSES[h];
   }
 
+  function requirementDisplayCode(item) {
+    return clean(valueOf(item, ['requirementCode'], ''));
+  }
+
+  function hasRequirementLink(item) {
+    return !!(requirementDisplayCode(item) || clean(item.requirementId));
+  }
+
   function requirementChip(item) {
-    var code = clean(valueOf(item, ['requirementCode', 'requirementId'], ''));
+    var code = requirementDisplayCode(item);
     if (code) return '<span class="fn-link-chip">' + esc(code) + '</span>';
     return '<span class="fn-chip fn-chip-hold">연결 필요</span>';
   }
@@ -629,7 +637,7 @@
     if (nums[3]) nums[3].textContent = items.filter(function (item) { return item.status === 'approved'; }).length;
     if (nums[4]) nums[4].textContent = items.filter(function (item) { return item.status === 'hold'; }).length;
     if (nums[5]) nums[5].textContent = items.filter(function (item) {
-      return !!clean(valueOf(item, ['requirementCode', 'requirementId'], ''));
+      return hasRequirementLink(item);
     }).length;
     if (nums[6]) nums[6].textContent = items.filter(function (item) {
       return !!clean(valueOf(item, ['linkedScreen'], ''));
@@ -644,7 +652,7 @@
     if (recent) recent.textContent = '—';
     if (unlinked) {
       unlinked.textContent = items.filter(function (item) {
-        return !clean(valueOf(item, ['requirementCode', 'requirementId'], ''));
+        return !hasRequirementLink(item);
       }).length + '건';
     }
 

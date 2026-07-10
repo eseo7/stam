@@ -28,6 +28,8 @@ picker는 `requirementsServiceContract.createMemberRoleAuthorize`로 **read-only
 |------|------|
 | `stam/js/stam.requirement-picker.js` | **신규** — 공통 picker API |
 | `stam/js/stam.functional-spec-firestore-crud.js` | picker wiring, create/update payload |
+| `stam/js/stam.functional-spec-firestore-adapter.js` | unlink 시 requirement 3필드 `FieldValue.delete()` |
+| `stam/js/stam.functional-spec-firestore-list.js` | requirement 표시 `requirementCode` only |
 | `stam/pages/boards/functional-specification.html` | picker mount + requirements read scripts |
 | `scripts/test-requirement-picker-contract.mjs` | **신규** |
 | `scripts/test-functional-spec-crud-ui-contract.mjs` | picker integration assertions |
@@ -39,11 +41,12 @@ picker는 `requirementsServiceContract.createMemberRoleAuthorize`로 **read-only
 |------|------|
 | 표시 | `REQ_### · 요구사항 제목` |
 | 저장 (연결) | `requirementId`, `requirementCode`, `requirementTitle` |
-| 연결 해제 | 세 필드 모두 empty string (update patch) / create 시 omit |
+| 연결 해제 | update 시 adapter가 세 필드를 `FieldValue.delete()`로 **문서에서 제거** / create 시 omit |
+| 표시 ID | `REQ_###` (`requirementCode`/`code` only) — raw Firestore doc id **미노출** |
 | 데이터 소스 | `requirementsService.listByProject` (read only) |
 | UI 클래스 | 기존 `stam-cs-*`, `stam-input`, `stam-btn` only |
 | 복수 선택 | **미지원** |
-| rules / counter / adapter | **미변경** |
+| rules / FN counter / functional-spec service / css / nav | **미변경** (adapter unlink delete만 예외) |
 | delete/softDelete | **미개방** |
 | live persistence evidence | **FS-7 후속** (PASS 미선언) |
 
@@ -85,7 +88,7 @@ node scripts/test-functional-spec-role-matrix-contract.mjs
 | 항목 | 결과 |
 |------|------|
 | `firestore.rules` | **변경 없음** |
-| `stam.functional-spec-firestore-adapter.js` | **변경 없음** |
+| `stam.functional-spec-firestore-adapter.js` | unlink 시 `FieldValue.delete()` (requirement 3필드) |
 | `stam.functional-spec-service.js` | **변경 없음** |
 | `stam/css/**` | **변경 없음** |
 | `stam.nav-data.js` | **변경 없음** |

@@ -53,6 +53,9 @@ function createContext() {
         serverTimestamp() {
           return { __serverTimestamp: true };
         },
+        delete() {
+          return { __fieldDelete: true };
+        },
       },
     }),
   };
@@ -105,6 +108,20 @@ function createFakeFirestore(options) {
         paths.push(['set', key, payload, setOptions || null]);
         const prev = store.get(key) || {};
         store.set(key, setOptions && setOptions.merge ? Object.assign({}, prev, payload) : Object.assign({}, payload));
+        return Promise.resolve();
+      },
+      update(patch) {
+        paths.push(['update', key, patch]);
+        const prev = store.get(key) || {};
+        const next = Object.assign({}, prev);
+        Object.keys(patch || {}).forEach((field) => {
+          if (patch[field] && patch[field].__fieldDelete) {
+            delete next[field];
+          } else {
+            next[field] = patch[field];
+          }
+        });
+        store.set(key, next);
         return Promise.resolve();
       },
     };
@@ -233,5 +250,34 @@ assert.equal(
   false,
   'functional spec doc must not persist when transaction fails',
 );
+
+const linkedPath = 'projects/P1/functionalSpecifications/fs-linked';
+fakeFirestore.store.set(linkedPath, {
+  id: 'fs-linked',
+  projectId: 'P1',
+  code: 'FN_010',
+  title: 'Linked spec',
+  status: 'draft',
+  priority: 'mid',
+  requirementId: 'req-abc',
+  requirementCode: 'REQ_010',
+  requirementTitle: 'Linked requirement',
+  version: 1,
+});
+
+const unlinked = await adapter.update('P1', 'fs-linked', {
+  title: 'Linked spec',
+  requirementId: '',
+  requirementCode: '',
+  requirementTitle: '',
+});
+const unlinkPatch = fakeFirestore.paths.find((entry) => entry[0] === 'update' && entry[1] === linkedPath);
+assert.ok(unlinkPatch, 'update must be called for unlink patch');
+assert.equal(unlinkPatch[2].requirementId.__fieldDelete, true);
+assert.equal(unlinkPatch[2].requirementCode.__fieldDelete, true);
+assert.equal(unlinkPatch[2].requirementTitle.__fieldDelete, true);
+assert.equal(unlinked.requirementId, undefined);
+assert.equal(unlinked.requirementCode, undefined);
+assert.equal(unlinked.requirementTitle, undefined);
 
 console.log('functional spec counter contract: PASS');

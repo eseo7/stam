@@ -33,7 +33,7 @@
 
   function formatRequirementCode(item) {
     if (!item) return '';
-    return clean(item.code || item.requirementId || item.id);
+    return clean(item.requirementCode || item.code);
   }
 
   function formatOptionLabel(item) {

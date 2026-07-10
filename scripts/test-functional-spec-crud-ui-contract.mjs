@@ -22,6 +22,7 @@ const crudSource = await readFile(path.join(ROOT, 'stam/js/stam.functional-spec-
 const listSource = await readFile(path.join(ROOT, 'stam/js/stam.functional-spec-firestore-list.js'), 'utf8');
 const pageSource = await readFile(path.join(ROOT, 'stam/pages/boards/functional-specification.html'), 'utf8');
 const adapterSource = await readFile(path.join(ROOT, 'stam/js/stam.functional-spec-firestore-adapter.js'), 'utf8');
+const pickerSource = await readFile(path.join(ROOT, 'stam/js/stam.requirement-picker.js'), 'utf8');
 const serviceSource = await readFile(path.join(ROOT, 'stam/js/stam.functional-spec-service.js'), 'utf8');
 
 assert.match(crudSource, /svc\.create\(projectId, input, context\)/);
@@ -62,6 +63,12 @@ assert.doesNotMatch(pageSource, /FN-001/);
 assert.doesNotMatch(pageSource, /요구사항 목록 조회/);
 
 assert.match(adapterSource, /serverTimestamp/);
+assert.match(adapterSource, /applyRequirementUnlinkDeletes/);
+assert.match(adapterSource, /FieldValue\.delete\(\)/);
+assert.match(adapterSource, /requirementId', 'requirementCode', 'requirementTitle'/);
+assert.doesNotMatch(pickerSource, /item\.requirementId \|\| item\.id/);
+assert.match(listSource, /function requirementDisplayCode\(item\)/);
+assert.doesNotMatch(listSource, /\['requirementCode', 'requirementId'\]/);
 assert.equal(/softDelete\s*:/.test(adapterSource), false);
 assert.equal(/function\s+softDelete/.test(adapterSource), false);
 assert.equal(/softDelete\s*:/.test(serviceSource), false);
