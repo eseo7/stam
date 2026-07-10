@@ -82,4 +82,10 @@ assert.match(pageSource, /id="fn-det-del-btn"[^>]*disabled/);
 assert.match(pageSource, /id="fn-del-btn"[^>]*disabled/);
 assert.match(pageSource, /id="fn-det-del-btn"/);
 
+assert.match(crudSource, /requirementPickerApi/);
+assert.match(crudSource, /pickerApi\.initAll/);
+assert.match(crudSource, /getRequirementSelection/);
+assert.match(pageSource, /data-stam-requirement-picker/);
+assert.doesNotMatch(pageSource, /placeholder="요구사항 ID 입력/);
+
 console.log('functional spec crud ui contract: PASS');

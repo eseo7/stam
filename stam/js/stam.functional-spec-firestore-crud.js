@@ -114,6 +114,78 @@
     return { source: source || 'functional-spec-firestore-crud' };
   }
 
+  function requirementPickerEl(scope) {
+    if (!scope) return null;
+    var field = null;
+    var fields = scope.querySelectorAll('.fn-ffield');
+    for (var i = 0; i < fields.length; i++) {
+      var lbl = fields[i].querySelector('.fn-flbl');
+      if (lbl && lbl.textContent.trim().indexOf('연결 요구사항') === 0) {
+        field = fields[i];
+        break;
+      }
+    }
+    return field ? field.querySelector('[data-stam-requirement-picker]') : null;
+  }
+
+  function requirementPickerApi() {
+    return window.STAM && window.STAM.requirementPicker;
+  }
+
+  function refreshRequirementPickerContext() {
+    var api = requirementPickerApi();
+    if (!api || typeof api.refreshContext !== 'function') return;
+    var list = listApi();
+    var snapshot = list && typeof list.getState === 'function' ? list.getState() : {};
+    var options = {
+      projectId: clean(snapshot.projectId),
+      memberRole: clean(snapshot.member && snapshot.member.role),
+      context: serviceContext('functional-spec-requirement-picker'),
+    };
+    document.querySelectorAll('[data-stam-requirement-picker]').forEach(function (container) {
+      api.refreshContext(container, options);
+    });
+  }
+
+  function getRequirementSelection(scope) {
+    var api = requirementPickerApi();
+    var picker = requirementPickerEl(scope);
+    if (!api || !picker || typeof api.getValue !== 'function') {
+      return { requirementId: '', requirementCode: '', requirementTitle: '' };
+    }
+    return api.getValue(picker);
+  }
+
+  function setRequirementSelection(scope, item) {
+    var api = requirementPickerApi();
+    var picker = requirementPickerEl(scope);
+    if (!api || !picker || typeof api.setValue !== 'function') return;
+    if (!item || (!clean(item.requirementId) && !clean(item.requirementCode))) {
+      api.clear(picker);
+      return;
+    }
+    api.setValue(picker, {
+      requirementId: clean(item.requirementId),
+      requirementCode: clean(item.requirementCode),
+      requirementTitle: clean(item.requirementTitle),
+    });
+  }
+
+  function clearRequirementSelection(scope) {
+    var api = requirementPickerApi();
+    var picker = requirementPickerEl(scope);
+    if (!api || !picker || typeof api.clear !== 'function') return;
+    api.clear(picker);
+  }
+
+  function applyRequirementPickerDisabled() {
+    var api = requirementPickerApi();
+    if (!api || typeof api.setDisabled !== 'function') return;
+    var writable = canWrite();
+    document.querySelectorAll('[data-stam-requirement-picker]').forEach(function (container) {
+      api.setDisabled(container, !writable);
+    });
+  }
   function fieldByLabel(scope, label) {
     if (!scope) return null;
     var fields = scope.querySelectorAll('.fn-ffield');
@@ -242,6 +314,7 @@
     ensureClosedDeleteButtonVisible(detailDelete);
     setButtonDisabled(toolbarDelete, true, DELETE_DENIED_MSG);
     setButtonDisabled(detailDelete, true, DELETE_DENIED_MSG);
+    applyRequirementPickerDisabled();
   }
 
   function closeDrawersAndRefresh() {
@@ -272,24 +345,24 @@
         syncCustomSelect(select);
       }
     });
-    ['기능명', '담당자', '연결 요구사항', '기능 설명', '입력 조건', '처리 규칙', '예외/오류 처리', '관련 API/연동', '비고'].forEach(function (label) {
+    ['기능명', '담당자', '기능 설명', '입력 조건', '처리 규칙', '예외/오류 처리', '관련 API/연동', '비고'].forEach(function (label) {
       setVal(regDrawer, label, '');
     });
+    clearRequirementSelection(regDrawer);
   }
 
   function buildCreateInput(regDrawer) {
     var koStatus = getVal(regDrawer, '상태') || '작성중';
     var mapped = statusFromKo(koStatus);
     var ownerName = getVal(regDrawer, '담당자');
-    var reqCode = getVal(regDrawer, '연결 요구사항');
-    return {
+    var req = getRequirementSelection(regDrawer);
+    var input = {
       title: getVal(regDrawer, '기능명'),
       status: mapped.status,
       priority: priorityFromKo(getVal(regDrawer, '우선순위') || '중간'),
       functionType: functionTypeFromKo(getVal(regDrawer, '기능유형')),
       ownerName: ownerName,
       reviewStatus: mapped.reviewStatus,
-      requirementCode: reqCode,
       linkedScreen: getVal(regDrawer, '연결 화면'),
       description: getVal(regDrawer, '기능 설명'),
       inputSpec: getVal(regDrawer, '입력 조건'),
@@ -298,6 +371,12 @@
       apiRef: getVal(regDrawer, '관련 API/연동'),
       note: getVal(regDrawer, '비고'),
     };
+    if (clean(req.requirementId) || clean(req.requirementCode)) {
+      input.requirementId = clean(req.requirementId);
+      input.requirementCode = clean(req.requirementCode);
+      input.requirementTitle = clean(req.requirementTitle);
+    }
+    return input;
   }
 
   function submitRegister() {
@@ -344,7 +423,7 @@
     setVal(editDrawer, '우선순위', priorityToKo(item));
     setVal(editDrawer, '상태', statusToKo(item));
     setVal(editDrawer, '담당자', clean(item.ownerName || item.ownerUid) || '');
-    setVal(editDrawer, '연결 요구사항', clean(item.requirementCode || item.requirementId) || '');
+    setRequirementSelection(editDrawer, item);
     setVal(editDrawer, '연결 화면', item.linkedScreen || '');
     setVal(editDrawer, '기능 설명', item.description || '');
     setVal(editDrawer, '입력 조건', item.inputSpec || '');
@@ -357,15 +436,14 @@
   function buildUpdatePatch(editDrawer) {
     var koStatus = getVal(editDrawer, '상태') || '작성중';
     var mapped = statusFromKo(koStatus);
-    var reqCode = getVal(editDrawer, '연결 요구사항');
-    return {
+    var req = getRequirementSelection(editDrawer);
+    var patch = {
       title: getVal(editDrawer, '기능명'),
       status: mapped.status,
       priority: priorityFromKo(getVal(editDrawer, '우선순위') || '중간'),
       functionType: functionTypeFromKo(getVal(editDrawer, '기능유형')),
       ownerName: getVal(editDrawer, '담당자'),
       reviewStatus: mapped.reviewStatus,
-      requirementCode: reqCode,
       linkedScreen: getVal(editDrawer, '연결 화면'),
       description: getVal(editDrawer, '기능 설명'),
       inputSpec: getVal(editDrawer, '입력 조건'),
@@ -373,7 +451,11 @@
       exceptionRule: getVal(editDrawer, '예외/오류 처리'),
       apiRef: getVal(editDrawer, '관련 API/연동'),
       note: getVal(editDrawer, '비고'),
+      requirementId: clean(req.requirementId),
+      requirementCode: clean(req.requirementCode),
+      requirementTitle: clean(req.requirementTitle),
     };
+    return patch;
   }
 
   function submitEdit() {
@@ -483,6 +565,7 @@
     var originalLoad = api.load;
     api.load = function fnCrudLoad() {
       return originalLoad().then(function (items) {
+        refreshRequirementPickerContext();
         applyWriteAccessUI();
         return items;
       });
@@ -492,7 +575,23 @@
 
   function init() {
     hookListLoad();
+    var pickerApi = requirementPickerApi();
+    if (pickerApi && typeof pickerApi.initAll === 'function') {
+      pickerApi.initAll({
+        getProjectId: function () {
+          var api = listApi();
+          var snapshot = api && typeof api.getState === 'function' ? api.getState() : {};
+          return clean(snapshot.projectId);
+        },
+        getContext: function () {
+          return serviceContext('functional-spec-requirement-picker');
+        },
+        getMemberRole: memberRole,
+      });
+    }
     bindCrudHandlers();
+    refreshRequirementPickerContext();
+    applyRequirementPickerDisabled();
   }
 
   if (document.readyState === 'loading') {
