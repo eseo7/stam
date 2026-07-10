@@ -557,26 +557,59 @@
       '</tr>';
   }
 
-  function statusMessageRow(title, desc, modifier) {
-    var mod = clean(modifier) || 'status';
-    return '<tr class="fn-empty-row fn-empty-row--' + esc(mod) + '"><td colspan="9">' +
-      '<div class="stam-board-desc">' + esc(title) + '</div>' +
-      '<div class="fn-page-hdr-desc">' + esc(desc) + '</div>' +
-      '</td></tr>';
+  function uiFeedback() {
+    return window.STAM && window.STAM.uiFeedback;
+  }
+
+  function uiMessages() {
+    return window.STAM && window.STAM.uiMessages;
+  }
+
+  function tableColspan() {
+    return 9;
   }
 
   function emptyStateRow(title, desc) {
-    return statusMessageRow(title, desc, 'empty');
+    var feedback = uiFeedback();
+    if (!feedback || typeof feedback.tableEmptyRow !== 'function') return '';
+    return feedback.tableEmptyRow({
+      colspan: tableColspan(),
+      title: title,
+      description: desc,
+      icon: 'clipboard-check',
+    });
+  }
+
+  function statusMessageRow(title, desc, modifier) {
+    var feedback = uiFeedback();
+    if (!feedback || typeof feedback.tableMessageRow !== 'function') return '';
+    return feedback.tableMessageRow({
+      colspan: tableColspan(),
+      title: title,
+      description: desc,
+      variant: modifier,
+    });
+  }
+
+  function renderFeedbackRow(html) {
+    var body = tbody();
+    if (!body || !html) return;
+    body.innerHTML = html;
+    var feedback = uiFeedback();
+    if (feedback && typeof feedback.hydrateIcons === 'function') {
+      feedback.hydrateIcons(body);
+    }
   }
 
   function renderRows(items) {
     var body = tbody();
     if (!body) return;
+    var messages = uiMessages() && uiMessages().functionalSpec;
     if (!items.length) {
-      body.innerHTML = emptyStateRow(
-        '등록된 기능정의가 없습니다',
-        '등록 버튼을 눌러 직접 추가하거나, 요구사항 가져오기를 통해 초안을 생성하세요.'
-      );
+      renderFeedbackRow(emptyStateRow(
+        messages && messages.emptyTitle || '등록된 기능정의서가 없습니다',
+        messages && messages.emptyDesc || ''
+      ));
       refreshBoardList();
       return;
     }
@@ -632,25 +665,25 @@
   }
 
   function renderLoading() {
-    var body = tbody();
-    if (body) {
-      body.innerHTML = statusMessageRow(
-        '기능정의 목록을 불러오는 중입니다.',
-        'Firestore에서 목록을 읽어오고 있습니다.',
-        'loading'
-      );
-    }
+    var messages = uiMessages();
+    var spec = messages && messages.functionalSpec;
+    var common = messages && messages.common;
+    renderFeedbackRow(statusMessageRow(
+      spec && spec.loadingTitle || (common && common.loading && common.loading.title) || '',
+      spec && spec.loadingDesc || (common && common.loading && common.loading.description) || '',
+      'loading'
+    ));
   }
 
   function renderError() {
-    var body = tbody();
-    if (body) {
-      body.innerHTML = statusMessageRow(
-        '기능정의 목록을 불러오지 못했습니다.',
-        '잠시 후 다시 시도해 주세요.',
-        'error'
-      );
-    }
+    var messages = uiMessages();
+    var spec = messages && messages.functionalSpec;
+    var common = messages && messages.common;
+    renderFeedbackRow(statusMessageRow(
+      spec && spec.errorTitle || (common && common.networkError && common.networkError.title) || '',
+      common && common.networkError && common.networkError.description || '',
+      'error'
+    ));
     setSummary([]);
     refreshBoardList();
   }
