@@ -31,7 +31,10 @@ assert.match(messagesSource, /common:\s*\{/);
 assert.match(messagesSource, /requirements:\s*\{/);
 assert.match(messagesSource, /functionalSpec:\s*\{/);
 assert.match(messagesSource, /emptyTitle:\s*'등록된 요구사항이 없습니다'/);
-assert.match(messagesSource, /emptyTitle:\s*'등록된 기능정의가 없습니다'/);
+assert.match(messagesSource, /emptyTitle:\s*'등록된 기능정의서가 없습니다'/);
+assert.match(messagesSource, /loadingTitle:\s*'기능정의서 목록을 불러오는 중입니다.'/);
+assert.match(messagesSource, /errorTitle:\s*'기능정의서 목록을 불러오지 못했습니다.'/);
+assert.match(messagesSource, /deleteUnsupported:\s*'1차 범위에서는 삭제 기능을 지원하지 않습니다.'/);
 
 assert.match(feedbackSource, /tableEmptyRow/);
 assert.match(feedbackSource, /tableLoadingRow/);

@@ -458,7 +458,7 @@
     var messages = uiMessages() && uiMessages().functionalSpec;
     if (!items.length) {
       renderFeedbackRow(emptyStateRow(
-        messages && messages.emptyTitle || '등록된 기능정의가 없습니다',
+        messages && messages.emptyTitle || '등록된 기능정의서가 없습니다',
         messages && messages.emptyDesc || ''
       ));
       refreshBoardList();

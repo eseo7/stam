@@ -334,7 +334,7 @@ assert.match(tbody.innerHTML, /조회/);
 
 tbody.innerHTML = '';
 context.window.STAM.functionalSpecFirestoreList.renderRows([]);
-assert.match(tbody.innerHTML, /등록된 기능정의가 없습니다/);
+assert.match(tbody.innerHTML, /등록된 기능정의서가 없습니다/);
 assert.match(tbody.innerHTML, /stam-table-feedback/);
 
 console.log('functional spec list contract: PASS');

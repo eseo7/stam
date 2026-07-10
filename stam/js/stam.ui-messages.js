@@ -21,7 +21,7 @@
         title: '목록을 불러오지 못했습니다.',
         description: '잠시 후 다시 시도해 주세요.',
       },
-      deleteUnsupported: '삭제 기능은 아직 지원하지 않습니다.',
+      deleteUnsupported: '1차 범위에서는 삭제 기능을 지원하지 않습니다.',
     },
     requirements: {
       emptyTitle: '등록된 요구사항이 없습니다',
@@ -31,11 +31,11 @@
       errorTitle: '요구사항을 불러오지 못했습니다.',
     },
     functionalSpec: {
-      emptyTitle: '등록된 기능정의가 없습니다',
+      emptyTitle: '등록된 기능정의서가 없습니다',
       emptyDesc: '등록 버튼을 눌러 직접 추가하거나, 요구사항 가져오기를 통해 초안을 생성하세요.',
-      loadingTitle: '기능정의 목록을 불러오는 중입니다.',
+      loadingTitle: '기능정의서 목록을 불러오는 중입니다.',
       loadingDesc: '목록을 불러오고 있습니다.',
-      errorTitle: '기능정의 목록을 불러오지 못했습니다.',
+      errorTitle: '기능정의서 목록을 불러오지 못했습니다.',
     },
   };
 }());
