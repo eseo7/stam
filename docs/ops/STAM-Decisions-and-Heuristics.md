@@ -1561,5 +1561,29 @@ FS-4 list read binding·staging 반영 확인 후, B5 기능정의서 등록/수
 
 ### 다시 열 조건
 
-- FS-6 counter + picker.
+- ~~FS-6 counter + picker.~~ → FS-6A counter / FS-6B picker
 - FS-7 live QA evidence.
+
+---
+
+## 4-26. FS-6A — functionalSpecifications FN_### code counter
+
+**일자:** 2026-07-10  
+**문서:** `firestore.rules`, `stam/js/stam.functional-spec-firestore-adapter.js`, `docs/reports/STAM_FS6A_FunctionalSpec_FN_Code_Counter_QA.md`
+
+### 왜 지금 구현했나
+
+FS-5 CRUD create가 main에 반영됐지만 adapter create 시 empty `code`는 omit만 되고 표시 ID `FN_###`가 없었다. Requirements `REQ_###` counter transaction 패턴을 기능정의서 전용 counter 경로로 분리한다.
+
+### 결정
+
+- Counter path: `projects/{projectId}/counters/functionalSpecifications` (**단일 문서**).
+- Rules: `isValidFunctionalSpecificationsCounterWrite()` — `lastNumber` int increment only; owner/admin/editor write; delete deny.
+- Adapter: `allocateFunctionalSpecCode` transaction — empty code 시 `FN_001`… 자동 할당; explicit code 시 counter 미증분.
+- Internal id: Firestore doc id 유지; `code`는 표시용.
+- CRUD/list/pages/css/nav **미변경**; requirement picker **FS-6B 후속**.
+
+### 다시 열 조건
+
+- FS-6B requirement picker.
+- FS-7 live Firestore persistence evidence.

@@ -9,6 +9,8 @@
   'use strict';
 
   var COLLECTION = 'functionalSpecifications';
+  var COUNTER_DOC_ID = 'functionalSpecifications';
+  var CODE_PREFIX = 'FN_';
 
   function clean(value) {
     return String(value == null ? '' : value).trim();
@@ -55,6 +57,32 @@
 
   function collectionRef(db, projectId) {
     return db.collection('projects').doc(projectId).collection(COLLECTION);
+  }
+
+  function counterRef(db, projectId) {
+    return db.collection('projects').doc(projectId).collection('counters').doc(COUNTER_DOC_ID);
+  }
+
+  function formatFunctionalSpecCodeNumber(lastNumber) {
+    var n = Number(lastNumber);
+    if (!Number.isFinite(n) || n < 1) return CODE_PREFIX + '001';
+    return CODE_PREFIX + String(Math.floor(n)).padStart(3, '0');
+  }
+
+  function allocateFunctionalSpecCode(db, projectId) {
+    return db.runTransaction(function (transaction) {
+      var cref = counterRef(db, projectId);
+      return transaction.get(cref).then(function (snap) {
+        var lastNumber = 0;
+        if (snap.exists) {
+          var counterData = snap.data() || {};
+          lastNumber = Number.isFinite(Number(counterData.lastNumber)) ? Number(counterData.lastNumber) : 0;
+        }
+        var nextNumber = lastNumber + 1;
+        transaction.set(cref, { lastNumber: nextNumber }, { merge: true });
+        return formatFunctionalSpecCodeNumber(nextNumber);
+      });
+    });
   }
 
   function toPlainTimestamp(value) {
@@ -136,12 +164,15 @@
       var ref = input.id ? collectionRef(db(), pid).doc(input.id) : collectionRef(db(), pid).doc();
       input.id = input.id || ref.id;
       input.projectId = input.projectId || pid;
-      if (!clean(input.code)) {
-        delete input.code;
-      }
-      var writePayload = applyWriteTimestamps(input, 'create');
-      return ref.set(writePayload).then(function () {
-        return getById(pid, input.id);
+      var codePromise = clean(input.code)
+        ? Promise.resolve(clean(input.code))
+        : allocateFunctionalSpecCode(db(), pid);
+      return codePromise.then(function (code) {
+        input.code = code;
+        var writePayload = applyWriteTimestamps(input, 'create');
+        return ref.set(writePayload).then(function () {
+          return getById(pid, input.id);
+        });
       });
     }
 
@@ -165,6 +196,9 @@
   window.STAM = window.STAM || {};
   window.STAM.functionalSpecFirestoreAdapter = {
     COLLECTION: COLLECTION,
+    COUNTER_DOC_ID: COUNTER_DOC_ID,
+    CODE_PREFIX: CODE_PREFIX,
+    formatFunctionalSpecCodeNumber: formatFunctionalSpecCodeNumber,
     create: createAdapter,
   };
 }());
