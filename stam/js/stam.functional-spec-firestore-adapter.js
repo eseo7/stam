@@ -69,18 +69,31 @@
     return CODE_PREFIX + String(Math.floor(n)).padStart(3, '0');
   }
 
-  function allocateFunctionalSpecCode(db, projectId) {
+  function createWithAllocatedCode(db, projectId, ref, input) {
+    var cref = counterRef(db, projectId);
+
     return db.runTransaction(function (transaction) {
-      var cref = counterRef(db, projectId);
       return transaction.get(cref).then(function (snap) {
         var lastNumber = 0;
+
         if (snap.exists) {
           var counterData = snap.data() || {};
-          lastNumber = Number.isFinite(Number(counterData.lastNumber)) ? Number(counterData.lastNumber) : 0;
+          lastNumber = Number.isInteger(counterData.lastNumber)
+            ? counterData.lastNumber
+            : 0;
         }
+
         var nextNumber = lastNumber + 1;
+        var code = formatFunctionalSpecCodeNumber(nextNumber);
+        var payload = applyWriteTimestamps(
+          Object.assign({}, input, { code: code }),
+          'create'
+        );
+
         transaction.set(cref, { lastNumber: nextNumber }, { merge: true });
-        return formatFunctionalSpecCodeNumber(nextNumber);
+        transaction.set(ref, payload);
+
+        return code;
       });
     });
   }
@@ -164,15 +177,17 @@
       var ref = input.id ? collectionRef(db(), pid).doc(input.id) : collectionRef(db(), pid).doc();
       input.id = input.id || ref.id;
       input.projectId = input.projectId || pid;
-      var codePromise = clean(input.code)
-        ? Promise.resolve(clean(input.code))
-        : allocateFunctionalSpecCode(db(), pid);
-      return codePromise.then(function (code) {
-        input.code = code;
-        var writePayload = applyWriteTimestamps(input, 'create');
-        return ref.set(writePayload).then(function () {
+
+      if (clean(input.code)) {
+        input.code = clean(input.code);
+        var explicitPayload = applyWriteTimestamps(input, 'create');
+        return ref.set(explicitPayload).then(function () {
           return getById(pid, input.id);
         });
+      }
+
+      return createWithAllocatedCode(db(), pid, ref, input).then(function () {
+        return getById(pid, input.id);
       });
     }
 

@@ -1579,7 +1579,7 @@ FS-5 CRUD create가 main에 반영됐지만 adapter create 시 empty `code`는 o
 
 - Counter path: `projects/{projectId}/counters/functionalSpecifications` (**단일 문서**).
 - Rules: `isValidFunctionalSpecificationsCounterWrite()` — `lastNumber` int increment only; owner/admin/editor write; delete deny.
-- Adapter: `allocateFunctionalSpecCode` transaction — empty code 시 `FN_001`… 자동 할당; explicit code 시 counter 미증분.
+- Adapter: `createWithAllocatedCode` — empty code 시 **단일 transaction**에서 counter 증가 + spec doc create 원자화; explicit code 시 counter 미증분.
 - Internal id: Firestore doc id 유지; `code`는 표시용.
 - CRUD/list/pages/css/nav **미변경**; requirement picker **FS-6B 후속**.
 

@@ -25,7 +25,10 @@ assert.match(rulesSource, /counterId == 'functionalSpecifications'/);
 assert.match(rulesSource, /isRequirementWriter\(projectId\)/);
 assert.match(adapterSource, /COUNTER_DOC_ID = 'functionalSpecifications'/);
 assert.match(adapterSource, /CODE_PREFIX = 'FN_'/);
-assert.match(adapterSource, /allocateFunctionalSpecCode/);
+assert.match(adapterSource, /createWithAllocatedCode/);
+assert.doesNotMatch(adapterSource, /allocateFunctionalSpecCode/);
+assert.match(adapterSource, /transaction\.set\(cref/);
+assert.match(adapterSource, /transaction\.set\(ref, payload\)/);
 
 const countersBlock = rulesSource.match(
   /match \/counters\/\{counterId\} \{[\s\S]*?\n      \}/,
@@ -69,13 +72,16 @@ function createContext() {
   return { context, window };
 }
 
-function createFakeFirestore() {
+function createFakeFirestore(options) {
+  const opts = options || {};
   const paths = [];
   const store = new Map();
+  let transactionCount = 0;
 
   function docRef(pathParts) {
     const key = pathParts.join('/');
     return {
+      __key: key,
       collection(name) {
         return collectionRef([...pathParts, name]);
       },
@@ -95,10 +101,10 @@ function createFakeFirestore() {
           data: () => ({}),
         });
       },
-      set(payload, options) {
-        paths.push(['set', key, payload, options || null]);
+      set(payload, setOptions) {
+        paths.push(['set', key, payload, setOptions || null]);
         const prev = store.get(key) || {};
-        store.set(key, options && options.merge ? Object.assign({}, prev, payload) : Object.assign({}, payload));
+        store.set(key, setOptions && setOptions.merge ? Object.assign({}, prev, payload) : Object.assign({}, payload));
         return Promise.resolve();
       },
     };
@@ -119,19 +125,34 @@ function createFakeFirestore() {
   return {
     paths,
     store,
+    transactionCount: () => transactionCount,
     collection(name) {
       return collectionRef([name]);
     },
     runTransaction(fn) {
+      transactionCount += 1;
+      const pending = [];
+      let txSetCount = 0;
       const tx = {
         get(ref) {
           return ref.get();
         },
-        set(ref, data, options) {
-          return ref.set(data, options);
+        set(ref, data, setOptions) {
+          txSetCount += 1;
+          if (opts.failOnSecondTxSet && txSetCount === 2) {
+            throw new Error('simulated functional spec create failure');
+          }
+          pending.push({ ref, data, setOptions });
         },
       };
-      return Promise.resolve(fn(tx));
+      return Promise.resolve(fn(tx))
+        .then((result) => {
+          return Promise.all(pending.map((op) => op.ref.set(op.data, op.setOptions))).then(() => result);
+        })
+        .catch((err) => {
+          pending.length = 0;
+          throw err;
+        });
     },
   };
 }
@@ -170,6 +191,12 @@ const counterWrites = fakeFirestore.paths.filter((entry) => entry[0] === 'set' &
 assert.equal(counterWrites.length, 2);
 assert.equal(counterWrites[0][2].lastNumber, 1);
 assert.equal(counterWrites[1][2].lastNumber, 2);
+assert.equal(fakeFirestore.transactionCount(), 2, 'allocated-code creates must use one transaction each');
+
+const specPath = 'projects/P1/functionalSpecifications/fs-1';
+const specWrite = fakeFirestore.paths.find((entry) => entry[0] === 'set' && entry[1] === specPath);
+assert.ok(specWrite, 'functional spec doc must be created in allocated-code flow');
+assert.equal(specWrite[2].code, 'FN_001');
 
 const manual = await adapter.create('P1', {
   id: 'fs-3',
@@ -183,6 +210,28 @@ assert.equal(
   fakeFirestore.paths.filter((entry) => entry[0] === 'set' && entry[1] === counterPath).length,
   2,
   'explicit code must not increment counter',
+);
+
+const rollbackFirestore = createFakeFirestore({ failOnSecondTxSet: true });
+const rollbackAdapter = adapterApi.create({ firestore: rollbackFirestore });
+await assert.rejects(
+  () => rollbackAdapter.create('P2', {
+    id: 'fs-fail',
+    title: 'Rollback test',
+    status: 'draft',
+    priority: 'mid',
+  }),
+  /simulated functional spec create failure/,
+);
+assert.equal(
+  rollbackFirestore.store.has('projects/P2/counters/functionalSpecifications'),
+  false,
+  'counter must rollback when functional spec create fails in same transaction',
+);
+assert.equal(
+  rollbackFirestore.store.has('projects/P2/functionalSpecifications/fs-fail'),
+  false,
+  'functional spec doc must not persist when transaction fails',
 );
 
 console.log('functional spec counter contract: PASS');

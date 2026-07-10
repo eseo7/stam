@@ -20,8 +20,10 @@ assert.match(adapterSource, /COLLECTION = 'functionalSpecifications'/);
 assert.match(adapterSource, /COUNTER_DOC_ID = 'functionalSpecifications'/);
 assert.match(adapterSource, /CODE_PREFIX = 'FN_'/);
 assert.match(adapterSource, /formatFunctionalSpecCodeNumber/);
-assert.match(adapterSource, /allocateFunctionalSpecCode/);
-assert.match(adapterSource, /collection\('counters'\)\.doc\(COUNTER_DOC_ID\)/);
+assert.match(adapterSource, /createWithAllocatedCode/);
+assert.doesNotMatch(adapterSource, /allocateFunctionalSpecCode/);
+assert.match(adapterSource, /transaction\.set\(cref/);
+assert.match(adapterSource, /transaction\.set\(ref, payload\)/);
 assert.match(rulesSource, /function functionalSpecWriteKeys\(\)/);
 assert.match(rulesSource, /function isValidFunctionalSpecificationsCounterWrite\(\)/);
 
@@ -213,15 +215,18 @@ function createFakeFirestore() {
       return collectionRef([name]);
     },
     runTransaction(fn) {
+      const pending = [];
       const tx = {
         get(ref) {
           return ref.get();
         },
         set(ref, data, options) {
-          return ref.set(data, options);
+          pending.push({ ref, data, options });
         },
       };
-      return Promise.resolve(fn(tx));
+      return Promise.resolve(fn(tx)).then((result) => {
+        return Promise.all(pending.map((op) => op.ref.set(op.data, op.options))).then(() => result);
+      });
     },
   };
 }
@@ -485,6 +490,10 @@ assert.ok(setCall[2].createdAt && setCall[2].updatedAt, 'expected server timesta
 const counterSet = fakeFirestore.paths.find((entry) => entry[0] === 'set' && entry[1] === 'projects/P1/counters/functionalSpecifications');
 assert.ok(counterSet, 'expected functionalSpecifications counter increment on create');
 assert.equal(counterSet[2].lastNumber, 1);
+assert.ok(
+  fakeFirestore.paths.some((entry) => entry[0] === 'set' && entry[1] === 'projects/P1/functionalSpecifications/FN-C'),
+  'functional spec doc must be written in same transaction as counter',
+);
 
 const adapterCreatedWithCode = await firestoreAdapter.create('P1', {
   id: 'FN-D',
