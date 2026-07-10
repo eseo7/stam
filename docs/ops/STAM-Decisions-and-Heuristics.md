@@ -1610,4 +1610,27 @@ FS-6A counter 이후 기능정의서 Drawer의 요구사항 연결이 free-text 
 
 ### 다시 열 조건
 
-- FS-7 live Firestore persistence evidence.
+- ~~FS-7 live Firestore persistence evidence.~~ → FS-7 docs PR
+
+---
+
+## 4-28. FS-7 — functionalSpecifications live Firestore persistence evidence
+
+**일자:** 2026-07-10  
+**문서:** `docs/reports/STAM_FS7_FunctionalSpec_Live_Persistence_QA.md`
+
+### 왜 지금 열었나
+
+FS-6B merge(#378)까지 기능정의서 create/update·requirement picker·unlink `FieldValue.delete()`·FN counter가 main에 반영됐다. Cloud Agent shim smoke(15/15)는 PASS이나 **maintainer Google 세션 실제 Firestore persistence**(특히 unlink 필드 제거)는 미확인 상태였다.
+
+### 결정
+
+- FS-7은 **docs-only** live QA evidence PR — 제품 코드·rules 변경 없음.
+- Maintainer checklist: writer W-01~W-12, viewer V-01~V-03.
+- Unlink live 판정: Firestore doc에서 `requirementId`/`requirementCode`/`requirementTitle` **키 absent** (빈 문자열·null 잔존 = FAIL).
+- Shim smoke는 live PASS **대체 불가**; §7 결과 기입 전 live PASS 선언 금지.
+
+### 다시 열 조건
+
+- Maintainer §5 checklist 완료 + §7 결과 기입.
+- (선택) viewer live V-01~V-03.
