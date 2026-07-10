@@ -36,11 +36,30 @@
     throw new Error('functionalSpecFirestoreAdapter: Firestore is not available');
   }
 
+  var REQUIREMENT_UNLINK_FIELDS = ['requirementId', 'requirementCode', 'requirementTitle'];
+
   function serverTimestamp() {
     if (window.firebase && window.firebase.firestore && window.firebase.firestore.FieldValue) {
       return window.firebase.firestore.FieldValue.serverTimestamp();
     }
     throw new Error('functionalSpecFirestoreAdapter: server timestamp is not available');
+  }
+
+  function fieldDelete() {
+    if (window.firebase && window.firebase.firestore && window.firebase.firestore.FieldValue) {
+      return window.firebase.firestore.FieldValue.delete();
+    }
+    throw new Error('functionalSpecFirestoreAdapter: field delete is not available');
+  }
+
+  function applyRequirementUnlinkDeletes(patch) {
+    var next = Object.assign({}, patch || {});
+    REQUIREMENT_UNLINK_FIELDS.forEach(function (field) {
+      if (next[field] === '') {
+        next[field] = fieldDelete();
+      }
+    });
+    return next;
   }
 
   function applyWriteTimestamps(payload, mode) {
@@ -194,7 +213,10 @@
     function update(projectId, functionalSpecId, patch) {
       var pid = requireProjectId(projectId);
       var fid = requireFunctionalSpecId(functionalSpecId);
-      var nextPatch = applyWriteTimestamps(Object.assign({}, patch || {}), 'update');
+      var nextPatch = applyWriteTimestamps(
+        applyRequirementUnlinkDeletes(Object.assign({}, patch || {})),
+        'update'
+      );
       return collectionRef(db(), pid).doc(fid).update(nextPatch).then(function () {
         return getById(pid, fid);
       });

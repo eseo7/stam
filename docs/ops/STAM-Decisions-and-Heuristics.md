@@ -1587,3 +1587,27 @@ FS-5 CRUD create가 main에 반영됐지만 adapter create 시 empty `code`는 o
 
 - FS-6B requirement picker.
 - FS-7 live Firestore persistence evidence.
+
+---
+
+## 4-27. FS-6B — functionalSpecifications requirement picker
+
+**일자:** 2026-07-10  
+**문서:** `stam/js/stam.requirement-picker.js`, `docs/reports/STAM_FS6B_FunctionalSpec_Requirement_Picker_QA.md`
+
+### 왜 지금 구현했나
+
+FS-6A counter 이후 기능정의서 Drawer의 요구사항 연결이 free-text `requirementCode`만 저장해 Firestore requirements doc id와 snapshot title이 누락됐다. WBS/화면설계서 재사용을 위해 공통 picker 모듈로 분리한다.
+
+### 결정
+
+- `STAM.requirementPicker` **신규** — `requirementsService.listByProject` read-only data source.
+- 표시: `REQ_### · title`; 저장: `requirementId` + `requirementCode` + `requirementTitle`.
+- 연결 해제: CRUD patch는 empty string → adapter `update`에서 `FieldValue.delete()`로 세 필드 **문서 제거**.
+- 표시: `REQ_### · title` only (`requirementCode`/`code`); raw Firestore doc id UI **미노출**.
+- `functional-spec-firestore-crud.js` + `functional-specification.html` wiring only.
+- rules / FN counter / functional-spec service / css / nav **미변경** (adapter unlink delete만 예외).
+
+### 다시 열 조건
+
+- FS-7 live Firestore persistence evidence.
