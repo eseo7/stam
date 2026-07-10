@@ -17,8 +17,15 @@ assert.equal(/function\s+delete\s*\(/.test(serviceSource), false);
 assert.equal(/function\s+remove\s*\(/.test(serviceSource), false);
 assert.doesNotMatch(serviceSource, /DELETE:\s*'functionalSpec\.delete'/);
 assert.match(adapterSource, /COLLECTION = 'functionalSpecifications'/);
-assert.doesNotMatch(adapterSource, /allocateFunctionalSpecCode|formatFunctionalSpecCode|counters/);
+assert.match(adapterSource, /COUNTER_DOC_ID = 'functionalSpecifications'/);
+assert.match(adapterSource, /CODE_PREFIX = 'FN_'/);
+assert.match(adapterSource, /formatFunctionalSpecCodeNumber/);
+assert.match(adapterSource, /createWithAllocatedCode/);
+assert.doesNotMatch(adapterSource, /allocateFunctionalSpecCode/);
+assert.match(adapterSource, /transaction\.set\(cref/);
+assert.match(adapterSource, /transaction\.set\(ref, payload\)/);
 assert.match(rulesSource, /function functionalSpecWriteKeys\(\)/);
+assert.match(rulesSource, /function isValidFunctionalSpecificationsCounterWrite\(\)/);
 
 async function loadBrowserScript(context, path) {
   const code = await readFile(new URL(path, ROOT), 'utf8');
@@ -172,9 +179,10 @@ function createFakeFirestore() {
           data: () => ({}),
         });
       },
-      set(payload) {
-        paths.push(['set', key, payload]);
-        store.set(key, Object.assign({}, payload));
+      set(payload, options) {
+        paths.push(['set', key, payload, options || null]);
+        const prev = store.get(key) || {};
+        store.set(key, options && options.merge ? Object.assign({}, prev, payload) : Object.assign({}, payload));
         return Promise.resolve();
       },
       update(payload) {
@@ -206,6 +214,20 @@ function createFakeFirestore() {
     collection(name) {
       return collectionRef([name]);
     },
+    runTransaction(fn) {
+      const pending = [];
+      const tx = {
+        get(ref) {
+          return ref.get();
+        },
+        set(ref, data, options) {
+          pending.push({ ref, data, options });
+        },
+      };
+      return Promise.resolve(fn(tx)).then((result) => {
+        return Promise.all(pending.map((op) => op.ref.set(op.data, op.options))).then(() => result);
+      });
+    },
   };
 }
 
@@ -215,6 +237,10 @@ await loadBrowserScript(context, 'stam/js/stam.functional-spec-service.js');
 
 assert.ok(window.STAM.functionalSpecFirestoreAdapter);
 assert.equal(window.STAM.functionalSpecFirestoreAdapter.COLLECTION, 'functionalSpecifications');
+assert.equal(window.STAM.functionalSpecFirestoreAdapter.COUNTER_DOC_ID, 'functionalSpecifications');
+assert.equal(window.STAM.functionalSpecFirestoreAdapter.CODE_PREFIX, 'FN_');
+assert.equal(window.STAM.functionalSpecFirestoreAdapter.formatFunctionalSpecCodeNumber(1), 'FN_001');
+assert.equal(window.STAM.functionalSpecFirestoreAdapter.formatFunctionalSpecCodeNumber(12), 'FN_012');
 assert.ok(window.STAM.functionalSpecService);
 assert.deepEqual(
   Object.keys(window.STAM.functionalSpecService.ACTIONS).sort(),
@@ -456,14 +482,31 @@ const adapterCreated = await firestoreAdapter.create('P1', {
   priority: 'mid',
 });
 assert.equal(adapterCreated.projectId, 'P1');
+assert.equal(adapterCreated.code, 'FN_001');
 const setCall = fakeFirestore.paths.find((entry) => entry[0] === 'set' && entry[1] === 'projects/P1/functionalSpecifications/FN-C');
 assert.ok(setCall, 'expected Firestore set on create');
-assert.equal('code' in setCall[2], false, 'adapter must not allocate code in FS-2');
+assert.equal(setCall[2].code, 'FN_001', 'adapter must allocate FN_### on create when code omitted');
 assert.ok(setCall[2].createdAt && setCall[2].updatedAt, 'expected server timestamps on create payload');
+const counterSet = fakeFirestore.paths.find((entry) => entry[0] === 'set' && entry[1] === 'projects/P1/counters/functionalSpecifications');
+assert.ok(counterSet, 'expected functionalSpecifications counter increment on create');
+assert.equal(counterSet[2].lastNumber, 1);
+assert.ok(
+  fakeFirestore.paths.some((entry) => entry[0] === 'set' && entry[1] === 'projects/P1/functionalSpecifications/FN-C'),
+  'functional spec doc must be written in same transaction as counter',
+);
+
+const adapterCreatedWithCode = await firestoreAdapter.create('P1', {
+  id: 'FN-D',
+  code: 'FN_CUSTOM',
+  title: 'Manual code',
+  status: 'draft',
+  priority: 'mid',
+});
+assert.equal(adapterCreatedWithCode.code, 'FN_CUSTOM');
 assert.equal(
-  fakeFirestore.paths.some((entry) => entry[0] === 'set' && String(entry[1]).includes('/counters/')),
-  false,
-  'FS-2 adapter must not touch counters',
+  fakeFirestore.paths.filter((entry) => entry[0] === 'set' && entry[1] === 'projects/P1/counters/functionalSpecifications').length,
+  1,
+  'counter must not increment when explicit code is provided',
 );
 
 console.log('functional spec service contract: PASS');

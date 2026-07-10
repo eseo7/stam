@@ -92,11 +92,34 @@ for (const collection of ['wbsItems', 'screenSpecs', 'screenFields', 'screenActi
   );
 }
 
+// ── FS-6A functionalSpecifications counter ───────────────────────
+assert.match(rulesSource, /function isValidFunctionalSpecificationsCounterWrite\(\)/);
+assert.match(
+  rulesSource,
+  /match \/counters\/\{counterId\}[\s\S]*counterId == 'functionalSpecifications'/,
+);
+assert.match(
+  rulesSource,
+  /match \/counters\/\{counterId\}[\s\S]*isValidFunctionalSpecificationsCounterWrite\(\)/,
+);
+
 // functionalDefinitions is local/prototype only — must not appear as Firestore path
 assert.doesNotMatch(
   rulesSource,
   /match \/functionalDefinitions\//,
   'local store name functionalDefinitions must not be used in Firestore rules',
+);
+
+const countersBlock = rulesSource.match(
+  /match \/counters\/\{counterId\} \{[\s\S]*?\n      \}/,
+);
+assert.ok(countersBlock, 'counters match block must exist');
+assert.match(countersBlock[0], /allow get, list: if canReadProject\(projectId\);/);
+assert.match(countersBlock[0], /allow delete: if false;/);
+assert.doesNotMatch(
+  countersBlock[0],
+  /memberRole\(projectId\) == "viewer"/,
+  'viewer must not be a counter writer',
 );
 
 console.log('functional spec rules contract: PASS');
