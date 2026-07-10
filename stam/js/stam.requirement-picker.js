@@ -280,6 +280,7 @@
     if (toggle) {
       toggle.addEventListener('click', function (event) {
         event.preventDefault();
+        event.stopPropagation();
         if (root.classList.contains('is-open')) {
           closePicker(container);
           return;

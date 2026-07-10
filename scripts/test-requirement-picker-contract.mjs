@@ -104,6 +104,7 @@ assert.equal(picker.formatOptionLabel({ code: 'REQ_001', title: 'Alpha' }), 'REQ
 assert.equal(picker.formatRequirementCode({ id: 'raw-doc-id', title: 'Alpha' }), '');
 assert.equal(picker.formatRequirementCode({ code: 'REQ_001', id: 'raw-doc-id' }), 'REQ_001');
 assert.doesNotMatch(pickerSource, /item\.requirementId \|\| item\.id/);
+assert.match(pickerSource, /event\.stopPropagation\(\)/);
 
 const items = await picker.listRequirements('P1', { source: 'contract' }, 'owner');
 assert.equal(items.length, 2);
