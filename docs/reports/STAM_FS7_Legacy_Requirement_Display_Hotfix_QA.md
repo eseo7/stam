@@ -66,3 +66,11 @@ node scripts/test-functional-spec-crud-ui-contract.mjs
 |------|------|
 | Contract (§6) | [ ] PASS |
 | Maintainer live (§7) | [ ] FS-7 checklist 연계 |
+
+## 9. 연계 — 목록 정렬 계약 (PR #381 확장)
+
+legacy 요구사항 표시 보정과 함께 요구사항·기능정의서 목록 정렬을 `STAMBoardList.sortByBoardRegistration` 공통 계약으로 통일했다.
+
+- 문서: `docs/reports/STAM_Board_List_Registration_Sort_QA.md`
+- Decisions: §4-29
+- `updatedAt` 우선 정렬 회귀 제거 — `createdAt` desc 기준

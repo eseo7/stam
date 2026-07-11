@@ -341,6 +341,8 @@
   }
 
   function getTimestampMs(value) {
+    var api = window.STAMBoardList;
+    if (api && typeof api.getTimestampMs === 'function') return api.getTimestampMs(value);
     if (!value) return 0;
     if (typeof value.toMillis === 'function') return value.toMillis();
     if (typeof value.seconds === 'number') return value.seconds * 1000;
@@ -351,19 +353,12 @@
     return 0;
   }
 
-  function latestSortTime(item) {
-    return getTimestampMs(item && item.updatedAt) || getTimestampMs(item && item.createdAt);
-  }
-
   function sortRequirementsByLatest(list) {
-    return (list || []).slice().sort(function (a, b) {
-      var aTime = latestSortTime(a);
-      var bTime = latestSortTime(b);
-      if (bTime !== aTime) return bTime - aTime;
-      var ac = clean(a && (a.code || a.id));
-      var bc = clean(b && (b.code || b.id));
-      return bc.localeCompare(ac);
-    });
+    var api = window.STAMBoardList;
+    if (api && typeof api.sortByBoardRegistration === 'function') {
+      return api.sortByBoardRegistration(list);
+    }
+    return (list || []).slice();
   }
 
   function linkChip(value) {

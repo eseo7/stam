@@ -72,6 +72,7 @@ assert.match(listSource, /function requirementDisplayCode\(item\)/);
 assert.match(listSource, /function requirementDisplayTitle\(item\)/);
 assert.match(listSource, /function requirementDisplayLabel\(item\)/);
 assert.match(listSource, /function hasRequirementLink\(item\)/);
+assert.match(listSource, /sortByBoardRegistration\(list\)/);
 assert.doesNotMatch(listSource, /\['requirementCode', 'requirementId'\]/);
 assert.doesNotMatch(listSource, /if \(reqCode\)/);
 assert.match(crudSource, /if \(clean\(req\.requirementId\) \|\| clean\(req\.requirementCode\)\)/);

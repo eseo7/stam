@@ -1636,3 +1636,29 @@ FS-6B requirement picker는 code 없는 legacy 요구사항도 선택·저장할
 ### 다시 열 조건
 
 - FS-7 maintainer live persistence checklist (legacy code-less requirement 시나리오 포함).
+
+---
+
+## 4-29. STAM 일반 CRUD 게시판 목록 정렬 계약
+
+**일자:** 2026-07-11  
+**문서:** `stam/js/stam.board-list.js`, `docs/reports/STAM_Board_List_Registration_Sort_QA.md`
+
+### 왜 지금 했나
+
+PR #367에서 `updatedAt desc` 우선 정렬을 도입했으나, 오래된 문서를 수정하면 `updatedAt`만 갱신되어 등록 시퀀스·업무 코드 순서가 흔들렸다 (`REQ_001` 수정 후 `REQ_002`보다 위로 이동 등). 수정은 내용 변경일 뿐 등록 순서를 바꾸는 사건이 아니다.
+
+### 결정
+
+- **SSOT:** `STAMBoardList.sortByBoardRegistration(list)` (`stam.board-list.js`)
+- 기본 정렬 (모든 일반 CRUD 게시판):
+  1. `createdAt` 내림차순
+  2. 업무 코드 숫자 내림차순 (`REQ_###`, `FN_###` trailing digits)
+  3. document `id` 문자열 내림차순
+- 1차 적용: `stam.requirements-firestore-list.js`, `stam.functional-spec-firestore-list.js`
+- `updatedAt`은 목록 정렬 키로 **사용하지 않음** (표시·메타용만)
+- list 화면은 adapter 반환 후 위 계약으로 **재정렬**
+
+### 다시 열 조건
+
+- 추가 Firestore CRUD 게시판 list 모듈 wiring 시 동일 helper 사용.
