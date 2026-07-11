@@ -43,20 +43,30 @@ node scripts/test-requirements-firestore-list-contract.mjs
 node scripts/test-functional-spec-list-contract.mjs
 ```
 
-| script | 기대 |
-|--------|------|
-| `test-board-list-sort-contract.mjs` | PASS |
-| `test-requirements-firestore-list-contract.mjs` | PASS — newer `createdAt` wins over newer `updatedAt` |
-| `test-functional-spec-list-contract.mjs` | PASS — 동일 |
+| script | 기대 | 결과 |
+|--------|------|------|
+| `test-board-list-sort-contract.mjs` | PASS | [x] PASS |
+| `test-requirements-firestore-list-contract.mjs` | PASS — newer `createdAt` wins over newer `updatedAt` | [x] PASS |
+| `test-functional-spec-list-contract.mjs` | PASS — 동일 | [x] PASS |
 
 ## 6. PR #367 정렬 정책 대체
 
 `STAM_PR367_Requirements_List_Latest_Sort_QA.md`의 `updatedAt desc` 우선 정렬은 **폐기**한다.  
 등록 순서 보존이 STAM 일반 CRUD 게시판 기본 동작이다.
 
-## 7. Maintainer live spot-check
+## 7. Maintainer live spot-check (merge 전 — maintainer 세션)
 
-| # | 결과 |
-|---|------|
-| S-01 live | [ ] |
-| S-02 live | [ ] |
+| # | 시나리오 | 결과 |
+|---|----------|------|
+| S-01 live | `REQ_001` 수정 후 refresh — `REQ_002`가 위 유지 | [ ] |
+| S-02 live | `FN_001` 수정 후 refresh — `FN_002`가 위 유지 | [ ] |
+| S-03 live | code 없는 legacy 요구사항 연결 — 제목 표시·새로고침 유지 | [ ] |
+| S-04 live | 검색/필터 해제 후 순서 유지 | [ ] |
+| S-05 live | console fatal error 없음 | [ ] |
+
+## 8. 판정
+
+| 계층 | 결과 |
+|------|------|
+| Contract (§5) | [x] PASS |
+| Maintainer live (§7) | [ ] merge 전 maintainer 확인 대기 |

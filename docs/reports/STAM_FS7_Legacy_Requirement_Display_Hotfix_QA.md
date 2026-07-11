@@ -46,26 +46,32 @@ node scripts/test-functional-spec-list-contract.mjs
 node scripts/test-functional-spec-crud-ui-contract.mjs
 ```
 
-| script | 기대 |
-|--------|------|
-| `test-functional-spec-list-contract.mjs` | PASS — legacy title-only / code+title / code-only / id-only fallback |
-| `test-functional-spec-crud-ui-contract.mjs` | PASS — `hasRequirementLink`, `requirementDisplayLabel` 존재 |
+| script | 기대 | 결과 |
+|--------|------|------|
+| `test-functional-spec-list-contract.mjs` | PASS — legacy title-only / code+title / code-only / id-only fallback | [x] PASS |
+| `test-functional-spec-crud-ui-contract.mjs` | PASS — `hasRequirementLink`, `requirementDisplayLabel` 존재 | [x] PASS |
+| `test-board-list-sort-contract.mjs` | PASS — `createdAt` desc · code number desc · id desc | [x] PASS |
+| `test-requirements-firestore-list-contract.mjs` | PASS — registration sort applied | [x] PASS |
 
-## 7. Maintainer live spot-check (FS-7 연계)
+## 7. Maintainer live spot-check (merge 전 — maintainer 세션)
 
-| # | 시나리오 | UI 기대 |
-|---|----------|---------|
-| H-01 | code 없는 legacy 요구사항 연결 후 저장 | list chip에 **제목** 표시 |
-| H-02 | 새로고침 후 H-01 유지 | chip·detail 연결 유지 |
-| H-03 | `REQ_###` 요구사항으로 변경 | `REQ_### · 제목` 또는 `REQ_###` |
-| H-04 | Firestore doc id가 화면 HTML에 노출되지 않음 | PASS |
+| # | 시나리오 | UI 기대 | 결과 |
+|---|----------|---------|------|
+| H-01 | code 없는 legacy 요구사항 연결 후 저장 | list chip에 **제목** 표시 | [ ] |
+| H-02 | 새로고침 후 H-01 유지 | chip·detail 연결 유지 | [ ] |
+| H-03 | `REQ_###` 요구사항으로 변경 | `REQ_### · 제목` 또는 `REQ_###` | [ ] |
+| H-04 | Firestore doc id가 화면 HTML에 노출되지 않음 | raw id 미노출 | [ ] |
+| H-05 | `REQ_001` 수정 후 refresh | `REQ_002`가 `REQ_001` **위** 유지 | [ ] |
+| H-06 | `FN_001` 수정 후 refresh | `FN_002`가 `FN_001` **위** 유지 | [ ] |
+| H-07 | 검색/필터 해제 후 | 등록 순서 유지 | [ ] |
+| H-08 | console | fatal error 없음 | [ ] |
 
 ## 8. 판정
 
 | 계층 | 결과 |
 |------|------|
-| Contract (§6) | [ ] PASS |
-| Maintainer live (§7) | [ ] FS-7 checklist 연계 |
+| Contract (§6) | [x] PASS |
+| Maintainer live (§7) | [ ] merge 전 maintainer 확인 대기 |
 
 ## 9. 연계 — 목록 정렬 계약 (PR #381 확장)
 
