@@ -1626,7 +1626,7 @@ FS-6B merge(#378)까지 기능정의서 create/update·requirement picker·unlin
 ### 결정
 
 - FS-7은 **docs-only** live QA evidence PR — 제품 코드·rules 변경 없음.
-- **Agent** checklist: `qa-fs7-live-persistence-agent.mjs` — W-01~W-12 + W-10b + V-01~V-03 (실제 staging/Firestore, SA credentials 필수).
+- **Agent** checklist: GHA `fs7-live-firestore-qa.yml` (PR #382) — W-01~W-12 + W-10b + V-01~V-03. Secret은 Actions 런타임 주입 only.
 - **Maintainer** 대표 흐름 1회만: 등록 → 연결 → 저장 → 재오픈 → unlink → 저장 → 새로고침.
 - Unlink live 판정: Firestore doc에서 `requirementId`/`requirementCode`/`requirementTitle` **키 absent** (빈 문자열·null 잔존 = FAIL).
 - Shim smoke는 live PASS **대체 불가**; §7 결과 기입 전 live PASS 선언 금지.
