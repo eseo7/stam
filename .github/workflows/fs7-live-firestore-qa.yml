@@ -44,9 +44,6 @@ jobs:
       - name: Install QA runtime dependencies
         run: |
           set -euo pipefail
-          mkdir -p /tmp/qa-deps
-          cd /tmp/qa-deps
-          npm init -y >/dev/null 2>&1
           npm install --no-save firebase-admin playwright
           npx playwright install chromium --with-deps
 
