@@ -31,7 +31,22 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const require = createRequire('/tmp/qa-deps/package.json');
+const ROOT = path.resolve(__dirname, '..');
+
+function resolveQaDepsPackageJson() {
+  const candidates = [
+    path.join(ROOT, 'package.json'),
+    '/tmp/qa-deps/package.json',
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  throw new Error(
+    'QA runtime deps missing: npm install --no-save firebase-admin playwright',
+  );
+}
+
+const require = createRequire(resolveQaDepsPackageJson());
 
 const LINK_FIELDS = ['requirementId', 'requirementCode', 'requirementTitle'];
 const ALLOWED_FIREBASE_PROJECTS = new Set(['stam-preview-hosting']);
@@ -158,11 +173,11 @@ async function loadAdmin(opts) {
     };
   }
 
-  const admin = await import('firebase-admin');
-  if (!admin.default.apps.length) {
-    admin.default.initializeApp({ projectId: opts.firebaseProject });
+  const admin = require('firebase-admin');
+  if (!admin.apps.length) {
+    admin.initializeApp({ projectId: opts.firebaseProject });
   }
-  return { ok: true, admin: admin.default, credPath, status: 'PASS' };
+  return { ok: true, admin, credPath, status: 'PASS' };
 }
 
 async function runPermissionPrecheck(admin, opts) {
