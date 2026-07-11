@@ -69,7 +69,11 @@ assert.match(adapterSource, /REQUIREMENT_UNLINK_FIELDS = \['requirementId', 'req
 assert.match(adapterSource, /if \(next\[field\] === ''\)/);
 assert.doesNotMatch(pickerSource, /item\.requirementId \|\| item\.id/);
 assert.match(listSource, /function requirementDisplayCode\(item\)/);
+assert.match(listSource, /function requirementDisplayTitle\(item\)/);
+assert.match(listSource, /function requirementDisplayLabel\(item\)/);
+assert.match(listSource, /function hasRequirementLink\(item\)/);
 assert.doesNotMatch(listSource, /\['requirementCode', 'requirementId'\]/);
+assert.doesNotMatch(listSource, /if \(reqCode\)/);
 assert.match(crudSource, /if \(clean\(req\.requirementId\) \|\| clean\(req\.requirementCode\)\)/);
 assert.equal(/softDelete\s*:/.test(adapterSource), false);
 assert.equal(/function\s+softDelete/.test(adapterSource), false);

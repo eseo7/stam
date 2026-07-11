@@ -25,6 +25,11 @@ assert.doesNotMatch(
 );
 assert.match(loadFn[0], /bindAuthorizedService\([\s\S]*?var svc = service\(\)/);
 assert.match(listSource, /function formatFunctionalSpecCode\(item\)/);
+assert.match(listSource, /function requirementDisplayTitle\(item\)/);
+assert.match(listSource, /function requirementDisplayLabel\(item\)/);
+assert.match(listSource, /function hasRequirementLink\(item\)/);
+assert.match(listSource, /requirementDisplayTitle\(item\)/);
+assert.doesNotMatch(listSource, /if \(reqCode\)/);
 assert.match(listSource, /function sortFunctionalSpecsByLatest\(list\)/);
 assert.match(loadFn[0], /sortFunctionalSpecsByLatest\(/);
 assert.match(loadFn[0], /state\.items = list/);
@@ -336,5 +341,57 @@ tbody.innerHTML = '';
 context.window.STAM.functionalSpecFirestoreList.renderRows([]);
 assert.match(tbody.innerHTML, /등록된 기능정의서가 없습니다/);
 assert.match(tbody.innerHTML, /stam-table-feedback/);
+
+const legacyRequirementCases = [
+  {
+    id: 'FN-legacy-title',
+    title: 'Legacy title-only link',
+    requirementId: 'req-doc-legacy-alpha',
+    requirementTitle: 'Legacy requirement without code',
+    requirementCode: '',
+    status: 'draft',
+    priority: 'mid',
+    functionType: 'view',
+  },
+  {
+    id: 'FN-legacy-code-title',
+    title: 'Code and title link',
+    requirementId: 'req-doc-beta',
+    requirementCode: 'REQ_002',
+    requirementTitle: 'Beta requirement',
+    status: 'draft',
+    priority: 'mid',
+    functionType: 'view',
+  },
+  {
+    id: 'FN-legacy-code-only',
+    title: 'Code-only link',
+    requirementId: 'req-doc-gamma',
+    requirementCode: 'REQ_003',
+    requirementTitle: '',
+    status: 'draft',
+    priority: 'mid',
+    functionType: 'view',
+  },
+  {
+    id: 'FN-legacy-id-only',
+    title: 'Id-only fallback',
+    requirementId: 'req-doc-delta-hidden',
+    requirementTitle: '',
+    requirementCode: '',
+    status: 'draft',
+    priority: 'mid',
+    functionType: 'view',
+  },
+];
+
+tbody.innerHTML = '';
+context.window.STAM.functionalSpecFirestoreList.renderRows(legacyRequirementCases);
+assert.match(tbody.innerHTML, /Legacy requirement without code/);
+assert.match(tbody.innerHTML, /REQ_002 · Beta requirement/);
+assert.match(tbody.innerHTML, /REQ_003/);
+assert.match(tbody.innerHTML, /\(제목 없음\)/);
+assert.doesNotMatch(tbody.innerHTML, /req-doc-legacy-alpha/);
+assert.doesNotMatch(tbody.innerHTML, /req-doc-delta-hidden/);
 
 console.log('functional spec list contract: PASS');

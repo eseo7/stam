@@ -1611,3 +1611,28 @@ FS-6A counter 이후 기능정의서 Drawer의 요구사항 연결이 free-text 
 ### 다시 열 조건
 
 - FS-7 live Firestore persistence evidence.
+
+---
+
+## 4-28. FS-7 Hotfix — code 없는 legacy 요구사항 연결 표시
+
+**일자:** 2026-07-11  
+**문서:** `stam/js/stam.functional-spec-firestore-list.js`, `docs/reports/STAM_FS7_Legacy_Requirement_Display_Hotfix_QA.md`
+
+### 왜 지금 했나
+
+FS-6B requirement picker는 code 없는 legacy 요구사항도 선택·저장할 수 있으나, 기능정의서 list/detail 렌더링이 `requirementCode` 존재 시에만 chip·연결 카드를 그려 연결이 Firestore에 있어도 UI에서 사라졌다. 다른 요구사항으로 변경 후 원래 `REQ_###` 요구사항으로 되돌리면 다시 보이는 현상이 이 조건 불일치에서 비롯됐다.
+
+### 결정
+
+- 연결 여부: `requirementCode` **단독 판단 금지** — `requirementId` 또는 `requirementTitle` 또는 `requirementCode` 중 하나라도 있으면 연결됨.
+- 표시 라벨 (`requirementDisplayLabel`):
+  - code + title → `REQ_### · 제목`
+  - code only → `REQ_###`
+  - title only (legacy) → **제목만**
+  - id only (title/code 없음) → `(제목 없음)` — raw Firestore doc id **미노출**
+- 임의 `REQ_###` 생성 **금지**; picker 저장·adapter·rules·CRUD **미변경** (list 렌더 계약만 보정).
+
+### 다시 열 조건
+
+- FS-7 maintainer live persistence checklist (legacy code-less requirement 시나리오 포함).

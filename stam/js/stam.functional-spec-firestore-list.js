@@ -314,13 +314,15 @@
 
   function linkedCardsHtml(item) {
     var html = '';
-    var reqCode = requirementDisplayCode(item);
-    var reqTitle = clean(item.requirementTitle);
-    if (reqCode) {
+    if (hasRequirementLink(item)) {
+      var code = requirementDisplayCode(item);
+      var title = requirementDisplayTitle(item);
+      var cardId = code || title || '(제목 없음)';
+      var cardName = (code && title) ? title : '연결 요구사항';
       html += '<div class="fn-linked-card">' +
         '<span data-stam-icon="link" data-stam-icon-class="is-sm fn-linked-card-icon"></span>' +
-        '<div><div class="fn-linked-card-id">' + esc(reqCode) + '</div>' +
-        '<div class="fn-linked-card-name">' + esc(reqTitle || '연결 요구사항') + '</div></div>' +
+        '<div><div class="fn-linked-card-id">' + esc(cardId) + '</div>' +
+        '<div class="fn-linked-card-name">' + esc(cardName) + '</div></div>' +
         '<span class="fn-linked-card-tag">요구사항</span></div>';
     }
     var screen = clean(item.linkedScreen);
@@ -355,7 +357,6 @@
     var ownerInitial = esc(owner.charAt(0) || '?');
     var typeLabel = functionTypeLabel(item);
     var updated = detailDate(item.updatedAt || item.createdAt);
-    var reqCode = requirementDisplayCode(item);
 
     setText('#fn-dw-detail .fn-fn-badge', code);
     setText('#fn-dw-detail .fn-dw-htitle', title);
@@ -375,8 +376,8 @@
       '<span class="fn-ava ' + avaClass(owner) + '">' + ownerInitial + '</span>' + esc(owner));
     setText('#fn-dw-detail .fn-tab-panel:nth-child(1) .fn-iv-date', updated);
     setHtml('#fn-dw-detail .fn-tab-panel:nth-child(1) .fn-ic:nth-child(7) .fn-iv',
-      reqCode
-        ? '<span class="fn-link-chip">' + esc(reqCode) + '</span>'
+      hasRequirementLink(item)
+        ? '<span class="fn-link-chip">' + esc(requirementDisplayLabel(item)) + '</span>'
         : '<span class="fn-iv-muted">미연결</span>');
     setText('#fn-dw-detail .fn-tab-panel:nth-child(1) .fn-ic:nth-child(8) .fn-iv',
       clean(item.reviewStatus) || '—');
@@ -524,13 +525,31 @@
     return clean(valueOf(item, ['requirementCode'], ''));
   }
 
+  function requirementDisplayTitle(item) {
+    return clean(item.requirementTitle);
+  }
+
   function hasRequirementLink(item) {
-    return !!(requirementDisplayCode(item) || clean(item.requirementId));
+    return !!(
+      requirementDisplayCode(item) ||
+      requirementDisplayTitle(item) ||
+      clean(item.requirementId)
+    );
+  }
+
+  function requirementDisplayLabel(item) {
+    var code = requirementDisplayCode(item);
+    var title = requirementDisplayTitle(item);
+    if (code && title) return code + ' \u00b7 ' + title;
+    if (code) return code;
+    if (title) return title;
+    if (clean(item.requirementId)) return '(제목 없음)';
+    return '';
   }
 
   function requirementChip(item) {
-    var code = requirementDisplayCode(item);
-    if (code) return '<span class="fn-link-chip">' + esc(code) + '</span>';
+    var label = requirementDisplayLabel(item);
+    if (label) return '<span class="fn-link-chip">' + esc(label) + '</span>';
     return '<span class="fn-chip fn-chip-hold">연결 필요</span>';
   }
 
