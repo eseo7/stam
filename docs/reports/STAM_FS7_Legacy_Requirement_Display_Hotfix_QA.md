@@ -39,39 +39,50 @@
 
 연결 판정: `requirementId` **OR** `requirementTitle` **OR** `requirementCode`.
 
-## 6. Automated verification
+## 6. Contract (automated)
 
 ```bash
 node scripts/test-functional-spec-list-contract.mjs
 node scripts/test-functional-spec-crud-ui-contract.mjs
+node scripts/test-board-list-sort-contract.mjs
+node scripts/test-requirements-firestore-list-contract.mjs
+node scripts/qa-fs7-pr381-agent-verification.mjs
 ```
 
 | script | 기대 | 결과 |
 |--------|------|------|
-| `test-functional-spec-list-contract.mjs` | PASS — legacy title-only / code+title / code-only / id-only fallback | [x] PASS |
-| `test-functional-spec-crud-ui-contract.mjs` | PASS — `hasRequirementLink`, `requirementDisplayLabel` 존재 | [x] PASS |
-| `test-board-list-sort-contract.mjs` | PASS — `createdAt` desc · code number desc · id desc | [x] PASS |
-| `test-requirements-firestore-list-contract.mjs` | PASS — registration sort applied | [x] PASS |
+| `test-functional-spec-list-contract.mjs` | legacy display + registration sort | [x] PASS |
+| `test-functional-spec-crud-ui-contract.mjs` | `hasRequirementLink`, `requirementDisplayLabel` | [x] PASS |
+| `test-board-list-sort-contract.mjs` | `createdAt` desc · code · id | [x] PASS |
+| `test-requirements-firestore-list-contract.mjs` | registration sort applied | [x] PASS |
+| `qa-fs7-pr381-agent-verification.mjs` | agent live items 3–5 | [x] PASS |
 
-## 7. Maintainer live spot-check (merge 전 — maintainer 세션)
+## 7. Live QA — 역할별 (PR #381 merge gate)
 
-| # | 시나리오 | UI 기대 | 결과 |
-|---|----------|---------|------|
-| H-01 | code 없는 legacy 요구사항 연결 후 저장 | list chip에 **제목** 표시 | [ ] |
-| H-02 | 새로고침 후 H-01 유지 | chip·detail 연결 유지 | [ ] |
-| H-03 | `REQ_###` 요구사항으로 변경 | `REQ_### · 제목` 또는 `REQ_###` | [ ] |
-| H-04 | Firestore doc id가 화면 HTML에 노출되지 않음 | raw id 미노출 | [ ] |
-| H-05 | `REQ_001` 수정 후 refresh | `REQ_002`가 `REQ_001` **위** 유지 | [ ] |
-| H-06 | `FN_001` 수정 후 refresh | `FN_002`가 `FN_001` **위** 유지 | [ ] |
-| H-07 | 검색/필터 해제 후 | 등록 순서 유지 | [ ] |
-| H-08 | console | fatal error 없음 | [ ] |
+| # | 시나리오 | 담당 | 결과 | 비고 |
+|---|----------|------|------|------|
+| L-01 | `FN_001` 수정 후 refresh → `FN_002`가 위 유지 | **Maintainer (user)** | [ ] | 대표 수동 QA |
+| L-02 | code 없는 legacy 요구사항 연결 → 저장/refresh 후 **제목** 유지 | **Maintainer (user)** | [ ] | 대표 수동 QA |
+| L-03 | 요구사항 목록도 `STAMBoardList.sortByBoardRegistration` 사용 | **Agent** | [x] PASS | source + contract |
+| L-04 | 검색/필터 해제 후 DOM 행 순서 유지 | **Agent** | [x] PASS | display-only filter/search |
+| L-05 | console fatal error 없음 | **Agent** | [x] PASS | contract harness PASS |
+
+### Agent evidence (L-03~L-05)
+
+- `stam.requirements-firestore-list.js` · `stam.functional-spec-firestore-list.js` → `sortByBoardRegistration`
+- 검색: `#fn-search-input` — `display` 토글만, `.sort()` 없음
+- 필터: `stam.board-filter.js` — chip UI mock; `onReset`/`onApply`가 tbody 재정렬 없음
+- `node scripts/qa-fs7-pr381-agent-verification.mjs` — **PASS**
 
 ## 8. 판정
 
 | 계층 | 결과 |
 |------|------|
 | Contract (§6) | [x] PASS |
-| Maintainer live (§7) | [ ] merge 전 maintainer 확인 대기 |
+| Agent live (§7 L-03~L-05) | [x] PASS |
+| Maintainer live (§7 L-01~L-02) | [ ] **merge gate** — user 수동 확인 대기 |
+
+**Squash merge 조건:** L-01 · L-02 maintainer [x] 후 진행
 
 ## 9. 연계 — 목록 정렬 계약 (PR #381 확장)
 

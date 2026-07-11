@@ -35,38 +35,45 @@
 | S-03 | `createdAt` 동일 | 코드 숫자 큰 행이 위 |
 | S-04 | `createdAt`·코드 동일 | `id` 문자열 큰 행이 위 |
 
-## 5. Contract
+## 5. Contract (automated)
 
 ```bash
 node scripts/test-board-list-sort-contract.mjs
 node scripts/test-requirements-firestore-list-contract.mjs
 node scripts/test-functional-spec-list-contract.mjs
+node scripts/qa-fs7-pr381-agent-verification.mjs
 ```
 
 | script | 기대 | 결과 |
 |--------|------|------|
 | `test-board-list-sort-contract.mjs` | PASS | [x] PASS |
-| `test-requirements-firestore-list-contract.mjs` | PASS — newer `createdAt` wins over newer `updatedAt` | [x] PASS |
-| `test-functional-spec-list-contract.mjs` | PASS — 동일 | [x] PASS |
+| `test-requirements-firestore-list-contract.mjs` | newer `createdAt` beats newer `updatedAt` | [x] PASS |
+| `test-functional-spec-list-contract.mjs` | 동일 | [x] PASS |
+| `qa-fs7-pr381-agent-verification.mjs` | agent items 3–5 | [x] PASS |
 
 ## 6. PR #367 정렬 정책 대체
 
 `STAM_PR367_Requirements_List_Latest_Sort_QA.md`의 `updatedAt desc` 우선 정렬은 **폐기**한다.  
 등록 순서 보존이 STAM 일반 CRUD 게시판 기본 동작이다.
 
-## 7. Maintainer live spot-check (merge 전 — maintainer 세션)
+## 7. Live QA — 역할별 (PR #381 merge gate)
 
-| # | 시나리오 | 결과 |
-|---|----------|------|
-| S-01 live | `REQ_001` 수정 후 refresh — `REQ_002`가 위 유지 | [ ] |
-| S-02 live | `FN_001` 수정 후 refresh — `FN_002`가 위 유지 | [ ] |
-| S-03 live | code 없는 legacy 요구사항 연결 — 제목 표시·새로고침 유지 | [ ] |
-| S-04 live | 검색/필터 해제 후 순서 유지 | [ ] |
-| S-05 live | console fatal error 없음 | [ ] |
+상세 표는 `STAM_FS7_Legacy_Requirement_Display_Hotfix_QA.md` §7 SSOT.
+
+| # | 시나리오 | 담당 | 결과 |
+|---|----------|------|------|
+| L-01 | `FN_001` 수정 후 refresh — `FN_002` 위 유지 | Maintainer (user) | [ ] |
+| L-02 | legacy 요구사항 연결 제목·refresh 유지 | Maintainer (user) | [ ] |
+| L-03 | requirements 동일 sort helper | Agent | [x] PASS |
+| L-04 | 검색/필터 해제 후 순서 유지 | Agent | [x] PASS |
+| L-05 | console fatal error 없음 | Agent | [x] PASS |
 
 ## 8. 판정
 
 | 계층 | 결과 |
 |------|------|
 | Contract (§5) | [x] PASS |
-| Maintainer live (§7) | [ ] merge 전 maintainer 확인 대기 |
+| Agent live (§7 L-03~L-05) | [x] PASS |
+| Maintainer live (§7 L-01~L-02) | [ ] user 수동 확인 대기 |
+
+**Squash merge 조건:** L-01 · L-02 maintainer [x] 후 진행
