@@ -194,6 +194,51 @@
     syncHeader(root);
   }
 
+  function getTimestampMs(value) {
+    if (!value) return 0;
+    if (value instanceof Date) return value.getTime();
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value.toMillis === 'function') return value.toMillis();
+    if (typeof value.seconds === 'number') return value.seconds * 1000;
+    if (typeof value === 'string') {
+      var parsed = Date.parse(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
+  }
+
+  function registrationCreatedMs(item) {
+    var ms = getTimestampMs(item && item.createdAt);
+    return ms > 0 ? ms : null;
+  }
+
+  function boardCodeNumber(item) {
+    var code = String(item && item.code || '').trim();
+    if (!code) return 0;
+    var match = code.match(/(\d+)\s*$/);
+    if (!match) return 0;
+    var num = parseInt(match[1], 10);
+    return Number.isFinite(num) ? num : 0;
+  }
+
+  function compareBoardRegistration(a, b) {
+    var aCreated = registrationCreatedMs(a);
+    var bCreated = registrationCreatedMs(b);
+    if (aCreated != null && bCreated != null && bCreated !== aCreated) {
+      return bCreated - aCreated;
+    }
+    var aCode = boardCodeNumber(a);
+    var bCode = boardCodeNumber(b);
+    if (bCode !== aCode) return bCode - aCode;
+    var aid = String(a && a.id || '');
+    var bid = String(b && b.id || '');
+    return bid.localeCompare(aid);
+  }
+
+  function sortByBoardRegistration(list) {
+    return (list || []).slice().sort(compareBoardRegistration);
+  }
+
   function init(root, options) {
     if (!root) return null;
     if (REGISTRY.has(root)) return makeApi(root);
@@ -233,5 +278,10 @@
     clearActive: clearActive,
     clearSelected: clearSelected,
     refresh: refresh,
+    getTimestampMs: getTimestampMs,
+    registrationCreatedMs: registrationCreatedMs,
+    boardCodeNumber: boardCodeNumber,
+    compareBoardRegistration: compareBoardRegistration,
+    sortByBoardRegistration: sortByBoardRegistration,
   };
 }(typeof window !== 'undefined' ? window : this));

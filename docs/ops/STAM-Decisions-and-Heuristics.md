@@ -1610,7 +1610,7 @@ FS-6A counter 이후 기능정의서 Drawer의 요구사항 연결이 free-text 
 
 ### 다시 열 조건
 
-- ~~FS-7 live Firestore persistence evidence.~~ → FS-7 docs PR
+- ~~FS-7 live Firestore persistence evidence.~~ → §4-28 docs PR + §4-29/#381 제품 보정 merge
 
 ---
 
@@ -1634,3 +1634,57 @@ FS-6B merge(#378)까지 기능정의서 create/update·requirement picker·unlin
 
 - Maintainer §5 checklist 완료 + §7 결과 기입.
 - (선택) viewer live V-01~V-03.
+
+---
+
+## 4-29. FS-7 Hotfix — code 없는 legacy 요구사항 연결 표시
+
+**일자:** 2026-07-11  
+**문서:** `stam/js/stam.functional-spec-firestore-list.js`, `docs/reports/STAM_FS7_Legacy_Requirement_Display_Hotfix_QA.md`  
+**merge:** main @ `b09582e` (#381)
+
+### 왜 지금 했나
+
+FS-6B requirement picker는 code 없는 legacy 요구사항도 선택·저장할 수 있으나, 기능정의서 list/detail 렌더링이 `requirementCode` 존재 시에만 chip·연결 카드를 그려 연결이 Firestore에 있어도 UI에서 사라졌다. 다른 요구사항으로 변경 후 원래 `REQ_###` 요구사항으로 되돌리면 다시 보이는 현상이 이 조건 불일치에서 비롯됐다.
+
+### 결정
+
+- 연결 여부: `requirementCode` **단독 판단 금지** — `requirementId` 또는 `requirementTitle` 또는 `requirementCode` 중 하나라도 있으면 연결됨.
+- 표시 라벨 (`requirementDisplayLabel`):
+  - code + title → `REQ_### · 제목`
+  - code only → `REQ_###`
+  - title only (legacy) → **제목만**
+  - id only (title/code 없음) → `(제목 없음)` — raw Firestore doc id **미노출**
+- 임의 `REQ_###` 생성 **금지**; picker 저장·adapter·rules·CRUD **미변경** (list 렌더 계약만 보정).
+
+### 다시 열 조건
+
+- FS-7 maintainer live persistence checklist (legacy code-less requirement 시나리오 포함).
+
+---
+
+## 4-30. STAM 일반 CRUD 게시판 목록 정렬 계약
+
+**일자:** 2026-07-11  
+**문서:** `stam/js/stam.board-list.js`, `docs/reports/STAM_Board_List_Registration_Sort_QA.md`  
+**merge:** main @ `b09582e` (#381)
+
+### 왜 지금 했나
+
+PR #367에서 `updatedAt desc` 우선 정렬을 도입했으나, 오래된 문서를 수정하면 `updatedAt`만 갱신되어 등록 시퀀스·업무 코드 순서가 흔들렸다 (`REQ_001` 수정 후 `REQ_002`보다 위로 이동 등). 수정은 내용 변경일 뿐 등록 순서를 바꾸는 사건이 아니다.
+
+### 결정
+
+- **SSOT:** `STAMBoardList.sortByBoardRegistration(list)` (`stam.board-list.js`)
+- 기본 정렬 (모든 일반 CRUD 게시판):
+  1. `createdAt` 내림차순
+  2. 업무 코드 숫자 내림차순 (`REQ_###`, `FN_###` trailing digits)
+  3. document `id` 문자열 내림차순
+- 1차 적용: `stam.requirements-firestore-list.js`, `stam.functional-spec-firestore-list.js`
+- `updatedAt`은 목록 정렬 키로 **사용하지 않음** (표시·메타용만)
+- list 화면은 adapter 반환 후 위 계약으로 **재정렬**
+- L-01 flip root cause: adapter `updatedAt` sort + missing `createdAt` → `docs/reports/STAM_FS7_PR381_Sort_Flip_RootCause.md`
+
+### 다시 열 조건
+
+- 추가 Firestore CRUD 게시판 list 모듈 wiring 시 동일 helper 사용.

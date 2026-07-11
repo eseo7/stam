@@ -40,6 +40,7 @@
     items: [],
     currentItem: null,
   };
+  var loadSeq = 0;
 
   function ready(fn) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
@@ -314,13 +315,15 @@
 
   function linkedCardsHtml(item) {
     var html = '';
-    var reqCode = requirementDisplayCode(item);
-    var reqTitle = clean(item.requirementTitle);
-    if (reqCode) {
+    if (hasRequirementLink(item)) {
+      var code = requirementDisplayCode(item);
+      var title = requirementDisplayTitle(item);
+      var cardId = code || title || '(제목 없음)';
+      var cardName = (code && title) ? title : '연결 요구사항';
       html += '<div class="fn-linked-card">' +
         '<span data-stam-icon="link" data-stam-icon-class="is-sm fn-linked-card-icon"></span>' +
-        '<div><div class="fn-linked-card-id">' + esc(reqCode) + '</div>' +
-        '<div class="fn-linked-card-name">' + esc(reqTitle || '연결 요구사항') + '</div></div>' +
+        '<div><div class="fn-linked-card-id">' + esc(cardId) + '</div>' +
+        '<div class="fn-linked-card-name">' + esc(cardName) + '</div></div>' +
         '<span class="fn-linked-card-tag">요구사항</span></div>';
     }
     var screen = clean(item.linkedScreen);
@@ -355,7 +358,6 @@
     var ownerInitial = esc(owner.charAt(0) || '?');
     var typeLabel = functionTypeLabel(item);
     var updated = detailDate(item.updatedAt || item.createdAt);
-    var reqCode = requirementDisplayCode(item);
 
     setText('#fn-dw-detail .fn-fn-badge', code);
     setText('#fn-dw-detail .fn-dw-htitle', title);
@@ -375,8 +377,8 @@
       '<span class="fn-ava ' + avaClass(owner) + '">' + ownerInitial + '</span>' + esc(owner));
     setText('#fn-dw-detail .fn-tab-panel:nth-child(1) .fn-iv-date', updated);
     setHtml('#fn-dw-detail .fn-tab-panel:nth-child(1) .fn-ic:nth-child(7) .fn-iv',
-      reqCode
-        ? '<span class="fn-link-chip">' + esc(reqCode) + '</span>'
+      hasRequirementLink(item)
+        ? '<span class="fn-link-chip">' + esc(requirementDisplayLabel(item)) + '</span>'
         : '<span class="fn-iv-muted">미연결</span>');
     setText('#fn-dw-detail .fn-tab-panel:nth-child(1) .fn-ic:nth-child(8) .fn-iv',
       clean(item.reviewStatus) || '—');
@@ -452,6 +454,8 @@
   }
 
   function getTimestampMs(value) {
+    var api = window.STAMBoardList;
+    if (api && typeof api.getTimestampMs === 'function') return api.getTimestampMs(value);
     if (!value) return 0;
     if (typeof value.toMillis === 'function') return value.toMillis();
     if (typeof value.seconds === 'number') return value.seconds * 1000;
@@ -462,19 +466,21 @@
     return 0;
   }
 
-  function latestSortTime(item) {
-    return getTimestampMs(item && item.updatedAt) || getTimestampMs(item && item.createdAt);
+  function sortItemsForDisplay(list) {
+    var api = window.STAMBoardList;
+    if (api && typeof api.sortByBoardRegistration === 'function') {
+      return api.sortByBoardRegistration(list);
+    }
+    if (api && typeof api.compareBoardRegistration === 'function') {
+      return (list || []).slice().sort(function (a, b) {
+        return api.compareBoardRegistration(a, b);
+      });
+    }
+    return (list || []).slice();
   }
 
   function sortFunctionalSpecsByLatest(list) {
-    return (list || []).slice().sort(function (a, b) {
-      var aTime = latestSortTime(a);
-      var bTime = latestSortTime(b);
-      if (bTime !== aTime) return bTime - aTime;
-      var ac = clean(a && (a.code || a.id));
-      var bc = clean(b && (b.code || b.id));
-      return bc.localeCompare(ac);
-    });
+    return sortItemsForDisplay(list);
   }
 
   function formatFunctionalSpecCode(item) {
@@ -524,13 +530,31 @@
     return clean(valueOf(item, ['requirementCode'], ''));
   }
 
+  function requirementDisplayTitle(item) {
+    return clean(item.requirementTitle);
+  }
+
   function hasRequirementLink(item) {
-    return !!(requirementDisplayCode(item) || clean(item.requirementId));
+    return !!(
+      requirementDisplayCode(item) ||
+      requirementDisplayTitle(item) ||
+      clean(item.requirementId)
+    );
+  }
+
+  function requirementDisplayLabel(item) {
+    var code = requirementDisplayCode(item);
+    var title = requirementDisplayTitle(item);
+    if (code && title) return code + ' \u00b7 ' + title;
+    if (code) return code;
+    if (title) return title;
+    if (clean(item.requirementId)) return '(제목 없음)';
+    return '';
   }
 
   function requirementChip(item) {
-    var code = requirementDisplayCode(item);
-    if (code) return '<span class="fn-link-chip">' + esc(code) + '</span>';
+    var label = requirementDisplayLabel(item);
+    if (label) return '<span class="fn-link-chip">' + esc(label) + '</span>';
     return '<span class="fn-chip fn-chip-hold">연결 필요</span>';
   }
 
@@ -612,8 +636,9 @@
   function renderRows(items) {
     var body = tbody();
     if (!body) return;
+    var sorted = sortItemsForDisplay(items || []);
     var messages = uiMessages() && uiMessages().functionalSpec;
-    if (!items.length) {
+    if (!sorted.length) {
       renderFeedbackRow(emptyStateRow(
         messages && messages.emptyTitle || '등록된 기능정의서가 없습니다',
         messages && messages.emptyDesc || ''
@@ -621,25 +646,26 @@
       refreshBoardList();
       return;
     }
-    body.innerHTML = items.map(rowHtml).join('');
+    body.innerHTML = sorted.map(rowHtml).join('');
     bindDetailRowActivation();
     refreshBoardList();
   }
 
   function setSummary(items) {
-    var total = items.length;
+    var sorted = sortItemsForDisplay(items || []);
+    var total = sorted.length;
     var nums = document.querySelectorAll('.fn-ss-num');
     if (nums[0]) nums[0].textContent = total;
-    if (nums[1]) nums[1].textContent = items.filter(function (item) { return item.status === 'draft'; }).length;
-    if (nums[2]) nums[2].textContent = items.filter(function (item) {
+    if (nums[1]) nums[1].textContent = sorted.filter(function (item) { return item.status === 'draft'; }).length;
+    if (nums[2]) nums[2].textContent = sorted.filter(function (item) {
       return item.status === 'review' || item.status === 'done';
     }).length;
-    if (nums[3]) nums[3].textContent = items.filter(function (item) { return item.status === 'approved'; }).length;
-    if (nums[4]) nums[4].textContent = items.filter(function (item) { return item.status === 'hold'; }).length;
-    if (nums[5]) nums[5].textContent = items.filter(function (item) {
+    if (nums[3]) nums[3].textContent = sorted.filter(function (item) { return item.status === 'approved'; }).length;
+    if (nums[4]) nums[4].textContent = sorted.filter(function (item) { return item.status === 'hold'; }).length;
+    if (nums[5]) nums[5].textContent = sorted.filter(function (item) {
       return hasRequirementLink(item);
     }).length;
-    if (nums[6]) nums[6].textContent = items.filter(function (item) {
+    if (nums[6]) nums[6].textContent = sorted.filter(function (item) {
       return !!clean(valueOf(item, ['linkedScreen'], ''));
     }).length;
 
@@ -647,11 +673,11 @@
     var recent = document.querySelectorAll('.fn-ss-meta-val')[1];
     var unlinked = document.querySelectorAll('.fn-ss-meta-val')[2];
     if (highPriority) {
-      highPriority.textContent = items.filter(function (item) { return item.priority === 'high'; }).length + '건';
+      highPriority.textContent = sorted.filter(function (item) { return item.priority === 'high'; }).length + '건';
     }
     if (recent) recent.textContent = '—';
     if (unlinked) {
-      unlinked.textContent = items.filter(function (item) {
+      unlinked.textContent = sorted.filter(function (item) {
         return !hasRequirementLink(item);
       }).length + '건';
     }
@@ -698,6 +724,7 @@
 
   function load() {
     var projectId = resolveProjectId();
+    var seq = ++loadSeq;
     renderLoading();
 
     return guardProjectAccess(projectId).then(function (guard) {
@@ -711,7 +738,8 @@
       var context = serviceContext('functional-spec-firestore-list');
       return svc.listByProject(projectId, DEFAULT_QUERY, context);
     }).then(function (items) {
-      var list = sortFunctionalSpecsByLatest(
+      if (seq !== loadSeq) return state.items;
+      var list = sortItemsForDisplay(
         (items || []).filter(function (item) { return item && item.isDeleted !== true; })
       );
       state.items = list;
