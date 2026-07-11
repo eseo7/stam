@@ -1,0 +1,107 @@
+name: FS-7 Live Firestore QA
+
+# Manual-only QA runner — injects Firebase SA via GitHub Secrets (never logged).
+# Does NOT run on pull_request or push. Fork workflows are blocked by repository guard.
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_ref:
+        description: Git ref to checkout (branch, tag, or SHA)
+        required: false
+        default: main
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fs7-live-firestore-qa
+  cancel-in-progress: false
+
+jobs:
+  fs7_live_qa:
+    if: github.repository == 'eseo7/stam' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FIREBASE_PROJECT_ID: stam-preview-hosting
+      STAM_PROJECT_ID: stam-demo
+      STAGING_URL: https://stam-design-staging.web.app
+      GITHUB_RUN_ID: ${{ github.run_id }}
+      GITHUB_SHA: ${{ github.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install QA runtime dependencies
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/qa-deps
+          cd /tmp/qa-deps
+          npm init -y >/dev/null 2>&1
+          npm install --no-save firebase-admin playwright
+          npx playwright install chromium --with-deps
+
+      - name: Secret presence check (boolean only)
+        id: secrets
+        env:
+          FS7_QA_JSON: ${{ secrets.FS7_QA_SERVICE_ACCOUNT_JSON }}
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAM_PREVIEW_HOSTING }}
+        run: |
+          set -euo pipefail
+          if [ -n "${FS7_QA_JSON:-}" ]; then
+            echo "secret_configured=true"
+            echo "secret_source=FS7_QA_SERVICE_ACCOUNT_JSON"
+          elif [ -n "${FIREBASE_SA:-}" ]; then
+            echo "secret_configured=true"
+            echo "secret_source=FIREBASE_SERVICE_ACCOUNT_STAM_PREVIEW_HOSTING"
+          else
+            echo "secret_configured=false"
+            echo "secret_source=none"
+            echo "::error::No QA service account secret configured. Set FS7_QA_SERVICE_ACCOUNT_JSON or FIREBASE_SERVICE_ACCOUNT_STAM_PREVIEW_HOSTING."
+            exit 2
+          fi
+
+      - name: Run FS-7 live Firestore QA
+        id: qa
+        env:
+          FS7_QA_JSON: ${{ secrets.FS7_QA_SERVICE_ACCOUNT_JSON }}
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAM_PREVIEW_HOSTING }}
+        run: |
+          set -euo pipefail
+          creds="$RUNNER_TEMP/fs7-qa-sa.json"
+          if [ -n "${FS7_QA_JSON:-}" ]; then
+            printf '%s' "$FS7_QA_JSON" > "$creds"
+          else
+            printf '%s' "$FIREBASE_SA" > "$creds"
+          fi
+          export GOOGLE_APPLICATION_CREDENTIALS="$creds"
+          export FIREBASE_SERVICE_ACCOUNT_JSON=""
+          artifact_dir="$RUNNER_TEMP/fs7-qa-artifacts"
+          mkdir -p "$artifact_dir"
+          set +e
+          node scripts/qa-fs7-live-persistence-agent.mjs \
+            --artifact-out "$artifact_dir/fs7-live-qa-report.json" \
+            --artifact-md "$artifact_dir/fs7-live-qa-report.md"
+          exit_code=$?
+          set -e
+          rm -f "$creds"
+          echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
+          exit "$exit_code"
+
+      - name: Upload QA report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fs7-live-qa-report-${{ github.run_id }}
+          path: ${{ runner.temp }}/fs7-qa-artifacts/
+          if-no-files-found: warn
+          retention-days: 14
