@@ -33,20 +33,23 @@ import { createRequire } from 'node:module';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 
-function resolveQaDepsPackageJson() {
-  const candidates = [
-    path.join(ROOT, 'package.json'),
-    '/tmp/qa-deps/package.json',
+function createQaRequire() {
+  const moduleRoots = [
+    path.join(ROOT, 'node_modules'),
+    path.join('/tmp/qa-deps', 'node_modules'),
   ];
-  for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) return candidate;
+  for (const modulesDir of moduleRoots) {
+    const firebaseAdminPkg = path.join(modulesDir, 'firebase-admin', 'package.json');
+    if (fs.existsSync(firebaseAdminPkg)) {
+      return createRequire(firebaseAdminPkg);
+    }
   }
   throw new Error(
     'QA runtime deps missing: npm install --no-save firebase-admin playwright',
   );
 }
 
-const require = createRequire(resolveQaDepsPackageJson());
+const require = createQaRequire();
 
 const LINK_FIELDS = ['requirementId', 'requirementCode', 'requirementTitle'];
 const ALLOWED_FIREBASE_PROJECTS = new Set(['stam-preview-hosting']);
