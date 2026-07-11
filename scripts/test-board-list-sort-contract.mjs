@@ -16,9 +16,11 @@ const ROOT = new URL('../', import.meta.url);
 const boardListSource = await readFile(new URL('stam/js/stam.board-list.js', ROOT), 'utf8');
 const requirementsListSource = await readFile(new URL('stam/js/stam.requirements-firestore-list.js', ROOT), 'utf8');
 const functionalSpecListSource = await readFile(new URL('stam/js/stam.functional-spec-firestore-list.js', ROOT), 'utf8');
+const adapterSource = await readFile(new URL('stam/js/stam.functional-spec-firestore-adapter.js', ROOT), 'utf8');
 
 assert.match(boardListSource, /function sortByBoardRegistration\(list\)/);
-assert.match(boardListSource, /getTimestampMs\(a && a\.createdAt\)/);
+assert.match(boardListSource, /function registrationCreatedMs\(item\)/);
+assert.match(boardListSource, /function compareBoardRegistration\(a, b\)/);
 assert.doesNotMatch(boardListSource, /updatedAt/);
 assert.match(requirementsListSource, /sortByBoardRegistration\(list\)/);
 assert.match(functionalSpecListSource, /sortByBoardRegistration\(list\)/);
@@ -51,6 +53,19 @@ assert.deepEqual(
   ['FN-002', 'FN-001'],
   'functional spec rows follow the same registration sort contract',
 );
+
+assert.deepEqual(
+  sort([
+    { id: 'fn-001', code: 'FN_001', createdAt: '2026-07-01T10:00:00.000Z', updatedAt: '2026-07-15T00:00:00.000Z' },
+    { id: 'fn-002', code: 'FN_002', createdAt: null, updatedAt: '2026-07-02T10:00:00.000Z' },
+  ]).map((item) => item.code),
+  ['FN_002', 'FN_001'],
+  'missing createdAt must not let older row win via updatedAt',
+);
+
+assert.doesNotMatch(functionalSpecListSource, /latestSortTime/);
+assert.match(functionalSpecListSource, /sortItemsForDisplay\(list\)/);
+assert.doesNotMatch(adapterSource, /updatedAt.*localeCompare/);
 
 assert.deepEqual(
   sort([

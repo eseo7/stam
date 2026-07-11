@@ -92,6 +92,7 @@ const contractScripts = [
   'scripts/test-board-list-sort-contract.mjs',
   'scripts/test-requirements-firestore-list-contract.mjs',
   'scripts/test-functional-spec-list-contract.mjs',
+  'scripts/test-functional-spec-registration-sort-regression.mjs',
 ];
 
 for (const script of contractScripts) {

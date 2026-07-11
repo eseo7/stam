@@ -150,12 +150,13 @@
   }
 
   function compareFunctionalSpec(a, b) {
-    var au = clean(a.updatedAt) || '';
-    var bu = clean(b.updatedAt) || '';
-    if (au !== bu) return bu.localeCompare(au);
+    var api = typeof window !== 'undefined' && window.STAMBoardList;
+    if (api && typeof api.compareBoardRegistration === 'function') {
+      return api.compareBoardRegistration(a, b);
+    }
     var ac = clean(a.code || a.id);
     var bc = clean(b.code || b.id);
-    return ac.localeCompare(bc);
+    return bc.localeCompare(ac);
   }
 
   function createAdapter(options) {

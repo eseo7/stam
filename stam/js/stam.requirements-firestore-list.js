@@ -27,6 +27,7 @@
     items: [],
     currentItem: null,
   };
+  var loadSeq = 0;
 
   function ready(fn) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
@@ -353,12 +354,21 @@
     return 0;
   }
 
-  function sortRequirementsByLatest(list) {
+  function sortItemsForDisplay(list) {
     var api = window.STAMBoardList;
     if (api && typeof api.sortByBoardRegistration === 'function') {
       return api.sortByBoardRegistration(list);
     }
+    if (api && typeof api.compareBoardRegistration === 'function') {
+      return (list || []).slice().sort(function (a, b) {
+        return api.compareBoardRegistration(a, b);
+      });
+    }
     return (list || []).slice();
+  }
+
+  function sortRequirementsByLatest(list) {
+    return sortItemsForDisplay(list);
   }
 
   function linkChip(value) {
@@ -529,8 +539,9 @@
   function renderRows(items) {
     var body = tbody();
     if (!body) return;
+    var sorted = sortItemsForDisplay(items || []);
     var messages = uiMessages() && uiMessages().requirements;
-    if (!items.length) {
+    if (!sorted.length) {
       renderFeedbackRow(emptyStateRow(
         messages && messages.emptyTitle || '등록된 요구사항이 없습니다',
         messages && messages.emptyDesc || ''
@@ -538,22 +549,23 @@
       refreshBoardList();
       return;
     }
-    body.innerHTML = items.map(rowHtml).join('');
+    body.innerHTML = sorted.map(rowHtml).join('');
     refreshBoardList();
   }
 
   function setSummary(items) {
-    var total = items.length;
+    var sorted = sortItemsForDisplay(items || []);
+    var total = sorted.length;
     var nums = document.querySelectorAll('.rq-ss-num');
     if (nums[0]) nums[0].textContent = total;
-    if (nums[1]) nums[1].textContent = items.filter(function (item) { return item.status === 'draft'; }).length;
-    if (nums[2]) nums[2].textContent = items.filter(function (item) { return item.status === 'review'; }).length;
-    if (nums[3]) nums[3].textContent = items.filter(function (item) { return item.status === 'approved'; }).length;
-    if (nums[4]) nums[4].textContent = items.filter(function (item) { return item.status === 'archived'; }).length;
-    if (nums[5]) nums[5].textContent = items.filter(function (item) {
+    if (nums[1]) nums[1].textContent = sorted.filter(function (item) { return item.status === 'draft'; }).length;
+    if (nums[2]) nums[2].textContent = sorted.filter(function (item) { return item.status === 'review'; }).length;
+    if (nums[3]) nums[3].textContent = sorted.filter(function (item) { return item.status === 'approved'; }).length;
+    if (nums[4]) nums[4].textContent = sorted.filter(function (item) { return item.status === 'archived'; }).length;
+    if (nums[5]) nums[5].textContent = sorted.filter(function (item) {
       return !!clean(valueOf(item, ['linkedScreenSpec', 'screenSpecCode', 'screenSpecId'], ''));
     }).length;
-    if (nums[6]) nums[6].textContent = items.filter(function (item) {
+    if (nums[6]) nums[6].textContent = sorted.filter(function (item) {
       return !!clean(valueOf(item, ['linkedWbs', 'wbsCode', 'wbsItemId'], ''));
     }).length;
 
@@ -561,12 +573,12 @@
     var unlinked = document.querySelectorAll('.rq-ss-meta-val')[1];
     var recent = document.querySelectorAll('.rq-ss-meta-val')[2];
     if (highPriority) {
-      highPriority.textContent = items.filter(function (item) {
+      highPriority.textContent = sorted.filter(function (item) {
         return item.priority === 'high' || item.priority === 'critical';
       }).length + '건';
     }
     if (unlinked) {
-      unlinked.textContent = items.filter(function (item) {
+      unlinked.textContent = sorted.filter(function (item) {
         return !clean(valueOf(item, ['linkedScreenSpec', 'screenSpecCode', 'screenSpecId'], '')) &&
           !clean(valueOf(item, ['linkedWbs', 'wbsCode', 'wbsItemId'], ''));
       }).length + '건';
@@ -603,6 +615,7 @@
 
   function load() {
     var projectId = resolveProjectId();
+    var seq = ++loadSeq;
     renderLoading();
 
     return guardProjectAccess(projectId).then(function (guard) {
@@ -616,7 +629,8 @@
       var context = serviceContext('requirements-firestore-list');
       return svc.listByProject(projectId, DEFAULT_QUERY, context);
     }).then(function (items) {
-      var list = sortRequirementsByLatest(
+      if (seq !== loadSeq) return state.items;
+      var list = sortItemsForDisplay(
         (items || []).filter(function (item) { return item && item.isDeleted !== true; })
       );
       state.items = list;

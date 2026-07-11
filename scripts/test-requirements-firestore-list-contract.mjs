@@ -23,7 +23,8 @@ assert.match(loadFn[0], /refreshCrudAccessUI\(\)/);
 assert.match(listSource, /function formatRequirementCode\(item\)/);
 assert.match(listSource, /sortByBoardRegistration\(list\)/);
 assert.doesNotMatch(listSource, /latestSortTime/);
-assert.match(loadFn[0], /sortRequirementsByLatest\(/);
+assert.match(listSource, /function sortItemsForDisplay\(list\)/);
+assert.match(loadFn[0], /sortItemsForDisplay\(/);
 assert.match(loadFn[0], /state\.items = list/);
 assert.match(listSource, /\.replace\(\/&\/g, '&amp;'\)/);
 

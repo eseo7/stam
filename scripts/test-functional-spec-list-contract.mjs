@@ -33,7 +33,7 @@ assert.match(listSource, /requirementDisplayTitle\(item\)/);
 assert.doesNotMatch(listSource, /if \(reqCode\)/);
 assert.match(listSource, /sortByBoardRegistration\(list\)/);
 assert.doesNotMatch(listSource, /latestSortTime/);
-assert.match(loadFn[0], /sortFunctionalSpecsByLatest\(/);
+assert.match(loadFn[0], /sortItemsForDisplay\(/);
 assert.match(loadFn[0], /state\.items = list/);
 assert.match(listSource, /\.replace\(\/&\/g, '&amp;'\)/);
 assert.match(listSource, /uiFeedback\(\)/);
