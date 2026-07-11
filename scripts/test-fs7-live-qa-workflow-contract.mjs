@@ -25,7 +25,8 @@ assert.match(workflow, /secrets\.FS7_QA_SERVICE_ACCOUNT_JSON/);
 assert.match(workflow, /secrets\.FIREBASE_SERVICE_ACCOUNT_STAM_PREVIEW_HOSTING/);
 assert.match(workflow, /secret_configured=true/);
 assert.match(workflow, /node scripts\/qa-fs7-live-persistence-agent\.mjs/);
-assert.match(workflow, /upload-artifact@v4/);
+assert.match(workflow, /npm install --no-save firebase-admin/);
+assert.doesNotMatch(workflow, /\/tmp\/qa-deps/);
 assert.match(workflow, /rm -f "\$creds"/);
 
 // Secret non-exposure guards
@@ -45,6 +46,19 @@ assert.match(script, /BLOCKED-PERMISSION/);
 assert.match(script, /--artifact-out/);
 assert.match(script, /Object\.prototype\.hasOwnProperty\.call/);
 assert.match(script, /requirementIdAbsent/);
+assert.match(script, /createQaRequire/);
+assert.match(script, /firebase-admin', 'package\.json'/);
+assert.doesNotMatch(script, /resolveQaDepsPackageJson/);
+assert.match(script, /firebase-admin\/app/);
+assert.match(script, /getApps/);
+assert.match(script, /initializeApp/);
+assert.match(script, /applicationDefault/);
+assert.match(script, /firebase-admin\/firestore/);
+assert.match(script, /getFirestore/);
+assert.match(script, /firebase-admin\/auth/);
+assert.match(script, /getAuth/);
+assert.doesNotMatch(script, /require\('firebase-admin'\)/);
+assert.doesNotMatch(script, /admin\.apps/);
 assert.doesNotMatch(script, /console\.log\(.*token/i);
 
 console.log('fs7 live qa workflow contract: PASS');

@@ -31,7 +31,29 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const require = createRequire('/tmp/qa-deps/package.json');
+const ROOT = path.resolve(__dirname, '..');
+
+function createQaRequire() {
+  const moduleRoots = [
+    path.join(ROOT, 'node_modules'),
+    path.join('/tmp/qa-deps', 'node_modules'),
+  ];
+  for (const modulesDir of moduleRoots) {
+    const firebaseAdminPkg = path.join(modulesDir, 'firebase-admin', 'package.json');
+    if (fs.existsSync(firebaseAdminPkg)) {
+      return createRequire(firebaseAdminPkg);
+    }
+  }
+  throw new Error(
+    'QA runtime deps missing: npm install --no-save firebase-admin playwright',
+  );
+}
+
+const require = createQaRequire();
+
+const { getApps, initializeApp, applicationDefault } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
+const { getAuth } = require('firebase-admin/auth');
 
 const LINK_FIELDS = ['requirementId', 'requirementCode', 'requirementTitle'];
 const ALLOWED_FIREBASE_PROJECTS = new Set(['stam-preview-hosting']);
@@ -158,19 +180,21 @@ async function loadAdmin(opts) {
     };
   }
 
-  const admin = await import('firebase-admin');
-  if (!admin.default.apps.length) {
-    admin.default.initializeApp({ projectId: opts.firebaseProject });
+  if (!getApps().length) {
+    initializeApp({
+      credential: applicationDefault(),
+      projectId: opts.firebaseProject,
+    });
   }
-  return { ok: true, admin: admin.default, credPath, status: 'PASS' };
+  return { ok: true, credPath, status: 'PASS' };
 }
 
-async function runPermissionPrecheck(admin, opts) {
+async function runPermissionPrecheck(opts) {
   const checks = [];
   const categories = new Set();
 
-  const db = admin.firestore();
-  const auth = admin.auth();
+  const db = getFirestore();
+  const auth = getAuth();
 
   // Firestore read — stam-demo project doc
   try {
@@ -224,9 +248,9 @@ async function runPermissionPrecheck(admin, opts) {
   return { ok: true, status: 'PASS', checks };
 }
 
-async function ensureAgentAccess(admin, opts) {
-  const db = admin.firestore();
-  const auth = admin.auth();
+async function ensureAgentAccess(opts) {
+  const db = getFirestore();
+  const auth = getAuth();
 
   try {
     await auth.getUser(opts.agentUid);
@@ -501,12 +525,12 @@ async function run() {
     return;
   }
 
-  const { admin, credPath } = adminLoad;
+  const { credPath } = adminLoad;
   let db;
   let token;
 
   try {
-    const precheck = await runPermissionPrecheck(admin, opts);
+    const precheck = await runPermissionPrecheck(opts);
     if (!precheck.ok) {
       record(results, 'PRECHECK-permission', false, 'BLOCKED-PERMISSION — service account lacks staging QA scope', {
         checks: precheck.checks,
@@ -519,7 +543,7 @@ async function run() {
       checks: precheck.checks.map((c) => ({ id: c.id, ok: c.ok })),
     });
 
-    ({ db, token } = await ensureAgentAccess(admin, opts));
+    ({ db, token } = await ensureAgentAccess(opts));
   } catch (err) {
     const status = classifyError(err);
     record(results, 'PRECHECK-access', false, `${status} — ${err.message}`, {
