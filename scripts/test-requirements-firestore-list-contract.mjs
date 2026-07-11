@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
 const ROOT = new URL('../', import.meta.url);
+const boardListSource = await readFile(new URL('stam/js/stam.board-list.js', ROOT), 'utf8');
 const listSource = await readFile(new URL('stam/js/stam.requirements-firestore-list.js', ROOT), 'utf8');
 
 assert.equal(/requirementsService\.(create|update|softDelete)/.test(listSource), false);
@@ -20,8 +21,10 @@ assert.match(loadFn[0], /bindAuthorizedService\([\s\S]*?var svc = service\(\)/);
 assert.match(listSource, /function refreshCrudAccessUI\(\)/);
 assert.match(loadFn[0], /refreshCrudAccessUI\(\)/);
 assert.match(listSource, /function formatRequirementCode\(item\)/);
-assert.match(listSource, /function sortRequirementsByLatest\(list\)/);
-assert.match(loadFn[0], /sortRequirementsByLatest\(/);
+assert.match(listSource, /sortByBoardRegistration\(list\)/);
+assert.doesNotMatch(listSource, /latestSortTime/);
+assert.match(listSource, /function sortItemsForDisplay\(list\)/);
+assert.match(loadFn[0], /sortItemsForDisplay\(/);
 assert.match(loadFn[0], /state\.items = list/);
 assert.match(listSource, /\.replace\(\/&\/g, '&amp;'\)/);
 
@@ -77,7 +80,8 @@ const boundService = {
         status: 'review',
         priority: 'critical',
         ownerName: 'QA & User',
-        updatedAt: '2026-07-01T00:00:00.000Z',
+        createdAt: '2026-07-01T00:00:00.000Z',
+        updatedAt: '2026-07-15T00:00:00.000Z',
         linkedScreenSpec: 'SCR-001',
         isDeleted: false,
       },
@@ -88,7 +92,8 @@ const boundService = {
         title: 'Latest requirement row',
         status: 'draft',
         priority: 'normal',
-        updatedAt: '2026-07-09T00:00:00.000Z',
+        createdAt: '2026-07-09T00:00:00.000Z',
+        updatedAt: '2026-07-02T00:00:00.000Z',
         isDeleted: false,
       },
       {
@@ -332,6 +337,7 @@ context.window.document = context.document;
 context.window.URLSearchParams = URLSearchParams;
 context.window.Promise = Promise;
 
+vm.runInContext(boardListSource, context, { filename: 'stam.board-list.js' });
 vm.runInContext(listSource, context, { filename: 'stam.requirements-firestore-list.js' });
 for (let i = 0; i < 20; i += 1) {
   await Promise.resolve();
@@ -354,17 +360,18 @@ assert.match(tbody.innerHTML, /&lt;script&gt;alert\(&quot;xss&quot;\)&lt;\/scrip
 assert.match(tbody.innerHTML, /QA &amp; User/);
 assert.doesNotMatch(tbody.innerHTML, /요구사항을 불러오지 못했습니다/);
 const rowIds = [...tbody.innerHTML.matchAll(/data-rq-id="([^"]+)"/g)].map((match) => match[1]);
-assert.deepEqual(rowIds, ['REQ-003', 'REQ-001'], 'list must render newest updatedAt first');
+assert.deepEqual(rowIds, ['REQ-003', 'REQ-001'], 'list must render newest createdAt first regardless of updatedAt');
 assert.equal(summaryNums[0].textContent, 2);
 assert.equal(context.window.STAM.requirementsFirestoreList.getState().items.length, 2);
 assert.equal(context.window.STAM.requirementsFirestoreList.getState().items[0].id, 'REQ-003');
 assert.equal(context.window.STAM.requirementsFirestoreList.getState().items[1].id, 'REQ-001');
 assert.equal(
   context.window.STAM.requirementsFirestoreList.sortRequirementsByLatest([
-    { id: 'A', updatedAt: '2026-07-01T00:00:00.000Z' },
-    { id: 'B', createdAt: '2026-07-09T00:00:00.000Z' },
+    { id: 'A', updatedAt: '2026-07-15T00:00:00.000Z', createdAt: '2026-07-01T00:00:00.000Z', code: 'REQ_001' },
+    { id: 'B', updatedAt: '2026-07-02T00:00:00.000Z', createdAt: '2026-07-09T00:00:00.000Z', code: 'REQ_002' },
   ])[0].id,
   'B',
+  'createdAt desc must beat updatedAt when sorting board list rows',
 );
 assert.equal(summaryNums[2].textContent, 1);
 assert.equal(summaryNums[6].textContent, 0);
