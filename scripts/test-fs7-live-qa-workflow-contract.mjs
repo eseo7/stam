@@ -49,8 +49,16 @@ assert.match(script, /requirementIdAbsent/);
 assert.match(script, /createQaRequire/);
 assert.match(script, /firebase-admin', 'package\.json'/);
 assert.doesNotMatch(script, /resolveQaDepsPackageJson/);
-assert.match(script, /require\('firebase-admin'\)/);
-assert.doesNotMatch(script, /import\('firebase-admin'\)/);
+assert.match(script, /firebase-admin\/app/);
+assert.match(script, /getApps/);
+assert.match(script, /initializeApp/);
+assert.match(script, /applicationDefault/);
+assert.match(script, /firebase-admin\/firestore/);
+assert.match(script, /getFirestore/);
+assert.match(script, /firebase-admin\/auth/);
+assert.match(script, /getAuth/);
+assert.doesNotMatch(script, /require\('firebase-admin'\)/);
+assert.doesNotMatch(script, /admin\.apps/);
 assert.doesNotMatch(script, /console\.log\(.*token/i);
 
 console.log('fs7 live qa workflow contract: PASS');
