@@ -68,4 +68,10 @@ assert.doesNotMatch(script, /require\('firebase-admin'\)/);
 assert.doesNotMatch(script, /admin\.apps/);
 assert.doesNotMatch(script, /console\.log\(.*token/i);
 
+// Shutdown / timeout regression (run 29187889638)
+assert.match(script, /deleteApp/);
+assert.match(script, /shutdownRuntime/);
+assert.match(script, /waitForFnByTitle/);
+assert.match(script, /setImmediate\(\(\) => process\.exit\(exitCode\)\)/);
+
 console.log('fs7 live qa workflow contract: PASS');
