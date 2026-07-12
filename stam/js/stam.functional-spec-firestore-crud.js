@@ -351,11 +351,31 @@
     clearRequirementSelection(regDrawer);
   }
 
+  function applyRequirementLinkFields(payload, req, options) {
+    var opts = options || {};
+    var rid = clean(req.requirementId);
+    var rcode = clean(req.requirementCode);
+    var rtitle = clean(req.requirementTitle);
+    if (rid || rcode) {
+      payload.requirementId = rid;
+      payload.requirementCode = rcode;
+      payload.requirementTitle = rtitle;
+    } else if (opts.omitWhenUnlinked) {
+      delete payload.requirementId;
+      delete payload.requirementCode;
+      delete payload.requirementTitle;
+    } else {
+      payload.requirementId = '';
+      payload.requirementCode = '';
+      payload.requirementTitle = '';
+    }
+    return payload;
+  }
+
   function buildCreateInput(regDrawer) {
     var koStatus = getVal(regDrawer, '상태') || '작성중';
     var mapped = statusFromKo(koStatus);
     var ownerName = getVal(regDrawer, '담당자');
-    var req = getRequirementSelection(regDrawer);
     var input = {
       title: getVal(regDrawer, '기능명'),
       status: mapped.status,
@@ -371,11 +391,7 @@
       apiRef: getVal(regDrawer, '관련 API/연동'),
       note: getVal(regDrawer, '비고'),
     };
-    if (clean(req.requirementId) || clean(req.requirementCode)) {
-      input.requirementId = clean(req.requirementId);
-      input.requirementCode = clean(req.requirementCode);
-      input.requirementTitle = clean(req.requirementTitle);
-    }
+    applyRequirementLinkFields(input, getRequirementSelection(regDrawer), { omitWhenUnlinked: true });
     return input;
   }
 
@@ -436,7 +452,6 @@
   function buildUpdatePatch(editDrawer) {
     var koStatus = getVal(editDrawer, '상태') || '작성중';
     var mapped = statusFromKo(koStatus);
-    var req = getRequirementSelection(editDrawer);
     var patch = {
       title: getVal(editDrawer, '기능명'),
       status: mapped.status,
@@ -451,10 +466,8 @@
       exceptionRule: getVal(editDrawer, '예외/오류 처리'),
       apiRef: getVal(editDrawer, '관련 API/연동'),
       note: getVal(editDrawer, '비고'),
-      requirementId: clean(req.requirementId),
-      requirementCode: clean(req.requirementCode),
-      requirementTitle: clean(req.requirementTitle),
     };
+    applyRequirementLinkFields(patch, getRequirementSelection(editDrawer), { omitWhenUnlinked: false });
     return patch;
   }
 
@@ -552,7 +565,7 @@
         refreshRequirementPickerContext();
         var api = listApi();
         var item = api && typeof api.getState === 'function' ? api.getState().currentItem : null;
-        if (item) setTimeout(function () { prefillEdit(item); }, 0);
+        if (item) prefillEdit(item);
       });
     });
 
@@ -607,6 +620,7 @@
   window.STAM = window.STAM || {};
   window.STAM.functionalSpecFirestoreCrud = {
     applyWriteAccessUI: applyWriteAccessUI,
+    applyRequirementLinkFields: applyRequirementLinkFields,
     submitRegister: submitRegister,
     submitEdit: submitEdit,
     prefillEdit: prefillEdit,

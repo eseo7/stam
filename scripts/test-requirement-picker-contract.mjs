@@ -34,9 +34,11 @@ assert.match(requirementsAdapterSource, /function listByProject\(projectId, quer
 assert.match(crudSource, /requirementPickerApi/);
 assert.match(crudSource, /getRequirementSelection/);
 assert.match(crudSource, /setRequirementSelection/);
-assert.match(crudSource, /requirementId: clean\(req\.requirementId\)/);
-assert.match(crudSource, /requirementCode: clean\(req\.requirementCode\)/);
-assert.match(crudSource, /requirementTitle: clean\(req\.requirementTitle\)/);
+assert.match(crudSource, /applyRequirementLinkFields/);
+assert.match(crudSource, /var rcode = clean\(req\.requirementCode\)/);
+assert.match(crudSource, /var rtitle = clean\(req\.requirementTitle\)/);
+assert.match(crudSource, /payload\.requirementCode = rcode/);
+assert.match(crudSource, /payload\.requirementTitle = rtitle/);
 assert.doesNotMatch(crudSource, /getVal\(regDrawer, '연결 요구사항'\)/);
 assert.doesNotMatch(crudSource, /getVal\(editDrawer, '연결 요구사항'\)/);
 assert.equal(/collection\(['"]requirements['"]\)/.test(crudSource), false);
