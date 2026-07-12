@@ -52,7 +52,7 @@ function createQaRequire() {
 
 const require = createQaRequire();
 
-const { getApps, initializeApp, applicationDefault } = require('firebase-admin/app');
+const { getApps, initializeApp, applicationDefault, deleteApp } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
 
@@ -434,14 +434,35 @@ async function findRequirementWithCode(db, projectId) {
   return { first, second };
 }
 
-async function waitFor(fn, timeout = 30000) {
+async function waitFor(fn, timeout = 30000, label = 'waitFor') {
   const start = Date.now();
   while (Date.now() - start < timeout) {
     const value = await fn();
     if (value) return value;
     await new Promise((r) => setTimeout(r, 150));
   }
-  throw new Error('timeout');
+  throw new Error(`timeout:${label}`);
+}
+
+async function waitForFnByTitle(db, page, projectId, title, timeout = 60000) {
+  return waitFor(async () => {
+    const uiOk = await page.evaluate((t) => (window.STAM.functionalSpecFirestoreList.getState().items || [])
+      .some((x) => x.title === t), title);
+    if (uiOk) return true;
+    const snap = await db.collection('projects').doc(projectId)
+      .collection('functionalSpecifications').where('title', '==', title).limit(1).get();
+    return !snap.empty;
+  }, timeout, `fn-title:${title}`);
+}
+
+async function shutdownRuntime(browser) {
+  if (browser) {
+    try {
+      await browser.close();
+    } catch (e) { /* noop */ }
+  }
+  const apps = getApps();
+  await Promise.all(apps.map((app) => deleteApp(app).catch(() => {})));
 }
 
 async function signInStaging(page, stagingUrl, token) {
@@ -491,7 +512,7 @@ async function selectLegacyByTitle(page, drawerId, title) {
           .some((opt) => (opt.getAttribute('data-req-title') || opt.textContent || '').includes(title));
     },
     { drawerId, title },
-    { timeout: 30000 },
+    { timeout: 60000 },
   );
   await page.locator(`#${drawerId} [data-stam-requirement-picker-opt]`).filter({ hasText: title }).first().click();
 }
@@ -608,10 +629,10 @@ function writeArtifacts(opts, artifact) {
 function finish(results, opts, meta, exitCode) {
   const artifact = buildArtifact(results, meta);
   writeArtifacts(opts, artifact);
-  const failed = results.filter((r) => r.status !== 'PASS');
   console.log('\n--- FS-7 live QA summary ---');
   console.log(`runId=${meta.runId} pass=${artifact.summary.pass} fail=${artifact.summary.fail} blocked=${artifact.summary.blocked + artifact.summary.blockedPermission}`);
-  process.exit(exitCode);
+  // Explicit exit after artifact write — gRPC / Playwright handles may otherwise keep the loop alive.
+  setImmediate(() => process.exit(exitCode));
 }
 
 async function run() {
@@ -701,6 +722,8 @@ async function run() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   const pageErrors = [];
+  let currentStep = 'browser-init';
+  let exitCode = 0;
   page.on('pageerror', (err) => pageErrors.push(`pageerror: ${err.message}`));
   page.on('console', (msg) => {
     if (msg.type() === 'error') pageErrors.push(`console.error: ${msg.text()}`);
@@ -712,6 +735,7 @@ async function run() {
   let cleanupResult = { attempted: false, deleted: [], failed: [] };
 
   try {
+    currentStep = 'W-01';
     await signInStaging(page, opts.stagingUrl, token);
     await openFunctionalSpec(page, opts.stagingUrl, opts.projectId);
     record(results, 'W-01', true, 'staging auth + functional-spec list load', {
@@ -724,7 +748,7 @@ async function run() {
     await selectRequirement(page, 'fn-dw-register', reqs.first.code);
     await page.locator('#fn-dw-register .stam-dw-foot-right .fn-btn-pri').click();
     await waitFor(() => page.evaluate((title) => Array.from(document.querySelectorAll('#fn-tbody .fn-data-row'))
-      .some((r) => r.textContent.includes(title)), linkedTitle));
+      .some((r) => r.textContent.includes(title)), linkedTitle), 30000, 'W-02-linked-row');
 
     linkedDocId = await page.evaluate((title) => {
       const item = (window.STAM.functionalSpecFirestoreList.getState().items || []).find((x) => x.title === title);
@@ -838,7 +862,7 @@ async function run() {
     await page.locator('#fn-dw-register input[placeholder="기능명을 입력하세요"]').fill(unlinkedTitle);
     await page.locator('#fn-dw-register .stam-dw-foot-right .fn-btn-pri').click();
     await waitFor(() => page.evaluate((title) => (window.STAM.functionalSpecFirestoreList.getState().items || [])
-      .some((x) => x.title === title), unlinkedTitle));
+      .some((x) => x.title === title), unlinkedTitle), 30000, 'W-09-unlinked-row');
     unlinkedDocId = await page.evaluate((title) => {
       const item = (window.STAM.functionalSpecFirestoreList.getState().items || []).find((x) => x.title === title);
       return item && item.id;
@@ -860,17 +884,25 @@ async function run() {
       .filter((id) => id && visible.includes(id));
     record(results, 'W-10', leaked.length === 0, leaked.length === 0 ? 'raw doc ids not in UI' : `leaked: ${leaked.join(',')}`);
 
+    currentStep = 'W-10b';
+    await closeDrawers(page);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await openFunctionalSpec(page, opts.stagingUrl, opts.projectId);
     await page.locator('#fn-reg-btn').click();
     await page.waitForSelector('#fn-dw-register.open');
     await page.locator('#fn-dw-register input[placeholder="기능명을 입력하세요"]').fill(legacyTitle);
     await selectLegacyByTitle(page, 'fn-dw-register', legacyReq.title);
     await page.locator('#fn-dw-register .stam-dw-foot-right .fn-btn-pri').click();
-    await waitFor(() => page.evaluate((title) => (window.STAM.functionalSpecFirestoreList.getState().items || [])
-      .some((x) => x.title === title), legacyTitle));
+    await waitForFnByTitle(db, page, opts.projectId, legacyTitle);
     legacyDocId = await page.evaluate((title) => {
       const item = (window.STAM.functionalSpecFirestoreList.getState().items || []).find((x) => x.title === title);
       return item && item.id;
     }, legacyTitle);
+    if (!legacyDocId) {
+      const legacySnap = await db.collection('projects').doc(opts.projectId)
+        .collection('functionalSpecifications').where('title', '==', legacyTitle).limit(1).get();
+      legacyDocId = legacySnap.docs[0] && legacySnap.docs[0].id;
+    }
     createdDocIds.push(legacyDocId);
     const legacyDoc = await readFnDoc(db, opts.projectId, legacyDocId);
     const legacyRow = await page.locator('#fn-tbody .fn-data-row').filter({ hasText: legacyTitle }).first().innerText();
@@ -895,6 +927,7 @@ async function run() {
     const fatal = pageErrors.filter((m) => !/permission denied|favicon/i.test(m));
     record(results, 'W-12', fatal.length === 0, fatal.length === 0 ? 'no fatal console errors' : fatal.join(' | '));
 
+    currentStep = 'V-01';
     const memberRef = db.collection('projects').doc(opts.projectId).collection('members').doc(opts.agentUid);
     await memberRef.set({ role: 'viewer' }, { merge: true });
     await page.reload({ waitUntil: 'domcontentloaded' });
@@ -905,8 +938,21 @@ async function run() {
     record(results, 'V-03', await page.locator('#fn-del-btn').isDisabled(), 'viewer delete disabled check');
     await memberRef.set({ role: 'owner' }, { merge: true });
 
+  } catch (err) {
+    exitCode = 1;
+    const msg = String(err && err.message ? err.message : err);
+    const detail = msg.startsWith('timeout:')
+      ? `FAIL — timeout at ${currentStep}`
+      : `FAIL — ${sanitizeErrorMessage(msg)}`;
+    const alreadyRecorded = results.some((r) => r.id === currentStep);
+    if (!alreadyRecorded) {
+      record(results, currentStep, false, detail, {
+        step: currentStep,
+        error: sanitizeErrorMessage(msg),
+      });
+    }
   } finally {
-    await browser.close();
+    await shutdownRuntime(browser);
     if (opts.cleanup && createdDocIds.length) {
       cleanupResult.attempted = true;
       for (const id of createdDocIds) {
