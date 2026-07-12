@@ -24,6 +24,7 @@
  *   --no-cleanup
  */
 
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -136,6 +137,93 @@ function assertKeysPresent(data, label) {
   });
 }
 
+function hashEmailPrefix(email) {
+  return crypto.createHash('sha256').update(String(email || '').trim()).digest('hex').slice(0, 12);
+}
+
+function maskServiceAccountEmail(email) {
+  const value = String(email || '').trim();
+  if (!value.includes('@')) return '[masked]';
+  const [local, domain] = value.split('@');
+  if (!local || !domain) return '[masked]';
+  const prefix = local.length <= 12 ? local : `${local.slice(0, 12)}...`;
+  return `${prefix}@${domain}`;
+}
+
+function readServiceAccountIdentity(credPath) {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(credPath, 'utf8'));
+    const email = clean(parsed.client_email);
+    if (!email) return null;
+    return {
+      emailHashPrefix: hashEmailPrefix(email),
+      emailMasked: maskServiceAccountEmail(email),
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+function buildIamReferenceComparison(secretIdentity) {
+  if (!secretIdentity) {
+    return {
+      emailHashPrefix: IAM_REFERENCE_SA_EMAIL_HASH_PREFIX,
+      emailMasked: IAM_REFERENCE_SA_EMAIL_MASKED,
+      match: null,
+      note: 'secret client_email unavailable for comparison',
+    };
+  }
+  return {
+    emailHashPrefix: IAM_REFERENCE_SA_EMAIL_HASH_PREFIX,
+    emailMasked: IAM_REFERENCE_SA_EMAIL_MASKED,
+    match: secretIdentity.emailHashPrefix === IAM_REFERENCE_SA_EMAIL_HASH_PREFIX,
+  };
+}
+
+function sanitizeErrorMessage(message) {
+  let out = String(message || '');
+  out = out.replace(/[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}/g, '[redacted-jwt]');
+  out = out.replace(/-----BEGIN[\s\S]*?-----END[^-]*-----/g, '[redacted-key]');
+  out = out.replace(/ya29\.[A-Za-z0-9._-]+/g, '[redacted-token]');
+  out = out.replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.gserviceaccount\.com/g, '[redacted-sa-email]');
+  out = out.replace(/\bsk_[A-Za-z0-9]+\b/g, '[redacted-secret]');
+  return out.trim();
+}
+
+function inferRequiredPermission(err) {
+  const code = String(err && (err.code || err.errorInfo?.code) || '');
+  const text = `${code} ${err && err.message}`.toLowerCase();
+  if (/signblob|serviceaccounts\.signblob|service account token creator/i.test(text)) {
+    return 'roles/iam.serviceAccountTokenCreator (iam.serviceAccounts.signBlob on executing SA self-binding)';
+  }
+  if (/identitytoolkit|identity toolkit|firebaseauth|firebase authentication admin/i.test(text)) {
+    return 'roles/firebaseauth.admin (identitytoolkit.googleapis.com)';
+  }
+  if (/auth\/insufficient-permission|permission_denied|insufficient permission|403|7 permission_denied/i.test(text)) {
+    if (text.includes('signblob') || text.includes('serviceaccount')) {
+      return 'roles/iam.serviceAccountTokenCreator (iam.serviceAccounts.signBlob on executing SA self-binding)';
+    }
+    if (text.includes('identitytoolkit') || text.includes('firebase')) {
+      return 'roles/firebaseauth.admin (identitytoolkit.googleapis.com)';
+    }
+    return 'firebase-auth-admin or iam.serviceAccounts.signBlob (undifferentiated permission denial)';
+  }
+  if (code === 'auth/invalid-credential' || /invalid credential|invalid_grant/i.test(text)) {
+    return 'valid service account key / secret JSON (credential mismatch or revoked key)';
+  }
+  return 'unknown — inspect sanitized error.code';
+}
+
+function sanitizeAuthError(err, operation) {
+  const code = String(err && (err.code || err.errorInfo?.code) || 'unknown');
+  return {
+    code,
+    message: sanitizeErrorMessage(err && err.message ? err.message : err),
+    failedOperation: operation,
+    requiredPermission: inferRequiredPermission(err),
+  };
+}
+
 function classifyError(err) {
   const code = err && (err.code || err.errorInfo?.code || '');
   const msg = String(err && err.message ? err.message : err);
@@ -146,15 +234,22 @@ function classifyError(err) {
 }
 
 function permissionCategory(err) {
-  const text = `${err && err.code} ${err && err.message}`.toLowerCase();
-  if (text.includes('auth') || text.includes('custom token') || text.includes('identitytoolkit')) {
-    return 'firebase-auth-admin (custom token / user management)';
-  }
-  if (text.includes('firestore') || text.includes('datastore')) {
-    return 'cloud-datastore-user (Firestore read/write/delete on stam-demo)';
-  }
-  return 'firebase-admin staging QA scope';
+  return inferRequiredPermission(err);
 }
+
+function buildPrecheckFailureDetail(checks) {
+  const failed = checks.filter((c) => !c.ok);
+  if (failed.length === 1 && failed[0].id === 'auth-custom-token') {
+    const authErr = failed[0].error || {};
+    return `BLOCKED-PERMISSION — auth-custom-token failed (${authErr.code || 'unknown'})`;
+  }
+  return 'BLOCKED-PERMISSION — service account lacks staging QA scope';
+}
+
+// IAM reference for stam-preview-hosting default Firebase Admin SDK SA (hash-only comparison).
+const IAM_REFERENCE_SA_EMAIL = 'firebase-adminsdk-fbsvc@stam-preview-hosting.iam.gserviceaccount.com';
+const IAM_REFERENCE_SA_EMAIL_HASH_PREFIX = hashEmailPrefix(IAM_REFERENCE_SA_EMAIL);
+const IAM_REFERENCE_SA_EMAIL_MASKED = maskServiceAccountEmail(IAM_REFERENCE_SA_EMAIL);
 
 async function loadAdmin(opts) {
   if (!ALLOWED_FIREBASE_PROJECTS.has(opts.firebaseProject)) {
@@ -186,7 +281,8 @@ async function loadAdmin(opts) {
       projectId: opts.firebaseProject,
     });
   }
-  return { ok: true, credPath, status: 'PASS' };
+  const serviceAccountIdentity = readServiceAccountIdentity(credPath);
+  return { ok: true, credPath, status: 'PASS', serviceAccountIdentity };
 }
 
 async function runPermissionPrecheck(opts) {
@@ -201,7 +297,12 @@ async function runPermissionPrecheck(opts) {
     const snap = await db.collection('projects').doc(opts.projectId).get();
     checks.push({ id: 'firestore-read-project', ok: true, exists: snap.exists });
   } catch (err) {
-    checks.push({ id: 'firestore-read-project', ok: false, category: permissionCategory(err) });
+    checks.push({
+      id: 'firestore-read-project',
+      ok: false,
+      category: permissionCategory(err),
+      error: sanitizeAuthError(err, 'firestore-read-project'),
+    });
     categories.add(permissionCategory(err));
   }
 
@@ -210,7 +311,12 @@ async function runPermissionPrecheck(opts) {
     await db.collection('projects').doc(opts.projectId).collection('functionalSpecifications').limit(1).get();
     checks.push({ id: 'firestore-read-functional-specs', ok: true });
   } catch (err) {
-    checks.push({ id: 'firestore-read-functional-specs', ok: false, category: permissionCategory(err) });
+    checks.push({
+      id: 'firestore-read-functional-specs',
+      ok: false,
+      category: permissionCategory(err),
+      error: sanitizeAuthError(err, 'firestore-read-functional-specs'),
+    });
     categories.add(permissionCategory(err));
   }
 
@@ -219,7 +325,13 @@ async function runPermissionPrecheck(opts) {
     await auth.createCustomToken(opts.agentUid);
     checks.push({ id: 'auth-custom-token', ok: true });
   } catch (err) {
-    checks.push({ id: 'auth-custom-token', ok: false, category: permissionCategory(err) });
+    const sanitized = sanitizeAuthError(err, 'auth-custom-token');
+    checks.push({
+      id: 'auth-custom-token',
+      ok: false,
+      category: permissionCategory(err),
+      error: sanitized,
+    });
     categories.add(permissionCategory(err));
   }
 
@@ -232,7 +344,12 @@ async function runPermissionPrecheck(opts) {
     await probeRef.delete();
     checks.push({ id: 'firestore-write-delete-probe', ok: true });
   } catch (err) {
-    checks.push({ id: 'firestore-write-delete-probe', ok: false, category: permissionCategory(err) });
+    checks.push({
+      id: 'firestore-write-delete-probe',
+      ok: false,
+      category: permissionCategory(err),
+      error: sanitizeAuthError(err, 'firestore-write-delete-probe'),
+    });
     categories.add(permissionCategory(err));
   }
 
@@ -525,29 +642,40 @@ async function run() {
     return;
   }
 
-  const { credPath } = adminLoad;
+  const { credPath, serviceAccountIdentity } = adminLoad;
+  const iamReference = buildIamReferenceComparison(serviceAccountIdentity);
   let db;
   let token;
 
   try {
     const precheck = await runPermissionPrecheck(opts);
     if (!precheck.ok) {
-      record(results, 'PRECHECK-permission', false, 'BLOCKED-PERMISSION — service account lacks staging QA scope', {
+      record(results, 'PRECHECK-permission', false, buildPrecheckFailureDetail(precheck.checks), {
         checks: precheck.checks,
         requiredPermissionCategories: precheck.requiredPermissionCategories,
+        serviceAccountIdentity: serviceAccountIdentity || null,
+        iamReference,
+        secretMatchesIamReference: iamReference.match,
       });
       finish(results, opts, meta, 3);
       return;
     }
     record(results, 'PRECHECK-permission', true, 'Firestore read/write/delete + custom token OK', {
       checks: precheck.checks.map((c) => ({ id: c.id, ok: c.ok })),
+      serviceAccountIdentity: serviceAccountIdentity || null,
+      iamReference,
+      secretMatchesIamReference: iamReference.match,
     });
 
     ({ db, token } = await ensureAgentAccess(opts));
   } catch (err) {
     const status = classifyError(err);
-    record(results, 'PRECHECK-access', false, `${status} — ${err.message}`, {
+    record(results, 'PRECHECK-access', false, `${status} — ${sanitizeErrorMessage(err.message)}`, {
       category: permissionCategory(err),
+      error: sanitizeAuthError(err, 'precheck-access'),
+      serviceAccountIdentity: serviceAccountIdentity || null,
+      iamReference,
+      secretMatchesIamReference: iamReference.match,
     });
     finish(results, opts, meta, status === 'BLOCKED-PERMISSION' ? 3 : 1);
     return;

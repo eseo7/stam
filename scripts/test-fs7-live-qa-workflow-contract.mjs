@@ -43,6 +43,13 @@ forbiddenPatterns.forEach((re) => {
 });
 
 assert.match(script, /BLOCKED-PERMISSION/);
+assert.match(script, /hashEmailPrefix/);
+assert.match(script, /maskServiceAccountEmail/);
+assert.match(script, /sanitizeAuthError/);
+assert.match(script, /inferRequiredPermission/);
+assert.match(script, /secretMatchesIamReference/);
+assert.match(script, /IAM_REFERENCE_SA_EMAIL_HASH_PREFIX/);
+assert.doesNotMatch(script, /console\.log\(.*client_email/i);
 assert.match(script, /--artifact-out/);
 assert.match(script, /Object\.prototype\.hasOwnProperty\.call/);
 assert.match(script, /requirementIdAbsent/);
