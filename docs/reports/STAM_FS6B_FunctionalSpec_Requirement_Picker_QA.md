@@ -193,4 +193,4 @@ total=15 pass=15 fail=0
 
 | PR | 범위 |
 |----|------|
-| FS-7 | maintainer Google 세션 live Firestore persistence evidence (unlink 필드 제거 포함) |
+| FS-7 | maintainer Google 세션 live Firestore persistence evidence (unlink 필드 제거 포함) — `docs/reports/STAM_FS7_FunctionalSpec_Live_Persistence_QA.md` |
