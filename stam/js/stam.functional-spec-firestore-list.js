@@ -413,6 +413,11 @@
       sumTxt.innerHTML = '<span class="fn-edit-sum-id">' + esc(code) + '</span> 수정 모드 — 최종 변경 ' +
         esc(updated) + ' · 저장 시 변경 이력이 기록됩니다';
     }
+
+    var crud = window.STAM && window.STAM.functionalSpecFirestoreCrud;
+    if (crud && typeof crud.prefillEdit === 'function') {
+      crud.prefillEdit(item);
+    }
   }
 
   function openDetailFromRow(row) {

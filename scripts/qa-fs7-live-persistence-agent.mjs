@@ -24,6 +24,7 @@
  *   --no-cleanup
  */
 
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -51,7 +52,7 @@ function createQaRequire() {
 
 const require = createQaRequire();
 
-const { getApps, initializeApp, applicationDefault } = require('firebase-admin/app');
+const { getApps, initializeApp, applicationDefault, deleteApp } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
 
@@ -136,6 +137,93 @@ function assertKeysPresent(data, label) {
   });
 }
 
+function hashEmailPrefix(email) {
+  return crypto.createHash('sha256').update(String(email || '').trim()).digest('hex').slice(0, 12);
+}
+
+function maskServiceAccountEmail(email) {
+  const value = String(email || '').trim();
+  if (!value.includes('@')) return '[masked]';
+  const [local, domain] = value.split('@');
+  if (!local || !domain) return '[masked]';
+  const prefix = local.length <= 12 ? local : `${local.slice(0, 12)}...`;
+  return `${prefix}@${domain}`;
+}
+
+function readServiceAccountIdentity(credPath) {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(credPath, 'utf8'));
+    const email = clean(parsed.client_email);
+    if (!email) return null;
+    return {
+      emailHashPrefix: hashEmailPrefix(email),
+      emailMasked: maskServiceAccountEmail(email),
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+function buildIamReferenceComparison(secretIdentity) {
+  if (!secretIdentity) {
+    return {
+      emailHashPrefix: IAM_REFERENCE_SA_EMAIL_HASH_PREFIX,
+      emailMasked: IAM_REFERENCE_SA_EMAIL_MASKED,
+      match: null,
+      note: 'secret client_email unavailable for comparison',
+    };
+  }
+  return {
+    emailHashPrefix: IAM_REFERENCE_SA_EMAIL_HASH_PREFIX,
+    emailMasked: IAM_REFERENCE_SA_EMAIL_MASKED,
+    match: secretIdentity.emailHashPrefix === IAM_REFERENCE_SA_EMAIL_HASH_PREFIX,
+  };
+}
+
+function sanitizeErrorMessage(message) {
+  let out = String(message || '');
+  out = out.replace(/[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}/g, '[redacted-jwt]');
+  out = out.replace(/-----BEGIN[\s\S]*?-----END[^-]*-----/g, '[redacted-key]');
+  out = out.replace(/ya29\.[A-Za-z0-9._-]+/g, '[redacted-token]');
+  out = out.replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.gserviceaccount\.com/g, '[redacted-sa-email]');
+  out = out.replace(/\bsk_[A-Za-z0-9]+\b/g, '[redacted-secret]');
+  return out.trim();
+}
+
+function inferRequiredPermission(err) {
+  const code = String(err && (err.code || err.errorInfo?.code) || '');
+  const text = `${code} ${err && err.message}`.toLowerCase();
+  if (/signblob|serviceaccounts\.signblob|service account token creator/i.test(text)) {
+    return 'roles/iam.serviceAccountTokenCreator (iam.serviceAccounts.signBlob on executing SA self-binding)';
+  }
+  if (/identitytoolkit|identity toolkit|firebaseauth|firebase authentication admin/i.test(text)) {
+    return 'roles/firebaseauth.admin (identitytoolkit.googleapis.com)';
+  }
+  if (/auth\/insufficient-permission|permission_denied|insufficient permission|403|7 permission_denied/i.test(text)) {
+    if (text.includes('signblob') || text.includes('serviceaccount')) {
+      return 'roles/iam.serviceAccountTokenCreator (iam.serviceAccounts.signBlob on executing SA self-binding)';
+    }
+    if (text.includes('identitytoolkit') || text.includes('firebase')) {
+      return 'roles/firebaseauth.admin (identitytoolkit.googleapis.com)';
+    }
+    return 'firebase-auth-admin or iam.serviceAccounts.signBlob (undifferentiated permission denial)';
+  }
+  if (code === 'auth/invalid-credential' || /invalid credential|invalid_grant/i.test(text)) {
+    return 'valid service account key / secret JSON (credential mismatch or revoked key)';
+  }
+  return 'unknown — inspect sanitized error.code';
+}
+
+function sanitizeAuthError(err, operation) {
+  const code = String(err && (err.code || err.errorInfo?.code) || 'unknown');
+  return {
+    code,
+    message: sanitizeErrorMessage(err && err.message ? err.message : err),
+    failedOperation: operation,
+    requiredPermission: inferRequiredPermission(err),
+  };
+}
+
 function classifyError(err) {
   const code = err && (err.code || err.errorInfo?.code || '');
   const msg = String(err && err.message ? err.message : err);
@@ -146,15 +234,22 @@ function classifyError(err) {
 }
 
 function permissionCategory(err) {
-  const text = `${err && err.code} ${err && err.message}`.toLowerCase();
-  if (text.includes('auth') || text.includes('custom token') || text.includes('identitytoolkit')) {
-    return 'firebase-auth-admin (custom token / user management)';
-  }
-  if (text.includes('firestore') || text.includes('datastore')) {
-    return 'cloud-datastore-user (Firestore read/write/delete on stam-demo)';
-  }
-  return 'firebase-admin staging QA scope';
+  return inferRequiredPermission(err);
 }
+
+function buildPrecheckFailureDetail(checks) {
+  const failed = checks.filter((c) => !c.ok);
+  if (failed.length === 1 && failed[0].id === 'auth-custom-token') {
+    const authErr = failed[0].error || {};
+    return `BLOCKED-PERMISSION — auth-custom-token failed (${authErr.code || 'unknown'})`;
+  }
+  return 'BLOCKED-PERMISSION — service account lacks staging QA scope';
+}
+
+// IAM reference for stam-preview-hosting default Firebase Admin SDK SA (hash-only comparison).
+const IAM_REFERENCE_SA_EMAIL = 'firebase-adminsdk-fbsvc@stam-preview-hosting.iam.gserviceaccount.com';
+const IAM_REFERENCE_SA_EMAIL_HASH_PREFIX = hashEmailPrefix(IAM_REFERENCE_SA_EMAIL);
+const IAM_REFERENCE_SA_EMAIL_MASKED = maskServiceAccountEmail(IAM_REFERENCE_SA_EMAIL);
 
 async function loadAdmin(opts) {
   if (!ALLOWED_FIREBASE_PROJECTS.has(opts.firebaseProject)) {
@@ -186,7 +281,8 @@ async function loadAdmin(opts) {
       projectId: opts.firebaseProject,
     });
   }
-  return { ok: true, credPath, status: 'PASS' };
+  const serviceAccountIdentity = readServiceAccountIdentity(credPath);
+  return { ok: true, credPath, status: 'PASS', serviceAccountIdentity };
 }
 
 async function runPermissionPrecheck(opts) {
@@ -201,7 +297,12 @@ async function runPermissionPrecheck(opts) {
     const snap = await db.collection('projects').doc(opts.projectId).get();
     checks.push({ id: 'firestore-read-project', ok: true, exists: snap.exists });
   } catch (err) {
-    checks.push({ id: 'firestore-read-project', ok: false, category: permissionCategory(err) });
+    checks.push({
+      id: 'firestore-read-project',
+      ok: false,
+      category: permissionCategory(err),
+      error: sanitizeAuthError(err, 'firestore-read-project'),
+    });
     categories.add(permissionCategory(err));
   }
 
@@ -210,7 +311,12 @@ async function runPermissionPrecheck(opts) {
     await db.collection('projects').doc(opts.projectId).collection('functionalSpecifications').limit(1).get();
     checks.push({ id: 'firestore-read-functional-specs', ok: true });
   } catch (err) {
-    checks.push({ id: 'firestore-read-functional-specs', ok: false, category: permissionCategory(err) });
+    checks.push({
+      id: 'firestore-read-functional-specs',
+      ok: false,
+      category: permissionCategory(err),
+      error: sanitizeAuthError(err, 'firestore-read-functional-specs'),
+    });
     categories.add(permissionCategory(err));
   }
 
@@ -219,7 +325,13 @@ async function runPermissionPrecheck(opts) {
     await auth.createCustomToken(opts.agentUid);
     checks.push({ id: 'auth-custom-token', ok: true });
   } catch (err) {
-    checks.push({ id: 'auth-custom-token', ok: false, category: permissionCategory(err) });
+    const sanitized = sanitizeAuthError(err, 'auth-custom-token');
+    checks.push({
+      id: 'auth-custom-token',
+      ok: false,
+      category: permissionCategory(err),
+      error: sanitized,
+    });
     categories.add(permissionCategory(err));
   }
 
@@ -232,7 +344,12 @@ async function runPermissionPrecheck(opts) {
     await probeRef.delete();
     checks.push({ id: 'firestore-write-delete-probe', ok: true });
   } catch (err) {
-    checks.push({ id: 'firestore-write-delete-probe', ok: false, category: permissionCategory(err) });
+    checks.push({
+      id: 'firestore-write-delete-probe',
+      ok: false,
+      category: permissionCategory(err),
+      error: sanitizeAuthError(err, 'firestore-write-delete-probe'),
+    });
     categories.add(permissionCategory(err));
   }
 
@@ -317,14 +434,35 @@ async function findRequirementWithCode(db, projectId) {
   return { first, second };
 }
 
-async function waitFor(fn, timeout = 30000) {
+async function waitFor(fn, timeout = 30000, label = 'waitFor') {
   const start = Date.now();
   while (Date.now() - start < timeout) {
     const value = await fn();
     if (value) return value;
     await new Promise((r) => setTimeout(r, 150));
   }
-  throw new Error('timeout');
+  throw new Error(`timeout:${label}`);
+}
+
+async function waitForFnByTitle(db, page, projectId, title, timeout = 60000) {
+  return waitFor(async () => {
+    const uiOk = await page.evaluate((t) => (window.STAM.functionalSpecFirestoreList.getState().items || [])
+      .some((x) => x.title === t), title);
+    if (uiOk) return true;
+    const snap = await db.collection('projects').doc(projectId)
+      .collection('functionalSpecifications').where('title', '==', title).limit(1).get();
+    return !snap.empty;
+  }, timeout, `fn-title:${title}`);
+}
+
+async function shutdownRuntime(browser) {
+  if (browser) {
+    try {
+      await browser.close();
+    } catch (e) { /* noop */ }
+  }
+  const apps = getApps();
+  await Promise.all(apps.map((app) => deleteApp(app).catch(() => {})));
 }
 
 async function signInStaging(page, stagingUrl, token) {
@@ -374,7 +512,7 @@ async function selectLegacyByTitle(page, drawerId, title) {
           .some((opt) => (opt.getAttribute('data-req-title') || opt.textContent || '').includes(title));
     },
     { drawerId, title },
-    { timeout: 30000 },
+    { timeout: 60000 },
   );
   await page.locator(`#${drawerId} [data-stam-requirement-picker-opt]`).filter({ hasText: title }).first().click();
 }
@@ -491,10 +629,10 @@ function writeArtifacts(opts, artifact) {
 function finish(results, opts, meta, exitCode) {
   const artifact = buildArtifact(results, meta);
   writeArtifacts(opts, artifact);
-  const failed = results.filter((r) => r.status !== 'PASS');
   console.log('\n--- FS-7 live QA summary ---');
   console.log(`runId=${meta.runId} pass=${artifact.summary.pass} fail=${artifact.summary.fail} blocked=${artifact.summary.blocked + artifact.summary.blockedPermission}`);
-  process.exit(exitCode);
+  // Explicit exit after artifact write — gRPC / Playwright handles may otherwise keep the loop alive.
+  setImmediate(() => process.exit(exitCode));
 }
 
 async function run() {
@@ -525,29 +663,40 @@ async function run() {
     return;
   }
 
-  const { credPath } = adminLoad;
+  const { credPath, serviceAccountIdentity } = adminLoad;
+  const iamReference = buildIamReferenceComparison(serviceAccountIdentity);
   let db;
   let token;
 
   try {
     const precheck = await runPermissionPrecheck(opts);
     if (!precheck.ok) {
-      record(results, 'PRECHECK-permission', false, 'BLOCKED-PERMISSION — service account lacks staging QA scope', {
+      record(results, 'PRECHECK-permission', false, buildPrecheckFailureDetail(precheck.checks), {
         checks: precheck.checks,
         requiredPermissionCategories: precheck.requiredPermissionCategories,
+        serviceAccountIdentity: serviceAccountIdentity || null,
+        iamReference,
+        secretMatchesIamReference: iamReference.match,
       });
       finish(results, opts, meta, 3);
       return;
     }
     record(results, 'PRECHECK-permission', true, 'Firestore read/write/delete + custom token OK', {
       checks: precheck.checks.map((c) => ({ id: c.id, ok: c.ok })),
+      serviceAccountIdentity: serviceAccountIdentity || null,
+      iamReference,
+      secretMatchesIamReference: iamReference.match,
     });
 
     ({ db, token } = await ensureAgentAccess(opts));
   } catch (err) {
     const status = classifyError(err);
-    record(results, 'PRECHECK-access', false, `${status} — ${err.message}`, {
+    record(results, 'PRECHECK-access', false, `${status} — ${sanitizeErrorMessage(err.message)}`, {
       category: permissionCategory(err),
+      error: sanitizeAuthError(err, 'precheck-access'),
+      serviceAccountIdentity: serviceAccountIdentity || null,
+      iamReference,
+      secretMatchesIamReference: iamReference.match,
     });
     finish(results, opts, meta, status === 'BLOCKED-PERMISSION' ? 3 : 1);
     return;
@@ -573,6 +722,8 @@ async function run() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   const pageErrors = [];
+  let currentStep = 'browser-init';
+  let exitCode = 0;
   page.on('pageerror', (err) => pageErrors.push(`pageerror: ${err.message}`));
   page.on('console', (msg) => {
     if (msg.type() === 'error') pageErrors.push(`console.error: ${msg.text()}`);
@@ -584,6 +735,7 @@ async function run() {
   let cleanupResult = { attempted: false, deleted: [], failed: [] };
 
   try {
+    currentStep = 'W-01';
     await signInStaging(page, opts.stagingUrl, token);
     await openFunctionalSpec(page, opts.stagingUrl, opts.projectId);
     record(results, 'W-01', true, 'staging auth + functional-spec list load', {
@@ -596,7 +748,7 @@ async function run() {
     await selectRequirement(page, 'fn-dw-register', reqs.first.code);
     await page.locator('#fn-dw-register .stam-dw-foot-right .fn-btn-pri').click();
     await waitFor(() => page.evaluate((title) => Array.from(document.querySelectorAll('#fn-tbody .fn-data-row'))
-      .some((r) => r.textContent.includes(title)), linkedTitle));
+      .some((r) => r.textContent.includes(title)), linkedTitle), 30000, 'W-02-linked-row');
 
     linkedDocId = await page.evaluate((title) => {
       const item = (window.STAM.functionalSpecFirestoreList.getState().items || []).find((x) => x.title === title);
@@ -710,7 +862,7 @@ async function run() {
     await page.locator('#fn-dw-register input[placeholder="기능명을 입력하세요"]').fill(unlinkedTitle);
     await page.locator('#fn-dw-register .stam-dw-foot-right .fn-btn-pri').click();
     await waitFor(() => page.evaluate((title) => (window.STAM.functionalSpecFirestoreList.getState().items || [])
-      .some((x) => x.title === title), unlinkedTitle));
+      .some((x) => x.title === title), unlinkedTitle), 30000, 'W-09-unlinked-row');
     unlinkedDocId = await page.evaluate((title) => {
       const item = (window.STAM.functionalSpecFirestoreList.getState().items || []).find((x) => x.title === title);
       return item && item.id;
@@ -732,17 +884,25 @@ async function run() {
       .filter((id) => id && visible.includes(id));
     record(results, 'W-10', leaked.length === 0, leaked.length === 0 ? 'raw doc ids not in UI' : `leaked: ${leaked.join(',')}`);
 
+    currentStep = 'W-10b';
+    await closeDrawers(page);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await openFunctionalSpec(page, opts.stagingUrl, opts.projectId);
     await page.locator('#fn-reg-btn').click();
     await page.waitForSelector('#fn-dw-register.open');
     await page.locator('#fn-dw-register input[placeholder="기능명을 입력하세요"]').fill(legacyTitle);
     await selectLegacyByTitle(page, 'fn-dw-register', legacyReq.title);
     await page.locator('#fn-dw-register .stam-dw-foot-right .fn-btn-pri').click();
-    await waitFor(() => page.evaluate((title) => (window.STAM.functionalSpecFirestoreList.getState().items || [])
-      .some((x) => x.title === title), legacyTitle));
+    await waitForFnByTitle(db, page, opts.projectId, legacyTitle);
     legacyDocId = await page.evaluate((title) => {
       const item = (window.STAM.functionalSpecFirestoreList.getState().items || []).find((x) => x.title === title);
       return item && item.id;
     }, legacyTitle);
+    if (!legacyDocId) {
+      const legacySnap = await db.collection('projects').doc(opts.projectId)
+        .collection('functionalSpecifications').where('title', '==', legacyTitle).limit(1).get();
+      legacyDocId = legacySnap.docs[0] && legacySnap.docs[0].id;
+    }
     createdDocIds.push(legacyDocId);
     const legacyDoc = await readFnDoc(db, opts.projectId, legacyDocId);
     const legacyRow = await page.locator('#fn-tbody .fn-data-row').filter({ hasText: legacyTitle }).first().innerText();
@@ -767,6 +927,7 @@ async function run() {
     const fatal = pageErrors.filter((m) => !/permission denied|favicon/i.test(m));
     record(results, 'W-12', fatal.length === 0, fatal.length === 0 ? 'no fatal console errors' : fatal.join(' | '));
 
+    currentStep = 'V-01';
     const memberRef = db.collection('projects').doc(opts.projectId).collection('members').doc(opts.agentUid);
     await memberRef.set({ role: 'viewer' }, { merge: true });
     await page.reload({ waitUntil: 'domcontentloaded' });
@@ -777,8 +938,21 @@ async function run() {
     record(results, 'V-03', await page.locator('#fn-del-btn').isDisabled(), 'viewer delete disabled check');
     await memberRef.set({ role: 'owner' }, { merge: true });
 
+  } catch (err) {
+    exitCode = 1;
+    const msg = String(err && err.message ? err.message : err);
+    const detail = msg.startsWith('timeout:')
+      ? `FAIL — timeout at ${currentStep}`
+      : `FAIL — ${sanitizeErrorMessage(msg)}`;
+    const alreadyRecorded = results.some((r) => r.id === currentStep);
+    if (!alreadyRecorded) {
+      record(results, currentStep, false, detail, {
+        step: currentStep,
+        error: sanitizeErrorMessage(msg),
+      });
+    }
   } finally {
-    await browser.close();
+    await shutdownRuntime(browser);
     if (opts.cleanup && createdDocIds.length) {
       cleanupResult.attempted = true;
       for (const id of createdDocIds) {
