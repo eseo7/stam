@@ -1633,8 +1633,8 @@ FS-6B merge(#378)까지 기능정의서 create/update·requirement picker·unlin
 
 ### 다시 열 조건
 
-- Maintainer §5 checklist 완료 + §7 결과 기입.
-- (선택) viewer live V-01~V-03.
+- ~~Maintainer §5 checklist 완료 + §7 결과 기입.~~ → **종료** — PR #379 merge, 최종 run `29188829543` 18/18 PASS
+- ~~(선택) viewer live V-01~V-03.~~ → **PASS** (최종 run)
 
 ---
 

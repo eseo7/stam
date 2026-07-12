@@ -1,6 +1,8 @@
 # STAM FS-7 — Live QA Permission Precheck Report
 
-## 1. Run context
+> **상태 (2026-07-12):** 초기 BLOCKED-PERMISSION **해소 완료**. 최종 GHA run [`29188829543`](https://github.com/eseo7/stam/actions/runs/29188829543) — PRECHECK **PASS**, 전체 **18/18 PASS**. 본 문서는 **이력·IAM 결정 기록**용.
+
+## 1. Run context (초기 BLOCKED run — 이력)
 
 | 항목 | 값 |
 |------|-----|
@@ -13,9 +15,26 @@
 | artifact | `fs7-live-qa-report-29150397560` |
 
 Runtime bootstrap (deps / Secret / Admin init): **PASS**  
-CRUD checklist (W-01~W-12): **미실행** — `PRECHECK-permission`에서 차단
+CRUD checklist (W-01~W-12): **당시 미실행** — `PRECHECK-permission`에서 차단 → **최종 run `29188829543`에서 전부 PASS**
 
-## 2. Permission subcheck 결과
+## 1a. 최종 해소 (run `29188829543`)
+
+| 항목 | 값 |
+|------|-----|
+| workflow run | [`29188829543`](https://github.com/eseo7/stam/actions/runs/29188829543) |
+| git SHA | `6caf36f` |
+| executedAt | 2026-07-12T10:16:37.963Z (UTC) |
+| PRECHECK-permission | **PASS** (`auth-custom-token` 포함) |
+| summary | pass=18 / fail=0 / blocked=0 |
+| artifact | `fs7-live-qa-report-29188829543` |
+
+**해소 조치 (이력):**
+
+1. Google Cloud Console — **IAM Service Account Credentials API** (`iamcredentials.googleapis.com`) 활성화 (run `29187518322` 진단)
+2. B안 승인 IAM 역할 적용 (`firebaseauth.admin`, `serviceAccountTokenCreator`) — 상세 §5
+3. 제품 결함 W-05~W-08 — PR #388 merge 후 재실행 PASS
+
+## 2. Permission subcheck 결과 (초기 run `29150397560`)
 
 | Subcheck | 결과 | 필요 권한 범주 (실패 시) |
 |----------|------|--------------------------|
@@ -66,20 +85,21 @@ Agent는 IAM을 **임의 적용하지 않음**.
 ## 6. Maintainer 체크리스트
 
 - [x] IAM 변경 방향 승인 — **B안** (2026-07-12)
-- [ ] Google Cloud Console IAM 적용 (§5 두 역할)
-- [ ] `fs7-live-firestore-qa.yml` → `workflow_dispatch` 재실행
-- [ ] Agent: artifact → `STAM_FS7_FunctionalSpec_Live_Persistence_QA.md` §7-3 갱신
-- [ ] 그 후 §7-4 Maintainer 대표 흐름 **1회**
+- [x] Google Cloud Console — IAM Service Account Credentials API 활성화
+- [x] Google Cloud Console IAM 적용 (§5 두 역할)
+- [x] `fs7-live-firestore-qa.yml` → `workflow_dispatch` 재실행 — 최종 run `29188829543` **SUCCESS**
+- [x] Agent: artifact → `STAM_FS7_FunctionalSpec_Live_Persistence_QA.md` §7-3 갱신
+- [x] §7-4 Maintainer 대표 흐름 — **자동화 실증으로 대체 승인** (run `29188829543`)
 
-## 7. 재실행 완료 조건
+## 7. 재실행 완료 조건 — **충족** (run `29188829543`)
 
-1. `PRECHECK-permission` **PASS**
-2. W-01~W-12 + W-10b + V-01~V-03 실행
-3. unlink 3키 absent (`hasOwnProperty` false)
-4. `CLEANUP` **PASS**
-5. artifact 생성
-6. `STAM_FS7_FunctionalSpec_Live_Persistence_QA.md` §7-3 갱신
-7. 그 후 Maintainer 대표 흐름 1회 (§7-4)
+1. `PRECHECK-permission` **PASS** ✅
+2. W-01~W-12 + W-10b + V-01~V-03 실행 ✅
+3. unlink 3키 absent (`hasOwnProperty` false) ✅
+4. `CLEANUP` **PASS** ✅
+5. artifact 생성 ✅
+6. `STAM_FS7_FunctionalSpec_Live_Persistence_QA.md` §7-3 갱신 ✅
+7. §7-4 Maintainer 대표 흐름 — 자동화 실증으로 대체 승인 ✅
 
 ## 8. 관련
 
