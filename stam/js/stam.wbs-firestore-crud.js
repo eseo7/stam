@@ -38,6 +38,7 @@
 
   var busy = { create: false, update: false };
   var pickersMounted = false;
+  var functionalSpecMounted = false;
 
   function listApi() {
     return window.STAM && window.STAM.wbsFirestoreList;
@@ -526,20 +527,20 @@
         });
       });
     }
-    document.querySelectorAll('[data-stam-wbs-link-slot="requirement"]').forEach(function (slot) {
-      if (!slot.querySelector('[data-stam-requirement-picker]')) {
-        var div = document.createElement('div');
-        div.setAttribute('data-stam-requirement-picker', '');
-        slot.appendChild(div);
-      }
-    });
-    document.querySelectorAll('[data-stam-wbs-link-slot="functionalSpec"]').forEach(function (slot) {
-      if (!slot.querySelector('[data-stam-functional-spec-picker]')) {
-        var div = document.createElement('div');
-        div.setAttribute('data-stam-functional-spec-picker', '');
-        slot.appendChild(div);
-      }
-    });
+    var fnApi = window.STAM && window.STAM.functionalSpecPicker;
+    if (fnApi && typeof fnApi.mount === 'function') {
+      document.querySelectorAll('[data-stam-functional-spec-picker]').forEach(function (container) {
+        if (container.getAttribute('data-stam-reference-picker-mounted') === '1') return;
+        var api = listApi();
+        var snapshot = api && typeof api.getState === 'function' ? api.getState() : {};
+        fnApi.mount(container, {
+          projectId: clean(snapshot.projectId),
+          memberRole: memberRole(),
+          context: serviceContext('wbs-functional-spec-picker'),
+        });
+        functionalSpecMounted = true;
+      });
+    }
   }
 
   function refreshPickerContext() {
@@ -570,9 +571,30 @@
     }
   }
 
+  function loadDefaultOwner(scope) {
+    var api = listApi();
+    var snapshot = api && typeof api.getState === 'function' ? api.getState() : {};
+    var pickerApi = window.STAM && window.STAM.projectMemberPicker;
+    var ownerContainer = memberPickerEl(scope, 'owner');
+    if (!pickerApi || !ownerContainer || !clean(snapshot.projectId)) {
+      setMemberValue(scope, 'owner', null);
+      return Promise.resolve();
+    }
+    return pickerApi.listActiveMembers(
+      snapshot.projectId,
+      serviceContext('wbs-member-picker'),
+      memberRole()
+    ).then(function (members) {
+      pickerApi.applyDefaultOwner(ownerContainer, members, snapshot.user);
+    }).catch(function (err) {
+      console.error('wbs-firestore-crud: active member load failed', err);
+      setMemberValue(scope, 'owner', null);
+    });
+  }
+
   function resetRegister() {
     var scope = formScope('create');
-    if (!scope) return;
+    if (!scope) return Promise.resolve();
     ['title', 'businessArea', 'functionGroup', 'screenPath', 'description'].forEach(function (f) {
       setFieldValue(scope, f, '');
     });
@@ -585,26 +607,20 @@
     setFieldValue(scope, 'progress', '0');
     setRequirementSelection(scope, null);
     setFunctionalSpecSelection(scope, null);
+    setMemberValue(scope, 'owner', null);
     setMemberValue(scope, 'reviewer', null);
-    var api = listApi();
-    var snapshot = api && typeof api.getState === 'function' ? api.getState() : {};
-    var memApi = window.STAM && window.STAM.projectMemberReadService;
-    var pickerApi = window.STAM && window.STAM.projectMemberPicker;
-    var ownerContainer = memberPickerEl(scope, 'owner');
-    if (pickerApi && memApi && ownerContainer && snapshot.user) {
-      memApi.listActiveMembers(snapshot.projectId).then(function (members) {
-        pickerApi.applyDefaultOwner(ownerContainer, members, snapshot.user);
-      }).catch(function () {
-        setMemberValue(scope, 'owner', null);
-      });
-    }
+    return loadDefaultOwner(scope);
   }
 
   function openRegister() {
     mountPickers();
     refreshPickerContext();
-    resetRegister();
-    if (wbsUi() && typeof wbsUi().openDrawer === 'function') wbsUi().openDrawer('create');
+    return resetRegister().then(function () {
+      if (wbsUi() && typeof wbsUi().openDrawer === 'function') wbsUi().openDrawer('create');
+    }).catch(function (err) {
+      console.error('wbs-firestore-crud: openRegister failed', err);
+      if (wbsUi() && typeof wbsUi().openDrawer === 'function') wbsUi().openDrawer('create');
+    });
   }
 
   function prefillEdit(item) {
@@ -626,14 +642,13 @@
     setFieldValue(scope, 'progress', item.progress != null ? String(item.progress) : '0');
     setFieldValue(scope, 'description', item.description || '');
     setRequirementSelection(scope, item);
-    var memApi = window.STAM && window.STAM.projectMemberReadService;
     var pickerApi = window.STAM && window.STAM.projectMemberPicker;
     var api = listApi();
     var snapshot = api && typeof api.getState === 'function' ? api.getState() : {};
-    var ownerPromise = memApi
-      ? memApi.listActiveMembers(snapshot.projectId).then(function (members) { return members; })
+    var memberPromise = pickerApi && clean(snapshot.projectId)
+      ? pickerApi.listActiveMembers(snapshot.projectId, serviceContext('wbs-member-picker'), memberRole())
       : Promise.resolve([]);
-    return ownerPromise.then(function () {
+    return memberPromise.then(function () {
       setMemberValue(scope, 'owner', { ownerId: item.ownerId, ownerName: item.ownerName });
       if (item.reviewerId && item.reviewerName) {
         setMemberValue(scope, 'reviewer', { reviewerId: item.reviewerId, reviewerName: item.reviewerName });
@@ -643,6 +658,17 @@
       var fnPicker = functionalSpecPickerEl(scope);
       var fnApi = window.STAM && window.STAM.functionalSpecPicker;
       if (!fnPicker || !fnApi) return;
+      if (typeof fnApi.refreshContext === 'function') {
+        fnApi.refreshContext(fnPicker, {
+          projectId: clean(snapshot.projectId),
+          memberRole: memberRole(),
+          context: serviceContext('wbs-functional-spec-picker'),
+        });
+      }
+      if (!clean(item.functionalSpecId) && !clean(item.functionalSpecCode)) {
+        fnApi.clear(fnPicker);
+        return;
+      }
       return fnApi.load(fnPicker).then(function () {
         fnApi.setValue(fnPicker, {
           functionalSpecId: item.functionalSpecId,
@@ -650,6 +676,13 @@
           functionalSpecTitle: item.functionalSpecTitle,
         });
       });
+    }).catch(function (err) {
+      console.error('wbs-firestore-crud: edit prefill failed', err);
+      setMemberValue(scope, 'owner', null);
+      setMemberValue(scope, 'reviewer', null);
+      var fnPicker = functionalSpecPickerEl(scope);
+      var fnApi = window.STAM && window.STAM.functionalSpecPicker;
+      if (fnPicker && fnApi && typeof fnApi.clear === 'function') fnApi.clear(fnPicker);
     });
   }
 

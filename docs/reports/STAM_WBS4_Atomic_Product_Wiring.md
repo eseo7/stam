@@ -141,32 +141,50 @@ row click → `getById` → `renderDetail` → `wbsUi.openDrawer('detail')`. 목
 
 정적 샘플 이름·WBS-007·mock 댓글/이력 HTML 제거. `stam.wbs.js` shell만 유지.
 
+## 21b. WBS-4 보정 (차단 결함)
+
+초기 구현 검증에서 확인된 결함과 보정 내용:
+
+| 결함 | 보정 |
+|------|------|
+| member API mismatch (`projectMemberReadService.listActiveMembers`) | `projectMemberPicker.listActiveMembers(projectId, context, memberRole)` + `applyDefaultOwner(auth uid)` |
+| functionalSpec picker unmounted | `mountPickers()`에서 create/edit `[data-stam-functional-spec-picker]` 각 1회 `functionalSpecPicker.mount` |
+| duplicate edit binding | Live 모드 Drawer 위임 `openEdit` 제거 — CRUD `bindEvents` 단독 소유 |
+| fake Full View data (고정 timestamp·가짜 저장/등록·`style=`) | Live Full View read-only mirror + 실제 `updatedAt` hook + footer `[목록으로]` / 권한 시 `[수정]` |
+| KST due-week drift (`toISOString().slice(0,10)`) | `formatLocalDate` / `weekBoundsLocal` 로컬 날짜 formatter |
+| arbitrary progress width (`wbs-pct-N`) | native `<progress class="wbs-live-progress">` + `value` property |
+
 ## 22. Contract tests
 
 | 테스트 | 결과 |
 |--------|------|
 | test-wbs-live-html-contract.mjs | PASS |
 | test-wbs-list-contract.mjs | PASS |
-| test-wbs-crud-ui-contract.mjs | PASS |
-| test-wbs-derived-contract.mjs | PASS |
+| test-wbs-crud-ui-contract.mjs | PASS (행동 기반 VM: member API·picker mount·edit 단일 바인딩·viewer disabled) |
+| test-wbs-derived-contract.mjs | PASS (KST due-week·progress value 1/37/82/99) |
 | test-board-filter-dynamic-options-contract.mjs | PASS |
 | test-wbs-service-contract.mjs | PASS |
 | test-wbs-picker-hooks-contract.mjs | PASS |
 | WBS/Req/FS 회귀 (§16) | PASS |
 
-## 23. Browser QA
+## 23. Preview CI
+
+- 초기 Preview CI SUCCESS — Run `29255939017`
+- 보정 commit Preview CI 별도 기록 (push 후 workflow run ID 갱신)
+
+## 24. Browser QA
 
 미수행 — Cloud Agent 환경에서 실제 Firebase 계정·Preview URL 수동 검증 불가.
 
-## 24. Mobile QA
+## 25. Mobile QA
 
 미수행 — 1920/1366/767/390 viewport 수동 검증 불가.
 
-## 25. 미수행 항목
+## 26. 미수행 항목
 
 Manual QA 체크리스트 §20 전 항목: **미수행** (실제 계정/프로젝트 데이터 없음).
 
-## 26. WBS-5 후속
+## 27. WBS-5 후속
 
 - WBS 삭제/soft delete
 - 댓글·변경이력 저장

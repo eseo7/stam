@@ -95,10 +95,24 @@
 
   function todayIso() {
     var d = new Date();
-    var y = d.getFullYear();
-    var m = String(d.getMonth() + 1).padStart(2, '0');
-    var day = String(d.getDate()).padStart(2, '0');
-    return y + '-' + m + '-' + day;
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function formatLocalDate(date) {
+    return date.getFullYear()
+      + '-' + String(date.getMonth() + 1).padStart(2, '0')
+      + '-' + String(date.getDate()).padStart(2, '0');
+  }
+
+  function weekBoundsLocal(todayIsoValue) {
+    var parts = clean(todayIsoValue).split('-');
+    var monday = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    var day = monday.getDay();
+    var diff = day === 0 ? -6 : 1 - day;
+    monday.setDate(monday.getDate() + diff);
+    var sunday = new Date(monday);
+    sunday.setDate(sunday.getDate() + 6);
+    return { monIso: formatLocalDate(monday), sunIso: formatLocalDate(sunday) };
   }
 
   function firestore() {
@@ -445,14 +459,9 @@
       groups[g] = true;
     });
 
-    var monday = new Date(today + 'T00:00:00');
-    var day = monday.getDay();
-    var diff = day === 0 ? -6 : 1 - day;
-    monday.setDate(monday.getDate() + diff);
-    var sunday = new Date(monday);
-    sunday.setDate(sunday.getDate() + 6);
-    var monIso = monday.toISOString().slice(0, 10);
-    var sunIso = sunday.toISOString().slice(0, 10);
+    var bounds = weekBoundsLocal(today);
+    var monIso = bounds.monIso;
+    var sunIso = bounds.sunIso;
 
     return {
       total: list.length,
@@ -640,7 +649,6 @@
     var dom = dominantStatus(grp.items);
     var domInfo = statusInfo(dom);
     var fillCls = dom === 'done' ? 'done' : (dom === 'delayed' ? 'delay' : (dom === 'hold' ? 'hold' : ''));
-    var pctClass = 'wbs-pct-' + Math.min(100, Math.max(0, pct));
     return '<tbody class="wbs-grp-hdr-body">' +
       '<tr><td colspan="' + TABLE_COLSPAN + '">' +
       '<div class="wbs-grp-hdr-inner">' +
@@ -649,7 +657,7 @@
       '<span class="wbs-grp-name">' + esc(grp.name) + '</span>' +
       '<span class="wbs-grp-stats"><span class="wbs-grp-stat-txt">' + grp.items.length + '건</span>' +
       '<span class="wbs-chip ' + domInfo.cls + ' sm">' + esc(domInfo.label) + ' ' + done + '</span></span>' +
-      '<div class="wbs-grp-progress"><div class="wbs-grp-prog-bar"><div class="wbs-grp-prog-fill ' + fillCls + ' ' + pctClass + '"></div></div>' +
+      '<div class="wbs-grp-progress"><div class="wbs-grp-prog-bar"><progress class="wbs-live-progress wbs-live-progress--grp ' + fillCls + '" max="100" value="' + pct + '"></progress></div>' +
       '<span class="wbs-grp-prog-pct">' + pct + '%</span></div>' +
       '</div></td></tr></tbody>' +
       '<tbody class="wbs-grp-rows" data-grp="' + esc(grp.key) + '">' +
@@ -695,9 +703,10 @@
     if (gsumCells[4]) gsumCells[4].innerHTML = kpis.dueWeek + '<small>건</small>';
     if (gsumCells[5]) {
       gsumCells[5].innerHTML = summary.averageProgress + '<small>%</small>';
-      var prog = gsumCells[5].parentElement && gsumCells[5].parentElement.querySelector('.wbs-gsum-prog i');
-      if (prog) {
-        prog.className = 'wbs-pct-' + Math.min(100, Math.max(0, summary.averageProgress));
+      var progHost = gsumCells[5].parentElement && gsumCells[5].parentElement.querySelector('.wbs-gsum-prog');
+      if (progHost) {
+        var progEl = progHost.querySelector('progress.wbs-live-progress');
+        if (progEl) progEl.value = summary.averageProgress;
       }
     }
     var groupsHost = document.querySelector('.wbs-gsum-groups');
@@ -809,6 +818,7 @@
     setDetailText('functionalSpec', functionalSpecLabel(item) || '—');
     setDetailText('description', clean(item.description) || '—');
     setDetailText('updatedAt', dpart(item.updatedAt) || '—');
+    setDetailText('updatedAtFooter', dpart(item.updatedAt) || '—');
 
     renderFullView(item);
   }
@@ -1108,6 +1118,8 @@
     openDetailById: openDetailById,
     renderDetail: renderDetail,
     applyFilters: applyFilters,
+    formatLocalDate: formatLocalDate,
+    weekBoundsLocal: weekBoundsLocal,
     deriveScheduleState: deriveScheduleState,
     computeKpis: computeKpis,
     computeTimelineSummary: computeTimelineSummary,

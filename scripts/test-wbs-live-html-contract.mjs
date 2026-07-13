@@ -5,6 +5,7 @@ import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const html = await readFile(path.join(ROOT, 'stam/pages/boards/wbs.html'), 'utf8');
+const wbsJs = await readFile(path.join(ROOT, 'stam/js/stam.wbs.js'), 'utf8');
 
 function count(re) {
   return (html.match(re) || []).length;
@@ -84,5 +85,18 @@ assert.doesNotMatch(html, /initializeApp\(/);
 assert.doesNotMatch(html, /onclick=/);
 assert.doesNotMatch(html, /<style[\s>]/);
 assert.doesNotMatch(html, /<script(?![^>]*src=)[^>]*>[\s\S]*?<\/script>/);
+
+assert.doesNotMatch(html, /2026-06-07 10:42/);
+assert.doesNotMatch(html, /2026-05-01 ~ 2026-07-31/);
+assert.doesNotMatch(html, /91일 · 17건/);
+assert.doesNotMatch(html, /wbs-pct-35/);
+assert.match(html, /data-stam-wbs-overall-progress/);
+assert.match(html, /data-wbs-detail="updatedAtFooter"/);
+const deleteBtnTag = html.match(/id="wbs-delete-btn"[^>]*>/)?.[0] || '';
+assert.equal((deleteBtnTag.match(/\sdisabled(?:\s|>|=)/g) || []).length, 1);
+assert.equal(count(/\sstyle="/g), 0);
+
+assert.doesNotMatch(wbsJs, /최종 변경 2026-06-07/);
+assert.doesNotMatch(wbsJs, /<span style=/);
 
 console.log('wbs live html contract: PASS');

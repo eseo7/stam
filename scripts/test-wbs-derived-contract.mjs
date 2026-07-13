@@ -54,4 +54,55 @@ assert.equal(summary.averageProgress, 38);
 assert.equal(summary.groupSummary.length, 4);
 assert.equal(summary.groupSummary.find((g) => g.functionGroup === 'A').count, 2);
 
+const mondayFixture = api.weekBoundsLocal('2026-06-08');
+assert.equal(mondayFixture.monIso, '2026-06-08');
+assert.equal(mondayFixture.sunIso, '2026-06-14');
+
+const sundayFixture = api.weekBoundsLocal('2026-06-07');
+assert.equal(sundayFixture.monIso, '2026-06-01');
+assert.equal(sundayFixture.sunIso, '2026-06-07');
+
+const prevSundayFixture = api.weekBoundsLocal('2026-06-14');
+assert.equal(prevSundayFixture.monIso, '2026-06-08');
+assert.equal(prevSundayFixture.sunIso, '2026-06-14');
+
+const nextMondayFixture = api.weekBoundsLocal('2026-06-15');
+assert.equal(nextMondayFixture.monIso, '2026-06-15');
+assert.equal(nextMondayFixture.sunIso, '2026-06-21');
+
+const dueWeekItems = [
+  { status: 'in_progress', endDate: '2026-06-07', functionGroup: 'A' },
+  { status: 'wait', endDate: '2026-06-15', functionGroup: 'C' },
+  { status: 'done', endDate: '2026-06-07', functionGroup: 'D' },
+];
+const dueWeekKpis = api.computeKpis(dueWeekItems, '2026-06-07');
+assert.equal(dueWeekKpis.dueWeek, 1);
+
+function progressValueFromGroupHeader(pct) {
+  assert.doesNotMatch(listSource, /wbs-pct-/);
+  return pct;
+}
+
+assert.equal(progressValueFromGroupHeader(37), 37);
+assert.equal(progressValueFromGroupHeader(1), 1);
+assert.equal(progressValueFromGroupHeader(82), 82);
+assert.equal(progressValueFromGroupHeader(99), 99);
+
+const table = {
+  innerHTML: '',
+  querySelectorAll() { return []; },
+  insertAdjacentHTML(_, html) { this.innerHTML += html; },
+};
+context.document.querySelector = () => table;
+for (const pct of [1, 37, 82, 99]) {
+  const rows = [
+    { functionGroup: 'G', progress: pct, status: 'in_progress', id: 'x', code: 'WBS-001', title: 't', phase: '구현', ownerId: 'u', ownerName: 'U' },
+  ];
+  table.innerHTML = '';
+  api.renderRows(rows);
+  const match = table.innerHTML.match(/<progress[^>]*value="(\d+)"/);
+  assert.ok(match, `progress element missing for ${pct}%`);
+  assert.equal(Number(match[1]), pct);
+}
+
 console.log('wbs derived contract: PASS');

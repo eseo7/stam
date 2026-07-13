@@ -280,20 +280,17 @@
       if (tgt.closest && tgt.closest('.wbs-drawer-close-btn')) {
         closeDrawer(); return;
       }
-      /* 수정 버튼 (detail → edit) */
+      /* 수정 버튼 (detail → edit) — Live 모드는 CRUD 직접 listener 단독 소유 */
       if (tgt.closest && tgt.closest('.wbs-drawer-edit-btn')) {
-        if (isLiveMode() && window.STAM && window.STAM.wbsFirestoreCrud && typeof window.STAM.wbsFirestoreCrud.openEdit === 'function') {
-          window.STAM.wbsFirestoreCrud.openEdit();
-        } else {
-          setMode('edit');
-        }
+        if (isLiveMode()) return;
+        setMode('edit');
         return;
       }
       /* 전체 보기 버튼 */
       if (tgt.closest && tgt.closest('.wbs-fv-trigger-btn')) {
         var curMode = panel.getAttribute('data-mode') || 'detail';
         closeDrawer();
-        openFv(curMode);
+        openFv(isLiveMode() ? 'detail' : curMode);
         return;
       }
     });
@@ -539,19 +536,39 @@
     }
 
     if (fvFoot) {
-      if (mode === 'detail') {
+      if (isLiveMode()) {
+        var crudApi = window.STAM && window.STAM.wbsFirestoreCrud;
+        var canEdit = crudApi && typeof crudApi.canWrite === 'function' && crudApi.canWrite();
+        var footHtml = '';
+        if (canEdit) {
+          footHtml += '<button class="wbs-btn wbs-fv-foot-edit" type="button">수정</button>';
+        }
+        footHtml += '<button class="wbs-btn wbs-btn-primary wbs-fv-back-foot" type="button">← 목록으로</button>';
+        fvFoot.innerHTML = footHtml;
+        var liveEditEl = fvFoot.querySelector('.wbs-fv-foot-edit');
+        if (liveEditEl) {
+          liveEditEl.addEventListener('click', function () {
+            closeFv();
+            if (crudApi && typeof crudApi.openEdit === 'function') crudApi.openEdit();
+          });
+        }
+        var liveBackEl = fvFoot.querySelector('.wbs-fv-back-foot');
+        if (liveBackEl) liveBackEl.addEventListener('click', closeFv);
+      } else if (mode === 'detail') {
         fvFoot.innerHTML =
-          '<span class="wbs-dw-detail-timestamp">최종 변경 2026-06-07 10:42</span>'
+          '<span class="wbs-dw-detail-timestamp">—</span>'
           + '<button class="wbs-btn wbs-fv-foot-edit" type="button">수정</button>'
           + '<button class="wbs-btn wbs-btn-primary wbs-fv-back-foot" type="button">← 목록으로</button>';
         var footEditEl = fvFoot.querySelector('.wbs-fv-foot-edit');
         if (footEditEl) footEditEl.addEventListener('click', function () { openFv('edit'); });
+        var backEl = fvFoot.querySelector('.wbs-fv-back-foot');
+        if (backEl) backEl.addEventListener('click', closeFv);
       } else {
         var lbl = mode === 'create' ? '등록' : '저장';
         fvFoot.innerHTML =
           '<button class="wbs-btn wbs-fv-cancel-foot" type="button">취소</button>'
           + '<button class="wbs-btn" type="button">임시저장</button>'
-          + '<span style="flex:1"></span>'
+          + '<span class="wbs-footer-spacer"></span>'
           + '<button class="wbs-btn wbs-fv-back-foot" type="button">← 목록으로</button>'
           + '<button class="wbs-btn wbs-btn-primary" type="button">' + lbl + '</button>';
         var cancelEl = fvFoot.querySelector('.wbs-fv-cancel-foot');
@@ -560,9 +577,9 @@
             if (mode === 'create') { closeFv(); } else { openFv('detail'); }
           });
         }
+        var backEl2 = fvFoot.querySelector('.wbs-fv-back-foot');
+        if (backEl2) backEl2.addEventListener('click', closeFv);
       }
-      var backEl = fvFoot.querySelector('.wbs-fv-back-foot');
-      if (backEl) backEl.addEventListener('click', closeFv);
     }
 
     /* 목록 숨기고 FV 패널 전면 표시 */
