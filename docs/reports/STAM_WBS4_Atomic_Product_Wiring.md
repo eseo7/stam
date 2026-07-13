@@ -170,7 +170,8 @@ row click → `getById` → `renderDetail` → `wbsUi.openDrawer('detail')`. 목
 ## 23. Preview CI
 
 - 초기 Preview CI SUCCESS — Run `29255939017`
-- 보정 commit Preview CI 별도 기록 (push 후 workflow run ID 갱신)
+- 보정 commit Preview CI SUCCESS — Run `29257063314` (HEAD `090ea89013651014f063cf8b3c269fe9c62a4820`)
+- Preview URL: `https://stam-design-staging--pr393-peuymtgw.web.app/pages/boards/wbs` (HTTP 200)
 
 ## 24. Browser QA
 
