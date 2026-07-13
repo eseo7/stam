@@ -230,8 +230,7 @@
     }
 
   var visibleCount = 0;
-    (items || []).forEach(function (raw) {
-      var item = cfg.normalizeItem(raw);
+    (items || []).forEach(function (item) {
       if (!item || !clean(item.id)) return;
       if (!cfg.filterText(item, query)) return;
       visibleCount += 1;
@@ -329,9 +328,9 @@
       return nextItems;
     }).catch(function (err) {
       var current = recordOf(container);
-      if (!current || current.destroyed) throw err;
+      if (!current || current.destroyed) return [];
       var currentState = stateOf(container);
-      if (!currentState || currentState.loadVersion !== version) throw err;
+      if (!currentState || currentState.loadVersion !== version) return [];
       setState(container, {
         items: [],
         loadError: err,

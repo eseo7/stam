@@ -172,7 +172,7 @@
   }
 
   function resolveDefaultOwner(members, authUser) {
-    var uid = clean(authUser && (authUser.uid || authUser.userId));
+    var uid = clean(authUser && authUser.uid);
     if (!uid) return null;
     var list = members || [];
     for (var i = 0; i < list.length; i += 1) {

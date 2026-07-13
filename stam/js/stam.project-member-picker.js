@@ -150,8 +150,13 @@
     return pickerByMode[mode];
   }
 
-  function modeOf(container) {
-    var mode = clean(container && container.getAttribute('data-stam-project-member-mode'));
+  function modeOf(container, options) {
+    var opts = options || {};
+    var explicitMode = clean(opts.mode);
+    if (explicitMode) return explicitMode === 'reviewer' ? 'reviewer' : 'owner';
+    var projectMemberMode = clean(container && container.getAttribute('data-stam-project-member-mode'));
+    var wbsHook = clean(container && container.getAttribute('data-stam-wbs-member-picker'));
+    var mode = projectMemberMode || wbsHook;
     return mode === 'reviewer' ? 'reviewer' : 'owner';
   }
 
@@ -171,7 +176,7 @@
 
   function mount(container, options) {
     var opts = options || {};
-    var mode = clean(opts.mode) || modeOf(container);
+    var mode = modeOf(container, opts);
     if (mode === 'reviewer') mountReviewer(container, opts);
     else mountOwner(container, opts);
   }

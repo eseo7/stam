@@ -55,6 +55,8 @@ STAM.referencePicker.create(config) → {
 - artifact별 service/key 문자열 미포함
 - `mount()` 시에만 DOM/listener 구성
 - load Promise dedupe, context refresh 시 stale response ignore
+- **`cfg.normalizeItem()`은 load 시 정확히 1회만 호출** — `state.items`에 정규화 완료 item 저장, `renderOptions()`는 재-normalize 금지
+- stale success·stale failure 모두 현재 context에 반영하지 않음 (destroyed / loadVersion mismatch → `return []`, reject 전파 없음)
 - label/meta/attribute HTML escape (`& < > " '`)
 - 기존 `.stam-cs-*` 클래스만 사용
 
@@ -94,10 +96,11 @@ Adapter API: `{ listActiveByProject }` only (read-only)
 
 `resolveDefaultOwner(members, authUser)`:
 
-1. `authUser.uid`와 `member.memberUid` exact match
-2. active normalized member에만 적용
-3. match 시 해당 member 반환
-4. 불일치 시 `null` (첫 member / email / name fallback 금지)
+1. **`authUser.uid`만** 사용 (`userId` / email / displayName fallback 금지)
+2. `authUser.uid`와 `member.memberUid` exact match
+3. active normalized member에만 적용
+4. match 시 해당 member 반환
+5. 불일치 시 `null` (첫 member fallback 금지)
 
 ## 10. Reviewer default policy
 
@@ -123,7 +126,7 @@ role/email은 WBS snapshot에 포함하지 않음.
 - actions: `#wbs-import-btn`, `#wbs-export-btn`, `#wbs-reg-btn`
 - drawer: `data-stam-wbs-detail-host`, `data-stam-wbs-form=edit|create`
 - fields: `data-wbs-field=*`, `data-stam-wbs-basic-fields-host`, `data-stam-wbs-progress-field-host`
-- member: `data-stam-wbs-member-picker`, `data-stam-wbs-member-mode`
+- member: `data-stam-wbs-member-picker` (**owner/reviewer mode SSOT**), `data-stam-wbs-member-mode` (**create/edit form mode only**)
 - links: `data-stam-wbs-link-slot`, `data-stam-wbs-link-trigger`
 - footer: `#wbs-edit-save-btn`, `#wbs-edit-temp-save-btn`, `#wbs-create-save-btn`, `#wbs-create-temp-save-btn`
 - excluded: `data-stam-wbs-excluded-section=comments|history`, `data-stam-wbs-excluded-control=meeting`
@@ -206,3 +209,39 @@ Firebase SDK
 
 - WBS-4: 위 script 로드 + picker mount + list/crud atomic wiring + 문구/정적 데이터 일괄 정합화
 - WBS-5: 후속 QA / hardening (별도 스펙)
+
+## 20. PR #392 보정 (Member Picker render & hook contract)
+
+### Reference picker normalize-once
+
+- `load`: `rawItems.map(cfg.normalizeItem).filter(Boolean)` — item당 1회
+- `renderOptions`: 정규화된 `state.items`를 그대로 사용 (재-normalize 없음)
+- contract test: load 후 open 시 `normalizeItem` 호출 횟수 증가 없음
+
+### Member picker actual rendered-option evidence
+
+- DOM contract test: `mountOwner` / `mountReviewer` → `load` → open → option 검사
+- active member 3건 렌더 (Alice×2, Bob), pending/invalid 미표시
+- duplicate-name meta: `admin · dup@x.com`
+- owner: `연결 없음` 없음 / reviewer: `연결 없음` 있음
+- `service members.length > 0 && rendered options == 0` → FAIL 가드
+
+### WBS hook mode source
+
+`modeOf(container)` 우선순위:
+
+1. `options.mode`
+2. `data-stam-project-member-mode`
+3. `data-stam-wbs-member-picker`
+4. default `owner`
+
+`data-stam-wbs-member-mode`는 create/edit 구분이며 owner/reviewer 판별에 사용하지 않음.
+
+### Stale async ignore (success + failure)
+
+- version mismatch 또는 destroyed container: success·failure 모두 `[]` (unhandled rejection 없음)
+- 현재 context load 실패만 `loadError` + Promise reject
+
+### FunctionalSpec DOM regression
+
+- FN_001, FN_010 option 표시 / BAD·deleted·empty title 제외 / code ASC / 3-key set-get-clear / partial reject / load 후 prefill

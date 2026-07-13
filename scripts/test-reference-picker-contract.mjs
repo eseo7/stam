@@ -34,6 +34,8 @@ assert.match(pickerSource, /window\.STAM\.referencePicker/);
 assert.match(pickerSource, /create:\s*create/);
 assert.doesNotMatch(pickerSource, /DOMContentLoaded/);
 assert.doesNotMatch(pickerSource, /document\.querySelector\(/);
+assert.doesNotMatch(pickerSource, /forEach\(function \(raw\)[\s\S]*normalizeItem/);
+assert.match(pickerSource, /\(items \|\| \[\]\)\.forEach\(function \(item\)/);
 
 let loadListenerCount = 0;
 const loadListeners = [];
@@ -318,7 +320,70 @@ slowPicker.refreshContext(slowContainer, { projectId: 'P2' });
 await new Promise((r) => setTimeout(r, 0));
 slowResolve([{ id: 'z9', code: 'Z9', title: 'Late', meta: '' }]);
 await slowPromise.catch(() => {});
-assert.deepEqual(slowPicker.getValue(slowContainer), { id: '', code: '', title: '' }, 'stale response ignored');
+assert.deepEqual(slowPicker.getValue(slowContainer), { id: '', code: '', title: '' }, 'stale success ignored');
+
+let normalizeCalls = 0;
+const oncePicker = window.STAM.referencePicker.create({
+  ...baseConfig,
+  normalizeItem: (raw) => {
+    normalizeCalls += 1;
+    return baseConfig.normalizeItem(raw);
+  },
+});
+const onceContainer = dom.makeEl('div');
+dom.document.body.appendChild(onceContainer);
+oncePicker.mount(onceContainer, { projectId: 'P1' });
+await oncePicker.load(onceContainer);
+assert.equal(normalizeCalls, 2, 'normalizeItem once per raw item on load');
+onceContainer.querySelector('[data-stam-reference-picker-toggle]').click();
+await new Promise((r) => setTimeout(r, 0));
+assert.equal(normalizeCalls, 2, 'renderOptions does not re-normalize');
+
+let rejectP1;
+const staleRejectPicker = window.STAM.referencePicker.create({
+  ...baseConfig,
+  loadItems: ({ projectId }) => {
+    if (projectId === 'P1') {
+      return new Promise((_, reject) => {
+        rejectP1 = () => reject(new Error('P1 failed'));
+      });
+    }
+    return Promise.resolve([{ id: 'p2', code: 'P2', title: 'P2 two', meta: '' }]);
+  },
+});
+const staleRejectContainer = dom.makeEl('div');
+dom.document.body.appendChild(staleRejectContainer);
+staleRejectPicker.mount(staleRejectContainer, { projectId: 'P1' });
+const staleRejectPromise = staleRejectPicker.load(staleRejectContainer);
+staleRejectPicker.refreshContext(staleRejectContainer, { projectId: 'P2' });
+await new Promise((r) => setTimeout(r, 0));
+rejectP1();
+const staleRejectResult = await staleRejectPromise;
+assert.equal(staleRejectResult.length, 0, 'stale rejection resolves empty');
+const p2Items = await staleRejectPicker.load(staleRejectContainer);
+assert.equal(p2Items.length, 1, 'P2 load still works after stale rejection');
+staleRejectContainer.querySelector('[data-stam-reference-picker-toggle]').click();
+await new Promise((r) => setTimeout(r, 0));
+assert.doesNotMatch(
+  staleRejectContainer.querySelector('[data-stam-reference-picker-options]').innerHTML,
+  /P1 failed/,
+  'stale rejection does not set loadError on current context',
+);
+
+const destroyLateContainer = dom.makeEl('div');
+dom.document.body.appendChild(destroyLateContainer);
+let rejectLate;
+const latePicker = window.STAM.referencePicker.create({
+  ...baseConfig,
+  loadItems: () => new Promise((_, reject) => { rejectLate = () => reject(new Error('late fail')); }),
+});
+latePicker.mount(destroyLateContainer, { projectId: 'P1' });
+const latePromise = latePicker.load(destroyLateContainer);
+await new Promise((r) => setTimeout(r, 0));
+latePicker.destroy(destroyLateContainer);
+rejectLate();
+const lateResult = await latePromise;
+assert.ok(Array.isArray(lateResult) && lateResult.length === 0, 'destroyed container ignores late rejection');
 
 const errPicker = window.STAM.referencePicker.create({
   ...baseConfig,
