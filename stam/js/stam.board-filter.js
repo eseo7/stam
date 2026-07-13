@@ -70,6 +70,7 @@
 
           var sec = document.createElement('div');
           sec.className = 'sbf-sec';
+          sec.setAttribute('data-sbf-group-section', group.key);
 
           var titleEl = document.createElement('div');
           titleEl.className = 'sbf-sec-title';
@@ -77,6 +78,7 @@
 
           var chipsEl = document.createElement('div');
           chipsEl.className = 'sbf-chips';
+          chipsEl.setAttribute('data-sbf-group-options', group.key);
 
           (group.options || []).forEach(function (opt) {
             var label  = typeof opt === 'string' ? opt : opt.label;
@@ -286,11 +288,54 @@
       });
 
       /* 공개 API */
+      function setGroupOptions(groupKey, options) {
+        var key = String(groupKey || '');
+        var chipsHost = panelEl.querySelector('[data-sbf-group-options="' + key + '"]');
+        if (!chipsHost) return;
+        var activeValues = {};
+        getActiveChips().forEach(function (chip) {
+          if (chip.dataset.sbfGroup === key && chip.dataset.sbfVal) {
+            activeValues[chip.dataset.sbfVal] = true;
+          }
+        });
+        chipsHost.innerHTML = '';
+        (options || []).forEach(function (opt) {
+          var label  = typeof opt === 'string' ? opt : opt.label;
+          var value  = typeof opt === 'string' ? opt : (opt.value !== undefined ? opt.value : opt.label);
+          var dot    = typeof opt === 'object' ? opt.dot    : null;
+          var avatar = typeof opt === 'object' ? opt.avatar : null;
+          var chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'sbf-chip';
+          chip.dataset.sbfGroup = key;
+          chip.dataset.sbfVal   = value;
+          chip.setAttribute('aria-pressed', 'false');
+          if (dot) {
+            var dotEl = document.createElement('span');
+            dotEl.className = 'sbf-dot ' + dot;
+            chip.appendChild(dotEl);
+          } else if (avatar) {
+            var avEl = document.createElement('span');
+            avEl.className = 'sbf-chip-av';
+            avEl.textContent = avatar;
+            chip.appendChild(avEl);
+          }
+          chip.appendChild(document.createTextNode(label));
+          if (activeValues[value]) {
+            chip.classList.add('active');
+            chip.setAttribute('aria-pressed', 'true');
+          }
+          chipsHost.appendChild(chip);
+        });
+        updateCount();
+      }
+
       return {
         open:      openPanel,
         close:     closePanel,
         reset:     doReset,
-        getValues: getValues
+        getValues: getValues,
+        setGroupOptions: setGroupOptions,
       };
     }
   };
