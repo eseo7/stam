@@ -8,6 +8,8 @@
 | base | `main` @ `72a658d` (FS-7 live QA evidence #379 merge 후) |
 | 조사 일시 (UTC) | 2026-07-13 |
 | 성격 | **docs-only** — Inventory · Schema · Gate · QA 초안 (제품 코드 / rules / nav-data **미변경**) |
+| 보정 | PR #389 Gate 보정 — status/UI field/atomic wiring/legacy isolation 충돌 해소 |
+| 신규 모듈 표기 | 문서 내 `stam.wbs-*.js` 등은 **후속 구현 후보 경로** — 본 Gate에서 생성·최종 승인하지 않음; 구현 PR 시작 시 기존 모듈 확장 vs 신규 모듈 재확인; 신규 파일 남발 금지 |
 | 대상 화면 | `stam/pages/boards/wbs.html` (nav `B3`, Live · **정적**) |
 | Gate 순서 | 요구사항 → 기능정의서(FS-7 완료) → **WBS** → 화면설계서 (`docs/ops/STAM-Phase1-Implementation-Gate.md` §6 단계 3) |
 | 선행 완료 | Requirements CRUD live · FunctionalSpec CRUD + picker + live QA (FS-1~FS-7) |
@@ -37,16 +39,16 @@ stam.board-filter.js · stam.wbs.js
 stam.core-db-schema.js · stam.local-core-db.js · stam.wbs-cycle.js · stam.wbs-crud.js
 ```
 
-**FS/requirements 대비 누락 (1차 wiring PR에서 추가 예정, 본 PR에서 생성하지 않음):**
+**FS/requirements 대비 누락 (1차 wiring PR에서 추가 예정, 본 PR에서 생성·최종 승인하지 않음):**
 
 - Firebase SDK (`/__/firebase/8.10.1/*`, `/__/firebase/init.js`)
 - `stam.ui-messages.js` · `stam.ui-feedback.js`
-- `stam.*-firestore-*.js` · `stam.wbs-service.js` (미존재)
+- `stam.*-firestore-*.js` · WBS service module (후속 구현 후보 경로 — `stam.wbs-service.js` 등, 본 Gate에서 확정하지 않음)
 - Auth bootstrap / membership role resolver (FS CRUD 패턴)
 
 ### 1-2. WBS Firestore 전용 JS
 
-**없음.** `stam.wbs-firestore-adapter.js` / `stam.wbs-service.js` / `stam.wbs-firestore-list.js` / `stam.wbs-firestore-crud.js` / contract test script (`scripts/test-wbs-*`) **0건**.
+**없음.** WBS Firestore 전용 JS (`stam.wbs-firestore-adapter.js`, `stam.wbs-service.js`, `stam.wbs-firestore-list.js`, `stam.wbs-firestore-crud.js` 등) 및 contract test script (`scripts/test-wbs-*`) **0건** — 위 경로는 **후속 구현 후보 경로**이며, 본 Gate에서 생성 또는 최종 승인하지 않음.
 
 ### 1-3. 공통 Auth / Firestore / Access / Board / Feedback
 
@@ -66,14 +68,14 @@ stam.core-db-schema.js · stam.local-core-db.js · stam.wbs-cycle.js · stam.wbs
 
 ### 1-4. 기능정의서(FS) Live 패턴 — 복제 참조 SSOT
 
-| 레이어 | 실제 경로 | WBS 대응 (후속 PR에서 생성) |
-|--------|-----------|------------------------------|
-| Domain service | `stam/js/stam.functional-spec-service.js` | `stam.wbs-service.js` |
-| Firestore adapter | `stam/js/stam.functional-spec-firestore-adapter.js` | `stam.wbs-firestore-adapter.js` |
-| List binding | `stam/js/stam.functional-spec-firestore-list.js` | `stam.wbs-firestore-list.js` |
-| CRUD UI | `stam/js/stam.functional-spec-firestore-crud.js` | `stam.wbs-firestore-crud.js` |
+| 레이어 | 실제 경로 | WBS 대응 (후속 PR — 후보 경로, 본 Gate 미승인) |
+|--------|-----------|--------------------------------------------------|
+| Domain service | `stam/js/stam.functional-spec-service.js` | 후보: `stam.wbs-service.js` |
+| Firestore adapter | `stam/js/stam.functional-spec-firestore-adapter.js` | 후보: `stam.wbs-firestore-adapter.js` |
+| List binding | `stam/js/stam.functional-spec-firestore-list.js` | 후보: `stam.wbs-firestore-list.js` |
+| CRUD UI | `stam/js/stam.functional-spec-firestore-crud.js` | 후보: `stam.wbs-firestore-crud.js` |
 | Requirement picker | `stam/js/stam.requirement-picker.js` | **재사용** (`data-stam-requirement-picker`) |
-| FunctionalSpec picker | **없음** (FS CRUD는 requirement picker만) | **신규 필요** — `stam.functional-spec-picker.js` (FS-6B picker 패턴 일반화) |
+| FunctionalSpec picker | **없음** (FS CRUD는 requirement picker만) | **후보** — `stam.functional-spec-picker.js` (확정 경로 아님; §7 Reuse Plan 원칙 참조) |
 | Requirements read (picker deps) | `stam.requirements-service.js` · `stam.requirements-firestore-adapter.js` | picker data source |
 | FS read (functionalSpec picker deps) | `stam.functional-spec-service.js` · `stam.functional-spec-firestore-adapter.js` | picker data source |
 
@@ -120,7 +122,7 @@ scripts/qa-fs7-live-persistence-agent.mjs
 | `progress` | 진행률 | `progress` |
 | `description` | 작업 설명 | `description` |
 | `requirementId` | 관련 요구사항 | `requirementId` + code/title snapshot |
-| `functionId` | 관련 화면설계(기능정의) | `functionalSpecId` + code/title snapshot |
+| `functionId` | 관련 화면설계(기능정의) — **UI 문구와 1차 범위 충돌** (§9 R12) | `functionalSpecId` + code/title snapshot; `screenSpecId` **혼용 금지** |
 | `screenId` | (legacy) | 1차 미사용 — `screenPath` 텍스트만 |
 
 ### 1-6. Firebase Rules · Index
@@ -156,7 +158,7 @@ match /wbsItems/{wbsItemId} {
 | **Primary** | `.wbs-table` · `.wbs-data-row[data-wbs-id]` | HTML 정적 17행 (6 기능그룹 tbody) | Firestore list render **대체** |
 | **Prototype** | `#wbs-v2-tbody` · `.wbs-v2-section` | Local Core DB v2 (`stam.wbs-cycle.js`) | **숨김/제거** (Live 전환 PR에서) |
 
-Drawer (`#wbs-drawer`)는 `stam.wbs.js`(mode UI) + `stam.wbs-crud.js`(Local CRUD)가 **분리 연결**. Firestore CRUD wiring 시 FS 패턴처럼 `stam.wbs-firestore-crud.js`가 drawer form ↔ service bridge 담당.
+Drawer (`#wbs-drawer`)는 `stam.wbs.js`(mode UI) + `stam.wbs-crud.js`(Local CRUD)가 **분리 연결**. Firestore CRUD wiring 시 FS 패턴처럼 후보 CRUD module(예: `stam.wbs-firestore-crud.js`)이 drawer form ↔ service bridge 담당 — **본 Gate에서 확정·생성하지 않음**.
 
 ---
 
@@ -174,7 +176,7 @@ Drawer (`#wbs-drawer`)는 `stam.wbs.js`(mode UI) + `stam.wbs-crud.js`(Local CRUD
 | **등록 Drawer** | `#wbs-drawer` `data-mode=create` · `.wbs-create-body` | **A** | create via service; code auto (`WBS-###`) |
 | **상세 Drawer** | `.wbs-detail-body` | **A** | getById read |
 | **수정 Drawer** | `.wbs-edit-body` | **A** | update via service |
-| **연결 정보** | `.wbs-drawer-sec` 연결 · form sec 6 | **A** (req + functionalSpec only) | picker link 3-key snapshot; meeting **C** |
+| **연결 정보** | `.wbs-drawer-sec` 연결 · form sec 6 | **A** (req + functionalSpec only) | picker link 3-key snapshot; UI 문구는 wiring PR에서 **"관련 기능정의" / "연결된 기능정의 없음"**으로 정합화; meeting **C**; `screenSpecId` **혼용 금지** |
 | **댓글** | `.wbs-dw-cmt*` · textarea/send | **C** | UI 유지, input/send **disabled** + 1차 범위 tooltip |
 | **변경이력** | `.wbs-dw-hist-item` (정적) · v2 track in crud | **C** | HTML mock 유지; Firestore subcollection **D** |
 | **Excel 가져오기** | page header secondary btn | **C** | **disabled** + `title="1차 범위 외"` |
@@ -250,15 +252,34 @@ projects/{projectId}/wbsItems/{wbsItemId}
 
 Storage: **한글 그대로** (UI 1:1) 또는 slug (`analysis`, `design`, …) — **결정: 한글 storage** (WBS static chip과 일치, FS `functionType` 영문 enum과 분리).
 
-**`status` (진행상태)** — UI toggle / chip:
+**`status` (진행상태)** — WBS Live 저장 enum SSOT:
 
-| UI | Stored | CSS chip |
-|----|--------|----------|
+```txt
+wait | in_progress | delayed | done | hold
+```
+
+| UI 표시 (등록·수정 통일 목표) | Stored | CSS chip |
+|------------------------------|--------|----------|
 | 대기 | `wait` | `wc-wait` |
 | 진행중 | `in_progress` | `wc-prog` |
 | 지연 | `delayed` | `wc-delay` |
 | 완료 | `done` | `wc-done` |
 | 보류 | `hold` | `wc-hold` |
+
+**현재 `wbs.html` create/edit 불일치 (구현 전 해결 필수):**
+
+| 폼 | 현재 UI option |
+|----|----------------|
+| 수정 폼 | 대기 / 진행중 / **지연** / 완료 / 보류 |
+| 등록 폼 | 대기 / 진행중 / **검토중** / 완료 / 보류 |
+
+**결정 (R11):**
+
+- Firestore 저장 enum은 위 5값만 사용; **"검토중"을 별도 Firestore status로 저장하지 않음**
+- 등록·수정 화면 표시값은 **"대기 | 진행중 | 지연 | 완료 | 보류"**로 통일
+- 등록 폼의 "검토중"은 구현 wiring PR에서 **"지연"**으로 정합화
+- create/update mapper가 **동일 enum contract** 사용 (`wbsService.buildPayload` single SSOT)
+- QA **W-14** create/edit status parity 검증 추가
 
 Local v2 `draft/reviewing/confirmed/rejected` **사용하지 않음** (Firestore SSOT 전환 시 폐기).
 
@@ -312,9 +333,63 @@ Local v2 `draft/reviewing/confirmed/rejected` **사용하지 않음** (Firestore
 
 ---
 
-## 4. Included / Excluded
+## 4. UI Field Gap / Mapping Decision
 
-### 4-1. Included (WBS Live 1차)
+Firestore Schema(§3)와 현재 `wbs.html` / Local CRUD 간 필드 갭 및 1차 구현 결정.
+
+### 4-1. `businessArea` (업무영역)
+
+| 항목 | 현황 |
+|------|------|
+| 목록·상세 | 컬럼/셀 존재 |
+| 등록·수정 입력 | **현재 없음** |
+| 1차 결정 | 기존 폼 구조 안에 입력 필드 **추가 필요** (wiring PR) |
+| 금지 | 임의 파생·mock 값으로 채우지 않음 |
+
+### 4-2. `actualEffort` (실 공수)
+
+| 항목 | 현황 |
+|------|------|
+| 등록·수정 UI | 입력란 존재 |
+| Local CRUD | `readForm` 및 update patch에 **누락** |
+| 1차 결정 | Firestore create/update **공통 mapper**에 포함 |
+| QA | **W-15** 저장·수정·새로고침 유지 검증 |
+
+### 4-3. `progress` (진행률)
+
+| 항목 | 현황 |
+|------|------|
+| 사용처 | 목록·상세·간트·그룹 진행률 |
+| 입력/규칙 | 명확한 입력 필드 또는 계산 규칙 **없음** |
+| 1차 결정 | **0~100 정수 입력 필드** 제공 |
+| 정합성 | `done` 상태 저장 시 `progress = 100` 검증 |
+| 금지 | KPI/group timeline 계산에서 임의 mock 값 사용 |
+
+### 4-4. `owner` / `reviewer` (담당자·검토자)
+
+| 항목 | 현황 |
+|------|------|
+| 현재 HTML | select option = 고정 샘플 이름 |
+| Live SSOT | 프로젝트 **member 데이터** |
+| 저장 contract | `ownerId` + `ownerName` snapshot; `reviewerId` + `reviewerName` snapshot |
+| 금지 | 고정 이름 option을 실제 운영 데이터로 저장 |
+| 미확정 | member list 조회 방식 또는 현재 사용자 기본값 정책 — **후속 구현 전 확정** (R13) |
+| QA | **W-16** snapshot identity 검증 |
+
+### 4-5. Stable DOM hooks (wiring 전제)
+
+| 대상 | 요구 |
+|------|------|
+| Excel 가져오기 /보내기 | 개별 `id` 또는 `data-*` hook 필요 |
+| requirement / functionalSpec / meeting 연결 버튼 | create/edit **별도** hook 필요 |
+| 금지 | label text 검색, `nth-child`, DOM 순번 기반 wiring |
+| 허용 | 디자인 재구성 없이 `id` 또는 `data-*` attribute 추가 (WBS-3 hook PR) |
+
+---
+
+## 5. Included / Excluded
+
+### 5-1. Included (WBS Live 1차)
 
 | # | Capability |
 |---|------------|
@@ -323,15 +398,15 @@ Local v2 `draft/reviewing/confirmed/rejected` **사용하지 않음** (Firestore
 | 3 | Detail read (drawer) |
 | 4 | Update |
 | 5 | Requirement picker (`STAM.requirementPicker` 재사용) |
-| 6 | Functional specification picker (신규 module, FS picker 패턴) |
+| 6 | Functional specification picker (후보 모듈 — §7 Reuse Plan 원칙; requirement picker **복사 금지**) |
 | 7 | Default sort `createdAt DESC` |
 | 8 | owner/admin/editor write · viewer read-only UI |
 | 9 | delete **disabled** (UI + rules deny) |
 | 10 | KPI strip recalc (**B**) |
 | 11 | Min timeline + functionGroup summary (**B**) |
-| 12 | Firestore live QA (W-01~W-13 + CLEANUP) |
+| 12 | Firestore live QA (W-00, W-01~W-13, W-14~W-20 + CLEANUP) |
 
-### 4-2. Excluded (1차 — UI visible, disabled where applicable)
+### 5-2. Excluded (1차 — UI visible, disabled where applicable)
 
 | Item | UI handling |
 |------|-------------|
@@ -349,7 +424,7 @@ Local v2 `draft/reviewing/confirmed/rejected` **사용하지 않음** (Firestore
 
 ---
 
-## 5. Permission Matrix
+## 6. Permission Matrix
 
 Rules helper (후속 WBS-1 rules PR): `isWbsWriter(projectId)` = `isRequirementWriter(projectId)` (owner/admin/editor).
 
@@ -375,25 +450,25 @@ Rules helper (후속 WBS-1 rules PR): `isWbsWriter(projectId)` = `isRequirementW
 
 ---
 
-## 6. Reuse Plan
+## 7. Reuse Plan
 
 판정: **재사용** · **일반화** · **신규(승인 PR)** · **WBS 전용**
 
 | Module | 판정 | Notes |
 |--------|------|-------|
 | Firestore adapter pattern | **일반화** | `functional-spec-firestore-adapter.js` → counter, unlink delete, timestamp |
-| Domain service pattern | **일반화** | role gate, validate, normalize, create/update payload builder |
-| List render pattern | **일반화** | auth wait, loading/empty/error via `uiFeedback`, sort helper |
-| CRUD drawer wiring | **일반화** | `writeGuard`, deferred prefill **금지**, create/update shared mapper |
+| Domain service pattern | **일반화** | role gate, validate, normalize, create/update payload builder — 후보: `stam.wbs-service.js` |
+| List render pattern | **일반화** | auth wait, loading/empty/error via `uiFeedback`, sort helper — 후보: `stam.wbs-firestore-list.js` |
+| CRUD drawer wiring | **일반화** | `writeGuard`, deferred prefill **금지**, create/update shared mapper — 후보: `stam.wbs-firestore-crud.js` |
 | Requirement picker | **재사용** | `stam.requirement-picker.js` as-is |
-| FunctionalSpec picker | **신규** | `stam.functional-spec-picker.js` — requirement-picker mirror |
+| FunctionalSpec picker | **후보 (별도 승인)** | `stam.functional-spec-picker.js` — **확정 경로 아님**; requirement picker **파일 복사 금지**; 공통 picker core 또는 configurable adapter 일반화 **우선 검토**; 기존 requirement picker 회귀 위험 vs 일반화 비용 비교 후 전용 모듈 필요 시 별도 승인 |
 | Permission UI | **재사용** | FS `setButtonDisabled` + `writeGuard` pattern |
 | Common messages / feedback | **재use** | `stam.ui-messages.js`, `stam.ui-feedback.js` |
-| Live QA workflow | **일반화** | `fs7-live-firestore-qa.yml` → `wbs-live-firestore-qa.yml` |
+| Live QA workflow | **일반화** | `fs7-live-firestore-qa.yml` → 후보: `wbs-live-firestore-qa.yml` |
 | Cleanup script | **일반화** | agent-created docs delete by tag |
 | Artifact report | **일반화** | always written PASS/FAIL/BLOCKED |
 | `stam.wbs.js` shell | **WBS 전용** | extend hooks only; no rewrite |
-| Grouped table render | **WBS 전용** | new list module renders 6-group tbody |
+| Grouped table render | **WBS 전용** | 후보 list module이 6-group tbody render — 본 Gate 미승인 |
 | `stam.wbs-crud.js` Local | **폐기 경로** | Firestore crud replaces; Local path feature-flag off |
 | `stam.board-list.js` | **미사용** | WBS contract 유지 |
 
@@ -411,25 +486,26 @@ Rules helper (후속 WBS-1 rules PR): `isWbsWriter(projectId)` = `isRequirementW
 
 ---
 
-## 7. QA Gate
+## 8. QA Gate
 
-### 7-1. Contract smoke (선행 — 각 구현 PR)
+### 8-1. Contract smoke (선행 — 각 구현 PR)
 
 ```bash
 node scripts/test-wbs-service-contract.mjs          # WBS-2
 node scripts/test-wbs-rules-contract.mjs            # WBS-1
 node scripts/test-wbs-role-matrix-contract.mjs      # WBS-1
-node scripts/test-wbs-list-contract.mjs             # WBS-3
-node scripts/test-wbs-crud-ui-contract.mjs          # WBS-4
+node scripts/test-wbs-list-contract.mjs             # WBS-4 (atomic wiring)
+node scripts/test-wbs-crud-ui-contract.mjs          # WBS-4 (atomic wiring)
 node scripts/test-wbs-counter-contract.mjs          # WBS-2
 node scripts/test-requirement-picker-contract.mjs   # reuse
-node scripts/test-functional-spec-picker-contract.mjs # WBS-5 (신규)
+node scripts/test-functional-spec-picker-contract.mjs # WBS-3 (후보)
 ```
 
-### 7-2. Live scenarios (W-01~W-13)
+### 8-2. Live scenarios (W-00, W-01~W-13, W-14~W-20)
 
 | ID | Scenario | UI | Firestore |
 |----|----------|-----|-----------|
+| **W-00** | **Legacy isolation** | Local v2 section 미노출; 정적 17행 미노출 | Local IndexedDB WBS write **0**; Local softDelete handler **미실행** |
 | W-01 | list load | grouped table / empty state | docs listed |
 | W-02 | linked create (req + FN picker) | chips `REQ_###` · `FN_###` | 6 link fields present |
 | W-03 | refresh persistence | W-02 유지 | fields persist |
@@ -443,9 +519,16 @@ node scripts/test-functional-spec-picker-contract.mjs # WBS-5 (신규)
 | W-11 | viewer read-only | write buttons disabled | write denied |
 | W-12 | delete disabled | toolbar + detail delete disabled | `allow delete: false` |
 | W-13 | no fatal console error | DevTools clean | — |
+| **W-14** | **Status parity** | create/edit 모두 동일 5개 status (대기/진행중/지연/완료/보류) | stored enum `wait\|in_progress\|delayed\|done\|hold` only |
+| **W-15** | **Field mapping** | businessArea, actualEffort, progress 입력·표시 | 저장·수정·새로고침 후 유지 |
+| **W-16** | **Member identity** | owner/reviewer select from member data | `ownerId`/`ownerName`, `reviewerId`/`reviewerName` snapshot |
+| **W-17** | **No mixed source** | Firestore 행만 표시 | static 17행·Local v2·Firestore **동시 노출 없음** |
+| **W-18** | **Disabled scope controls** | delete/comments/history/Excel/import/export/meeting/temp-save disabled + 안내 | — |
+| **W-19** | **Derived consistency** | 목록 건수, KPI, 기능그룹 집계 일치 | 동일 Firestore snapshot 기준 |
+| **W-20** | **Link semantic** | requirement 3-key · functionalSpec 3-key 각각 올바른 picker에서 저장 | `screenSpecId` **혼용 없음** |
 | CLEANUP | agent test docs removed | — | tagged docs deleted |
 
-### 7-3. Live QA environment
+### 8-3. Live QA environment
 
 | Item | Value |
 |------|-------|
@@ -453,52 +536,78 @@ node scripts/test-functional-spec-picker-contract.mjs # WBS-5 (신규)
 | Firebase project | `stam-preview-hosting` |
 | STAM projectId | `stam-demo` |
 | screen | `/pages/boards/wbs.html?projectId=stam-demo` |
-| workflow | `.github/workflows/wbs-live-firestore-qa.yml` (WBS-8 PR) |
+| workflow | `.github/workflows/wbs-live-firestore-qa.yml` (WBS-6 PR — 후보 경로) |
 
 ---
 
-## 8. Risks / Decisions
+## 9. Risks / Decisions
 
 | ID | Risk / Decision | Mitigation |
 |----|-----------------|------------|
-| R1 | 정적 17행 + Local v2 이중 목록 | Firestore bind PR에서 static tbody + v2 section **한 번에** 교체 |
+| R1 | 정적 17행 + Local v2 이중 목록 | **Atomic Product Wiring (WBS-4)**에서 static tbody + v2 section **한 번에** 교체; 중간 merge 혼합 상태 **금지** |
 | R2 | 22컬럼 grouped table render 복잡도 | 1차: `functionGroup` client groupBy; empty groups hidden |
 | R3 | Local v2 vs Firestore field naming | service layer explicit map; Local CRUD **deprecated** |
 | R4 | `phase` 한글 vs slug | **결정: 한글 storage** (UI parity) |
-| R5 | owner/reviewer uid vs name | 1차: `ownerName`/`reviewerName` write; uid optional enrichment PR |
-| R6 | FunctionalSpec picker **신규 module** | FS-6B requirement-picker 복제 PR 선행 (WBS-5) |
+| R5 | owner/reviewer uid vs name | **결정:** `ownerId`+`ownerName`, `reviewerId`+`reviewerName` snapshot; 고정 샘플 이름 저장 **금지** |
+| R6 | FunctionalSpec picker module | requirement picker **복사 금지**; 공통 core/adapter 일반화 우선; 전용 모듈은 별도 승인 (§7) |
 | R7 | rules + counter 없음 | WBS-1 dedicated rules PR; FS-1 pattern |
 | R8 | WORK vs WBS ID traceability | `STAM-WBS-Traceability-ID-Alignment-Plan.md` — **후속**, 1차 blocker 아님 |
 | R9 | Filter mock groups ≠ demo data | 1차 filter opts를 **live distinct values**로 hydrate |
 | R10 | FS-7 sort flip recurrence | **`createdAt DESC` only**; contract regression script |
+| **R11** | **Status create/edit enum 불일치** | 저장 enum `wait\|in_progress\|delayed\|done\|hold`; UI 통일 "대기/진행중/지연/완료/보류"; 등록 "검토중"→"지연" 정합화; "검토중" Firestore 저장 **금지**; create/update mapper 동일 contract; QA **W-14** |
+| **R12** | **FunctionalSpec vs ScreenSpec 의미 충돌** | 현재 UI "관련 화면설계"/"연결된 화면설계 없음" vs 1차 범위 requirement+functionalSpecification 연결 충돌; 1차 Live는 `requirement`+`functionalSpecification`만; wiring PR에서 **"관련 기능정의"/"연결된 기능정의 없음"** 정합화; 화면설계서 연결은 Screen Specification Live **후속**; `functionalSpecId`와 `screenSpecId` **혼용 금지**; Local `functionId` 근거 없이 자동 이관 **금지**; 레이아웃 유지, 문구·data hook만 보정 |
+| **R13** | **Member list / default owner policy** | Live에서 project member SSOT; 조회 방식·현재 사용자 기본값 — **구현 전 확정** |
+| **R14** | **Local write path 잔존** | Firestore Live wiring 이후 아래가 write path로 동작하면 **FAIL**: `stam.wbs-cycle.js`, `stam.wbs-crud.js`, `stam.local-core-db.js` WBS write path; Local v2 section과 Firestore list **동시 노출 금지**; Local softDelete가 Live WBS 버튼에 연결되지 않도록 listener 격리; 정적 17행과 Firestore 행 **동시 표시 FAIL**; QA **W-00**, **W-17** |
+| **R15** | **중간 PR 혼합 데이터 노출** | list→CRUD→picker 분리 merge 시 Firestore list + IndexedDB CRUD 동시 활성, static KPI/17행 + Firestore 혼재, viewer write UI 일시 활성 **금지** — §10 Atomic Wiring 원칙 |
 
 ---
 
-## 9. Recommended PR Sequence
+## 10. Recommended PR Sequence
 
-실제 소스 분석 기준 보정 순서:
+실제 소스 분석 기준 **Atomic Product Wiring** 보정 순서:
 
-| PR | Branch prefix | Scope | 산출 |
-|----|---------------|-------|------|
-| **WBS-0** | `docs/wbs-inventory-gate` | **본 PR** — Inventory · Schema · Gate | `docs/reports/STAM_WBS_Live_Firestore_Inventory_Gate.md` |
-| **WBS-1** | `rules/wbs-write-by-role` | `firestore.rules` — read + writer create/update, delete deny, `isValidWbs*`, counter | rules contract + role matrix |
-| **WBS-2** | `feat/wbs-service-adapter` | `stam.wbs-service.js` + `stam.wbs-firestore-adapter.js` + counter | service/adapter/counter contract |
-| **WBS-3** | `feat/wbs-list-read` | `stam.wbs-firestore-list.js` + `wbs.html` firebase scripts + static tbody → live render | list contract, KPI/timeline **B** hook |
-| **WBS-4** | `feat/wbs-crud-ui` | `stam.wbs-firestore-crud.js` create/detail/update drawer bind | crud-ui contract |
-| **WBS-5** | `feat/wbs-pickers` | requirement picker wire + **`stam.functional-spec-picker.js`** 신규 | picker contracts + browser smoke |
-| **WBS-6** | `feat/wbs-permission-ui` | viewer read-only, writeGuard refresh | role UI smoke |
-| **WBS-7** | `feat/wbs-derived-views` | KPI strip + gantt summary + group stats full **B** | derived calc contract |
-| **WBS-8** | `docs/wbs-live-qa` | `wbs-live-firestore-qa.yml` + agent script + evidence md | W-01~W-13 artifact |
+| PR | Branch prefix | Scope | 산출 | 제품 화면 로드 |
+|----|---------------|-------|------|----------------|
+| **WBS-0** | `docs/wbs-inventory-gate` | **본 PR** — Inventory · Schema · Gate | `docs/reports/STAM_WBS_Live_Firestore_Inventory_Gate.md` | — |
+| **WBS-1** | `rules/wbs-write-by-role` | `firestore.rules` — read + writer create/update, delete deny, `isValidWbs*`, counter | rules contract + role matrix | **없음** |
+| **WBS-2** | `feat/wbs-service-adapter` | service + adapter + common mapper contracts (후보 모듈) | service/adapter/counter contract | **없음** |
+| **WBS-3** | `feat/wbs-picker-hooks` | picker generalization 검토 + stable HTML hook 준비 | picker contract (후보) + hook PR | **없음** — Live 노출 **금지** |
+| **WBS-4** | `feat/wbs-atomic-wiring` | **Atomic Product Wiring** — 아래 일괄 적용 | list/detail/create/update live | **최초 로드** |
+| **WBS-5** | `feat/wbs-derived-views` | Timeline/Gantt/functionGroup derived view | derived calc contract | 기존 wiring 확장 |
+| **WBS-6** | `docs/wbs-live-qa` | Live QA + cleanup + evidence | W-00, W-01~W-20 artifact | — |
+| **WBS-7** | `docs/wbs-b3-live-gate` | B3 Live 상태 최종 Gate | nav/shell 승격 evidence | — |
+
+**WBS-4 Atomic Product Wiring 범위 (단일 merge 단위):**
+
+- Firebase/Auth/Feedback scripts 로드
+- list / detail / create / update Firestore bind
+- requirement + functionalSpec picker wire
+- viewer read-only (`writeGuard`)
+- delete / excluded controls disabled
+- Local Core DB scripts 및 v2 section **격리·제거**
+- static 17행 list **제거**
+- KPI **최소** 계산 (mock 금지)
 
 **PR 분리 원칙 (Gate 재확인):**
 
 ```txt
-inventory/schema → rules → service/adapter → list → CRUD → pickers → permission → derived → live QA
+inventory/schema → rules → service/adapter (off-screen) → picker/hooks (off-screen)
+→ atomic product wiring → derived views → live QA → B3 live gate
 ```
 
-- Rules PR과 UI PR **분리**
+**중간 merge 금지 상태:**
+
+| 금지 상태 | 이유 |
+|-----------|------|
+| Firestore 목록 + IndexedDB CRUD **동시 활성** | 혼합 write/read path |
+| Firestore 목록 + 정적 KPI/17행/Gantt **서로 다른 데이터** | 사용자 혼란 |
+| viewer에게 write UI **일시 활성** | permission 회귀 |
+| WBS-4 전까지 service/adapter를 제품 `wbs.html`에 로드 | 부분 Live 노출 |
+
+- **WBS-4 전까지** 신규 service/adapter/picker 모듈을 제품 화면에서 **로드하지 않음** (contract test·unit scope만 허용)
+- Rules PR과 UI PR **분리** 유지
 - docs-only Gate PR은 코드 **0**
-- nav B3 Live 승격(실 DB)은 **WBS-3~4 merge + QA PASS 후** 별도 shell PR
+- nav B3 Live 승격(실 DB)은 **WBS-4 merge + WBS-6 QA PASS 후** WBS-7
 
 ---
 
