@@ -8,7 +8,7 @@
 | base | `main` @ `72a658d` (FS-7 live QA evidence #379 merge 후) |
 | 조사 일시 (UTC) | 2026-07-13 |
 | 성격 | **docs-only** — Inventory · Schema · Gate · QA 초안 (제품 코드 / rules / nav-data **미변경**) |
-| 보정 | PR #389 Gate 보정 — status/UI field/atomic wiring/legacy isolation 충돌 해소 |
+| 보정 | PR #389 Gate 최종 보정 — No fake live data · owner/reviewer pair contract · progress contract · WBS-3 hook-only · W-21 |
 | 신규 모듈 표기 | 문서 내 `stam.wbs-*.js` 등은 **후속 구현 후보 경로** — 본 Gate에서 생성·최종 승인하지 않음; 구현 PR 시작 시 기존 모듈 확장 vs 신규 모듈 재확인; 신규 파일 남발 금지 |
 | 대상 화면 | `stam/pages/boards/wbs.html` (nav `B3`, Live · **정적**) |
 | Gate 순서 | 요구사항 → 기능정의서(FS-7 완료) → **WBS** → 화면설계서 (`docs/ops/STAM-Phase1-Implementation-Gate.md` §6 단계 3) |
@@ -114,8 +114,8 @@ scripts/qa-fs7-live-persistence-agent.mjs
 | `menuPath` | 메뉴/화면 | `screenPath` |
 | KO status via `status`+`reviewStatus` | 진행상태 | `status` (단일 enum) |
 | `priority` | 우선순위 | `priority` |
-| `assignee` / `owner` | 담당자 | `ownerName` (+ `ownerId` 후속) |
-| `reviewer` | 검토자 | `reviewerName` (+ `reviewerId` 후속) |
+| `assignee` / `owner` | 담당자 | `ownerId` + `ownerName` (**required pair**) |
+| `reviewer` | 검토자 | `reviewerId` + `reviewerName` (**optional all-or-none**) |
 | `startDate` / `endDate` | 시작일/종료일 | 동명 |
 | `effortEstimate` | 예상 공수 | `plannedEffort` |
 | — | 실 공수 | `actualEffort` |
@@ -177,8 +177,8 @@ Drawer (`#wbs-drawer`)는 `stam.wbs.js`(mode UI) + `stam.wbs-crud.js`(Local CRUD
 | **상세 Drawer** | `.wbs-detail-body` | **A** | getById read |
 | **수정 Drawer** | `.wbs-edit-body` | **A** | update via service |
 | **연결 정보** | `.wbs-drawer-sec` 연결 · form sec 6 | **A** (req + functionalSpec only) | picker link 3-key snapshot; UI 문구는 wiring PR에서 **"관련 기능정의" / "연결된 기능정의 없음"**으로 정합화; meeting **C**; `screenSpecId` **혼용 금지** |
-| **댓글** | `.wbs-dw-cmt*` · textarea/send | **C** | UI 유지, input/send **disabled** + 1차 범위 tooltip |
-| **변경이력** | `.wbs-dw-hist-item` (정적) · v2 track in crud | **C** | HTML mock 유지; Firestore subcollection **D** |
+| **댓글** | `.wbs-dw-cmt*` · textarea/send | **C** | persistence **1차 제외**; Live wiring 시 **기존 정적 샘플 댓글 제거**; textarea/send **disabled**; 중립 안내 **"댓글 기능은 1차 범위에서 제공하지 않습니다."**; 실제 사용자명·작성일·댓글 샘플 표시 **금지** |
+| **변경이력** | `.wbs-dw-hist-item` (정적) · v2 track in crud | **C** | history subcollection **1차 제외**; Live wiring 시 **기존 정적 변경이력 mock 제거**; 중립 empty state **"변경이력 기능은 아직 제공되지 않습니다."**; 박PM·최개발·기존 날짜 등 샘플 이력 표시 **금지** |
 | **Excel 가져오기** | page header secondary btn | **C** | **disabled** + `title="1차 범위 외"` |
 | **내보내기** | page header secondary btn | **C** | **disabled** + 동일 |
 | **Focus View** | `.wbs-focus-exit-bar` · `[data-focus-toggle]` · `stam.wbs.js` `initFocusView` | **C** | shell CSS toggle only (데이터 무관) — **유지** |
@@ -186,10 +186,18 @@ Drawer (`#wbs-drawer`)는 `stam.wbs.js`(mode UI) + `stam.wbs-crud.js`(Local CRUD
 | **전체보기 inline (FV)** | `#wbs-fv-inline` | **C** | detail mirror UI — Firestore detail bind 후 **read-only 유지** |
 | **삭제 (toolbar/detail)** | `#wbs-delete-btn` · `#wbs-det-del-btn` | **C** | visible + **disabled** + FS 동형 alert |
 | **임시저장** | edit/create footer ghost btn | **C** | disabled |
-| **승인상태·리스크·회의록·기간판정 컬럼** | table cols · detail cells | **B/C** | verdict/risk = date+status derived display; approval/meeting = **C** static |
+| **승인상태** | table cols · detail cells | **C** | approval workflow **1차 제외**; "승인"·"검토대기"·"미요청" 등 샘플 값 **금지**; 목록·상세 **"—"** 또는 명시적 범위 외 표시; Firestore `approvalStatus` **저장 금지** |
+| **회의록** | table cols · detail cells · 연결 버튼 | **C** | meeting link **1차 제외**; "주간보고" 등 정적 샘플 연결값 **제거**; 목록·상세 **"—"**; 연결 버튼 **disabled** + 범위 안내; `meetingIds` **저장 금지** |
+| **기간판정·리스크** | table cols · detail cells | **B/C** | 정적 샘플 **복사 금지**; `startDate`·`endDate`·`status`·현재 기준일로 **계산 가능한 값만** 파생 표시; 계산 근거 없으면 **"—"** |
 | **Local v2 section** | `.wbs-v2-section` · `#wbs-v2-tbody` | **D** | Firestore live 후 제거 |
 
 **1차 excluded 버튼 정책:** 숨기지 않음. `disabled` + `title` 또는 `STAM.uiMessages` scope hint (`1차 범위 외`).
+
+**Live 샘플 데이터 제거 원칙 (No fake live data):**
+
+- Firestore Live 전환 이후 기존 WBS-007 등 **정적 샘플** 댓글·변경이력·승인상태·회의록이 실제 Firestore 문서 정보처럼 표시되면 **FAIL**
+- Live 화면은 **Firestore 원본**, **명시적 파생값**, **중립 empty state**만 표시
+- Firestore 문서에 없는 댓글·변경이력·승인·회의록 샘플을 실제 데이터처럼 노출 **금지**
 
 ---
 
@@ -218,15 +226,15 @@ projects/{projectId}/wbsItems/{wbsItemId}
 | `screenPath` | string | optional | 메뉴/화면 경로 |
 | `status` | string | create | enum §3-3 |
 | `priority` | string | create | `high` · `mid` · `low` |
-| `ownerId` | string | optional | 1차: member uid when resolvable |
-| `ownerName` | string | create | display; form select value |
-| `reviewerId` | string | optional | |
-| `reviewerName` | string | optional | |
+| `ownerId` | string | create | **required**; 프로젝트 active member uid snapshot |
+| `ownerName` | string | create | **required**; 프로젝트 active member display name snapshot; `ownerId`와 **쌍(pair) 필수** |
+| `reviewerId` | string | optional | 연결 시 **required**; `reviewerName`과 **all-or-none** |
+| `reviewerName` | string | optional | 연결 시 **required**; `reviewerId`와 **all-or-none**; 미연결 시 두 키 **모두 omit** |
 | `startDate` | string | create | `YYYY-MM-DD` ISO date **string** |
 | `endDate` | string | create | `YYYY-MM-DD`; rules: `endDate >= startDate` when both set |
 | `plannedEffort` | number | optional | **일(day) 단위** 정수/소수; UI `4일` ↔ `4` |
 | `actualEffort` | number | optional | 동일 단위 |
-| `progress` | number | optional | **0–100** integer; default `0` |
+| `progress` | number | create | **required**; **0–100** integer; create 기본값 `0`; `status=done`이면 반드시 `100`; non-done이면 `0~99`; 소수·음수·100 초과 **금지** |
 | `description` | string | optional | max 4000 |
 | `requirementId` | string | optional | Firestore doc id |
 | `requirementCode` | string | optional | `REQ_###` snapshot |
@@ -361,19 +369,26 @@ Firestore Schema(§3)와 현재 `wbs.html` / Local CRUD 간 필드 갭 및 1차 
 |------|------|
 | 사용처 | 목록·상세·간트·그룹 진행률 |
 | 입력/규칙 | 명확한 입력 필드 또는 계산 규칙 **없음** |
-| 1차 결정 | **0~100 정수 입력 필드** 제공 |
-| 정합성 | `done` 상태 저장 시 `progress = 100` 검증 |
-| 금지 | KPI/group timeline 계산에서 임의 mock 값 사용 |
+| 1차 결정 | **`progress`**: integer, **0~100** |
+| create 기본값 | **`0`** |
+| done 정합성 | `status=done`이면 `progress`는 반드시 **`100`**; UI에서 status를 `done`으로 선택 시 progress를 **자동 `100` 보정** |
+| service/rules | `done && progress != 100` 저장 **거절** |
+| non-done 범위 | `status`가 `done`이 아니면 progress는 **`0~99`** |
+| 금지 | 소수·음수·100 초과 저장; 정적 CSS percentage class·mock 숫자를 실제 값으로 사용 |
+| mapper | create/update **공통 mapper**가 동일 규칙 사용 |
+| UI | progress bar는 **저장된 `progress`만** 사용 |
+| QA | **W-15** — create 기본 progress 0 · progress 수정 후 refresh 유지 · done 저장 시 100 · non-done + 100 저장 차단 · 0 미만 / 100 초과 / 소수 저장 차단 |
 
 ### 4-4. `owner` / `reviewer` (담당자·검토자)
 
 | 항목 | 현황 |
 |------|------|
 | 현재 HTML | select option = 고정 샘플 이름 |
-| Live SSOT | 프로젝트 **member 데이터** |
-| 저장 contract | `ownerId` + `ownerName` snapshot; `reviewerId` + `reviewerName` snapshot |
-| 금지 | 고정 이름 option을 실제 운영 데이터로 저장 |
-| 미확정 | member list 조회 방식 또는 현재 사용자 기본값 정책 — **후속 구현 전 확정** (R13) |
+| Live SSOT | 프로젝트 **active member** 데이터 |
+| **owner contract** | **`ownerId` + `ownerName` required pair**; 둘 다 프로젝트 active member snapshot; create·update **모두** 두 필드가 함께 존재해야 함 |
+| **reviewer contract** | **optional**; 연결 시 `reviewerId` + `reviewerName` **둘 다 존재**; 미연결 시 **두 키 모두 omit** |
+| 금지 | 이름만 저장; 고정 HTML option 값 저장; `ownerId`/`ownerName` 또는 `reviewerId`/`reviewerName` **하나만 존재**; 빈 문자열·`null`로 일부 키 잔존 |
+| 미확정 (R13) | member list 조회 service · 등록 시 owner 기본값(현재 로그인 사용자 자동 선택 여부) · reviewer 기본값 없음 유지 여부 — **구현 전 확정** |
 | QA | **W-16** snapshot identity 검증 |
 
 ### 4-5. Stable DOM hooks (wiring 전제)
@@ -404,21 +419,21 @@ Firestore Schema(§3)와 현재 `wbs.html` / Local CRUD 간 필드 갭 및 1차 
 | 9 | delete **disabled** (UI + rules deny) |
 | 10 | KPI strip recalc (**B**) |
 | 11 | Min timeline + functionGroup summary (**B**) |
-| 12 | Firestore live QA (W-00, W-01~W-13, W-14~W-20 + CLEANUP) |
+| 12 | Firestore live QA (W-00, W-01~W-13, W-14~W-21 + CLEANUP) |
 
 ### 5-2. Excluded (1차 — UI visible, disabled where applicable)
 
 | Item | UI handling |
 |------|-------------|
 | delete / softDelete | `#wbs-delete-btn`, `#wbs-det-del-btn` disabled + confirm alert |
-| comments persistence | textarea/send disabled |
-| history subcollection | static mock only |
+| comments persistence | **정적 샘플 댓글 제거**; textarea/send disabled; 중립 안내 **"댓글 기능은 1차 범위에서 제공하지 않습니다."**; 사용자명·작성일·댓글 샘플 표시 **금지** |
+| history subcollection | **정적 변경이력 mock 제거**; 중립 empty state **"변경이력 기능은 아직 제공되지 않습니다."**; 박PM·최개발·기존 날짜 등 샘플 이력 표시 **금지** |
 | Excel import / export | header buttons disabled |
 | Gantt bar editing | read-only label 유지 |
-| approval workflow | 승인상태 column static |
+| approval workflow | 목록·상세 **"—"** 또는 명시적 범위 외; "승인"·"검토대기"·"미요청" 샘플 값 **금지**; Firestore `approvalStatus` **저장 금지** |
 | bulk edit | checkbox select UI 유지, bulk action disabled |
 | drag/drop reorder | 없음 |
-| meeting link | `+ 회의록 연결` disabled |
+| meeting link | **"주간보고" 등 정적 샘플 연결값 제거**; 목록·상세 **"—"**; `+ 회의록 연결` disabled + 범위 안내; `meetingIds` **저장 금지** |
 | 임시저장 | footer btn disabled |
 | Local Core DB v2 section | hide after Firestore bind |
 
@@ -447,6 +462,15 @@ Rules helper (후속 WBS-1 rules PR): `isWbsWriter(projectId)` = `isRequirementW
 | pickers | read-only / disabled on edit |
 
 **Counter write:** `counters/wbsItems` — writer only (FS counter 동형).
+
+**Rules identity validation (WBS-1 계획):**
+
+| Contract | Rules enforcement |
+|----------|-------------------|
+| `ownerId` + `ownerName` | **required pair** — create·update 모두 두 필드 존재; 하나만 존재·빈 문자열·`null` 잔존 **거절** |
+| `reviewerId` + `reviewerName` | **all-or-none** — 연결 시 둘 다 존재; 미연결 시 둘 다 absent; partial key **거절** |
+| active member 검증 | `ownerId`·`reviewerId`가 해당 프로젝트 active member인지 검증 — **검토 범위** (최소한 uid string + snapshot pair integrity는 rules contract에서 **강제**) |
+| `progress` | integer 0–100; `status=done`이면 `progress=100`; non-done + `progress=100` **거절**; 소수·음수·100 초과 **거절** |
 
 ---
 
@@ -501,7 +525,7 @@ node scripts/test-requirement-picker-contract.mjs   # reuse
 node scripts/test-functional-spec-picker-contract.mjs # WBS-3 (후보)
 ```
 
-### 8-2. Live scenarios (W-00, W-01~W-13, W-14~W-20)
+### 8-2. Live scenarios (W-00, W-01~W-13, W-14~W-21)
 
 | ID | Scenario | UI | Firestore |
 |----|----------|-----|-----------|
@@ -520,12 +544,13 @@ node scripts/test-functional-spec-picker-contract.mjs # WBS-3 (후보)
 | W-12 | delete disabled | toolbar + detail delete disabled | `allow delete: false` |
 | W-13 | no fatal console error | DevTools clean | — |
 | **W-14** | **Status parity** | create/edit 모두 동일 5개 status (대기/진행중/지연/완료/보류) | stored enum `wait\|in_progress\|delayed\|done\|hold` only |
-| **W-15** | **Field mapping** | businessArea, actualEffort, progress 입력·표시 | 저장·수정·새로고침 후 유지 |
-| **W-16** | **Member identity** | owner/reviewer select from member data | `ownerId`/`ownerName`, `reviewerId`/`reviewerName` snapshot |
+| **W-15** | **Field mapping** | businessArea, actualEffort, progress 입력·표시 | create 기본 progress **0**; progress 수정 후 refresh 유지; done 저장 시 **100**; non-done + 100 저장 차단; 0 미만 / 100 초과 / 소수 저장 차단 |
+| **W-16** | **Member identity** | owner/reviewer select from member data | `ownerId`+`ownerName` **required pair**; `reviewerId`+`reviewerName` **all-or-none**; partial key **absent** |
 | **W-17** | **No mixed source** | Firestore 행만 표시 | static 17행·Local v2·Firestore **동시 노출 없음** |
-| **W-18** | **Disabled scope controls** | delete/comments/history/Excel/import/export/meeting/temp-save disabled + 안내 | — |
+| **W-18** | **Disabled scope controls** | delete/comments/history/Excel/import/export/meeting/temp-save disabled + 중립 범위 안내 | — |
 | **W-19** | **Derived consistency** | 목록 건수, KPI, 기능그룹 집계 일치 | 동일 Firestore snapshot 기준 |
 | **W-20** | **Link semantic** | requirement 3-key · functionalSpec 3-key 각각 올바른 picker에서 저장 | `screenSpecId` **혼용 없음** |
+| **W-21** | **No fake live data** | 새 Firestore WBS 상세에 기존 WBS-007 댓글 **미표시**; 정적 변경이력 사용자명·날짜 **미표시**; 승인상태·회의록 샘플 **미표시**; 댓글·변경이력은 중립 범위 안내만; Firestore에 없는 정보를 실제 데이터처럼 표시 **없음** | `approvalStatus`·`meetingIds` 등 범위 외 필드 **absent** |
 | CLEANUP | agent test docs removed | — | tagged docs deleted |
 
 ### 8-3. Live QA environment
@@ -548,7 +573,7 @@ node scripts/test-functional-spec-picker-contract.mjs # WBS-3 (후보)
 | R2 | 22컬럼 grouped table render 복잡도 | 1차: `functionGroup` client groupBy; empty groups hidden |
 | R3 | Local v2 vs Firestore field naming | service layer explicit map; Local CRUD **deprecated** |
 | R4 | `phase` 한글 vs slug | **결정: 한글 storage** (UI parity) |
-| R5 | owner/reviewer uid vs name | **결정:** `ownerId`+`ownerName`, `reviewerId`+`reviewerName` snapshot; 고정 샘플 이름 저장 **금지** |
+| R5 | owner/reviewer uid vs name | **결정:** `ownerId`+`ownerName` **required pair**; `reviewerId`+`reviewerName` **optional all-or-none**; 고정 샘플 이름 저장 **금지**; rules에서 pair integrity **강제** |
 | R6 | FunctionalSpec picker module | requirement picker **복사 금지**; 공통 core/adapter 일반화 우선; 전용 모듈은 별도 승인 (§7) |
 | R7 | rules + counter 없음 | WBS-1 dedicated rules PR; FS-1 pattern |
 | R8 | WORK vs WBS ID traceability | `STAM-WBS-Traceability-ID-Alignment-Plan.md` — **후속**, 1차 blocker 아님 |
@@ -556,9 +581,10 @@ node scripts/test-functional-spec-picker-contract.mjs # WBS-3 (후보)
 | R10 | FS-7 sort flip recurrence | **`createdAt DESC` only**; contract regression script |
 | **R11** | **Status create/edit enum 불일치** | 저장 enum `wait\|in_progress\|delayed\|done\|hold`; UI 통일 "대기/진행중/지연/완료/보류"; 등록 "검토중"→"지연" 정합화; "검토중" Firestore 저장 **금지**; create/update mapper 동일 contract; QA **W-14** |
 | **R12** | **FunctionalSpec vs ScreenSpec 의미 충돌** | 현재 UI "관련 화면설계"/"연결된 화면설계 없음" vs 1차 범위 requirement+functionalSpecification 연결 충돌; 1차 Live는 `requirement`+`functionalSpecification`만; wiring PR에서 **"관련 기능정의"/"연결된 기능정의 없음"** 정합화; 화면설계서 연결은 Screen Specification Live **후속**; `functionalSpecId`와 `screenSpecId` **혼용 금지**; Local `functionId` 근거 없이 자동 이관 **금지**; 레이아웃 유지, 문구·data hook만 보정 |
-| **R13** | **Member list / default owner policy** | Live에서 project member SSOT; 조회 방식·현재 사용자 기본값 — **구현 전 확정** |
+| **R13** | **Member list / default owner policy** | **미확정 (구현 전 확정):** (1) 프로젝트 member list를 어느 공통 service에서 조회할지 (2) 등록 시 owner 기본값을 현재 로그인 사용자로 자동 선택할지 (3) reviewer 기본값은 없음으로 둘지 — **Schema required/optional 자체는 확정됨** (§3-2, §4-4) |
 | **R14** | **Local write path 잔존** | Firestore Live wiring 이후 아래가 write path로 동작하면 **FAIL**: `stam.wbs-cycle.js`, `stam.wbs-crud.js`, `stam.local-core-db.js` WBS write path; Local v2 section과 Firestore list **동시 노출 금지**; Local softDelete가 Live WBS 버튼에 연결되지 않도록 listener 격리; 정적 17행과 Firestore 행 **동시 표시 FAIL**; QA **W-00**, **W-17** |
 | **R15** | **중간 PR 혼합 데이터 노출** | list→CRUD→picker 분리 merge 시 Firestore list + IndexedDB CRUD 동시 활성, static KPI/17행 + Firestore 혼재, viewer write UI 일시 활성 **금지** — §10 Atomic Wiring 원칙 |
+| **R16** | **No fake live data** | Firestore 문서에 없는 댓글·변경이력·승인·회의록 샘플이 표시되면 **FAIL**; Live 화면은 Firestore 원본·명시적 파생값·중립 empty state만 표시; QA **W-21** |
 
 ---
 
@@ -571,10 +597,10 @@ node scripts/test-functional-spec-picker-contract.mjs # WBS-3 (후보)
 | **WBS-0** | `docs/wbs-inventory-gate` | **본 PR** — Inventory · Schema · Gate | `docs/reports/STAM_WBS_Live_Firestore_Inventory_Gate.md` | — |
 | **WBS-1** | `rules/wbs-write-by-role` | `firestore.rules` — read + writer create/update, delete deny, `isValidWbs*`, counter | rules contract + role matrix | **없음** |
 | **WBS-2** | `feat/wbs-service-adapter` | service + adapter + common mapper contracts (후보 모듈) | service/adapter/counter contract | **없음** |
-| **WBS-3** | `feat/wbs-picker-hooks` | picker generalization 검토 + stable HTML hook 준비 | picker contract (후보) + hook PR | **없음** — Live 노출 **금지** |
+| **WBS-3** | `feat/wbs-picker-hooks` | picker generalization 검토 + stable HTML hook 준비 | picker contract (후보) + hook PR | **HTML hook only / Live module load 없음** — `wbs.html`에 `id`/`data-*` hook만 추가 가능; Firebase/Auth/Firestore/service/picker JS 로드 **금지**; 이벤트 listener 추가 **금지**; 기존 화면 동작 변경 **금지**; Firestore read/write **0**; WBS-4 전까지 사용자에게 부분 Live 기능 노출 **금지** |
 | **WBS-4** | `feat/wbs-atomic-wiring` | **Atomic Product Wiring** — 아래 일괄 적용 | list/detail/create/update live | **최초 로드** |
 | **WBS-5** | `feat/wbs-derived-views` | Timeline/Gantt/functionGroup derived view | derived calc contract | 기존 wiring 확장 |
-| **WBS-6** | `docs/wbs-live-qa` | Live QA + cleanup + evidence | W-00, W-01~W-20 artifact | — |
+| **WBS-6** | `docs/wbs-live-qa` | Live QA + cleanup + evidence | W-00, W-01~W-21 artifact | — |
 | **WBS-7** | `docs/wbs-b3-live-gate` | B3 Live 상태 최종 Gate | nav/shell 승격 evidence | — |
 
 **WBS-4 Atomic Product Wiring 범위 (단일 merge 단위):**
@@ -583,7 +609,7 @@ node scripts/test-functional-spec-picker-contract.mjs # WBS-3 (후보)
 - list / detail / create / update Firestore bind
 - requirement + functionalSpec picker wire
 - viewer read-only (`writeGuard`)
-- delete / excluded controls disabled
+- delete / excluded controls disabled (**정적 샘플 댓글·변경이력·승인·회의록 제거**, 중립 empty state 적용)
 - Local Core DB scripts 및 v2 section **격리·제거**
 - static 17행 list **제거**
 - KPI **최소** 계산 (mock 금지)
