@@ -370,6 +370,53 @@ await assert.rejects(
   /permission denied/,
 );
 
+const looseAuthorizeService = contract.createService({
+  adapter,
+  clock: () => '2026-07-09T00:00:00.000Z',
+  authorize() {
+    return undefined;
+  },
+});
+await assert.rejects(
+  () => looseAuthorizeService.listByProject('P-WBS2', {}, { actorUid: 'owner-uid' }),
+  /permission denied/,
+);
+await assert.rejects(
+  () => looseAuthorizeService.create('P-WBS2', validWbsInput(), { actorUid: 'owner-uid' }),
+  /permission denied/,
+);
+
+const nullAuthorizeService = contract.createService({
+  adapter,
+  authorize() {
+    return null;
+  },
+});
+await assert.rejects(
+  () => nullAuthorizeService.update('P-WBS2', 'wbs-1', { title: 'blocked' }, { actorUid: 'owner-uid' }),
+  /permission denied/,
+);
+
+const zeroAuthorizeService = contract.createService({
+  adapter,
+  authorize() {
+    return 0;
+  },
+});
+await assert.rejects(
+  () => zeroAuthorizeService.create('P-WBS2', validWbsInput(), { actorUid: 'owner-uid' }),
+  /permission denied/,
+);
+
+const trueAuthorizeService = contract.createService({
+  adapter,
+  authorize() {
+    return true;
+  },
+});
+const trueAllowed = await trueAuthorizeService.listByProject('P-WBS2', {}, { actorUid: 'owner-uid' });
+assert.equal(Array.isArray(trueAllowed), true);
+
 console.log('\nwbs role matrix (WBS-2 service contract evidence):');
 printMatrixEvidence(serviceEvidenceRows);
 console.log('wbs role matrix contract: PASS');

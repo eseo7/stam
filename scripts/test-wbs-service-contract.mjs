@@ -131,6 +131,9 @@ function createFakeAdapter() {
       startDate: '2026-07-01',
       endDate: '2026-07-10',
       progress: 20,
+      businessArea: '회원',
+      plannedEffort: 3,
+      actualEffort: 1.5,
       createdAt: '2026-01-01T00:00:00.000Z',
       createdBy: 'u1',
       updatedAt: '2026-01-01T00:00:00.000Z',
@@ -163,6 +166,9 @@ function createFakeAdapter() {
       this.calls.push(['update', projectId, wbsItemId, patch]);
       const current = store.get(wbsItemId);
       const next = { ...current, ...patch };
+      Object.keys(patch || {}).forEach((key) => {
+        if (patch[key] === '') delete next[key];
+      });
       store.set(wbsItemId, next);
       return Promise.resolve({ ...next });
     },
@@ -419,6 +425,22 @@ assert.equal(helperCreateDefaults.status, 'wait');
 assert.equal(helperCreateDefaults.priority, 'mid');
 assert.equal(helperCreateDefaults.progress, 0);
 
+const createCtx = { actorUid: 'helper-user' };
+assert.throws(() => service.buildCreatePayload(validWbsInput({ projectId: 'P1', status: null }), createCtx), /status cannot be null/);
+assert.throws(() => service.buildCreatePayload(validWbsInput({ projectId: 'P1', status: '' }), createCtx), /status cannot be empty/);
+assert.throws(() => service.buildCreatePayload(validWbsInput({ projectId: 'P1', status: '   ' }), createCtx), /status cannot be empty/);
+assert.throws(() => service.buildCreatePayload(validWbsInput({ projectId: 'P1', priority: null }), createCtx), /priority cannot be null/);
+assert.throws(() => service.buildCreatePayload(validWbsInput({ projectId: 'P1', priority: '' }), createCtx), /priority cannot be empty/);
+assert.throws(() => service.buildCreatePayload(validWbsInput({ projectId: 'P1', priority: '   ' }), createCtx), /priority cannot be empty/);
+assert.throws(() => service.buildCreatePayload(validWbsInput({ projectId: 'P1', progress: null }), createCtx), /progress cannot be null/);
+assert.throws(() => service.buildCreatePayload(validWbsInput({ projectId: 'P1', progress: '' }), createCtx), /progress cannot be empty/);
+assert.throws(() => service.buildCreatePayload(validWbsInput({ projectId: 'P1', progress: '   ' }), createCtx), /progress cannot be empty/);
+
+assert.throws(() => adapterApi.formatWbsCodeNumber(1.5));
+assert.throws(() => adapterApi.formatWbsCodeNumber('2'));
+assert.throws(() => adapterApi.formatWbsCodeNumber(0));
+assert.throws(() => adapterApi.formatWbsCodeNumber(-1));
+
 assert.throws(
   () => service.buildCreatePayload(validWbsInput({ projectId: 'P1', status: 'done', progress: 0 }), { actorUid: 'u1' }),
   /done status requires progress 100/,
@@ -542,6 +564,29 @@ const fnUnlink = await service.update('P1', 'wbs-1', {
 }, { actorUid: 'u3' });
 assert.equal(fnUnlink.functionalSpecId, undefined);
 
+const businessAreaClear = await service.update('P1', 'wbs-1', {
+  businessArea: '',
+}, { actorUid: 'u3' });
+assert.equal(businessAreaClear.businessArea, undefined);
+const businessAreaClearCall = adapter.calls.find((entry) => entry[0] === 'update' && entry[3] && entry[3].businessArea === '');
+assert.ok(businessAreaClearCall, 'businessArea clear sentinel must reach adapter');
+
+const effortClear = await service.update('P1', 'wbs-1', {
+  plannedEffort: '',
+  actualEffort: '',
+}, { actorUid: 'u3' });
+assert.equal(effortClear.plannedEffort, undefined);
+assert.equal(effortClear.actualEffort, undefined);
+
+assert.throws(
+  () => service.update('P1', 'wbs-1', { plannedEffort: null }, { actorUid: 'u3' }),
+  /plannedEffort cannot be null/,
+);
+assert.throws(
+  () => service.update('P1', 'wbs-1', { actualEffort: null }, { actorUid: 'u3' }),
+  /actualEffort cannot be null/,
+);
+
 assert.equal(typeof service.delete, 'undefined');
 assert.equal(typeof service.softDelete, 'undefined');
 assert.equal(typeof service.remove, 'undefined');
@@ -555,6 +600,60 @@ await assert.rejects(
   () => runtimeService.create('P1', validWbsInput(), { actorUid: 'u0' }),
   /permission denied/,
 );
+
+const looseAuthorizeService = contract.createService({
+  adapter,
+  clock: () => '2026-07-09T00:00:00.000Z',
+  authorize() {
+    return undefined;
+  },
+});
+await assert.rejects(
+  () => looseAuthorizeService.listByProject('P1', {}, { actorUid: 'u1' }),
+  /permission denied/,
+);
+await assert.rejects(
+  () => looseAuthorizeService.create('P1', validWbsInput(), { actorUid: 'u1' }),
+  /permission denied/,
+);
+await assert.rejects(
+  () => looseAuthorizeService.update('P1', 'wbs-1', { title: 'x' }, { actorUid: 'u1' }),
+  /permission denied/,
+);
+
+const nullAuthorizeService = contract.createService({
+  adapter,
+  clock: () => '2026-07-09T00:00:00.000Z',
+  authorize() {
+    return null;
+  },
+});
+await assert.rejects(
+  () => nullAuthorizeService.listByProject('P1', {}, { actorUid: 'u1' }),
+  /permission denied/,
+);
+
+const zeroAuthorizeService = contract.createService({
+  adapter,
+  clock: () => '2026-07-09T00:00:00.000Z',
+  authorize() {
+    return 0;
+  },
+});
+await assert.rejects(
+  () => zeroAuthorizeService.create('P1', validWbsInput(), { actorUid: 'u1' }),
+  /permission denied/,
+);
+
+const trueAuthorizeService = contract.createService({
+  adapter,
+  clock: () => '2026-07-09T00:00:00.000Z',
+  authorize() {
+    return true;
+  },
+});
+const trueAllowed = await trueAuthorizeService.listByProject('P1', {}, { actorUid: 'u1' });
+assert.ok(trueAllowed.length >= 1);
 
 const roleAuthorize = contract.createMemberRoleAuthorize((request) => request.context.memberRole);
 assert.equal(roleAuthorize(contract.ACTIONS.CREATE, { context: { memberRole: 'admin' } }), true);
@@ -599,6 +698,18 @@ assert.equal(counterSet[2].lastNumber, 1);
 
 assert.throws(
   () => firestoreAdapter.create('P1', { code: 'WBS-999', title: 'Blocked' }),
+  /explicit code is not allowed/,
+);
+assert.throws(
+  () => firestoreAdapter.create('P1', validWbsInput({ projectId: 'P1', code: '' })),
+  /explicit code is not allowed/,
+);
+assert.throws(
+  () => firestoreAdapter.create('P1', { ...validWbsInput({ projectId: 'P1' }), code: '   ' }),
+  /explicit code is not allowed/,
+);
+assert.throws(
+  () => firestoreAdapter.create('P1', { ...validWbsInput({ projectId: 'P1' }), code: null }),
   /explicit code is not allowed/,
 );
 

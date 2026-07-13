@@ -71,6 +71,8 @@
 
   var OPTIONAL_EFFORT_FIELDS = ['plannedEffort', 'actualEffort'];
 
+  var OPTIONAL_CLEAR_FIELDS = OPTIONAL_STRING_FIELDS.concat(OPTIONAL_EFFORT_FIELDS);
+
   var IMMUTABLE_UPDATE_FIELDS = [
     'id',
     'projectId',
@@ -106,6 +108,14 @@
 
   function isNull(value) {
     return value === null;
+  }
+
+  function isFieldOmitted(source, field) {
+    return !hasOwn(source, field) || isAbsent(source[field]);
+  }
+
+  function isBlankString(value) {
+    return typeof value === 'string' && value.trim() === '';
   }
 
   function pushError(errors, field, message) {
@@ -160,43 +170,124 @@
   }
 
   function normalizeEffort(value) {
-    if (value === undefined || value === null || value === '') return undefined;
+    if (value === undefined) return undefined;
     var n = typeof value === 'number' ? value : Number(String(value).trim());
     if (!Number.isFinite(n) || n < 0) return NaN;
     return n;
   }
 
   function normalizeProgress(value) {
-    if (value === undefined || value === null || value === '') return undefined;
-    var n = typeof value === 'number' ? value : Number(String(value).trim());
-    if (!Number.isFinite(n) || !Number.isInteger(n)) return NaN;
-    return n;
+    if (value === undefined) return undefined;
+    if (typeof value === 'number') {
+      if (!Number.isInteger(value)) return NaN;
+      return value;
+    }
+    if (typeof value === 'string') {
+      var trimmed = value.trim();
+      if (!trimmed) return NaN;
+      var n = Number(trimmed);
+      if (!Number.isFinite(n) || !Number.isInteger(n)) return NaN;
+      return n;
+    }
+    return NaN;
   }
 
-  function validateEnumField(errors, field, value, allowDefault) {
+  function validateEnumField(errors, field, value, allowDefaultWhenAbsent) {
     if (isAbsent(value)) {
-      if (allowDefault) return ENUM_DEFAULTS[field];
+      if (allowDefaultWhenAbsent) return ENUM_DEFAULTS[field];
       return undefined;
     }
-    var raw = typeof value === 'string' ? value.trim() : value;
+    if (isNull(value)) {
+      pushError(errors, field, field + ' cannot be null');
+      return undefined;
+    }
     if (field === 'phase') {
-      if (typeof raw !== 'string' || !raw) {
+      if (typeof value !== 'string' || isBlankString(value)) {
         pushError(errors, field, 'phase is required');
         return undefined;
       }
-      if (PHASE_VALUES.indexOf(raw) < 0) {
+      var phaseVal = value.trim();
+      if (PHASE_VALUES.indexOf(phaseVal) < 0) {
         pushError(errors, field, 'invalid phase value');
         return undefined;
       }
-      return raw;
+      return phaseVal;
     }
-    var normalized = typeof raw === 'string' ? raw.toLowerCase() : raw;
-    if (!normalized && allowDefault) return ENUM_DEFAULTS[field];
+    if (isBlankString(value)) {
+      pushError(errors, field, field + ' cannot be empty');
+      return undefined;
+    }
+    var normalized = typeof value === 'string' ? value.trim().toLowerCase() : value;
     if (ENUM_VALUES[field].indexOf(normalized) < 0) {
       pushError(errors, field, 'invalid ' + field + ' value');
       return undefined;
     }
     return normalized;
+  }
+
+  function validateCreateProgressInput(errors, source) {
+    if (isFieldOmitted(source, 'progress')) return;
+    if (isNull(source.progress)) {
+      pushError(errors, 'progress', 'progress cannot be null');
+      return;
+    }
+    if (isBlankString(source.progress)) {
+      pushError(errors, 'progress', 'progress cannot be empty');
+      return;
+    }
+    var progress = normalizeProgress(source.progress);
+    if (Number.isNaN(progress)) {
+      pushError(errors, 'progress', 'progress must be an integer');
+    }
+  }
+
+  function resolveCreateEnumDefault(source, field, errors) {
+    if (isFieldOmitted(source, field)) return ENUM_DEFAULTS[field];
+    return validateEnumField(errors, field, source[field], false);
+  }
+
+  function resolveCreateProgressDefault(source, errors) {
+    if (isFieldOmitted(source, 'progress')) return DEFAULT_PROGRESS;
+    if (isNull(source.progress)) {
+      pushError(errors, 'progress', 'progress cannot be null');
+      return NaN;
+    }
+    if (isBlankString(source.progress)) {
+      pushError(errors, 'progress', 'progress cannot be empty');
+      return NaN;
+    }
+    var progress = normalizeProgress(source.progress);
+    if (Number.isNaN(progress)) {
+      pushError(errors, 'progress', 'progress must be an integer');
+    }
+    return progress;
+  }
+
+  function validateOptionalClearField(errors, source, field, mode) {
+    if (!hasOwn(source, field)) return;
+    if (isAbsent(source[field])) return;
+    if (isNull(source[field])) {
+      pushError(errors, field, field + ' cannot be null');
+      return;
+    }
+    if (mode === 'update' && isBlankString(source[field])) return;
+    if (OPTIONAL_EFFORT_FIELDS.indexOf(field) >= 0) {
+      var effort = normalizeEffort(source[field]);
+      if (Number.isNaN(effort)) {
+        pushError(errors, field, field + ' must be a non-negative number');
+      }
+      return;
+    }
+    var max = field === 'description' ? 4000 : (field === 'screenPath' ? 500 : 120);
+    var min = field === 'screenPath' ? 0 : 1;
+    var val = validateOptionalString(errors, field, source[field], max);
+    if (val !== undefined && val === '' && min > 0 && mode === 'create') {
+      pushError(errors, field, field + ' cannot be empty');
+    }
+  }
+
+  function isOptionalClearSentinel(value) {
+    return value === '' || isBlankString(value);
   }
 
   function validateProgressContract(errors, status, progress) {
@@ -381,11 +472,11 @@
     }
 
     var progress;
-    if (m === 'create' && isAbsent(source.progress)) {
+    if (m === 'create' && isFieldOmitted(source, 'progress')) {
       progress = DEFAULT_PROGRESS;
     } else {
       progress = normalizeProgress(source.progress);
-      if (progress === undefined || Number.isNaN(progress)) {
+      if (Number.isNaN(progress)) {
         pushError(errors, 'progress', 'progress must be an integer');
         progress = NaN;
       }
@@ -400,24 +491,27 @@
     validateRequirementTriplet(errors, source, m);
     validateFunctionalSpecTriplet(errors, source, m);
 
-    OPTIONAL_STRING_FIELDS.forEach(function (field) {
+    OPTIONAL_CLEAR_FIELDS.forEach(function (field) {
       if (hasOwn(source, field)) {
-        var max = field === 'description' ? 4000 : (field === 'screenPath' ? 500 : 120);
-        var min = field === 'screenPath' ? 0 : 1;
-        var val = validateOptionalString(errors, field, source[field], max);
-        if (val !== undefined && val === '' && min > 0) {
-          // omit on payload build
-        } else if (val !== undefined && val !== '' && min > 0 && val.length < min) {
-          pushError(errors, field, field + ' length is invalid');
+        if (isNull(source[field])) {
+          pushError(errors, field, field + ' cannot be null');
+          return;
         }
-      }
-    });
-
-    OPTIONAL_EFFORT_FIELDS.forEach(function (field) {
-      if (hasOwn(source, field)) {
-        var effort = normalizeEffort(source[field]);
-        if (Number.isNaN(effort)) {
-          pushError(errors, field, field + ' must be a non-negative number');
+        if (m === 'update' && isOptionalClearSentinel(source[field])) return;
+        if (OPTIONAL_EFFORT_FIELDS.indexOf(field) >= 0) {
+          var effort = normalizeEffort(source[field]);
+          if (Number.isNaN(effort)) {
+            pushError(errors, field, field + ' must be a non-negative number');
+          }
+        } else {
+          var max = field === 'description' ? 4000 : (field === 'screenPath' ? 500 : 120);
+          var min = field === 'screenPath' ? 0 : 1;
+          var val = validateOptionalString(errors, field, source[field], max);
+          if (val !== undefined && val === '' && min > 0) {
+            // omit on payload build
+          } else if (val !== undefined && val !== '' && min > 0 && val.length < min) {
+            pushError(errors, field, field + ' length is invalid');
+          }
         }
       }
     });
@@ -463,25 +557,30 @@
     }
 
     if (m === 'create') {
-      if (hasOwn(source, 'status') && source.status !== undefined && source.status !== null && source.status !== '') {
-        validateEnumField(errors, 'status', source.status, false);
-      }
-      if (hasOwn(source, 'priority') && source.priority !== undefined && source.priority !== null && source.priority !== '') {
-        validateEnumField(errors, 'priority', source.priority, false);
-      }
+      ['status', 'priority'].forEach(function (field) {
+        if (!isFieldOmitted(source, field)) {
+          validateEnumField(errors, field, source[field], false);
+        }
+      });
       if (hasOwn(source, 'phase')) validateEnumField(errors, 'phase', source.phase, false);
-      if (hasOwn(source, 'progress') && source.progress !== undefined && source.progress !== null && source.progress !== '') {
-        var p = normalizeProgress(source.progress);
-        if (Number.isNaN(p)) pushError(errors, 'progress', 'progress must be an integer');
-      }
+      validateCreateProgressInput(errors, source);
     } else {
       ['phase', 'status', 'priority'].forEach(function (field) {
         if (hasOwn(source, field)) validateEnumField(errors, field, source[field], false);
       });
       if (hasOwn(source, 'progress')) {
-        var progressVal = normalizeProgress(source.progress);
-        if (Number.isNaN(progressVal)) pushError(errors, 'progress', 'progress must be an integer');
+        if (isNull(source.progress)) {
+          pushError(errors, 'progress', 'progress cannot be null');
+        } else if (isBlankString(source.progress)) {
+          pushError(errors, 'progress', 'progress cannot be empty');
+        } else {
+          var progressVal = normalizeProgress(source.progress);
+          if (Number.isNaN(progressVal)) pushError(errors, 'progress', 'progress must be an integer');
+        }
       }
+      OPTIONAL_CLEAR_FIELDS.forEach(function (field) {
+        validateOptionalClearField(errors, source, field, m);
+      });
     }
 
     validateOwnerFields(errors, source, m, null);
@@ -549,7 +648,7 @@
 
   function assignOptionalStrings(target, source) {
     OPTIONAL_STRING_FIELDS.forEach(function (field) {
-      if (!hasOwn(source, field)) return;
+      if (!hasOwn(source, field) || isOptionalClearSentinel(source[field])) return;
       var value = validateOptionalString([], field, source[field], field === 'description' ? 4000 : (field === 'screenPath' ? 500 : 120));
       if (value) target[field] = value;
     });
@@ -557,9 +656,9 @@
 
   function assignOptionalEffort(target, source) {
     OPTIONAL_EFFORT_FIELDS.forEach(function (field) {
-      if (!hasOwn(source, field)) return;
+      if (!hasOwn(source, field) || isOptionalClearSentinel(source[field])) return;
       var effort = normalizeEffort(source[field]);
-      if (effort !== undefined && !Number.isNaN(effort)) target[field] = effort;
+      if (!Number.isNaN(effort)) target[field] = effort;
     });
   }
 
@@ -601,15 +700,15 @@
     if (m === 'create') {
       assertValidInput(source, 'create');
       var projectId = requireProjectId(projectIdFromInput(source, ctx));
-      var status = hasOwn(source, 'status') && !isAbsent(source.status) && clean(source.status) !== ''
-        ? validateEnumField([], 'status', source.status, false)
-        : DEFAULT_STATUS;
-      var priority = hasOwn(source, 'priority') && !isAbsent(source.priority) && clean(source.priority) !== ''
-        ? validateEnumField([], 'priority', source.priority, false)
-        : DEFAULT_PRIORITY;
-      var progress = hasOwn(source, 'progress') && !isAbsent(source.progress) && source.progress !== ''
-        ? normalizeProgress(source.progress)
-        : DEFAULT_PROGRESS;
+      var payloadErrors = [];
+      var status = resolveCreateEnumDefault(source, 'status', payloadErrors);
+      var priority = resolveCreateEnumDefault(source, 'priority', payloadErrors);
+      var progress = resolveCreateProgressDefault(source, payloadErrors);
+      if (payloadErrors.length) {
+        throw new Error('wbsService: invalid create input: ' + payloadErrors.map(function (err) {
+          return err.field + ' ' + err.message;
+        }).join(', '));
+      }
 
       var payload = {
         id: clean(source.id) || undefined,
@@ -666,8 +765,8 @@
     if (hasOwn(patch, 'ownerName')) candidate.ownerName = clean(patch.ownerName);
 
     assignOptionalStrings(candidate, patch);
-    OPTIONAL_STRING_FIELDS.forEach(function (field) {
-      if (hasOwn(patch, field) && clean(patch[field]) === '') delete candidate[field];
+    OPTIONAL_CLEAR_FIELDS.forEach(function (field) {
+      if (hasOwn(patch, field) && isOptionalClearSentinel(patch[field])) delete candidate[field];
     });
     assignOptionalEffort(candidate, patch);
 
@@ -846,7 +945,7 @@
         payload: payload || null,
         context: ctx,
       })).then(function (allowed) {
-        if (allowed === false) throw new Error('wbsService: permission denied for ' + action);
+        if (allowed !== true) throw new Error('wbsService: permission denied for ' + action);
         return true;
       });
     }
@@ -905,12 +1004,12 @@
           updatedAt: nowIso(clock),
         });
 
-        OPTIONAL_STRING_FIELDS.forEach(function (field) {
-          if (finalCandidate[field] !== undefined) nextPatch[field] = finalCandidate[field];
-          else if (hasOwn(sanitized, field) && clean(sanitized[field]) === '') nextPatch[field] = '';
-        });
-        OPTIONAL_EFFORT_FIELDS.forEach(function (field) {
-          if (finalCandidate[field] !== undefined) nextPatch[field] = finalCandidate[field];
+        OPTIONAL_CLEAR_FIELDS.forEach(function (field) {
+          if (finalCandidate[field] !== undefined) {
+            nextPatch[field] = finalCandidate[field];
+          } else if (hasOwn(sanitized, field) && isOptionalClearSentinel(sanitized[field])) {
+            nextPatch[field] = '';
+          }
         });
 
         if (fieldsAllEmpty(sanitized, REVIEWER_FIELDS)) {

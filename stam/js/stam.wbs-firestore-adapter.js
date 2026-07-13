@@ -21,6 +21,14 @@
     FUNCTIONAL_SPEC_UNLINK_FIELDS,
   ];
 
+  var OPTIONAL_CLEAR_FIELDS = [
+    'businessArea',
+    'screenPath',
+    'description',
+    'plannedEffort',
+    'actualEffort',
+  ];
+
   function clean(value) {
     return String(value == null ? '' : value).trim();
   }
@@ -71,6 +79,16 @@
     return next;
   }
 
+  function applyOptionalFieldDeletes(patch) {
+    var next = Object.assign({}, patch || {});
+    OPTIONAL_CLEAR_FIELDS.forEach(function (field) {
+      if (next[field] === '' || (typeof next[field] === 'string' && next[field].trim() === '')) {
+        next[field] = fieldDelete();
+      }
+    });
+    return next;
+  }
+
   function sanitizeUpdatePatch(patch) {
     var next = Object.assign({}, patch || {});
     [
@@ -109,12 +127,11 @@
   }
 
   function formatWbsCodeNumber(lastNumber) {
-    var n = Number(lastNumber);
-    if (!Number.isFinite(n) || n < 1) {
+    var n = lastNumber;
+    if (!Number.isInteger(n) || n < 1) {
       throw new Error('wbsFirestoreAdapter: invalid counter number');
     }
-    var floor = Math.floor(n);
-    var digits = String(floor);
+    var digits = String(n);
     if (digits.length < 3) {
       digits = digits.padStart(3, '0');
     }
@@ -241,13 +258,14 @@
     function create(projectId, wbsItem) {
       var pid = requireProjectId(projectId);
       var input = Object.assign({}, wbsItem || {});
+
+      if (Object.prototype.hasOwnProperty.call(wbsItem || {}, 'code')) {
+        throw new Error('wbsFirestoreAdapter: explicit code is not allowed');
+      }
+
       var ref = input.id ? collectionRef(db(), pid).doc(input.id) : collectionRef(db(), pid).doc();
       input.id = input.id || ref.id;
       input.projectId = input.projectId || pid;
-
-      if (clean(input.code)) {
-        throw new Error('wbsFirestoreAdapter: explicit code is not allowed');
-      }
 
       return createWithAllocatedCode(db(), pid, ref, input).then(function () {
         return getById(pid, input.id);
@@ -258,7 +276,7 @@
       var pid = requireProjectId(projectId);
       var wid = requireWbsItemId(wbsItemId);
       var nextPatch = applyWriteTimestamps(
-        applyWbsUnlinkDeletes(sanitizeUpdatePatch(patch || {})),
+        applyOptionalFieldDeletes(applyWbsUnlinkDeletes(sanitizeUpdatePatch(patch || {}))),
         'update'
       );
       return collectionRef(db(), pid).doc(wid).update(nextPatch).then(function () {

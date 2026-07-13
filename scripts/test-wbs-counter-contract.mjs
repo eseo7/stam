@@ -201,6 +201,10 @@ assert.equal(adapterApi.formatWbsCodeNumber(1), 'WBS-001');
 assert.equal(adapterApi.formatWbsCodeNumber(2), 'WBS-002');
 assert.equal(adapterApi.formatWbsCodeNumber(42), 'WBS-042');
 assert.equal(adapterApi.formatWbsCodeNumber(1000), 'WBS-1000');
+assert.throws(() => adapterApi.formatWbsCodeNumber(1.5));
+assert.throws(() => adapterApi.formatWbsCodeNumber('2'));
+assert.throws(() => adapterApi.formatWbsCodeNumber(0));
+assert.throws(() => adapterApi.formatWbsCodeNumber(-1));
 
 const fakeFirestore = createFakeFirestore();
 const adapter = adapterApi.create({ firestore: fakeFirestore });
@@ -226,6 +230,18 @@ assert.equal(specWrite[2].code, 'WBS-001');
 
 assert.throws(
   () => adapter.create('P1', validWbsPayload({ id: 'wbs-3', code: 'WBS-999' })),
+  /explicit code is not allowed/,
+);
+assert.throws(
+  () => adapter.create('P1', validWbsPayload({ id: 'wbs-4', code: '' })),
+  /explicit code is not allowed/,
+);
+assert.throws(
+  () => adapter.create('P1', validWbsPayload({ id: 'wbs-5', code: '   ' })),
+  /explicit code is not allowed/,
+);
+assert.throws(
+  () => adapter.create('P1', validWbsPayload({ id: 'wbs-6', code: null })),
   /explicit code is not allowed/,
 );
 assert.equal(
@@ -269,6 +285,9 @@ fakeFirestore.store.set(linkedPath, {
   startDate: '2026-07-01',
   endDate: '2026-07-02',
   progress: 0,
+  businessArea: '회원',
+  plannedEffort: 4,
+  actualEffort: 2,
   reviewerId: 'r1',
   reviewerName: 'R1',
   requirementId: 'req-abc',
@@ -303,5 +322,19 @@ assert.equal(unlinkPatch[2].functionalSpecTitle.__fieldDelete, true);
 assert.equal(unlinked.reviewerId, undefined);
 assert.equal(unlinked.requirementId, undefined);
 assert.equal(unlinked.functionalSpecId, undefined);
+
+const optionalClear = await adapter.update('P1', 'wbs-linked', {
+  businessArea: '',
+  plannedEffort: '',
+  actualEffort: '',
+});
+const optionalClearPatch = fakeFirestore.paths.filter((entry) => entry[0] === 'update' && entry[1] === linkedPath).at(-1);
+assert.ok(optionalClearPatch);
+assert.equal(optionalClearPatch[2].businessArea.__fieldDelete, true);
+assert.equal(optionalClearPatch[2].plannedEffort.__fieldDelete, true);
+assert.equal(optionalClearPatch[2].actualEffort.__fieldDelete, true);
+assert.equal(optionalClear.businessArea, undefined);
+assert.equal(optionalClear.plannedEffort, undefined);
+assert.equal(optionalClear.actualEffort, undefined);
 
 console.log('wbs counter contract: PASS');
