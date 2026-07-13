@@ -34,7 +34,6 @@ const ROLE_MATRIX = [
 ];
 
 const OTHER_ARTIFACT_COLLECTIONS = [
-  'wbsItems',
   'screenSpecs',
   'screenFields',
   'screenActions',

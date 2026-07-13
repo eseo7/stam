@@ -31,17 +31,24 @@ service cloud.firestore {
      * FS-6A (functionalSpecifications counter):
      *   FN_### code counter at projects/{projectId}/counters/functionalSpecifications.
      *   Writer roles: owner/admin/editor only. Counter delete denied.
+     *
+     * WBS-1:
+     *   WBS write opened for active project members with role owner/admin/editor.
+     *   Viewer remains read-only. Delete stays closed.
+     *   WBS-### counter added at projects/{projectId}/counters/wbsItems.
+     *
      *   Signed-in users may create or update only their own `users/{uid}`
      *   document for Google login bootstrap. Client cannot change `status`,
-     *   `provider`, `userId`, or `createdAt` on update. Project writes remain
-     *   closed.
+     *   `provider`, `userId`, or `createdAt` on update. Unopened artifact
+     *   collections (screenSpecs, screenFields, screenActions, artifactLinks)
+     *   remain write-closed.
      *
      *   - Rules gate is UID-based: allowed iff `projects/{projectId}/
      *     members/{request.auth.uid}` exists and .status == "active".
      *   - `email` / `emailNormalized` are stored on the member doc for
      *     invite / audit / display / future bootstrap.
-     *   - Writes remain fully closed. Role-based writes
-     *     (Owner / Admin / Editor / Viewer) land in a later PR.
+     *   - Role-scoped writes are opened per collection (requirements,
+     *     functionalSpecifications, wbsItems). Unopened artifacts remain closed.
      *   - The catch-all deny remains as a final backstop.
      *
      *   Rules are NOT filters: collectionGroup membership discovery must be
@@ -484,6 +491,272 @@ service cloud.firestore {
           && data.updatedAt == request.time;
     }
 
+    // ── WBS write helpers (WBS-1) ─────────────────────────────────────
+    function projectMemberPath(projectId, memberUid) {
+      return /databases/$(database)/documents/projects/$(projectId)/members/$(memberUid);
+    }
+    function isValidWbsMemberSnapshot(projectId, memberUid, memberName) {
+      return memberUid is string
+          && memberUid.size() > 0
+          && memberName is string
+          && memberName.size() > 0
+          && exists(projectMemberPath(projectId, memberUid))
+          && get(projectMemberPath(projectId, memberUid)).data.userId == memberUid
+          && get(projectMemberPath(projectId, memberUid)).data.projectId == projectId
+          && get(projectMemberPath(projectId, memberUid)).data.status == "active"
+          && get(projectMemberPath(projectId, memberUid)).data.displayName == memberName;
+    }
+    function isWbsWriter(projectId) {
+      return isRequirementWriter(projectId);
+    }
+    function isValidWbsTitle(title) {
+      return title is string
+          && title.size() >= 2
+          && title.size() <= 120;
+    }
+    function isValidWbsPhase(phase) {
+      return phase is string && (
+        phase == '착수' ||
+        phase == '분석' ||
+        phase == '설계' ||
+        phase == '구현' ||
+        phase == '검수' ||
+        phase == '오픈' ||
+        phase == '완료'
+      );
+    }
+    function isValidWbsStatus(status) {
+      return status is string && (
+        status == 'wait' ||
+        status == 'in_progress' ||
+        status == 'delayed' ||
+        status == 'done' ||
+        status == 'hold'
+      );
+    }
+    function isValidWbsPriority(priority) {
+      return priority is string && (
+        priority == 'high' ||
+        priority == 'mid' ||
+        priority == 'low'
+      );
+    }
+    function isValidWbsCode(code) {
+      return code is string
+          && code.size() > 0
+          && code.matches('^WBS-[0-9]{3,}$');
+    }
+    function isValidWbsDate(date) {
+      return date is string
+          && date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+    }
+    function isValidWbsProgress(status, progress) {
+      return progress is int
+          && progress >= 0
+          && progress <= 100
+          && (
+            (status == 'done' && progress == 100)
+            || (status != 'done' && progress < 100)
+          );
+    }
+    function isValidWbsOwner(projectId, data) {
+      return data.keys().hasAll(['ownerId', 'ownerName'])
+          && data.ownerId is string
+          && data.ownerId.size() > 0
+          && data.ownerName is string
+          && data.ownerName.size() > 0
+          && isValidWbsMemberSnapshot(projectId, data.ownerId, data.ownerName);
+    }
+    function isValidWbsReviewer(projectId, data) {
+      let hasReviewerId = data.keys().hasAny(['reviewerId']);
+      let hasReviewerName = data.keys().hasAny(['reviewerName']);
+      return (!hasReviewerId && !hasReviewerName)
+          || (hasReviewerId && hasReviewerName
+              && data.reviewerId is string
+              && data.reviewerId.size() > 0
+              && data.reviewerName is string
+              && data.reviewerName.size() > 0
+              && isValidWbsMemberSnapshot(projectId, data.reviewerId, data.reviewerName));
+    }
+    function isValidWbsRequirementLink(data) {
+      let hasId = data.keys().hasAny(['requirementId']);
+      let hasCode = data.keys().hasAny(['requirementCode']);
+      let hasTitle = data.keys().hasAny(['requirementTitle']);
+      return (!hasId && !hasCode && !hasTitle)
+          || (hasId && hasCode && hasTitle
+              && data.requirementId is string
+              && data.requirementId.size() > 0
+              && data.requirementCode is string
+              && data.requirementCode.matches('^REQ_[0-9]{3,}$')
+              && data.requirementTitle is string
+              && data.requirementTitle.size() > 0);
+    }
+    function isValidWbsFunctionalSpecLink(data) {
+      let hasId = data.keys().hasAny(['functionalSpecId']);
+      let hasCode = data.keys().hasAny(['functionalSpecCode']);
+      let hasTitle = data.keys().hasAny(['functionalSpecTitle']);
+      return (!hasId && !hasCode && !hasTitle)
+          || (hasId && hasCode && hasTitle
+              && data.functionalSpecId is string
+              && data.functionalSpecId.size() > 0
+              && data.functionalSpecCode is string
+              && data.functionalSpecCode.matches('^FN_[0-9]{3,}$')
+              && data.functionalSpecTitle is string
+              && data.functionalSpecTitle.size() > 0);
+    }
+    function wbsWriteKeys() {
+      return [
+        'id',
+        'projectId',
+        'code',
+        'title',
+        'phase',
+        'businessArea',
+        'functionGroup',
+        'screenPath',
+        'status',
+        'priority',
+        'ownerId',
+        'ownerName',
+        'reviewerId',
+        'reviewerName',
+        'startDate',
+        'endDate',
+        'plannedEffort',
+        'actualEffort',
+        'progress',
+        'description',
+        'requirementId',
+        'requirementCode',
+        'requirementTitle',
+        'functionalSpecId',
+        'functionalSpecCode',
+        'functionalSpecTitle',
+        'createdAt',
+        'createdBy',
+        'updatedAt',
+        'updatedBy',
+        'deletedAt',
+        'deletedBy',
+        'isDeleted',
+        'version',
+      ];
+    }
+    function wbsRequiredKeys() {
+      return [
+        'id',
+        'projectId',
+        'code',
+        'title',
+        'phase',
+        'functionGroup',
+        'status',
+        'priority',
+        'ownerId',
+        'ownerName',
+        'startDate',
+        'endDate',
+        'progress',
+        'createdAt',
+        'createdBy',
+        'updatedAt',
+        'updatedBy',
+        'deletedAt',
+        'deletedBy',
+        'isDeleted',
+        'version',
+      ];
+    }
+    function isValidWbsItemsCounterWrite() {
+      return isValidRequirementsCounterWrite();
+    }
+    function wbsFieldValidation(projectId, data) {
+      return isValidWbsTitle(data.title)
+          && isValidWbsPhase(data.phase)
+          && isValidWbsStatus(data.status)
+          && isValidWbsPriority(data.priority)
+          && isValidWbsCode(data.code)
+          && data.functionGroup is string
+          && data.functionGroup.size() > 0
+          && data.functionGroup.size() <= 120
+          && isValidWbsDate(data.startDate)
+          && isValidWbsDate(data.endDate)
+          && data.endDate >= data.startDate
+          && isValidWbsProgress(data.status, data.progress)
+          && isValidWbsOwner(projectId, data)
+          && isValidWbsReviewer(projectId, data)
+          && isValidWbsRequirementLink(data)
+          && isValidWbsFunctionalSpecLink(data)
+          && (!data.keys().hasAny(['businessArea']) || (
+            data.businessArea is string
+            && data.businessArea.size() > 0
+            && data.businessArea.size() <= 120
+          ))
+          && (!data.keys().hasAny(['screenPath']) || (
+            data.screenPath is string
+            && data.screenPath.size() <= 500
+          ))
+          && (!data.keys().hasAny(['description']) || (
+            data.description is string
+            && data.description.size() <= 4000
+          ))
+          && (!data.keys().hasAny(['plannedEffort']) || (
+            data.plannedEffort is number
+            && data.plannedEffort >= 0
+          ))
+          && (!data.keys().hasAny(['actualEffort']) || (
+            data.actualEffort is number
+            && data.actualEffort >= 0
+          ));
+    }
+    function wbsCreateCoreValid(projectId, data, wbsItemId) {
+      return data.id == wbsItemId
+          && data.projectId == projectId
+          && data.id is string
+          && data.projectId is string
+          && data.keys().hasAll(wbsRequiredKeys())
+          && data.keys().hasOnly(wbsWriteKeys())
+          && wbsFieldValidation(projectId, data)
+          && data.createdBy is string
+          && data.updatedBy is string
+          && data.isDeleted == false
+          && data.deletedAt == null
+          && data.deletedBy == null
+          && data.version is int
+          && data.version == 1;
+    }
+    function isValidWbsCreate(projectId, wbsItemId) {
+      let data = request.resource.data;
+      return isWbsWriter(projectId)
+          && wbsCreateCoreValid(projectId, data, wbsItemId)
+          && data.createdBy == uid()
+          && data.updatedBy == uid()
+          && data.createdAt == request.time
+          && data.updatedAt == request.time;
+    }
+    function isValidWbsUpdate(projectId, wbsItemId) {
+      let data = request.resource.data;
+      let prev = resource.data;
+      return isWbsWriter(projectId)
+          && data.id == wbsItemId
+          && data.projectId == projectId
+          && data.id == prev.id
+          && data.projectId == prev.projectId
+          && data.code == prev.code
+          && data.createdAt == prev.createdAt
+          && data.createdBy == prev.createdBy
+          && data.isDeleted == prev.isDeleted
+          && data.deletedAt == prev.deletedAt
+          && data.deletedBy == prev.deletedBy
+          && data.keys().hasAll(wbsRequiredKeys())
+          && data.keys().hasOnly(wbsWriteKeys())
+          && wbsFieldValidation(projectId, data)
+          && data.version is int
+          && data.version == prev.version + 1
+          && data.updatedBy == uid()
+          && data.updatedAt == request.time;
+    }
+
     // ── users/{uid} bootstrap helpers (PR #355) ───────────────────
     // Path variable userId must be passed into helpers explicitly.
     function userBootstrapKeys() {
@@ -565,7 +838,8 @@ service cloud.firestore {
     // ── projects/{projectId}/** ───────────────────────────────────
     // Every read on a project or its subcollections requires an
     // active member document under projects/{projectId}/members/{uid}.
-    // Writes are closed everywhere here; role-scoped writes land later.
+    // Unopened artifact subcollections remain write-closed; opened collections
+    // (requirements, functionalSpecifications, wbsItems) use role-scoped rules.
     match /projects/{projectId} {
       allow get, list: if canReadProject(projectId);
       allow create: if isValidProjectCreate(projectId);
@@ -600,17 +874,30 @@ service cloud.firestore {
 
       match /counters/{counterId} {
         allow get, list: if canReadProject(projectId);
-        allow create, update: if isRequirementWriter(projectId)
-            && (
-              (counterId == 'requirements' && isValidRequirementsCounterWrite())
-              || (counterId == 'functionalSpecifications' && isValidFunctionalSpecificationsCounterWrite())
+        allow create, update: if
+            (
+              counterId == 'requirements'
+              && isRequirementWriter(projectId)
+              && isValidRequirementsCounterWrite()
+            )
+            || (
+              counterId == 'functionalSpecifications'
+              && isFunctionalSpecWriter(projectId)
+              && isValidFunctionalSpecificationsCounterWrite()
+            )
+            || (
+              counterId == 'wbsItems'
+              && isWbsWriter(projectId)
+              && isValidWbsItemsCounterWrite()
             );
         allow delete: if false;
       }
 
       match /wbsItems/{wbsItemId} {
         allow get, list: if canReadProject(projectId);
-        allow create, update, delete: if false;
+        allow create: if isValidWbsCreate(projectId, wbsItemId);
+        allow update: if isValidWbsUpdate(projectId, wbsItemId);
+        allow delete: if false;
       }
 
       match /screenSpecs/{screenSpecId} {
