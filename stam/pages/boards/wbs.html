@@ -59,7 +59,7 @@
         data-pc-updated="업데이트 오늘 10:42"></div>
 
       <!-- ======================================== WBS Content -->
-      <div class="wbs-wrap">
+      <div class="wbs-wrap" data-stam-wbs-root>
 
         <!-- WBS 상단 영역: Page Header / KPI / Gantt / Filter / View Controls -->
         <div class="wbs-board-head">
@@ -72,35 +72,35 @@
           </div>
           <div class="wbs-page-actions stam-board-actions">
             <button class="stam-board-action-btn is-primary" id="wbs-reg-btn" type="button">+ 작업 등록</button>
-            <button class="stam-board-action-btn is-secondary" type="button">Excel 가져오기</button>
-            <button class="stam-board-action-btn is-secondary" type="button">내보내기</button>
+            <button class="stam-board-action-btn is-secondary" id="wbs-import-btn" type="button">Excel 가져오기</button>
+            <button class="stam-board-action-btn is-secondary" id="wbs-export-btn" type="button">내보내기</button>
             <button class="stam-board-action-btn is-secondary" type="button" data-focus-toggle>Focus View</button>
           </div>
         </div>
 
         <!-- KPI Strip -->
-        <div class="wbs-kpi-strip">
-          <div class="wbs-kpi-card kc-brand">
+        <div class="wbs-kpi-strip" data-stam-wbs-kpi-strip>
+          <div class="wbs-kpi-card kc-brand" data-wbs-kpi="total">
             <div class="wbs-kpi-num">17</div>
             <div class="wbs-kpi-lbl">전체 작업</div>
             <div class="wbs-kpi-sub">6개 기능그룹</div>
           </div>
-          <div class="wbs-kpi-card kc-info">
+          <div class="wbs-kpi-card kc-info" data-wbs-kpi="in_progress">
             <div class="wbs-kpi-num">2</div>
             <div class="wbs-kpi-lbl">진행중</div>
             <div class="wbs-kpi-sub">WBS-007, WBS-008</div>
           </div>
-          <div class="wbs-kpi-card kc-pass">
+          <div class="wbs-kpi-card kc-pass" data-wbs-kpi="done">
             <div class="wbs-kpi-num">6</div>
             <div class="wbs-kpi-lbl">완료</div>
             <div class="wbs-kpi-sub">35.3% 달성</div>
           </div>
-          <div class="wbs-kpi-card kc-fail">
+          <div class="wbs-kpi-card kc-fail" data-wbs-kpi="delayed">
             <div class="wbs-kpi-num">1</div>
             <div class="wbs-kpi-lbl">지연</div>
             <div class="wbs-kpi-sub">WBS-007 계획일 초과</div>
           </div>
-          <div class="wbs-kpi-card kc-warn">
+          <div class="wbs-kpi-card kc-warn" data-wbs-kpi="due_week">
             <div class="wbs-kpi-num">2</div>
             <div class="wbs-kpi-lbl">이번 주 마감</div>
             <div class="wbs-kpi-sub">06-05 ~ 06-11 기준</div>
@@ -108,7 +108,7 @@
         </div>
 
         <!-- ======================================== Gantt Timeline Section -->
-        <section class="wbs-gantt-section" data-open="true" aria-label="일정 요약 타임라인">
+        <section class="wbs-gantt-section" data-open="true" data-stam-wbs-static-derived="gantt" aria-label="일정 요약 타임라인">
 
           <!-- 헤더 (접기 토글) -->
           <div class="wbs-gantt-head">
@@ -339,8 +339,8 @@
 
         <!-- ======================================== WBS Table -->
         <div class="wbs-tbl-wrap">
-          <div class="wbs-tbl-inner" id="wbs-tbl-inner">
-            <table class="wbs-table">
+          <div class="wbs-tbl-inner" id="wbs-tbl-inner" data-stam-wbs-list-host>
+            <table class="wbs-table" id="wbs-static-table" data-stam-wbs-static-list>
               <thead>
                 <tr>
                   <th class="wbs-th-chk"><input type="checkbox" class="wbs-chk wbs-chk-all" id="wbs-chk-all" title="전체 선택"></th>
@@ -937,7 +937,7 @@
           <div class="wbs-drawer-scroll">
           <div class="wbs-drawer-content">
 
-          <div class="wbs-drawer-body wbs-detail-body">
+          <div class="wbs-drawer-body wbs-detail-body" data-stam-wbs-detail-host>
 
             <!-- Summary strip -->
             <div class="wbs-dw-summary">
@@ -1040,7 +1040,7 @@
             </div>
 
             <!-- 댓글 -->
-            <div class="wbs-drawer-sec">
+            <div class="wbs-drawer-sec" data-stam-wbs-excluded-section="comments">
               <div class="wbs-drawer-sec-title">댓글 <span class="wbs-badge-count">1</span></div>
               <div class="wbs-dw-cmt">
                 <div class="wbs-dw-cmt-av wbs-dw-cmt-av--me">이</div>
@@ -1059,7 +1059,7 @@
             </div>
 
             <!-- 변경이력 -->
-            <div class="wbs-drawer-sec">
+            <div class="wbs-drawer-sec" data-stam-wbs-excluded-section="history">
               <div class="wbs-drawer-sec-title">변경이력</div>
               <div class="wbs-dw-hist-item">
                 <div class="wbs-dw-hist-icon hi-status">↺</div>
@@ -1087,7 +1087,7 @@
           </div><!-- /.wbs-detail-body -->
 
           <!-- ===== BODY: 수정 폼 ===== -->
-          <div class="wbs-drawer-body wbs-edit-body">
+          <div class="wbs-drawer-body wbs-edit-body" data-stam-wbs-form="edit">
 
             <!-- 수정 경고 -->
             <div class="wbs-form-alert">
@@ -1104,22 +1104,22 @@
                 <span class="wbs-form-sec-num">1</span>
                 <span class="wbs-form-sec-label">기본 정보</span>
               </div>
-              <div class="wbs-form-body">
+              <div class="wbs-form-body" data-stam-wbs-basic-fields-host>
                 <div class="wbs-form-row wbs-form-full">
                   <label class="wbs-form-label">작업명 <span class="req">*</span></label>
-                  <input class="wbs-drawer-form-input" type="text" value="WBS 목록 화면 기준 설계" placeholder="작업명을 입력하세요">
+                  <input class="wbs-drawer-form-input" type="text" value="WBS 목록 화면 기준 설계" placeholder="작업명을 입력하세요" data-wbs-field="title">
                 </div>
                 <div class="wbs-form-row wbs-form-full">
                   <label class="wbs-form-label">단계 <span class="req">*</span></label>
-                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="edit-phase" data-sel-val="설계" data-sel-opts="착수|분석|설계|구현|검수|오픈|완료"></div>
+                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="edit-phase" data-sel-val="설계" data-sel-opts="착수|분석|설계|구현|검수|오픈|완료" data-wbs-field="phase"></div>
                 </div>
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">기능그룹 <span class="req">*</span></label>
-                  <input class="wbs-drawer-form-input" type="text" value="WBS 화면" placeholder="예) 회원관리, 상품">
+                  <input class="wbs-drawer-form-input" type="text" value="WBS 화면" placeholder="예) 회원관리, 상품" data-wbs-field="functionGroup">
                 </div>
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">메뉴/화면 경로</label>
-                  <input class="wbs-drawer-form-input" type="text" value="WBS 작업 목록" placeholder="예) 회원관리 > 회원가입">
+                  <input class="wbs-drawer-form-input" type="text" value="WBS 작업 목록" placeholder="예) 회원관리 > 회원가입" data-wbs-field="screenPath">
                 </div>
               </div>
             </div>
@@ -1133,11 +1133,11 @@
               <div class="wbs-form-body">
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">담당자 <span class="req">*</span></label>
-                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="edit-assignee" data-sel-val="클로드" data-sel-opts="클로드|이서연|김기획|박PM|최개발"></div>
+                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="edit-assignee" data-sel-val="클로드" data-sel-opts="클로드|이서연|김기획|박PM|최개발" data-wbs-field="owner" data-stam-wbs-member-picker="owner" data-stam-wbs-member-mode="edit"></div>
                 </div>
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">검토자</label>
-                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="edit-reviewer" data-sel-val="이서연" data-sel-opts="이서연|박PM|김기획|최개발"></div>
+                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="edit-reviewer" data-sel-val="이서연" data-sel-opts="이서연|박PM|김기획|최개발" data-wbs-field="reviewer" data-stam-wbs-member-picker="reviewer" data-stam-wbs-member-mode="edit"></div>
                 </div>
               </div>
             </div>
@@ -1148,8 +1148,8 @@
                 <span class="wbs-form-sec-num">3</span>
                 <span class="wbs-form-sec-label">상태 / 우선순위</span>
               </div>
-              <div class="wbs-form-body">
-                <div class="wbs-form-row">
+              <div class="wbs-form-body" data-stam-wbs-progress-field-host>
+                <div class="wbs-form-row" data-wbs-field="status">
                   <label class="wbs-form-label">진행상태</label>
                   <div class="wbs-form-toggle-group">
                     <button class="wbs-form-toggle" type="button">대기</button>
@@ -1159,7 +1159,7 @@
                     <button class="wbs-form-toggle" type="button">보류</button>
                   </div>
                 </div>
-                <div class="wbs-form-row">
+                <div class="wbs-form-row" data-wbs-field="priority">
                   <label class="wbs-form-label">우선순위</label>
                   <div class="wbs-form-toggle-group">
                     <button class="wbs-form-toggle active" type="button">높음</button>
@@ -1179,19 +1179,19 @@
               <div class="wbs-form-body">
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">시작일 <span class="req">*</span></label>
-                  <div class="wbs-datepick" data-wbs-dp data-dp-name="edit-start" data-dp-val="2026-06-01"></div>
+                  <div class="wbs-datepick" data-wbs-dp data-dp-name="edit-start" data-dp-val="2026-06-01" data-wbs-field="startDate"></div>
                 </div>
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">종료일 <span class="req">*</span></label>
-                  <div class="wbs-datepick" data-wbs-dp data-dp-name="edit-end" data-dp-val="2026-06-05"></div>
+                  <div class="wbs-datepick" data-wbs-dp data-dp-name="edit-end" data-dp-val="2026-06-05" data-wbs-field="endDate"></div>
                 </div>
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">예상 공수</label>
-                  <input class="wbs-drawer-form-input" type="text" value="4일" placeholder="예: 8d 또는 40h">
+                  <input class="wbs-drawer-form-input" type="text" value="4일" placeholder="예: 8d 또는 40h" data-wbs-field="plannedEffort">
                 </div>
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">실 공수</label>
-                  <input class="wbs-drawer-form-input" type="text" placeholder="전날 후 입력">
+                  <input class="wbs-drawer-form-input" type="text" placeholder="전날 후 입력" data-wbs-field="actualEffort">
                 </div>
               </div>
             </div>
@@ -1205,7 +1205,7 @@
               <div class="wbs-form-body">
                 <div class="wbs-form-row wbs-form-full">
                   <label class="wbs-form-label">작업 설명</label>
-                  <textarea class="wbs-drawer-form-textarea" rows="4" placeholder="구현 범위, 참고 사항, 제약 조건…"></textarea>
+                  <textarea class="wbs-drawer-form-textarea" rows="4" placeholder="구현 범위, 참고 사항, 제약 조건…" data-wbs-field="description"></textarea>
                 </div>
               </div>
             </div>
@@ -1217,17 +1217,17 @@
                 <span class="wbs-form-sec-label">관련 항목 연결</span>
               </div>
               <div class="wbs-form-body">
-                <div class="wbs-form-row wbs-form-full">
+                <div class="wbs-form-row wbs-form-full" data-stam-wbs-link-slot="requirement">
                   <label class="wbs-form-label">관련 요구사항</label>
-                  <button class="wbs-form-link-btn" type="button">+ 요구사항 연결</button>
+                  <button class="wbs-form-link-btn" type="button" data-stam-wbs-link-trigger>+ 요구사항 연결</button>
                 </div>
-                <div class="wbs-form-row wbs-form-full">
+                <div class="wbs-form-row wbs-form-full" data-stam-wbs-link-slot="functionalSpec">
                   <label class="wbs-form-label">관련 화면설계</label>
-                  <button class="wbs-form-link-btn" type="button">+ 화면설계 연결</button>
+                  <button class="wbs-form-link-btn" type="button" data-stam-wbs-link-trigger>+ 화면설계 연결</button>
                 </div>
-                <div class="wbs-form-row wbs-form-full">
+                <div class="wbs-form-row wbs-form-full" data-stam-wbs-excluded-control="meeting" data-stam-wbs-link-slot="meeting">
                   <label class="wbs-form-label">관련 회의록</label>
-                  <button class="wbs-form-link-btn" type="button">+ 회의록 연결</button>
+                  <button class="wbs-form-link-btn" type="button" data-stam-wbs-link-trigger>+ 회의록 연결</button>
                 </div>
               </div>
             </div>
@@ -1249,7 +1249,7 @@
           </div><!-- /.wbs-edit-body -->
 
           <!-- ===== BODY: 등록 폼 (create) ===== -->
-          <div class="wbs-drawer-body wbs-create-body">
+          <div class="wbs-drawer-body wbs-create-body" data-stam-wbs-form="create">
 
             <!-- 1. 기본 정보 -->
             <div class="wbs-form-sec">
@@ -1257,22 +1257,22 @@
                 <span class="wbs-form-sec-num">1</span>
                 <span class="wbs-form-sec-label">기본 정보</span>
               </div>
-              <div class="wbs-form-body">
+              <div class="wbs-form-body" data-stam-wbs-basic-fields-host>
                 <div class="wbs-form-row wbs-form-full">
                   <label class="wbs-form-label">작업명 <span class="req">*</span></label>
-                  <input class="wbs-drawer-form-input" type="text" placeholder="예) 상품 상세 화면 개발">
+                  <input class="wbs-drawer-form-input" type="text" placeholder="예) 상품 상세 화면 개발" data-wbs-field="title">
                 </div>
                 <div class="wbs-form-row wbs-form-full">
                   <label class="wbs-form-label">단계 <span class="req">*</span></label>
-                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="create-phase" data-sel-val="" data-sel-placeholder="— 단계 선택 —" data-sel-opts="착수|분석|설계|구현|검수|오픈|완료"></div>
+                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="create-phase" data-sel-val="" data-sel-placeholder="— 단계 선택 —" data-sel-opts="착수|분석|설계|구현|검수|오픈|완료" data-wbs-field="phase"></div>
                 </div>
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">기능그룹 <span class="req">*</span></label>
-                  <input class="wbs-drawer-form-input" type="text" placeholder="예) 회원관리, 상품, 주문/결제">
+                  <input class="wbs-drawer-form-input" type="text" placeholder="예) 회원관리, 상품, 주문/결제" data-wbs-field="functionGroup">
                 </div>
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">메뉴/화면 경로</label>
-                  <input class="wbs-drawer-form-input" type="text" placeholder="예) 회원관리 > 회원가입">
+                  <input class="wbs-drawer-form-input" type="text" placeholder="예) 회원관리 > 회원가입" data-wbs-field="screenPath">
                 </div>
                 <div class="wbs-form-row wbs-form-full">
                   <label class="wbs-form-label">WBS ID <span class="wbs-form-auto-badge">자동 부여</span></label>
@@ -1290,11 +1290,11 @@
               <div class="wbs-form-body">
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">담당자 <span class="req">*</span></label>
-                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="create-assignee" data-sel-val="" data-sel-placeholder="— 선택 —" data-sel-opts="이서연|김기획|박PM|최개발|정디자인"></div>
+                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="create-assignee" data-sel-val="" data-sel-placeholder="— 선택 —" data-sel-opts="이서연|김기획|박PM|최개발|정디자인" data-wbs-field="owner" data-stam-wbs-member-picker="owner" data-stam-wbs-member-mode="create"></div>
                 </div>
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">검토자</label>
-                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="create-reviewer" data-sel-val="" data-sel-placeholder="— 선택 —" data-sel-opts="박PM|이서연|김기획|최개발"></div>
+                  <div class="wbs-selectbox" data-wbs-sel data-sel-name="create-reviewer" data-sel-val="" data-sel-placeholder="— 선택 —" data-sel-opts="박PM|이서연|김기획|최개발" data-wbs-field="reviewer" data-stam-wbs-member-picker="reviewer" data-stam-wbs-member-mode="create"></div>
                 </div>
               </div>
             </div>
@@ -1305,8 +1305,8 @@
                 <span class="wbs-form-sec-num">3</span>
                 <span class="wbs-form-sec-label">상태 / 우선순위</span>
               </div>
-              <div class="wbs-form-body">
-                <div class="wbs-form-row">
+              <div class="wbs-form-body" data-stam-wbs-progress-field-host>
+                <div class="wbs-form-row" data-wbs-field="status">
                   <label class="wbs-form-label">진행상태</label>
                   <div class="wbs-form-toggle-group">
                     <button class="wbs-form-toggle active" type="button">대기</button>
@@ -1316,7 +1316,7 @@
                     <button class="wbs-form-toggle" type="button">보류</button>
                   </div>
                 </div>
-                <div class="wbs-form-row">
+                <div class="wbs-form-row" data-wbs-field="priority">
                   <label class="wbs-form-label">우선순위</label>
                   <div class="wbs-form-toggle-group">
                     <button class="wbs-form-toggle" type="button">높음</button>
@@ -1336,19 +1336,19 @@
               <div class="wbs-form-body">
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">시작일 <span class="req">*</span> <span class="wbs-form-hint">MM-DD 또는 YY.MM.DD</span></label>
-                  <div class="wbs-datepick" data-wbs-dp data-dp-name="create-start" data-dp-val=""></div>
+                  <div class="wbs-datepick" data-wbs-dp data-dp-name="create-start" data-dp-val="" data-wbs-field="startDate"></div>
                 </div>
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">종료일 <span class="req">*</span> <span class="wbs-form-hint">PMS 연동 YY.MM.DD</span></label>
-                  <div class="wbs-datepick" data-wbs-dp data-dp-name="create-end" data-dp-val=""></div>
+                  <div class="wbs-datepick" data-wbs-dp data-dp-name="create-end" data-dp-val="" data-wbs-field="endDate"></div>
                 </div>
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">예상 공수 <span class="wbs-form-hint">d/h 단위</span></label>
-                  <input class="wbs-drawer-form-input" type="text" placeholder="예) 8d 또는 40h">
+                  <input class="wbs-drawer-form-input" type="text" placeholder="예) 8d 또는 40h" data-wbs-field="plannedEffort">
                 </div>
                 <div class="wbs-form-row">
                   <label class="wbs-form-label">실 공수 <span class="wbs-form-hint">전날 후 입력</span></label>
-                  <input class="wbs-drawer-form-input" type="text" placeholder="예) 7d">
+                  <input class="wbs-drawer-form-input" type="text" placeholder="예) 7d" data-wbs-field="actualEffort">
                 </div>
               </div>
             </div>
@@ -1362,7 +1362,7 @@
               <div class="wbs-form-body">
                 <div class="wbs-form-row wbs-form-full">
                   <label class="wbs-form-label">작업 설명</label>
-                  <textarea class="wbs-drawer-form-textarea" rows="4" placeholder="구현 범위, 참고 사항, 제약 조건…"></textarea>
+                  <textarea class="wbs-drawer-form-textarea" rows="4" placeholder="구현 범위, 참고 사항, 제약 조건…" data-wbs-field="description"></textarea>
                 </div>
               </div>
             </div>
@@ -1374,17 +1374,17 @@
                 <span class="wbs-form-sec-label">관련 항목 연결</span>
               </div>
               <div class="wbs-form-body">
-                <div class="wbs-form-row wbs-form-full">
+                <div class="wbs-form-row wbs-form-full" data-stam-wbs-link-slot="requirement">
                   <label class="wbs-form-label">관련 요구사항</label>
-                  <button class="wbs-form-link-btn" type="button">+ 요구사항 연결</button>
+                  <button class="wbs-form-link-btn" type="button" data-stam-wbs-link-trigger>+ 요구사항 연결</button>
                 </div>
-                <div class="wbs-form-row wbs-form-full">
+                <div class="wbs-form-row wbs-form-full" data-stam-wbs-link-slot="functionalSpec">
                   <label class="wbs-form-label">관련 화면설계</label>
-                  <button class="wbs-form-link-btn" type="button">+ 화면설계 연결</button>
+                  <button class="wbs-form-link-btn" type="button" data-stam-wbs-link-trigger>+ 화면설계 연결</button>
                 </div>
-                <div class="wbs-form-row wbs-form-full">
+                <div class="wbs-form-row wbs-form-full" data-stam-wbs-excluded-control="meeting" data-stam-wbs-link-slot="meeting">
                   <label class="wbs-form-label">관련 회의록</label>
-                  <button class="wbs-form-link-btn" type="button">+ 회의록 연결</button>
+                  <button class="wbs-form-link-btn" type="button" data-stam-wbs-link-trigger>+ 회의록 연결</button>
                 </div>
               </div>
             </div>
@@ -1409,17 +1409,17 @@
             <!-- edit slot: [취소] [임시저장] [전체보기] (auto) [저장] -->
             <div class="wbs-edit-footer-slot">
               <button class="stam-btn stam-btn--md stam-btn--secondary wbs-drawer-cancel-btn" type="button">취소</button>
-              <button class="stam-btn stam-btn--md stam-btn--ghost" type="button">임시저장</button>
+              <button class="stam-btn stam-btn--md stam-btn--ghost" id="wbs-edit-temp-save-btn" type="button">임시저장</button>
               <button class="stam-btn stam-btn--md stam-btn--ghost wbs-fv-trigger-btn" type="button">전체 보기</button>
-              <button class="stam-btn stam-btn--md stam-btn--primary wbs-footer-end" type="button">저장</button>
+              <button class="stam-btn stam-btn--md stam-btn--primary wbs-footer-end" id="wbs-edit-save-btn" type="button">저장</button>
             </div>
 
             <!-- create slot: [취소] [임시저장] [전체보기] (auto) [등록] -->
             <div class="wbs-create-footer-slot">
               <button class="stam-btn stam-btn--md stam-btn--secondary wbs-drawer-close-btn" type="button">취소</button>
-              <button class="stam-btn stam-btn--md stam-btn--ghost" type="button">임시저장</button>
+              <button class="stam-btn stam-btn--md stam-btn--ghost" id="wbs-create-temp-save-btn" type="button">임시저장</button>
               <button class="stam-btn stam-btn--md stam-btn--ghost wbs-fv-trigger-btn" type="button">전체 보기</button>
-              <button class="stam-btn stam-btn--md stam-btn--primary wbs-footer-end" type="button">등록</button>
+              <button class="stam-btn stam-btn--md stam-btn--primary wbs-footer-end" id="wbs-create-save-btn" type="button">등록</button>
             </div>
 
           </div><!-- /.wbs-drawer-footer -->
