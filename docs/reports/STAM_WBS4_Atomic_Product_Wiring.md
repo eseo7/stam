@@ -168,13 +168,20 @@ row click → `getById` → `renderDetail` → `wbsUi.openDrawer('detail')`. 목
 | status/priority/progress 폼 중첩 | 각각 독립 `.wbs-form-row` 형제 |
 | 행동 테스트 미흡 | crud-ui / derived / live-html contract 강화 |
 
+### 21d. WBS-4 최종 마감 보정
+
+| 결함 | 보정 |
+|------|------|
+| 등록·수정 Drawer Full View 노출 | edit/create footer `wbs-fv-trigger-btn` disabled + Live 모드 `curMode !== 'detail'` 차단 |
+| Live Full View mirror 불완전 | `buildLiveFullViewDetail` — 요약·기본·일정·연결·작업내용 전 필드 + escape |
+| viewer custom Date/Select 미차단 | `setFormDisabled` trigger disabled + click handler `disabled`/`aria-disabled` 가드 |
+
 ## 22. Contract tests
 
 | 테스트 | 결과 |
 |--------|------|
-| test-wbs-live-html-contract.mjs | PASS |
-| test-wbs-list-contract.mjs | PASS |
-| test-wbs-crud-ui-contract.mjs | PASS (openEdit 1회·reviewer create/update/clear·viewer disabled·Live FV edit) |
+| test-wbs-live-html-contract.mjs | PASS (detail FV 활성 1·edit/create disabled·mirror 필드·XSS escape) |
+| test-wbs-crud-ui-contract.mjs | PASS (detail FV open·edit/create blocked·viewer date/phase disabled) |
 | test-wbs-derived-contract.mjs | PASS (TZ=Asia/Seoul·progress value 1/37/82/99 — group/overall/summary/detail) |
 | test-board-filter-dynamic-options-contract.mjs | PASS |
 | test-wbs-service-contract.mjs | PASS |
@@ -186,7 +193,8 @@ row click → `getById` → `renderDetail` → `wbsUi.openDrawer('detail')`. 목
 - 초기 Preview CI SUCCESS — Run `29255939017`
 - 1차 보정 commit Preview CI SUCCESS — Run `29257063314` (HEAD `090ea89013651014f063cf8b3c269fe9c62a4820`)
 - 1차 보정 보고서 포함 — Run `29257175497` (HEAD `bd3fc0511e699788680b7f74ed7fac6bdb1f3b64`)
-- 2차 보정 Preview CI — push 후 Run ID를 PR 본문에 기록 (별도 docs-only commit 없음)
+- 2차 보정 Preview CI SUCCESS — Run `29294957709` (HEAD `fd6ef7ba26f77ef96599af37383db42801d9d756`)
+- 최종 마감 Preview CI — push 후 Run ID를 PR 본문에 기록
 - Preview URL: `https://stam-design-staging--pr393-peuymtgw.web.app/pages/boards/wbs` (HTTP 200)
 
 ## 24. Browser QA

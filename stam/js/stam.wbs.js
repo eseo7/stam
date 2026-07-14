@@ -288,7 +288,10 @@
       }
       /* 전체 보기 버튼 */
       if (tgt.closest && tgt.closest('.wbs-fv-trigger-btn')) {
+        var fvBtn = tgt.closest('.wbs-fv-trigger-btn');
+        if (fvBtn.disabled || fvBtn.getAttribute('aria-disabled') === 'true') return;
         var curMode = panel.getAttribute('data-mode') || 'detail';
+        if (isLiveMode() && curMode !== 'detail') return;
         closeDrawer();
         openFv(isLiveMode() ? 'detail' : curMode);
         return;
@@ -490,22 +493,116 @@
     return '<div class="wbs-iv-muted">—</div>';
   }
 
+  function fvDatePart(value) {
+    if (!value) return '';
+    if (typeof value.toDate === 'function') {
+      try {
+        var dt = value.toDate();
+        return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+      } catch (err) {
+        return '';
+      }
+    }
+    return String(value).replace('T', ' ').slice(0, 10);
+  }
+
+  function fvPeriodLabel(start, end) {
+    var s = fvDatePart(start);
+    var e = fvDatePart(end);
+    if (!s && !e) return '—';
+    if (!s || !e) return s || e;
+    return s.slice(5) + ' ~ ' + e.slice(5);
+  }
+
+  function fvEffortLabel(value) {
+    if (value == null || value === '') return '—';
+    var num = Number(value);
+    if (!Number.isFinite(num)) return '—';
+    return num + '일';
+  }
+
+  function fvRequirementLabel(item) {
+    var code = String(item.requirementCode == null ? '' : item.requirementCode).trim();
+    var title = String(item.requirementTitle == null ? '' : item.requirementTitle).trim();
+    if (code && title) return code + ' · ' + title;
+    if (code) return code;
+    if (title) return title;
+    if (String(item.requirementId == null ? '' : item.requirementId).trim()) return '(제목 없음)';
+    return '—';
+  }
+
+  function fvFunctionalSpecLabel(item) {
+    var code = String(item.functionalSpecCode == null ? '' : item.functionalSpecCode).trim();
+    var title = String(item.functionalSpecTitle == null ? '' : item.functionalSpecTitle).trim();
+    if (code && title) return code + ' · ' + title;
+    if (code) return code;
+    if (title) return title;
+    if (String(item.functionalSpecId == null ? '' : item.functionalSpecId).trim()) return '(제목 없음)';
+    return '—';
+  }
+
   function buildLiveFullViewDetail(item) {
     if (!item) return '<div class="wbs-iv-muted">—</div>';
     var list = window.STAM && window.STAM.wbsFirestoreList;
     var status = list && list.statusInfo ? list.statusInfo(item.status) : { label: '—', cls: '' };
     var priority = list && list.priorityInfo ? list.priorityInfo(item.priority) : { label: '—', cls: '' };
-    var schedule = list && list.deriveScheduleState ? list.deriveScheduleState(item, todayIso()) : { verdict: '—' };
-    function esc(v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
-    return '<div class="wbs-drawer-sec"><div class="wbs-drawer-sec-title">기본 정보</div>' +
+    var schedule = list && list.deriveScheduleState ? list.deriveScheduleState(item, todayIso()) : { verdict: '—', verdictCls: '' };
+    var progress = item.progress != null ? Number(item.progress) || 0 : 0;
+    function esc(v) {
+      return String(v == null ? '' : v)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+    function sumItem(label, value) {
+      return '<div class="wbs-dw-sum-item"><span class="wbs-dw-sum-k">' + esc(label) + '</span><span class="wbs-dw-sum-v">' + value + '</span></div>';
+    }
+    function infoCell(label, value) {
+      return '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">' + esc(label) + '</div><div class="wbs-dw-iv">' + value + '</div></div>';
+    }
+    var verdictHtml = schedule.verdictCls
+      ? '<span class="wbs-chip ' + esc(schedule.verdictCls) + ' sm">' + esc(schedule.verdict) + '</span>'
+      : esc(schedule.verdict || '—');
+  return '<div class="wbs-dw-summary">' +
+      sumItem('담당자', esc(item.ownerName || '—')) +
+      sumItem('검토자', esc(item.reviewerName || '—')) +
+      sumItem('기간', esc(fvPeriodLabel(item.startDate, item.endDate))) +
+      sumItem('예상 공수', esc(fvEffortLabel(item.plannedEffort))) +
+      sumItem('실 공수', esc(fvEffortLabel(item.actualEffort))) +
+      sumItem('기간판정', verdictHtml) +
+      sumItem('진행률', esc(item.progress != null ? String(progress) + '%' : '—')) +
+      '</div>' +
+      '<div class="wbs-drawer-sec"><div class="wbs-drawer-sec-title">기본 정보</div>' +
       '<div class="wbs-dw-info-grid">' +
-      '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">WBS ID</div><div class="wbs-dw-iv">' + esc(item.code) + '</div></div>' +
-      '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">작업명</div><div class="wbs-dw-iv">' + esc(item.title) + '</div></div>' +
-      '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">상태</div><div class="wbs-dw-iv"><span class="wbs-chip ' + status.cls + '">' + esc(status.label) + '</span></div></div>' +
-      '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">우선순위</div><div class="wbs-dw-iv"><span class="wbs-prio ' + priority.cls + '">' + esc(priority.label) + '</span></div></div>' +
+      infoCell('WBS ID', esc(item.code || '—')) +
+      infoCell('작업명', esc(item.title || '—')) +
+      infoCell('단계', '<span class="wbs-type-chip">' + esc(item.phase || '—') + '</span>') +
+      infoCell('업무영역', esc(item.businessArea || '—')) +
+      infoCell('기능그룹', esc(item.functionGroup || '—')) +
+      infoCell('메뉴/화면 경로', esc(item.screenPath || '—')) +
+      infoCell('상태', '<span class="wbs-chip ' + esc(status.cls) + '">' + esc(status.label) + '</span>') +
+      infoCell('우선순위', '<span class="wbs-prio ' + esc(priority.cls) + '"><span class="wbs-prio-dot"></span>' + esc(priority.label) + '</span>') +
       '</div></div>' +
-      '<div class="wbs-drawer-sec"><div class="wbs-drawer-sec-title">일정</div>' +
-      '<div class="wbs-dw-desc">기간판정: ' + esc(schedule.verdict) + ' · 진행률: ' + esc(item.progress != null ? item.progress + '%' : '—') + '</div></div>';
+      '<div class="wbs-drawer-sec"><div class="wbs-drawer-sec-title">일정 정보</div>' +
+      '<div class="wbs-dw-info-grid">' +
+      infoCell('시작일', esc(fvDatePart(item.startDate) || '—')) +
+      infoCell('종료일', esc(fvDatePart(item.endDate) || '—')) +
+      infoCell('예상공수', esc(fvEffortLabel(item.plannedEffort))) +
+      infoCell('실공수', esc(fvEffortLabel(item.actualEffort))) +
+      '</div>' +
+      '<div class="wbs-dw-prog-row">' +
+      '<progress class="wbs-live-progress wbs-live-progress--detail" max="100" value="' + progress + '"></progress>' +
+      '<span class="wbs-dw-prog-pct-label">' + esc(item.progress != null ? String(progress) + '%' : '—') + '</span>' +
+      '</div></div>' +
+      '<div class="wbs-drawer-sec"><div class="wbs-drawer-sec-title">연결 정보</div>' +
+      '<div class="wbs-dw-linked-empty">' + esc(fvRequirementLabel(item)) + '</div>' +
+      '<div class="wbs-dw-linked-empty">' + esc(fvFunctionalSpecLabel(item)) + '</div>' +
+      '</div>' +
+      '<div class="wbs-drawer-sec"><div class="wbs-drawer-sec-title">작업 내용</div>' +
+      '<div class="wbs-dw-desc">' + esc(item.description || '—') + '</div>' +
+      '<div class="wbs-dw-muted">' + esc(fvDatePart(item.updatedAt) || '—') + '</div>' +
+      '</div>';
   }
 
   function handleLiveFvEdit() {
@@ -746,7 +843,7 @@
     document.querySelectorAll('[data-wbs-dp]').forEach(initOneDp);
     document.addEventListener('click',function(e){
       var tog=e.target.closest?e.target.closest('[data-dp-toggle]'):null;
-      if(tog){var dp=tog.closest('.wbs-datepick');if(!dp)return;if(_activeDp===dp){closeDp();return;}closeDp();openDp(dp);return;}
+      if(tog){var dp=tog.closest('.wbs-datepick');if(!dp)return;if(tog.disabled||dp.getAttribute('aria-disabled')==='true')return;if(_activeDp===dp){closeDp();return;}closeDp();openDp(dp);return;}
       if(_activeDp&&_dpPortal.contains(e.target)){
         var dp=_activeDp,yr=parseInt(dp.getAttribute('data-dp-y'),10),mo=parseInt(dp.getAttribute('data-dp-m'),10),view=dp.getAttribute('data-dp-view')||'days';
         if(e.target.closest('[data-dp-calmode]')){view=view==='months'?'days':'months';dp.setAttribute('data-dp-view',view);_dpPortal.innerHTML=buildPop(dp);posDpP();return;}
@@ -815,7 +912,7 @@
     document.querySelectorAll('[data-wbs-sel]').forEach(initOneSel);
     document.addEventListener('click',function(e){
       var tog=e.target.closest?e.target.closest('[data-sel-toggle]'):null;
-      if(tog){var box=tog.closest('[data-wbs-sel]');if(!box)return;if(_activeSel===box){closeSel();return;}closeSel();openSel(box,tog);return;}
+      if(tog){var box=tog.closest('[data-wbs-sel]');if(!box)return;if(tog.disabled||box.getAttribute('aria-disabled')==='true')return;if(_activeSel===box){closeSel();return;}closeSel();openSel(box,tog);return;}
       if(_activeSel&&_selPortal.contains(e.target)){
         var opt=e.target.closest('[data-sel-opt]');
         if(opt){

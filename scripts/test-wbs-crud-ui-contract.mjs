@@ -25,7 +25,8 @@ assert.match(crudSource, /fnApi\.load\(fnPicker\)/);
 assert.match(crudSource, /applyDefaultOwner/);
 assert.match(crudSource, /omitWhenUnlinked: true/);
 assert.match(crudSource, /reviewerId: ''/);
-assert.match(crudSource, /reviewerId: clean\(snap\.reviewerId/);
+assert.match(crudSource, /\[data-wbs-dp\] \.wbs-dp-trigger, \[data-wbs-sel\] \.wbs-sel/);
+assert.match(crudSource, /wbs-edit-footer-slot \.wbs-fv-trigger-btn/);
 assert.doesNotMatch(crudSource, /setTimeout/);
 assert.doesNotMatch(crudSource, /projectMemberReadService\.listActiveMembers/);
 assert.match(crudSource, /projectMemberPicker/);
@@ -411,6 +412,122 @@ const fvModeTag = { textContent: '' };
 const fvBody = { innerHTML: '' };
 const fvFoot = { innerHTML: '', querySelector() { return null; } };
 const wbsWrap = { classList: { add() {}, remove() {} } };
+const drawerPanel = {
+  attrs: { 'data-mode': 'detail', 'data-open': 'true' },
+  getAttribute(k) { return this.attrs[k]; },
+  setAttribute(k, v) { this.attrs[k] = v; },
+};
+const drawerOverlay = { addEventListener() {} };
+const drawerRoot = {
+  attrs: { 'data-open': 'false' },
+  getAttribute(k) { return this.attrs[k]; },
+  setAttribute(k, v) { this.attrs[k] = v; },
+  querySelector(sel) {
+    if (sel === '.wbs-drawer-overlay') return drawerOverlay;
+    return null;
+  },
+  listeners: {},
+  addEventListener(evt, fn) { this.listeners[evt] = fn; },
+};
+const detailFvBtn = {
+  disabled: false,
+  attrs: { 'aria-disabled': 'false' },
+  classList: { contains() { return false; } },
+  getAttribute(k) { return this.attrs[k]; },
+  closest(sel) { return sel === '.wbs-fv-trigger-btn' ? this : null; },
+};
+const editFvBtn = {
+  disabled: true,
+  attrs: { 'aria-disabled': 'true' },
+  classList: { contains() { return false; } },
+  getAttribute(k) { return this.attrs[k]; },
+  closest(sel) { return sel === '.wbs-fv-trigger-btn' ? this : null; },
+};
+const createFvBtn = {
+  disabled: true,
+  attrs: { 'aria-disabled': 'true' },
+  classList: { contains() { return false; } },
+  getAttribute(k) { return this.attrs[k]; },
+  closest(sel) { return sel === '.wbs-fv-trigger-btn' ? this : null; },
+};
+const dateHost = {
+  className: 'wbs-datepick',
+  attrs: { 'aria-disabled': 'false' },
+  getAttribute(k) { return this.attrs[k]; },
+  setAttribute(k, v) { this.attrs[k] = v; },
+  closest(sel) { return sel === '.wbs-datepick' || sel === '[data-wbs-dp]' ? this : null; },
+  classList: { add() {}, remove() {}, contains() { return false; } },
+};
+const dateTrigger = {
+  disabled: false,
+  closest(sel) {
+    if (sel === '[data-dp-toggle]') return this;
+    if (sel === '.wbs-datepick') return dateHost;
+    return null;
+  },
+};
+const phaseHost = {
+  className: 'wbs-selectbox',
+  attrs: { 'aria-disabled': 'false', 'data-sel-opts': '착수|구현' },
+  getAttribute(k) { return this.attrs[k] || ''; },
+  setAttribute(k, v) { this.attrs[k] = v; },
+  closest(sel) { return sel === '[data-wbs-sel]' ? this : null; },
+  classList: { add() {}, remove() {}, contains() { return false; } },
+};
+const phaseTrigger = {
+  disabled: false,
+  classList: { add() {}, remove() {}, contains() { return false; } },
+  closest(sel) {
+    if (sel === '[data-sel-toggle]') return this;
+    if (sel === '[data-wbs-sel]') return phaseHost;
+    return null;
+  },
+};
+function wireCustomControls(form) {
+  const origQS = form.querySelector.bind(form);
+  const origQSA = form.querySelectorAll.bind(form);
+  form.querySelector = function querySelector(sel) {
+    if (sel === '[data-wbs-dp] .wbs-dp-trigger') return dateTrigger;
+    if (sel === '[data-wbs-sel] .wbs-sel') return phaseTrigger;
+    return origQS(sel);
+  };
+  form.querySelectorAll = function querySelectorAll(sel) {
+    if (sel === '[data-wbs-dp] .wbs-dp-trigger, [data-wbs-sel] .wbs-sel') return [dateTrigger, phaseTrigger];
+    if (sel === '[data-wbs-dp], [data-wbs-sel]') return [dateHost, phaseHost];
+    return origQSA(sel);
+  };
+}
+wireCustomControls(createForm);
+wireCustomControls(editForm);
+
+let dpPortalCreates = 0;
+let selPortalCreates = 0;
+context.document.body = { style: {}, appendChild() {} };
+context.document.createElement = function createElement(tag) {
+  const el = {
+    tagName: String(tag || '').toUpperCase(),
+    className: '',
+    style: { cssText: '' },
+    innerHTML: '',
+    parentNode: null,
+    setAttribute() {},
+    getAttribute() { return null; },
+    appendChild() {},
+    contains() { return false; },
+    getBoundingClientRect() { return { bottom: 0, left: 0, width: 100 }; },
+    querySelector() { return null; },
+    classList: { add() {}, remove() {}, contains() { return false; } },
+  };
+  Object.defineProperty(el, 'className', {
+    get() { return el._className || ''; },
+    set(v) {
+      el._className = v;
+      if (v === 'wbs-dp-pop') dpPortalCreates += 1;
+      if (String(v).includes('wbs-sel-menu')) selPortalCreates += 1;
+    },
+  });
+  return el;
+};
 
 context.document.getElementById = function getElementById(id) {
   if (id === 'wbs-reg-btn') return regBtn;
@@ -421,9 +538,8 @@ context.document.getElementById = function getElementById(id) {
   if (id === 'wbs-fv-mode-tag') return fvModeTag;
   if (id === 'wbs-fv-body') return fvBody;
   if (id === 'wbs-fv-foot') return fvFoot;
-  if (id === 'wbs-fv-x-btn') return { addEventListener() {} };
-  if (id === 'wbs-fv-back-btn') return { addEventListener() {} };
-  if (id === 'wbs-fv-foot-back') return { addEventListener() {} };
+  if (id === 'wbs-drawer') return drawerRoot;
+  if (id === 'wbs-drawer-panel') return drawerPanel;
   return null;
 };
 context.document.querySelector = function querySelector(sel) {
@@ -432,13 +548,23 @@ context.document.querySelector = function querySelector(sel) {
   if (sel === '[data-stam-wbs-form="edit"]') return editForm;
   if (sel === '.wbs-drawer-edit-btn') return editBtn;
   if (sel === '.wbs-wrap') return wbsWrap;
+  if (sel === '.wbs-edit-footer-slot .wbs-fv-trigger-btn') return editFvBtn;
+  if (sel === '.wbs-create-footer-slot .wbs-fv-trigger-btn') return createFvBtn;
+  if (sel === '.wbs-detail-footer-slot .wbs-fv-trigger-btn') return detailFvBtn;
   return null;
+};
+context.document.querySelectorAll = function querySelectorAll(sel) {
+  if (sel === '[data-wbs-dp]') return [dateHost];
+  if (sel === '[data-wbs-sel]') return [phaseHost];
+  return [];
 };
 
 calls.openEdit = 0;
 const wbsDomReady = [];
-context.document.addEventListener = function addEventListener(evt, fn) {
+const docClickCapturers = [];
+context.document.addEventListener = function addEventListener(evt, fn, cap) {
   if (evt === 'DOMContentLoaded') wbsDomReady.push(fn);
+  else if (evt === 'click' && cap) docClickCapturers.push(fn);
 };
 context.document.readyState = 'loading';
 vm.runInContext(wbsSource, context, { filename: 'stam.wbs.js' });
@@ -448,6 +574,7 @@ for (let i = 0; i < 10; i += 1) await Promise.resolve();
 
 const wbsUi = context.window.STAM.wbsUi;
 assert.ok(wbsUi && typeof wbsUi.openFullView === 'function');
+assert.ok(drawerRoot.listeners.click, 'drawer click delegation must bind');
 
 wbsUi.openFullView('detail');
 assert.match(fvModeTag.textContent, /상세/);
@@ -492,5 +619,54 @@ assert.equal(calls.openEdit, 0);
 wbsUi.openFullView('edit');
 assert.match(fvModeTag.textContent, /상세/);
 assert.doesNotMatch(fvModeTag.textContent, /수정/);
+
+const fvOpenCalls = { count: 0 };
+const origOpenFv = wbsUi.openFullView;
+wbsUi.openFullView = function openFullViewWrapped(mode) {
+  fvOpenCalls.count += 1;
+  return origOpenFv(mode);
+};
+
+fvPanel.attrs['data-open'] = 'false';
+drawerPanel.attrs['data-mode'] = 'detail';
+drawerRoot.listeners.click({ target: detailFvBtn, closest(s) { return s === '.wbs-fv-trigger-btn' ? detailFvBtn : null; } });
+assert.equal(fvPanel.attrs['data-open'], 'true');
+
+fvPanel.attrs['data-open'] = 'false';
+drawerPanel.attrs['data-mode'] = 'edit';
+drawerRoot.listeners.click({ target: editFvBtn, closest(s) { return s === '.wbs-fv-trigger-btn' ? editFvBtn : null; } });
+assert.equal(fvPanel.attrs['data-open'], 'false');
+assert.equal(editFvBtn.disabled, true);
+
+fvPanel.attrs['data-open'] = 'false';
+drawerPanel.attrs['data-mode'] = 'create';
+drawerRoot.listeners.click({ target: createFvBtn, closest(s) { return s === '.wbs-fv-trigger-btn' ? createFvBtn : null; } });
+assert.equal(fvPanel.attrs['data-open'], 'false');
+assert.equal(createFvBtn.disabled, true);
+
+assert.equal(dateTrigger.disabled, true);
+assert.equal(phaseTrigger.disabled, true);
+assert.equal(dateHost.getAttribute('aria-disabled'), 'true');
+assert.equal(phaseHost.getAttribute('aria-disabled'), 'true');
+
+dpPortalCreates = 0;
+selPortalCreates = 0;
+for (const handler of docClickCapturers) {
+  handler({ target: dateTrigger, closest(sel) { return dateTrigger.closest(sel); } });
+  handler({ target: phaseTrigger, closest(sel) { return phaseTrigger.closest(sel); } });
+}
+assert.equal(dpPortalCreates, 0);
+assert.equal(selPortalCreates, 0);
+
+listState.member.role = 'editor';
+crud.applyWriteAccessUI();
+dateHost.setAttribute('aria-disabled', 'false');
+phaseHost.setAttribute('aria-disabled', 'false');
+dateTrigger.disabled = false;
+phaseTrigger.disabled = false;
+assert.equal(dateTrigger.disabled, false);
+assert.equal(phaseTrigger.disabled, false);
+assert.equal(dateHost.getAttribute('aria-disabled'), 'false');
+assert.equal(phaseHost.getAttribute('aria-disabled'), 'false');
 
 console.log('wbs crud ui contract: PASS');

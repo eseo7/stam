@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import vm from 'node:vm';
 import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
@@ -104,5 +105,115 @@ assert.match(wbsJs, /handleLiveFvEdit/);
 assert.match(wbsJs, /var effectiveMode = live \? 'detail' : mode/);
 assert.doesNotMatch(html, /data-stam-wbs-link-trigger>\s*disabled/);
 assert.doesNotMatch(html, /title="1차 범위 외"\+/);
+
+const detailFvBtn = html.match(/<div class="wbs-detail-footer-slot">[\s\S]*?(<button[^>]*wbs-fv-trigger-btn[^>]*>)/)?.[1] || '';
+const editFvBtn = html.match(/<div class="wbs-edit-footer-slot">[\s\S]*?(<button[^>]*wbs-fv-trigger-btn[^>]*>)/)?.[1] || '';
+const createFvBtn = html.match(/<div class="wbs-create-footer-slot">[\s\S]*?(<button[^>]*wbs-fv-trigger-btn[^>]*>)/)?.[1] || '';
+assert.equal((detailFvBtn.match(/\sdisabled(?:\s|>|=)/g) || []).length, 0, 'detail Full View must stay enabled');
+assert.equal((editFvBtn.match(/\sdisabled(?:\s|>|=)/g) || []).length, 1, 'edit Full View must be disabled');
+assert.equal((createFvBtn.match(/\sdisabled(?:\s|>|=)/g) || []).length, 1, 'create Full View must be disabled');
+assert.match(editFvBtn, /title="전체 보기는 상세 화면에서 확인할 수 있습니다\."/);
+assert.match(createFvBtn, /title="전체 보기는 상세 화면에서 확인할 수 있습니다\."/);
+
+const fixtureItem = {
+  code: 'WBS-099',
+  title: 'Mirror task',
+  phase: '구현',
+  businessArea: 'Auth',
+  functionGroup: 'Login',
+  screenPath: '/login',
+  status: 'in_progress',
+  priority: 'high',
+  ownerName: 'Owner One',
+  reviewerName: 'Reviewer Two',
+  startDate: '2026-07-01',
+  endDate: '2026-07-10',
+  plannedEffort: 5,
+  actualEffort: 3,
+  progress: 37,
+  requirementCode: 'REQ-001',
+  requirementTitle: 'Login requirement',
+  functionalSpecCode: 'FN-001',
+  functionalSpecTitle: 'Login spec',
+  description: 'Work desc',
+  updatedAt: '2026-07-14',
+};
+const xssItem = Object.assign({}, fixtureItem, {
+  title: '<script>alert(1)</script>',
+  ownerName: '<img onerror=1>',
+  description: '"><svg onload=1>',
+});
+
+function makeDomEl() {
+  return {
+    setAttribute() {},
+    getAttribute() { return ''; },
+    removeAttribute() {},
+    textContent: '',
+    innerHTML: '',
+    disabled: false,
+    hidden: false,
+    addEventListener() {},
+    appendChild() {},
+    contains() { return false; },
+    matches() { return false; },
+    closest() { return null; },
+    classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } },
+    querySelector() { return null; },
+    querySelectorAll() { return []; },
+    getBoundingClientRect() { return { bottom: 0, left: 0, width: 100 }; },
+    style: {},
+  };
+}
+const wbsDomReady = [];
+const wbsContext = vm.createContext({
+  console,
+  window: {
+    STAM: {
+      wbsFirestoreList: {
+        statusInfo() { return { label: '진행중', cls: 'wc-prog' }; },
+        priorityInfo() { return { label: '높음', cls: 'wp-high' }; },
+        deriveScheduleState() { return { verdict: '진행중', verdictCls: 'wc-prog' }; },
+      },
+      boardFilter: { init() { return {}; } },
+      navRender: { init() {} },
+    },
+    scrollTo() {},
+  },
+  document: {
+    querySelector(sel) {
+      if (sel === '[data-stam-wbs-live="true"]') return { getAttribute: () => 'true' };
+      return null;
+    },
+    querySelectorAll() { return []; },
+    getElementById() { return makeDomEl(); },
+    createElement() { return makeDomEl(); },
+    addEventListener(evt, fn) {
+      if (evt === 'DOMContentLoaded') wbsDomReady.push(fn);
+    },
+    readyState: 'loading',
+    body: { style: {} },
+    documentElement: { getAttribute() { return ''; } },
+  },
+  Date, String, Number, Math, Array, Object,
+});
+wbsContext.window.window = wbsContext.window;
+wbsContext.window.document = wbsContext.document;
+vm.runInContext(wbsJs, wbsContext, { filename: 'stam.wbs.js' });
+wbsContext.document.readyState = 'complete';
+wbsDomReady.forEach((fn) => fn());
+const buildFv = wbsContext.window.STAM.wbsUi.buildFullViewDetail;
+const fixtureHtml = buildFv(fixtureItem);
+for (const token of [
+  'Owner One', 'Reviewer Two', '구현', 'Auth', 'Login', '/login',
+  '2026-07-01', '2026-07-10', '5일', '3일', 'REQ-001', 'Login requirement',
+  'FN-001', 'Login spec', 'Work desc', '2026-07-14', '37%',
+]) {
+  assert.match(fixtureHtml, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+}
+const xssHtml = buildFv(xssItem);
+assert.doesNotMatch(xssHtml, /<script>/);
+assert.doesNotMatch(xssHtml, /<img onerror/);
+assert.match(xssHtml, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
 
 console.log('wbs live html contract: PASS');

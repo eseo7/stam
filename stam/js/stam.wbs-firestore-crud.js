@@ -460,6 +460,9 @@
     scope.querySelectorAll('[data-wbs-dp], [data-wbs-sel]').forEach(function (el) {
       el.setAttribute('aria-disabled', disabled ? 'true' : 'false');
     });
+    scope.querySelectorAll('[data-wbs-dp] .wbs-dp-trigger, [data-wbs-sel] .wbs-sel').forEach(function (el) {
+      el.disabled = !!disabled;
+    });
     var reqApi = window.STAM && window.STAM.requirementPicker;
     var fnApi = window.STAM && window.STAM.functionalSpecPicker;
     var memApi = window.STAM && window.STAM.projectMemberPicker;
@@ -499,6 +502,12 @@
     document.querySelectorAll('[data-stam-wbs-excluded-control="meeting"] button').forEach(function (btn) {
       setButtonDisabled(btn, true, scopeUnsupported);
     });
+    if (document.querySelector('[data-stam-wbs-live="true"]')) {
+      var fvBlockedMsg = '전체 보기는 상세 화면에서 확인할 수 있습니다.';
+      document.querySelectorAll('.wbs-edit-footer-slot .wbs-fv-trigger-btn, .wbs-create-footer-slot .wbs-fv-trigger-btn').forEach(function (btn) {
+        setButtonDisabled(btn, true, fvBlockedMsg);
+      });
+    }
   }
 
   function mountPickers() {
