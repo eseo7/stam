@@ -200,7 +200,10 @@
     if (role === 'owner') {
       return { ownerId: clean(snap.ownerId || snap.uid), ownerName: clean(snap.ownerName || snap.name) };
     }
-    return { reviewerId: clean(snap.ownerId || snap.uid), reviewerName: clean(snap.ownerName || snap.name) };
+    return {
+      reviewerId: clean(snap.reviewerId || snap.ownerId || snap.uid),
+      reviewerName: clean(snap.reviewerName || snap.ownerName || snap.name),
+    };
   }
 
   function setMemberValue(scope, role, snapshot) {
@@ -214,7 +217,7 @@
     if (role === 'owner') {
       api.setValue(container, { ownerId: snapshot.ownerId, ownerName: snapshot.ownerName });
     } else {
-      api.setValue(container, { ownerId: snapshot.reviewerId, ownerName: snapshot.reviewerName });
+      api.setValue(container, { reviewerId: snapshot.reviewerId, reviewerName: snapshot.reviewerName });
     }
   }
 

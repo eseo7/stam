@@ -98,5 +98,11 @@ assert.equal(count(/\sstyle="/g), 0);
 
 assert.doesNotMatch(wbsJs, /최종 변경 2026-06-07/);
 assert.doesNotMatch(wbsJs, /<span style=/);
+assert.doesNotMatch(wbsJs, /\.style\.width\s*=/);
+assert.doesNotMatch(wbsJs, /wbs-pct-\s*['"]?\s*\+/);
+assert.match(wbsJs, /handleLiveFvEdit/);
+assert.match(wbsJs, /var effectiveMode = live \? 'detail' : mode/);
+assert.doesNotMatch(html, /data-stam-wbs-link-trigger>\s*disabled/);
+assert.doesNotMatch(html, /title="1차 범위 외"\+/);
 
 console.log('wbs live html contract: PASS');

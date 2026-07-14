@@ -154,14 +154,28 @@ row click → `getById` → `renderDetail` → `wbsUi.openDrawer('detail')`. 목
 | KST due-week drift (`toISOString().slice(0,10)`) | `formatLocalDate` / `weekBoundsLocal` 로컬 날짜 formatter |
 | arbitrary progress width (`wbs-pct-N`) | native `<progress class="wbs-live-progress">` + `value` property |
 
+### 21c. WBS-4 2차 보정 (잔여 결함)
+
+1차 보정 크로스체크 잔여 결함 보정 (이전 HEAD `bd3fc0511e699788680b7f74ed7fac6bdb1f3b64`):
+
+| 결함 | 보정 |
+|------|------|
+| reviewer `getMemberValue`가 `ownerId`/`ownerName`만 읽음 | `reviewerId`/`reviewerName` 우선 읽기 + `setMemberValue` reviewer 전용 필드 |
+| Live Full View 상단 수정 `openFv('edit')` 가짜 동작 | `handleLiveFvEdit()` — FV 닫기 → `openEdit()` 1회 |
+| viewer Full View 수정 버튼 노출 | `hidden`/`disabled` + `canWrite()` 게이트 |
+| `fill.style.width` 잔존 (`initGroupProgress`) | native `<progress>` + `value` property |
+| 회의록 버튼 HTML 문법 오류 | 정상 `<button ... disabled aria-disabled title>` |
+| status/priority/progress 폼 중첩 | 각각 독립 `.wbs-form-row` 형제 |
+| 행동 테스트 미흡 | crud-ui / derived / live-html contract 강화 |
+
 ## 22. Contract tests
 
 | 테스트 | 결과 |
 |--------|------|
 | test-wbs-live-html-contract.mjs | PASS |
 | test-wbs-list-contract.mjs | PASS |
-| test-wbs-crud-ui-contract.mjs | PASS (행동 기반 VM: member API·picker mount·edit 단일 바인딩·viewer disabled) |
-| test-wbs-derived-contract.mjs | PASS (KST due-week·progress value 1/37/82/99) |
+| test-wbs-crud-ui-contract.mjs | PASS (openEdit 1회·reviewer create/update/clear·viewer disabled·Live FV edit) |
+| test-wbs-derived-contract.mjs | PASS (TZ=Asia/Seoul·progress value 1/37/82/99 — group/overall/summary/detail) |
 | test-board-filter-dynamic-options-contract.mjs | PASS |
 | test-wbs-service-contract.mjs | PASS |
 | test-wbs-picker-hooks-contract.mjs | PASS |
@@ -170,7 +184,9 @@ row click → `getById` → `renderDetail` → `wbsUi.openDrawer('detail')`. 목
 ## 23. Preview CI
 
 - 초기 Preview CI SUCCESS — Run `29255939017`
-- 보정 commit Preview CI SUCCESS — Run `29257063314` (HEAD `090ea89013651014f063cf8b3c269fe9c62a4820`)
+- 1차 보정 commit Preview CI SUCCESS — Run `29257063314` (HEAD `090ea89013651014f063cf8b3c269fe9c62a4820`)
+- 1차 보정 보고서 포함 — Run `29257175497` (HEAD `bd3fc0511e699788680b7f74ed7fac6bdb1f3b64`)
+- 2차 보정 Preview CI — push 후 Run ID를 PR 본문에 기록 (별도 docs-only commit 없음)
 - Preview URL: `https://stam-design-staging--pr393-peuymtgw.web.app/pages/boards/wbs` (HTTP 200)
 
 ## 24. Browser QA

@@ -1128,6 +1128,7 @@
     bindAuthorizedService: bindAuthorizedService,
     resolveProjectId: resolveProjectId,
     renderRows: renderRows,
+    renderTimelineSummary: renderTimelineSummary,
     statusInfo: statusInfo,
     priorityInfo: priorityInfo,
   };

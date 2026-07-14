@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+process.env.TZ = 'Asia/Seoul';
+
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
@@ -24,6 +26,8 @@ vm.runInContext(listSource, context, { filename: 'stam.wbs-firestore-list.js' })
 
 const api = context.window.STAM.wbsFirestoreList;
 const TODAY = '2026-06-07';
+
+assert.equal(process.env.TZ, 'Asia/Seoul');
 
 assert.deepEqual(api.deriveScheduleState({ status: 'done', startDate: '2026-06-01', endDate: '2026-06-05' }, TODAY).verdict, '완료');
 assert.deepEqual(api.deriveScheduleState({ status: 'hold', startDate: '2026-06-01', endDate: '2026-06-05' }, TODAY).verdict, '보류');
@@ -78,31 +82,102 @@ const dueWeekItems = [
 const dueWeekKpis = api.computeKpis(dueWeekItems, '2026-06-07');
 assert.equal(dueWeekKpis.dueWeek, 1);
 
-function progressValueFromGroupHeader(pct) {
-  assert.doesNotMatch(listSource, /wbs-pct-/);
-  return pct;
-}
+assert.doesNotMatch(listSource, /wbs-pct-/);
 
-assert.equal(progressValueFromGroupHeader(37), 37);
-assert.equal(progressValueFromGroupHeader(1), 1);
-assert.equal(progressValueFromGroupHeader(82), 82);
-assert.equal(progressValueFromGroupHeader(99), 99);
+function makeRow(pct) {
+  return {
+    functionGroup: 'G',
+    progress: pct,
+    status: 'in_progress',
+    id: 'x',
+    code: 'WBS-001',
+    title: 't',
+    phase: '구현',
+    ownerId: 'u',
+    ownerName: 'U',
+    startDate: '2026-06-01',
+    endDate: '2026-06-10',
+  };
+}
 
 const table = {
   innerHTML: '',
   querySelectorAll() { return []; },
   insertAdjacentHTML(_, html) { this.innerHTML += html; },
 };
-context.document.querySelector = () => table;
+
+const overallProgress = { value: 0 };
+const gsumCells = [
+  null, null, null, null, null,
+  {
+    innerHTML: '',
+    parentElement: {
+      querySelector(sel) {
+        if (sel === '.wbs-gsum-prog') {
+          return { querySelector() { return overallProgress; } };
+        }
+        return null;
+      },
+    },
+  },
+];
+const groupsHost = {
+  innerHTML: '',
+  children: [],
+  querySelector() { return null; },
+  appendChild(el) {
+    this.children.push(el);
+    this.innerHTML += el.outerHTML || el.innerHTML || '';
+  },
+};
+const progressBar = { value: 0 };
+
+context.document.createElement = (tag) => {
+  const el = { tagName: tag.toUpperCase(), innerHTML: '', attrs: {}, children: [] };
+  el.setAttribute = (k, v) => { el.attrs[k] = v; };
+  el.getAttribute = (k) => el.attrs[k];
+  Object.defineProperty(el, 'outerHTML', {
+    get() { return `<${tag}>${el.innerHTML}</${tag}>`; },
+  });
+  el.appendChild = (child) => { el.children.push(child); };
+  return el;
+};
+
+context.document.getElementById = () => null;
+context.document.querySelector = (sel) => {
+  if (sel === '[data-wbs-detail="progressBar"]') return progressBar;
+  if (sel === '.wbs-gantt-meta') return { textContent: '' };
+  if (sel === '.wbs-gsum-groups') return groupsHost;
+  if (sel === '.wbs-gantt-mobile') return { innerHTML: '' };
+  return table;
+};
+
+context.document.querySelectorAll = (sel) => {
+  if (sel === '.wbs-gsum-cell .wbs-gsum-val') return gsumCells;
+  return [];
+};
+
 for (const pct of [1, 37, 82, 99]) {
-  const rows = [
-    { functionGroup: 'G', progress: pct, status: 'in_progress', id: 'x', code: 'WBS-001', title: 't', phase: '구현', ownerId: 'u', ownerName: 'U' },
-  ];
+  const rows = [makeRow(pct)];
   table.innerHTML = '';
+  overallProgress.value = 0;
+  groupsHost.innerHTML = '';
+  progressBar.value = 0;
+
   api.renderRows(rows);
-  const match = table.innerHTML.match(/<progress[^>]*value="(\d+)"/);
-  assert.ok(match, `progress element missing for ${pct}%`);
-  assert.equal(Number(match[1]), pct);
+  const grpMatch = table.innerHTML.match(/<progress[^>]*value="(\d+)"/);
+  assert.ok(grpMatch, `group header progress missing for ${pct}%`);
+  assert.equal(Number(grpMatch[1]), pct);
+
+  api.renderTimelineSummary(rows);
+  assert.equal(overallProgress.value, pct, `overall progress value for ${pct}%`);
+
+  const grpSummaryMatch = groupsHost.innerHTML.match(/<progress[^>]*value="(\d+)"/);
+  assert.ok(grpSummaryMatch, `group summary progress missing for ${pct}%`);
+  assert.equal(Number(grpSummaryMatch[1]), pct, `group summary value for ${pct}%`);
+
+  api.renderDetail(rows[0]);
+  assert.equal(progressBar.value, pct, `detail progressBar value for ${pct}%`);
 }
 
 console.log('wbs derived contract: PASS');
