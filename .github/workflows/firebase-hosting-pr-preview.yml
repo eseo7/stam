@@ -31,52 +31,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Repair legacy demo member display name for WBS smoke QA
-        env:
-          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAM_PREVIEW_HOSTING }}
-        run: |
-          set -euo pipefail
-          creds="$RUNNER_TEMP/firebase-sa.json"
-          printf '%s' "$FIREBASE_SA" > "$creds"
-          export GOOGLE_APPLICATION_CREDENTIALS="$creds"
-
-          npm install --no-save --no-package-lock firebase-admin@13
-          node <<'NODE'
-          const admin = require('firebase-admin');
-          admin.initializeApp({
-            credential: admin.credential.applicationDefault(),
-            projectId: 'stam-preview-hosting',
-          });
-
-          const ref = admin.firestore()
-            .collection('projects').doc('stam-demo')
-            .collection('members').doc('BJL7GsQJqqSTHwEIStrTEnvd5Gq1');
-
-          ref.get()
-            .then((snap) => {
-              if (!snap.exists) throw new Error('legacy demo member document not found');
-              const data = snap.data() || {};
-              if (data.userId !== 'BJL7GsQJqqSTHwEIStrTEnvd5Gq1') {
-                throw new Error('legacy demo member userId mismatch');
-              }
-              if (data.projectId !== 'stam-demo' || data.status !== 'active') {
-                throw new Error('legacy demo member project/status mismatch');
-              }
-              return ref.set({ displayName: '이서' }, { merge: true });
-            })
-            .then(() => {
-              console.log('Legacy demo member displayName repaired.');
-              return admin.app().delete();
-            })
-            .catch(async (error) => {
-              console.error(error);
-              try { await admin.app().delete(); } catch (_) {}
-              process.exit(1);
-            });
-          NODE
-
-          rm -f "$creds"
-
       # Deploy via firebase-tools directly (not the action) so the CLI output
       # can be captured for the idempotency-message check below. Runs with
       # continue-on-error so the reconcile step can act as the source of truth.
