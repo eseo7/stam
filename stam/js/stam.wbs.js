@@ -15,6 +15,24 @@
     return STAGE_LABEL_MAP[val] || val;
   }
 
+  function isLiveMode() {
+    return !!document.querySelector('[data-stam-wbs-live="true"]');
+  }
+
+  function todayIso() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  var drawerApi = {
+    openDrawer: null,
+    closeDrawer: null,
+    setDrawerMode: null,
+    openFullView: null,
+    closeFullView: null,
+    filterApi: null,
+  };
+
   /* ─── 공통 helpers ─────────────────────────────────────── */
   function updateMasterChk() {
     var masterChk = document.getElementById('wbs-chk-all');
@@ -37,6 +55,11 @@
   function updateDeleteBtn() {
     var btn = document.getElementById('wbs-delete-btn');
     if (!btn) return;
+    if (isLiveMode()) {
+      btn.disabled = true;
+      btn.textContent = '\uc0ad\uc81c';
+      return;
+    }
     var count = document.querySelectorAll('.wbs-row-chk:checked').length;
     if (count === 0) {
       btn.disabled = true;
@@ -109,7 +132,24 @@
 
   /* ─── 2. 그룹 접기/펼치기 ──────────────────────────────── */
   function initGroupToggle() {
+    var table = document.querySelector('[data-stam-wbs-static-list]');
+    if (table && !table.getAttribute('data-grp-toggle-bound')) {
+      table.setAttribute('data-grp-toggle-bound', '1');
+      table.addEventListener('click', function (e) {
+        var btn = e.target.closest && e.target.closest('.wbs-grp-toggle-btn');
+        if (!btn) return;
+        e.stopPropagation();
+        var grpId = btn.getAttribute('data-grp');
+        var tbody = document.querySelector('.wbs-grp-rows[data-grp="' + grpId + '"]');
+        if (!tbody) return;
+        var collapsed = tbody.classList.toggle('collapsed');
+        btn.setAttribute('data-collapsed', collapsed ? 'true' : 'false');
+        btn.title = collapsed ? '\ud3bc\uce58\uae30' : '\uc811\uae30';
+      });
+    }
     document.querySelectorAll('.wbs-grp-toggle-btn').forEach(function (btn) {
+      if (btn.getAttribute('data-grp-bound') === '1') return;
+      btn.setAttribute('data-grp-bound', '1');
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
         var grpId = btn.getAttribute('data-grp');
@@ -187,7 +227,6 @@
       }
       var widEl = document.getElementById('wbs-dw-wid');
       if (widEl) widEl.style.display = mode === 'create' ? 'none' : '';
-      /* 등록 모드: breadcrumb/meta는 CSS로 제어 */
     }
 
     function openDrawer(mode) {
@@ -198,28 +237,29 @@
     function closeDrawer() {
       drawer.setAttribute('data-open', 'false');
       document.body.style.overflow = '';
-      /* drawer 닫힘 → .is-active 만 해제. checkbox 선택(.selected/.is-selected)·카운트는 유지 */
       document.querySelectorAll('.wbs-data-row.is-active').forEach(function (r) {
         r.classList.remove('is-active');
       });
     }
 
-    /* 행 클릭 → 상세 모드 (.is-active 만 부여, 체크박스 선택/카운트는 건드리지 않음) */
-    document.querySelectorAll('.wbs-data-row').forEach(function (row) {
-      row.addEventListener('click', function (e) {
-        if (e.target.closest && e.target.closest('.wbs-td-chk')) return;
-        /* 다른 행의 .is-active 해제 (active = 상세 drawer 대상, 한 번에 하나) */
-        document.querySelectorAll('.wbs-data-row.is-active').forEach(function (r) {
-          if (r !== row) r.classList.remove('is-active');
-        });
-        row.classList.add('is-active');
-        openDrawer('detail');
-      });
-    });
+    drawerApi.openDrawer = openDrawer;
+    drawerApi.closeDrawer = closeDrawer;
+    drawerApi.setDrawerMode = setMode;
 
-    /* + 작업 등록 → 등록 모드 */
-    var regBtn = document.getElementById('wbs-reg-btn');
-    if (regBtn) regBtn.addEventListener('click', function () { openDrawer('create'); });
+    if (!isLiveMode()) {
+      document.querySelectorAll('.wbs-data-row').forEach(function (row) {
+        row.addEventListener('click', function (e) {
+          if (e.target.closest && e.target.closest('.wbs-td-chk')) return;
+          document.querySelectorAll('.wbs-data-row.is-active').forEach(function (r) {
+            if (r !== row) r.classList.remove('is-active');
+          });
+          row.classList.add('is-active');
+          openDrawer('detail');
+        });
+      });
+      var regBtn = document.getElementById('wbs-reg-btn');
+      if (regBtn) regBtn.addEventListener('click', function () { openDrawer('create'); });
+    }
 
     /* overlay */
     if (overlay) overlay.addEventListener('click', closeDrawer);
@@ -240,15 +280,20 @@
       if (tgt.closest && tgt.closest('.wbs-drawer-close-btn')) {
         closeDrawer(); return;
       }
-      /* 수정 버튼 (detail → edit) */
+      /* 수정 버튼 (detail → edit) — Live 모드는 CRUD 직접 listener 단독 소유 */
       if (tgt.closest && tgt.closest('.wbs-drawer-edit-btn')) {
-        setMode('edit'); return;
+        if (isLiveMode()) return;
+        setMode('edit');
+        return;
       }
       /* 전체 보기 버튼 */
       if (tgt.closest && tgt.closest('.wbs-fv-trigger-btn')) {
+        var fvBtn = tgt.closest('.wbs-fv-trigger-btn');
+        if (fvBtn.disabled || fvBtn.getAttribute('aria-disabled') === 'true') return;
         var curMode = panel.getAttribute('data-mode') || 'detail';
+        if (isLiveMode() && curMode !== 'detail') return;
         closeDrawer();
-        openFv(curMode);
+        openFv(isLiveMode() ? 'detail' : curMode);
         return;
       }
     });
@@ -342,8 +387,8 @@
       var myActive   = myBtn   && myBtn.classList.contains('active');
       var riskActive = riskBtn && riskBtn.classList.contains('active');
       document.querySelectorAll('.wbs-data-row').forEach(function (row) {
-        var avatarEl = row.querySelector('.wbs-avatar');
-        var isMyRow  = avatarEl && avatarEl.textContent.indexOf('이서연') >= 0;
+        var ownerId = row.getAttribute('data-wbs-owner-id');
+        var isMyRow = !!ownerId;
         var hasDelay = !!row.querySelector('.wbs-chip.wc-delay');
         var hasIssue = !!row.querySelector('.wbs-issue-dot');
         var isRisk   = hasDelay || hasIssue;
@@ -397,9 +442,10 @@
       prog.className = 'wbs-grp-progress';
       var bar   = document.createElement('div');
       bar.className = 'wbs-grp-prog-bar';
-      var fill  = document.createElement('div');
-      fill.className = 'wbs-grp-prog-fill' + (d.cls ? ' ' + d.cls : '');
-      fill.style.width = d.pct + '%';
+      var fill  = document.createElement('progress');
+      fill.className = 'wbs-live-progress wbs-live-progress--grp' + (d.cls ? ' ' + d.cls : '');
+      fill.max = 100;
+      fill.value = d.pct;
       bar.appendChild(fill);
       var pctEl = document.createElement('span');
       pctEl.className = 'wbs-grp-prog-pct';
@@ -440,265 +486,130 @@
   }
 
   function buildFvDetailHtml() {
-    var h = '';
-    /* summary strip */
-    h += '<div class="wbs-dw-summary fv-full">';
-    h += '<div class="wbs-dw-sum-item"><span class="wbs-dw-sum-k">담당자</span><span class="wbs-dw-sum-v"><span class="wbs-av-dot ai" style="width:20px;height:20px;font-size:9px;flex-shrink:0">클</span>클로드</span></div>';
-    h += '<div class="wbs-dw-sum-item"><span class="wbs-dw-sum-k">검토자</span><span class="wbs-dw-sum-v"><span class="wbs-av-dot" style="width:20px;height:20px;font-size:9px;flex-shrink:0">이</span>이서연</span></div>';
-    h += '<div class="wbs-dw-sum-item"><span class="wbs-dw-sum-k">기간</span><span class="wbs-dw-sum-v" style="color:var(--fail)">06-01 ~ 06-05</span></div>';
-    h += '<div class="wbs-dw-sum-item"><span class="wbs-dw-sum-k">예상공수</span><span class="wbs-dw-sum-v">4일</span></div>';
-    h += '<div class="wbs-dw-sum-item"><span class="wbs-dw-sum-k">기간판정</span><span class="wbs-dw-sum-v"><span class="wbs-chip wc-delay sm">지연</span></span></div>';
-    h += '<div class="wbs-dw-sum-item"><span class="wbs-dw-sum-k">리스크</span><span class="wbs-dw-sum-v"><span class="wbs-risk-dot risk-high"></span>일정 초과</span></div>';
-    h += '</div>';
-    /* 기본 정보 */
-    h += '<div class="wbs-drawer-sec">';
-    h += '<div class="wbs-drawer-sec-title">기본 정보</div>';
-    h += '<div class="wbs-dw-info-grid">';
-    h += '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">작업 유형</div><div class="wbs-dw-iv"><span class="wbs-type-chip">디자인</span></div></div>';
-    h += '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">업무영역</div><div class="wbs-dw-iv">UI/UX</div></div>';
-    h += '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">기능그룹</div><div class="wbs-dw-iv">WBS 화면</div></div>';
-    h += '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">메뉴/화면</div><div class="wbs-dw-iv">WBS 작업 목록</div></div>';
-    h += '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">우선순위</div><div class="wbs-dw-iv"><span class="wbs-prio wp-high"><span class="wbs-prio-dot"></span>높음</span></div></div>';
-    h += '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">승인상태</div><div class="wbs-dw-iv"><span class="wbs-chip wc-wait sm">검토 대기</span></div></div>';
-    h += '</div></div>';
-    /* 일정 정보 */
-    h += '<div class="wbs-drawer-sec">';
-    h += '<div class="wbs-drawer-sec-title">일정 정보</div>';
-    h += '<div class="wbs-dw-info-grid">';
-    h += '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">시작일</div><div class="wbs-dw-iv">2026-06-01</div></div>';
-    h += '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">종료일</div><div class="wbs-dw-iv" style="color:var(--fail);font-weight:700">2026-06-05<small style="color:var(--t3);font-weight:400;margin-left:4px">+2일</small></div></div>';
-    h += '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">예상공수</div><div class="wbs-dw-iv"><b>4일</b></div></div>';
-    h += '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">실공수</div><div class="wbs-dw-iv" style="color:var(--t3)">진행 중</div></div>';
-    h += '</div>';
-    h += '<div class="wbs-dw-prog-row"><div class="wbs-prog delay" style="flex:1;max-width:none"><div class="wbs-prog-bar"><div class="wbs-prog-fill" style="width:65%"></div></div></div><span class="wbs-dw-prog-pct-label" style="color:var(--fail)">65%</span></div>';
-    h += '</div>';
-    /* 연결 정보 */
-    h += '<div class="wbs-drawer-sec fv-full">';
-    h += '<div class="wbs-drawer-sec-title-flex"><span>연결 정보</span><span class="stf-link">전체 상세 →</span></div>';
-    h += renderLinkedRequirements(null);
-    h += renderLinkedScreens(null);
-    h += '</div>';
-    /* 작업 내용 */
-    h += '<div class="wbs-drawer-sec fv-full">';
-    h += '<div class="wbs-drawer-sec-title">작업 내용</div>';
-    h += '<div class="wbs-dw-desc">Gantt 구성과 동시 진행 중입니다. Drawer 구조는 WBS-009로 분리 예정. 이번 주 내 완료 목표.</div>';
-    h += '</div>';
-    /* 댓글 */
-    h += '<div class="wbs-drawer-sec fv-full">';
-    h += '<div class="wbs-drawer-sec-title">댓글 <span style="font-size:10px;background:var(--bg-sur3);padding:1px 5px;border-radius:99px;margin-left:3px;font-weight:700;color:var(--t3)">2</span></div>';
-    h += '<div class="wbs-dw-cmt"><div class="wbs-dw-cmt-av" style="background:var(--stam-soft);color:var(--stam)">최</div>';
-    h += '<div class="wbs-dw-cmt-body"><div class="wbs-dw-cmt-meta"><span class="wbs-dw-cmt-who">최개발</span><span class="wbs-dw-cmt-time">06-02 09:12</span></div>';
-    h += '<div class="wbs-dw-cmt-txt">REQ-007 재고 연동 API가 아직 완성 안 됐습니다. 연동 일정 확인 부탁드립니다.</div></div></div>';
-    h += '<div class="wbs-dw-cmt"><div class="wbs-dw-cmt-av" style="background:rgba(16,185,129,.12);color:#059669">박</div>';
-    h += '<div class="wbs-dw-cmt-body"><div class="wbs-dw-cmt-meta"><span class="wbs-dw-cmt-who">박PM</span><span class="wbs-dw-cmt-time">06-02 10:05</span></div>';
-    h += '<div class="wbs-dw-cmt-txt"><span class="wbs-dw-mention">@최개발</span> 이번 주 목요일까지 API 제공 예정입니다. 일정 다시 검토 후 공유해 주세요.</div></div></div>';
-    h += '<div class="wbs-dw-cmt-input-wrap"><textarea class="wbs-dw-cmt-input" rows="2" placeholder="댓글 입력 · @로 멘션"></textarea><button class="wbs-dw-cmt-send" type="button">↑</button></div>';
-    h += '</div>';
-    /* 변경이력 */
-    h += '<div class="wbs-drawer-sec fv-full">';
-    h += '<div class="wbs-drawer-sec-title">변경이력</div>';
-    h += '<div class="wbs-dw-hist-item"><div class="wbs-dw-hist-icon hi-edit">✎</div><div class="wbs-dw-hist-body"><div class="wbs-dw-hist-title">실제공수 업데이트 <span class="wbs-dw-hist-from">5d</span><span class="wbs-dw-hist-arrow"> → </span><span class="wbs-dw-hist-to">7d</span></div><div class="wbs-dw-hist-meta">최개발 · 2026-06-01</div></div></div>';
-    h += '<div class="wbs-dw-hist-item"><div class="wbs-dw-hist-icon hi-status">↺</div><div class="wbs-dw-hist-body"><div class="wbs-dw-hist-title">상태 변경 <span class="wbs-dw-hist-from">대기</span><span class="wbs-dw-hist-arrow"> → </span><span class="wbs-dw-hist-to">진행중</span></div><div class="wbs-dw-hist-meta">박PM · 2026-05-28</div></div></div>';
-    h += '<div class="wbs-dw-hist-item"><div class="wbs-dw-hist-icon hi-memo">●</div><div class="wbs-dw-hist-body"><div class="wbs-dw-hist-title">최초 등록 <span style="font-size:11px;color:var(--t3);font-weight:400">v0.1 신규 등록</span></div><div class="wbs-dw-hist-meta">박PM · 2026-05-18</div></div></div>';
-    h += '</div>';
-    return h;
+    return '<div class="wbs-iv-muted">—</div>';
   }
 
-  function buildFvDetailHtml_UNUSED() {
-    return buildSec('\uae30\ubcf8 \uc815\ubcf4', [
-        ['WBS ID',    '<span class="wbs-id-chip">WBS-007</span>'],
-        ['\uba54\ub274/\ud654\uba74', 'WBS \uc791\uc5c5 \ubaa9\ub85d'],
-        ['\uae30\ub2a5\uadf8\ub8f9',  'WBS \ud654\uba74'],
-        ['\uc791\uc5c5\uc720\ud615',  '<span class="wbs-type-chip">\ub514\uc790\uc778</span>'],
-        ['\ub2f4\ub2f9\uc790',    '<span class="wbs-avatar"><span class="wbs-av-dot ai">클</span>클로드</span>'],
-        ['\uc6b0\uc120\uc21c\uc704',  '<span class="wbs-prio wp-high"><span class="wbs-prio-dot"></span>\ub192\uc74c</span>'],
-        ['\uc0c1\ud0dc',      '<span class="wbs-chip wc-delay">\uc9c0\uc5f0</span>'],
-        ['\uc9c4\ucc99\ub960', '<div class="wbs-prog delay" style="max-width:200px"><div class="wbs-prog-bar"><div class="wbs-prog-fill" style="width:65%"></div></div><span class="wbs-prog-pct">65%</span></div>'],
-      ])
-      + buildSec('\uc77c\uc815 \uc815\ubcf4', [
-        ['\uacc4\ud68d \uc2dc\uc791', '2026-06-01'],
-        ['\uacc4\ud68d \uc885\ub8cc', '<span style="color:var(--fail);font-weight:700">2026-06-05 <small style="color:var(--t3);font-weight:400">+2\uc77c \ucd08\uacfc</small></span>'],
-        ['\uc2e4\uc801 \uc2dc\uc791', '2026-06-01'],
-        ['\uc2e4\uc801 \uc885\ub8cc', '<span style="color:var(--t3)">\uc9c4\ud589 \uc911</span>'],
-        ['\uae30\uac04\ud310\uc815',  '<span class="wbs-chip wc-delay" style="font-size:10px">\uc9c0\uc5f0 +2\uc77c</span>'],
-        ['\uc608\uc0c1\uacf5\uc218',  '4\uc77c'],
-      ])
-      + buildSec('\uc5f0\uacb0 \uc815\ubcf4', [
-        ['\uad00\ub828 \uc694\uad6c\uc0ac\ud56d', '<span class="wbs-muted">\u2014</span>'],
-        ['\uad00\ub828 \ud654\uba74',     '<span class="wbs-muted">\u2014</span>'],
-        ['\uad00\ub828 \uc0b0\ucd9c\ubb3c', '<span class="wbs-link-chip">wbs.html</span> WBS \ud654\uba74 \uc124\uacc4\uc11c'],
-        ['\ud14c\uc2a4\ud2b8/\uacb0\ud568', '<span class="wbs-muted">\u2014</span>'],
-      ])
-      + buildSec('\ud611\uc5c5 \uc815\ubcf4', [
-        ['\uac80\ud1a0\uc790',      '<span class="wbs-avatar"><span class="wbs-av-dot">\uc774</span>\uc774\uc11c\uc5f0</span>'],
-        ['\uba58\uc158',        '<span class="wbs-muted">\u2014</span>'],
-        ['\uad00\ub828 \ud68c\uc758\ub85d', '<span class="wbs-muted">\u2014</span>'],
-      ])
-      + buildSec('\uccb2\ubd80 / URL', [
-        ['\uccb2\ubd80\ud30c\uc77c', '<span class="wbs-muted">\uc5c6\uc74c</span>'],
-        ['URL \ucc38\uc870', '<span class="wbs-muted">\u2014</span>'],
-      ])
-      + '<div class="wbs-drawer-sec fv-full">'
-        + '<div class="wbs-drawer-sec-title">\ub313\uae00</div>'
-        + '<div class="wbs-drawer-comment-wrap">'
-          + '<div class="wbs-drawer-comment-item">'
-            + '<span class="wbs-avatar"><span class="wbs-av-dot">\uc774</span>\uc774\uc11c\uc5f0</span>'
-            + '<span class="wbs-drawer-comment-meta">2026-06-07 09:30</span>'
-            + '<div class="wbs-drawer-comment-body">Gantt \uad6c\uc131\uacfc \ub3d9\uc2dc \uc9c4\ud589 \uc911\uc785\ub2c8\ub2e4. \uc774\ubc88 \uc8fc \ub0b4 \uc644\ub8cc \ubaa9\ud45c.</div>'
-          + '</div>'
-          + '<textarea class="wbs-drawer-textarea" rows="2" placeholder="\ub313\uae00\uc744 \uc785\ub825\ud558\uc138\uc694\u2026"></textarea>'
-        + '</div>'
-      + '</div>'
-      + '<div class="wbs-drawer-sec fv-full">'
-        + '<div class="wbs-drawer-sec-title">\ubcc0\uacbd \uc774\ub825</div>'
-        + '<div class="wbs-drawer-row"><span class="wbs-drawer-row-k">2026-06-07</span><span class="wbs-drawer-row-v" style="font-size:11.5px">\uc0c1\ud0dc \ubcc0\uacbd: \uc9c4\ud589\uc911 \u2192 \uc9c0\uc5f0 (\uacc4\ud68d \uc885\ub8cc\uc77c +2\uc77c \ucd08\uacfc)</span></div>'
-        + '<div class="wbs-drawer-row"><span class="wbs-drawer-row-k">2026-06-01</span><span class="wbs-drawer-row-v" style="font-size:11.5px">\uc791\uc5c5 \uc2dc\uc791 \ub4f1\ub85d</span></div>'
-      + '</div>';
+  function buildFvFormHtml() {
+    return '<div class="wbs-iv-muted">—</div>';
   }
 
-  function buildFvFormHtml(isReg) {
-    function sec(num, lbl, rows) {
-      return '<div class="wbs-form-sec fv-full">'
-        + '<div class="wbs-form-sec-head"><span class="wbs-form-sec-num">' + num + '</span>'
-        + '<span class="wbs-form-sec-label">' + lbl + '</span></div>'
-        + '<div class="wbs-form-body">' + rows + '</div></div>';
+  function fvDatePart(value) {
+    if (!value) return '';
+    if (typeof value.toDate === 'function') {
+      try {
+        var dt = value.toDate();
+        return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+      } catch (err) {
+        return '';
+      }
     }
-    function row(lbl, ctrl, full, req, hint) {
-      return '<div class="wbs-form-row' + (full ? ' wbs-form-full' : '') + '">'
-        + '<label class="wbs-form-label">' + lbl
-        + (req  ? ' <span class="req">*</span>' : '')
-        + (hint ? ' <span class="wbs-form-hint">' + hint + '</span>' : '')
-        + '</label>' + ctrl + '</div>';
-    }
-    function fi(val, ph, dis) {
-      return '<input class="wbs-drawer-form-input" type="text"'
-        + (val ? ' value="' + val + '"' : '') + (ph ? ' placeholder="' + ph + '"' : '')
-        + (dis ? ' disabled' : '') + '>';
-    }
-    function fsel(opts) {
-      return '<select class="wbs-drawer-form-select">' + opts.map(function(o) {
-        return '<option' + (o[1] ? ' selected' : '') + '>' + o[0] + '</option>';
-      }).join('') + '</select>';
-    }
-    function ftog(btns, ai) {
-      return '<div class="wbs-form-toggle-group">' + btns.map(function(b, i) {
-        return '<button class="wbs-form-toggle' + (i === ai ? ' active' : '') + '" type="button">' + b + '</button>';
-      }).join('') + '</div>';
-    }
-    function flnk(lbl) {
-      return '<button class="wbs-form-link-btn" type="button">+ ' + lbl + ' 연결</button>';
-    }
-    var html = '';
-    if (!isReg) {
-      html += '<div class="wbs-form-alert fv-full">'
-        + '<span class="wbs-form-alert-icon">⚠</span>'
-        + '<div class="wbs-form-alert-body">'
-        + '<div class="wbs-form-alert-title">진행 중인 작업을 수정합니다.</div>'
-        + '<div class="wbs-form-alert-desc">일정 또는 담당자 변경 시 관련 팀원에게 영향을 줄 수 있습니다.</div>'
-        + '</div></div>';
-    }
-    html += sec('1', '기본 정보',
-      row('작업명', fi(isReg ? '' : 'WBS 목록 화면 기준 설계', '예) 상품 상세 화면 개발'), true, true)
-      + row('작업 유형', ftog(['기획','설계','디자인','개발','테스트','검수','회의'], isReg ? 3 : 2), true, true)
-      + row('기능그룹', fi(isReg ? '' : 'WBS 화면', '예) 회원관리, 상품'), false, true)
-      + row('메뉴/화면 경로', fi(isReg ? '' : 'WBS 작업 목록', '예) 회원관리 > 회원가입'))
-      + (isReg ? row('WBS ID <span class="wbs-form-auto-badge">자동 부여</span>', fi('', '저장 시 자동 부여', true), true) : '')
-    );
-    html += sec('2', '담당자 / 검토자',
-      row('담당자', fsel(isReg
-        ? [['— 선택 —', true],['이서연'],['김기획'],['박PM'],['최개발'],['정디자인']]
-        : [['클로드', true],['이서연'],['김기획'],['박PM'],['최개발']]
-      ), false, true)
-      + row('검토자', fsel(isReg
-        ? [['— 선택 —', true],['박PM'],['이서연'],['김기획'],['최개발']]
-        : [['이서연', true],['박PM'],['김기획'],['최개발']]
-      ))
-    );
-    html += sec('3', '상태 / 우선순위',
-      row('진행상태', ftog(['대기','진행중','검토중','완료','보류'], isReg ? 0 : 2))
-      + row('우선순위', ftog(['높음','보통','낮음'], isReg ? 1 : 0))
-      + (!isReg ? row('승인상태', fsel([['검토 대기', true],['미요청'],['고객검토 중'],['승인 완료'],['반려됨']])) : '')
-      + (!isReg ? row('리스크', fsel([['없음', true],['있음']])) : '')
-    );
-    html += sec('4', '일정 / 공수',
-      row('시작일', fi(isReg ? '' : '2026-06-01', '예) 05-20'), false, true, 'MM-DD')
-      + row('종료일', fi(isReg ? '' : '2026-06-05', '예) 06-05'), false, true, 'PMS 연동')
-      + row('예상 공수', fi(isReg ? '' : '4일', '예) 8d 또는 40h'), false, false, 'd/h 단위')
-      + row('실 공수', fi('', '예) 7d'), false, false, '전날 후 입력')
-    );
-    html += sec('5', '작업 내용',
-      row('작업 설명', '<textarea class="wbs-drawer-form-textarea" rows="5" placeholder="구현 범위, 참고 사항, 제약 조건…"></textarea>', true)
-    );
-    html += sec('6', '관련 항목 연결',
-      row('관련 요구사항', flnk('요구사항'), true)
-      + row('관련 화면설계', flnk('화면설계'), true)
-      + row('관련 회의록', flnk('회의록'), true)
-      + row('관련 산출물', flnk('산출물'), true)
-    );
-    if (!isReg) {
-      html += sec('7', '변경 사유',
-        row('수정 메모', '<textarea class="wbs-drawer-form-textarea" rows="3" placeholder="수정 사유나 변경 내용을 기록하세요…"></textarea>', true)
-      );
-    }
-    return html;
+    return String(value).replace('T', ' ').slice(0, 10);
   }
 
-  function buildFvFormHtml_UNUSED(isReg) {
-    function fRow(lbl, inp, req) {
-      return '<div class="wbs-drawer-form-row"><label class="wbs-drawer-form-label">'
-        + lbl + (req ? ' <span class="req">*</span>' : '') + '</label>' + inp + '</div>';
+  function fvPeriodLabel(start, end) {
+    var s = fvDatePart(start);
+    var e = fvDatePart(end);
+    if (!s && !e) return '—';
+    if (!s || !e) return s || e;
+    return s.slice(5) + ' ~ ' + e.slice(5);
+  }
+
+  function fvEffortLabel(value) {
+    if (value == null || value === '') return '—';
+    var num = Number(value);
+    if (!Number.isFinite(num)) return '—';
+    return num + '일';
+  }
+
+  function fvRequirementLabel(item) {
+    var code = String(item.requirementCode == null ? '' : item.requirementCode).trim();
+    var title = String(item.requirementTitle == null ? '' : item.requirementTitle).trim();
+    if (code && title) return code + ' · ' + title;
+    if (code) return code;
+    if (title) return title;
+    if (String(item.requirementId == null ? '' : item.requirementId).trim()) return '(제목 없음)';
+    return '—';
+  }
+
+  function fvFunctionalSpecLabel(item) {
+    var code = String(item.functionalSpecCode == null ? '' : item.functionalSpecCode).trim();
+    var title = String(item.functionalSpecTitle == null ? '' : item.functionalSpecTitle).trim();
+    if (code && title) return code + ' · ' + title;
+    if (code) return code;
+    if (title) return title;
+    if (String(item.functionalSpecId == null ? '' : item.functionalSpecId).trim()) return '(제목 없음)';
+    return '—';
+  }
+
+  function buildLiveFullViewDetail(item) {
+    if (!item) return '<div class="wbs-iv-muted">—</div>';
+    var list = window.STAM && window.STAM.wbsFirestoreList;
+    var status = list && list.statusInfo ? list.statusInfo(item.status) : { label: '—', cls: '' };
+    var priority = list && list.priorityInfo ? list.priorityInfo(item.priority) : { label: '—', cls: '' };
+    var schedule = list && list.deriveScheduleState ? list.deriveScheduleState(item, todayIso()) : { verdict: '—', verdictCls: '' };
+    var progress = item.progress != null ? Number(item.progress) || 0 : 0;
+    function esc(v) {
+      return String(v == null ? '' : v)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
     }
-    function fi(val, ph) {
-      return '<input class="wbs-drawer-form-input" type="text"'
-        + (val ? ' value="' + val + '"' : '')
-        + (ph  ? ' placeholder="' + ph + '"' : '') + '>';
+    function sumItem(label, value) {
+      return '<div class="wbs-dw-sum-item"><span class="wbs-dw-sum-k">' + esc(label) + '</span><span class="wbs-dw-sum-v">' + value + '</span></div>';
     }
-    function fd(val) {
-      return '<input class="wbs-drawer-form-input" type="date"'
-        + (val ? ' value="' + val + '"' : '') + '>';
+    function infoCell(label, value) {
+      return '<div class="wbs-dw-info-cell"><div class="wbs-dw-ik">' + esc(label) + '</div><div class="wbs-dw-iv">' + value + '</div></div>';
     }
-    function fsel(opts) {
-      return '<select class="wbs-drawer-form-select">' + opts.map(function(o) {
-        return '<option' + (o[1] ? ' selected' : '') + '>' + o[0] + '</option>';
-      }).join('') + '</select>';
-    }
-    var html = '<div class="wbs-drawer-sec fv-full">'
-      + '<div class="wbs-drawer-sec-title">\uae30\ubcf8 \uc815\ubcf4</div>'
-      + fRow('\uc791\uc5c5\uba85', fi(isReg ? '' : 'WBS \ubaa9\ub85d \ud654\uba74 \uae30\uc900 \uc124\uacc4', '\uc791\uc5c5\uba85\uc744 \uc785\ub825\ud558\uc138\uc694'), true)
-      + fRow('\uba54\ub274/\ud654\uba74', fi(isReg ? '' : 'WBS \uc791\uc5c5 \ubaa9\ub85d', '\uba54\ub274 \ub610\ub294 \ud654\uba74\uba85'))
-      + fRow('\uae30\ub2a5\uadf8\ub8f9', fsel(isReg
-          ? [['\u2014 \uc120\ud0dd \u2014', true],['\uae30\uc900\ubcf8/IA'],['App Shell/Navigation'],['WBS \ud654\uba74'],['\uc0b0\ucd9c\ubb3c \uac8c\uc2dc\ud310'],['\ud14c\uc2a4\ud2b8/\uac80\uc218'],['\uc624\ud508 \uc900\ube44']]
-          : [['WBS \ud654\uba74', true],['\uae30\uc900\ubcf8/IA'],['App Shell/Navigation'],['\uc0b0\ucd9c\ubb3c \uac8c\uc2dc\ud310'],['\ud14c\uc2a4\ud2b8/\uac80\uc218'],['\uc624\ud508 \uc900\ube44']]
-        ))
-      + fRow('\ub2f4\ub2f9\uc790', fsel(isReg
-          ? [['\u2014 \uc120\ud0dd \u2014', true],['\uc774\uc11c\uc5f0'],['\uae40\uae30\ud68d'],['\ubc15PM'],['\ucd5c\uac1c\ubc1c'],['\uc815\ub514\uc790\uc778']]
-          : [['클로드', true],['\uc774\uc11c\uc5f0'],['\uae40\uae30\ud68d'],['\ubc15PM'],['\ucd5c\uac1c\ubc1c']]
-        ))
-      + '</div>';
-    html += '<div class="wbs-drawer-sec">'
-      + '<div class="wbs-drawer-sec-title">\uc0c1\ud0dc / \uc6b0\uc120\uc21c\uc704</div>'
-      + fRow('\uc9c4\ud589\uc0c1\ud0dc', fsel(isReg
-          ? [['\ub300\uae30', true],['\uc9c4\ud589\uc911'],['\uc644\ub8cc'],['\ubcf4\ub958']]
-          : [['\ub300\uae30'],['\uc9c4\ud589\uc911'],['\uc9c0\uc5f0', true],['\uc644\ub8cc'],['\ubcf4\ub958']]
-        ))
-      + fRow('\uc6b0\uc120\uc21c\uc704', fsel(isReg
-          ? [['\ub192\uc74c'],['\ubcf4\ud1b5', true],['\ub0ae\uc74c']]
-          : [['\ub192\uc74c', true],['\ubcf4\ud1b5'],['\ub0ae\uc74c']]
-        ))
-      + (isReg ? '' : fRow('\uc9c4\ucc99\ub960', '<input class="wbs-drawer-form-input" type="number" value="65" min="0" max="100">'))
-      + '</div>';
-    html += '<div class="wbs-drawer-sec">'
-      + '<div class="wbs-drawer-sec-title">\uc77c\uc815</div>'
-      + fRow('\uacc4\ud68d \uc2dc\uc791', fd(isReg ? '' : '2026-06-01'))
-      + fRow('\uacc4\ud68d \uc885\ub8cc', fd(isReg ? '' : '2026-06-05'))
-      + fRow('\uc608\uc0c1\uacf5\uc218', fi(isReg ? '' : '4\uc77c', '\uc608: 4\uc77c'))
-      + '</div>';
-    html += '<div class="wbs-drawer-sec fv-full">'
-      + '<div class="wbs-drawer-sec-title">\uba54\ubaa8</div>'
-      + '<div class="wbs-drawer-form-row"><label class="wbs-drawer-form-label">\ube44\uace0</label>'
-      + '<textarea class="wbs-drawer-form-textarea" placeholder="\ucd94\uac00 \uba54\ubaa8\ub97c \uc785\ub825\ud558\uc138\uc694\u2026"></textarea></div>'
-      + '</div>';
-    return html;
+    var verdictHtml = schedule.verdictCls
+      ? '<span class="wbs-chip ' + esc(schedule.verdictCls) + ' sm">' + esc(schedule.verdict) + '</span>'
+      : esc(schedule.verdict || '—');
+  return '<div class="wbs-dw-summary">' +
+      sumItem('담당자', esc(item.ownerName || '—')) +
+      sumItem('검토자', esc(item.reviewerName || '—')) +
+      sumItem('기간', esc(fvPeriodLabel(item.startDate, item.endDate))) +
+      sumItem('예상 공수', esc(fvEffortLabel(item.plannedEffort))) +
+      sumItem('실 공수', esc(fvEffortLabel(item.actualEffort))) +
+      sumItem('기간판정', verdictHtml) +
+      sumItem('진행률', esc(item.progress != null ? String(progress) + '%' : '—')) +
+      '</div>' +
+      '<div class="wbs-drawer-sec"><div class="wbs-drawer-sec-title">기본 정보</div>' +
+      '<div class="wbs-dw-info-grid">' +
+      infoCell('WBS ID', esc(item.code || '—')) +
+      infoCell('작업명', esc(item.title || '—')) +
+      infoCell('단계', '<span class="wbs-type-chip">' + esc(item.phase || '—') + '</span>') +
+      infoCell('업무영역', esc(item.businessArea || '—')) +
+      infoCell('기능그룹', esc(item.functionGroup || '—')) +
+      infoCell('메뉴/화면 경로', esc(item.screenPath || '—')) +
+      infoCell('상태', '<span class="wbs-chip ' + esc(status.cls) + '">' + esc(status.label) + '</span>') +
+      infoCell('우선순위', '<span class="wbs-prio ' + esc(priority.cls) + '"><span class="wbs-prio-dot"></span>' + esc(priority.label) + '</span>') +
+      '</div></div>' +
+      '<div class="wbs-drawer-sec"><div class="wbs-drawer-sec-title">일정 정보</div>' +
+      '<div class="wbs-dw-info-grid">' +
+      infoCell('시작일', esc(fvDatePart(item.startDate) || '—')) +
+      infoCell('종료일', esc(fvDatePart(item.endDate) || '—')) +
+      infoCell('예상공수', esc(fvEffortLabel(item.plannedEffort))) +
+      infoCell('실공수', esc(fvEffortLabel(item.actualEffort))) +
+      '</div>' +
+      '<div class="wbs-dw-prog-row">' +
+      '<progress class="wbs-live-progress wbs-live-progress--detail" max="100" value="' + progress + '"></progress>' +
+      '<span class="wbs-dw-prog-pct-label">' + esc(item.progress != null ? String(progress) + '%' : '—') + '</span>' +
+      '</div></div>' +
+      '<div class="wbs-drawer-sec"><div class="wbs-drawer-sec-title">연결 정보</div>' +
+      '<div class="wbs-dw-linked-empty">' + esc(fvRequirementLabel(item)) + '</div>' +
+      '<div class="wbs-dw-linked-empty">' + esc(fvFunctionalSpecLabel(item)) + '</div>' +
+      '</div>' +
+      '<div class="wbs-drawer-sec"><div class="wbs-drawer-sec-title">작업 내용</div>' +
+      '<div class="wbs-dw-desc">' + esc(item.description || '—') + '</div>' +
+      '<div class="wbs-dw-muted">' + esc(fvDatePart(item.updatedAt) || '—') + '</div>' +
+      '</div>';
+  }
+
+  function handleLiveFvEdit() {
+    var crudApi = window.STAM && window.STAM.wbsFirestoreCrud;
+    if (!crudApi || typeof crudApi.canWrite !== 'function' || !crudApi.canWrite()) return;
+    closeFv();
+    if (typeof crudApi.openEdit === 'function') crudApi.openEdit();
   }
 
   function openFv(mode) {
@@ -709,34 +620,70 @@
     var editTrig = document.getElementById('wbs-fv-edit-trigger');
     if (!fvPanel) return;
 
+    var live = isLiveMode();
+    var effectiveMode = live ? 'detail' : mode;
     var modeLabels = {
       detail: '\uc804\uccb4\ubcf4\uae30 \u00b7 \uc0c1\uc138',
       edit:   '\uc804\uccb4\ubcf4\uae30 \u00b7 \uc218\uc815',
       create: '\uc804\uccb4\ubcf4\uae30 \u00b7 \ub4f1\ub85d'
     };
-    if (modeTag)  modeTag.textContent = modeLabels[mode] || '\uc804\uccb4\ubcf4\uae30';
-    if (editTrig) editTrig.style.display = mode === 'detail' ? '' : 'none';
+    if (modeTag) modeTag.textContent = modeLabels[effectiveMode] || '\uc804\uccb4\ubcf4\uae30';
+    if (editTrig) {
+      if (live) {
+        var crudApi = window.STAM && window.STAM.wbsFirestoreCrud;
+        var canEdit = crudApi && typeof crudApi.canWrite === 'function' && crudApi.canWrite();
+        editTrig.hidden = !canEdit;
+        editTrig.disabled = !canEdit;
+        if (!canEdit) editTrig.setAttribute('aria-disabled', 'true');
+        else editTrig.removeAttribute('aria-disabled');
+      } else {
+        editTrig.hidden = effectiveMode !== 'detail';
+        editTrig.disabled = false;
+        editTrig.removeAttribute('aria-disabled');
+      }
+    }
 
     if (fvBody) {
-      fvBody.innerHTML = (mode === 'detail')
-        ? buildFvDetailHtml()
-        : buildFvFormHtml(mode === 'create');
+      if (isLiveMode()) {
+        var api = window.STAM && window.STAM.wbsFirestoreList;
+        var item = api && typeof api.getState === 'function' ? api.getState().currentItem : null;
+        fvBody.innerHTML = buildLiveFullViewDetail(item);
+      } else {
+        fvBody.innerHTML = (mode === 'detail')
+          ? buildFvDetailHtml()
+          : buildFvFormHtml();
+      }
     }
 
     if (fvFoot) {
-      if (mode === 'detail') {
+      if (isLiveMode()) {
+        var crudApi = window.STAM && window.STAM.wbsFirestoreCrud;
+        var canEdit = crudApi && typeof crudApi.canWrite === 'function' && crudApi.canWrite();
+        var footHtml = '';
+        if (canEdit) {
+          footHtml += '<button class="wbs-btn wbs-fv-foot-edit" type="button">수정</button>';
+        }
+        footHtml += '<button class="wbs-btn wbs-btn-primary wbs-fv-back-foot" type="button">← 목록으로</button>';
+        fvFoot.innerHTML = footHtml;
+        var liveEditEl = fvFoot.querySelector('.wbs-fv-foot-edit');
+        if (liveEditEl) liveEditEl.addEventListener('click', handleLiveFvEdit);
+        var liveBackEl = fvFoot.querySelector('.wbs-fv-back-foot');
+        if (liveBackEl) liveBackEl.addEventListener('click', closeFv);
+      } else if (mode === 'detail') {
         fvFoot.innerHTML =
-          '<span class="wbs-dw-detail-timestamp">최종 변경 2026-06-07 10:42</span>'
+          '<span class="wbs-dw-detail-timestamp">—</span>'
           + '<button class="wbs-btn wbs-fv-foot-edit" type="button">수정</button>'
           + '<button class="wbs-btn wbs-btn-primary wbs-fv-back-foot" type="button">← 목록으로</button>';
         var footEditEl = fvFoot.querySelector('.wbs-fv-foot-edit');
         if (footEditEl) footEditEl.addEventListener('click', function () { openFv('edit'); });
+        var backEl = fvFoot.querySelector('.wbs-fv-back-foot');
+        if (backEl) backEl.addEventListener('click', closeFv);
       } else {
         var lbl = mode === 'create' ? '등록' : '저장';
         fvFoot.innerHTML =
           '<button class="wbs-btn wbs-fv-cancel-foot" type="button">취소</button>'
           + '<button class="wbs-btn" type="button">임시저장</button>'
-          + '<span style="flex:1"></span>'
+          + '<span class="wbs-footer-spacer"></span>'
           + '<button class="wbs-btn wbs-fv-back-foot" type="button">← 목록으로</button>'
           + '<button class="wbs-btn wbs-btn-primary" type="button">' + lbl + '</button>';
         var cancelEl = fvFoot.querySelector('.wbs-fv-cancel-foot');
@@ -745,9 +692,9 @@
             if (mode === 'create') { closeFv(); } else { openFv('detail'); }
           });
         }
+        var backEl2 = fvFoot.querySelector('.wbs-fv-back-foot');
+        if (backEl2) backEl2.addEventListener('click', closeFv);
       }
-      var backEl = fvFoot.querySelector('.wbs-fv-back-foot');
-      if (backEl) backEl.addEventListener('click', closeFv);
     }
 
     /* 목록 숨기고 FV 패널 전면 표시 */
@@ -772,10 +719,17 @@
     var xBtn     = document.getElementById('wbs-fv-x-btn');
     var backBtn  = document.getElementById('wbs-fv-back-btn');
     var footBack = document.getElementById('wbs-fv-foot-back');
-    if (editTrig) editTrig.addEventListener('click', function () { openFv('edit'); });
+    if (editTrig) {
+      editTrig.addEventListener('click', function () {
+        if (isLiveMode()) handleLiveFvEdit();
+        else openFv('edit');
+      });
+    }
     if (xBtn)     xBtn.addEventListener('click', closeFv);
     if (backBtn)  backBtn.addEventListener('click', closeFv);
     if (footBack) footBack.addEventListener('click', closeFv);
+    drawerApi.openFullView = openFv;
+    drawerApi.closeFullView = closeFv;
   }
 
 
@@ -856,7 +810,9 @@
 
   /* ─── 13. Custom DatePicker ─────────────────────────────── */
   function initDatePickers() {
-    var TODAY='2026-06-07',WD=['\uc77c','\uc6d4','\ud654','\uc218','\ubaa9','\uae08','\ud1a0'],MO=['1\uc6d4','2\uc6d4','3\uc6d4','4\uc6d4','5\uc6d4','6\uc6d4','7\uc6d4','8\uc6d4','9\uc6d4','10\uc6d4','11\uc6d4','12\uc6d4'];
+    var TODAY = todayIso();
+    var WD=['\uc77c','\uc6d4','\ud654','\uc218','\ubaa9','\uae08','\ud1a0'];
+    var MO=['1\uc6d4','2\uc6d4','3\uc6d4','4\uc6d4','5\uc6d4','6\uc6d4','7\uc6d4','8\uc6d4','9\uc6d4','10\uc6d4','11\uc6d4','12\uc6d4'];
     function p2(n){return(n<10?'0':'')+n;}
     function fmtKo(s){if(!s)return'';var a=s.split('-');return a[0]+'\ub144 '+parseInt(a[1],10)+'\uc6d4 '+parseInt(a[2],10)+'\uc77c';}
     var calIc='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--t3);flex-shrink:0"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
@@ -887,7 +843,7 @@
     document.querySelectorAll('[data-wbs-dp]').forEach(initOneDp);
     document.addEventListener('click',function(e){
       var tog=e.target.closest?e.target.closest('[data-dp-toggle]'):null;
-      if(tog){var dp=tog.closest('.wbs-datepick');if(!dp)return;if(_activeDp===dp){closeDp();return;}closeDp();openDp(dp);return;}
+      if(tog){var dp=tog.closest('.wbs-datepick');if(!dp)return;if(tog.disabled||dp.getAttribute('aria-disabled')==='true')return;if(_activeDp===dp){closeDp();return;}closeDp();openDp(dp);return;}
       if(_activeDp&&_dpPortal.contains(e.target)){
         var dp=_activeDp,yr=parseInt(dp.getAttribute('data-dp-y'),10),mo=parseInt(dp.getAttribute('data-dp-m'),10),view=dp.getAttribute('data-dp-view')||'days';
         if(e.target.closest('[data-dp-calmode]')){view=view==='months'?'days':'months';dp.setAttribute('data-dp-view',view);_dpPortal.innerHTML=buildPop(dp);posDpP();return;}
@@ -956,7 +912,7 @@
     document.querySelectorAll('[data-wbs-sel]').forEach(initOneSel);
     document.addEventListener('click',function(e){
       var tog=e.target.closest?e.target.closest('[data-sel-toggle]'):null;
-      if(tog){var box=tog.closest('[data-wbs-sel]');if(!box)return;if(_activeSel===box){closeSel();return;}closeSel();openSel(box,tog);return;}
+      if(tog){var box=tog.closest('[data-wbs-sel]');if(!box)return;if(tog.disabled||box.getAttribute('aria-disabled')==='true')return;if(_activeSel===box){closeSel();return;}closeSel();openSel(box,tog);return;}
       if(_activeSel&&_selPortal.contains(e.target)){
         var opt=e.target.closest('[data-sel-opt]');
         if(opt){
@@ -1042,79 +998,128 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     initNav();
-    initThemeToggleBtn();  /* 테마 토글 버튼 aria-label */
-    initTopbarSearch();    /* topbar 검색 → 본문 검색 포커스 */
+    initThemeToggleBtn();
+    initTopbarSearch();
     initGanttToggle();
     initGanttFullviewModal();
     initGanttAccordion();
     initGroupToggle();
     initFocusView();
-    initCheckboxes();     /* 체크박스 셀 삽입 */
-    initDeleteButton();   /* 삭제 버튼 */
-    initToggleButtons();
-    initDrawer();         /* row click → drawer (체크박스 셀 제외) */
+    if (!isLiveMode()) {
+      initCheckboxes();
+      initDeleteButton();
+      initToggleButtons();
+      initGroupProgress();
+    } else {
+      updateDeleteBtn();
+    }
+    initDrawer();
     initFullView();
-    /* ── 공통 필터 컴포넌트 (WBS groups config 전달) ── */
     if (window.STAM && window.STAM.boardFilter) {
-      window.STAM.boardFilter.init({
-        root:    document,
+      var filterGroups = [
+        { key: 'status', label: '진행상태', options: [
+          { value: 'wait', label: '대기', dot: 'd-wait' },
+          { value: 'in_progress', label: '진행중', dot: 'd-prog' },
+          { value: 'delayed', label: '지연', dot: 'd-delay' },
+          { value: 'done', label: '완료', dot: 'd-done' },
+          { value: 'hold', label: '보류', dot: 'd-hold' }
+        ]},
+        { key: 'priority', label: '우선순위', options: [
+          { value: 'high', label: '높음', dot: 'd-high' },
+          { value: 'mid', label: '보통', dot: 'd-mid' },
+          { value: 'low', label: '낮음', dot: 'd-low' }
+        ]},
+        { key: 'phase', label: '단계', options: [
+          { value: '착수', label: '착수' },
+          { value: '분석', label: '분석' },
+          { value: '설계', label: '설계' },
+          { value: '구현', label: '구현' },
+          { value: '검수', label: '검수' },
+          { value: '오픈', label: '오픈' },
+          { value: '완료', label: '완료' }
+        ]},
+        { key: 'group', label: '기능그룹', options: [] },
+        { key: 'owner', label: '담당자', options: [] }
+      ];
+      drawerApi.filterApi = window.STAM.boardFilter.init({
+        root: document,
         trigger: '#wbs-filter-open-btn',
-        panel:   '#wbs-filter-panel',
-        reset:   '#wbs-fp-clear',
-        apply:   '#wbs-fp-apply',
-        groups: [
-          { key: 'status', label: '진행상태', options: [
-            { value: 'wait',   label: '대기',   dot: 'd-wait' },
-            { value: 'prog',   label: '진행중', dot: 'd-prog' },
-            { value: 'review', label: '검토중', dot: 'd-warn' },
-            { value: 'done',   label: '완료',   dot: 'd-done' },
-            { value: 'hold',   label: '보류',   dot: 'd-hold' }
-          ]},
-          { key: 'period', label: '기간판정', options: [
-            { value: 'notstarted', label: '미착수' },
-            { value: 'normal',     label: '정상',    dot: 'd-done' },
-            { value: 'inprog',     label: '진행중',  dot: 'd-prog' },
-            { value: 'delayrisk',  label: '지연위험', dot: 'd-warn' },
-            { value: 'overdue',    label: '기간초과', dot: 'd-delay' },
-            { value: 'early',      label: '조기완료', dot: 'd-done' },
-            { value: 'checkdate',  label: '날짜확인' }
-          ]},
-          { key: 'prio', label: '우선순위', options: [
-            { value: 'high', label: '높음', dot: 'd-high' },
-            { value: 'mid',  label: '보통', dot: 'd-mid' },
-            { value: 'low',  label: '낮음', dot: 'd-low' }
-          ]},
-          { key: 'group', label: '기능그룹', options: [
-            { value: 'signup',  label: '회원가입' },
-            { value: 'mypage',  label: '마이페이지' },
-            { value: 'product', label: '상품' },
-            { value: 'order',   label: '주문/결제' },
-            { value: 'admin',   label: '관리자' }
-          ]},
-          { key: 'assignee', label: '담당자', options: [
-            { value: 'lee',  label: '이서연',   avatar: '이' },
-            { value: 'kim',  label: '김기획',   avatar: '김' },
-            { value: 'park', label: '박PM',     avatar: '박' },
-            { value: 'choi', label: '최개발',   avatar: '최' },
-            { value: 'jung', label: '정디자인', avatar: '정' }
-          ]},
-          { key: 'approval', label: '승인상태', options: [
-            { value: 'none',      label: '미요청' },
-            { value: 'pending',   label: '검토 대기',   dot: 'd-wait' },
-            { value: 'reviewing', label: '고객검토 중', dot: 'd-prog' },
-            { value: 'approved',  label: '승인 완료',   dot: 'd-done' },
-            { value: 'rejected',  label: '반려됨',      dot: 'd-delay' }
-          ]}
-        ],
-        onApply: function () { /* WBS 필터 — UI mock; 실제 필터링 미구현 */ }
+        panel: '#wbs-filter-panel',
+        reset: '#wbs-fp-clear',
+        apply: '#wbs-fp-apply',
+        groups: filterGroups,
+        onApply: isLiveMode() ? undefined : function () { /* mock */ }
       });
     }
-    initFormToggles();    /* 등록/수정 폼 토글 버튼 */
-    initDialog();         /* 커스텀 Alert/Confirm */
-    initDatePickers();    /* 커스텀 DatePicker */
-    initSelectBoxes();    /* 커스텀 SelectBox */
-    initDrawerFeedback(); /* 저장/등록 피드백 */
-    normalizeStageDisplayCells(); /* 단계 배지 표시값 보정 */
+    initFormToggles();
+    initDialog();
+    initDatePickers();
+    initSelectBoxes();
+    if (!isLiveMode()) {
+      initDrawerFeedback();
+      normalizeStageDisplayCells();
+    }
+
+    window.STAM = window.STAM || {};
+    window.STAM.wbsUi = {
+      isLiveMode: isLiveMode,
+      openDrawer: drawerApi.openDrawer,
+      closeDrawer: drawerApi.closeDrawer,
+      setDrawerMode: drawerApi.setDrawerMode,
+      openFullView: drawerApi.openFullView,
+      closeFullView: drawerApi.closeFullView,
+      filterApi: drawerApi.filterApi,
+      buildFullViewDetail: buildLiveFullViewDetail,
+      getSelectValue: function (host) {
+        var box = host && host.matches('[data-wbs-sel]') ? host : (host && host.querySelector('[data-wbs-sel]'));
+        if (!box) return '';
+        return box.getAttribute('data-sel-val') || '';
+      },
+      setSelectValue: function (host, val) {
+        var box = host && host.matches('[data-wbs-sel]') ? host : (host && host.querySelector('[data-wbs-sel]'));
+        if (!box) return;
+        box.setAttribute('data-sel-val', val || '');
+        var sp = box.querySelector('.wbs-sel-sp, .stam-cs-value');
+        if (sp) {
+          sp.textContent = normalizeStageLabel(val) || val || '— 선택 —';
+          sp.classList.toggle('is-placeholder', !val);
+        }
+        var btn = box.querySelector('.wbs-sel, .stam-cs-trigger');
+        if (btn) btn.classList.toggle('placeholder', !val);
+      },
+      getDateValue: function (host) {
+        var dp = host && host.matches('[data-wbs-dp]') ? host : (host && host.querySelector('[data-wbs-dp]'));
+        return dp ? (dp.getAttribute('data-dp-val') || '') : '';
+      },
+      setDateValue: function (host, val) {
+        var dp = host && host.matches('[data-wbs-dp]') ? host : (host && host.querySelector('[data-wbs-dp]'));
+        if (!dp) return;
+        dp.setAttribute('data-dp-val', val || '');
+        var vEl = dp.querySelector('.wbs-dp-val');
+        if (vEl) {
+          if (!val) {
+            vEl.textContent = '\ub0a0\uc9dc \uc120\ud0dd';
+            vEl.classList.add('ph');
+          } else {
+            var a = val.split('-');
+            vEl.textContent = a[0] + '\ub144 ' + parseInt(a[1], 10) + '\uc6d4 ' + parseInt(a[2], 10) + '\uc77c';
+            vEl.classList.remove('ph');
+          }
+        }
+      },
+      getToggleValue: function (host) {
+        if (!host) return '';
+        var active = host.querySelector('.wbs-form-toggle.active');
+        return active ? active.textContent.trim() : '';
+      },
+      setToggleValue: function (host, val) {
+        if (!host) return;
+        host.querySelectorAll('.wbs-form-toggle').forEach(function (btn) {
+          var on = btn.textContent.trim() === val;
+          btn.classList.toggle('active', on);
+        });
+      }
+    };
   });
 
 }());

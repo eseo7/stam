@@ -35,10 +35,17 @@ assert.doesNotMatch(serviceSource, /IndexedDB/);
 assert.doesNotMatch(serviceSource, /local-core-db/);
 assert.doesNotMatch(serviceSource, /WBS-MANUAL/);
 
-assert.doesNotMatch(wbsHtmlSource, /stam\.wbs-service\.js/);
-assert.doesNotMatch(wbsHtmlSource, /stam\.wbs-firestore-adapter\.js/);
 assert.doesNotMatch(wbsHtmlSource, /wbsService/);
 assert.doesNotMatch(wbsHtmlSource, /wbsFirestoreAdapter/);
+
+assert.match(wbsHtmlSource, /stam\.wbs-service\.js/);
+assert.match(wbsHtmlSource, /stam\.wbs-firestore-adapter\.js/);
+assert.match(wbsHtmlSource, /stam\.wbs-firestore-list\.js/);
+assert.match(wbsHtmlSource, /stam\.wbs-firestore-crud\.js/);
+assert.doesNotMatch(wbsHtmlSource, /stam\.wbs-cycle\.js/);
+assert.doesNotMatch(wbsHtmlSource, /stam\.wbs-crud\.js/);
+assert.doesNotMatch(wbsHtmlSource, /stam\.local-core-db\.js/);
+assert.match(wbsHtmlSource, /data-stam-wbs-live="true"/);
 
 assert.doesNotMatch(wbsCycleSource, /stam\.wbs-service\.js/);
 assert.doesNotMatch(wbsCrudSource, /stam\.wbs-service\.js/);

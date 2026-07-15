@@ -37,5 +37,15 @@
       loadingDesc: '목록을 불러오고 있습니다.',
       errorTitle: '기능정의서 목록을 불러오지 못했습니다.',
     },
+    wbs: {
+      emptyTitle: '등록된 WBS 작업이 없습니다',
+      emptyDesc: '작업 등록 버튼을 눌러 새 작업을 추가하세요.',
+      loadingTitle: 'WBS 작업 목록을 불러오는 중입니다.',
+      loadingDesc: '목록을 불러오고 있습니다.',
+      errorTitle: 'WBS 작업 목록을 불러오지 못했습니다.',
+      writeDenied: '이 프로젝트에서는 WBS 등록·수정 권한이 없습니다.',
+      deleteUnsupported: '1차 범위에서는 WBS 삭제 기능을 지원하지 않습니다.',
+      scopeUnsupported: '1차 범위 외 기능입니다.',
+    },
   };
 }());
