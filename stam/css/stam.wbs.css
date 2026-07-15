@@ -184,6 +184,14 @@
   transition: background 120ms, color 120ms, border-color 120ms;
   white-space: nowrap;
   line-height: 1.3;
+  box-sizing: border-box;
+}
+/* Toolbar — filter bar control height alignment (stam-board-action-btn 제외) */
+.wbs-filter-bar .wbs-btn,
+.wbs-filter-bar .wbs-filter-open-btn,
+.wbs-filter-bar .wbs-toggle-btn {
+  height: 32px;
+  align-items: center;
 }
 .wbs-btn:hover { background: var(--bg-sur2); color: var(--t1); }
 .wbs-btn-primary {
@@ -1060,9 +1068,8 @@
   position: absolute;
   top: 0; right: 0; bottom: 0;
   height: 100%;              /* definite height 보장 — flex 자식의 flex-basis % 해소에 필요 */
-  /* 컨텐츠 영역 약 50% — clamp(min, 50% of content, max) */
-  width: clamp(520px, calc((100vw - var(--sw, 256px)) * 0.50), 880px);
-  max-width: calc(100% - 16px);
+  width: min(840px, calc(100% - 32px));
+  max-width: 840px;
   background: var(--bg-sur);
   border-left: 1px solid var(--bd);
   box-shadow: -8px 0 32px rgba(0,0,0,.18);
@@ -1074,14 +1081,11 @@
   z-index: 1;
 }
 .wbs-drawer[data-open="true"] .wbs-drawer-panel { transform: translateX(0); }
-.po-shell.wbs-focus .wbs-drawer-panel {
-  width: clamp(560px, 50vw, 940px);
-}
 .wbs-drawer-head {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding: 12px 14px 10px;
+  padding: 16px 24px 14px;
   background: var(--bg-sur2);
   border-bottom: 1px solid var(--bd);
   flex: 0 0 auto;            /* head 고정 — grow/shrink 차단 */
@@ -1152,10 +1156,10 @@
 
 /* ---- 내용 컨테이너 — 스크롤 불필요 ---- */
 .wbs-drawer-body {
-  padding: 14px;
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 .wbs-drawer-sec {
   border: 1px solid var(--bd);
@@ -1240,8 +1244,8 @@
 .wbs-drawer-footer {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 14px;
+  gap: 8px;
+  padding: 12px 24px;
   border-top: 1px solid var(--bd);
   flex: 0 0 auto;            /* footer 고정 — grow/shrink 차단 */
   background: var(--bg-sur2);
@@ -1324,7 +1328,8 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 5px 12px;
+  padding: 0 12px;
+  box-sizing: border-box;
   border-radius: 99px;
   font-size: 11.5px;
   font-weight: 600;
@@ -1674,7 +1679,8 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 12px;
+  padding: 0 12px;
+  box-sizing: border-box;
   border-radius: var(--r-md);
   font-size: 12px;
   font-weight: 600;
@@ -1946,7 +1952,7 @@
   pointer-events: none;
 }
 
-/* 모바일: 하단 시트 */
+/* 모바일: 하단 시트 + Drawer 전체 폭 */
 @media (max-width: 640px) {
   .wbs-filter-panel {
     position: fixed;
@@ -1962,6 +1968,37 @@
   }
   .wbs-filter-panel[data-open="true"] {
     transform: translateY(0) scale(1);
+  }
+  .wbs-drawer {
+    left: 0;
+  }
+  .wbs-drawer-panel {
+    width: 100%;
+    max-width: none;
+    border-left: none;
+  }
+  .wbs-drawer-head {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .wbs-drawer-body {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .wbs-drawer-footer {
+    padding-left: 16px;
+    padding-right: 16px;
+    flex-wrap: wrap;
+  }
+  .wbs-form-body {
+    grid-template-columns: 1fr;
+  }
+  .wbs-form-row .wbs-datepick,
+  .wbs-form-row [data-stam-requirement-picker],
+  .wbs-form-row [data-stam-functional-spec-picker],
+  .wbs-form-row [data-stam-wbs-member-picker] {
+    min-width: 0;
+    max-width: 100%;
   }
 }
 
@@ -2153,10 +2190,10 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
 }
 .wbs-drawer-form-label .req { color: var(--fail); margin-left: 2px; }
 .wbs-drawer-form-input,
-.wbs-drawer-form-select,
-.wbs-drawer-form-textarea {
+.wbs-drawer-form-select {
   width: 100%;
-  padding: 6px 10px;
+  height: 38px;
+  padding: 0 10px;
   border: 1px solid var(--bd);
   border-radius: var(--r-md);
   background: var(--bg-sur);
@@ -2168,13 +2205,28 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
   box-sizing: border-box;
   line-height: 1.4;
 }
+.wbs-drawer-form-textarea {
+  width: 100%;
+  padding: 10px 11px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  background: var(--bg-sur);
+  font-size: 12px;
+  color: var(--t1);
+  font-family: var(--font) !important;
+  outline: none;
+  transition: border-color 150ms;
+  box-sizing: border-box;
+  line-height: 1.4;
+  resize: vertical;
+  min-height: 88px;
+}
 .wbs-drawer-form-input:focus,
 .wbs-drawer-form-select:focus,
 .wbs-drawer-form-textarea:focus {
   border-color: var(--bd-f);
   box-shadow: 0 0 0 2px var(--stam-soft);
 }
-.wbs-drawer-form-textarea { resize: vertical; min-height: 60px; }
 /* placeholder tone aligned with screen-specification (PR #205) */
 .wbs-drawer-form-input::placeholder,
 .wbs-drawer-form-textarea::placeholder {
@@ -2182,11 +2234,17 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
   opacity: 1;
 }
 .wbs-drawer-form-input:disabled,
-.wbs-drawer-form-select:disabled,
+.wbs-drawer-form-select:disabled {
+  background: var(--bg-sur2);
+  color: var(--t3);
+  cursor: not-allowed;
+  height: 38px;
+}
 .wbs-drawer-form-textarea:disabled {
   background: var(--bg-sur2);
   color: var(--t3);
   cursor: not-allowed;
+  min-height: 88px;
 }
 [data-theme="dark"] .wbs-drawer-form-input,
 [data-theme="dark"] .wbs-drawer-form-select,
@@ -2653,7 +2711,7 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 8px 12px;
+  padding: 10px 14px;
   background: var(--bg-sur2);
   border-bottom: 1px solid var(--bd);
   border-radius: calc(var(--r-md) - 1px) calc(var(--r-md) - 1px) 0 0; /* overflow:visible 모서리 보정 */
@@ -2689,10 +2747,10 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
   border-radius: 0 0 calc(var(--r-md) - 1px) calc(var(--r-md) - 1px); /* overflow:visible 하단 모서리 보정 */
 }
 .wbs-form-row {
-  padding: 9px 12px;
+  padding: 11px 14px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
   background: var(--bg-sur);
 }
 .wbs-form-row.wbs-form-full { grid-column: 1 / -1; }
@@ -2774,7 +2832,8 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
   align-items: center;
   justify-content: center;
   gap: 5px;
-  padding: 6px 12px;
+  height: 38px;
+  padding: 0 12px;
   border-radius: var(--r-md);
   font-size: 11.5px;
   font-weight: 600;
@@ -2814,22 +2873,30 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
 .wbs-form-alert-title { font-weight: 700; color: var(--warn);  font-family: var(--font) !important; }
 .wbs-form-alert-desc  { font-size: 11px;  color: var(--t2);   margin-top: 2px; font-family: var(--font) !important; }
 
-/* ── 등록(create)/수정 바디 레이아웃 ── */
-.wbs-create-body,
-.wbs-edit-body {
-  padding: 12px !important;
-  gap: 8px !important;
-}
-
-/* ── 폼 인풋 재정의 ── */
+/* ── 폼 인풋 — form-row cascade (textarea 제외 38px 고정) ── */
 .wbs-form-row .wbs-drawer-form-input,
-.wbs-form-row .wbs-drawer-form-select,
+.wbs-form-row .wbs-drawer-form-select {
+  font-size: 12px;
+  height: 38px;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
 .wbs-form-row .wbs-drawer-form-textarea {
   font-size: 12px;
-  padding: 5px 9px;
+  min-height: 88px;
+  padding: 10px 11px;
+  height: auto;
 }
-.wbs-form-row .wbs-drawer-form-textarea { min-height: 76px; }
-.wbs-form-row .wbs-drawer-form-input:disabled {
+.wbs-form-row .stam-cs-trigger,
+.wbs-form-row [data-stam-reference-picker-toggle],
+[data-stam-wbs-member-picker] .stam-cs-trigger {
+  height: 38px;
+  padding: 0 11px;
+  box-sizing: border-box;
+}
+.wbs-form-row .wbs-drawer-form-input:disabled,
+.wbs-form-row .wbs-drawer-form-select:disabled {
+  height: 38px;
   opacity: .45;
   cursor: default;
   background: var(--bg-sur3);
