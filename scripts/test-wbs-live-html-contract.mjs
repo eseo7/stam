@@ -7,7 +7,9 @@ import path from 'node:path';
 const ROOT = path.resolve(import.meta.dirname, '..');
 const html = await readFile(path.join(ROOT, 'stam/pages/boards/wbs.html'), 'utf8');
 const wbsJs = await readFile(path.join(ROOT, 'stam/js/stam.wbs.js'), 'utf8');
+const wbsListJs = await readFile(path.join(ROOT, 'stam/js/stam.wbs-firestore-list.js'), 'utf8');
 const wbsCss = await readFile(path.join(ROOT, 'stam/css/stam.wbs.css'), 'utf8');
+const tableSelectionCss = await readFile(path.join(ROOT, 'stam/css/stam.table-selection.css'), 'utf8');
 
 function ruleBlock(css, selector) {
   const parts = selector.split(',').map((part) => part.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
@@ -277,5 +279,22 @@ assertDecl(mobile640, /\.wbs-drawer-head\s*\{[^}]*padding-left:\s*16px/, 'mobile
 assertDecl(mobile640, /\.wbs-drawer-body\s*\{[^}]*padding-left:\s*16px/, 'mobile drawer body padding');
 
 assert.equal(count(/\sstyle="/g), 0, 'html inline style must stay 0');
+
+/* ── WBS list checkbox common contract (.stam-check / .stam-check-cell) ── */
+assert.match(html, /<th class="wbs-th-chk stam-check-cell">/);
+const headerChkTag = html.match(/<th class="wbs-th-chk stam-check-cell">[\s\S]*?<\/th>/)?.[0] || '';
+assert.match(headerChkTag, /class="wbs-chk-all stam-check"/);
+assert.match(headerChkTag, /id="wbs-chk-all"/);
+assert.doesNotMatch(html, /class="wbs-chk(?:\s|")/);
+assert.doesNotMatch(html, /\swbs-chk(?:\s|")/);
+
+assert.match(wbsListJs, /class="wbs-row-chk stam-check"/);
+assert.match(wbsListJs, /stam-check-cell/);
+assert.doesNotMatch(wbsListJs, /class="wbs-chk(?:\s|")/);
+assert.doesNotMatch(wbsListJs, /\swbs-chk(?:\s|")/);
+
+assert.doesNotMatch(wbsCss, /\.wbs-chk\b/);
+assert.match(tableSelectionCss, /\.stam-check\b/);
+assert.match(tableSelectionCss, /\.stam-check-cell\b/);
 
 console.log('wbs live html contract: PASS');
