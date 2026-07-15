@@ -40,7 +40,8 @@ jobs:
           printf '%s' "$FIREBASE_SA" > "$creds"
           export GOOGLE_APPLICATION_CREDENTIALS="$creds"
 
-          npx -y -p firebase-admin@13 node <<'NODE'
+          npm install --no-save --no-package-lock firebase-admin@13
+          node <<'NODE'
           const admin = require('firebase-admin');
           admin.initializeApp({
             credential: admin.credential.applicationDefault(),
