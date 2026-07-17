@@ -183,6 +183,24 @@
     return NaN;
   }
 
+  function normalizeEnumField(field, value) {
+    var raw = typeof value === 'string' ? clean(value) : value;
+    if (!raw) return ENUM_DEFAULTS[field];
+    return ENUM_VALUES[field].indexOf(raw) >= 0 ? raw : ENUM_DEFAULTS[field];
+  }
+
+  function normalizeStoredCount(value, defaultValue) {
+    var count = normalizeCount(value);
+    if (Number.isNaN(count) || count < 0) return defaultValue;
+    return count;
+  }
+
+  function normalizeStoredVersion(value) {
+    var version = normalizeCount(value);
+    if (Number.isNaN(version) || version < 1) return 1;
+    return version;
+  }
+
   function validateEnumField(errors, field, value, allowDefaultWhenAbsent) {
     if (isAbsent(value)) {
       if (allowDefaultWhenAbsent) return ENUM_DEFAULTS[field];
@@ -618,16 +636,14 @@
       projectId: clean(raw.projectId),
       code: clean(raw.code),
       title: clean(raw.title),
-      screenType: clean(raw.screenType),
-      writeStatus: clean(raw.writeStatus),
-      reviewStatus: clean(raw.reviewStatus),
-      approvalStatus: clean(raw.approvalStatus),
+      screenType: normalizeEnumField('screenType', raw.screenType),
+      writeStatus: normalizeEnumField('writeStatus', raw.writeStatus),
+      reviewStatus: normalizeEnumField('reviewStatus', raw.reviewStatus),
+      approvalStatus: normalizeEnumField('approvalStatus', raw.approvalStatus),
       ownerId: clean(raw.ownerId),
       ownerName: clean(raw.ownerName),
-      imageCount: Number.isFinite(Number(raw.imageCount)) && Number.isInteger(Number(raw.imageCount))
-        ? Number(raw.imageCount) : DEFAULT_IMAGE_COUNT,
-      annotationCount: Number.isFinite(Number(raw.annotationCount)) && Number.isInteger(Number(raw.annotationCount))
-        ? Number(raw.annotationCount) : DEFAULT_ANNOTATION_COUNT,
+      imageCount: normalizeStoredCount(raw.imageCount, DEFAULT_IMAGE_COUNT),
+      annotationCount: normalizeStoredCount(raw.annotationCount, DEFAULT_ANNOTATION_COUNT),
       createdAt: raw.createdAt || null,
       createdBy: clean(raw.createdBy),
       updatedAt: raw.updatedAt || null,
@@ -635,8 +651,7 @@
       deletedAt: raw.deletedAt || null,
       deletedBy: raw.deletedBy == null ? null : clean(raw.deletedBy),
       isDeleted: raw.isDeleted === true,
-      version: Number.isFinite(Number(raw.version)) && Number.isInteger(Number(raw.version))
-        ? Number(raw.version) : 1,
+      version: normalizeStoredVersion(raw.version),
     };
 
     OPTIONAL_STRING_FIELDS.forEach(function (field) {

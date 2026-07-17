@@ -492,6 +492,60 @@ const normalized = contract.normalizeScreenSpec({
 assert.equal(normalized.title, 'Title');
 assert.equal('screenName' in normalized, false);
 assert.equal('functionId' in normalized, false);
+assert.equal(normalized.screenType, 'form');
+assert.equal(normalized.version, 2);
+
+const normalizedDefaults = contract.normalizeScreenSpec({
+  id: 'scr-d',
+  projectId: 'P1',
+  title: 'Defaults',
+  screenType: 'dashboard',
+  writeStatus: 'draft',
+  reviewStatus: 'unknown',
+  approvalStatus: 'rejected-extra',
+  imageCount: -3,
+  annotationCount: 1.5,
+  version: 0,
+});
+assert.equal(normalizedDefaults.screenType, 'other');
+assert.equal(normalizedDefaults.writeStatus, 'writing');
+assert.equal(normalizedDefaults.reviewStatus, 'none');
+assert.equal(normalizedDefaults.approvalStatus, 'none');
+assert.equal(normalizedDefaults.imageCount, 0);
+assert.equal(normalizedDefaults.annotationCount, 0);
+assert.equal(normalizedDefaults.version, 1);
+
+const normalizedStoredCounts = contract.normalizeScreenSpec({
+  id: 'scr-c',
+  projectId: 'P1',
+  title: 'Counts',
+  screenType: 'list',
+  writeStatus: 'complete',
+  reviewStatus: 'done',
+  approvalStatus: 'approved',
+  imageCount: '4',
+  annotationCount: 2,
+  version: '3',
+});
+assert.equal(normalizedStoredCounts.imageCount, 4);
+assert.equal(normalizedStoredCounts.annotationCount, 2);
+assert.equal(normalizedStoredCounts.version, 3);
+
+const normalizedInvalidVersion = contract.normalizeScreenSpec({
+  id: 'scr-v',
+  projectId: 'P1',
+  title: 'Version fallback',
+  screenType: 'form',
+  writeStatus: 'writing',
+  reviewStatus: 'none',
+  approvalStatus: 'none',
+  version: -1,
+});
+assert.equal(normalizedInvalidVersion.version, 1);
+
+const invalidWriteStatus = contract.validateScreenSpecInput(validScreenSpecInput({ writeStatus: 'draft' }), 'create');
+assert.equal(invalidWriteStatus.valid, false);
+assert.equal(invalidWriteStatus.errors.some((err) => err.field === 'writeStatus'), true);
 
 const list = await service.listByProject('P1', {}, { actorUid: 'u2' });
 assert.equal(list.length, 1);
