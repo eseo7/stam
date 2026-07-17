@@ -37,6 +37,57 @@ assert.deepEqual(api.deriveScheduleState({ status: 'wait', startDate: '2026-06-1
 assert.deepEqual(api.deriveScheduleState({ status: 'in_progress', startDate: '2026-06-01', endDate: '2026-06-20' }, TODAY).verdict, '진행중');
 assert.deepEqual(api.deriveScheduleState({ status: 'wait', startDate: '', endDate: '' }, TODAY).verdict, '—');
 
+assert.equal(api.isItemDelayed({ status: 'delayed', endDate: '2026-06-01' }, TODAY), true);
+assert.equal(api.isItemDelayed({ status: 'in_progress', startDate: '2026-06-01', endDate: '2026-06-05' }, TODAY), true);
+assert.equal(api.isItemDelayed({ status: 'done', startDate: '2026-06-01', endDate: '2026-06-05' }, TODAY), false);
+assert.equal(api.isItemDelayed({ status: 'hold', startDate: '2026-06-01', endDate: '2026-06-05' }, TODAY), false);
+assert.equal(api.isItemDelayed({ status: 'wait', startDate: '', endDate: '' }, TODAY), false);
+
+const delayFixtures = [
+  { status: 'delayed', endDate: '2026-06-01', functionGroup: 'D1' },
+  { status: 'in_progress', startDate: '2026-06-01', endDate: '2026-06-05', functionGroup: 'D2' },
+  { status: 'done', startDate: '2026-06-01', endDate: '2026-06-05', functionGroup: 'D3' },
+  { status: 'hold', startDate: '2026-06-01', endDate: '2026-06-05', functionGroup: 'D4' },
+  { status: 'wait', startDate: '', endDate: '', functionGroup: 'D5' },
+];
+const delayKpis = api.computeKpis(delayFixtures, TODAY);
+assert.equal(delayKpis.delayed, 2, 'explicit delayed + overdue in_progress count once each');
+const riskFiltered = delayFixtures.filter((item) => api.isItemDelayed(item, TODAY));
+assert.equal(riskFiltered.length, delayKpis.delayed, 'risk filter set matches delayed KPI');
+
+const mixedGroup = [
+  { status: 'done', endDate: '2026-06-01', functionGroup: 'Mix' },
+  { status: 'done', endDate: '2026-06-02', functionGroup: 'Mix' },
+  { status: 'in_progress', startDate: '2026-06-01', endDate: '2026-06-05', functionGroup: 'Mix' },
+];
+assert.equal(api.dominantStatus(mixedGroup, TODAY), 'delayed', 'minor overdue must surface delayed group status');
+
+const allDoneGroup = [
+  { status: 'done', endDate: '2026-06-01', functionGroup: 'Done' },
+  { status: 'done', endDate: '2026-06-02', functionGroup: 'Done' },
+];
+assert.equal(api.dominantStatus(allDoneGroup, TODAY), 'done');
+
+const progressFixtures = [
+  { status: 'in_progress', endDate: '2026-06-10', functionGroup: 'P', progress: 40 },
+  { status: 'in_progress', endDate: '2026-06-10', functionGroup: 'P', progress: 'NaN' },
+  { status: 'in_progress', endDate: '2026-06-10', functionGroup: 'P', progress: 60 },
+];
+const progressSummary = api.computeTimelineSummary(progressFixtures, TODAY);
+assert.equal(progressSummary.averageProgress, 50, 'invalid progress excluded from average');
+
+const badRangeSummary = api.computeTimelineSummary([
+  { status: 'in_progress', startDate: '2026-06-20', endDate: '2026-06-01', functionGroup: 'Bad' },
+], TODAY);
+assert.equal(badRangeSummary.inclusiveDayCount, 0, 'end before start must not produce negative days');
+
+const noDateSummary = api.computeTimelineSummary([
+  { status: 'wait', startDate: '', endDate: '', functionGroup: 'ND' },
+], TODAY);
+assert.equal(noDateSummary.minStartDate, '');
+assert.equal(noDateSummary.maxEndDate, '');
+assert.equal(noDateSummary.inclusiveDayCount, 0);
+
 const items = [
   { status: 'in_progress', endDate: '2026-06-10', functionGroup: 'A', progress: 30 },
   { status: 'delayed', endDate: '2026-06-08', functionGroup: 'A', progress: 10 },
@@ -52,7 +103,7 @@ assert.equal(kpis.delayed, 1);
 assert.equal(kpis.dueWeek, 1);
 assert.equal(kpis.groupCount, 4);
 
-const summary = api.computeTimelineSummary(items);
+const summary = api.computeTimelineSummary(items, TODAY);
 assert.equal(summary.itemCount, 5);
 assert.equal(summary.averageProgress, 38);
 assert.equal(summary.groupSummary.length, 4);
@@ -82,10 +133,23 @@ const dueWeekItems = [
 const dueWeekKpis = api.computeKpis(dueWeekItems, '2026-06-07');
 assert.equal(dueWeekKpis.dueWeek, 1);
 
+const overdueInProgress = [
+  { status: 'in_progress', startDate: '2026-06-01', endDate: '2026-06-05', functionGroup: 'A' },
+  { status: 'delayed', startDate: '2026-06-01', endDate: '2026-06-08', functionGroup: 'A' },
+];
+const overdueKpis = api.computeKpis(overdueInProgress, TODAY);
+assert.equal(overdueKpis.delayed, 2);
+const overdueRisk = overdueInProgress.filter((item) => api.isItemDelayed(item, TODAY));
+assert.deepEqual(
+  overdueRisk.map((item) => item.status),
+  ['in_progress', 'delayed'],
+  'no duplicate delayed counting for risk filter'
+);
+
 assert.doesNotMatch(listSource, /wbs-pct-/);
 
-function makeRow(pct) {
-  return {
+function makeRow(pct, overrides) {
+  return Object.assign({
     functionGroup: 'G',
     progress: pct,
     status: 'in_progress',
@@ -97,7 +161,7 @@ function makeRow(pct) {
     ownerName: 'U',
     startDate: '2026-06-01',
     endDate: '2026-06-10',
-  };
+  }, overrides || {});
 }
 
 const table = {
@@ -164,12 +228,12 @@ for (const pct of [1, 37, 82, 99]) {
   groupsHost.innerHTML = '';
   progressBar.value = 0;
 
-  api.renderRows(rows);
+  api.renderRows(rows, TODAY);
   const grpMatch = table.innerHTML.match(/<progress[^>]*value="(\d+)"/);
   assert.ok(grpMatch, `group header progress missing for ${pct}%`);
   assert.equal(Number(grpMatch[1]), pct);
 
-  api.renderTimelineSummary(rows);
+  api.renderTimelineSummary(rows, TODAY);
   assert.equal(overallProgress.value, pct, `overall progress value for ${pct}%`);
 
   const grpSummaryMatch = groupsHost.innerHTML.match(/<progress[^>]*value="(\d+)"/);
@@ -179,5 +243,17 @@ for (const pct of [1, 37, 82, 99]) {
   api.renderDetail(rows[0]);
   assert.equal(progressBar.value, pct, `detail progressBar value for ${pct}%`);
 }
+
+const mixedHeaderRows = [
+  makeRow(100, { status: 'done', endDate: '2026-06-01', functionGroup: 'Mix' }),
+  makeRow(100, { status: 'done', endDate: '2026-06-02', functionGroup: 'Mix' }),
+  makeRow(10, { status: 'delayed', endDate: '2026-06-01', functionGroup: 'Mix' }),
+];
+table.innerHTML = '';
+api.renderRows(mixedHeaderRows, TODAY);
+assert.match(table.innerHTML, /<span class="wbs-grp-stat-txt">3건<\/span>/);
+assert.match(table.innerHTML, /<span class="wbs-chip wc-delay sm">지연<\/span>/);
+assert.doesNotMatch(table.innerHTML, /wc-delay sm">지연 \d/);
+assert.doesNotMatch(table.innerHTML, /wc-done sm">완료 \d/);
 
 console.log('wbs derived contract: PASS');

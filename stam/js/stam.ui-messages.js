@@ -40,6 +40,8 @@
     wbs: {
       emptyTitle: '등록된 WBS 작업이 없습니다',
       emptyDesc: '작업 등록 버튼을 눌러 새 작업을 추가하세요.',
+      filterEmptyTitle: '조건에 맞는 WBS 작업이 없습니다',
+      filterEmptyDesc: '검색어나 필터 조건을 조정해 주세요.',
       loadingTitle: 'WBS 작업 목록을 불러오는 중입니다.',
       loadingDesc: '목록을 불러오고 있습니다.',
       errorTitle: 'WBS 작업 목록을 불러오지 못했습니다.',

@@ -4,6 +4,18 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import path from 'node:path';
 
+const FIXED_NOW = '2026-07-14T12:00:00+09:00';
+
+class FixedDate extends Date {
+  constructor(...args) {
+    super(...(args.length ? args : [FIXED_NOW]));
+  }
+
+  static now() {
+    return new Date(FIXED_NOW).getTime();
+  }
+}
+
 const ROOT = path.resolve(import.meta.dirname, '..');
 const listSource = await readFile(path.join(ROOT, 'stam/js/stam.wbs-firestore-list.js'), 'utf8');
 const serviceSource = await readFile(path.join(ROOT, 'stam/js/stam.wbs-service.js'), 'utf8');
@@ -52,8 +64,8 @@ const fakeAdapter = {
         priority: 'mid',
         ownerId: 'other',
         ownerName: 'Other',
-        startDate: '2026-07-05',
-        endDate: '2026-07-12',
+        startDate: '2026-12-01',
+        endDate: '2026-12-12',
         progress: 0,
         createdAt: '2026-07-09T00:00:00.000Z',
         isDeleted: false,
@@ -83,8 +95,34 @@ const fakeAdapter = {
   },
 };
 
-const table = { innerHTML: '', querySelectorAll() { return []; }, appendChild() {}, insertAdjacentHTML(_, html) { this.innerHTML += html; } };
+const table = {
+  innerHTML: '',
+  querySelectorAll(sel) {
+    if (sel === 'tbody') {
+      const n = (this.innerHTML.match(/<tbody/g) || []).length;
+      return Array.from({ length: n }, () => ({
+        remove() { table.innerHTML = ''; },
+      }));
+    }
+    return [];
+  },
+  appendChild(el) {
+    if (el && el.innerHTML != null) this.innerHTML += el.innerHTML;
+  },
+  addEventListener() {},
+  insertAdjacentHTML(_, html) { this.innerHTML += html; },
+};
 const liveRoot = { getAttribute: () => 'true' };
+const kpiCards = {};
+const ganttMeta = { textContent: '' };
+const boardCount = { innerHTML: '' };
+const searchInput = { value: '', addEventListener(evt, fn) {
+  if (evt === 'input') searchInput._onInput = fn;
+} };
+const riskBtn = { classList: { add() {}, remove() {}, toggle() {}, contains() { return riskBtn._active; } }, _active: false, addEventListener(evt, fn) {
+  if (evt === 'click') riskBtn._onClick = fn;
+} };
+const myBtn = { classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } }, addEventListener() {} };
 
 const context = vm.createContext({
   window: {
@@ -130,12 +168,21 @@ const context = vm.createContext({
       },
     },
     STAM: {
-      wbsUi: { filterApi: { getValues() { return {}; } } },
+      wbsUi: { filterApi: { getValues() { return {}; }, reset() {}, setGroupOptions() {} } },
       projectContextRender: { init() { calls.push({ method: 'projectContextRender.init' }); } },
       topbarRender: { init() { calls.push({ method: 'topbarRender.init' }); } },
       navRender: { init(id) { calls.push({ method: 'navRender.init', id }); } },
       wbsFirestoreCrud: { applyWriteAccessUI() {} },
       icons: { hydrate() {} },
+      uiFeedback: {
+        tableEmptyRow({ title, description }) {
+          return `<tr data-empty-title="${title}" data-empty-desc="${description || ''}"></tr>`;
+        },
+        tableMessageRow({ title, description, variant }) {
+          return `<tr data-msg-variant="${variant}" data-msg-title="${title}"></tr>`;
+        },
+        hydrateIcons() {},
+      },
     },
   },
   document: {
@@ -148,12 +195,39 @@ const context = vm.createContext({
       if (sel === '[data-stam-project-context]') return { setAttribute() {}, attrs: {} };
       if (sel === '[data-stam-topbar]') return { setAttribute(n, v) { this.attrs = this.attrs || {}; this.attrs[n] = v; }, attrs: {} };
       if (sel === '[data-stam-left-nav]') return { setAttribute() {} };
+      if (sel === '.stam-board-count') return boardCount;
+      if (sel === '.wbs-gantt-meta') return ganttMeta;
+      if (sel === '.wbs-search-input') return searchInput;
+      if (sel === '#wbs-risk-btn') return riskBtn;
+      if (sel === '#wbs-my-btn') return myBtn;
+      if (sel.startsWith('[data-wbs-kpi="')) {
+        const key = sel.match(/data-wbs-kpi="([^"]+)"/)?.[1];
+        if (!kpiCards[key]) {
+          const numNode = { textContent: '' };
+          const subNode = { textContent: '' };
+          kpiCards[key] = {
+            numNode,
+            subNode,
+            querySelector(q) {
+              if (q === '.wbs-kpi-num') return numNode;
+              if (q === '.wbs-kpi-sub') return subNode;
+              return null;
+            },
+          };
+        }
+        return kpiCards[key];
+      }
       return null;
     },
     querySelectorAll() { return []; },
-    createElement() { return { innerHTML: '', setAttribute() {}, appendChild() {} }; },
+    createElement() { return { innerHTML: '', setAttribute() {}, appendChild() {}, addEventListener() {} }; },
+    getElementById(id) {
+      if (id === 'wbs-risk-btn') return riskBtn;
+      if (id === 'wbs-my-btn') return myBtn;
+      return null;
+    },
   },
-  Promise, String, Array, Object, Error, Number, Math, Date, URLSearchParams,
+  Promise, String, Array, Object, Error, Number, Math, Date: FixedDate, URLSearchParams,
 });
 context.window.window = context.window;
 context.window.document = context.document;
@@ -177,12 +251,53 @@ assert.equal(redirects.length, 0);
 assert.match(table.innerHTML, /WBS-003/);
 assert.match(table.innerHTML, /&lt;img onerror=alert\(1\)&gt;/);
 assert.doesNotMatch(table.innerHTML, /doc-x/);
+assert.match(table.innerHTML, /<span class="wbs-grp-stat-txt">2건<\/span>/);
+assert.match(table.innerHTML, /<span class="wbs-chip wc-delay sm">지연<\/span>/);
+assert.doesNotMatch(table.innerHTML, /wbs-chip[^>]+sm">(?:지연|진행중|대기|보류|완료) \d/);
 const rowOrder = [...table.innerHTML.matchAll(/data-wbs-item-id="([^"]+)"/g)].map((m) => m[1]);
 assert.deepEqual(rowOrder, ['doc-a', 'doc-b']);
 assert.equal(calls.find((c) => c.method === 'navRender.init').id, 'B3');
 
+const listApi = context.window.STAM.wbsFirestoreList;
+assert.match(listSource, /state\.filteredItems = filtered\.slice\(\)/);
+assert.match(listSource, /renderRows\(filtered\)/);
+assert.match(listSource, /renderKpis\(filtered\)/);
+assert.match(listSource, /renderTimelineSummary\(filtered\)/);
+
+assert.equal(typeof riskBtn._onClick, 'function', 'risk filter handler must bind after load');
+riskBtn._onClick();
+assert.match(table.innerHTML, /data-wbs-item-id="doc-b"/);
+assert.doesNotMatch(table.innerHTML, /data-wbs-item-id="doc-a"/);
+const riskRowIds = [...table.innerHTML.matchAll(/data-wbs-item-id="([^"]+)"/g)].map((m) => m[1]);
+assert.equal(riskRowIds.length, 1);
+assert.equal(riskRowIds[0], 'doc-b');
+assert.match(boardCount.innerHTML, /총 <b>2<\/b>건 중 <b>1<\/b>건 표시/);
+assert.equal(kpiCards.delayed.numNode.textContent, '1');
+assert.equal(kpiCards.total.numNode.textContent, '1');
+assert.match(ganttMeta.textContent, /1건/);
+assert.equal(listApi.getState().filteredItems.length, 1);
+assert.equal(listApi.getState().filteredItems[0].id, 'doc-b');
+assert.doesNotMatch(table.innerHTML, /data-empty-title="조건에 맞는 WBS 작업이 없습니다"/);
+assert.doesNotMatch(table.innerHTML, /data-empty-title="등록된 WBS 작업이 없습니다"/);
+
+riskBtn._onClick();
+searchInput.value = '__NO_MATCH__';
+searchInput._onInput();
+assert.match(table.innerHTML, /data-empty-title="조건에 맞는 WBS 작업이 없습니다"/);
+assert.doesNotMatch(table.innerHTML, /data-empty-title="등록된 WBS 작업이 없습니다"/);
+assert.match(boardCount.innerHTML, /총 <b>2<\/b>건 중 <b>0<\/b>건 표시/);
+assert.equal(kpiCards.total.numNode.textContent, '0');
+assert.equal(kpiCards.delayed.numNode.textContent, '0');
+assert.equal(listApi.getState().filteredItems.length, 0);
+assert.equal(ganttMeta.textContent, '— · 읽기 전용');
+
 await context.window.STAM.wbsFirestoreList.openDetailById('doc-a');
 assert.ok(calls.find((c) => c.method === 'adapter.getById'));
 assert.equal(context.window.STAM.wbsFirestoreList.getState().currentItem.id, 'doc-a');
+
+assert.match(listSource, /uiMessages\(\).*filterEmptyTitle|filterEmptyTitle/);
+assert.match(listSource, /STAM\.uiFeedback/);
+assert.match(listSource, /setGroupOptions/);
+assert.match(listSource, /sortByBoardRegistration/);
 
 console.log('wbs list contract: PASS');

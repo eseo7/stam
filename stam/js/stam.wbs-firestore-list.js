@@ -450,6 +450,20 @@
     return { verdict: '정상', verdictCls: 'wc-done', risk: '' };
   }
 
+  function isItemDelayed(item, todayIsoValue) {
+    var status = clean(item && item.status).toLowerCase();
+    if (status === 'done' || status === 'hold') return false;
+    if (status === 'delayed') return true;
+    return !!deriveScheduleState(item, todayIsoValue).risk;
+  }
+
+  function validProgress(value) {
+    if (value == null || value === '') return null;
+    var num = Number(value);
+    if (!Number.isFinite(num) || num < 0 || num > 100) return null;
+    return num;
+  }
+
   function computeKpis(items, todayIsoValue) {
     var today = clean(todayIsoValue) || todayIso();
     var list = items || [];
@@ -467,7 +481,7 @@
       total: list.length,
       inProgress: list.filter(function (i) { return clean(i.status).toLowerCase() === 'in_progress'; }).length,
       done: list.filter(function (i) { return clean(i.status).toLowerCase() === 'done'; }).length,
-      delayed: list.filter(function (i) { return clean(i.status).toLowerCase() === 'delayed'; }).length,
+      delayed: list.filter(function (i) { return isItemDelayed(i, today); }).length,
       dueWeek: list.filter(function (i) {
         if (clean(i.status).toLowerCase() === 'done') return false;
         var end = dpart(i.endDate);
@@ -477,21 +491,20 @@
     };
   }
 
-  function dominantStatus(items) {
-    var counts = {};
-    (items || []).forEach(function (item) {
-      var s = clean(item.status).toLowerCase() || 'wait';
-      counts[s] = (counts[s] || 0) + 1;
-    });
-    var best = 'wait';
-    var bestN = 0;
-    Object.keys(counts).forEach(function (k) {
-      if (counts[k] > bestN) { bestN = counts[k]; best = k; }
-    });
-    return best;
+  function dominantStatus(items, todayIsoValue) {
+    var list = items || [];
+    if (!list.length) return 'wait';
+    var today = clean(todayIsoValue) || todayIso();
+    if (list.some(function (item) { return isItemDelayed(item, today); })) return 'delayed';
+    if (list.some(function (item) { return clean(item.status).toLowerCase() === 'in_progress'; })) return 'in_progress';
+    if (list.some(function (item) { return clean(item.status).toLowerCase() === 'wait'; })) return 'wait';
+    if (list.some(function (item) { return clean(item.status).toLowerCase() === 'hold'; })) return 'hold';
+    if (list.every(function (item) { return clean(item.status).toLowerCase() === 'done'; })) return 'done';
+    return 'wait';
   }
 
-  function computeTimelineSummary(items) {
+  function computeTimelineSummary(items, todayIsoValue) {
+    var today = clean(todayIsoValue) || todayIso();
     var list = items || [];
     var starts = [];
     var ends = [];
@@ -502,8 +515,9 @@
       var e = dpart(item.endDate);
       if (s) starts.push(s);
       if (e) ends.push(e);
-      if (item.progress != null && item.progress !== '') {
-        progressSum += Number(item.progress) || 0;
+      var progress = validProgress(item.progress);
+      if (progress != null) {
+        progressSum += progress;
         progressCount += 1;
       }
     });
@@ -522,8 +536,9 @@
       var avg = 0;
       var pc = 0;
       grp.items.forEach(function (item) {
-        if (item.progress != null && item.progress !== '') {
-          avg += Number(item.progress) || 0;
+        var progress = validProgress(item.progress);
+        if (progress != null) {
+          avg += progress;
           pc += 1;
         }
       });
@@ -535,7 +550,7 @@
         startDate: gs[0] || '',
         endDate: ge[ge.length - 1] || '',
         averageProgress: pc ? Math.round(avg / pc) : 0,
-        dominantStatus: dominantStatus(grp.items),
+        dominantStatus: dominantStatus(grp.items, today),
       };
     });
     return {
@@ -635,18 +650,18 @@
       '</tr>';
   }
 
-  function groupHeaderHtml(grp) {
-    var done = grp.items.filter(function (i) { return clean(i.status).toLowerCase() === 'done'; }).length;
+  function groupHeaderHtml(grp, todayIsoValue) {
     var avg = 0;
     var pc = 0;
     grp.items.forEach(function (item) {
-      if (item.progress != null && item.progress !== '') {
-        avg += Number(item.progress) || 0;
+      var progress = validProgress(item.progress);
+      if (progress != null) {
+        avg += progress;
         pc += 1;
       }
     });
     var pct = pc ? Math.round(avg / pc) : 0;
-    var dom = dominantStatus(grp.items);
+    var dom = dominantStatus(grp.items, todayIsoValue);
     var domInfo = statusInfo(dom);
     var fillCls = dom === 'done' ? 'done' : (dom === 'delayed' ? 'delay' : (dom === 'hold' ? 'hold' : ''));
     return '<tbody class="wbs-grp-hdr-body">' +
@@ -656,7 +671,7 @@
       '<span class="wbs-grp-ico wbs-grp-ico--design">' + esc(clean(grp.items[0] && grp.items[0].phase) || '—') + '</span>' +
       '<span class="wbs-grp-name">' + esc(grp.name) + '</span>' +
       '<span class="wbs-grp-stats"><span class="wbs-grp-stat-txt">' + grp.items.length + '건</span>' +
-      '<span class="wbs-chip ' + domInfo.cls + ' sm">' + esc(domInfo.label) + ' ' + done + '</span></span>' +
+      '<span class="wbs-chip ' + domInfo.cls + ' sm">' + esc(domInfo.label) + '</span></span>' +
       '<div class="wbs-grp-progress"><div class="wbs-grp-prog-bar"><progress class="wbs-live-progress wbs-live-progress--grp ' + fillCls + '" max="100" value="' + pct + '"></progress></div>' +
       '<span class="wbs-grp-prog-pct">' + pct + '%</span></div>' +
       '</div></td></tr></tbody>' +
@@ -683,12 +698,15 @@
     setKpi('due_week', kpis.dueWeek, '—');
   }
 
-  function renderTimelineSummary(items) {
-    var summary = computeTimelineSummary(items);
+  function renderTimelineSummary(items, todayIsoValue) {
+    var today = clean(todayIsoValue) || todayIso();
+    var summary = computeTimelineSummary(items, today);
     var meta = document.querySelector('.wbs-gantt-meta');
     if (meta) {
       if (!summary.itemCount) {
         meta.textContent = '— · 읽기 전용';
+      } else if (!summary.minStartDate || !summary.maxEndDate) {
+        meta.textContent = '— · ' + summary.itemCount + '건 · 읽기 전용';
       } else {
         meta.textContent = summary.minStartDate + ' ~ ' + summary.maxEndDate + ' · ' +
           summary.inclusiveDayCount + '일 · ' + summary.itemCount + '건 · 읽기 전용';
@@ -697,7 +715,7 @@
     var gsumCells = document.querySelectorAll('.wbs-gsum-cell .wbs-gsum-val');
     if (gsumCells[0]) gsumCells[0].innerHTML = summary.inclusiveDayCount + '<small>일</small>';
     if (gsumCells[1]) gsumCells[1].innerHTML = summary.itemCount + '<small>건</small>';
-    var kpis = computeKpis(items, todayIso());
+    var kpis = computeKpis(items, today);
     if (gsumCells[2]) gsumCells[2].innerHTML = kpis.inProgress + '<small>건</small>';
     if (gsumCells[3]) gsumCells[3].innerHTML = kpis.delayed + '<small>건</small>';
     if (gsumCells[4]) gsumCells[4].innerHTML = kpis.dueWeek + '<small>건</small>';
@@ -740,27 +758,31 @@
     if (mobile) mobile.innerHTML = '';
   }
 
-  function renderRows(items) {
+  function renderRows(items, todayIsoValue) {
     var table = tableEl();
     if (!table) return;
     var list = items || [];
     var messages = uiMessages() && uiMessages().wbs;
     table.querySelectorAll('tbody').forEach(function (tb) { tb.remove(); });
     if (!list.length) {
+      var hasSourceItems = (state.items || []).length > 0;
+      var emptyTitle = hasSourceItems
+        ? (messages && messages.filterEmptyTitle || '조건에 맞는 WBS 작업이 없습니다')
+        : (messages && messages.emptyTitle || '등록된 WBS 작업이 없습니다');
+      var emptyDesc = hasSourceItems
+        ? (messages && messages.filterEmptyDesc || '검색어나 필터 조건을 조정해 주세요.')
+        : (messages && messages.emptyDesc || '');
       var tbody = document.createElement('tbody');
       tbody.id = 'wbs-live-feedback-host';
       tbody.setAttribute('data-stam-wbs-runtime', '');
-      tbody.innerHTML = emptyStateRow(
-        messages && messages.emptyTitle || '등록된 WBS 작업이 없습니다',
-        messages && messages.emptyDesc || ''
-      );
+      tbody.innerHTML = emptyStateRow(emptyTitle, emptyDesc);
       table.appendChild(tbody);
       var feedback = uiFeedback();
       if (feedback && typeof feedback.hydrateIcons === 'function') feedback.hydrateIcons(tbody);
       return;
     }
     var groups = groupItems(list);
-    var html = groups.map(groupHeaderHtml).join('');
+    var html = groups.map(function (grp) { return groupHeaderHtml(grp, todayIsoValue); }).join('');
     table.insertAdjacentHTML('beforeend', html);
     var feedback = uiFeedback();
     if (feedback && typeof feedback.hydrateIcons === 'function') feedback.hydrateIcons(table);
@@ -898,11 +920,7 @@
     var list = state.items || [];
     var filtered = list.filter(function (item) {
       if (state.myOnly && clean(item.ownerId) !== clean(state.user && state.user.uid)) return false;
-      if (state.riskOnly) {
-        var schedule = deriveScheduleState(item, todayIso());
-        var isDelayed = clean(item.status).toLowerCase() === 'delayed';
-        if (!isDelayed && !schedule.risk) return false;
-      }
+      if (state.riskOnly && !isItemDelayed(item, todayIso())) return false;
       if (!matchesSearch(item, state.searchText)) return false;
       if (!matchesFilters(item, state.filterValues)) return false;
       return true;
@@ -1121,6 +1139,8 @@
     formatLocalDate: formatLocalDate,
     weekBoundsLocal: weekBoundsLocal,
     deriveScheduleState: deriveScheduleState,
+    isItemDelayed: isItemDelayed,
+    dominantStatus: dominantStatus,
     computeKpis: computeKpis,
     computeTimelineSummary: computeTimelineSummary,
     groupItems: groupItems,

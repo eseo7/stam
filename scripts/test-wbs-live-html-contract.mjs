@@ -8,6 +8,7 @@ const ROOT = path.resolve(import.meta.dirname, '..');
 const html = await readFile(path.join(ROOT, 'stam/pages/boards/wbs.html'), 'utf8');
 const wbsJs = await readFile(path.join(ROOT, 'stam/js/stam.wbs.js'), 'utf8');
 const wbsListJs = await readFile(path.join(ROOT, 'stam/js/stam.wbs-firestore-list.js'), 'utf8');
+const messagesSource = await readFile(path.join(ROOT, 'stam/js/stam.ui-messages.js'), 'utf8');
 const wbsCss = await readFile(path.join(ROOT, 'stam/css/stam.wbs.css'), 'utf8');
 const tableSelectionCss = await readFile(path.join(ROOT, 'stam/css/stam.table-selection.css'), 'utf8');
 
@@ -292,6 +293,10 @@ assert.match(wbsListJs, /class="wbs-row-chk stam-check"/);
 assert.match(wbsListJs, /stam-check-cell/);
 assert.doesNotMatch(wbsListJs, /class="wbs-chk(?:\s|")/);
 assert.doesNotMatch(wbsListJs, /\swbs-chk(?:\s|")/);
+
+assert.match(messagesSource, /filterEmptyTitle: '조건에 맞는 WBS 작업이 없습니다'/);
+assert.match(wbsListJs, /isItemDelayed/);
+assert.match(wbsListJs, /dominantStatus/);
 
 assert.doesNotMatch(wbsCss, /\.wbs-chk\b/);
 assert.match(tableSelectionCss, /\.stam-check\b/);
