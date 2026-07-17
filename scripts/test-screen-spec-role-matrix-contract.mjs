@@ -13,6 +13,7 @@
 
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import vm from 'node:vm';
 import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
@@ -37,6 +38,40 @@ const OTHER_ARTIFACT_COLLECTIONS = [
 ];
 
 const rulesSource = await readFile(path.join(ROOT, 'firestore.rules'), 'utf8');
+const serviceSource = await readFile(path.join(ROOT, 'stam/js/stam.screen-spec-service.js'), 'utf8');
+const adapterSource = await readFile(path.join(ROOT, 'stam/js/stam.screen-spec-firestore-adapter.js'), 'utf8');
+
+assert.doesNotMatch(serviceSource, /DELETE:\s*'screenSpec\.delete'/);
+assert.equal(/function\s+delete\s*\(/.test(serviceSource), false);
+assert.equal(/function\s+softDelete\s*\(/.test(serviceSource), false);
+assert.equal(/function\s+remove\s*\(/.test(serviceSource), false);
+assert.equal(/function\s+delete\s*\(/.test(adapterSource), false);
+assert.equal(/function\s+softDelete\s*\(/.test(adapterSource), false);
+assert.equal(/function\s+remove\s*\(/.test(adapterSource), false);
+
+function loadScreenSpecServiceContract() {
+  const window = {};
+  const context = vm.createContext({
+    window,
+    console,
+    Date,
+    Promise,
+    Number,
+    String,
+    JSON,
+    Array,
+    Object,
+    Error,
+    Math,
+  });
+  window.window = window;
+  vm.runInContext(adapterSource, context, { filename: 'stam.screen-spec-firestore-adapter.js' });
+  vm.runInContext(serviceSource, context, { filename: 'stam.screen-spec-service.js' });
+  return {
+    contract: window.STAM.screenSpecServiceContract,
+    runtimeService: window.STAM.screenSpecService,
+  };
+}
 
 function pad(value, width) {
   const text = String(value);
@@ -180,4 +215,64 @@ assert.equal(isReaderRole('guest'), false);
 console.log('\nscreen spec role matrix (ScreenSpec-1 rules-only evidence):');
 printMatrixEvidence(evidenceRows);
 console.log('\nother artifact collections write-closed:', OTHER_ARTIFACT_COLLECTIONS.join(', '));
+
+// ── ScreenSpec-2 service contract: ACTIONS and matrix rows ───────
+const { contract, runtimeService } = loadScreenSpecServiceContract();
+const ACTIONS = contract.ACTIONS;
+
+assert.deepEqual(Object.keys(ACTIONS).sort(), ['CREATE', 'READ', 'UPDATE']);
+assert.equal(ACTIONS.READ, 'screenSpec.read');
+assert.equal(ACTIONS.CREATE, 'screenSpec.create');
+assert.equal(ACTIONS.UPDATE, 'screenSpec.update');
+assert.equal('DELETE' in ACTIONS, false);
+assert.equal(ACTIONS.DELETE, undefined);
+
+assert.equal(JSON.stringify(contract.WRITE_ROLES), JSON.stringify(WRITE_ROLES));
+assert.equal(JSON.stringify(contract.READ_ROLES), JSON.stringify(READ_ROLES));
+
+const authorize = contract.createMemberRoleAuthorize((request) => request.context.memberRole);
+const serviceEvidenceRows = [];
+
+for (const row of ROLE_MATRIX) {
+  const read = authorize(ACTIONS.READ, { context: { memberRole: row.role } });
+  const create = authorize(ACTIONS.CREATE, { context: { memberRole: row.role } });
+  const update = authorize(ACTIONS.UPDATE, { context: { memberRole: row.role } });
+  const deleteAction = authorize('screenSpec.delete', { context: { memberRole: row.role } });
+
+  assert.equal(read, row.read, `service ${row.role || '(empty)'} read`);
+  assert.equal(create, row.create, `service ${row.role || '(empty)'} create`);
+  assert.equal(update, row.update, `service ${row.role || '(empty)'} update`);
+  assert.equal(deleteAction, false, `service ${row.role || '(empty)'} delete action must not exist / always deny`);
+  assert.equal(create, row.counterWrite, `service ${row.role || '(empty)'} counter write alignment`);
+
+  assert.equal(contract.canReadScreenSpec(row.role), row.read);
+  assert.equal(contract.canWriteScreenSpec(row.role), row.create && row.update);
+
+  serviceEvidenceRows.push({
+    role: row.role,
+    read: row.read,
+    create: row.create,
+    update: row.update,
+    deleteRules: row.deleteRules,
+    counterWrite: row.counterWrite,
+    status: 'PASS',
+  });
+}
+
+for (const role of WRITE_ROLES) {
+  assert.equal(authorize(ACTIONS.CREATE, { context: { memberRole: role } }), true);
+  assert.equal(authorize(ACTIONS.UPDATE, { context: { memberRole: role } }), true);
+  assert.equal(authorize('screenSpec.delete', { context: { memberRole: role } }), false);
+}
+
+assert.equal(authorize(ACTIONS.READ, { context: { memberRole: 'viewer' } }), true);
+assert.equal(authorize(ACTIONS.CREATE, { context: { memberRole: 'viewer' } }), false);
+assert.equal(authorize(ACTIONS.UPDATE, { context: { memberRole: 'viewer' } }), false);
+
+assert.equal(typeof runtimeService.delete, 'undefined');
+assert.equal(typeof runtimeService.softDelete, 'undefined');
+assert.equal(typeof runtimeService.remove, 'undefined');
+
+console.log('\nscreen spec role matrix (ScreenSpec-2 service contract evidence):');
+printMatrixEvidence(serviceEvidenceRows);
 console.log('screen spec role matrix contract: PASS');
