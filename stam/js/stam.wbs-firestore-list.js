@@ -450,6 +450,20 @@
     return { verdict: '정상', verdictCls: 'wc-done', risk: '' };
   }
 
+  function isItemDelayed(item, todayIsoValue) {
+    var status = clean(item && item.status).toLowerCase();
+    if (status === 'done' || status === 'hold') return false;
+    if (status === 'delayed') return true;
+    return !!deriveScheduleState(item, todayIsoValue).risk;
+  }
+
+  function validProgress(value) {
+    if (value == null || value === '') return null;
+    var num = Number(value);
+    if (!Number.isFinite(num) || num < 0 || num > 100) return null;
+    return num;
+  }
+
   function computeKpis(items, todayIsoValue) {
     var today = clean(todayIsoValue) || todayIso();
     var list = items || [];
@@ -467,7 +481,7 @@
       total: list.length,
       inProgress: list.filter(function (i) { return clean(i.status).toLowerCase() === 'in_progress'; }).length,
       done: list.filter(function (i) { return clean(i.status).toLowerCase() === 'done'; }).length,
-      delayed: list.filter(function (i) { return clean(i.status).toLowerCase() === 'delayed'; }).length,
+      delayed: list.filter(function (i) { return isItemDelayed(i, today); }).length,
       dueWeek: list.filter(function (i) {
         if (clean(i.status).toLowerCase() === 'done') return false;
         var end = dpart(i.endDate);
@@ -477,21 +491,20 @@
     };
   }
 
-  function dominantStatus(items) {
-    var counts = {};
-    (items || []).forEach(function (item) {
-      var s = clean(item.status).toLowerCase() || 'wait';
-      counts[s] = (counts[s] || 0) + 1;
-    });
-    var best = 'wait';
-    var bestN = 0;
-    Object.keys(counts).forEach(function (k) {
-      if (counts[k] > bestN) { bestN = counts[k]; best = k; }
-    });
-    return best;
+  function dominantStatus(items, todayIsoValue) {
+    var list = items || [];
+    if (!list.length) return 'wait';
+    var today = clean(todayIsoValue) || todayIso();
+    if (list.some(function (item) { return isItemDelayed(item, today); })) return 'delayed';
+    if (list.some(function (item) { return clean(item.status).toLowerCase() === 'in_progress'; })) return 'in_progress';
+    if (list.some(function (item) { return clean(item.status).toLowerCase() === 'wait'; })) return 'wait';
+    if (list.some(function (item) { return clean(item.status).toLowerCase() === 'hold'; })) return 'hold';
+    if (list.every(function (item) { return clean(item.status).toLowerCase() === 'done'; })) return 'done';
+    return 'wait';
   }
 
-  function computeTimelineSummary(items) {
+  function computeTimelineSummary(items, todayIsoValue) {
+    var today = clean(todayIsoValue) || todayIso();
     var list = items || [];
     var starts = [];
     var ends = [];
@@ -502,8 +515,9 @@
       var e = dpart(item.endDate);
       if (s) starts.push(s);
       if (e) ends.push(e);
-      if (item.progress != null && item.progress !== '') {
-        progressSum += Number(item.progress) || 0;
+      var progress = validProgress(item.progress);
+      if (progress != null) {
+        progressSum += progress;
         progressCount += 1;
       }
     });
@@ -522,8 +536,9 @@
       var avg = 0;
       var pc = 0;
       grp.items.forEach(function (item) {
-        if (item.progress != null && item.progress !== '') {
-          avg += Number(item.progress) || 0;
+        var progress = validProgress(item.progress);
+        if (progress != null) {
+          avg += progress;
           pc += 1;
         }
       });
@@ -535,7 +550,7 @@
         startDate: gs[0] || '',
         endDate: ge[ge.length - 1] || '',
         averageProgress: pc ? Math.round(avg / pc) : 0,
-        dominantStatus: dominantStatus(grp.items),
+        dominantStatus: dominantStatus(grp.items, today),
       };
     });
     return {
@@ -640,13 +655,14 @@
     var avg = 0;
     var pc = 0;
     grp.items.forEach(function (item) {
-      if (item.progress != null && item.progress !== '') {
-        avg += Number(item.progress) || 0;
+      var progress = validProgress(item.progress);
+      if (progress != null) {
+        avg += progress;
         pc += 1;
       }
     });
     var pct = pc ? Math.round(avg / pc) : 0;
-    var dom = dominantStatus(grp.items);
+    var dom = dominantStatus(grp.items, todayIso());
     var domInfo = statusInfo(dom);
     var fillCls = dom === 'done' ? 'done' : (dom === 'delayed' ? 'delay' : (dom === 'hold' ? 'hold' : ''));
     return '<tbody class="wbs-grp-hdr-body">' +
@@ -689,6 +705,8 @@
     if (meta) {
       if (!summary.itemCount) {
         meta.textContent = '— · 읽기 전용';
+      } else if (!summary.minStartDate || !summary.maxEndDate) {
+        meta.textContent = '— · ' + summary.itemCount + '건 · 읽기 전용';
       } else {
         meta.textContent = summary.minStartDate + ' ~ ' + summary.maxEndDate + ' · ' +
           summary.inclusiveDayCount + '일 · ' + summary.itemCount + '건 · 읽기 전용';
@@ -747,13 +765,17 @@
     var messages = uiMessages() && uiMessages().wbs;
     table.querySelectorAll('tbody').forEach(function (tb) { tb.remove(); });
     if (!list.length) {
+      var hasSourceItems = (state.items || []).length > 0;
+      var emptyTitle = hasSourceItems
+        ? (messages && messages.filterEmptyTitle || '조건에 맞는 WBS 작업이 없습니다')
+        : (messages && messages.emptyTitle || '등록된 WBS 작업이 없습니다');
+      var emptyDesc = hasSourceItems
+        ? (messages && messages.filterEmptyDesc || '검색어나 필터 조건을 조정해 주세요.')
+        : (messages && messages.emptyDesc || '');
       var tbody = document.createElement('tbody');
       tbody.id = 'wbs-live-feedback-host';
       tbody.setAttribute('data-stam-wbs-runtime', '');
-      tbody.innerHTML = emptyStateRow(
-        messages && messages.emptyTitle || '등록된 WBS 작업이 없습니다',
-        messages && messages.emptyDesc || ''
-      );
+      tbody.innerHTML = emptyStateRow(emptyTitle, emptyDesc);
       table.appendChild(tbody);
       var feedback = uiFeedback();
       if (feedback && typeof feedback.hydrateIcons === 'function') feedback.hydrateIcons(tbody);
@@ -898,11 +920,7 @@
     var list = state.items || [];
     var filtered = list.filter(function (item) {
       if (state.myOnly && clean(item.ownerId) !== clean(state.user && state.user.uid)) return false;
-      if (state.riskOnly) {
-        var schedule = deriveScheduleState(item, todayIso());
-        var isDelayed = clean(item.status).toLowerCase() === 'delayed';
-        if (!isDelayed && !schedule.risk) return false;
-      }
+      if (state.riskOnly && !isItemDelayed(item, todayIso())) return false;
       if (!matchesSearch(item, state.searchText)) return false;
       if (!matchesFilters(item, state.filterValues)) return false;
       return true;
@@ -1121,6 +1139,8 @@
     formatLocalDate: formatLocalDate,
     weekBoundsLocal: weekBoundsLocal,
     deriveScheduleState: deriveScheduleState,
+    isItemDelayed: isItemDelayed,
+    dominantStatus: dominantStatus,
     computeKpis: computeKpis,
     computeTimelineSummary: computeTimelineSummary,
     groupItems: groupItems,

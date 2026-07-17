@@ -36,7 +36,7 @@ const fakeAdapter = {
         ownerId: 'qa-user',
         ownerName: 'QA & Owner',
         startDate: '2026-07-01',
-        endDate: '2026-07-10',
+        endDate: '2026-12-10',
         progress: 20,
         createdAt: '2026-07-01T00:00:00.000Z',
         isDeleted: false,
@@ -52,8 +52,8 @@ const fakeAdapter = {
         priority: 'mid',
         ownerId: 'other',
         ownerName: 'Other',
-        startDate: '2026-07-05',
-        endDate: '2026-07-12',
+        startDate: '2026-12-01',
+        endDate: '2026-12-12',
         progress: 0,
         createdAt: '2026-07-09T00:00:00.000Z',
         isDeleted: false,
@@ -83,8 +83,34 @@ const fakeAdapter = {
   },
 };
 
-const table = { innerHTML: '', querySelectorAll() { return []; }, appendChild() {}, insertAdjacentHTML(_, html) { this.innerHTML += html; } };
+const table = {
+  innerHTML: '',
+  querySelectorAll(sel) {
+    if (sel === 'tbody') {
+      const n = (this.innerHTML.match(/<tbody/g) || []).length;
+      return Array.from({ length: n }, () => ({
+        remove() { table.innerHTML = ''; },
+      }));
+    }
+    return [];
+  },
+  appendChild(el) {
+    if (el && el.innerHTML != null) this.innerHTML += el.innerHTML;
+  },
+  addEventListener() {},
+  insertAdjacentHTML(_, html) { this.innerHTML += html; },
+};
 const liveRoot = { getAttribute: () => 'true' };
+const kpiNums = {};
+const ganttMeta = { textContent: '' };
+const boardCount = { innerHTML: '' };
+const searchInput = { value: '', addEventListener(evt, fn) {
+  if (evt === 'input') searchInput._onInput = fn;
+} };
+const riskBtn = { classList: { add() {}, remove() {}, toggle() {}, contains() { return riskBtn._active; } }, _active: false, addEventListener(evt, fn) {
+  if (evt === 'click') riskBtn._onClick = fn;
+} };
+const myBtn = { classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } }, addEventListener() {} };
 
 const context = vm.createContext({
   window: {
@@ -130,12 +156,21 @@ const context = vm.createContext({
       },
     },
     STAM: {
-      wbsUi: { filterApi: { getValues() { return {}; } } },
+      wbsUi: { filterApi: { getValues() { return {}; }, reset() {}, setGroupOptions() {} } },
       projectContextRender: { init() { calls.push({ method: 'projectContextRender.init' }); } },
       topbarRender: { init() { calls.push({ method: 'topbarRender.init' }); } },
       navRender: { init(id) { calls.push({ method: 'navRender.init', id }); } },
       wbsFirestoreCrud: { applyWriteAccessUI() {} },
       icons: { hydrate() {} },
+      uiFeedback: {
+        tableEmptyRow({ title, description }) {
+          return `<tr data-empty-title="${title}" data-empty-desc="${description || ''}"></tr>`;
+        },
+        tableMessageRow({ title, description, variant }) {
+          return `<tr data-msg-variant="${variant}" data-msg-title="${title}"></tr>`;
+        },
+        hydrateIcons() {},
+      },
     },
   },
   document: {
@@ -148,10 +183,31 @@ const context = vm.createContext({
       if (sel === '[data-stam-project-context]') return { setAttribute() {}, attrs: {} };
       if (sel === '[data-stam-topbar]') return { setAttribute(n, v) { this.attrs = this.attrs || {}; this.attrs[n] = v; }, attrs: {} };
       if (sel === '[data-stam-left-nav]') return { setAttribute() {} };
+      if (sel === '.stam-board-count') return boardCount;
+      if (sel === '.wbs-gantt-meta') return ganttMeta;
+      if (sel === '.wbs-search-input') return searchInput;
+      if (sel === '#wbs-risk-btn') return riskBtn;
+      if (sel === '#wbs-my-btn') return myBtn;
+      if (sel.startsWith('[data-wbs-kpi="')) {
+        const key = sel.match(/data-wbs-kpi="([^"]+)"/)?.[1];
+        if (!kpiNums[key]) {
+          kpiNums[key] = { querySelector(q) {
+            if (q === '.wbs-kpi-num') return { textContent: '' };
+            if (q === '.wbs-kpi-sub') return { textContent: '' };
+            return null;
+          } };
+        }
+        return kpiNums[key];
+      }
       return null;
     },
     querySelectorAll() { return []; },
-    createElement() { return { innerHTML: '', setAttribute() {}, appendChild() {} }; },
+    createElement() { return { innerHTML: '', setAttribute() {}, appendChild() {}, addEventListener() {} }; },
+    getElementById(id) {
+      if (id === 'wbs-risk-btn') return riskBtn;
+      if (id === 'wbs-my-btn') return myBtn;
+      return null;
+    },
   },
   Promise, String, Array, Object, Error, Number, Math, Date, URLSearchParams,
 });
@@ -181,8 +237,28 @@ const rowOrder = [...table.innerHTML.matchAll(/data-wbs-item-id="([^"]+)"/g)].ma
 assert.deepEqual(rowOrder, ['doc-a', 'doc-b']);
 assert.equal(calls.find((c) => c.method === 'navRender.init').id, 'B3');
 
+const listApi = context.window.STAM.wbsFirestoreList;
+assert.match(listSource, /state\.filteredItems = filtered\.slice\(\)/);
+assert.match(listSource, /renderRows\(filtered\)/);
+assert.match(listSource, /renderKpis\(filtered\)/);
+assert.match(listSource, /renderTimelineSummary\(filtered\)/);
+
+assert.equal(typeof riskBtn._onClick, 'function', 'risk filter handler must bind after load');
+riskBtn._active = true;
+riskBtn._onClick();
+assert.match(table.innerHTML, /data-empty-title="조건에 맞는 WBS 작업이 없습니다"/);
+assert.doesNotMatch(table.innerHTML, /data-empty-title="등록된 WBS 작업이 없습니다"/);
+assert.match(boardCount.innerHTML, /총 <b>2<\/b>건 중 <b>0<\/b>건 표시/);
+assert.equal(listApi.computeKpis([], '2026-07-14').total, 0);
+assert.equal(listApi.computeTimelineSummary([], '2026-07-14').itemCount, 0);
+
 await context.window.STAM.wbsFirestoreList.openDetailById('doc-a');
 assert.ok(calls.find((c) => c.method === 'adapter.getById'));
 assert.equal(context.window.STAM.wbsFirestoreList.getState().currentItem.id, 'doc-a');
+
+assert.match(listSource, /uiMessages\(\).*filterEmptyTitle|filterEmptyTitle/);
+assert.match(listSource, /STAM\.uiFeedback/);
+assert.match(listSource, /setGroupOptions/);
+assert.match(listSource, /sortByBoardRegistration/);
 
 console.log('wbs list contract: PASS');
