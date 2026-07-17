@@ -610,7 +610,7 @@
       : '<span class="wbs-risk-flag">' + esc(risk) + '</span>';
 
     return '<tr class="wbs-data-row stam-table-row" data-wbs-item-id="' + esc(item.id) + '" data-wbs-code="' + esc(item.code) + '" data-wbs-owner-id="' + esc(item.ownerId) + '" data-wbs-status="' + esc(item.status) + '">' +
-      '<td class="wbs-td-chk stam-check-cell"><input type="checkbox" class="wbs-chk wbs-row-chk" title="행 선택"></td>' +
+      '<td class="wbs-td-chk stam-check-cell"><input type="checkbox" class="wbs-row-chk stam-check" title="행 선택"></td>' +
       '<td class="wbs-col-area is-focus-col"><span class="wbs-type-chip">' + esc(clean(item.businessArea) || '—') + '</span></td>' +
       '<td class="wbs-col-grp col-d"><span class="wbs-type-chip">' + esc(clean(item.functionGroup) || '—') + '</span></td>' +
       '<td class="wbs-col-id is-shared-col"><span class="wbs-id-chip">' + esc(clean(item.code) || '—') + '</span></td>' +
