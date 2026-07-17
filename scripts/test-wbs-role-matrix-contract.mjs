@@ -33,7 +33,6 @@ const ROLE_MATRIX = [
 ];
 
 const OTHER_ARTIFACT_COLLECTIONS = [
-  'screenSpecs',
   'screenFields',
   'screenActions',
   'artifactLinks',
