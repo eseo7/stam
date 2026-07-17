@@ -103,7 +103,7 @@ assert.equal(kpis.delayed, 1);
 assert.equal(kpis.dueWeek, 1);
 assert.equal(kpis.groupCount, 4);
 
-const summary = api.computeTimelineSummary(items);
+const summary = api.computeTimelineSummary(items, TODAY);
 assert.equal(summary.itemCount, 5);
 assert.equal(summary.averageProgress, 38);
 assert.equal(summary.groupSummary.length, 4);
@@ -148,8 +148,8 @@ assert.deepEqual(
 
 assert.doesNotMatch(listSource, /wbs-pct-/);
 
-function makeRow(pct) {
-  return {
+function makeRow(pct, overrides) {
+  return Object.assign({
     functionGroup: 'G',
     progress: pct,
     status: 'in_progress',
@@ -161,7 +161,7 @@ function makeRow(pct) {
     ownerName: 'U',
     startDate: '2026-06-01',
     endDate: '2026-06-10',
-  };
+  }, overrides || {});
 }
 
 const table = {
@@ -228,12 +228,12 @@ for (const pct of [1, 37, 82, 99]) {
   groupsHost.innerHTML = '';
   progressBar.value = 0;
 
-  api.renderRows(rows);
+  api.renderRows(rows, TODAY);
   const grpMatch = table.innerHTML.match(/<progress[^>]*value="(\d+)"/);
   assert.ok(grpMatch, `group header progress missing for ${pct}%`);
   assert.equal(Number(grpMatch[1]), pct);
 
-  api.renderTimelineSummary(rows);
+  api.renderTimelineSummary(rows, TODAY);
   assert.equal(overallProgress.value, pct, `overall progress value for ${pct}%`);
 
   const grpSummaryMatch = groupsHost.innerHTML.match(/<progress[^>]*value="(\d+)"/);
@@ -243,5 +243,17 @@ for (const pct of [1, 37, 82, 99]) {
   api.renderDetail(rows[0]);
   assert.equal(progressBar.value, pct, `detail progressBar value for ${pct}%`);
 }
+
+const mixedHeaderRows = [
+  makeRow(100, { status: 'done', endDate: '2026-06-01', functionGroup: 'Mix' }),
+  makeRow(100, { status: 'done', endDate: '2026-06-02', functionGroup: 'Mix' }),
+  makeRow(10, { status: 'delayed', endDate: '2026-06-01', functionGroup: 'Mix' }),
+];
+table.innerHTML = '';
+api.renderRows(mixedHeaderRows, TODAY);
+assert.match(table.innerHTML, /<span class="wbs-grp-stat-txt">3건<\/span>/);
+assert.match(table.innerHTML, /<span class="wbs-chip wc-delay sm">지연<\/span>/);
+assert.doesNotMatch(table.innerHTML, /wc-delay sm">지연 \d/);
+assert.doesNotMatch(table.innerHTML, /wc-done sm">완료 \d/);
 
 console.log('wbs derived contract: PASS');

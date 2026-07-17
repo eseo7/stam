@@ -650,8 +650,7 @@
       '</tr>';
   }
 
-  function groupHeaderHtml(grp) {
-    var done = grp.items.filter(function (i) { return clean(i.status).toLowerCase() === 'done'; }).length;
+  function groupHeaderHtml(grp, todayIsoValue) {
     var avg = 0;
     var pc = 0;
     grp.items.forEach(function (item) {
@@ -662,7 +661,7 @@
       }
     });
     var pct = pc ? Math.round(avg / pc) : 0;
-    var dom = dominantStatus(grp.items, todayIso());
+    var dom = dominantStatus(grp.items, todayIsoValue);
     var domInfo = statusInfo(dom);
     var fillCls = dom === 'done' ? 'done' : (dom === 'delayed' ? 'delay' : (dom === 'hold' ? 'hold' : ''));
     return '<tbody class="wbs-grp-hdr-body">' +
@@ -672,7 +671,7 @@
       '<span class="wbs-grp-ico wbs-grp-ico--design">' + esc(clean(grp.items[0] && grp.items[0].phase) || '—') + '</span>' +
       '<span class="wbs-grp-name">' + esc(grp.name) + '</span>' +
       '<span class="wbs-grp-stats"><span class="wbs-grp-stat-txt">' + grp.items.length + '건</span>' +
-      '<span class="wbs-chip ' + domInfo.cls + ' sm">' + esc(domInfo.label) + ' ' + done + '</span></span>' +
+      '<span class="wbs-chip ' + domInfo.cls + ' sm">' + esc(domInfo.label) + '</span></span>' +
       '<div class="wbs-grp-progress"><div class="wbs-grp-prog-bar"><progress class="wbs-live-progress wbs-live-progress--grp ' + fillCls + '" max="100" value="' + pct + '"></progress></div>' +
       '<span class="wbs-grp-prog-pct">' + pct + '%</span></div>' +
       '</div></td></tr></tbody>' +
@@ -699,8 +698,9 @@
     setKpi('due_week', kpis.dueWeek, '—');
   }
 
-  function renderTimelineSummary(items) {
-    var summary = computeTimelineSummary(items);
+  function renderTimelineSummary(items, todayIsoValue) {
+    var today = clean(todayIsoValue) || todayIso();
+    var summary = computeTimelineSummary(items, today);
     var meta = document.querySelector('.wbs-gantt-meta');
     if (meta) {
       if (!summary.itemCount) {
@@ -715,7 +715,7 @@
     var gsumCells = document.querySelectorAll('.wbs-gsum-cell .wbs-gsum-val');
     if (gsumCells[0]) gsumCells[0].innerHTML = summary.inclusiveDayCount + '<small>일</small>';
     if (gsumCells[1]) gsumCells[1].innerHTML = summary.itemCount + '<small>건</small>';
-    var kpis = computeKpis(items, todayIso());
+    var kpis = computeKpis(items, today);
     if (gsumCells[2]) gsumCells[2].innerHTML = kpis.inProgress + '<small>건</small>';
     if (gsumCells[3]) gsumCells[3].innerHTML = kpis.delayed + '<small>건</small>';
     if (gsumCells[4]) gsumCells[4].innerHTML = kpis.dueWeek + '<small>건</small>';
@@ -758,7 +758,7 @@
     if (mobile) mobile.innerHTML = '';
   }
 
-  function renderRows(items) {
+  function renderRows(items, todayIsoValue) {
     var table = tableEl();
     if (!table) return;
     var list = items || [];
@@ -782,7 +782,7 @@
       return;
     }
     var groups = groupItems(list);
-    var html = groups.map(groupHeaderHtml).join('');
+    var html = groups.map(function (grp) { return groupHeaderHtml(grp, todayIsoValue); }).join('');
     table.insertAdjacentHTML('beforeend', html);
     var feedback = uiFeedback();
     if (feedback && typeof feedback.hydrateIcons === 'function') feedback.hydrateIcons(table);
