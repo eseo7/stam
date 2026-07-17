@@ -84,7 +84,7 @@ assert.equal(
 );
 
 // ── Other artifact collections remain write-closed ─────────────
-for (const collection of ['screenSpecs', 'screenFields', 'screenActions', 'artifactLinks']) {
+for (const collection of ['screenFields', 'screenActions', 'artifactLinks']) {
   assert.match(
     rulesSource,
     new RegExp(`match /${collection}/\\{[^}]+\\}[\\s\\S]*allow create, update, delete: if false;`),

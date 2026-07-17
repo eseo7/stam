@@ -31,14 +31,14 @@ assert.match(rulesSource, /function isValidWbsCode\(code\)/);
 assert.match(rulesSource, /function isValidWbsDate\(date\)/);
 assert.match(rulesSource, /function isValidWbsProgress\(status, progress\)/);
 assert.match(rulesSource, /function projectMemberPath\(projectId, memberUid\)/);
-assert.match(rulesSource, /function isValidWbsMemberSnapshot\(projectId, memberUid, memberName\)/);
+assert.match(rulesSource, /function isValidProjectMemberSnapshot\(projectId, memberUid, memberName\)/);
 assert.match(rulesSource, /function isValidWbsReviewer\(projectId, data\)/);
 assert.match(rulesSource, /function isValidWbsRequirementLink\(data\)/);
 assert.match(rulesSource, /function isValidWbsFunctionalSpecLink\(data\)/);
 assert.match(rulesSource, /function isValidWbsItemsCounterWrite\(\)/);
 
 const helperBlock = rulesSource.match(
-  /\/\/ ── WBS write helpers \(WBS-1\)[\s\S]*?\/\/ ── users\/\{uid\} bootstrap helpers/,
+  /\/\/ ── WBS write helpers \(WBS-1\)[\s\S]*?\/\/ ── ScreenSpec write helpers/,
 );
 assert.ok(helperBlock, 'WBS helper block must exist');
 const helpers = helperBlock[0];
@@ -198,7 +198,7 @@ assert.match(countersBlock[0], /isFunctionalSpecWriter\(projectId\)/);
 assert.match(countersBlock[0], /isValidFunctionalSpecificationsCounterWrite\(\)/);
 
 // ── Unopened artifact collections remain write-closed ────────────
-for (const collection of ['screenSpecs', 'screenFields', 'screenActions', 'artifactLinks']) {
+for (const collection of ['screenFields', 'screenActions', 'artifactLinks']) {
   assert.match(
     rulesSource,
     new RegExp(`match /${collection}/\\{[^}]+\\}[\\s\\S]*allow create, update, delete: if false;`),

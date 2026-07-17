@@ -37,10 +37,15 @@ service cloud.firestore {
      *   Viewer remains read-only. Delete stays closed.
      *   WBS-### counter added at projects/{projectId}/counters/wbsItems.
      *
+     * ScreenSpec-1:
+     *   screenSpecs write opened for active project members with role owner/admin/editor.
+     *   Viewer remains read-only. Delete stays closed.
+     *   SCR-### counter added at projects/{projectId}/counters/screenSpecs.
+     *
      *   Signed-in users may create or update only their own `users/{uid}`
      *   document for Google login bootstrap. Client cannot change `status`,
      *   `provider`, `userId`, or `createdAt` on update. Unopened artifact
-     *   collections (screenSpecs, screenFields, screenActions, artifactLinks)
+     *   collections (screenFields, screenActions, artifactLinks)
      *   remain write-closed.
      *
      *   - Rules gate is UID-based: allowed iff `projects/{projectId}/
@@ -495,7 +500,7 @@ service cloud.firestore {
     function projectMemberPath(projectId, memberUid) {
       return /databases/$(database)/documents/projects/$(projectId)/members/$(memberUid);
     }
-    function isValidWbsMemberSnapshot(projectId, memberUid, memberName) {
+    function isValidProjectMemberSnapshot(projectId, memberUid, memberName) {
       return memberUid is string
           && memberUid.size() > 0
           && memberName is string
@@ -565,7 +570,7 @@ service cloud.firestore {
           && data.ownerId.size() > 0
           && data.ownerName is string
           && data.ownerName.size() > 0
-          && isValidWbsMemberSnapshot(projectId, data.ownerId, data.ownerName);
+          && isValidProjectMemberSnapshot(projectId, data.ownerId, data.ownerName);
     }
     function isValidWbsReviewer(projectId, data) {
       let hasReviewerId = data.keys().hasAny(['reviewerId']);
@@ -576,7 +581,7 @@ service cloud.firestore {
               && data.reviewerId.size() > 0
               && data.reviewerName is string
               && data.reviewerName.size() > 0
-              && isValidWbsMemberSnapshot(projectId, data.reviewerId, data.reviewerName));
+              && isValidProjectMemberSnapshot(projectId, data.reviewerId, data.reviewerName));
     }
     function isValidWbsRequirementLink(data) {
       let hasId = data.keys().hasAny(['requirementId']);
@@ -757,6 +762,262 @@ service cloud.firestore {
           && data.updatedAt == request.time;
     }
 
+    // ── ScreenSpec write helpers (ScreenSpec-1) ───────────────────────
+    function isScreenSpecWriter(projectId) {
+      return isRequirementWriter(projectId);
+    }
+    function isValidScreenSpecTitle(title) {
+      return title is string
+          && title.size() >= 2
+          && title.size() <= 120;
+    }
+    function isValidScreenSpecCode(code) {
+      return code is string
+          && code.size() > 0
+          && code.matches('^SCR-[0-9]{3,}$');
+    }
+    function isValidScreenSpecType(screenType) {
+      return screenType is string && (
+        screenType == 'list' ||
+        screenType == 'detail' ||
+        screenType == 'form' ||
+        screenType == 'popup' ||
+        screenType == 'admin' ||
+        screenType == 'main' ||
+        screenType == 'result' ||
+        screenType == 'other'
+      );
+    }
+    function isValidScreenSpecWriteStatus(writeStatus) {
+      return writeStatus is string && (
+        writeStatus == 'writing' ||
+        writeStatus == 'complete'
+      );
+    }
+    function isValidScreenSpecReviewStatus(reviewStatus) {
+      return reviewStatus is string && (
+        reviewStatus == 'none' ||
+        reviewStatus == 'pending' ||
+        reviewStatus == 'done'
+      );
+    }
+    function isValidScreenSpecApprovalStatus(approvalStatus) {
+      return approvalStatus is string && (
+        approvalStatus == 'none' ||
+        approvalStatus == 'approved' ||
+        approvalStatus == 'rejected'
+      );
+    }
+    function isValidScreenSpecOwner(projectId, data) {
+      return data.keys().hasAll(['ownerId', 'ownerName'])
+          && data.ownerId is string
+          && data.ownerId.size() > 0
+          && data.ownerName is string
+          && data.ownerName.size() > 0
+          && isValidProjectMemberSnapshot(projectId, data.ownerId, data.ownerName);
+    }
+    function isValidScreenSpecRequirementLink(data) {
+      let hasId = data.keys().hasAny(['requirementId']);
+      let hasCode = data.keys().hasAny(['requirementCode']);
+      let hasTitle = data.keys().hasAny(['requirementTitle']);
+      return (!hasId && !hasCode && !hasTitle)
+          || (hasId && hasCode && hasTitle
+              && data.requirementId is string
+              && data.requirementId.size() > 0
+              && data.requirementCode is string
+              && data.requirementCode.matches('^REQ_[0-9]{3,}$')
+              && data.requirementTitle is string
+              && data.requirementTitle.size() > 0);
+    }
+    function isValidScreenSpecFunctionalSpecLink(data) {
+      let hasId = data.keys().hasAny(['functionalSpecId']);
+      let hasCode = data.keys().hasAny(['functionalSpecCode']);
+      let hasTitle = data.keys().hasAny(['functionalSpecTitle']);
+      return (!hasId && !hasCode && !hasTitle)
+          || (hasId && hasCode && hasTitle
+              && data.functionalSpecId is string
+              && data.functionalSpecId.size() > 0
+              && data.functionalSpecCode is string
+              && data.functionalSpecCode.matches('^FN_[0-9]{3,}$')
+              && data.functionalSpecTitle is string
+              && data.functionalSpecTitle.size() > 0);
+    }
+    function isValidScreenSpecWbsItemLink(data) {
+      let hasId = data.keys().hasAny(['wbsItemId']);
+      let hasCode = data.keys().hasAny(['wbsItemCode']);
+      let hasTitle = data.keys().hasAny(['wbsItemTitle']);
+      return (!hasId && !hasCode && !hasTitle)
+          || (hasId && hasCode && hasTitle
+              && data.wbsItemId is string
+              && data.wbsItemId.size() > 0
+              && data.wbsItemCode is string
+              && data.wbsItemCode.matches('^WBS-[0-9]{3,}$')
+              && data.wbsItemTitle is string
+              && data.wbsItemTitle.size() > 0);
+    }
+    function isValidScreenSpecMenuScreenLink(data) {
+      let hasId = data.keys().hasAny(['menuScreenId']);
+      let hasCode = data.keys().hasAny(['menuScreenCode']);
+      let hasTitle = data.keys().hasAny(['menuScreenTitle']);
+      return (!hasId && !hasCode && !hasTitle)
+          || (hasId && hasCode && hasTitle
+              && data.menuScreenId is string
+              && data.menuScreenId.size() > 0
+              && data.menuScreenCode is string
+              && data.menuScreenCode.size() > 0
+              && data.menuScreenTitle is string
+              && data.menuScreenTitle.size() > 0);
+    }
+    function screenSpecWriteKeys() {
+      return [
+        'id',
+        'projectId',
+        'code',
+        'title',
+        'screenType',
+        'writeStatus',
+        'reviewStatus',
+        'approvalStatus',
+        'ownerId',
+        'ownerName',
+        'templateId',
+        'routePath',
+        'menuPath',
+        'description',
+        'imageCount',
+        'annotationCount',
+        'requirementId',
+        'requirementCode',
+        'requirementTitle',
+        'functionalSpecId',
+        'functionalSpecCode',
+        'functionalSpecTitle',
+        'wbsItemId',
+        'wbsItemCode',
+        'wbsItemTitle',
+        'menuScreenId',
+        'menuScreenCode',
+        'menuScreenTitle',
+        'createdAt',
+        'createdBy',
+        'updatedAt',
+        'updatedBy',
+        'deletedAt',
+        'deletedBy',
+        'isDeleted',
+        'version',
+      ];
+    }
+    function screenSpecRequiredKeys() {
+      return [
+        'id',
+        'projectId',
+        'code',
+        'title',
+        'screenType',
+        'writeStatus',
+        'reviewStatus',
+        'approvalStatus',
+        'ownerId',
+        'ownerName',
+        'createdAt',
+        'createdBy',
+        'updatedAt',
+        'updatedBy',
+        'deletedAt',
+        'deletedBy',
+        'isDeleted',
+        'version',
+      ];
+    }
+    function isValidScreenSpecsCounterWrite() {
+      return isValidRequirementsCounterWrite();
+    }
+    function screenSpecFieldValidation(projectId, data) {
+      return isValidScreenSpecTitle(data.title)
+          && isValidScreenSpecCode(data.code)
+          && isValidScreenSpecType(data.screenType)
+          && isValidScreenSpecWriteStatus(data.writeStatus)
+          && isValidScreenSpecReviewStatus(data.reviewStatus)
+          && isValidScreenSpecApprovalStatus(data.approvalStatus)
+          && isValidScreenSpecOwner(projectId, data)
+          && isValidScreenSpecRequirementLink(data)
+          && isValidScreenSpecFunctionalSpecLink(data)
+          && isValidScreenSpecWbsItemLink(data)
+          && isValidScreenSpecMenuScreenLink(data)
+          && (!data.keys().hasAny(['templateId']) || (
+            data.templateId is string
+            && data.templateId.size() <= 120
+          ))
+          && (!data.keys().hasAny(['routePath']) || (
+            data.routePath is string
+            && data.routePath.size() <= 500
+          ))
+          && (!data.keys().hasAny(['menuPath']) || (
+            data.menuPath is string
+            && data.menuPath.size() <= 500
+          ))
+          && (!data.keys().hasAny(['description']) || (
+            data.description is string
+            && data.description.size() <= 4000
+          ))
+          && (!data.keys().hasAny(['imageCount']) || (
+            data.imageCount is int
+            && data.imageCount >= 0
+          ))
+          && (!data.keys().hasAny(['annotationCount']) || (
+            data.annotationCount is int
+            && data.annotationCount >= 0
+          ));
+    }
+    function screenSpecCreateCoreValid(projectId, data, screenSpecId) {
+      return data.id == screenSpecId
+          && data.projectId == projectId
+          && data.id is string
+          && data.projectId is string
+          && data.keys().hasAll(screenSpecRequiredKeys())
+          && data.keys().hasOnly(screenSpecWriteKeys())
+          && screenSpecFieldValidation(projectId, data)
+          && data.createdBy is string
+          && data.updatedBy is string
+          && data.isDeleted == false
+          && data.deletedAt == null
+          && data.deletedBy == null
+          && data.version is int
+          && data.version == 1;
+    }
+    function isValidScreenSpecCreate(projectId, screenSpecId) {
+      let data = request.resource.data;
+      return isScreenSpecWriter(projectId)
+          && screenSpecCreateCoreValid(projectId, data, screenSpecId)
+          && data.createdBy == uid()
+          && data.updatedBy == uid()
+          && data.createdAt == request.time
+          && data.updatedAt == request.time;
+    }
+    function isValidScreenSpecUpdate(projectId, screenSpecId) {
+      let data = request.resource.data;
+      let prev = resource.data;
+      return isScreenSpecWriter(projectId)
+          && data.id == screenSpecId
+          && data.projectId == projectId
+          && data.id == prev.id
+          && data.projectId == prev.projectId
+          && data.code == prev.code
+          && data.createdAt == prev.createdAt
+          && data.createdBy == prev.createdBy
+          && data.isDeleted == prev.isDeleted
+          && data.deletedAt == prev.deletedAt
+          && data.deletedBy == prev.deletedBy
+          && data.keys().hasAll(screenSpecRequiredKeys())
+          && data.keys().hasOnly(screenSpecWriteKeys())
+          && screenSpecFieldValidation(projectId, data)
+          && data.version is int
+          && data.version == prev.version + 1
+          && data.updatedBy == uid()
+          && data.updatedAt == request.time;
+    }
+
     // ── users/{uid} bootstrap helpers (PR #355) ───────────────────
     // Path variable userId must be passed into helpers explicitly.
     function userBootstrapKeys() {
@@ -839,7 +1100,7 @@ service cloud.firestore {
     // Every read on a project or its subcollections requires an
     // active member document under projects/{projectId}/members/{uid}.
     // Unopened artifact subcollections remain write-closed; opened collections
-    // (requirements, functionalSpecifications, wbsItems) use role-scoped rules.
+    // (requirements, functionalSpecifications, wbsItems, screenSpecs) use role-scoped rules.
     match /projects/{projectId} {
       allow get, list: if canReadProject(projectId);
       allow create: if isValidProjectCreate(projectId);
@@ -889,6 +1150,11 @@ service cloud.firestore {
               counterId == 'wbsItems'
               && isWbsWriter(projectId)
               && isValidWbsItemsCounterWrite()
+            )
+            || (
+              counterId == 'screenSpecs'
+              && isScreenSpecWriter(projectId)
+              && isValidScreenSpecsCounterWrite()
             );
         allow delete: if false;
       }
@@ -902,7 +1168,9 @@ service cloud.firestore {
 
       match /screenSpecs/{screenSpecId} {
         allow get, list: if canReadProject(projectId);
-        allow create, update, delete: if false;
+        allow create: if isValidScreenSpecCreate(projectId, screenSpecId);
+        allow update: if isValidScreenSpecUpdate(projectId, screenSpecId);
+        allow delete: if false;
       }
 
       match /screenFields/{fieldId} {
