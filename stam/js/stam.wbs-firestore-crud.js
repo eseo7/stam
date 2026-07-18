@@ -452,6 +452,48 @@
     el.setAttribute('aria-disabled', disabled ? 'true' : 'false');
   }
 
+  function formatCreateError(err) {
+    var messages = uiMessages();
+    var wbsMsg = messages && messages.wbs;
+    if (err && err.preflight && err.code) {
+      switch (err.code) {
+        case 'WBS_MEMBER_DOC_MISSING':
+        case 'WBS_MEMBER_USER_ID_MISMATCH':
+        case 'WBS_MEMBER_PROJECT_ID_MISMATCH':
+        case 'WBS_MEMBER_INACTIVE':
+          return wbsMsg && wbsMsg.memberSnapshotMismatch
+            ? wbsMsg.memberSnapshotMismatch
+            : '현재 프로젝트 멤버 정보가 저장 권한 기준과 일치하지 않습니다.';
+        case 'WBS_MEMBER_ROLE_INVALID':
+          return wbsMsg && wbsMsg.memberRoleInvalid
+            ? wbsMsg.memberRoleInvalid
+            : '현재 멤버 역할 값은 owner/admin/editor 중 하나여야 합니다.';
+        case 'WBS_OWNER_SNAPSHOT_MISMATCH':
+          return wbsMsg && wbsMsg.ownerSnapshotMismatch
+            ? wbsMsg.ownerSnapshotMismatch
+            : '담당자 정보가 프로젝트 멤버 데이터와 일치하지 않습니다.';
+        case 'WBS_REVIEWER_SNAPSHOT_MISMATCH':
+          return wbsMsg && wbsMsg.reviewerSnapshotMismatch
+            ? wbsMsg.reviewerSnapshotMismatch
+            : '검토자 정보가 프로젝트 멤버 데이터와 일치하지 않습니다.';
+        case 'WBS_COUNTER_INVALID':
+          return wbsMsg && wbsMsg.counterInvalid
+            ? wbsMsg.counterInvalid
+            : 'WBS 번호 Counter 데이터 형식이 올바르지 않습니다.';
+        default:
+          return err.message;
+      }
+    }
+    var msg = err && err.message ? err.message : String(err);
+    if (err && err.preflightPassed && /Missing or insufficient permissions/i.test(msg)) {
+      var prefix = wbsMsg && wbsMsg.rulesRejectedAfterPreflight
+        ? wbsMsg.rulesRejectedAfterPreflight
+        : '사전검사는 통과했으나 Firestore Rules에서 거부되었습니다.';
+      return prefix + ' ' + msg;
+    }
+    return msg;
+  }
+
   function setFormDisabled(scope, disabled) {
     if (!scope) return;
     scope.querySelectorAll('input, textarea, select, button.wbs-form-toggle').forEach(function (el) {
@@ -730,7 +772,7 @@
     return svc.create(projectId, input, context).then(function () {
       return afterSave();
     }).catch(function (err) {
-      alert('등록 오류: ' + (err && err.message ? err.message : err));
+      alert('등록 오류: ' + formatCreateError(err));
     }).then(function () {
       busy.create = false;
       applyWriteAccessUI();

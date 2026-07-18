@@ -48,6 +48,12 @@
       writeDenied: '이 프로젝트에서는 WBS 등록·수정 권한이 없습니다.',
       deleteUnsupported: '1차 범위에서는 WBS 삭제 기능을 지원하지 않습니다.',
       scopeUnsupported: '1차 범위 외 기능입니다.',
+      memberSnapshotMismatch: '현재 프로젝트 멤버 정보가 저장 권한 기준과 일치하지 않습니다.',
+      memberRoleInvalid: '현재 멤버 역할 값은 owner/admin/editor 중 하나여야 합니다.',
+      ownerSnapshotMismatch: '담당자 정보가 프로젝트 멤버 데이터와 일치하지 않습니다.',
+      reviewerSnapshotMismatch: '검토자 정보가 프로젝트 멤버 데이터와 일치하지 않습니다.',
+      counterInvalid: 'WBS 번호 Counter 데이터 형식이 올바르지 않습니다.',
+      rulesRejectedAfterPreflight: '사전검사는 통과했으나 Firestore Rules에서 거부되었습니다.',
     },
   };
 }());

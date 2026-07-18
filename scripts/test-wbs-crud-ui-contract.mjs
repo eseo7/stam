@@ -14,6 +14,8 @@ const wbsSource = await readFile(path.join(ROOT, 'stam/js/stam.wbs.js'), 'utf8')
 const listSource = await readFile(path.join(ROOT, 'stam/js/stam.wbs-firestore-list.js'), 'utf8');
 const pageSource = await readFile(path.join(ROOT, 'stam/pages/boards/wbs.html'), 'utf8');
 
+assert.match(crudSource, /formatCreateError/);
+assert.match(crudSource, /rulesRejectedAfterPreflight|memberSnapshotMismatch/);
 assert.match(crudSource, /svc\.create\(projectId, input, context\)/);
 assert.match(crudSource, /svc\.update\(projectId, item\.id, patch, context\)/);
 assert.equal(/collection\(['"]wbsItems['"]\)/.test(crudSource), false);

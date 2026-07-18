@@ -324,6 +324,9 @@ function createFakeFirestore() {
         return Promise.all(pending.map((op) => op.ref.set(op.data, op.options))).then(() => result);
       });
     },
+    seedMember(projectId, memberUid, member) {
+      store.set(`projects/${projectId}/members/${memberUid}`, member);
+    },
   };
 }
 
@@ -669,6 +672,20 @@ assert.equal(roleAuthorize(contract.ACTIONS.READ, { context: { memberRole: 'view
 assert.equal(roleAuthorize('wbs.delete', { context: { memberRole: 'owner' } }), false);
 
 const fakeFirestore = createFakeFirestore();
+fakeFirestore.seedMember('P1', 'u1', {
+  userId: 'u1',
+  projectId: 'P1',
+  status: 'active',
+  role: 'owner',
+  displayName: 'Writer',
+});
+fakeFirestore.seedMember('P1', 'o1', {
+  userId: 'o1',
+  projectId: 'P1',
+  status: 'active',
+  role: 'editor',
+  displayName: 'Owner',
+});
 const firestoreAdapter = adapterApi.create({ firestore: fakeFirestore });
 assert.equal(typeof firestoreAdapter.delete, 'undefined');
 assert.equal(typeof firestoreAdapter.softDelete, 'undefined');

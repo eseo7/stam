@@ -138,6 +138,7 @@ function buildPayloads(opts) {
     userId: opts.uid,
     email: opts.email,
     emailNormalized,
+    displayName: opts.displayName,
     projectId: opts.projectId,
     projectName: opts.projectName,
     tenantId: opts.tenantId,
