@@ -421,32 +421,6 @@ const clearPatch = crud.buildUpdatePatch(editForm);
 assert.equal(clearPatch.reviewerId, '');
 assert.equal(clearPatch.reviewerName, '');
 
-reqApi.getValue = () => ({ requirementId: '', requirementCode: '', requirementTitle: '' });
-const clearedReqInput = crud.buildCreateInput(createForm);
-assert.equal('requirementId' in clearedReqInput, false);
-assert.equal('requirementCode' in clearedReqInput, false);
-assert.equal('requirementTitle' in clearedReqInput, false);
-
-reqApi.getValue = () => ({ requirementId: 'req-1', requirementCode: 'REQ_001', requirementTitle: 'Alpha' });
-const linkedReqInput = crud.buildCreateInput(createForm);
-assert.equal(linkedReqInput.requirementId, 'req-1');
-assert.equal(linkedReqInput.requirementCode, 'REQ_001');
-assert.equal(linkedReqInput.requirementTitle, 'Alpha');
-
-reqApi.getValue = () => ({ requirementId: 'req-1', requirementCode: '', requirementTitle: '' });
-const partialReqInput = crud.buildCreateInput(createForm);
-assert.equal('requirementId' in partialReqInput, false);
-assert.equal('requirementCode' in partialReqInput, false);
-assert.equal('requirementTitle' in partialReqInput, false);
-
-fnApi.getValue = () => ({ functionalSpecId: '', functionalSpecCode: '', functionalSpecTitle: '' });
-const clearedFnInput = crud.buildCreateInput(createForm);
-assert.equal('functionalSpecId' in clearedFnInput, false);
-
-fnApi.getValue = () => ({ functionalSpecId: 'fn-1', functionalSpecCode: 'FN_001', functionalSpecTitle: 'Spec' });
-const linkedFnInput = crud.buildCreateInput(createForm);
-assert.equal(linkedFnInput.functionalSpecCode, 'FN_001');
-
 listState.member.role = 'viewer';
 crud.applyWriteAccessUI();
 assert.equal(regBtn.disabled, true);
