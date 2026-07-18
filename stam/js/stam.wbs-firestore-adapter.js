@@ -384,15 +384,24 @@
       input.id = input.id || ref.id;
       input.projectId = input.projectId || pid;
 
-      return runCreatePreflight(db(), pid, input).then(function () {
-        return createWithAllocatedCode(db(), pid, ref, input);
-      }).then(function () {
-        return getById(pid, input.id);
-      }).catch(function (err) {
+      return runCreatePreflight(db(), pid, input).catch(function (err) {
         if (!err.preflight) {
-          err.preflightPassed = true;
+          err.wbsCreateStage = 'preflight-read';
         }
         throw err;
+      }).then(function () {
+        return createWithAllocatedCode(db(), pid, ref, input).catch(function (err) {
+          err.preflightPassed = true;
+          err.wbsCreateStage = 'transaction-write';
+          throw err;
+        });
+      }).then(function () {
+        return getById(pid, input.id).catch(function (err) {
+          err.preflightPassed = true;
+          err.writeCommitted = true;
+          err.wbsCreateStage = 'post-create-read';
+          throw err;
+        });
       });
     }
 

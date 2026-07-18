@@ -53,7 +53,9 @@
       ownerSnapshotMismatch: '담당자 정보가 프로젝트 멤버 데이터와 일치하지 않습니다.',
       reviewerSnapshotMismatch: '검토자 정보가 프로젝트 멤버 데이터와 일치하지 않습니다.',
       counterInvalid: 'WBS 번호 Counter 데이터 형식이 올바르지 않습니다.',
-      rulesRejectedAfterPreflight: '사전검사는 통과했으나 Firestore Rules에서 거부되었습니다.',
+      preflightReadPermissionDenied: '저장 사전검사 정보를 확인할 권한이 없습니다.',
+      rulesRejectedAfterPreflight: '사전검사는 통과했으나 Firestore Rules에서 등록을 거부했습니다.',
+      writeCommittedReadFailed: '등록은 완료되었지만 저장 결과를 다시 불러오지 못했습니다. 목록을 새로고침해 확인해 주세요.',
     },
   };
 }());

@@ -28,6 +28,8 @@ assert.match(crudSource, /rulesRejectedAfterPreflight/);
 assert.match(uiMessagesSource, /memberSnapshotMismatch/);
 assert.match(uiMessagesSource, /ownerSnapshotMismatch/);
 assert.match(uiMessagesSource, /counterInvalid/);
+assert.match(uiMessagesSource, /preflightReadPermissionDenied/);
+assert.match(uiMessagesSource, /writeCommittedReadFailed/);
 
 function createContext() {
   const window = {};
@@ -86,10 +88,11 @@ function validPayload(overrides = {}) {
   };
 }
 
-function createFakeFirestore() {
+function createFakeFirestore(options = {}) {
   const store = new Map();
   let transactionCount = 0;
   const paths = [];
+  const rejectGet = options.rejectGet;
 
   function docRef(pathParts) {
     const key = pathParts.join('/');
@@ -100,6 +103,10 @@ function createFakeFirestore() {
       },
       get() {
         paths.push(['get', key]);
+        if (typeof rejectGet === 'function' && rejectGet(key)) {
+          const err = new Error(options.rejectGetMessage || 'Missing or insufficient permissions.');
+          return Promise.reject(err);
+        }
         const stored = store.get(key);
         if (stored) {
           return Promise.resolve({
@@ -338,8 +345,59 @@ rulesRejectFs = Object.assign(rulesRejectFs, {
 });
 await assert.rejects(
   () => adapterApi.create({ firestore: rulesRejectFs }).create('P1', validPayload({ id: 'wbs-rules-reject' })),
-  (err) => err.preflightPassed === true && /Missing or insufficient permissions/i.test(err.message),
+  (err) => err.preflightPassed === true
+    && err.wbsCreateStage === 'transaction-write'
+    && err.writeCommitted !== true
+    && /Missing or insufficient permissions/i.test(err.message),
 );
+
+const memberPermPayload = validPayload({ id: 'wbs-member-perm' });
+const memberPermFs = createFakeFirestore({
+  rejectGet(key) {
+    return /^projects\/P1\/members\//.test(key);
+  },
+});
+seedHappyPath(memberPermFs, memberPermPayload);
+await assert.rejects(
+  () => adapterApi.create({ firestore: memberPermFs }).create('P1', memberPermPayload),
+  (err) => err.wbsCreateStage === 'preflight-read'
+    && err.preflightPassed !== true
+    && /Missing or insufficient permissions/i.test(err.message),
+);
+assert.equal(memberPermFs.transactionCount(), 0);
+
+const networkMsg = 'Network connection lost';
+const networkPayload = validPayload({ id: 'wbs-network' });
+const networkFs = createFakeFirestore({
+  rejectGet(key) {
+    return /^projects\/P1\/members\//.test(key);
+  },
+  rejectGetMessage: networkMsg,
+});
+seedHappyPath(networkFs, networkPayload);
+await assert.rejects(
+  () => adapterApi.create({ firestore: networkFs }).create('P1', networkPayload),
+  (err) => err.wbsCreateStage === 'preflight-read'
+    && err.preflightPassed !== true
+    && err.message === networkMsg,
+);
+assert.equal(networkFs.transactionCount(), 0);
+
+const postReadPayload = validPayload({ id: 'wbs-post-read-fail' });
+const postReadFs = createFakeFirestore({
+  rejectGet(key) {
+    return key === 'projects/P1/wbsItems/wbs-post-read-fail';
+  },
+});
+seedHappyPath(postReadFs, postReadPayload);
+await assert.rejects(
+  () => adapterApi.create({ firestore: postReadFs }).create('P1', postReadPayload),
+  (err) => err.wbsCreateStage === 'post-create-read'
+    && err.preflightPassed === true
+    && err.writeCommitted === true
+    && /Missing or insufficient permissions/i.test(err.message),
+);
+assert.equal(postReadFs.transactionCount(), 1);
 
 let emulatorStatus = '미실행';
 try {

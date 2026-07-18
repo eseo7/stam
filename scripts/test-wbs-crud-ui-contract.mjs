@@ -6,7 +6,12 @@ import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const crudSource = await readFile(path.join(ROOT, 'stam/js/stam.wbs-firestore-crud.js'), 'utf8');
-const instrumentedCrudSource = crudSource.replace(
+const uiMessagesSource = await readFile(path.join(ROOT, 'stam/js/stam.ui-messages.js'), 'utf8');
+const formatCrudSource = crudSource.replace(
+  'window.STAM.wbsFirestoreCrud = {',
+  'window.__formatCreateError = formatCreateError;\n  window.STAM.wbsFirestoreCrud = {',
+);
+const instrumentedCrudSource = formatCrudSource.replace(
   'function openEdit() {',
   'function openEdit() { __wbsCalls.openEdit += 1;',
 );
@@ -16,6 +21,12 @@ const pageSource = await readFile(path.join(ROOT, 'stam/pages/boards/wbs.html'),
 
 assert.match(crudSource, /formatCreateError/);
 assert.match(crudSource, /rulesRejectedAfterPreflight|memberSnapshotMismatch/);
+assert.match(crudSource, /writeCommitted/);
+assert.match(crudSource, /preflightReadPermissionDenied/);
+assert.match(crudSource, /wbsCreateStage/);
+assert.match(uiMessagesSource, /preflightReadPermissionDenied/);
+assert.match(uiMessagesSource, /writeCommittedReadFailed/);
+assert.doesNotMatch(crudSource, /projects\/.*members/);
 assert.match(crudSource, /svc\.create\(projectId, input, context\)/);
 assert.match(crudSource, /svc\.update\(projectId, item\.id, patch, context\)/);
 assert.equal(/collection\(['"]wbsItems['"]\)/.test(crudSource), false);
@@ -234,6 +245,44 @@ const wbsService = {
 };
 
 const domReadyCallbacks = [];
+const formatErrorContext = vm.createContext({
+  console,
+  window: { STAM: {} },
+  document: { readyState: 'complete', querySelector() { return null; }, addEventListener() {} },
+  Promise, String, Array, Object, Error, Number, Math, Date,
+});
+formatErrorContext.window.window = formatErrorContext.window;
+vm.runInContext(uiMessagesSource, formatErrorContext, { filename: 'stam.ui-messages.js' });
+vm.runInContext(formatCrudSource, formatErrorContext, { filename: 'stam.wbs-firestore-crud-format.js' });
+const formatCreateError = formatErrorContext.window.__formatCreateError;
+assert.equal(typeof formatCreateError, 'function');
+
+const wbsMsg = formatErrorContext.window.STAM.uiMessages.wbs;
+assert.equal(
+  formatCreateError({ wbsCreateStage: 'preflight-read', message: 'Missing or insufficient permissions.' }),
+  wbsMsg.preflightReadPermissionDenied,
+);
+assert.equal(
+  formatCreateError({ preflightPassed: true, message: 'Missing or insufficient permissions.' }),
+  wbsMsg.rulesRejectedAfterPreflight,
+);
+assert.equal(
+  formatCreateError({ writeCommitted: true, message: 'Missing or insufficient permissions.' }),
+  wbsMsg.writeCommittedReadFailed,
+);
+assert.equal(
+  formatCreateError({ preflight: true, code: 'WBS_OWNER_SNAPSHOT_MISMATCH' }),
+  wbsMsg.ownerSnapshotMismatch,
+);
+assert.doesNotMatch(
+  formatCreateError({ preflight: true, code: 'WBS_OWNER_SNAPSHOT_MISMATCH' }),
+  /projects\/|uid|memberUid/i,
+);
+assert.doesNotMatch(
+  formatCreateError({ writeCommitted: true, message: 'internal path projects/P1/wbsItems/x' }),
+  /projects\/|wbsItems/i,
+);
+
 const context = vm.createContext({
   console,
   __wbsCalls: calls,
@@ -251,7 +300,7 @@ const context = vm.createContext({
         canWriteWbs(role) { return ['owner', 'admin', 'editor'].includes(String(role).toLowerCase()); },
       },
       wbsService,
-      uiMessages: { wbs: { writeDenied: 'denied', scopeUnsupported: 'scope', deleteUnsupported: 'delete' } },
+      uiMessages: formatErrorContext.window.STAM.uiMessages,
       wbsUi: {
         openDrawer(mode) { calls.openDrawer.push(mode); },
         closeDrawer() {},

@@ -455,6 +455,11 @@
   function formatCreateError(err) {
     var messages = uiMessages();
     var wbsMsg = messages && messages.wbs;
+    if (err && err.writeCommitted) {
+      return wbsMsg && wbsMsg.writeCommittedReadFailed
+        ? wbsMsg.writeCommittedReadFailed
+        : '등록은 완료되었지만 저장 결과를 다시 불러오지 못했습니다. 목록을 새로고침해 확인해 주세요.';
+    }
     if (err && err.preflight && err.code) {
       switch (err.code) {
         case 'WBS_MEMBER_DOC_MISSING':
@@ -485,11 +490,15 @@
       }
     }
     var msg = err && err.message ? err.message : String(err);
+    if (err && err.wbsCreateStage === 'preflight-read' && /Missing or insufficient permissions/i.test(msg)) {
+      return wbsMsg && wbsMsg.preflightReadPermissionDenied
+        ? wbsMsg.preflightReadPermissionDenied
+        : '저장 사전검사 정보를 확인할 권한이 없습니다.';
+    }
     if (err && err.preflightPassed && /Missing or insufficient permissions/i.test(msg)) {
-      var prefix = wbsMsg && wbsMsg.rulesRejectedAfterPreflight
+      return wbsMsg && wbsMsg.rulesRejectedAfterPreflight
         ? wbsMsg.rulesRejectedAfterPreflight
-        : '사전검사는 통과했으나 Firestore Rules에서 거부되었습니다.';
-      return prefix + ' ' + msg;
+        : '사전검사는 통과했으나 Firestore Rules에서 등록을 거부했습니다.';
     }
     return msg;
   }
@@ -772,7 +781,11 @@
     return svc.create(projectId, input, context).then(function () {
       return afterSave();
     }).catch(function (err) {
-      alert('등록 오류: ' + formatCreateError(err));
+      if (err && err.writeCommitted) {
+        alert(formatCreateError(err));
+      } else {
+        alert('등록 오류: ' + formatCreateError(err));
+      }
     }).then(function () {
       busy.create = false;
       applyWriteAccessUI();
