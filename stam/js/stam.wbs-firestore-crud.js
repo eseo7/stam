@@ -452,6 +452,124 @@
     el.setAttribute('aria-disabled', disabled ? 'true' : 'false');
   }
 
+  function formatCreateError(err) {
+    var messages = uiMessages();
+    var wbsMsg = messages && messages.wbs;
+    if (err && err.writeCommitted) {
+      return wbsMsg && wbsMsg.writeCommittedReadFailed
+        ? wbsMsg.writeCommittedReadFailed
+        : '등록은 완료되었지만 저장 결과를 다시 불러오지 못했습니다. 목록을 새로고침해 확인해 주세요.';
+    }
+    if (err && err.preflight && err.code) {
+      switch (err.code) {
+        case 'WBS_MEMBER_DOC_MISSING':
+        case 'WBS_MEMBER_USER_ID_MISMATCH':
+        case 'WBS_MEMBER_PROJECT_ID_MISMATCH':
+        case 'WBS_MEMBER_INACTIVE':
+          return wbsMsg && wbsMsg.memberSnapshotMismatch
+            ? wbsMsg.memberSnapshotMismatch
+            : '현재 프로젝트 멤버 정보가 저장 권한 기준과 일치하지 않습니다.';
+        case 'WBS_MEMBER_ROLE_INVALID':
+          return wbsMsg && wbsMsg.memberRoleInvalid
+            ? wbsMsg.memberRoleInvalid
+            : '현재 멤버 역할 값은 owner/admin/editor 중 하나여야 합니다.';
+        case 'WBS_OWNER_SNAPSHOT_MISMATCH':
+          return wbsMsg && wbsMsg.ownerSnapshotMismatch
+            ? wbsMsg.ownerSnapshotMismatch
+            : '담당자 정보가 프로젝트 멤버 데이터와 일치하지 않습니다.';
+        case 'WBS_REVIEWER_SNAPSHOT_MISMATCH':
+          return wbsMsg && wbsMsg.reviewerSnapshotMismatch
+            ? wbsMsg.reviewerSnapshotMismatch
+            : '검토자 정보가 프로젝트 멤버 데이터와 일치하지 않습니다.';
+        case 'WBS_COUNTER_INVALID':
+          return wbsMsg && wbsMsg.counterInvalid
+            ? wbsMsg.counterInvalid
+            : 'WBS 번호 Counter 데이터 형식이 올바르지 않습니다.';
+        default:
+          return err.message;
+      }
+    }
+    var msg = err && err.message ? err.message : String(err);
+    if (err && err.wbsCreateStage === 'preflight-read' && /Missing or insufficient permissions/i.test(msg)) {
+      return wbsMsg && wbsMsg.preflightReadPermissionDenied
+        ? wbsMsg.preflightReadPermissionDenied
+        : '저장 사전검사 정보를 확인할 권한이 없습니다.';
+    }
+    if (err && err.preflightPassed && /Missing or insufficient permissions/i.test(msg)) {
+      return wbsMsg && wbsMsg.rulesRejectedAfterPreflight
+        ? wbsMsg.rulesRejectedAfterPreflight
+        : '사전검사는 통과했으나 Firestore Rules에서 등록을 거부했습니다.';
+    }
+    return msg;
+  }
+
+  function formatUpdateError(err) {
+    var messages = uiMessages();
+    var wbsMsg = messages && messages.wbs;
+    if (err && (err.updateCommitted || err.wbsUpdateStage === 'post-update-read')) {
+      return wbsMsg && wbsMsg.updateCommittedReadFailed
+        ? wbsMsg.updateCommittedReadFailed
+        : '수정은 완료되었지만 저장 결과를 다시 불러오지 못했습니다. 목록을 새로고침해 확인해 주세요.';
+    }
+    if (err && err.preflight && err.code) {
+      switch (err.code) {
+        case 'WBS_MEMBER_DOC_MISSING':
+        case 'WBS_MEMBER_USER_ID_MISMATCH':
+        case 'WBS_MEMBER_PROJECT_ID_MISMATCH':
+        case 'WBS_MEMBER_INACTIVE':
+          return wbsMsg && wbsMsg.memberSnapshotMismatch
+            ? wbsMsg.memberSnapshotMismatch
+            : '현재 프로젝트 멤버 정보가 저장 권한 기준과 일치하지 않습니다.';
+        case 'WBS_MEMBER_ROLE_INVALID':
+          return wbsMsg && wbsMsg.memberRoleInvalid
+            ? wbsMsg.memberRoleInvalid
+            : '현재 멤버 역할 값은 owner/admin/editor 중 하나여야 합니다.';
+        case 'WBS_OWNER_SNAPSHOT_MISMATCH':
+          return wbsMsg && wbsMsg.ownerSnapshotMismatch
+            ? wbsMsg.ownerSnapshotMismatch
+            : '담당자 정보가 프로젝트 멤버 데이터와 일치하지 않습니다.';
+        case 'WBS_REVIEWER_SNAPSHOT_MISMATCH':
+          return wbsMsg && wbsMsg.reviewerSnapshotMismatch
+            ? wbsMsg.reviewerSnapshotMismatch
+            : '검토자 정보가 프로젝트 멤버 데이터와 일치하지 않습니다.';
+        case 'WBS_UPDATE_DOC_MISSING':
+          return wbsMsg && wbsMsg.updateDocMissing
+            ? wbsMsg.updateDocMissing
+            : '수정할 WBS 항목을 찾을 수 없습니다. 목록을 새로고침해 주세요.';
+        case 'WBS_UPDATE_CURRENT_VERSION_INVALID':
+          return wbsMsg && wbsMsg.updateVersionInvalid
+            ? wbsMsg.updateVersionInvalid
+            : '현재 WBS 버전 정보가 올바르지 않습니다.';
+        case 'WBS_UPDATE_VERSION_MISMATCH':
+          return wbsMsg && wbsMsg.updateVersionMismatch
+            ? wbsMsg.updateVersionMismatch
+            : '다른 변경 사항이 먼저 저장되었습니다. 목록을 새로고침한 뒤 다시 수정해 주세요.';
+        case 'WBS_UPDATE_IMMUTABLE_FIELD':
+          return wbsMsg && wbsMsg.updateImmutableField
+            ? wbsMsg.updateImmutableField
+            : '수정할 수 없는 WBS 기본 정보가 변경 요청에 포함되었습니다.';
+        case 'WBS_UPDATE_REVIEWER_PARTIAL':
+          return wbsMsg && wbsMsg.updateReviewerPartial
+            ? wbsMsg.updateReviewerPartial
+            : '검토자 정보는 ID와 이름을 함께 수정해야 합니다.';
+        default:
+          return err.message;
+      }
+    }
+    var msg = err && err.message ? err.message : String(err);
+    if (err && err.wbsUpdateStage === 'preflight-read' && /Missing or insufficient permissions/i.test(msg)) {
+      return wbsMsg && wbsMsg.updatePreflightReadPermissionDenied
+        ? wbsMsg.updatePreflightReadPermissionDenied
+        : '수정 사전검사 정보를 확인할 권한이 없습니다.';
+    }
+    if (err && err.updatePreflightPassed && /Missing or insufficient permissions/i.test(msg)) {
+      return wbsMsg && wbsMsg.updateRulesRejectedAfterPreflight
+        ? wbsMsg.updateRulesRejectedAfterPreflight
+        : '사전검사는 통과했으나 Firestore Rules에서 수정을 거부했습니다.';
+    }
+    return msg;
+  }
+
   function setFormDisabled(scope, disabled) {
     if (!scope) return;
     scope.querySelectorAll('input, textarea, select, button.wbs-form-toggle').forEach(function (el) {
@@ -730,7 +848,11 @@
     return svc.create(projectId, input, context).then(function () {
       return afterSave();
     }).catch(function (err) {
-      alert('등록 오류: ' + (err && err.message ? err.message : err));
+      if (err && err.writeCommitted) {
+        alert(formatCreateError(err));
+      } else {
+        alert('등록 오류: ' + formatCreateError(err));
+      }
     }).then(function () {
       busy.create = false;
       applyWriteAccessUI();
@@ -755,7 +877,11 @@
     return svc.update(projectId, item.id, patch, context).then(function () {
       return afterSave();
     }).catch(function (err) {
-      alert('저장 오류: ' + (err && err.message ? err.message : err));
+      if (err && (err.updateCommitted || err.wbsUpdateStage === 'post-update-read')) {
+        alert(formatUpdateError(err));
+      } else {
+        alert('저장 오류: ' + formatUpdateError(err));
+      }
     }).then(function () {
       busy.update = false;
       applyWriteAccessUI();

@@ -187,6 +187,9 @@ function createFakeFirestore(options) {
     seedCounter(projectId, lastNumber) {
       store.set(`projects/${projectId}/counters/wbsItems`, { lastNumber });
     },
+    seedMember(projectId, memberUid, member) {
+      store.set(`projects/${projectId}/members/${memberUid}`, member);
+    },
   };
 }
 
@@ -206,7 +209,39 @@ assert.throws(() => adapterApi.formatWbsCodeNumber('2'));
 assert.throws(() => adapterApi.formatWbsCodeNumber(0));
 assert.throws(() => adapterApi.formatWbsCodeNumber(-1));
 
+function seedPreflightMembers(fakeFs, projectId, payload) {
+  const createdBy = payload.createdBy || 'u1';
+  const ownerId = payload.ownerId || 'owner-uid';
+  const ownerName = payload.ownerName || 'Owner';
+  fakeFs.seedMember(projectId, createdBy, {
+    userId: createdBy,
+    projectId,
+    status: 'active',
+    role: 'owner',
+    displayName: 'Writer',
+  });
+  fakeFs.seedMember(projectId, ownerId, {
+    userId: ownerId,
+    projectId,
+    status: 'active',
+    role: 'editor',
+    displayName: ownerName,
+  });
+  const reviewerId = payload.reviewerId;
+  const reviewerName = payload.reviewerName;
+  if (reviewerId && reviewerName) {
+    fakeFs.seedMember(projectId, reviewerId, {
+      userId: reviewerId,
+      projectId,
+      status: 'active',
+      role: 'editor',
+      displayName: reviewerName,
+    });
+  }
+}
+
 const fakeFirestore = createFakeFirestore();
+seedPreflightMembers(fakeFirestore, 'P1', validWbsPayload());
 const adapter = adapterApi.create({ firestore: fakeFirestore });
 
 const first = await adapter.create('P1', validWbsPayload({ id: 'wbs-1' }));
@@ -252,6 +287,7 @@ assert.equal(
 assert.equal(fakeFirestore.store.has('projects/P1/wbsItems/wbs-3'), false);
 
 const rollbackFirestore = createFakeFirestore({ failOnSecondTxSet: true });
+seedPreflightMembers(rollbackFirestore, 'P2', validWbsPayload({ projectId: 'P2' }));
 const rollbackAdapter = adapterApi.create({ firestore: rollbackFirestore });
 await assert.rejects(
   () => rollbackAdapter.create('P2', validWbsPayload({ id: 'wbs-fail', projectId: 'P2' })),
@@ -263,10 +299,11 @@ assert.equal(rollbackFirestore.store.has('projects/P2/wbsItems/wbs-fail'), false
 for (const badCounter of [0, -1, 1.5, '2', null]) {
   const invalidFs = createFakeFirestore();
   invalidFs.seedCounter('P3', badCounter);
+  seedPreflightMembers(invalidFs, 'P3', validWbsPayload({ projectId: 'P3' }));
   const invalidAdapter = adapterApi.create({ firestore: invalidFs });
   await assert.rejects(
     () => invalidAdapter.create('P3', validWbsPayload({ id: 'wbs-bad', projectId: 'P3' })),
-    /invalid existing counter lastNumber/,
+    /WBS_COUNTER_INVALID/,
   );
 }
 
@@ -299,7 +336,24 @@ fakeFirestore.store.set(linkedPath, {
   version: 1,
 });
 
+fakeFirestore.seedMember('P1', 'o1', {
+  userId: 'o1',
+  projectId: 'P1',
+  status: 'active',
+  role: 'editor',
+  displayName: 'Owner',
+});
+fakeFirestore.seedMember('P1', 'r1', {
+  userId: 'r1',
+  projectId: 'P1',
+  status: 'active',
+  role: 'editor',
+  displayName: 'R1',
+});
+
 const unlinked = await adapter.update('P1', 'wbs-linked', {
+  version: 2,
+  updatedBy: 'u1',
   reviewerId: '',
   reviewerName: '',
   requirementId: '',
@@ -324,6 +378,8 @@ assert.equal(unlinked.requirementId, undefined);
 assert.equal(unlinked.functionalSpecId, undefined);
 
 const optionalClear = await adapter.update('P1', 'wbs-linked', {
+  version: 3,
+  updatedBy: 'u1',
   businessArea: '',
   plannedEffort: '',
   actualEffort: '',

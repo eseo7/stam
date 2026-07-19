@@ -11,6 +11,34 @@
   var COLLECTION = 'wbsItems';
   var COUNTER_DOC_ID = 'wbsItems';
   var CODE_PREFIX = 'WBS-';
+  var WRITE_ROLES = ['owner', 'admin', 'editor'];
+
+  var PREFLIGHT_CODES = {
+    MEMBER_DOC_MISSING: 'WBS_MEMBER_DOC_MISSING',
+    MEMBER_USER_ID_MISMATCH: 'WBS_MEMBER_USER_ID_MISMATCH',
+    MEMBER_PROJECT_ID_MISMATCH: 'WBS_MEMBER_PROJECT_ID_MISMATCH',
+    MEMBER_INACTIVE: 'WBS_MEMBER_INACTIVE',
+    MEMBER_ROLE_INVALID: 'WBS_MEMBER_ROLE_INVALID',
+    OWNER_SNAPSHOT_MISMATCH: 'WBS_OWNER_SNAPSHOT_MISMATCH',
+    REVIEWER_SNAPSHOT_MISMATCH: 'WBS_REVIEWER_SNAPSHOT_MISMATCH',
+    COUNTER_INVALID: 'WBS_COUNTER_INVALID',
+    UPDATE_DOC_MISSING: 'WBS_UPDATE_DOC_MISSING',
+    UPDATE_CURRENT_VERSION_INVALID: 'WBS_UPDATE_CURRENT_VERSION_INVALID',
+    UPDATE_VERSION_MISMATCH: 'WBS_UPDATE_VERSION_MISMATCH',
+    UPDATE_IMMUTABLE_FIELD: 'WBS_UPDATE_IMMUTABLE_FIELD',
+    UPDATE_REVIEWER_PARTIAL: 'WBS_UPDATE_REVIEWER_PARTIAL',
+  };
+
+  var UPDATE_IMMUTABLE_FIELDS = [
+    'id',
+    'projectId',
+    'code',
+    'createdAt',
+    'createdBy',
+    'isDeleted',
+    'deletedAt',
+    'deletedBy',
+  ];
 
   var REVIEWER_UNLINK_FIELDS = ['reviewerId', 'reviewerName'];
   var REQUIREMENT_UNLINK_FIELDS = ['requirementId', 'requirementCode', 'requirementTitle'];
@@ -124,6 +152,235 @@
 
   function counterRef(db, projectId) {
     return db.collection('projects').doc(projectId).collection('counters').doc(COUNTER_DOC_ID);
+  }
+
+  function memberRef(db, projectId, memberUid) {
+    return db.collection('projects').doc(projectId).collection('members').doc(memberUid);
+  }
+
+  function preflightError(code) {
+    var err = new Error(code);
+    err.code = code;
+    err.preflight = true;
+    return err;
+  }
+
+  function validateWriterMember(memberSnap, projectId, createdBy) {
+    if (!memberSnap || !memberSnap.exists) {
+      throw preflightError(PREFLIGHT_CODES.MEMBER_DOC_MISSING);
+    }
+    var data = memberSnap.data ? memberSnap.data() : {};
+    if (data.userId !== createdBy) {
+      throw preflightError(PREFLIGHT_CODES.MEMBER_USER_ID_MISMATCH);
+    }
+    if (data.projectId !== projectId) {
+      throw preflightError(PREFLIGHT_CODES.MEMBER_PROJECT_ID_MISMATCH);
+    }
+    if (data.status !== 'active') {
+      throw preflightError(PREFLIGHT_CODES.MEMBER_INACTIVE);
+    }
+    if (WRITE_ROLES.indexOf(data.role) < 0) {
+      throw preflightError(PREFLIGHT_CODES.MEMBER_ROLE_INVALID);
+    }
+  }
+
+  function validateMemberSnapshot(memberSnap, projectId, memberUid, memberName, mismatchCode) {
+    if (!memberSnap || !memberSnap.exists) {
+      throw preflightError(mismatchCode);
+    }
+    var data = memberSnap.data ? memberSnap.data() : {};
+    if (data.userId !== memberUid) {
+      throw preflightError(mismatchCode);
+    }
+    if (data.projectId !== projectId) {
+      throw preflightError(mismatchCode);
+    }
+    if (data.status !== 'active') {
+      throw preflightError(mismatchCode);
+    }
+    if (data.displayName !== memberName) {
+      throw preflightError(mismatchCode);
+    }
+  }
+
+  function validateCounterSnapshot(counterSnap) {
+    if (!counterSnap || !counterSnap.exists) return;
+    var data = counterSnap.data ? counterSnap.data() : {};
+    var keys = Object.keys(data || {});
+    if (keys.length !== 1 || keys[0] !== 'lastNumber') {
+      throw preflightError(PREFLIGHT_CODES.COUNTER_INVALID);
+    }
+    var lastNumber = data.lastNumber;
+    if (!Number.isInteger(lastNumber) || lastNumber < 1) {
+      throw preflightError(PREFLIGHT_CODES.COUNTER_INVALID);
+    }
+  }
+
+  function runCreatePreflight(db, projectId, input) {
+    var createdBy = clean(input.createdBy);
+    if (!createdBy) {
+      throw preflightError(PREFLIGHT_CODES.MEMBER_DOC_MISSING);
+    }
+
+    var ownerId = clean(input.ownerId);
+    var ownerName = clean(input.ownerName);
+    var reviewerId = clean(input.reviewerId);
+    var reviewerName = clean(input.reviewerName);
+    var hasReviewer = !!(reviewerId && reviewerName);
+
+    var reads = [
+      memberRef(db, projectId, createdBy).get(),
+      memberRef(db, projectId, ownerId).get(),
+      counterRef(db, projectId).get(),
+    ];
+    if (hasReviewer) {
+      reads.push(memberRef(db, projectId, reviewerId).get());
+    }
+
+    return Promise.all(reads).then(function (snaps) {
+      validateWriterMember(snaps[0], projectId, createdBy);
+      validateMemberSnapshot(
+        snaps[1],
+        projectId,
+        ownerId,
+        ownerName,
+        PREFLIGHT_CODES.OWNER_SNAPSHOT_MISMATCH
+      );
+      validateCounterSnapshot(snaps[2]);
+      if (hasReviewer) {
+        validateMemberSnapshot(
+          snaps[3],
+          projectId,
+          reviewerId,
+          reviewerName,
+          PREFLIGHT_CODES.REVIEWER_SNAPSHOT_MISMATCH
+        );
+      }
+    });
+  }
+
+  function hasOwn(obj, key) {
+    return Object.prototype.hasOwnProperty.call(obj, key);
+  }
+
+  function isReviewerUnlink(patch) {
+    return hasOwn(patch, 'reviewerId')
+      && hasOwn(patch, 'reviewerName')
+      && clean(patch.reviewerId) === ''
+      && clean(patch.reviewerName) === '';
+  }
+
+  function resolveFinalOwner(current, patch) {
+    return {
+      ownerId: hasOwn(patch, 'ownerId') ? clean(patch.ownerId) : clean(current.ownerId),
+      ownerName: hasOwn(patch, 'ownerName') ? clean(patch.ownerName) : clean(current.ownerName),
+    };
+  }
+
+  function resolveFinalReviewer(current, patch) {
+    if (isReviewerUnlink(patch)) {
+      return { reviewerId: '', reviewerName: '', hasReviewer: false };
+    }
+    var hasReviewerId = hasOwn(patch, 'reviewerId');
+    var hasReviewerName = hasOwn(patch, 'reviewerName');
+    if (hasReviewerId !== hasReviewerName) {
+      throw preflightError(PREFLIGHT_CODES.UPDATE_REVIEWER_PARTIAL);
+    }
+    if (hasReviewerId && hasReviewerName) {
+      var reviewerId = clean(patch.reviewerId);
+      var reviewerName = clean(patch.reviewerName);
+      if ((reviewerId && !reviewerName) || (!reviewerId && reviewerName)) {
+        throw preflightError(PREFLIGHT_CODES.UPDATE_REVIEWER_PARTIAL);
+      }
+      return {
+        reviewerId: reviewerId,
+        reviewerName: reviewerName,
+        hasReviewer: !!(reviewerId && reviewerName),
+      };
+    }
+    var currentReviewerId = clean(current.reviewerId);
+    var currentReviewerName = clean(current.reviewerName);
+    return {
+      reviewerId: currentReviewerId,
+      reviewerName: currentReviewerName,
+      hasReviewer: !!(currentReviewerId && currentReviewerName),
+    };
+  }
+
+  function validateUpdateImmutableFields(patch) {
+    UPDATE_IMMUTABLE_FIELDS.forEach(function (field) {
+      if (hasOwn(patch, field)) {
+        throw preflightError(PREFLIGHT_CODES.UPDATE_IMMUTABLE_FIELD);
+      }
+    });
+  }
+
+  function validateUpdateVersion(current, patch) {
+    var currentVersion = current.version;
+    if (!Number.isInteger(currentVersion) || currentVersion < 1) {
+      throw preflightError(PREFLIGHT_CODES.UPDATE_CURRENT_VERSION_INVALID);
+    }
+    var patchVersion = patch.version;
+    if (!Number.isInteger(patchVersion) || patchVersion !== currentVersion + 1) {
+      throw preflightError(PREFLIGHT_CODES.UPDATE_VERSION_MISMATCH);
+    }
+  }
+
+  function runUpdatePreflight(db, projectId, wbsItemId, patch) {
+    var updatedBy;
+    try {
+      updatedBy = clean(patch.updatedBy);
+      if (!updatedBy) {
+        throw preflightError(PREFLIGHT_CODES.MEMBER_DOC_MISSING);
+      }
+      validateUpdateImmutableFields(patch || {});
+    } catch (err) {
+      return Promise.reject(err);
+    }
+
+    var wbsRef = collectionRef(db, projectId).doc(wbsItemId);
+    var reads = [
+      wbsRef.get(),
+      memberRef(db, projectId, updatedBy).get(),
+    ];
+
+    return Promise.all(reads).then(function (snaps) {
+      var wbsSnap = snaps[0];
+      if (!wbsSnap || !wbsSnap.exists) {
+        throw preflightError(PREFLIGHT_CODES.UPDATE_DOC_MISSING);
+      }
+
+      var current = wbsSnap.data ? wbsSnap.data() : {};
+      validateWriterMember(snaps[1], projectId, updatedBy);
+      validateUpdateVersion(current, patch || {});
+
+      var owner = resolveFinalOwner(current, patch || {});
+      var reviewer = resolveFinalReviewer(current, patch || {});
+
+      var memberReads = [memberRef(db, projectId, owner.ownerId).get()];
+      if (reviewer.hasReviewer) {
+        memberReads.push(memberRef(db, projectId, reviewer.reviewerId).get());
+      }
+
+      return Promise.all(memberReads).then(function (memberSnaps) {
+        validateMemberSnapshot(
+          memberSnaps[0],
+          projectId,
+          owner.ownerId,
+          owner.ownerName,
+          PREFLIGHT_CODES.OWNER_SNAPSHOT_MISMATCH
+        );
+        if (reviewer.hasReviewer) {
+          validateMemberSnapshot(
+            memberSnaps[1],
+            projectId,
+            reviewer.reviewerId,
+            reviewer.reviewerName,
+            PREFLIGHT_CODES.REVIEWER_SNAPSHOT_MISMATCH
+          );
+        }
+      });
+    });
   }
 
   function formatWbsCodeNumber(lastNumber) {
@@ -267,20 +524,54 @@
       input.id = input.id || ref.id;
       input.projectId = input.projectId || pid;
 
-      return createWithAllocatedCode(db(), pid, ref, input).then(function () {
-        return getById(pid, input.id);
+      return runCreatePreflight(db(), pid, input).catch(function (err) {
+        if (!err.preflight) {
+          err.wbsCreateStage = 'preflight-read';
+        }
+        throw err;
+      }).then(function () {
+        return createWithAllocatedCode(db(), pid, ref, input).catch(function (err) {
+          err.preflightPassed = true;
+          err.wbsCreateStage = 'transaction-write';
+          throw err;
+        });
+      }).then(function () {
+        return getById(pid, input.id).catch(function (err) {
+          err.preflightPassed = true;
+          err.writeCommitted = true;
+          err.wbsCreateStage = 'post-create-read';
+          throw err;
+        });
       });
     }
 
     function update(projectId, wbsItemId, patch) {
       var pid = requireProjectId(projectId);
       var wid = requireWbsItemId(wbsItemId);
-      var nextPatch = applyWriteTimestamps(
-        applyOptionalFieldDeletes(applyWbsUnlinkDeletes(sanitizeUpdatePatch(patch || {}))),
-        'update'
-      );
-      return collectionRef(db(), pid).doc(wid).update(nextPatch).then(function () {
-        return getById(pid, wid);
+      var rawPatch = Object.assign({}, patch || {});
+
+      return runUpdatePreflight(db(), pid, wid, rawPatch).catch(function (err) {
+        if (!err.preflight) {
+          err.wbsUpdateStage = 'preflight-read';
+        }
+        throw err;
+      }).then(function () {
+        var nextPatch = applyWriteTimestamps(
+          applyOptionalFieldDeletes(applyWbsUnlinkDeletes(sanitizeUpdatePatch(rawPatch))),
+          'update'
+        );
+        return collectionRef(db(), pid).doc(wid).update(nextPatch).catch(function (err) {
+          err.updatePreflightPassed = true;
+          err.wbsUpdateStage = 'document-write';
+          throw err;
+        });
+      }).then(function () {
+        return getById(pid, wid).catch(function (err) {
+          err.updatePreflightPassed = true;
+          err.updateCommitted = true;
+          err.wbsUpdateStage = 'post-update-read';
+          throw err;
+        });
       });
     }
 
@@ -297,6 +588,10 @@
     COLLECTION: COLLECTION,
     COUNTER_DOC_ID: COUNTER_DOC_ID,
     CODE_PREFIX: CODE_PREFIX,
+    PREFLIGHT_CODES: PREFLIGHT_CODES,
+    WRITE_ROLES: WRITE_ROLES,
+    runCreatePreflight: runCreatePreflight,
+    runUpdatePreflight: runUpdatePreflight,
     formatWbsCodeNumber: formatWbsCodeNumber,
     create: createAdapter,
   };
