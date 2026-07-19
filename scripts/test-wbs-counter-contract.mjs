@@ -336,7 +336,24 @@ fakeFirestore.store.set(linkedPath, {
   version: 1,
 });
 
+fakeFirestore.seedMember('P1', 'o1', {
+  userId: 'o1',
+  projectId: 'P1',
+  status: 'active',
+  role: 'editor',
+  displayName: 'Owner',
+});
+fakeFirestore.seedMember('P1', 'r1', {
+  userId: 'r1',
+  projectId: 'P1',
+  status: 'active',
+  role: 'editor',
+  displayName: 'R1',
+});
+
 const unlinked = await adapter.update('P1', 'wbs-linked', {
+  version: 2,
+  updatedBy: 'u1',
   reviewerId: '',
   reviewerName: '',
   requirementId: '',
@@ -361,6 +378,8 @@ assert.equal(unlinked.requirementId, undefined);
 assert.equal(unlinked.functionalSpecId, undefined);
 
 const optionalClear = await adapter.update('P1', 'wbs-linked', {
+  version: 3,
+  updatedBy: 'u1',
   businessArea: '',
   plannedEffort: '',
   actualEffort: '',

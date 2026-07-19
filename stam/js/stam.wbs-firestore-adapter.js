@@ -22,7 +22,23 @@
     OWNER_SNAPSHOT_MISMATCH: 'WBS_OWNER_SNAPSHOT_MISMATCH',
     REVIEWER_SNAPSHOT_MISMATCH: 'WBS_REVIEWER_SNAPSHOT_MISMATCH',
     COUNTER_INVALID: 'WBS_COUNTER_INVALID',
+    UPDATE_DOC_MISSING: 'WBS_UPDATE_DOC_MISSING',
+    UPDATE_CURRENT_VERSION_INVALID: 'WBS_UPDATE_CURRENT_VERSION_INVALID',
+    UPDATE_VERSION_MISMATCH: 'WBS_UPDATE_VERSION_MISMATCH',
+    UPDATE_IMMUTABLE_FIELD: 'WBS_UPDATE_IMMUTABLE_FIELD',
+    UPDATE_REVIEWER_PARTIAL: 'WBS_UPDATE_REVIEWER_PARTIAL',
   };
+
+  var UPDATE_IMMUTABLE_FIELDS = [
+    'id',
+    'projectId',
+    'code',
+    'createdAt',
+    'createdBy',
+    'isDeleted',
+    'deletedAt',
+    'deletedBy',
+  ];
 
   var REVIEWER_UNLINK_FIELDS = ['reviewerId', 'reviewerName'];
   var REQUIREMENT_UNLINK_FIELDS = ['requirementId', 'requirementCode', 'requirementTitle'];
@@ -243,6 +259,130 @@
     });
   }
 
+  function hasOwn(obj, key) {
+    return Object.prototype.hasOwnProperty.call(obj, key);
+  }
+
+  function isReviewerUnlink(patch) {
+    return hasOwn(patch, 'reviewerId')
+      && hasOwn(patch, 'reviewerName')
+      && clean(patch.reviewerId) === ''
+      && clean(patch.reviewerName) === '';
+  }
+
+  function resolveFinalOwner(current, patch) {
+    return {
+      ownerId: hasOwn(patch, 'ownerId') ? clean(patch.ownerId) : clean(current.ownerId),
+      ownerName: hasOwn(patch, 'ownerName') ? clean(patch.ownerName) : clean(current.ownerName),
+    };
+  }
+
+  function resolveFinalReviewer(current, patch) {
+    if (isReviewerUnlink(patch)) {
+      return { reviewerId: '', reviewerName: '', hasReviewer: false };
+    }
+    var hasReviewerId = hasOwn(patch, 'reviewerId');
+    var hasReviewerName = hasOwn(patch, 'reviewerName');
+    if (hasReviewerId !== hasReviewerName) {
+      throw preflightError(PREFLIGHT_CODES.UPDATE_REVIEWER_PARTIAL);
+    }
+    if (hasReviewerId && hasReviewerName) {
+      var reviewerId = clean(patch.reviewerId);
+      var reviewerName = clean(patch.reviewerName);
+      if ((reviewerId && !reviewerName) || (!reviewerId && reviewerName)) {
+        throw preflightError(PREFLIGHT_CODES.UPDATE_REVIEWER_PARTIAL);
+      }
+      return {
+        reviewerId: reviewerId,
+        reviewerName: reviewerName,
+        hasReviewer: !!(reviewerId && reviewerName),
+      };
+    }
+    var currentReviewerId = clean(current.reviewerId);
+    var currentReviewerName = clean(current.reviewerName);
+    return {
+      reviewerId: currentReviewerId,
+      reviewerName: currentReviewerName,
+      hasReviewer: !!(currentReviewerId && currentReviewerName),
+    };
+  }
+
+  function validateUpdateImmutableFields(patch) {
+    UPDATE_IMMUTABLE_FIELDS.forEach(function (field) {
+      if (hasOwn(patch, field)) {
+        throw preflightError(PREFLIGHT_CODES.UPDATE_IMMUTABLE_FIELD);
+      }
+    });
+  }
+
+  function validateUpdateVersion(current, patch) {
+    var currentVersion = current.version;
+    if (!Number.isInteger(currentVersion) || currentVersion < 1) {
+      throw preflightError(PREFLIGHT_CODES.UPDATE_CURRENT_VERSION_INVALID);
+    }
+    var patchVersion = patch.version;
+    if (!Number.isInteger(patchVersion) || patchVersion !== currentVersion + 1) {
+      throw preflightError(PREFLIGHT_CODES.UPDATE_VERSION_MISMATCH);
+    }
+  }
+
+  function runUpdatePreflight(db, projectId, wbsItemId, patch) {
+    var updatedBy;
+    try {
+      updatedBy = clean(patch.updatedBy);
+      if (!updatedBy) {
+        throw preflightError(PREFLIGHT_CODES.MEMBER_DOC_MISSING);
+      }
+      validateUpdateImmutableFields(patch || {});
+    } catch (err) {
+      return Promise.reject(err);
+    }
+
+    var wbsRef = collectionRef(db, projectId).doc(wbsItemId);
+    var reads = [
+      wbsRef.get(),
+      memberRef(db, projectId, updatedBy).get(),
+    ];
+
+    return Promise.all(reads).then(function (snaps) {
+      var wbsSnap = snaps[0];
+      if (!wbsSnap || !wbsSnap.exists) {
+        throw preflightError(PREFLIGHT_CODES.UPDATE_DOC_MISSING);
+      }
+
+      var current = wbsSnap.data ? wbsSnap.data() : {};
+      validateWriterMember(snaps[1], projectId, updatedBy);
+      validateUpdateVersion(current, patch || {});
+
+      var owner = resolveFinalOwner(current, patch || {});
+      var reviewer = resolveFinalReviewer(current, patch || {});
+
+      var memberReads = [memberRef(db, projectId, owner.ownerId).get()];
+      if (reviewer.hasReviewer) {
+        memberReads.push(memberRef(db, projectId, reviewer.reviewerId).get());
+      }
+
+      return Promise.all(memberReads).then(function (memberSnaps) {
+        validateMemberSnapshot(
+          memberSnaps[0],
+          projectId,
+          owner.ownerId,
+          owner.ownerName,
+          PREFLIGHT_CODES.OWNER_SNAPSHOT_MISMATCH
+        );
+        if (reviewer.hasReviewer) {
+          validateMemberSnapshot(
+            memberSnaps[1],
+            projectId,
+            reviewer.reviewerId,
+            reviewer.reviewerName,
+            PREFLIGHT_CODES.REVIEWER_SNAPSHOT_MISMATCH
+          );
+        }
+      });
+    });
+  }
+
   function formatWbsCodeNumber(lastNumber) {
     var n = lastNumber;
     if (!Number.isInteger(n) || n < 1) {
@@ -408,12 +548,30 @@
     function update(projectId, wbsItemId, patch) {
       var pid = requireProjectId(projectId);
       var wid = requireWbsItemId(wbsItemId);
-      var nextPatch = applyWriteTimestamps(
-        applyOptionalFieldDeletes(applyWbsUnlinkDeletes(sanitizeUpdatePatch(patch || {}))),
-        'update'
-      );
-      return collectionRef(db(), pid).doc(wid).update(nextPatch).then(function () {
-        return getById(pid, wid);
+      var rawPatch = Object.assign({}, patch || {});
+
+      return runUpdatePreflight(db(), pid, wid, rawPatch).catch(function (err) {
+        if (!err.preflight) {
+          err.wbsUpdateStage = 'preflight-read';
+        }
+        throw err;
+      }).then(function () {
+        var nextPatch = applyWriteTimestamps(
+          applyOptionalFieldDeletes(applyWbsUnlinkDeletes(sanitizeUpdatePatch(rawPatch))),
+          'update'
+        );
+        return collectionRef(db(), pid).doc(wid).update(nextPatch).catch(function (err) {
+          err.updatePreflightPassed = true;
+          err.wbsUpdateStage = 'document-write';
+          throw err;
+        });
+      }).then(function () {
+        return getById(pid, wid).catch(function (err) {
+          err.updatePreflightPassed = true;
+          err.updateCommitted = true;
+          err.wbsUpdateStage = 'post-update-read';
+          throw err;
+        });
       });
     }
 
@@ -433,6 +591,7 @@
     PREFLIGHT_CODES: PREFLIGHT_CODES,
     WRITE_ROLES: WRITE_ROLES,
     runCreatePreflight: runCreatePreflight,
+    runUpdatePreflight: runUpdatePreflight,
     formatWbsCodeNumber: formatWbsCodeNumber,
     create: createAdapter,
   };

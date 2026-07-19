@@ -56,6 +56,14 @@
       preflightReadPermissionDenied: '저장 사전검사 정보를 확인할 권한이 없습니다.',
       rulesRejectedAfterPreflight: '사전검사는 통과했으나 Firestore Rules에서 등록을 거부했습니다.',
       writeCommittedReadFailed: '등록은 완료되었지만 저장 결과를 다시 불러오지 못했습니다. 목록을 새로고침해 확인해 주세요.',
+      updateDocMissing: '수정할 WBS 항목을 찾을 수 없습니다. 목록을 새로고침해 주세요.',
+      updateVersionInvalid: '현재 WBS 버전 정보가 올바르지 않습니다.',
+      updateVersionMismatch: '다른 변경 사항이 먼저 저장되었습니다. 목록을 새로고침한 뒤 다시 수정해 주세요.',
+      updateImmutableField: '수정할 수 없는 WBS 기본 정보가 변경 요청에 포함되었습니다.',
+      updateReviewerPartial: '검토자 정보는 ID와 이름을 함께 수정해야 합니다.',
+      updatePreflightReadPermissionDenied: '수정 사전검사 정보를 확인할 권한이 없습니다.',
+      updateRulesRejectedAfterPreflight: '사전검사는 통과했으나 Firestore Rules에서 수정을 거부했습니다.',
+      updateCommittedReadFailed: '수정은 완료되었지만 저장 결과를 다시 불러오지 못했습니다. 목록을 새로고침해 확인해 주세요.',
     },
   };
 }());
