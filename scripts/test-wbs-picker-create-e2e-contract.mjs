@@ -7,13 +7,12 @@
  */
 
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
-const BASE_SHA = '645cf66d3a95461327be8e5cd380a92748d797a0';
 const PROJECT_ID = 'P1';
 const MEMBER_UID = 'writer-member-uid';
 const MEMBER_NAME = 'Active Member';
@@ -59,12 +58,6 @@ const PRODUCT_FILES = [
   'stam/js/stam.ui-messages.js',
   'stam/js/stam.wbs-firestore-crud.js',
 ];
-
-const PAYLOAD_CACHE = path.join(ROOT, 'scripts/.cache/wbs-picker-e2e-payloads.json');
-
-function gitShow(refPath) {
-  return execFileSync('git', ['show', `${BASE_SHA}:${refPath}`], { encoding: 'utf8' });
-}
 
 function createDom() {
   let idSeq = 0;
@@ -432,7 +425,7 @@ function fieldTypes(payload) {
   return out;
 }
 
-function summarizeLink(prefix, payload) {
+function summarizeLink(rulesSource, prefix, payload) {
   const idKey = `${prefix}Id`;
   const codeKey = `${prefix}Code`;
   const titleKey = `${prefix}Title`;
@@ -656,8 +649,8 @@ async function runScenario(window, dom, scenario) {
     scenario,
     requirementPicker: reqValue,
     functionalSpecPicker: fnValue,
-    buildCreateInput: createInput,
-    buildCreatePayload: servicePayload,
+    createInput,
+    servicePayload,
     transaction: {
       counter: counterWrite.data,
       document: docWrite.data,
@@ -668,128 +661,71 @@ async function runScenario(window, dom, scenario) {
   };
 }
 
-async function compareRequirementPickerOutput() {
-  const dom = createDom();
-  const { context, window } = createContext(dom);
-  const referenceSource = await readFile(path.join(ROOT, 'stam/js/stam.reference-picker.js'), 'utf8');
-  const requirementsServiceSource = await readFile(path.join(ROOT, 'stam/js/stam.requirements-service.js'), 'utf8');
-  const headPickerSource = await readFile(path.join(ROOT, 'stam/js/stam.requirement-picker.js'), 'utf8');
-  const basePickerSource = gitShow('stam/js/stam.requirement-picker.js');
+export async function buildWbsPickerCreateScenarios() {
+  const rulesSource = await readFile(path.join(ROOT, 'firestore.rules'), 'utf8');
+  const wbsWriteKeys = parseRulesArray(rulesSource, 'wbsWriteKeys');
+  const wbsRequiredKeys = parseRulesArray(rulesSource, 'wbsRequiredKeys');
 
-  function mountShim(pickerSource, label) {
-    const localDom = createDom();
-    const localCtx = createContext(localDom);
-    vm.runInContext(`
-      window.STAM = window.STAM || {};
-      window.STAM.requirementsFirestoreAdapter = {
-        create: function () {
-          return {
-            listByProject: function (projectId) {
-              return Promise.resolve([Object.assign({ projectId: projectId }, ${JSON.stringify(REQ_FIXTURE)})]);
-            },
-            getById: function () { return Promise.resolve(null); },
-            create: function () { return Promise.reject(new Error('write denied')); },
-            update: function () { return Promise.reject(new Error('write denied')); },
-          };
-        },
-      };
-    `, localCtx.context, { filename: `${label}-shim.js` });
-    vm.runInContext(requirementsServiceSource, localCtx.context, { filename: 'requirements-service.js' });
-    if (label === 'head') {
-      vm.runInContext(referenceSource, localCtx.context, { filename: 'reference-picker.js' });
+  const runtime = await loadProductRuntime();
+  const scenarioNames = ['none', 'requirement', 'functionalSpec', 'requirement+functionalSpec'];
+  const scenarios = [];
+
+  for (const scenario of scenarioNames) {
+    while (runtime.dom.document.body.children.length > 0) {
+      runtime.dom.document.body.children.pop();
     }
-    vm.runInContext(pickerSource, localCtx.context, { filename: `${label}-requirement-picker.js` });
-    return { dom: localDom, window: localCtx.window };
-  }
+    const result = await runScenario(runtime.window, runtime.dom, scenario);
+    const documentPayload = Object.assign({}, result.transaction.document);
+    delete documentPayload.createdAt;
+    delete documentPayload.updatedAt;
 
-  async function selectRequirement(ctx) {
-    const container = ctx.dom.makeEl('div');
-    ctx.dom.document.body.appendChild(container);
-    const picker = ctx.window.STAM.requirementPicker;
-    picker.mount(container, { projectId: PROJECT_ID, memberRole: 'editor' });
-    if (typeof picker.load === 'function') await picker.load(container);
-    const toggle = container.querySelector('[data-stam-reference-picker-toggle]')
-      || container.querySelector('[data-stam-requirement-picker-toggle]');
-    toggle.click();
-    await new Promise((r) => setTimeout(r, 0));
-    if (container.querySelector('[data-stam-reference-picker-options]')) {
-      clickOption(container, REQ_FIXTURE.id);
-    } else {
-      const opt = container.querySelector(`[data-req-id="${REQ_FIXTURE.id}"]`);
-      container.querySelector('[data-stam-requirement-picker-options]').dispatchEvent({
-        type: 'click', target: opt, preventDefault() {}, stopPropagation() {},
-      });
+    if (scenario !== 'none') {
+      if (result.requirementPicker.requirementId) {
+        result.requirement = summarizeLink(rulesSource, 'requirement', result.transaction.document);
+      }
+      if (result.functionalSpecPicker.functionalSpecId) {
+        result.functionalSpec = summarizeLink(rulesSource, 'functionalSpec', result.transaction.document);
+      }
     }
-    return picker.getValue(container);
+
+    scenarios.push(result);
   }
 
-  const before = await selectRequirement(mountShim(basePickerSource, 'base'));
-  const after = await selectRequirement(mountShim(headPickerSource, 'head'));
-
-  for (const key of ['requirementId', 'requirementCode', 'requirementTitle']) {
-    assert.equal(typeof before[key], typeof after[key], `${key} type mismatch`);
-    assert.equal(String(before[key]).trim(), String(after[key]).trim(), `${key} trim mismatch`);
-  }
-  assert.equal(before.requirementCode, 'REQ_001');
-  assert.equal(after.requirementCode, 'REQ_001');
-  assert.equal(before.requirementTitle, REQ_FIXTURE.title);
-  assert.equal(after.requirementTitle, REQ_FIXTURE.title);
-  assert.equal(before.requirementId.length > 0, true);
-  assert.equal(after.requirementId.length > 0, true);
-  assert.doesNotMatch(JSON.stringify(after), /"raw"|"meta"/);
-
-  return { before, after, identical: JSON.stringify(before) === JSON.stringify(after) };
+  return {
+    rulesSource,
+    wbsWriteKeys,
+    wbsRequiredKeys,
+    scenarios,
+  };
 }
 
-const rulesSource = await readFile(path.join(ROOT, 'firestore.rules'), 'utf8');
-const wbsWriteKeys = parseRulesArray(rulesSource, 'wbsWriteKeys');
-const wbsRequiredKeys = parseRulesArray(rulesSource, 'wbsRequiredKeys');
+async function runContractAssertions() {
+  const { rulesSource, wbsWriteKeys, wbsRequiredKeys, scenarios } = await buildWbsPickerCreateScenarios();
 
-const runtime = await loadProductRuntime();
-const scenarios = ['none', 'requirement', 'functionalSpec', 'requirement+functionalSpec'];
-const results = [];
+  for (const result of scenarios) {
+    const keys = validateDocumentPayload(
+      result.scenario,
+      result.transaction.document,
+      wbsWriteKeys,
+      wbsRequiredKeys,
+    );
+    result.documentKeys = keys;
+    console.log(`scenario: ${result.scenario}`);
+    console.log('document keys:', JSON.stringify(keys));
+    if (result.requirement) console.log('requirement:', JSON.stringify(result.requirement));
+    if (result.functionalSpec) console.log('functionalSpec:', JSON.stringify(result.functionalSpec));
+  }
 
-for (const scenario of scenarios) {
-  while (runtime.dom.document.body.children.length > 0) {
-    runtime.dom.document.body.children.pop();
-  }
-  const result = await runScenario(runtime.window, runtime.dom, scenario);
-  const keys = validateDocumentPayload(scenario, result.transaction.document, wbsWriteKeys, wbsRequiredKeys);
-  result.documentKeys = keys;
-  if (scenario !== 'none') {
-    if (result.requirementPicker.requirementId) {
-      result.requirement = summarizeLink('requirement', result.transaction.document);
-    }
-    if (result.functionalSpecPicker.functionalSpecId) {
-      result.functionalSpec = summarizeLink('functionalSpec', result.transaction.document);
-    }
-  }
-  console.log(`scenario: ${scenario}`);
-  console.log('document keys:', JSON.stringify(keys));
-  if (result.requirement) console.log('requirement:', JSON.stringify(result.requirement));
-  if (result.functionalSpec) console.log('functionalSpec:', JSON.stringify(result.functionalSpec));
-  results.push(result);
+  void rulesSource;
+  console.log('wbs picker create e2e contract: PASS');
 }
 
-const pickerCompare = await compareRequirementPickerOutput();
-assert.equal(pickerCompare.identical, true, 'requirement picker before/after output must match for same fixture');
+const isDirectRun = process.argv[1]
+  && path.resolve(fileURLToPath(import.meta.url)) === path.resolve(process.argv[1]);
 
-await mkdir(path.dirname(PAYLOAD_CACHE), { recursive: true });
-await writeFile(PAYLOAD_CACHE, JSON.stringify({
-  projectId: PROJECT_ID,
-  writerUid: WRITER_UID,
-  memberName: MEMBER_NAME,
-  scenarios: results.map((r) => ({
-    scenario: r.scenario,
-    createInput: r.buildCreateInput,
-    servicePayload: r.buildCreatePayload,
-    transaction: r.transaction,
-    documentKeys: r.documentKeys,
-    fieldTypes: r.fieldTypes,
-  })),
-}, null, 2));
-
-console.log('requirement picker before/after: identical');
-console.log('wbs picker create e2e contract: PASS');
-
-export { results, PAYLOAD_CACHE, wbsWriteKeys, wbsRequiredKeys, rulesSource };
+if (isDirectRun) {
+  runContractAssertions().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

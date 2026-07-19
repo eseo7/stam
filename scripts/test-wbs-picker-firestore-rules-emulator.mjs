@@ -3,8 +3,12 @@
  * STAM WBS Picker → Firestore Rules emulator E2E
  *
  * Usage:
+ *   node scripts/test-wbs-picker-firestore-rules-emulator.mjs
+ *
+ * Or (requires firebase.json emulators.auth or externally started Auth emulator):
  *   npx firebase-tools emulators:exec \
  *     --only auth,firestore \
+ *     --project stam-preview-hosting \
  *     "node scripts/test-wbs-picker-firestore-rules-emulator.mjs"
  *
  * Seed uses firebase-admin (emulator bypass). Rules evaluation uses Firebase
@@ -13,19 +17,81 @@
  */
 
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
-const require = createRequire(import.meta.url);
 const ROOT = path.resolve(import.meta.dirname, '..');
-const PAYLOAD_CACHE = path.join(ROOT, 'scripts/.cache/wbs-picker-e2e-payloads.json');
+const SCRIPT_PATH = fileURLToPath(import.meta.url);
+const isDirectRun = process.argv[1]
+  && path.resolve(SCRIPT_PATH) === path.resolve(process.argv[1]);
+
+function bootstrapEmulatorsIfNeeded() {
+  if (process.env.STAM_WBS_RULES_EMULATOR_CHILD === '1') return;
+  if (!isDirectRun) return;
+
+  const authHost = process.env.FIREBASE_AUTH_EMULATOR_HOST;
+  const firestoreHost = process.env.FIRESTORE_EMULATOR_HOST;
+
+  if (authHost && firestoreHost) {
+    process.env.STAM_WBS_RULES_EMULATOR_CHILD = '1';
+    return;
+  }
+
+  if (process.env.IS_FIREBASE_CLI === 'true' && firestoreHost && !authHost) {
+    console.error(
+      'Auth emulator is not running. firebase-tools requires emulators.auth in firebase.json '
+      + 'when using emulators:exec --only auth,firestore, or run: '
+      + 'node scripts/test-wbs-picker-firestore-rules-emulator.mjs',
+    );
+    process.exit(1);
+  }
+
+  const cfgPath = path.join('/tmp', 'stam-wbs-rules-emulator-firebase.json');
+  writeFileSync(cfgPath, `${JSON.stringify({
+    firestore: {
+      rules: path.join(ROOT, 'firestore.rules'),
+      indexes: path.join(ROOT, 'firestore.indexes.json'),
+    },
+    emulators: {
+      auth: { port: 9099 },
+      firestore: { port: 8080 },
+      ui: { enabled: false },
+    },
+  }, null, 2)}\n`);
+
+  const childCmd = `"${process.execPath}" "${SCRIPT_PATH}"`;
+  const result = spawnSync(
+    'npx',
+    [
+      '-y', 'firebase-tools', 'emulators:exec',
+      '-c', cfgPath,
+      '--only', 'auth,firestore',
+      '--project', 'stam-preview-hosting',
+      childCmd,
+    ],
+    {
+      cwd: ROOT,
+      stdio: 'inherit',
+      env: Object.assign({}, process.env, { STAM_WBS_RULES_EMULATOR_CHILD: '1' }),
+    },
+  );
+  process.exit(result.status ?? 1);
+}
+
+bootstrapEmulatorsIfNeeded();
+
+const { buildWbsPickerCreateScenarios } = await import('./test-wbs-picker-create-e2e-contract.mjs');
+
+const require = createRequire(import.meta.url);
+const ADMIN_ROOT = process.env.STAM_FIREBASE_ADMIN_ROOT || '/tmp/stam-firebase-admin';
+const CLIENT_ROOT = process.env.STAM_FIREBASE_CLIENT_ROOT || '/tmp/stam-firebase-client';
 const FIRESTORE_PROJECT = 'stam-preview-hosting';
 const APP_PROJECT = 'P1';
 const OWNER_EMAIL = 'wbs-rules-owner@test.local';
 const OWNER_PASSWORD = 'rules-test-password';
-const ADMIN_ROOT = process.env.STAM_FIREBASE_ADMIN_ROOT || '/tmp/stam-firebase-admin';
-const CLIENT_ROOT = process.env.STAM_FIREBASE_CLIENT_ROOT || '/tmp/stam-firebase-client';
 
 process.env.NODE_PATH = [path.join(ADMIN_ROOT, 'node_modules'), path.join(CLIENT_ROOT, 'node_modules'), process.env.NODE_PATH || '']
   .filter(Boolean)
@@ -47,6 +113,10 @@ const {
   runTransaction,
   serverTimestamp,
 } = require('firebase/firestore');
+
+function resolveEmulatorHost(envVar, defaultHost) {
+  return process.env[envVar] || defaultHost;
+}
 
 function prepareDocumentPayload(servicePayload, wbsId, code, writerUid) {
   const payload = Object.assign({}, servicePayload, {
@@ -115,8 +185,10 @@ function initClient() {
   });
   const auth = getAuth(app);
   const db = getFirestore(app);
-  connectAuthEmulator(auth, `http://${process.env.FIREBASE_AUTH_EMULATOR_HOST || '127.0.0.1:9099'}`, { disableWarnings: true });
-  const [host, port] = (process.env.FIRESTORE_EMULATOR_HOST || '127.0.0.1:8080').split(':');
+  const authHost = resolveEmulatorHost('FIREBASE_AUTH_EMULATOR_HOST', '127.0.0.1:9099');
+  connectAuthEmulator(auth, `http://${authHost}`, { disableWarnings: true });
+  const firestoreHost = resolveEmulatorHost('FIRESTORE_EMULATOR_HOST', '127.0.0.1:8080');
+  const [host, port] = firestoreHost.split(':');
   connectFirestoreEmulator(db, host, Number(port), { mockUserToken: undefined });
   return { auth, db };
 }
@@ -126,7 +198,7 @@ async function createWriter(auth) {
   return { uid: cred.user.uid, user: cred.user };
 }
 
-async function commitCreate(db, payload, counterExists = true) {
+async function commitCreate(db, payload) {
   const wbsRef = doc(db, `projects/${APP_PROJECT}/wbsItems/${payload.id}`);
   const counterRef = doc(db, `projects/${APP_PROJECT}/counters/wbsItems`);
   await runTransaction(db, async (tx) => {
@@ -154,23 +226,21 @@ async function expectDenied(db, payload) {
   assert.equal(denied, true);
 }
 
-const cache = JSON.parse(await readFile(PAYLOAD_CACHE, 'utf8'));
-assert.ok(Array.isArray(cache.scenarios), 'payload cache scenarios required');
+const { scenarios } = await buildWbsPickerCreateScenarios();
+assert.ok(Array.isArray(scenarios), 'scenarios required from buildWbsPickerCreateScenarios');
 
 const { auth, db } = initClient();
 const writer = await createWriter(auth);
 await seedWithAdmin(writer.uid, OWNER_EMAIL);
 
-let counter = 1;
-for (const entry of cache.scenarios) {
+for (const entry of scenarios) {
   const wbsId = `wbs-rules-${entry.scenario.replace(/\+/g, '-')}`;
   const payload = prepareDocumentPayload(entry.servicePayload, wbsId, 'WBS-PENDING', writer.uid);
-  await commitCreate(db, payload, counter > 1);
-  counter += 1;
+  await commitCreate(db, payload);
   console.log(`scenario ${entry.scenario}: ALLOW`);
 }
 
-const linked = cache.scenarios.find((s) => s.scenario === 'requirement+functionalSpec');
+const linked = scenarios.find((s) => s.scenario === 'requirement+functionalSpec');
 assert.ok(linked, 'linked scenario payload required');
 const linkedBase = prepareDocumentPayload(linked.servicePayload, 'wbs-deny-base', 'WBS-099', writer.uid);
 
@@ -198,4 +268,3 @@ await expectDenied(db, extraKey);
 console.log('extra key: DENY');
 
 console.log('wbs picker firestore rules emulator: PASS');
-process.exit(0);
