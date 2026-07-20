@@ -20,6 +20,7 @@ const sources = {
   functionalSpecService: 'stam/js/stam.functional-spec-service.js',
   functionalSpecPicker: 'stam/js/stam.functional-spec-picker.js',
   wbsService: 'stam/js/stam.wbs-service.js',
+  wbsPicker: 'stam/js/stam.wbs-picker.js',
   projectMemberReadService: 'stam/js/stam.project-member-read-service.js',
   projectMemberPicker: 'stam/js/stam.project-member-picker.js',
   screenSpecService: 'stam/js/stam.screen-spec-service.js',
@@ -351,11 +352,13 @@ window.firebase = {
 
 const requirementPicker = window.STAM.requirementPicker;
 const functionalSpecPicker = window.STAM.functionalSpecPicker;
+const wbsPicker = window.STAM.wbsPicker;
 const projectMemberPicker = window.STAM.projectMemberPicker;
 const screenSpecContract = window.STAM.screenSpecServiceContract;
-const wbsContract = window.STAM.wbsServiceContract;
 const referencePicker = window.STAM.referencePicker;
 
+assert.equal(typeof wbsPicker, 'object', 'reuse product wbsPicker');
+assert.equal(wbsPicker.READ_SOURCE, 'wbsService.listByProject');
 assert.equal(typeof functionalSpecPicker, 'object', 'reuse existing functionalSpecPicker');
 assert.equal(typeof projectMemberPicker, 'object', 'reuse existing projectMemberPicker');
 assert.doesNotMatch(sources.requirementPicker, /screen-spec-picker/);
@@ -405,87 +408,7 @@ assert.throws(() => functionalSpecPicker.setValue(fnContainer, {
   functionalSpecTitle: 'x',
 }), /invalid functionalSpecCode/);
 
-// WBS generic referencePicker configuration (no dedicated product picker file)
-const WBS_CODE_RE = /^WBS-[0-9]{3,}$/;
-const wbsReadService = wbsContract.createService({
-  authorize: wbsContract.createMemberRoleAuthorize(() => 'editor'),
-});
-const wbsPicker = referencePicker.create({
-  type: 'wbsItem',
-  placeholder: 'WBS 선택',
-  unlinkLabel: '연결 없음',
-  searchPlaceholder: 'WBS-### 또는 제목 검색',
-  emptyLabel: '표시할 WBS 항목이 없습니다',
-  errorLabel: 'WBS 목록을 불러오지 못했습니다',
-  allowClear: true,
-  loadItems(request) {
-    return wbsReadService.listByProject(request.projectId, { includeDeleted: false }, request.context);
-  },
-  normalizeItem(raw) {
-    if (!raw) return null;
-    const id = String(raw.id || '').trim();
-    const code = String(raw.code || '').trim();
-    const title = String(raw.title || '').trim();
-    if (!id || !code || !title || !WBS_CODE_RE.test(code) || raw.isDeleted === true) return null;
-    const metaParts = [raw.phase, raw.functionGroup, raw.ownerName]
-      .map((v) => String(v || '').trim())
-      .filter(Boolean);
-    return {
-      id,
-      code,
-      title,
-      meta: metaParts.join(' · '),
-      raw,
-    };
-  },
-  normalizeValue(value) {
-    if (!value) return { id: '', code: '', title: '', meta: '' };
-    const id = String(value.wbsItemId || value.id || '').trim();
-    const code = String(value.wbsItemCode || value.code || '').trim();
-    const title = String(value.wbsItemTitle || value.title || '').trim();
-    if (id || code || title) {
-      if (!id || !code || !title) {
-        throw new Error('wbsPicker: partial wbs value is not allowed');
-      }
-      if (!WBS_CODE_RE.test(code)) {
-        throw new Error('wbsPicker: invalid wbsItemCode');
-      }
-    }
-    return { id, code, title, meta: '' };
-  },
-  toPublicValue(internal) {
-    return {
-      wbsItemId: String(internal.id || '').trim(),
-      wbsItemCode: String(internal.code || '').trim(),
-      wbsItemTitle: String(internal.title || '').trim(),
-    };
-  },
-  formatLabel(item) {
-    const code = String(item.code || '').trim();
-    const title = String(item.title || '').trim() || '(제목 없음)';
-    return code ? `${code} · ${title}` : title;
-  },
-  formatMeta(item) {
-    return String(item.meta || '').trim();
-  },
-  filterText(item, query) {
-    if (!query) return true;
-    const hay = `${item.code} ${item.title} ${item.meta}`.toLowerCase();
-    return hay.includes(query);
-  },
-  sortItems(items) {
-    return (items || []).slice().sort((a, b) => {
-      const ac = String(a.code || '');
-      const bc = String(b.code || '');
-      if (ac !== bc) return ac.localeCompare(bc);
-      const at = String(a.title || '');
-      const bt = String(b.title || '');
-      if (at !== bt) return at.localeCompare(bt);
-      return String(a.id || '').localeCompare(String(b.id || ''));
-    });
-  },
-});
-
+// WBS product picker compatibility
 const wbsContainer = dom.makeEl('div');
 dom.document.body.appendChild(wbsContainer);
 wbsPicker.mount(wbsContainer, { projectId: 'P1', memberRole: 'editor', context: { memberRole: 'editor' } });
@@ -494,17 +417,38 @@ assert.equal(window.__wbsCalls.length > 0, true, 'wbsService listByProject used'
 wbsContainer.querySelector('[data-stam-reference-picker-toggle]').click();
 await new Promise((r) => setTimeout(r, 0));
 assert.equal(wbsContainer.querySelectorAll('[data-stam-reference-picker-opt="1"]').length, 1);
+const wbsOptionsHtml = wbsContainer.querySelector('[data-stam-reference-picker-options]').innerHTML;
+assert.match(wbsOptionsHtml, /구현/);
+assert.match(wbsOptionsHtml, /인증/);
+assert.match(wbsOptionsHtml, /김담당/);
+assert.doesNotMatch(wbsOptionsHtml, /BAD/);
+assert.doesNotMatch(wbsOptionsHtml, /WBS-020/);
 clickOption(wbsContainer, 'wbs-1');
 const wbsValue = wbsPicker.getValue(wbsContainer);
 assert.equal(wbsValue.wbsItemId, 'wbs-1');
 assert.equal(wbsValue.wbsItemCode, 'WBS-001');
 assert.equal(wbsValue.wbsItemTitle, '로그인 화면 구현');
+wbsPicker.clear(wbsContainer);
+const clearedWbs = wbsPicker.getValue(wbsContainer);
+assert.equal(clearedWbs.wbsItemId, '');
+assert.equal(clearedWbs.wbsItemCode, '');
+assert.equal(clearedWbs.wbsItemTitle, '');
 assert.throws(() => wbsPicker.setValue(wbsContainer, { wbsItemId: 'wbs-1' }), /partial/);
 assert.throws(() => wbsPicker.setValue(wbsContainer, {
   wbsItemId: 'wbs-1',
   wbsItemCode: 'BAD',
   wbsItemTitle: 'x',
 }), /invalid wbsItemCode/);
+
+assert.throws(() => wbsPicker.mount(wbsContainer, { projectId: 'P1' }), /duplicate mount/);
+wbsPicker.refreshContext(wbsContainer, { projectId: 'P2', memberRole: 'editor', context: { memberRole: 'editor' } });
+const prevCalls = window.__wbsCalls.length;
+await wbsPicker.load(wbsContainer);
+assert.equal(window.__wbsCalls.length > prevCalls, true, 'refreshContext reloads with new projectId');
+assert.equal(window.__wbsCalls[window.__wbsCalls.length - 1][1], 'P2');
+wbsPicker.destroy(wbsContainer);
+assert.equal(wbsContainer.innerHTML, '');
+assert.equal(wbsContainer.getAttribute('data-stam-reference-picker-mounted'), null);
 
 // Owner picker compatibility
 const ownerContainer = dom.makeEl('div');
