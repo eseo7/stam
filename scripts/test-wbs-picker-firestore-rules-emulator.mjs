@@ -5,11 +5,14 @@
  * Usage:
  *   node scripts/test-wbs-picker-firestore-rules-emulator.mjs
  *
- * Or (requires firebase.json emulators.auth or externally started Auth emulator):
+ * Or:
  *   npx firebase-tools emulators:exec \
  *     --only auth,firestore \
  *     --project stam-preview-hosting \
  *     "node scripts/test-wbs-picker-firestore-rules-emulator.mjs"
+ *
+ * When firebase.json has no emulators.auth block, firebase-tools may start only
+ * Firestore. This script then starts an Auth emulator sidecar automatically.
  *
  * Seed uses firebase-admin (emulator bypass). Rules evaluation uses Firebase
  * client SDK + Auth emulator transactions, which match production timestamp
@@ -17,8 +20,9 @@
  */
 
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
+import net from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
@@ -28,7 +32,58 @@ const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const isDirectRun = process.argv[1]
   && path.resolve(SCRIPT_PATH) === path.resolve(process.argv[1]);
 
-function bootstrapEmulatorsIfNeeded() {
+function parseHostPort(hostEnv, defaultPort) {
+  const raw = hostEnv || `127.0.0.1:${defaultPort}`;
+  const idx = raw.lastIndexOf(':');
+  if (idx < 0) return { host: '127.0.0.1', port: Number(raw) };
+  return { host: raw.slice(0, idx) || '127.0.0.1', port: Number(raw.slice(idx + 1)) };
+}
+
+function waitForPort(host, port, timeoutMs = 30000) {
+  const start = Date.now();
+  return new Promise((resolve, reject) => {
+    function attempt() {
+      const socket = net.connect(port, host);
+      socket.once('connect', () => {
+        socket.end();
+        resolve();
+      });
+      socket.once('error', () => {
+        socket.destroy();
+        if (Date.now() - start >= timeoutMs) {
+          reject(new Error(`timeout waiting for ${host}:${port}`));
+          return;
+        }
+        setTimeout(attempt, 250);
+      });
+    }
+    attempt();
+  });
+}
+
+function startAuthEmulatorSidecar(port) {
+  const cfgPath = path.join('/tmp', 'stam-wbs-auth-emulator-firebase.json');
+  writeFileSync(cfgPath, `${JSON.stringify({
+    emulators: {
+      auth: { port },
+      ui: { enabled: false },
+    },
+  }, null, 2)}\n`);
+
+  const proc = spawn(
+    'npx',
+    ['-y', 'firebase-tools', 'emulators:start', '--only', 'auth', '-c', cfgPath, '--project', 'stam-preview-hosting'],
+    {
+      cwd: ROOT,
+      stdio: 'ignore',
+      detached: true,
+      env: process.env,
+    },
+  );
+  proc.unref();
+}
+
+async function bootstrapEmulatorsIfNeeded() {
   if (process.env.STAM_WBS_RULES_EMULATOR_CHILD === '1') return;
   if (!isDirectRun) return;
 
@@ -41,12 +96,12 @@ function bootstrapEmulatorsIfNeeded() {
   }
 
   if (process.env.IS_FIREBASE_CLI === 'true' && firestoreHost && !authHost) {
-    console.error(
-      'Auth emulator is not running. firebase-tools requires emulators.auth in firebase.json '
-      + 'when using emulators:exec --only auth,firestore, or run: '
-      + 'node scripts/test-wbs-picker-firestore-rules-emulator.mjs',
-    );
-    process.exit(1);
+    const { host, port } = parseHostPort(null, 9099);
+    startAuthEmulatorSidecar(port);
+    await waitForPort(host, port);
+    process.env.FIREBASE_AUTH_EMULATOR_HOST = `${host}:${port}`;
+    process.env.STAM_WBS_RULES_EMULATOR_CHILD = '1';
+    return;
   }
 
   const cfgPath = path.join('/tmp', 'stam-wbs-rules-emulator-firebase.json');
@@ -81,7 +136,7 @@ function bootstrapEmulatorsIfNeeded() {
   process.exit(result.status ?? 1);
 }
 
-bootstrapEmulatorsIfNeeded();
+await bootstrapEmulatorsIfNeeded();
 
 const { buildWbsPickerCreateScenarios } = await import('./test-wbs-picker-create-e2e-contract.mjs');
 
