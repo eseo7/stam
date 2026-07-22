@@ -10,9 +10,14 @@
   'use strict';
 
   var ACTIONS = {
+    LIST: 'screenSpec.list',
     READ: 'screenSpec.read',
     CREATE: 'screenSpec.create',
     UPDATE: 'screenSpec.update',
+  };
+
+  var ERROR_CODES = {
+    UPDATE_VERSION_MISMATCH: 'SCREEN_SPEC_UPDATE_VERSION_MISMATCH',
   };
 
   var WRITE_ROLES = ['owner', 'admin', 'editor'];
@@ -155,6 +160,15 @@
     var value = clean(screenSpecId);
     if (!value) throw new Error('screenSpecService: screenSpecId is required');
     return value;
+  }
+
+  function createServiceError(code, message) {
+    var err = new Error(message || ('screenSpecService: ' + code));
+    err.code = code;
+    if (code === ERROR_CODES.UPDATE_VERSION_MISMATCH) {
+      err.conflict = true;
+    }
+    return err;
   }
 
   function actorFromContext(context) {
@@ -702,7 +716,7 @@
       if (actionRequiresWrite(action)) {
         return canWriteScreenSpec(role);
       }
-      if (action === ACTIONS.READ) {
+      if (action === ACTIONS.LIST || action === ACTIONS.READ) {
         return canReadScreenSpec(role);
       }
       return false;
@@ -756,7 +770,7 @@
     function listByProject(projectId, query, context) {
       var pid = requireProjectId(projectId);
       var q = Object.assign({ includeDeleted: false }, query || {});
-      return check(ACTIONS.READ, pid, q, context).then(function () {
+      return check(ACTIONS.LIST, pid, q, context).then(function () {
         return adapter.listByProject(pid, q);
       }).then(function (items) {
         return (items || []).map(normalizeScreenSpec).filter(Boolean);
@@ -789,6 +803,16 @@
       }).then(function (currentRaw) {
         var current = normalizeScreenSpec(currentRaw);
         if (!current) throw new Error('screenSpecService: screen spec not found');
+        var ctx = context || {};
+        if (hasOwn(ctx, 'expectedVersion') && ctx.expectedVersion !== undefined && ctx.expectedVersion !== null && ctx.expectedVersion !== '') {
+          var expectedVersion = normalizeCount(ctx.expectedVersion);
+          if (Number.isNaN(expectedVersion) || expectedVersion !== current.version) {
+            return Promise.reject(createServiceError(
+              ERROR_CODES.UPDATE_VERSION_MISMATCH,
+              'screenSpecService: update version mismatch'
+            ));
+          }
+        }
         var nextPatch = buildUpdatePatch(current, patch, context, clock);
         return adapter.update(pid, sid, nextPatch);
       }).then(normalizeScreenSpec);
@@ -818,6 +842,7 @@
   window.STAM.screenSpecService = createService();
   window.STAM.screenSpecServiceContract = {
     ACTIONS: ACTIONS,
+    ERROR_CODES: ERROR_CODES,
     WRITE_ROLES: WRITE_ROLES,
     READ_ROLES: READ_ROLES,
     SCREEN_TYPE_VALUES: SCREEN_TYPE_VALUES,

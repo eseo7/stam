@@ -345,7 +345,8 @@ assert.equal(adapterApi.formatScreenSpecCodeNumber(999), 'SCR-999');
 assert.equal(adapterApi.formatScreenSpecCodeNumber(1000), 'SCR-1000');
 
 assert.ok(runtimeService);
-assert.deepEqual(Object.keys(runtimeService.ACTIONS).sort(), ['CREATE', 'READ', 'UPDATE']);
+assert.deepEqual(Object.keys(runtimeService.ACTIONS).sort(), ['CREATE', 'LIST', 'READ', 'UPDATE']);
+assert.equal(runtimeService.ACTIONS.LIST, 'screenSpec.list');
 assert.equal(runtimeService.ACTIONS.READ, 'screenSpec.read');
 assert.equal(runtimeService.ACTIONS.CREATE, 'screenSpec.create');
 assert.equal(runtimeService.ACTIONS.UPDATE, 'screenSpec.update');
@@ -549,7 +550,7 @@ assert.equal(invalidWriteStatus.errors.some((err) => err.field === 'writeStatus'
 
 const list = await service.listByProject('P1', {}, { actorUid: 'u2' });
 assert.equal(list.length, 1);
-assert.deepEqual(authCalls.at(-1), ['screenSpec.read', 'P1']);
+assert.deepEqual(authCalls.at(-1), ['screenSpec.list', 'P1']);
 assert.equal(adapter.calls[0][2].includeDeleted, false);
 
 assert.throws(
@@ -581,6 +582,25 @@ assert.equal(updated.title, 'Updated title');
 assert.equal(updated.writeStatus, 'complete');
 assert.equal(updated.version, 3);
 assert.equal(updated.updatedBy, 'u3');
+
+await assert.rejects(
+  () => service.update('P1', 'scr-1', { title: 'Stale title' }, {
+    actorUid: 'u3',
+    expectedVersion: 2,
+  }),
+  (err) => {
+    assert.equal(err.code, contract.ERROR_CODES.UPDATE_VERSION_MISMATCH);
+    assert.equal(err.conflict, true);
+    return true;
+  },
+);
+
+const freshUpdate = await service.update('P1', 'scr-1', { title: 'Fresh title' }, {
+  actorUid: 'u3',
+  expectedVersion: 3,
+});
+assert.equal(freshUpdate.title, 'Fresh title');
+assert.equal(freshUpdate.version, 4);
 
 await assert.rejects(
   () => service.update('P1', 'missing', { title: 'x' }, { actorUid: 'u3' }),
@@ -629,6 +649,7 @@ await assert.rejects(
 );
 
 const roleAuthorize = contract.createMemberRoleAuthorize((request) => request.context.memberRole);
+assert.equal(roleAuthorize(contract.ACTIONS.LIST, { context: { memberRole: 'viewer' } }), true);
 assert.equal(roleAuthorize(contract.ACTIONS.CREATE, { context: { memberRole: 'admin' } }), true);
 assert.equal(roleAuthorize(contract.ACTIONS.UPDATE, { context: { memberRole: 'viewer' } }), false);
 assert.equal(roleAuthorize(contract.ACTIONS.READ, { context: { memberRole: 'viewer' } }), true);
