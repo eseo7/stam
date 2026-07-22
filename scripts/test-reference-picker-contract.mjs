@@ -293,7 +293,29 @@ function dispatchKey(el, key, extra) {
     propagationStopped: false,
   }, extra || {});
   el.dispatchEvent(event);
+  if (!event.propagationStopped && el.parentNode && el.parentNode.listeners && el.parentNode.listeners.keydown) {
+    el.parentNode.listeners.keydown.forEach((fn) => fn(Object.assign({}, event, { target: el })));
+  }
   return event;
+}
+
+function activeDescendantOwner(container) {
+  const search = container.querySelector('[data-stam-reference-picker-search]');
+  const menu = container.querySelector('[data-stam-reference-picker-menu]');
+  return { search, menu };
+}
+
+function findOptionById(container, optionId) {
+  return container.querySelectorAll('[role="option"]').find((opt) => opt.getAttribute('id') === optionId) || null;
+}
+
+function assertActiveDescendantOnSearch(container, expectedOptionId) {
+  const { search, menu } = activeDescendantOwner(container);
+  assert.equal(search.getAttribute('aria-activedescendant'), expectedOptionId || null);
+  assert.equal(menu.getAttribute('aria-activedescendant'), null);
+  if (expectedOptionId) {
+    assert.ok(findOptionById(container, expectedOptionId), 'active descendant option exists');
+  }
 }
 
 function getSelectableOptions(container) {
@@ -425,6 +447,7 @@ await new Promise((r) => setTimeout(r, 0));
 const optionsHost = errContainer.querySelector('[data-stam-reference-picker-options]');
 assert.match(optionsHost.innerHTML, /오류/);
 assert.doesNotMatch(optionsHost.innerHTML, /load failed/);
+assertActiveDescendantOnSearch(errContainer, null);
 assert.match(pickerSource, /data-stam-reference-picker-retry/);
 
 picker.setDisabled(containerA, true);
@@ -476,17 +499,36 @@ assert.equal(kbToggle.getAttribute('aria-expanded'), 'true', 'ArrowDown opens pi
 assert.ok(activeOption(kbContainer), 'ArrowDown activates an option');
 const firstActiveId = activeOption(kbContainer).getAttribute('id');
 assert.ok(firstActiveId, 'active option has id');
-assert.equal(kbMenu.getAttribute('aria-activedescendant'), firstActiveId);
+assertActiveDescendantOnSearch(kbContainer, firstActiveId);
+assert.equal(kbSearch.getAttribute('aria-controls'), kbMenu.getAttribute('id'), 'search controls listbox');
 
+const selectableBeforeDown = getSelectableOptions(kbContainer);
+const activeBeforeDown = activeOption(kbContainer);
+const activeIndexBeforeDown = selectableBeforeDown.indexOf(activeBeforeDown);
 dispatchKey(kbSearch, 'ArrowDown');
-assert.ok(activeOption(kbContainer), 'ArrowDown in search moves active');
+const activeAfterDown = activeOption(kbContainer);
+const activeIndexAfterDown = getSelectableOptions(kbContainer).indexOf(activeAfterDown);
+assert.equal(activeIndexAfterDown, activeIndexBeforeDown + 1, 'ArrowDown from search moves exactly one option');
+assertActiveDescendantOnSearch(kbContainer, activeAfterDown.getAttribute('id'));
+
 dispatchKey(kbSearch, 'ArrowUp');
 assert.ok(activeOption(kbContainer), 'ArrowUp in search moves active');
+assert.equal(getSelectableOptions(kbContainer).indexOf(activeOption(kbContainer)), activeIndexBeforeDown, 'ArrowUp returns one step');
 dispatchKey(kbSearch, 'Home');
-assert.equal(activeOption(kbContainer), getSelectableOptions(kbContainer)[0], 'Home selects first option');
+assert.equal(
+  activeOption(kbContainer).getAttribute('id'),
+  getSelectableOptions(kbContainer)[0].getAttribute('id'),
+  'Home selects first option',
+);
+assertActiveDescendantOnSearch(kbContainer, activeOption(kbContainer).getAttribute('id'));
 dispatchKey(kbSearch, 'End');
 const selectable = getSelectableOptions(kbContainer);
-assert.equal(activeOption(kbContainer), selectable[selectable.length - 1], 'End selects last option');
+assert.equal(
+  activeOption(kbContainer).getAttribute('id'),
+  selectable[selectable.length - 1].getAttribute('id'),
+  'End selects last option',
+);
+assertActiveDescendantOnSearch(kbContainer, activeOption(kbContainer).getAttribute('id'));
 
 const targetOpt = selectable.find((opt) => opt.getAttribute('data-opt-id') === 'a1');
 assert.ok(targetOpt, 'target option exists');
@@ -509,7 +551,36 @@ assert.equal(getSelectableOptions(kbContainer).length, 1, 'search filters option
 dispatchKey(kbSearch, 'Escape');
 assert.equal(kbToggle.getAttribute('aria-expanded'), 'false', 'Escape closes picker');
 assert.equal(kbToggle._focused, true, 'Escape returns focus to trigger');
-assert.equal(activeOption(kbContainer), null, 'active cleared on close');
+assert.ok(activeOption(kbContainer) == null, 'active cleared on close');
+assertActiveDescendantOnSearch(kbContainer, null);
+
+kbToggle.click();
+await new Promise((r) => setTimeout(r, 0));
+kbSearch.value = 'nomatch';
+kbSearch.dispatchEvent({ type: 'input', target: kbSearch });
+const filteredSelectable = getSelectableOptions(kbContainer);
+assert.equal(filteredSelectable.length, 1, 'unlink remains when item filters return empty');
+assert.equal(filteredSelectable[0].getAttribute('data-opt-id'), '');
+assert.equal(activeOption(kbContainer).getAttribute('data-opt-id'), '');
+assertActiveDescendantOnSearch(kbContainer, activeOption(kbContainer).getAttribute('id'));
+
+const emptyContainer = dom.makeEl('div');
+dom.document.body.appendChild(emptyContainer);
+const emptyPicker = window.STAM.referencePicker.create({ ...baseConfig, allowClear: false });
+emptyPicker.mount(emptyContainer, { projectId: 'P1' });
+await emptyPicker.load(emptyContainer);
+emptyContainer.querySelector('[data-stam-reference-picker-toggle]').click();
+await new Promise((r) => setTimeout(r, 0));
+const emptySearch = emptyContainer.querySelector('[data-stam-reference-picker-search]');
+emptySearch.value = 'nomatch';
+emptySearch.dispatchEvent({ type: 'input', target: emptySearch });
+assert.equal(getSelectableOptions(emptyContainer).length, 0, 'no selectable options when filter empty and allowClear false');
+assert.ok(activeOption(emptyContainer) == null, 'active cleared when no selectable options');
+assertActiveDescendantOnSearch(emptyContainer, null);
+emptyPicker.destroy(emptyContainer);
+
+picker.destroy(kbContainer);
+assert.equal(kbContainer.innerHTML, '');
 
 // allowClear false — no unlink option
 const noClearPicker = window.STAM.referencePicker.create({ ...baseConfig, allowClear: false });
@@ -578,5 +649,9 @@ assert.deepEqual(picker.getValue(mouseContainer), { id: 'a1', code: 'A1', title:
 // document listener dedupe
 assert.equal(dom.document._clickHandlers.length, 1, 'single document click listener');
 assert.equal(dom.document._keydownHandlers.length, 1, 'single document keydown listener');
+
+assert.doesNotMatch(pickerSource, /search\.addEventListener\('keydown'/);
+assert.doesNotMatch(pickerSource, /optionsHost\.addEventListener\('keydown'/);
+assert.match(pickerSource, /menu\.addEventListener\('keydown'/);
 
 console.log('reference picker contract: PASS');

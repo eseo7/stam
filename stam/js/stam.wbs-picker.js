@@ -133,7 +133,12 @@
       var ctx = request && request.context ? request.context : {};
       return ctx.memberRole || ctx.role || memberRole || '';
     });
-    return contract.createService({ authorize: authorize });
+    var service = contract.createService({ authorize: authorize });
+    return {
+      listByProject: function (projectId, query, context) {
+        return service.listByProject(projectId, query, context);
+      },
+    };
   }
 
   function listWbsItems(projectId, context, memberRole) {

@@ -220,6 +220,11 @@
     return root && root.querySelector('[data-stam-reference-picker-menu]');
   }
 
+  function searchInputEl(container) {
+    var root = rootEl(container);
+    return root && root.querySelector('[data-stam-reference-picker-search]');
+  }
+
   function optionsHostEl(container) {
     var root = rootEl(container);
     return root && root.querySelector('[data-stam-reference-picker-options]');
@@ -260,8 +265,8 @@
     for (var i = 0; i < active.length; i += 1) {
       active[i].classList.remove('is-active');
     }
-    var menu = listboxEl(container);
-    removeAttr(menu, 'aria-activedescendant');
+    removeAttr(searchInputEl(container), 'aria-activedescendant');
+    removeAttr(listboxEl(container), 'aria-activedescendant');
   }
 
   function preferredActiveIndex(container, options) {
@@ -288,9 +293,11 @@
     var target = opts[next];
     if (target) {
       target.classList.add('is-active');
-      var menu = listboxEl(container);
       var optionId = target.getAttribute('id');
-      if (menu && optionId) menu.setAttribute('aria-activedescendant', optionId);
+      var search = searchInputEl(container);
+      removeAttr(listboxEl(container), 'aria-activedescendant');
+      if (search && optionId) search.setAttribute('aria-activedescendant', optionId);
+      else if (search) removeAttr(search, 'aria-activedescendant');
     }
     setState(container, { activeIndex: next });
     return next;
@@ -340,6 +347,8 @@
     if (menu && !menu.getAttribute('id')) menu.setAttribute('id', rec.listboxId);
     var toggle = toggleEl(container);
     if (toggle && rec.listboxId) toggle.setAttribute('aria-controls', rec.listboxId);
+    var search = searchInputEl(container);
+    if (search && rec.listboxId) search.setAttribute('aria-controls', rec.listboxId);
     return { listboxId: rec.listboxId, optionPrefix: rec.optionPrefix };
   }
 
@@ -626,9 +635,6 @@
       search.addEventListener('click', function (event) {
         event.stopPropagation();
       });
-      search.addEventListener('keydown', function (event) {
-        handleMenuKeydown(event, container, cfg);
-      });
     }
     if (optionsHost) {
       optionsHost.addEventListener('click', function (event) {
@@ -641,9 +647,6 @@
         var opt = event.target.closest('[data-stam-reference-picker-opt]');
         if (!opt || opt.classList.contains('is-disabled')) return;
         selectOptionElement(container, cfg, opt);
-      });
-      optionsHost.addEventListener('keydown', function (event) {
-        handleMenuKeydown(event, container, cfg);
       });
     }
     if (menu) {

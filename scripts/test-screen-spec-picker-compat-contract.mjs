@@ -359,6 +359,30 @@ const referencePicker = window.STAM.referencePicker;
 
 assert.equal(typeof wbsPicker, 'object', 'reuse product wbsPicker');
 assert.equal(wbsPicker.READ_SOURCE, 'wbsService.listByProject');
+assert.equal(typeof wbsPicker.createReadService, 'function');
+
+const fullWbsService = window.STAM.wbsServiceContract.createService({
+  authorize: window.STAM.wbsServiceContract.createMemberRoleAuthorize(() => 'editor'),
+});
+const readOnlyWbsService = wbsPicker.createReadService('editor');
+assert.notEqual(readOnlyWbsService, fullWbsService, 'read service is not the full service object');
+assert.equal(typeof readOnlyWbsService.listByProject, 'function');
+assert.equal(readOnlyWbsService.create, undefined);
+assert.equal(readOnlyWbsService.update, undefined);
+assert.equal(readOnlyWbsService.delete, undefined);
+assert.equal(readOnlyWbsService.save, undefined);
+assert.equal(readOnlyWbsService.remove, undefined);
+assert.equal(readOnlyWbsService.getById, undefined);
+assert.equal(readOnlyWbsService.buildCreatePayload, undefined);
+assert.equal(readOnlyWbsService.buildUpdatePatch, undefined);
+assert.equal(readOnlyWbsService.buildPayload, undefined);
+assert.equal(readOnlyWbsService.normalizeWbsItem, undefined);
+assert.deepEqual(Object.keys(readOnlyWbsService).sort(), ['listByProject']);
+const readOnlyItems = await readOnlyWbsService.listByProject('P1', { includeDeleted: false }, { memberRole: 'editor' });
+assert.ok(Array.isArray(readOnlyItems) && readOnlyItems.length > 0, 'read-only listByProject returns items');
+assert.ok(readOnlyItems.some((item) => item.code === 'WBS-001'), 'read-only listByProject uses contract adapter');
+assert.equal(window.__wbsCalls.filter((call) => call[0] === 'listByProject').length > 0, true, 'read-only listByProject uses contract');
+
 assert.equal(typeof functionalSpecPicker, 'object', 'reuse existing functionalSpecPicker');
 assert.equal(typeof projectMemberPicker, 'object', 'reuse existing projectMemberPicker');
 assert.doesNotMatch(sources.requirementPicker, /screen-spec-picker/);
