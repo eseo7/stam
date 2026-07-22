@@ -708,3 +708,30 @@ html, body { height: 100%; overflow: hidden; }
 .ftree, .ftree * {
   font-family: var(--font) !important;
 }
+
+/* ====== Mobile / narrow — stack TOC above content ======
+ * Below 768px the fixed 214px .guide-toc squeezes .guide-main so the
+ * preview content collapses. Switch the shell to a single column: the
+ * TOC becomes a full-width block on top (height-capped + scrollable)
+ * and the content keeps a usable width. Desktop/tablet (>=768px) is
+ * unchanged. Border colours reuse the existing .guide-toc values. */
+@media (max-width: 767px) {
+  .guide-shell {
+    flex-direction: column;
+  }
+  .guide-toc {
+    width: 100%;
+    max-height: 40vh;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+  [data-theme="light"] .guide-toc {
+    border-bottom-color: var(--bd);
+  }
+  .guide-main {
+    min-width: 0;
+  }
+  .guide-content {
+    min-width: 0;
+  }
+}
