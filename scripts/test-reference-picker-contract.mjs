@@ -102,7 +102,8 @@ function createDom() {
       return true;
     };
     el.click = () => el.dispatchEvent({ type: 'click', target: el, preventDefault() {}, stopPropagation() {} });
-    el.focus = () => {};
+    el.focus = () => { el._focused = true; };
+    el.blur = () => { el._focused = false; };
     Object.defineProperty(el, 'innerHTML', {
       get() { return el._innerHTML || ''; },
       set(html) {
@@ -281,6 +282,54 @@ const baseConfig = {
   sortItems: (items) => items.slice().sort((a, b) => a.code.localeCompare(b.code)),
 };
 
+function dispatchKey(el, key, extra) {
+  const event = Object.assign({
+    type: 'keydown',
+    key,
+    target: el,
+    preventDefault() { this.defaultPrevented = true; },
+    stopPropagation() { this.propagationStopped = true; },
+    defaultPrevented: false,
+    propagationStopped: false,
+  }, extra || {});
+  el.dispatchEvent(event);
+  if (!event.propagationStopped && el.parentNode && el.parentNode.listeners && el.parentNode.listeners.keydown) {
+    el.parentNode.listeners.keydown.forEach((fn) => fn(Object.assign({}, event, { target: el })));
+  }
+  return event;
+}
+
+function activeDescendantOwner(container) {
+  const search = container.querySelector('[data-stam-reference-picker-search]');
+  const menu = container.querySelector('[data-stam-reference-picker-menu]');
+  return { search, menu };
+}
+
+function findOptionById(container, optionId) {
+  return container.querySelectorAll('[role="option"]').find((opt) => opt.getAttribute('id') === optionId) || null;
+}
+
+function assertActiveDescendantOnSearch(container, expectedOptionId) {
+  const { search, menu } = activeDescendantOwner(container);
+  assert.equal(search.getAttribute('aria-activedescendant'), expectedOptionId || null);
+  assert.equal(menu.getAttribute('aria-activedescendant'), null);
+  if (expectedOptionId) {
+    assert.ok(findOptionById(container, expectedOptionId), 'active descendant option exists');
+  }
+}
+
+function getSelectableOptions(container) {
+  return container.querySelectorAll('[role="option"]')
+    .filter((opt) => !opt.classList.contains('is-disabled') && opt.getAttribute('aria-disabled') !== 'true');
+}
+
+function activeOption(container) {
+  const host = container.querySelector('[data-stam-reference-picker-options]');
+  if (!host) return null;
+  const matches = host.querySelectorAll('.is-active');
+  return matches.length ? matches[0] : null;
+}
+
 const picker = window.STAM.referencePicker.create(baseConfig);
 ['mount', 'load', 'getValue', 'setValue', 'clear', 'setDisabled', 'refreshContext', 'close', 'destroy'].forEach((name) => {
   assert.equal(typeof picker[name], 'function', `instance.${name}`);
@@ -396,7 +445,9 @@ const errToggle = errContainer.querySelector('[data-stam-reference-picker-toggle
 errToggle.click();
 await new Promise((r) => setTimeout(r, 0));
 const optionsHost = errContainer.querySelector('[data-stam-reference-picker-options]');
-assert.match(optionsHost.innerHTML, /load failed/);
+assert.match(optionsHost.innerHTML, /오류/);
+assert.doesNotMatch(optionsHost.innerHTML, /load failed/);
+assertActiveDescendantOnSearch(errContainer, null);
 assert.match(pickerSource, /data-stam-reference-picker-retry/);
 
 picker.setDisabled(containerA, true);
@@ -424,5 +475,183 @@ picker.close(xssContainer);
 
 picker.destroy(xssContainer);
 assert.equal(xssContainer.innerHTML, '');
+
+// Keyboard accessibility
+const kbContainer = dom.makeEl('div');
+dom.document.body.appendChild(kbContainer);
+picker.mount(kbContainer, { projectId: 'P1' });
+await picker.load(kbContainer);
+const kbToggle = kbContainer.querySelector('[data-stam-reference-picker-toggle]');
+const kbSearch = kbContainer.querySelector('[data-stam-reference-picker-search]');
+const kbMenu = kbContainer.querySelector('[data-stam-reference-picker-menu]');
+
+dispatchKey(kbToggle, 'Enter');
+await new Promise((r) => setTimeout(r, 0));
+assert.equal(kbToggle.getAttribute('aria-expanded'), 'true', 'Enter opens picker');
+dispatchKey(kbToggle, ' ');
+await new Promise((r) => setTimeout(r, 0));
+assert.equal(kbToggle.getAttribute('aria-expanded'), 'false', 'Space closes picker');
+
+dispatchKey(kbToggle, 'ArrowDown');
+await picker.load(kbContainer);
+await new Promise((r) => setTimeout(r, 0));
+assert.equal(kbToggle.getAttribute('aria-expanded'), 'true', 'ArrowDown opens picker');
+assert.ok(activeOption(kbContainer), 'ArrowDown activates an option');
+const firstActiveId = activeOption(kbContainer).getAttribute('id');
+assert.ok(firstActiveId, 'active option has id');
+assertActiveDescendantOnSearch(kbContainer, firstActiveId);
+assert.equal(kbSearch.getAttribute('aria-controls'), kbMenu.getAttribute('id'), 'search controls listbox');
+
+const selectableBeforeDown = getSelectableOptions(kbContainer);
+const activeBeforeDown = activeOption(kbContainer);
+const activeIndexBeforeDown = selectableBeforeDown.indexOf(activeBeforeDown);
+dispatchKey(kbSearch, 'ArrowDown');
+const activeAfterDown = activeOption(kbContainer);
+const activeIndexAfterDown = getSelectableOptions(kbContainer).indexOf(activeAfterDown);
+assert.equal(activeIndexAfterDown, activeIndexBeforeDown + 1, 'ArrowDown from search moves exactly one option');
+assertActiveDescendantOnSearch(kbContainer, activeAfterDown.getAttribute('id'));
+
+dispatchKey(kbSearch, 'ArrowUp');
+assert.ok(activeOption(kbContainer), 'ArrowUp in search moves active');
+assert.equal(getSelectableOptions(kbContainer).indexOf(activeOption(kbContainer)), activeIndexBeforeDown, 'ArrowUp returns one step');
+dispatchKey(kbSearch, 'Home');
+assert.equal(
+  activeOption(kbContainer).getAttribute('id'),
+  getSelectableOptions(kbContainer)[0].getAttribute('id'),
+  'Home selects first option',
+);
+assertActiveDescendantOnSearch(kbContainer, activeOption(kbContainer).getAttribute('id'));
+dispatchKey(kbSearch, 'End');
+const selectable = getSelectableOptions(kbContainer);
+assert.equal(
+  activeOption(kbContainer).getAttribute('id'),
+  selectable[selectable.length - 1].getAttribute('id'),
+  'End selects last option',
+);
+assertActiveDescendantOnSearch(kbContainer, activeOption(kbContainer).getAttribute('id'));
+
+const targetOpt = selectable.find((opt) => opt.getAttribute('data-opt-id') === 'a1');
+assert.ok(targetOpt, 'target option exists');
+dispatchKey(kbSearch, 'Home');
+const targetIndex = getSelectableOptions(kbContainer).indexOf(targetOpt);
+for (let i = 0; i < targetIndex; i += 1) dispatchKey(kbSearch, 'ArrowDown');
+assert.equal(activeOption(kbContainer).getAttribute('data-opt-id'), 'a1');
+dispatchKey(kbSearch, 'Enter');
+await new Promise((r) => setTimeout(r, 0));
+assert.equal(kbToggle.getAttribute('aria-expanded'), 'false', 'Enter selects and closes');
+assert.deepEqual(picker.getValue(kbContainer), { id: 'a1', code: 'A1', title: 'Alpha' });
+
+kbToggle.click();
+await new Promise((r) => setTimeout(r, 0));
+kbSearch.value = 'beta';
+kbSearch.dispatchEvent({ type: 'input', target: kbSearch });
+assert.ok(activeOption(kbContainer), 'search resets active index within range');
+assert.equal(getSelectableOptions(kbContainer).length, 1, 'search filters options');
+
+dispatchKey(kbSearch, 'Escape');
+assert.equal(kbToggle.getAttribute('aria-expanded'), 'false', 'Escape closes picker');
+assert.equal(kbToggle._focused, true, 'Escape returns focus to trigger');
+assert.ok(activeOption(kbContainer) == null, 'active cleared on close');
+assertActiveDescendantOnSearch(kbContainer, null);
+
+kbToggle.click();
+await new Promise((r) => setTimeout(r, 0));
+kbSearch.value = 'nomatch';
+kbSearch.dispatchEvent({ type: 'input', target: kbSearch });
+const filteredSelectable = getSelectableOptions(kbContainer);
+assert.equal(filteredSelectable.length, 1, 'unlink remains when item filters return empty');
+assert.equal(filteredSelectable[0].getAttribute('data-opt-id'), '');
+assert.equal(activeOption(kbContainer).getAttribute('data-opt-id'), '');
+assertActiveDescendantOnSearch(kbContainer, activeOption(kbContainer).getAttribute('id'));
+
+const emptyContainer = dom.makeEl('div');
+dom.document.body.appendChild(emptyContainer);
+const emptyPicker = window.STAM.referencePicker.create({ ...baseConfig, allowClear: false });
+emptyPicker.mount(emptyContainer, { projectId: 'P1' });
+await emptyPicker.load(emptyContainer);
+emptyContainer.querySelector('[data-stam-reference-picker-toggle]').click();
+await new Promise((r) => setTimeout(r, 0));
+const emptySearch = emptyContainer.querySelector('[data-stam-reference-picker-search]');
+emptySearch.value = 'nomatch';
+emptySearch.dispatchEvent({ type: 'input', target: emptySearch });
+assert.equal(getSelectableOptions(emptyContainer).length, 0, 'no selectable options when filter empty and allowClear false');
+assert.ok(activeOption(emptyContainer) == null, 'active cleared when no selectable options');
+assertActiveDescendantOnSearch(emptyContainer, null);
+emptyPicker.destroy(emptyContainer);
+
+picker.destroy(kbContainer);
+assert.equal(kbContainer.innerHTML, '');
+
+// allowClear false — no unlink option
+const noClearPicker = window.STAM.referencePicker.create({ ...baseConfig, allowClear: false });
+const noClearContainer = dom.makeEl('div');
+dom.document.body.appendChild(noClearContainer);
+noClearPicker.mount(noClearContainer, { projectId: 'P1' });
+await noClearPicker.load(noClearContainer);
+noClearContainer.querySelector('[data-stam-reference-picker-toggle]').click();
+await new Promise((r) => setTimeout(r, 0));
+const noClearHtml = noClearContainer.querySelector('[data-stam-reference-picker-options]').innerHTML;
+assert.doesNotMatch(noClearHtml, /연결 없음/);
+const noClearSelectable = getSelectableOptions(noClearContainer);
+assert.equal(noClearSelectable.length, 2);
+dispatchKey(noClearContainer.querySelector('[data-stam-reference-picker-search]'), 'End');
+dispatchKey(noClearContainer.querySelector('[data-stam-reference-picker-search]'), 'Enter');
+await new Promise((r) => setTimeout(r, 0));
+assert.equal(noClearPicker.getValue(noClearContainer).id, 'b2');
+
+// raw error hidden, retry succeeds
+let loadAttempts = 0;
+const retryPicker = window.STAM.referencePicker.create({
+  ...baseConfig,
+  loadItems: () => {
+    loadAttempts += 1;
+    if (loadAttempts === 1) {
+      return Promise.reject(new Error('permission-denied internal path /projects/P1/wbsItems'));
+    }
+    return Promise.resolve([{ id: 'a1', code: 'A1', title: 'Alpha', meta: '', raw: {} }]);
+  },
+});
+const retryContainer = dom.makeEl('div');
+dom.document.body.appendChild(retryContainer);
+retryPicker.mount(retryContainer, { projectId: 'P1' });
+retryContainer.querySelector('[data-stam-reference-picker-toggle]').click();
+await new Promise((r) => setTimeout(r, 0));
+const retryHtml = retryContainer.querySelector('[data-stam-reference-picker-options]').innerHTML;
+assert.match(retryHtml, /오류/);
+assert.doesNotMatch(retryHtml, /permission-denied/);
+const retryOpt = retryContainer.querySelector('[data-stam-reference-picker-retry]');
+retryContainer.querySelector('[data-stam-reference-picker-options]').dispatchEvent({
+  type: 'click',
+  target: retryOpt,
+  preventDefault() {},
+  stopPropagation() {},
+});
+await new Promise((r) => setTimeout(r, 0));
+assert.equal(retryContainer.querySelectorAll('[data-stam-reference-picker-opt="1"]').length, 1, 'retry loads items');
+
+// mouse click regression
+const mouseContainer = dom.makeEl('div');
+dom.document.body.appendChild(mouseContainer);
+picker.mount(mouseContainer, { projectId: 'P1' });
+await picker.load(mouseContainer);
+mouseContainer.querySelector('[data-stam-reference-picker-toggle]').click();
+await new Promise((r) => setTimeout(r, 0));
+const mouseOpt = mouseContainer.querySelectorAll('[data-stam-reference-picker-opt="1"]')
+  .find((el) => el.getAttribute('data-opt-id') === 'a1');
+mouseContainer.querySelector('[data-stam-reference-picker-options]').dispatchEvent({
+  type: 'click',
+  target: mouseOpt,
+  preventDefault() {},
+  stopPropagation() {},
+});
+assert.deepEqual(picker.getValue(mouseContainer), { id: 'a1', code: 'A1', title: 'Alpha' });
+
+// document listener dedupe
+assert.equal(dom.document._clickHandlers.length, 1, 'single document click listener');
+assert.equal(dom.document._keydownHandlers.length, 1, 'single document keydown listener');
+
+assert.doesNotMatch(pickerSource, /search\.addEventListener\('keydown'/);
+assert.doesNotMatch(pickerSource, /optionsHost\.addEventListener\('keydown'/);
+assert.match(pickerSource, /menu\.addEventListener\('keydown'/);
 
 console.log('reference picker contract: PASS');

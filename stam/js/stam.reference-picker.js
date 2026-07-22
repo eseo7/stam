@@ -196,9 +196,164 @@
     }
   }
 
-  function formatErrorLabel(cfg, err) {
-    var message = clean(err && (err.message || err));
-    return message || cfg.errorLabel;
+  function reportLoadError(cfg, rec, err) {
+    if (err && typeof console !== 'undefined' && typeof console.error === 'function') {
+      console.error('referencePicker: load failed', err);
+    }
+    if (rec && typeof rec.onLoadError === 'function') {
+      try {
+        rec.onLoadError(err);
+      } catch (reportErr) {
+        if (typeof console !== 'undefined' && typeof console.error === 'function') {
+          console.error('referencePicker: onLoadError callback failed', reportErr);
+        }
+      }
+    }
+  }
+
+  function formatErrorLabel(cfg) {
+    return cfg.errorLabel;
+  }
+
+  function listboxEl(container) {
+    var root = rootEl(container);
+    return root && root.querySelector('[data-stam-reference-picker-menu]');
+  }
+
+  function searchInputEl(container) {
+    var root = rootEl(container);
+    return root && root.querySelector('[data-stam-reference-picker-search]');
+  }
+
+  function optionsHostEl(container) {
+    var root = rootEl(container);
+    return root && root.querySelector('[data-stam-reference-picker-options]');
+  }
+
+  function toggleEl(container) {
+    var root = rootEl(container);
+    return root && root.querySelector('[data-stam-reference-picker-toggle]');
+  }
+
+  function selectableOptions(container) {
+    var host = optionsHostEl(container);
+    if (!host) return [];
+    var nodes = host.querySelectorAll('[role="option"]');
+    var out = [];
+    for (var i = 0; i < nodes.length; i += 1) {
+      var opt = nodes[i];
+      if (opt.classList.contains('is-disabled')) continue;
+      if (opt.getAttribute('aria-disabled') === 'true') continue;
+      out.push(opt);
+    }
+    return out;
+  }
+
+  function removeAttr(el, name) {
+    if (!el) return;
+    if (typeof el.removeAttribute === 'function') {
+      el.removeAttribute(name);
+      return;
+    }
+    if (el.attributes) delete el.attributes[name];
+  }
+
+  function clearActiveVisual(container) {
+    var host = optionsHostEl(container);
+    if (!host) return;
+    var active = host.querySelectorAll('.is-active');
+    for (var i = 0; i < active.length; i += 1) {
+      active[i].classList.remove('is-active');
+    }
+    removeAttr(searchInputEl(container), 'aria-activedescendant');
+    removeAttr(listboxEl(container), 'aria-activedescendant');
+  }
+
+  function preferredActiveIndex(container, options) {
+    var opts = options || selectableOptions(container);
+    if (!opts.length) return -1;
+    var selected = getInternalValue(container);
+    if (hasSelection(selected)) {
+      var selectedId = clean(selected.id);
+      for (var i = 0; i < opts.length; i += 1) {
+        if (clean(opts[i].getAttribute('data-opt-id')) === selectedId) return i;
+      }
+    }
+    return 0;
+  }
+
+  function setActiveIndex(container, index, options) {
+    var opts = options || selectableOptions(container);
+    clearActiveVisual(container);
+    if (!opts.length) {
+      setState(container, { activeIndex: -1 });
+      return -1;
+    }
+    var next = Math.max(0, Math.min(index, opts.length - 1));
+    var target = opts[next];
+    if (target) {
+      target.classList.add('is-active');
+      var optionId = target.getAttribute('id');
+      var search = searchInputEl(container);
+      removeAttr(listboxEl(container), 'aria-activedescendant');
+      if (search && optionId) search.setAttribute('aria-activedescendant', optionId);
+      else if (search) removeAttr(search, 'aria-activedescendant');
+    }
+    setState(container, { activeIndex: next });
+    return next;
+  }
+
+  function moveActiveIndex(container, delta) {
+    var opts = selectableOptions(container);
+    if (!opts.length) return -1;
+    var state = stateOf(container) || {};
+    var current = typeof state.activeIndex === 'number' ? state.activeIndex : -1;
+    if (current < 0) return setActiveIndex(container, delta > 0 ? 0 : opts.length - 1, opts);
+    return setActiveIndex(container, current + delta, opts);
+  }
+
+  function selectOptionElement(container, cfg, opt) {
+    if (!opt || opt.classList.contains('is-disabled')) return;
+    applyInternalValue(container, cfg, {
+      id: opt.getAttribute('data-opt-id') || '',
+      code: opt.getAttribute('data-opt-code') || '',
+      title: opt.getAttribute('data-opt-title') || '',
+      meta: opt.getAttribute('data-opt-meta') || '',
+    }, {
+      id: opt.getAttribute('data-opt-id') || '',
+      code: opt.getAttribute('data-opt-code') || '',
+      title: opt.getAttribute('data-opt-title') || '',
+      meta: opt.getAttribute('data-opt-meta') || '',
+    });
+    closePicker(container, { focusTrigger: true });
+  }
+
+  function selectActiveOption(container, cfg) {
+    var state = stateOf(container) || {};
+    var opts = selectableOptions(container);
+    if (!opts.length) return;
+    var index = typeof state.activeIndex === 'number' && state.activeIndex >= 0 ? state.activeIndex : 0;
+    selectOptionElement(container, cfg, opts[index]);
+  }
+
+  function ensureListboxIds(container) {
+    var rec = recordOf(container);
+    if (!rec) return { listboxId: '', optionPrefix: '' };
+    if (!rec.listboxId) {
+      rec.listboxId = 'stam-reference-picker-listbox-' + String(Math.random()).slice(2);
+      rec.optionPrefix = rec.listboxId + '-opt';
+    }
+    var menu = listboxEl(container);
+    if (menu && !menu.getAttribute('id')) menu.setAttribute('id', rec.listboxId);
+    var toggle = toggleEl(container);
+    if (toggle && rec.listboxId) toggle.setAttribute('aria-controls', rec.listboxId);
+    var search = searchInputEl(container);
+    if (search && rec.listboxId) search.setAttribute('aria-controls', rec.listboxId);
+    return { listboxId: rec.listboxId, optionPrefix: rec.optionPrefix };
+  }
+
+  function syncActiveAfterRender(container) {
+    setActiveIndex(container, preferredActiveIndex(container));
   }
 
   function renderOptions(container, cfg, items, filterText) {
@@ -208,13 +363,21 @@
     if (!rec || rec.destroyed) return;
     var optionsHost = root.querySelector('[data-stam-reference-picker-options]');
     if (!optionsHost) return;
+    var ids = ensureListboxIds(container);
     var query = clean(filterText).toLowerCase();
     var selected = getInternalValue(container);
     var html = '';
     var state = stateOf(container);
+    var optionSeq = 0;
+
+    function nextOptionId() {
+      var id = ids.optionPrefix + '-' + optionSeq;
+      optionSeq += 1;
+      return id;
+    }
 
     if (cfg.allowClear) {
-      html += '<div class="stam-cs-opt is-placeholder' + (hasSelection(selected) ? '' : ' is-sel') + '" role="option" data-stam-reference-picker-opt="" data-opt-id="" data-opt-code="" data-opt-title="" data-opt-meta="" aria-selected="' + (hasSelection(selected) ? 'false' : 'true') + '">' +
+      html += '<div class="stam-cs-opt is-placeholder' + (hasSelection(selected) ? '' : ' is-sel') + '" role="option" id="' + esc(nextOptionId()) + '" data-stam-reference-picker-opt="" data-opt-id="" data-opt-code="" data-opt-title="" data-opt-meta="" aria-selected="' + (hasSelection(selected) ? 'false' : 'true') + '">' +
         '<span class="stam-cs-check" aria-hidden="true">' + checkSvg() + '</span>' +
         '<span class="stam-cs-otext">' + esc(cfg.unlinkLabel) + '</span>' +
         '</div>';
@@ -223,9 +386,11 @@
     if (state && state.loadError) {
       html += '<div class="stam-cs-opt is-disabled" role="option" aria-disabled="true" data-stam-reference-picker-retry="1">' +
         '<span class="stam-cs-check" aria-hidden="true"></span>' +
-        '<span class="stam-cs-otext">' + esc(formatErrorLabel(cfg, state.loadError)) + '</span>' +
+        '<span class="stam-cs-otext">' + esc(formatErrorLabel(cfg)) + '</span>' +
         '</div>';
       optionsHost.innerHTML = html;
+      clearActiveVisual(container);
+      setState(container, { activeIndex: -1 });
       return;
     }
 
@@ -236,7 +401,7 @@
       visibleCount += 1;
       var isSelected = clean(selected.id) === clean(item.id);
       var meta = clean(cfg.formatMeta(item));
-      html += '<div class="stam-cs-opt' + (isSelected ? ' is-sel' : '') + '" role="option" data-stam-reference-picker-opt="1"' +
+      html += '<div class="stam-cs-opt' + (isSelected ? ' is-sel' : '') + '" role="option" id="' + esc(nextOptionId()) + '" data-stam-reference-picker-opt="1"' +
         ' data-opt-id="' + esc(item.id) + '"' +
         ' data-opt-code="' + esc(item.code) + '"' +
         ' data-opt-title="' + esc(item.title) + '"' +
@@ -255,33 +420,39 @@
     }
 
     optionsHost.innerHTML = html;
+    syncActiveAfterRender(container);
   }
 
-  function closePicker(container) {
+  function closePicker(container, options) {
     var root = rootEl(container);
     if (!root) return;
+    var opts = options || {};
     root.classList.remove('is-open', 'is-up');
     var toggle = root.querySelector('[data-stam-reference-picker-toggle]');
     var menu = root.querySelector('[data-stam-reference-picker-menu]');
     if (toggle) toggle.setAttribute('aria-expanded', 'false');
     if (menu) menu.hidden = true;
+    clearActiveVisual(container);
+    setState(container, { activeIndex: -1 });
     var rec = recordOf(container);
     if (rec) rec.open = false;
+    if (opts.focusTrigger && toggle && typeof toggle.focus === 'function') toggle.focus();
   }
 
-  function closeAll(exceptContainer) {
+  function closeAll(exceptContainer, options) {
+    var opts = options || {};
     var records = instanceBag ? instanceBag.slice() : [];
     if (instances && typeof document !== 'undefined') {
       document.querySelectorAll('[data-stam-reference-picker-mounted]').forEach(function (node) {
         if (exceptContainer && node === exceptContainer) return;
-        closePicker(node);
+        closePicker(node, opts);
       });
       return;
     }
     records.forEach(function (rec) {
       if (!rec || rec.destroyed) return;
       if (exceptContainer && rec.container === exceptContainer) return;
-      closePicker(rec.container);
+      closePicker(rec.container, opts);
     });
   }
 
@@ -292,7 +463,7 @@
       closeAll(null);
     });
     document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') closeAll(null);
+      if (event.key === 'Escape') closeAll(null, { focusTrigger: true });
     });
   }
 
@@ -331,6 +502,7 @@
       if (!current || current.destroyed) return [];
       var currentState = stateOf(container);
       if (!currentState || currentState.loadVersion !== version) return [];
+      reportLoadError(cfg, current, err);
       setState(container, {
         items: [],
         loadError: err,
@@ -374,6 +546,43 @@
     });
   }
 
+  function handleMenuKeydown(event, container, cfg) {
+    var root = rootEl(container);
+    if (!root || !root.classList.contains('is-open')) return;
+    var key = event.key;
+    if (key === 'ArrowDown') {
+      event.preventDefault();
+      moveActiveIndex(container, 1);
+      return;
+    }
+    if (key === 'ArrowUp') {
+      event.preventDefault();
+      moveActiveIndex(container, -1);
+      return;
+    }
+    if (key === 'Home') {
+      event.preventDefault();
+      setActiveIndex(container, 0);
+      return;
+    }
+    if (key === 'End') {
+      event.preventDefault();
+      var opts = selectableOptions(container);
+      setActiveIndex(container, opts.length - 1, opts);
+      return;
+    }
+    if (key === 'Enter') {
+      event.preventDefault();
+      selectActiveOption(container, cfg);
+      return;
+    }
+    if (key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      closePicker(container, { focusTrigger: true });
+    }
+  }
+
   function bindContainer(container, cfg, options) {
     if (!container || container.getAttribute('data-stam-reference-picker-mounted') === '1') return;
     container.setAttribute('data-stam-reference-picker-mounted', '1');
@@ -383,6 +592,7 @@
     var menu = root.querySelector('[data-stam-reference-picker-menu]');
     var search = root.querySelector('[data-stam-reference-picker-search]');
     var optionsHost = root.querySelector('[data-stam-reference-picker-options]');
+    ensureListboxIds(container);
 
     if (toggle) {
       toggle.addEventListener('click', function (event) {
@@ -393,6 +603,28 @@
           return;
         }
         openPicker(container, cfg);
+      });
+      toggle.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          if (root.classList.contains('is-open')) {
+            closePicker(container, { focusTrigger: true });
+            return;
+          }
+          openPicker(container, cfg);
+          return;
+        }
+        if (event.key === 'ArrowDown') {
+          event.preventDefault();
+          var openPromise = root.classList.contains('is-open')
+            ? Promise.resolve()
+            : openPicker(container, cfg);
+          openPromise.then(function () {
+            var opts = selectableOptions(container);
+            var start = preferredActiveIndex(container, opts);
+            setActiveIndex(container, start, opts);
+          });
+        }
       });
     }
     if (search) {
@@ -414,23 +646,15 @@
         }
         var opt = event.target.closest('[data-stam-reference-picker-opt]');
         if (!opt || opt.classList.contains('is-disabled')) return;
-        applyInternalValue(container, cfg, {
-          id: opt.getAttribute('data-opt-id') || '',
-          code: opt.getAttribute('data-opt-code') || '',
-          title: opt.getAttribute('data-opt-title') || '',
-          meta: opt.getAttribute('data-opt-meta') || '',
-        }, {
-          id: opt.getAttribute('data-opt-id') || '',
-          code: opt.getAttribute('data-opt-code') || '',
-          title: opt.getAttribute('data-opt-title') || '',
-          meta: opt.getAttribute('data-opt-meta') || '',
-        });
-        closePicker(container);
+        selectOptionElement(container, cfg, opt);
       });
     }
     if (menu) {
       menu.addEventListener('click', function (event) {
         event.stopPropagation();
+      });
+      menu.addEventListener('keydown', function (event) {
+        handleMenuKeydown(event, container, cfg);
       });
     }
   }
@@ -451,6 +675,7 @@
         destroyed: false,
         open: false,
         onChange: typeof opts.onChange === 'function' ? opts.onChange : null,
+        onLoadError: typeof opts.onLoadError === 'function' ? opts.onLoadError : null,
         state: {
           projectId: clean(opts.projectId),
           memberRole: clean(opts.memberRole),
@@ -461,6 +686,7 @@
           loadingContextKey: null,
           contextKey: '',
           loadVersion: loadVersion,
+          activeIndex: -1,
         },
       });
       bindContainer(container, cfg, opts);
