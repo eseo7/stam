@@ -274,6 +274,11 @@
     }
   }
 
+  // Update preflight is a read-then-write sequence, not an atomic transaction.
+  // Boundary 1 — service/adapter preflight: early conflict detection (version,
+  // immutable fields) before the document write is attempted.
+  // Boundary 2 — Firestore Rules on document write: final enforcement when a
+  // concurrent writer commits between preflight read and this adapter write.
   function runUpdatePreflight(db, projectId, screenSpecId, patch) {
     try {
       validateUpdateImmutableFields(patch || {});
@@ -344,6 +349,9 @@
       });
     }
 
+    // Concurrency: preflight read and document write are separate steps.
+    // Preflight detects most conflicts early; Firestore Rules reject stale writes
+    // that slip through when another writer commits between the two steps.
     function update(projectId, screenSpecId, patch) {
       var pid = requireProjectId(projectId);
       var sid = requireScreenSpecId(screenSpecId);
@@ -362,6 +370,10 @@
         return collectionRef(db(), pid).doc(sid).update(nextPatch).catch(function (err) {
           err.updatePreflightPassed = true;
           err.screenSpecUpdateStage = 'document-write';
+          // Preflight passed but write failed. May be a post-preflight version race
+          // blocked by Firestore Rules, or a genuine permission error — callers must
+          // not remap permission-denied to a confirmed version mismatch.
+          err.conflictPossible = true;
           throw err;
         });
       }).then(function () {

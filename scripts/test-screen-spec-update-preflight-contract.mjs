@@ -24,6 +24,9 @@ assert.match(adapterSource, /SCREEN_SPEC_UPDATE_IMMUTABLE_FIELD/);
 assert.match(adapterSource, /screenSpecUpdateStage/);
 assert.match(adapterSource, /updatePreflightPassed/);
 assert.match(adapterSource, /updateCommitted/);
+assert.match(adapterSource, /conflictPossible/);
+assert.match(adapterSource, /not an atomic transaction/);
+assert.match(adapterSource, /Firestore Rules on document write/);
 assert.match(serviceSource, /SCREEN_SPEC_UPDATE_VERSION_MISMATCH/);
 assert.match(serviceSource, /expectedVersion/);
 
@@ -97,9 +100,18 @@ function validPatch(overrides = {}) {
 function createFakeFirestore(options = {}) {
   const docs = new Map();
   const paths = [];
+  const getCounts = new Map();
+  let successfulUpdateCount = 0;
   const screenSpecId = options.screenSpecId || 'scr-1';
   const projectId = options.projectId || 'P1';
   const key = `projects/${projectId}/screenSpecs/${screenSpecId}`;
+  const rejectGet = options.rejectGet;
+  const rejectGetOnAttempt = options.rejectGetOnAttempt;
+  const rejectUpdate = options.rejectUpdate;
+  const enforceVersionRules = options.enforceVersionRules === true;
+  const freezeVersionOnGet = options.freezeVersionOnGet;
+  let frozenPreflightReads = 0;
+
   docs.set(key, currentDoc({ id: screenSpecId, projectId, ...(options.current || {}) }));
 
   function docRef(pathParts) {
@@ -107,16 +119,53 @@ function createFakeFirestore(options = {}) {
     return {
       get() {
         paths.push(['get', docKey]);
+        const attempt = (getCounts.get(docKey) || 0) + 1;
+        getCounts.set(docKey, attempt);
+        if (typeof rejectGetOnAttempt === 'function' && rejectGetOnAttempt(docKey, attempt)) {
+          const err = new Error(options.rejectGetMessage || 'Missing or insufficient permissions.');
+          return Promise.reject(err);
+        }
+        if (typeof rejectGet === 'function' && rejectGet(docKey)) {
+          const err = new Error(options.rejectGetMessage || 'Missing or insufficient permissions.');
+          return Promise.reject(err);
+        }
         const stored = docs.get(docKey);
+        if (!stored) {
+          return Promise.resolve({
+            id: pathParts[pathParts.length - 1],
+            exists: false,
+            data: () => ({}),
+          });
+        }
+        let snapshot = stored;
+        if (
+          typeof freezeVersionOnGet === 'number'
+          && docKey === key
+          && frozenPreflightReads < freezeVersionOnGet
+        ) {
+          frozenPreflightReads += 1;
+          snapshot = Object.assign({}, stored, { version: 1 });
+        }
         return Promise.resolve({
           id: pathParts[pathParts.length - 1],
-          exists: !!stored,
-          data: () => stored || {},
+          exists: true,
+          data: () => Object.assign({}, snapshot),
         });
       },
       update(payload) {
         paths.push(['update', docKey, payload]);
+        if (typeof rejectUpdate === 'function' && rejectUpdate(docKey, payload, docs.get(docKey))) {
+          const err = new Error(options.rejectUpdateMessage || 'Missing or insufficient permissions.');
+          return Promise.reject(err);
+        }
         const prev = docs.get(docKey) || {};
+        if (enforceVersionRules) {
+          const patchVersion = payload.version;
+          if (!Number.isInteger(patchVersion) || patchVersion !== prev.version + 1) {
+            const err = new Error(options.rejectUpdateMessage || 'Missing or insufficient permissions.');
+            return Promise.reject(err);
+          }
+        }
         const next = Object.assign({}, prev, payload);
         Object.keys(payload || {}).forEach((field) => {
           if (payload[field] && payload[field].__fieldDelete) {
@@ -124,10 +173,11 @@ function createFakeFirestore(options = {}) {
           }
         });
         docs.set(docKey, next);
+        successfulUpdateCount += 1;
         return Promise.resolve();
       },
-      set(payload, options) {
-        paths.push(['set', docKey, payload, options || null]);
+      set(payload, setOptions) {
+        paths.push(['set', docKey, payload, setOptions || null]);
         docs.set(docKey, Object.assign({}, payload));
         return Promise.resolve();
       },
@@ -165,6 +215,10 @@ function createFakeFirestore(options = {}) {
   return {
     paths,
     docs,
+    key,
+    updateCount() {
+      return successfulUpdateCount;
+    },
     collection(name) {
       return collectionRef([name]);
     },
@@ -225,5 +279,98 @@ await assert.rejects(
   () => adapter.update('P1', 'scr-1', validPatch({ version: 2 })),
   (err) => err.code === CODES.UPDATE_VERSION_MISMATCH,
 );
+
+const rulesRejectFs = createFakeFirestore({
+  rejectUpdate(key) {
+    return key === 'projects/P1/screenSpecs/scr-1';
+  },
+});
+rulesRejectFs.setDoc('projects/P1/screenSpecs/scr-1', currentDoc({ version: 1 }));
+await assert.rejects(
+  () => adapterApi.create({ firestore: rulesRejectFs }).update('P1', 'scr-1', validPatch()),
+  (err) => err.updatePreflightPassed === true
+    && err.screenSpecUpdateStage === 'document-write'
+    && err.conflictPossible === true
+    && err.updateCommitted !== true
+    && err.code !== CODES.UPDATE_VERSION_MISMATCH
+    && err.conflict !== true
+    && /Missing or insufficient permissions/i.test(err.message),
+);
+assert.equal(rulesRejectFs.updateCount(), 0);
+
+const preflightPermFs = createFakeFirestore({
+  rejectGet(key) {
+    return key === 'projects/P1/screenSpecs/scr-1';
+  },
+});
+preflightPermFs.setDoc('projects/P1/screenSpecs/scr-1', currentDoc());
+await assert.rejects(
+  () => adapterApi.create({ firestore: preflightPermFs }).update('P1', 'scr-1', validPatch()),
+  (err) => err.screenSpecUpdateStage === 'preflight-read'
+    && err.updatePreflightPassed !== true
+    && err.conflictPossible !== true
+    && /Missing or insufficient permissions/i.test(err.message),
+);
+assert.equal(preflightPermFs.updateCount(), 0);
+
+const postReadFs = createFakeFirestore({
+  rejectGetOnAttempt(key, attempt) {
+    return key === 'projects/P1/screenSpecs/scr-1' && attempt >= 2;
+  },
+});
+postReadFs.setDoc('projects/P1/screenSpecs/scr-1', currentDoc());
+await assert.rejects(
+  () => adapterApi.create({ firestore: postReadFs }).update('P1', 'scr-1', validPatch()),
+  (err) => err.screenSpecUpdateStage === 'post-update-read'
+    && err.updatePreflightPassed === true
+    && err.updateCommitted === true
+    && err.conflictPossible !== true
+    && /Missing or insufficient permissions/i.test(err.message),
+);
+assert.equal(postReadFs.updateCount(), 1);
+
+// Post-preflight race: two writers read the same version, first commits, second
+// must not succeed. Fake enforces data.version == prev.version + 1 on write —
+// a partial stand-in for Firestore Rules; it does not emulate full rule evaluation.
+const raceFs = createFakeFirestore({
+  enforceVersionRules: true,
+  freezeVersionOnGet: 4,
+});
+raceFs.setDoc('projects/P1/screenSpecs/scr-1', currentDoc({ version: 1, title: 'Original' }));
+const raceAdapter = adapterApi.create({ firestore: raceFs });
+const racePatchA = validPatch({ title: 'Writer A', version: 2 });
+const racePatchB = validPatch({ title: 'Writer B', version: 2 });
+const [raceA, raceB] = await Promise.allSettled([
+  raceAdapter.update('P1', 'scr-1', racePatchA),
+  raceAdapter.update('P1', 'scr-1', racePatchB),
+]);
+const raceFulfilled = [raceA, raceB].filter((result) => result.status === 'fulfilled');
+const raceRejected = [raceA, raceB].filter((result) => result.status === 'rejected');
+assert.equal(raceFulfilled.length, 1, 'exactly one concurrent update must succeed');
+assert.equal(raceRejected.length, 1, 'exactly one concurrent update must fail');
+const raceFail = raceRejected[0].reason;
+assert.equal(raceFail.updatePreflightPassed, true);
+assert.equal(raceFail.screenSpecUpdateStage, 'document-write');
+assert.equal(raceFail.conflictPossible, true);
+assert.notEqual(raceFail.code, CODES.UPDATE_VERSION_MISMATCH);
+assert.equal(raceFail.conflict, undefined);
+assert.equal(raceFs.docs.get(raceFs.key).version, 2);
+assert.equal(raceFs.updateCount(), 1);
+assert.equal(['Writer A', 'Writer B'].includes(raceFs.docs.get(raceFs.key).title), true);
+
+// Sequential stale write after first writer commits: preflight catches it.
+const staleFs = createFakeFirestore({ enforceVersionRules: true });
+staleFs.setDoc('projects/P1/screenSpecs/scr-1', currentDoc({ version: 1 }));
+const staleAdapter = adapterApi.create({ firestore: staleFs });
+await staleAdapter.update('P1', 'scr-1', validPatch({ title: 'First', version: 2 }));
+await assert.rejects(
+  () => staleAdapter.update('P1', 'scr-1', validPatch({ title: 'Second', version: 2 })),
+  (err) => err.code === CODES.UPDATE_VERSION_MISMATCH
+    && err.conflict === true
+    && err.preflight === true
+    && err.conflictPossible !== true,
+);
+assert.equal(staleFs.docs.get(staleFs.key).title, 'First');
+assert.equal(staleFs.updateCount(), 1);
 
 console.log('screen spec update preflight contract: PASS');
