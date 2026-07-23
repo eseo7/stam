@@ -374,6 +374,8 @@ const unlinked = await adapter.update('P1', 'scr-linked', {
   menuScreenId: '',
   menuScreenCode: '',
   menuScreenTitle: '',
+  version: 2,
+  updatedBy: 'writer-1',
 });
 const unlinkPatch = fakeFirestore.paths.find((entry) => entry[0] === 'update' && entry[1] === linkedPath);
 assert.ok(unlinkPatch);
@@ -393,6 +395,8 @@ const optionalClear = await adapter.update('P1', 'scr-linked', {
   description: '',
   imageCount: '',
   annotationCount: '',
+  version: 3,
+  updatedBy: 'writer-1',
 });
 const optionalClearPatch = fakeFirestore.paths.filter((entry) => entry[0] === 'update' && entry[1] === linkedPath).at(-1);
 assert.ok(optionalClearPatch);

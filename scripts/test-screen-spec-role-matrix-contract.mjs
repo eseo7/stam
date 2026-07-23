@@ -220,7 +220,8 @@ console.log('\nother artifact collections write-closed:', OTHER_ARTIFACT_COLLECT
 const { contract, runtimeService } = loadScreenSpecServiceContract();
 const ACTIONS = contract.ACTIONS;
 
-assert.deepEqual(Object.keys(ACTIONS).sort(), ['CREATE', 'READ', 'UPDATE']);
+assert.deepEqual(Object.keys(ACTIONS).sort(), ['CREATE', 'LIST', 'READ', 'UPDATE']);
+assert.equal(ACTIONS.LIST, 'screenSpec.list');
 assert.equal(ACTIONS.READ, 'screenSpec.read');
 assert.equal(ACTIONS.CREATE, 'screenSpec.create');
 assert.equal(ACTIONS.UPDATE, 'screenSpec.update');
@@ -234,11 +235,13 @@ const authorize = contract.createMemberRoleAuthorize((request) => request.contex
 const serviceEvidenceRows = [];
 
 for (const row of ROLE_MATRIX) {
+  const list = authorize(ACTIONS.LIST, { context: { memberRole: row.role } });
   const read = authorize(ACTIONS.READ, { context: { memberRole: row.role } });
   const create = authorize(ACTIONS.CREATE, { context: { memberRole: row.role } });
   const update = authorize(ACTIONS.UPDATE, { context: { memberRole: row.role } });
   const deleteAction = authorize('screenSpec.delete', { context: { memberRole: row.role } });
 
+  assert.equal(list, row.read, `service ${row.role || '(empty)'} list`);
   assert.equal(read, row.read, `service ${row.role || '(empty)'} read`);
   assert.equal(create, row.create, `service ${row.role || '(empty)'} create`);
   assert.equal(update, row.update, `service ${row.role || '(empty)'} update`);
@@ -265,6 +268,7 @@ for (const role of WRITE_ROLES) {
   assert.equal(authorize('screenSpec.delete', { context: { memberRole: role } }), false);
 }
 
+assert.equal(authorize(ACTIONS.LIST, { context: { memberRole: 'viewer' } }), true);
 assert.equal(authorize(ACTIONS.READ, { context: { memberRole: 'viewer' } }), true);
 assert.equal(authorize(ACTIONS.CREATE, { context: { memberRole: 'viewer' } }), false);
 assert.equal(authorize(ACTIONS.UPDATE, { context: { memberRole: 'viewer' } }), false);

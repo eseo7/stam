@@ -32,6 +32,38 @@
     'annotationCount',
   ];
 
+  var PREFLIGHT_CODES = {
+    UPDATE_DOC_MISSING: 'SCREEN_SPEC_UPDATE_DOC_MISSING',
+    UPDATE_CURRENT_VERSION_INVALID: 'SCREEN_SPEC_UPDATE_CURRENT_VERSION_INVALID',
+    UPDATE_VERSION_MISMATCH: 'SCREEN_SPEC_UPDATE_VERSION_MISMATCH',
+    UPDATE_IMMUTABLE_FIELD: 'SCREEN_SPEC_UPDATE_IMMUTABLE_FIELD',
+  };
+
+  var UPDATE_IMMUTABLE_FIELDS = [
+    'id',
+    'projectId',
+    'code',
+    'createdAt',
+    'createdBy',
+    'isDeleted',
+    'deletedAt',
+    'deletedBy',
+  ];
+
+  function hasOwn(obj, key) {
+    return Object.prototype.hasOwnProperty.call(obj || {}, key);
+  }
+
+  function preflightError(code) {
+    var err = new Error('screenSpecFirestoreAdapter: ' + code);
+    err.code = code;
+    err.preflight = true;
+    if (code === PREFLIGHT_CODES.UPDATE_VERSION_MISMATCH) {
+      err.conflict = true;
+    }
+    return err;
+  }
+
   function clean(value) {
     return String(value == null ? '' : value).trim();
   }
@@ -223,6 +255,47 @@
     return bId.localeCompare(aId);
   }
 
+  function validateUpdateImmutableFields(patch) {
+    UPDATE_IMMUTABLE_FIELDS.forEach(function (field) {
+      if (hasOwn(patch, field)) {
+        throw preflightError(PREFLIGHT_CODES.UPDATE_IMMUTABLE_FIELD);
+      }
+    });
+  }
+
+  function validateUpdateVersion(current, patch) {
+    var currentVersion = current.version;
+    if (!Number.isInteger(currentVersion) || currentVersion < 1) {
+      throw preflightError(PREFLIGHT_CODES.UPDATE_CURRENT_VERSION_INVALID);
+    }
+    var patchVersion = patch.version;
+    if (!Number.isInteger(patchVersion) || patchVersion !== currentVersion + 1) {
+      throw preflightError(PREFLIGHT_CODES.UPDATE_VERSION_MISMATCH);
+    }
+  }
+
+  // Update preflight is a read-then-write sequence, not an atomic transaction.
+  // Boundary 1 — service/adapter preflight: early conflict detection (version,
+  // immutable fields) before the document write is attempted.
+  // Boundary 2 — Firestore Rules on document write: final enforcement when a
+  // concurrent writer commits between preflight read and this adapter write.
+  function runUpdatePreflight(db, projectId, screenSpecId, patch) {
+    try {
+      validateUpdateImmutableFields(patch || {});
+    } catch (err) {
+      return Promise.reject(err);
+    }
+
+    var specRef = collectionRef(db, projectId).doc(screenSpecId);
+    return specRef.get().then(function (snap) {
+      if (!snap || !snap.exists) {
+        throw preflightError(PREFLIGHT_CODES.UPDATE_DOC_MISSING);
+      }
+      var current = snap.data ? snap.data() : {};
+      validateUpdateVersion(current, patch || {});
+    });
+  }
+
   function createAdapter(options) {
     var opts = options || {};
 
@@ -276,15 +349,40 @@
       });
     }
 
+    // Concurrency: preflight read and document write are separate steps.
+    // Preflight detects most conflicts early; Firestore Rules reject stale writes
+    // that slip through when another writer commits between the two steps.
     function update(projectId, screenSpecId, patch) {
       var pid = requireProjectId(projectId);
       var sid = requireScreenSpecId(screenSpecId);
-      var nextPatch = applyWriteTimestamps(
-        applyOptionalFieldDeletes(applyScreenSpecUnlinkDeletes(sanitizeUpdatePatch(patch || {}))),
-        'update'
-      );
-      return collectionRef(db(), pid).doc(sid).update(nextPatch).then(function () {
-        return getById(pid, sid);
+      var rawPatch = Object.assign({}, patch || {});
+
+      return runUpdatePreflight(db(), pid, sid, rawPatch).catch(function (err) {
+        if (!err.preflight) {
+          err.screenSpecUpdateStage = 'preflight-read';
+        }
+        throw err;
+      }).then(function () {
+        var nextPatch = applyWriteTimestamps(
+          applyOptionalFieldDeletes(applyScreenSpecUnlinkDeletes(sanitizeUpdatePatch(rawPatch))),
+          'update'
+        );
+        return collectionRef(db(), pid).doc(sid).update(nextPatch).catch(function (err) {
+          err.updatePreflightPassed = true;
+          err.screenSpecUpdateStage = 'document-write';
+          // Preflight passed but write failed. May be a post-preflight version race
+          // blocked by Firestore Rules, or a genuine permission error — callers must
+          // not remap permission-denied to a confirmed version mismatch.
+          err.conflictPossible = true;
+          throw err;
+        });
+      }).then(function () {
+        return getById(pid, sid).catch(function (err) {
+          err.updatePreflightPassed = true;
+          err.updateCommitted = true;
+          err.screenSpecUpdateStage = 'post-update-read';
+          throw err;
+        });
       });
     }
 
@@ -301,6 +399,8 @@
     COLLECTION: COLLECTION,
     COUNTER_DOC_ID: COUNTER_DOC_ID,
     CODE_PREFIX: CODE_PREFIX,
+    PREFLIGHT_CODES: PREFLIGHT_CODES,
+    runUpdatePreflight: runUpdatePreflight,
     formatScreenSpecCodeNumber: formatScreenSpecCodeNumber,
     create: createAdapter,
   };
