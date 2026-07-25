@@ -378,6 +378,36 @@ export async function runScreenSpecFirestoreRulesEmulatorTests() {
   }));
   console.log('owner create requirement triplet: ALLOW');
 
+  await commitCreate(db, baseCreatePayload(userIds.owner, USERS.owner.displayName, {
+    id: 'scr-create-fn-triplet',
+    functionalSpecId: 'fn-001',
+    functionalSpecCode: 'FN_001',
+    functionalSpecTitle: 'Functional spec title',
+  }));
+  console.log('owner create functionalSpec triplet: ALLOW');
+
+  await commitCreate(db, baseCreatePayload(userIds.owner, USERS.owner.displayName, {
+    id: 'scr-create-wbs-triplet',
+    wbsItemId: 'wbs-001',
+    wbsItemCode: 'WBS-001',
+    wbsItemTitle: 'WBS item title',
+  }));
+  console.log('owner create wbsItem triplet: ALLOW');
+
+  await commitCreate(db, baseCreatePayload(userIds.owner, USERS.owner.displayName, {
+    id: 'scr-create-all-triplets',
+    requirementId: 'req-003',
+    requirementCode: 'REQ_003',
+    requirementTitle: 'Requirement three',
+    functionalSpecId: 'fn-003',
+    functionalSpecCode: 'FN_003',
+    functionalSpecTitle: 'Functional spec three',
+    wbsItemId: 'wbs-003',
+    wbsItemCode: 'WBS-003',
+    wbsItemTitle: 'WBS item three',
+  }));
+  console.log('owner create requirement+functionalSpec+wbs triplets: ALLOW');
+
   await signInAs(auth, USERS.editor.email);
   await commitCreate(db, baseCreatePayload(userIds.editor, USERS.editor.displayName, { id: 'scr-create-editor' }));
   console.log('editor create: ALLOW');
@@ -407,6 +437,26 @@ export async function runScreenSpecFirestoreRulesEmulatorTests() {
   delete partialReq.requirementCode;
   await expectDenied(db, partialReq);
   console.log('partial requirement triplet: DENY');
+
+  const partialFn = Object.assign({}, linkedBase, {
+    id: 'scr-deny-partial-fn',
+    functionalSpecId: 'fn-002',
+    functionalSpecCode: 'FN_002',
+    functionalSpecTitle: 'Functional spec two',
+  });
+  delete partialFn.functionalSpecTitle;
+  await expectDenied(db, partialFn);
+  console.log('partial functionalSpec triplet: DENY');
+
+  const partialWbs = Object.assign({}, linkedBase, {
+    id: 'scr-deny-partial-wbs',
+    wbsItemId: 'wbs-002',
+    wbsItemCode: 'WBS-002',
+    wbsItemTitle: 'WBS item two',
+  });
+  delete partialWbs.wbsItemCode;
+  await expectDenied(db, partialWbs);
+  console.log('partial wbsItem triplet: DENY');
 
   const badOwnerName = Object.assign({}, linkedBase, {
     id: 'scr-deny-bad-owner',
