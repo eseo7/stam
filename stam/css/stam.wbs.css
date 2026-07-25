@@ -1949,9 +1949,7 @@
     grid-template-columns: 1fr;
   }
   .wbs-form-row .wbs-datepick,
-  .wbs-form-row [data-stam-requirement-picker],
-  .wbs-form-row [data-stam-functional-spec-picker],
-  .wbs-form-row [data-stam-wbs-member-picker] {
+  .wbs-form-row [data-stam-reference-picker-mounted] {
     min-width: 0;
     max-width: 100%;
   }
@@ -2990,14 +2988,12 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
 /* ============================================================
  * 25. Custom SelectBox
  * ============================================================ */
-/* PR #100: .wbs-sel-* 전용 custom select 스타일 제거 — 공통 .stam-cs-* (stam.custom-select.css) 사용.
-   유지:
-   · .wbs-selectbox  → position:relative 만 (root 컨테이너 레이아웃)
-   · .wbs-sel-menu   → z-index:200 만 (portal 마운트 시 .wbs-form-sec 내 절대좌표 + 다른 UI 위 표시).
-                       padding/max-height 등 시각 속성은 공통과 동일하지만 portal 위에 표시되려면
-                       z-index 만 별도 유지. */
+/* PR #100 / Picker audit: .wbs-sel-* 시각 스타일 제거 — 공통 .stam-cs-* 사용.
+   phase portal select 만 구조 보정:
+   · .wbs-selectbox → position:relative
+   · .wbs-sel-menu  → z-index:200 (portal 위 표시). padding/max-height 는 .stam-cs-menu 공통값 사용. */
 .wbs-selectbox { position: relative; }
-.wbs-sel-menu  { z-index: 200; padding: 5px; max-height: 200px; }
+.wbs-sel-menu  { z-index: 200; }
 
 /* ============================================================
  * 26. Custom Dialog (Alert / Confirm)
@@ -3923,8 +3919,11 @@ th.wbs-col-risk     { width: 54px;  min-width: 46px;  }
   text-align: center;
 }
 
+/* Reference picker mount slots — layout only (visual: stam.custom-select.css) */
 [data-stam-requirement-picker],
 [data-stam-functional-spec-picker],
-[data-stam-wbs-member-picker] {
+[data-stam-wbs-member-picker],
+[data-stam-wbs-picker] {
   width: 100%;
+  box-sizing: border-box;
 }

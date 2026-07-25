@@ -10,6 +10,7 @@ const wbsJs = await readFile(path.join(ROOT, 'stam/js/stam.wbs.js'), 'utf8');
 const wbsListJs = await readFile(path.join(ROOT, 'stam/js/stam.wbs-firestore-list.js'), 'utf8');
 const messagesSource = await readFile(path.join(ROOT, 'stam/js/stam.ui-messages.js'), 'utf8');
 const wbsCss = await readFile(path.join(ROOT, 'stam/css/stam.wbs.css'), 'utf8');
+const customSelectCss = await readFile(path.join(ROOT, 'stam/css/stam.custom-select.css'), 'utf8');
 const tableSelectionCss = await readFile(path.join(ROOT, 'stam/css/stam.table-selection.css'), 'utf8');
 
 function ruleBlock(css, selector) {
@@ -270,8 +271,24 @@ assertDecl(dpTriggerBlock, /height:\s*38px/, 'date picker trigger height');
 const formRowInputBlock = ruleBlock(wbsCss, '.wbs-form-row .wbs-drawer-form-input, .wbs-form-row .wbs-drawer-form-select');
 assertDecl(formRowInputBlock, /height:\s*38px/, 'form-row input height cascade');
 
-const pickerTriggerBlock = ruleBlock(wbsCss, '.wbs-form-row .stam-cs-trigger, .wbs-form-row [data-stam-reference-picker-toggle], [data-stam-wbs-member-picker] .stam-cs-trigger');
-assertDecl(pickerTriggerBlock, /height:\s*38px/, 'reference/member picker trigger height');
+const pickerTriggerBlock = ruleBlock(customSelectCss, '.stam-cs-trigger');
+assertDecl(pickerTriggerBlock, /height:\s*38px/, 'reference picker trigger height from common custom-select CSS');
+
+assert.doesNotMatch(
+  wbsCss,
+  /\.wbs-form-row\s+\.stam-cs-trigger[\s\S]*?height:\s*38px/,
+  'wbs.css must not duplicate reference picker trigger height',
+);
+assert.doesNotMatch(
+  wbsCss,
+  /\[data-stam-reference-picker-toggle\][\s\S]*?height:\s*38px/,
+  'wbs.css must not duplicate reference picker toggle height',
+);
+
+const wbsSelMenuBlock = ruleBlock(wbsCss, '.wbs-sel-menu');
+assertDecl(wbsSelMenuBlock, /z-index:\s*200/, 'phase portal menu z-index');
+assert.doesNotMatch(wbsSelMenuBlock, /padding:/, 'wbs-sel-menu must not duplicate menu padding');
+assert.doesNotMatch(wbsSelMenuBlock, /max-height:/, 'wbs-sel-menu must not duplicate menu max-height');
 
 const mobile640 = mediaBlock(wbsCss, 640);
 assertDecl(mobile640, /\.wbs-drawer-panel\s*\{[^}]*width:\s*100%/, 'mobile drawer full width');
