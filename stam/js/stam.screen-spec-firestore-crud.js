@@ -30,6 +30,81 @@
 
   var busy = { create: false };
   var pickersMounted = false;
+  var pickerLoadState = {
+    requirement: 'idle',
+    functionalSpec: 'idle',
+    wbs: 'idle',
+  };
+
+  function ownerDisplayName(member, user) {
+    return clean(member.displayName) ||
+      clean(member.memberName) ||
+      clean(user.displayName) ||
+      clean(user.email) ||
+      '담당자';
+  }
+
+  function resetPickerLoadState() {
+    pickerLoadState.requirement = 'idle';
+    pickerLoadState.functionalSpec = 'idle';
+    pickerLoadState.wbs = 'idle';
+  }
+
+  function trackPickerLoad(name, promise) {
+    if (!promise || typeof promise.then !== 'function') {
+      pickerLoadState[name] = 'ok';
+      return Promise.resolve();
+    }
+    pickerLoadState[name] = 'loading';
+    return promise.then(function () {
+      pickerLoadState[name] = 'ok';
+    }).catch(function (err) {
+      pickerLoadState[name] = 'error';
+      console.error('[screen-spec-firestore-crud] ' + name + ' picker load failed', err);
+    });
+  }
+
+  function tripletStatus(selection, keys) {
+    var vals = keys.map(function (key) { return clean(selection[key]); });
+    var any = vals.some(Boolean);
+    var all = vals.every(Boolean);
+    return { any: any, all: all };
+  }
+
+  function validateLinkSelections() {
+    var checks = [
+      {
+        label: '요구사항',
+        status: tripletStatus(getRequirementSelection(), ['requirementId', 'requirementCode', 'requirementTitle']),
+      },
+      {
+        label: '기능정의',
+        status: tripletStatus(getFunctionalSpecSelection(), ['functionalSpecId', 'functionalSpecCode', 'functionalSpecTitle']),
+      },
+      {
+        label: 'WBS',
+        status: tripletStatus(getWbsSelection(), ['wbsItemId', 'wbsItemCode', 'wbsItemTitle']),
+      },
+    ];
+    for (var i = 0; i < checks.length; i += 1) {
+      var check = checks[i];
+      if (check.status.any && !check.status.all) {
+        alert(check.label + ' 연결 정보가 불완전합니다. 다시 선택하세요.');
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function validatePickerLoads() {
+    var failed = [];
+    if (pickerLoadState.requirement === 'error') failed.push('요구사항');
+    if (pickerLoadState.functionalSpec === 'error') failed.push('기능정의');
+    if (pickerLoadState.wbs === 'error') failed.push('WBS');
+    if (!failed.length) return true;
+    alert(failed.join(', ') + ' 목록을 불러오지 못했습니다. Drawer를 닫고 다시 시도하세요.');
+    return false;
+  }
 
   function isLiveMode() {
     return !!document.querySelector('[data-stam-screen-spec-live="true"]');
@@ -193,11 +268,13 @@
     if (fnApi && fn && typeof fnApi.destroy === 'function') fnApi.destroy(fn);
     if (wbsApi && wbs && typeof wbsApi.destroy === 'function') wbsApi.destroy(wbs);
     pickersMounted = false;
+    resetPickerLoadState();
   }
 
   function mountPickers() {
     if (pickersMounted) {
       refreshPickerContext();
+      loadPickers();
       return;
     }
     var opts = pickerOptions('screen-spec-picker-mount');
@@ -224,14 +301,26 @@
     var reqApi = window.STAM && window.STAM.requirementPicker;
     var fnApi = window.STAM && window.STAM.functionalSpecPicker;
     var wbsApi = window.STAM && window.STAM.wbsPicker;
-    var promises = [];
+    var tasks = [];
     var req = requirementPickerEl();
     var fn = functionalSpecPickerEl();
     var wbs = wbsPickerEl();
-    if (reqApi && req && typeof reqApi.load === 'function') promises.push(reqApi.load(req));
-    if (fnApi && fn && typeof fnApi.load === 'function') promises.push(fnApi.load(fn));
-    if (wbsApi && wbs && typeof wbsApi.load === 'function') promises.push(wbsApi.load(wbs));
-    return Promise.all(promises);
+    if (reqApi && req && typeof reqApi.load === 'function') {
+      tasks.push(trackPickerLoad('requirement', reqApi.load(req)));
+    } else {
+      pickerLoadState.requirement = 'ok';
+    }
+    if (fnApi && fn && typeof fnApi.load === 'function') {
+      tasks.push(trackPickerLoad('functionalSpec', fnApi.load(fn)));
+    } else {
+      pickerLoadState.functionalSpec = 'ok';
+    }
+    if (wbsApi && wbs && typeof wbsApi.load === 'function') {
+      tasks.push(trackPickerLoad('wbs', wbsApi.load(wbs)));
+    } else {
+      pickerLoadState.wbs = 'ok';
+    }
+    return Promise.all(tasks);
   }
 
   function refreshPickerContext() {
@@ -315,7 +404,7 @@
     var member = snapshot.member || {};
     var user = snapshot.user || {};
     var ownerId = clean(user.uid);
-    var ownerName = clean(member.displayName) || clean(user.displayName) || clean(user.email) || '담당자';
+    var ownerName = ownerDisplayName(member, user);
 
     var input = {
       title: clean($('ssv2-f-name') && $('ssv2-f-name').value),
@@ -344,14 +433,14 @@
   }
 
   function resetRegisterForm() {
+    var snapshot = listApi() && typeof listApi().getState === 'function' ? listApi().getState() : {};
+    var member = snapshot.member || {};
+    var user = snapshot.user || {};
     if ($('ssv2-f-name')) $('ssv2-f-name').value = '';
     if ($('ssv2-f-type')) $('ssv2-f-type').selectedIndex = 0;
     if ($('ssv2-f-status')) $('ssv2-f-status').selectedIndex = 0;
     if ($('ssv2-f-owner')) {
-      var snapshot = listApi() && typeof listApi().getState === 'function' ? listApi().getState() : {};
-      var member = snapshot.member || {};
-      var user = snapshot.user || {};
-      $('ssv2-f-owner').value = clean(member.displayName) || clean(user.displayName) || '';
+      $('ssv2-f-owner').value = ownerDisplayName(member, user);
     }
     if ($('ssv2-f-template')) $('ssv2-f-template').value = '';
     if ($('ssv2-f-route')) $('ssv2-f-route').value = '';
@@ -448,6 +537,8 @@
       alert('화면명은 2자 이상 입력하세요.');
       return Promise.resolve();
     }
+    if (!validatePickerLoads()) return Promise.resolve();
+    if (!validateLinkSelections()) return Promise.resolve();
 
     busy.create = true;
     setSaving(true);

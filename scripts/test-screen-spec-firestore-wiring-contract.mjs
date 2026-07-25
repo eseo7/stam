@@ -60,14 +60,27 @@ assert.match(html, /stam\.screen-spec-firestore-adapter\.js/);
 
 const listSource = await readFile(path.join(ROOT, 'stam/js/stam.screen-spec-firestore-list.js'), 'utf8');
 const crudSource = await readFile(path.join(ROOT, 'stam/js/stam.screen-spec-firestore-crud.js'), 'utf8');
+const specSource = await readFile(path.join(ROOT, 'stam/js/stam.screen-specification.js'), 'utf8');
+
+assert.doesNotMatch(specSource, /var MENUS\s*=/);
+assert.doesNotMatch(specSource, /var ALL_SCREENS\s*=/);
+assert.doesNotMatch(specSource, /\bMENUS\b/);
+assert.doesNotMatch(specSource, /\bALL_SCREENS\b/);
+assert.doesNotMatch(specSource, /ALL_SCREENS\.length/);
+assert.match(specSource, /screenSpecFirestoreList/);
+assert.doesNotMatch(listSource, /MENUS|ALL_SCREENS/);
 
 assert.doesNotMatch(crudSource, /\.collection\(/);
+assert.match(listSource, /countFilteredItems/);
 assert.match(listSource, /screenSpecService\.listByProject|svc\.listByProject/);
 assert.doesNotMatch(listSource, /screenSpecs/);
 assert.match(crudSource, /screenSpecService\.create|svc\.create/);
 assert.match(crudSource, /requirementPicker/);
 assert.match(crudSource, /functionalSpecPicker/);
 assert.match(crudSource, /wbsPicker/);
+assert.match(crudSource, /trackPickerLoad|validatePickerLoads/);
+assert.match(crudSource, /validateLinkSelections/);
+assert.match(crudSource, /ownerDisplayName/);
 assert.match(crudSource, /wbsItemId/);
 assert.match(crudSource, /functionalSpecId/);
 assert.match(crudSource, /requirementId/);

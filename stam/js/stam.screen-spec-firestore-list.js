@@ -577,6 +577,22 @@
     updateFooter(list.length, total);
   }
 
+  function countFilteredItems(filterValues, stripQuery) {
+    var F = filterValues || { wst: '', rst: '', ast: '', type: '', img: '' };
+    var q = clean(stripQuery) || 'all';
+    var base = applyStripQuery(state.items);
+    return base.filter(function (item) {
+      if (F.wst && writeStatusInfo(item).key !== F.wst) return false;
+      if (F.rst && reviewStatusInfo(item).key !== F.rst) return false;
+      if (F.ast && approvalStatusInfo(item).key !== F.ast) return false;
+      if (F.type && clean(item.screenType) !== F.type) return false;
+      if (F.img === 'has' && !(item.imageCount > 0)) return false;
+      if (F.img === 'no' && item.imageCount > 0) return false;
+      if (F.img === 'ann' && !(item.annotationCount > 0)) return false;
+      return true;
+    }).length;
+  }
+
   function render() {
     if (!isLiveMode()) return;
     var stripFiltered = applyStripQuery(state.items);
@@ -675,6 +691,7 @@
       var sid = clean(id);
       return (state.items || []).find(function (item) { return clean(item.id) === sid; }) || null;
     },
+    countFilteredItems: countFilteredItems,
   };
 
   ready(function () {
