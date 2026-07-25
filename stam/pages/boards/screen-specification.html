@@ -48,7 +48,7 @@
         data-pc-risk-level="warn"
         data-pc-updated="업데이트 오늘 10:42"></section>
 
-      <section class="screen-spec-page">
+      <section class="screen-spec-page" data-stam-screen-spec-live="true">
 
         <div class="ss-page-hdr stam-board-header">
           <div class="ss-page-hdr-l stam-board-title-wrap">
@@ -314,9 +314,18 @@
             <div class="ssv2-fld"><label>담당자</label><input id="ssv2-f-owner" type="text" placeholder="담당자"></div>
             <div class="ssv2-fld"><label>적용 템플릿</label><input id="ssv2-f-template" type="text" placeholder="예: TPL-LIST-01"></div>
             <div class="ssv2-fld"><label>화면 경로</label><input id="ssv2-f-route" type="text" placeholder="예: /boards/foo"></div>
-            <div class="ssv2-fld"><label>연결 요구사항</label><input id="ssv2-f-req" type="text" placeholder="예: REQ-001"></div>
-            <div class="ssv2-fld"><label>연결 기능정의</label><input id="ssv2-f-fun" type="text" placeholder="예: REQ-001-FUN"></div>
-            <div class="ssv2-fld"><label>연결 WBS</label><input id="ssv2-f-wbs" type="text" placeholder="예: REQ-001-WBS1"></div>
+            <div class="ssv2-fld stam-form-field full-span" data-stam-screen-spec-link-slot="requirement">
+              <label>연결 요구사항</label>
+              <div data-stam-requirement-picker data-stam-requirement-picker-placeholder="요구사항 선택"></div>
+            </div>
+            <div class="ssv2-fld stam-form-field full-span" data-stam-screen-spec-link-slot="functionalSpec">
+              <label>연결 기능정의</label>
+              <div data-stam-functional-spec-picker data-stam-functional-spec-picker-placeholder="기능정의 선택"></div>
+            </div>
+            <div class="ssv2-fld stam-form-field full-span" data-stam-screen-spec-link-slot="wbs">
+              <label>연결 WBS</label>
+              <div data-stam-wbs-picker data-stam-wbs-picker-placeholder="WBS 선택"></div>
+            </div>
             <div class="ssv2-fld"><label>연결 메뉴</label><input id="ssv2-f-menu" type="text" placeholder="예: MENU-001"></div>
             <div class="ssv2-fld"><label>설명</label><textarea id="ssv2-f-desc" rows="3" placeholder="화면 설명"></textarea></div>
           </div>
@@ -370,6 +379,8 @@
 </div>
 
 <script src="../../js/stam.icons.js"></script>
+<script src="../../js/stam.ui-messages.js"></script>
+<script src="../../js/stam.ui-feedback.js"></script>
 <script src="../../js/stam.theme.js"></script>
 <script src="../../js/stam.nav-data.js"></script>
 <script src="../../js/stam.shell.js"></script>
@@ -379,12 +390,26 @@
 <script src="../../js/stam.project-context-render.js"></script>
 <script src="../../js/stam.board-filter.js"></script>
 <script src="../../js/stam.screen-specification.js"></script>
-<!-- ── 화면설계서 데이터 연동 (목록 통합 + 상세/등록/수정/삭제) ── -->
+<!-- ── 화면설계서 Firestore 목록·등록 + 공통 Picker ── -->
 <script src="../../js/stam.custom-select.js"></script>
-<script src="../../js/stam.core-db-schema.js"></script>
-<script src="../../js/stam.local-core-db.js"></script>
-<script src="../../js/stam.screen-specification-cycle.js"></script>
-<script src="../../js/stam.screen-specification-crud.js"></script>
+<script src="/__/firebase/8.10.1/firebase-app.js"></script>
+<script src="/__/firebase/8.10.1/firebase-auth.js"></script>
+<script src="/__/firebase/8.10.1/firebase-firestore.js"></script>
+<script src="/__/firebase/init.js"></script>
+<script src="../../js/stam.screen-spec-firestore-adapter.js"></script>
+<script src="../../js/stam.screen-spec-service.js"></script>
+<script src="../../js/stam.requirements-firestore-adapter.js"></script>
+<script src="../../js/stam.requirements-service.js"></script>
+<script src="../../js/stam.functional-spec-firestore-adapter.js"></script>
+<script src="../../js/stam.functional-spec-service.js"></script>
+<script src="../../js/stam.wbs-firestore-adapter.js"></script>
+<script src="../../js/stam.wbs-service.js"></script>
+<script src="../../js/stam.reference-picker.js"></script>
+<script src="../../js/stam.requirement-picker.js"></script>
+<script src="../../js/stam.functional-spec-picker.js"></script>
+<script src="../../js/stam.wbs-picker.js"></script>
+<script src="../../js/stam.screen-spec-firestore-list.js"></script>
+<script src="../../js/stam.screen-spec-firestore-crud.js"></script>
 
 </body>
 </html>

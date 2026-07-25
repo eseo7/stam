@@ -7,6 +7,8 @@
 (function () {
   'use strict';
 
+  var SS_FIRESTORE_LIVE = !!document.querySelector('[data-stam-screen-spec-live="true"]');
+
   /* ── Data ── */
   var MENUS = [
     { id: 'G-01', name: '대시보드', screens: [
@@ -205,6 +207,12 @@
 
   /* ── Summary Strip ── */
   function renderStrip() {
+    if (SS_FIRESTORE_LIVE && window.STAM && window.STAM.screenSpecFirestoreList) {
+      if (typeof window.STAM.screenSpecFirestoreList.renderStrip === 'function') {
+        window.STAM.screenSpecFirestoreList.renderStrip();
+      }
+      return;
+    }
     var all = ALL_SCREENS;
     var t = all.length;
     var w = all.filter(function (s) { return s.wst === 'writing'; }).length;
@@ -364,6 +372,12 @@
 
   /* ── Table ── */
   function renderTable() {
+    if (SS_FIRESTORE_LIVE && window.STAM && window.STAM.screenSpecFirestoreList) {
+      if (typeof window.STAM.screenSpecFirestoreList.render === 'function') {
+        window.STAM.screenSpecFirestoreList.render();
+      }
+      return;
+    }
     var q = S.srch.toLowerCase();
     var html = '';
     var total = 0;
@@ -518,6 +532,10 @@
 
   function setQ(q) {
     S.q = q;
+    if (SS_FIRESTORE_LIVE) {
+      window.STAM = window.STAM || {};
+      window.STAM.ssLiveQuery = q;
+    }
     renderStrip();
     renderTable();
   }
@@ -5976,6 +5994,16 @@
         S.F.type  = values.type  ? values.type[0]  || '' : '';
         S.F.grpId = values.grp   ? values.grp[0]   || '' : '';
         S.F.img   = values.img   ? values.img[0]   || '' : '';
+        if (SS_FIRESTORE_LIVE) {
+          window.STAM = window.STAM || {};
+          window.STAM.ssLiveFilters = {
+            wst: S.F.wst,
+            rst: S.F.rst,
+            ast: S.F.ast,
+            type: S.F.type,
+            img: S.F.img,
+          };
+        }
         renderTable();
       },
       onReset: function () {
@@ -6131,6 +6159,17 @@
   }
 
   function initAll() {
+    if (SS_FIRESTORE_LIVE) {
+      window.STAM = window.STAM || {};
+      window.STAM.ssLiveQuery = S.q;
+      window.STAM.ssLiveFilters = {
+        wst: S.F.wst,
+        rst: S.F.rst,
+        ast: S.F.ast,
+        type: S.F.type,
+        img: S.F.img,
+      };
+    }
     renderStrip();
     renderTable();
     /* updateFilterBtn 제거: STAM.boardFilter.init()이 배지 상태를 관리 */
