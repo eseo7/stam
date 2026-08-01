@@ -28,7 +28,90 @@
     IMMUTABLE_FIELD: 'SCREEN_ACTION_IMMUTABLE_FIELD',
     PERMISSION_DENIED: 'SCREEN_ACTION_PERMISSION_DENIED',
     TARGET_CONSTRAINT: 'SCREEN_ACTION_TARGET_CONSTRAINT',
+    SECTION_NOT_FOUND: 'SCREEN_ACTION_SECTION_NOT_FOUND',
+    SECTION_SPEC_MISMATCH: 'SCREEN_ACTION_SECTION_SPEC_MISMATCH',
+    ADAPTER_DEPENDENCY_MISSING: 'SCREEN_ACTION_ADAPTER_DEPENDENCY_MISSING',
   };
+
+  var DEFAULT_LAYOUT = { row: null, column: null, span: 12 };
+
+  function compositionContract() {
+    return window.STAM && window.STAM.screenConditionContract;
+  }
+
+  function normalizeSectionId(value) {
+    if (value === undefined || value === null) return null;
+    var trimmed = clean(value);
+    return trimmed || null;
+  }
+
+  function normalizeLayoutForRead(raw) {
+    var contract = compositionContract();
+    if (contract && contract.normalizeLayoutGridForRead) {
+      return contract.normalizeLayoutGridForRead(raw);
+    }
+    return Object.assign({}, DEFAULT_LAYOUT);
+  }
+
+  function normalizeCompositionFieldsForWrite(source, errors) {
+    var contract = compositionContract();
+    var input = source || {};
+    var composition = {
+      sectionId: normalizeSectionId(input.sectionId),
+      layout: null,
+      visibilityCondition: contract && contract.normalizeConditionGroup
+        ? contract.normalizeConditionGroup(input.visibilityCondition)
+        : (input.visibilityCondition || null),
+      enabledCondition: contract && contract.normalizeConditionGroup
+        ? contract.normalizeConditionGroup(input.enabledCondition)
+        : (input.enabledCondition || null),
+    };
+
+    if (contract && contract.normalizeLayoutGridForWrite) {
+      if (!hasOwn(input, 'layout')) {
+        composition.layout = Object.assign({}, DEFAULT_LAYOUT);
+      } else {
+        var layout = contract.normalizeLayoutGridForWrite(input.layout, errors, 'layout');
+        composition.layout = layout === undefined ? undefined : layout;
+      }
+    } else {
+      composition.layout = hasOwn(input, 'layout') ? input.layout : Object.assign({}, DEFAULT_LAYOUT);
+    }
+
+    return composition;
+  }
+
+  function validateCompositionFields(doc, context, errors) {
+    var writeErrors = [];
+    var composition = normalizeCompositionFieldsForWrite(doc, writeErrors);
+    writeErrors.forEach(function (entry) {
+      errors.push(entry);
+    });
+    if (writeErrors.length) return composition;
+
+    var contract = compositionContract();
+    if (!contract) return composition;
+
+    var sectionsById = (context && context.sectionsById) || {};
+    if (composition.sectionId) {
+      var section = sectionsById[composition.sectionId];
+      if (!section) {
+        pushError(errors, 'sectionId', 'section not found');
+      } else if (clean(section.screenSpecId) !== clean(doc.screenSpecId)) {
+        pushError(errors, 'sectionId', 'section screenSpecId mismatch');
+      }
+    }
+
+    var fieldIds = (context && context.fieldIds) || [];
+    var condCtx = { screenSpecId: doc.screenSpecId, fieldIds: fieldIds };
+    ['visibilityCondition', 'enabledCondition'].forEach(function (key) {
+      if (composition[key] && contract.validateConditionGroup) {
+        contract.validateConditionGroup(composition[key], condCtx, errors, key);
+      }
+    });
+
+    return composition;
+  }
 
   var WRITE_ROLES = ['owner', 'admin', 'editor'];
   var READ_ROLES = ['owner', 'admin', 'editor', 'viewer'];
@@ -427,7 +510,7 @@
     return { valid: errors.length === 0, mode: m, errors: errors };
   }
 
-  function validateCompleteDocument(doc) {
+  function validateCompleteDocument(doc, context) {
     var input = doc || {};
     var errors = [];
     var actionType = validateActionType(errors, input.actionType, 'create');
@@ -456,6 +539,7 @@
       input
     );
     validateOptionalString(errors, 'successMessage', input.successMessage, 500);
+    validateCompositionFields(input, context || {}, errors);
     return { valid: errors.length === 0, errors: errors };
   }
 
@@ -486,9 +570,15 @@
       throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenActionService: invalid create input', { errors: validation.errors });
     }
 
-    var createValidation = validateCompleteDocument(Object.assign({}, source, { projectId: projectId }));
+    var createValidation = validateCompleteDocument(Object.assign({}, source, { projectId: projectId, screenSpecId: screenSpecId }), context);
     if (!createValidation.valid) {
       throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenActionService: invalid create input', { errors: createValidation.errors });
+    }
+
+    var compositionErrors = [];
+    var composition = normalizeCompositionFieldsForWrite(source, compositionErrors);
+    if (compositionErrors.length) {
+      throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenActionService: invalid create input', { errors: compositionErrors });
     }
 
     var actionType = clean(source.actionType);
@@ -527,6 +617,10 @@
         ? (source.successMessage == null ? null : clean(source.successMessage) || null)
         : null,
       targetScreenSpecId: targetScreenSpecId,
+      sectionId: composition.sectionId,
+      layout: composition.layout,
+      visibilityCondition: composition.visibilityCondition,
+      enabledCondition: composition.enabledCondition,
       schemaVersion: SCHEMA_VERSION,
       createdAt: t,
       createdBy: actor.uid,
@@ -591,7 +685,20 @@
     applyUpdateStringNormalization(merged, source);
     applyActionTypeTargetNormalization(merged);
 
-    var complete = validateCompleteDocument(merged);
+    var compositionErrors = [];
+    var composition = normalizeCompositionFieldsForWrite(merged, compositionErrors);
+    if (compositionErrors.length) {
+      throw createServiceError(
+        ERROR_CODES.VALIDATION_FAILED,
+        'screenActionService: invalid merged document after update',
+        { errors: compositionErrors }
+      );
+    }
+    Object.assign(merged, composition);
+    if (hasOwn(source, 'name')) merged.name = clean(source.name);
+    if (hasOwn(source, 'label')) merged.label = clean(source.label);
+
+    var complete = validateCompleteDocument(merged, context);
     if (!complete.valid) {
       throw createServiceError(
         ERROR_CODES.VALIDATION_FAILED,
@@ -604,6 +711,7 @@
     [
       'name', 'label', 'actionType', 'controlType', 'placement', 'variant', 'order',
       'disabled', 'confirmRequired', 'confirmTitle', 'confirmMessage', 'successMessage', 'targetScreenSpecId',
+      'sectionId', 'layout', 'visibilityCondition', 'enabledCondition',
     ].forEach(function (field) {
       if (hasOwn(source, field)) next[field] = merged[field];
     });
@@ -627,6 +735,7 @@
 
   function normalizeScreenAction(raw) {
     if (!raw) return null;
+    var contract = compositionContract();
     var actionType = ACTION_TYPE_VALUES.indexOf(clean(raw.actionType)) >= 0 ? clean(raw.actionType) : 'custom';
     var targetScreenSpecId = raw.targetScreenSpecId == null ? null : (clean(raw.targetScreenSpecId) || null);
     if (actionType !== 'navigate' && actionType !== 'openDrawer') {
@@ -650,7 +759,13 @@
       confirmMessage: raw.confirmMessage == null ? null : clean(raw.confirmMessage) || null,
       successMessage: raw.successMessage == null ? null : clean(raw.successMessage) || null,
       targetScreenSpecId: targetScreenSpecId,
-      schemaVersion: raw.schemaVersion === 1 ? 1 : 1,
+      sectionId: normalizeSectionId(raw.sectionId),
+      layout: normalizeLayoutForRead(raw.layout),
+      visibilityCondition: raw.visibilityCondition || null,
+      enabledCondition: raw.enabledCondition || null,
+      schemaVersion: contract && contract.normalizeSchemaVersionForRead
+        ? contract.normalizeSchemaVersionForRead(raw, SCHEMA_VERSION)
+        : (hasOwn(raw, 'schemaVersion') ? raw.schemaVersion : SCHEMA_VERSION),
       createdAt: raw.createdAt || null,
       createdBy: clean(raw.createdBy),
       updatedAt: raw.updatedAt || null,
@@ -698,6 +813,102 @@
     };
   }
 
+  function resolveFieldAdapter(fieldAdapter) {
+    if (fieldAdapter) return fieldAdapter;
+    if (window.STAM && window.STAM.screenFieldFirestoreAdapter) {
+      return window.STAM.screenFieldFirestoreAdapter.create();
+    }
+    return null;
+  }
+
+  function resolveSectionAdapter(sectionAdapter) {
+    if (sectionAdapter) return sectionAdapter;
+    if (window.STAM && window.STAM.screenSectionFirestoreAdapter) {
+      return window.STAM.screenSectionFirestoreAdapter.create();
+    }
+    return null;
+  }
+
+  function buildSectionsById(sections) {
+    var map = Object.create(null);
+    (sections || []).forEach(function (section) {
+      if (section && clean(section.id)) {
+        map[clean(section.id)] = section;
+      }
+    });
+    return map;
+  }
+
+  function requireAdapterMethod(adapter, methodName, label) {
+    if (!adapter || typeof adapter[methodName] !== 'function') {
+      throw createServiceError(
+        ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+        'screenActionService: ' + label + ' adapter dependency missing'
+      );
+    }
+    return adapter;
+  }
+
+  function documentNeedsSectionLookup(doc) {
+    return normalizeSectionId(doc && doc.sectionId) != null;
+  }
+
+  function documentNeedsFieldIdLookup(doc) {
+    var contract = compositionContract();
+    if (!contract || !contract.documentHasFieldConditionReferences) return false;
+    return contract.documentHasFieldConditionReferences(doc || {}, ['visibilityCondition', 'enabledCondition']);
+  }
+
+  function buildCompositionValidationContext(deps, projectId, screenSpecId, doc) {
+    try {
+      var source = doc || {};
+      var needsSections = documentNeedsSectionLookup(source);
+      var needsFieldIds = documentNeedsFieldIdLookup(source);
+
+      if (needsSections) {
+        requireAdapterMethod(deps.sectionAdapter, 'listByScreenSpec', 'section');
+      }
+      if (needsFieldIds) {
+        requireAdapterMethod(deps.fieldAdapter, 'listByScreenSpec', 'field');
+      }
+
+      var fieldIdsPromise = needsFieldIds
+        ? deps.fieldAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
+          if (!Array.isArray(items)) {
+            throw createServiceError(
+              ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+              'screenActionService: field adapter listByScreenSpec returned invalid result'
+            );
+          }
+          return items.map(function (item) {
+            return clean(item.id);
+          }).filter(Boolean);
+        })
+        : Promise.resolve([]);
+
+      var sectionsPromise = needsSections
+        ? deps.sectionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
+          if (!Array.isArray(items)) {
+            throw createServiceError(
+              ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+              'screenActionService: section adapter listByScreenSpec returned invalid result'
+            );
+          }
+          return buildSectionsById(items);
+        })
+        : Promise.resolve(Object.create(null));
+
+      return Promise.all([fieldIdsPromise, sectionsPromise]).then(function (results) {
+        return {
+          fieldIds: results[0],
+          sectionsById: results[1],
+        };
+      });
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  }
+
   function resolveAdapter(adapter) {
     if (adapter) return adapter;
     if (window.STAM && window.STAM.screenActionFirestoreAdapter) {
@@ -732,6 +943,12 @@
     if (err.code === 'SCREEN_ACTION_IMMUTABLE_FIELD') {
       return createServiceError(ERROR_CODES.IMMUTABLE_FIELD, err.message);
     }
+    if (err.code === 'SCREEN_ACTION_SECTION_NOT_FOUND') {
+      return createServiceError(ERROR_CODES.SECTION_NOT_FOUND, err.message);
+    }
+    if (err.code === 'SCREEN_ACTION_SECTION_SPEC_MISMATCH') {
+      return createServiceError(ERROR_CODES.SECTION_SPEC_MISMATCH, err.message);
+    }
     return err;
   }
 
@@ -759,8 +976,18 @@
   function createService(options) {
     var opts = options || {};
     var adapter = resolveAdapter(opts.adapter);
+    var fieldAdapter = resolveFieldAdapter(opts.fieldAdapter);
+    var sectionAdapter = resolveSectionAdapter(opts.sectionAdapter);
     var authorize = opts.authorize || defaultAuthorize;
     var clock = opts.clock;
+
+    function compositionDeps() {
+      return {
+        fieldAdapter: resolveFieldAdapter(fieldAdapter),
+        sectionAdapter: sectionAdapter || resolveSectionAdapter(null),
+        actionAdapter: adapter,
+      };
+    }
 
     function check(action, projectId, payload, context) {
       var ctx = Object.assign({}, context || {}, { projectId: projectId });
@@ -809,14 +1036,19 @@
 
     function create(projectId, input, context) {
       var pid = requireProjectId(projectId);
-      var ctx = Object.assign({}, context || {}, { projectId: pid });
-      var item = buildCreatePayload(Object.assign({}, input || {}), ctx, clock);
-      return check(ACTIONS.CREATE, pid, item, context).then(function () {
-        return preflightDuplicateName(adapter, pid, item.screenSpecId, item.name);
-      }).then(function () {
-        return adapter.create(pid, item);
-      }).then(function (saved) {
-        return normalizeScreenAction(saved || item);
+      var source = Object.assign({}, input || {});
+      var screenSpecId = clean(source.screenSpecId);
+
+      return buildCompositionValidationContext(compositionDeps(), pid, screenSpecId, source).then(function (validationContext) {
+        var ctx = Object.assign({}, context || {}, { projectId: pid }, validationContext);
+        var item = buildCreatePayload(source, ctx, clock);
+        return check(ACTIONS.CREATE, pid, item, context).then(function () {
+          return preflightDuplicateName(adapter, pid, item.screenSpecId, item.name);
+        }).then(function () {
+          return adapter.create(pid, item);
+        }).then(function (saved) {
+          return normalizeScreenAction(saved || item);
+        });
       }).catch(rethrowAdapterError);
     }
 
@@ -830,13 +1062,17 @@
         if (!current) {
           throw createServiceError(ERROR_CODES.NOT_FOUND, 'screenActionService: screen action not found');
         }
-        var nextPatch = buildUpdatePatch(current, patch, context, clock);
-        if (hasOwn(patch, 'name') && normalizeName(patch.name) !== normalizeName(current.name)) {
-          return preflightDuplicateName(adapter, pid, current.screenSpecId, patch.name, aid).then(function () {
-            return adapter.update(pid, aid, nextPatch);
-          });
-        }
-        return adapter.update(pid, aid, nextPatch);
+        var mergedForContext = Object.assign({}, current, patch || {});
+        return buildCompositionValidationContext(compositionDeps(), pid, current.screenSpecId, mergedForContext).then(function (validationContext) {
+          var ctx = Object.assign({}, context || {}, { projectId: pid }, validationContext);
+          var nextPatch = buildUpdatePatch(current, patch, ctx, clock);
+          if (hasOwn(patch, 'name') && normalizeName(patch.name) !== normalizeName(current.name)) {
+            return preflightDuplicateName(adapter, pid, current.screenSpecId, patch.name, aid).then(function () {
+              return adapter.update(pid, aid, nextPatch);
+            });
+          }
+          return adapter.update(pid, aid, nextPatch);
+        });
       }).then(normalizeScreenAction).catch(rethrowAdapterError);
     }
 
@@ -899,5 +1135,9 @@
     canReadScreenAction: canReadScreenAction,
     createMemberRoleAuthorize: createMemberRoleAuthorize,
     mapAdapterError: mapAdapterError,
+    DEFAULT_LAYOUT: DEFAULT_LAYOUT,
+    normalizeCompositionFieldsForWrite: normalizeCompositionFieldsForWrite,
+    validateCompositionFields: validateCompositionFields,
+    buildCompositionValidationContext: buildCompositionValidationContext,
   };
 }());

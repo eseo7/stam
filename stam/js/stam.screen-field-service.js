@@ -29,7 +29,110 @@
     DEFAULT_VALUE_INVALID: 'SCREEN_FIELD_DEFAULT_VALUE_INVALID',
     OPTIONS_INVALID: 'SCREEN_FIELD_OPTIONS_INVALID',
     VALIDATION_RULE_INVALID: 'SCREEN_FIELD_VALIDATION_RULE_INVALID',
+    SECTION_NOT_FOUND: 'SCREEN_FIELD_SECTION_NOT_FOUND',
+    SECTION_SPEC_MISMATCH: 'SCREEN_FIELD_SECTION_SPEC_MISMATCH',
+    FIELD_ROLE_SECTION_MISMATCH: 'SCREEN_FIELD_FIELD_ROLE_SECTION_MISMATCH',
+    CONDITIONS_REFERENCE_FIELD: 'SCREEN_FIELD_CONDITIONS_REFERENCE_FIELD',
+    ADAPTER_DEPENDENCY_MISSING: 'SCREEN_FIELD_ADAPTER_DEPENDENCY_MISSING',
   };
+
+  var DEFAULT_LAYOUT = { row: null, column: null, span: 12 };
+  var FIELD_ROLE_VALUES = ['input', 'display', 'filter', 'tableColumn', 'repeaterItem'];
+
+  function compositionContract() {
+    return window.STAM && window.STAM.screenConditionContract;
+  }
+
+  function normalizeSectionId(value) {
+    if (value === undefined || value === null) return null;
+    var trimmed = clean(value);
+    return trimmed || null;
+  }
+
+  function normalizeLayoutForRead(raw) {
+    var contract = compositionContract();
+    if (contract && contract.normalizeLayoutGridForRead) {
+      return contract.normalizeLayoutGridForRead(raw);
+    }
+    return Object.assign({}, DEFAULT_LAYOUT);
+  }
+
+  function normalizeCompositionFieldsForWrite(source, errors) {
+    var contract = compositionContract();
+    var input = source || {};
+    var composition = {
+      sectionId: normalizeSectionId(input.sectionId),
+      fieldRole: contract && contract.resolveFieldRoleForWrite
+        ? contract.resolveFieldRoleForWrite(input, errors, 'input')
+        : 'input',
+      layout: null,
+      visibilityCondition: contract && contract.normalizeConditionGroup
+        ? contract.normalizeConditionGroup(input.visibilityCondition)
+        : (input.visibilityCondition || null),
+      enabledCondition: contract && contract.normalizeConditionGroup
+        ? contract.normalizeConditionGroup(input.enabledCondition)
+        : (input.enabledCondition || null),
+      requiredCondition: contract && contract.normalizeConditionGroup
+        ? contract.normalizeConditionGroup(input.requiredCondition)
+        : (input.requiredCondition || null),
+    };
+
+    if (contract && contract.normalizeLayoutGridForWrite) {
+      if (!hasOwn(input, 'layout')) {
+        composition.layout = Object.assign({}, DEFAULT_LAYOUT);
+      } else {
+        var layout = contract.normalizeLayoutGridForWrite(input.layout, errors, 'layout');
+        if (layout === undefined) {
+          composition.layout = undefined;
+        } else {
+          composition.layout = layout;
+        }
+      }
+    } else {
+      composition.layout = hasOwn(input, 'layout') ? input.layout : Object.assign({}, DEFAULT_LAYOUT);
+    }
+
+    return composition;
+  }
+
+  function validateCompositionFields(doc, context, errors) {
+    var writeErrors = [];
+    var composition = normalizeCompositionFieldsForWrite(doc, writeErrors);
+    writeErrors.forEach(function (entry) {
+      errors.push(entry);
+    });
+    if (writeErrors.length) return composition;
+
+    var contract = compositionContract();
+    if (!contract) return composition;
+
+    var sectionsById = (context && context.sectionsById) || {};
+    if (composition.sectionId) {
+      var section = sectionsById[composition.sectionId];
+      if (!section) {
+        pushError(errors, 'sectionId', 'section not found');
+      } else if (clean(section.screenSpecId) !== clean(doc.screenSpecId)) {
+        pushError(errors, 'sectionId', 'section screenSpecId mismatch');
+      } else {
+        if (composition.fieldRole === 'tableColumn' && section.sectionType !== 'table') {
+          pushError(errors, 'fieldRole', 'tableColumn requires table section');
+        }
+        if (composition.fieldRole === 'repeaterItem' && section.sectionType !== 'repeater') {
+          pushError(errors, 'fieldRole', 'repeaterItem requires repeater section');
+        }
+      }
+    }
+
+    var fieldIds = (context && context.fieldIds) || [];
+    var condCtx = { screenSpecId: doc.screenSpecId, fieldIds: fieldIds };
+    ['visibilityCondition', 'enabledCondition', 'requiredCondition'].forEach(function (key) {
+      if (composition[key] && contract.validateConditionGroup) {
+        contract.validateConditionGroup(composition[key], condCtx, errors, key);
+      }
+    });
+
+    return composition;
+  }
 
   var WRITE_ROLES = ['owner', 'admin', 'editor'];
   var READ_ROLES = ['owner', 'admin', 'editor', 'viewer'];
@@ -561,7 +664,7 @@
     return { valid: errors.length === 0, mode: m, errors: errors };
   }
 
-  function validateCompleteDocument(doc) {
+  function validateCompleteDocument(doc, context) {
     var input = doc || {};
     var errors = [];
     var type = validateType(errors, input.type, 'create');
@@ -589,6 +692,7 @@
       minLength,
       maxLength
     );
+    validateCompositionFields(input, context || {}, errors);
     return { valid: errors.length === 0, errors: errors };
   }
 
@@ -619,9 +723,15 @@
       throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenFieldService: invalid create input', { errors: validation.errors });
     }
 
-    var createValidation = validateCompleteDocument(Object.assign({}, source, { projectId: projectId }));
+    var createValidation = validateCompleteDocument(Object.assign({}, source, { projectId: projectId, screenSpecId: screenSpecId }), context);
     if (!createValidation.valid) {
       throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenFieldService: invalid create input', { errors: createValidation.errors });
+    }
+
+    var compositionErrors = [];
+    var composition = normalizeCompositionFieldsForWrite(source, compositionErrors);
+    if (compositionErrors.length) {
+      throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenFieldService: invalid create input', { errors: compositionErrors });
     }
 
     return {
@@ -641,6 +751,12 @@
       maxLength: hasOwn(source, 'maxLength') ? source.maxLength : null,
       options: Array.isArray(source.options) ? normalizeOptionsInput(source.options) : [],
       validationRules: Array.isArray(source.validationRules) ? source.validationRules : [],
+      sectionId: composition.sectionId,
+      fieldRole: composition.fieldRole,
+      layout: composition.layout,
+      visibilityCondition: composition.visibilityCondition,
+      enabledCondition: composition.enabledCondition,
+      requiredCondition: composition.requiredCondition,
       schemaVersion: SCHEMA_VERSION,
       createdAt: t,
       createdBy: actor.uid,
@@ -658,7 +774,20 @@
     assertValidInput(source, 'update');
     var actor = actorFromContext(context);
     var merged = Object.assign({}, base, source);
-    var complete = validateCompleteDocument(merged);
+    var compositionErrors = [];
+    var composition = normalizeCompositionFieldsForWrite(merged, compositionErrors);
+    if (compositionErrors.length) {
+      throw createServiceError(
+        ERROR_CODES.VALIDATION_FAILED,
+        'screenFieldService: invalid merged document after update',
+        { errors: compositionErrors }
+      );
+    }
+    Object.assign(merged, composition);
+    if (hasOwn(source, 'name')) merged.name = clean(source.name);
+    if (hasOwn(source, 'label')) merged.label = clean(source.label);
+
+    var complete = validateCompleteDocument(merged, context);
     if (!complete.valid) {
       throw createServiceError(
         ERROR_CODES.VALIDATION_FAILED,
@@ -669,7 +798,8 @@
 
     var next = {};
     ['name', 'label', 'type', 'order', 'required', 'readonly', 'disabled', 'defaultValue',
-      'placeholder', 'helpText', 'minLength', 'maxLength', 'options', 'validationRules'].forEach(function (field) {
+      'placeholder', 'helpText', 'minLength', 'maxLength', 'options', 'validationRules',
+      'sectionId', 'fieldRole', 'layout', 'visibilityCondition', 'enabledCondition', 'requiredCondition'].forEach(function (field) {
       if (hasOwn(source, field)) next[field] = merged[field];
     });
     next.updatedAt = nowIso(clock);
@@ -679,6 +809,7 @@
 
   function normalizeScreenField(raw) {
     if (!raw) return null;
+    var contract = compositionContract();
     return {
       id: clean(raw.id),
       projectId: clean(raw.projectId),
@@ -697,7 +828,17 @@
       maxLength: raw.maxLength == null ? null : normalizeCount(raw.maxLength),
       options: Array.isArray(raw.options) ? raw.options : [],
       validationRules: Array.isArray(raw.validationRules) ? raw.validationRules : [],
-      schemaVersion: raw.schemaVersion === 1 ? 1 : 1,
+      sectionId: normalizeSectionId(raw.sectionId),
+      fieldRole: contract && contract.normalizeFieldRoleForRead
+        ? contract.normalizeFieldRoleForRead(raw)
+        : (hasOwn(raw, 'fieldRole') ? raw.fieldRole : 'input'),
+      layout: normalizeLayoutForRead(raw.layout),
+      visibilityCondition: raw.visibilityCondition || null,
+      enabledCondition: raw.enabledCondition || null,
+      requiredCondition: raw.requiredCondition || null,
+      schemaVersion: contract && contract.normalizeSchemaVersionForRead
+        ? contract.normalizeSchemaVersionForRead(raw, SCHEMA_VERSION)
+        : (hasOwn(raw, 'schemaVersion') ? raw.schemaVersion : SCHEMA_VERSION),
       createdAt: raw.createdAt || null,
       createdBy: clean(raw.createdBy),
       updatedAt: raw.updatedAt || null,
@@ -745,6 +886,156 @@
     };
   }
 
+  function resolveSectionAdapter(sectionAdapter) {
+    if (sectionAdapter) return sectionAdapter;
+    if (window.STAM && window.STAM.screenSectionFirestoreAdapter) {
+      return window.STAM.screenSectionFirestoreAdapter.create();
+    }
+    return null;
+  }
+
+  function resolveActionAdapter(actionAdapter) {
+    if (actionAdapter) return actionAdapter;
+    if (window.STAM && window.STAM.screenActionFirestoreAdapter) {
+      return window.STAM.screenActionFirestoreAdapter.create();
+    }
+    return null;
+  }
+
+  function requireAdapterMethod(adapter, methodName, label) {
+    if (!adapter || typeof adapter[methodName] !== 'function') {
+      throw createServiceError(
+        ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+        'screenFieldService: ' + label + ' adapter dependency missing'
+      );
+    }
+    return adapter;
+  }
+
+  function documentNeedsSectionLookup(doc) {
+    return normalizeSectionId(doc && doc.sectionId) != null;
+  }
+
+  function documentNeedsFieldIdLookup(doc) {
+    var contract = compositionContract();
+    if (!contract || !contract.documentHasFieldConditionReferences) return false;
+    return contract.documentHasFieldConditionReferences(doc || {});
+  }
+
+  function buildCompositionValidationContext(deps, projectId, screenSpecId, doc) {
+    try {
+      var source = doc || {};
+      var needsSections = documentNeedsSectionLookup(source);
+      var needsFieldIds = documentNeedsFieldIdLookup(source);
+
+      if (needsSections) {
+        requireAdapterMethod(deps.sectionAdapter, 'listByScreenSpec', 'section');
+      }
+      if (needsFieldIds) {
+        requireAdapterMethod(deps.fieldAdapter, 'listByScreenSpec', 'field');
+      }
+
+      var fieldIdsPromise = needsFieldIds
+        ? deps.fieldAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
+          if (!Array.isArray(items)) {
+            throw createServiceError(
+              ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+              'screenFieldService: field adapter listByScreenSpec returned invalid result'
+            );
+          }
+          return items.map(function (item) {
+            return clean(item.id);
+          }).filter(Boolean);
+        })
+        : Promise.resolve([]);
+
+      var sectionsPromise = needsSections
+        ? deps.sectionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
+          if (!Array.isArray(items)) {
+            throw createServiceError(
+              ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+              'screenFieldService: section adapter listByScreenSpec returned invalid result'
+            );
+          }
+          return buildSectionsById(items);
+        })
+        : Promise.resolve(Object.create(null));
+
+      return Promise.all([fieldIdsPromise, sectionsPromise]).then(function (results) {
+        return {
+          fieldIds: results[0],
+          sectionsById: results[1],
+        };
+      });
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  }
+
+  function scanConditionReferencesToField(deps, projectId, screenSpecId, fieldId, excludeFieldId) {
+    try {
+      requireAdapterMethod(deps.fieldAdapter, 'listByScreenSpec', 'field');
+      requireAdapterMethod(deps.sectionAdapter, 'listByScreenSpec', 'section');
+      requireAdapterMethod(deps.actionAdapter, 'listByScreenSpec', 'action');
+
+    var contract = compositionContract();
+    if (!contract || typeof contract.findFieldReferenceProperty !== 'function') {
+      throw createServiceError(
+        ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+        'screenFieldService: condition contract dependency missing'
+      );
+    }
+
+    var targetId = clean(fieldId);
+    var specId = clean(screenSpecId);
+    var excludeId = clean(excludeFieldId);
+    var references = [];
+
+    function scanItems(items, entity, keys) {
+      if (!Array.isArray(items)) {
+        throw createServiceError(
+          ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+          'screenFieldService: adapter listByScreenSpec returned invalid result'
+        );
+      }
+      items.forEach(function (item) {
+        if (!item || clean(item.id) === excludeId) return;
+        if (clean(item.screenSpecId) !== specId) return;
+        var property = contract.findFieldReferenceProperty(item, targetId, keys);
+        if (property) {
+          references.push({ entity: entity, id: clean(item.id), property: property });
+        }
+      });
+    }
+
+    return Promise.all([
+      deps.fieldAdapter.listByScreenSpec(projectId, screenSpecId).then(function (fields) {
+        scanItems(fields, 'field', ['visibilityCondition', 'enabledCondition', 'requiredCondition']);
+      }),
+      deps.sectionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (sections) {
+        scanItems(sections, 'section', ['visibilityCondition']);
+      }),
+      deps.actionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (actions) {
+        scanItems(actions, 'action', ['visibilityCondition', 'enabledCondition']);
+      }),
+    ]).then(function () {
+      return references;
+    });
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  }
+
+  function buildSectionsById(sections) {
+    var map = Object.create(null);
+    (sections || []).forEach(function (section) {
+      if (section && clean(section.id)) {
+        map[clean(section.id)] = section;
+      }
+    });
+    return map;
+  }
+
   function resolveAdapter(adapter) {
     if (adapter) return adapter;
     if (window.STAM && window.STAM.screenFieldFirestoreAdapter) {
@@ -789,8 +1080,16 @@
   function createService(options) {
     var opts = options || {};
     var adapter = resolveAdapter(opts.adapter);
+    var sectionAdapter = resolveSectionAdapter(opts.sectionAdapter);
+    var actionAdapter = resolveActionAdapter(opts.actionAdapter);
     var authorize = opts.authorize || defaultAuthorize;
     var clock = opts.clock;
+
+    var compositionDeps = {
+      fieldAdapter: adapter,
+      sectionAdapter: sectionAdapter,
+      actionAdapter: actionAdapter,
+    };
 
     function check(action, projectId, payload, context) {
       var ctx = Object.assign({}, context || {}, { projectId: projectId });
@@ -839,14 +1138,19 @@
 
     function create(projectId, input, context) {
       var pid = requireProjectId(projectId);
-      var ctx = Object.assign({}, context || {}, { projectId: pid });
-      var item = buildCreatePayload(Object.assign({}, input || {}), ctx, clock);
-      return check(ACTIONS.CREATE, pid, item, context).then(function () {
-        return preflightDuplicateName(adapter, pid, item.screenSpecId, item.name);
-      }).then(function () {
-        return adapter.create(pid, item);
-      }).then(function (saved) {
-        return normalizeScreenField(saved || item);
+      var source = Object.assign({}, input || {});
+      var screenSpecId = clean(source.screenSpecId);
+
+      return buildCompositionValidationContext(compositionDeps, pid, screenSpecId, source).then(function (validationContext) {
+        var ctx = Object.assign({}, context || {}, { projectId: pid }, validationContext);
+        var item = buildCreatePayload(source, ctx, clock);
+        return check(ACTIONS.CREATE, pid, item, context).then(function () {
+          return preflightDuplicateName(adapter, pid, item.screenSpecId, item.name);
+        }).then(function () {
+          return adapter.create(pid, item);
+        }).then(function (saved) {
+          return normalizeScreenField(saved || item);
+        });
       }).catch(rethrowAdapterError);
     }
 
@@ -860,13 +1164,17 @@
         if (!current) {
           throw createServiceError(ERROR_CODES.NOT_FOUND, 'screenFieldService: screen field not found');
         }
-        var nextPatch = buildUpdatePatch(current, patch, context, clock);
-        if (hasOwn(patch, 'name') && normalizeName(patch.name) !== normalizeName(current.name)) {
-          return preflightDuplicateName(adapter, pid, current.screenSpecId, patch.name, fid).then(function () {
-            return adapter.update(pid, fid, nextPatch);
-          });
-        }
-        return adapter.update(pid, fid, nextPatch);
+        var mergedForContext = Object.assign({}, current, patch || {});
+        return buildCompositionValidationContext(compositionDeps, pid, current.screenSpecId, mergedForContext).then(function (validationContext) {
+          var ctx = Object.assign({}, context || {}, { projectId: pid }, validationContext);
+          var nextPatch = buildUpdatePatch(current, patch, ctx, clock);
+          if (hasOwn(patch, 'name') && normalizeName(patch.name) !== normalizeName(current.name)) {
+            return preflightDuplicateName(adapter, pid, current.screenSpecId, patch.name, fid).then(function () {
+              return adapter.update(pid, fid, nextPatch);
+            });
+          }
+          return adapter.update(pid, fid, nextPatch);
+        });
       }).then(normalizeScreenField).catch(rethrowAdapterError);
     }
 
@@ -874,7 +1182,22 @@
       var pid = requireProjectId(projectId);
       var fid = requireFieldId(fieldId);
       return check(ACTIONS.DELETE, pid, { id: fid }, context).then(function () {
-        return adapter.delete(pid, fid);
+        return adapter.getById(pid, fid);
+      }).then(function (currentRaw) {
+        var current = normalizeScreenField(currentRaw);
+        if (!current) {
+          throw createServiceError(ERROR_CODES.NOT_FOUND, 'screenFieldService: screen field not found');
+        }
+        return scanConditionReferencesToField(compositionDeps, pid, current.screenSpecId, fid, fid).then(function (references) {
+          if (references.length > 0) {
+            throw createServiceError(
+              ERROR_CODES.CONDITIONS_REFERENCE_FIELD,
+              'screenFieldService: conditions reference field',
+              { references: references }
+            );
+          }
+          return adapter.delete(pid, fid);
+        });
       }).catch(rethrowAdapterError);
     }
 
@@ -921,6 +1244,12 @@
     buildCreatePayload: buildCreatePayload,
     buildUpdatePatch: buildUpdatePatch,
     normalizeName: normalizeName,
+    DEFAULT_LAYOUT: DEFAULT_LAYOUT,
+    FIELD_ROLE_VALUES: FIELD_ROLE_VALUES,
+    normalizeCompositionFieldsForWrite: normalizeCompositionFieldsForWrite,
+    validateCompositionFields: validateCompositionFields,
+    buildCompositionValidationContext: buildCompositionValidationContext,
+    scanConditionReferencesToField: scanConditionReferencesToField,
     normalizeMemberRole: normalizeMemberRole,
     canWriteScreenField: canWriteScreenField,
     canReadScreenField: canReadScreenField,

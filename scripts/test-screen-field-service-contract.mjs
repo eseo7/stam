@@ -15,9 +15,11 @@ const ROOT = path.resolve(import.meta.dirname, '..');
 
 const serviceSource = await readFile(path.join(ROOT, 'stam/js/stam.screen-field-service.js'), 'utf8');
 const adapterSource = await readFile(path.join(ROOT, 'stam/js/stam.screen-field-firestore-adapter.js'), 'utf8');
+const conditionSource = await readFile(path.join(ROOT, 'stam/js/stam.screen-condition-contract.js'), 'utf8');
 
 assert.ok(serviceSource, 'stam.screen-field-service.js must exist');
 assert.ok(adapterSource, 'stam.screen-field-firestore-adapter.js must exist');
+assert.ok(conditionSource, 'stam.screen-condition-contract.js must exist');
 
 assert.match(adapterSource, /COLLECTION = 'screenFields'/);
 assert.match(adapterSource, /runCreatePreflight/);
@@ -66,6 +68,7 @@ function createContext() {
 
 async function loadModules() {
   const { context, window } = createContext();
+  vm.runInContext(conditionSource, context, { filename: 'stam.screen-condition-contract.js' });
   await readFile(path.join(ROOT, 'stam/js/stam.screen-field-firestore-adapter.js'), 'utf8').then((code) => {
     vm.runInContext(code, context, { filename: 'stam.screen-field-firestore-adapter.js' });
   });
@@ -287,8 +290,15 @@ assert.equal(authorize(contract.ACTIONS.CREATE, { context: { memberRole: 'viewer
 assert.equal(authorize(contract.ACTIONS.DELETE, { context: { memberRole: 'editor' } }), true);
 
 const adapter = createFakeAdapter([seedField()]);
+const emptyListAdapter = {
+  listByScreenSpec() {
+    return Promise.resolve([]);
+  },
+};
 const service = contract.createService({
   adapter,
+  sectionAdapter: emptyListAdapter,
+  actionAdapter: emptyListAdapter,
   authorize: (action) => authorize(action, { context: { memberRole: 'editor' } }),
   clock: () => '2026-02-01T00:00:00.000Z',
 });

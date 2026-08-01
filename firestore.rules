@@ -53,6 +53,15 @@ service cloud.firestore {
      *   Parent/target screenSpec existence validated on create/update when applicable.
      *   Name uniqueness is NOT rules-enforced.
      *
+     * ScreenSection-1:
+     *   screenSections write opened for active project members with role owner/admin/editor.
+     *   Viewer remains read-only. Hard delete allowed for writers.
+     *   Parent screenSpec existence validated on create. Name uniqueness is NOT rules-enforced.
+     *
+     * PR D1 (screen composition):
+     *   screenFields/screenActions optional composition keys (sectionId, layout, conditions).
+     *   Composition keys are write-allowed but omitted from requiredKeys for backward compat.
+     *
      *   Signed-in users may create or update only their own `users/{uid}`
      *   document for Google login bootstrap. Client cannot change `status`,
      *   `provider`, `userId`, or `createdAt` on update. Unopened artifact
@@ -1137,6 +1146,12 @@ service cloud.firestore {
         'createdBy',
         'updatedAt',
         'updatedBy',
+        'sectionId',
+        'fieldRole',
+        'layout',
+        'visibilityCondition',
+        'enabledCondition',
+        'requiredCondition',
       ];
     }
     function screenFieldRequiredKeys() {
@@ -1180,7 +1195,8 @@ service cloud.firestore {
           && (!data.keys().hasAny(['helpText']) || data.helpText == null || (
             data.helpText is string && data.helpText.size() <= 500
           ))
-          && data.schemaVersion == 1;
+          && data.schemaVersion == 1
+          && isValidScreenFieldComposition(data);
     }
     function isValidScreenFieldCreate(projectId, fieldId) {
       let data = request.resource.data;
@@ -1342,6 +1358,10 @@ service cloud.firestore {
         'createdBy',
         'updatedAt',
         'updatedBy',
+        'sectionId',
+        'layout',
+        'visibilityCondition',
+        'enabledCondition',
       ];
     }
     function screenActionRequiredKeys() {
@@ -1382,7 +1402,8 @@ service cloud.firestore {
           && isValidScreenActionTargetRef(data)
           && isValidScreenActionTargetOnWrite(projectId, data)
           && isValidScreenActionParentRef(projectId, data)
-          && data.schemaVersion == 1;
+          && data.schemaVersion == 1
+          && isValidScreenActionComposition(data);
     }
     function isValidScreenActionCreate(projectId, actionId) {
       let data = request.resource.data;
@@ -1419,6 +1440,290 @@ service cloud.firestore {
     }
     function isValidScreenActionDelete(projectId, actionId) {
       return isScreenActionWriter(projectId);
+    }
+
+    // ── Shared composition shape helpers (PR D1) ──────────────────────
+    function isValidConditionSource(source) {
+      return source == 'field'
+          || source == 'role'
+          || source == 'screenMode'
+          || source == 'recordState';
+    }
+    function isValidConditionOperator(operator) {
+      return operator == 'eq'
+          || operator == 'neq'
+          || operator == 'in'
+          || operator == 'notIn'
+          || operator == 'exists'
+          || operator == 'notExists'
+          || operator == 'contains'
+          || operator == 'gt'
+          || operator == 'gte'
+          || operator == 'lt'
+          || operator == 'lte';
+    }
+    function isValidConditionScalar(value) {
+      return value == null
+          || value is string
+          || value is bool
+          || value is int
+          || value is float;
+    }
+    function isValidConditionValue(operator, value) {
+      return (operator == 'exists' || operator == 'notExists')
+          ? value == null
+          : (operator == 'in' || operator == 'notIn')
+              ? value is list && value.size() > 0
+          : (operator == 'gt' || operator == 'gte' || operator == 'lt' || operator == 'lte')
+              ? value is int || value is float
+          : operator == 'contains'
+              ? (value is string && value.size() > 0) || (value is list && value.size() > 0)
+          : (operator == 'eq' || operator == 'neq')
+              ? isValidConditionScalar(value) && !(value is list) && !(value is map)
+          : false;
+    }
+    function isValidConditionSourceId(source, sourceId) {
+      return source == 'field'
+          ? sourceId is string && sourceId.size() > 0
+          : (source == 'role' || source == 'screenMode' || source == 'recordState')
+              ? sourceId == null
+          : false;
+    }
+    function isValidConditionItem(item) {
+      return item is map
+          && item.keys().hasOnly(['source', 'sourceId', 'operator', 'value'])
+          && item.keys().hasAll(['source', 'sourceId', 'operator', 'value'])
+          && isValidConditionSource(item.source)
+          && isValidConditionOperator(item.operator)
+          && isValidConditionSourceId(item.source, item.sourceId)
+          && isValidConditionValue(item.operator, item.value);
+    }
+    function isValidConditionItems(conditions) {
+      return (conditions.size() < 1 || isValidConditionItem(conditions[0]))
+          && (conditions.size() < 2 || isValidConditionItem(conditions[1]))
+          && (conditions.size() < 3 || isValidConditionItem(conditions[2]))
+          && (conditions.size() < 4 || isValidConditionItem(conditions[3]))
+          && (conditions.size() < 5 || isValidConditionItem(conditions[4]))
+          && (conditions.size() < 6 || isValidConditionItem(conditions[5]))
+          && (conditions.size() < 7 || isValidConditionItem(conditions[6]))
+          && (conditions.size() < 8 || isValidConditionItem(conditions[7]))
+          && (conditions.size() < 9 || isValidConditionItem(conditions[8]))
+          && (conditions.size() < 10 || isValidConditionItem(conditions[9]))
+          && (conditions.size() < 11 || isValidConditionItem(conditions[10]))
+          && (conditions.size() < 12 || isValidConditionItem(conditions[11]))
+          && (conditions.size() < 13 || isValidConditionItem(conditions[12]))
+          && (conditions.size() < 14 || isValidConditionItem(conditions[13]))
+          && (conditions.size() < 15 || isValidConditionItem(conditions[14]))
+          && (conditions.size() < 16 || isValidConditionItem(conditions[15]))
+          && (conditions.size() < 17 || isValidConditionItem(conditions[16]))
+          && (conditions.size() < 18 || isValidConditionItem(conditions[17]))
+          && (conditions.size() < 19 || isValidConditionItem(conditions[18]))
+          && (conditions.size() < 20 || isValidConditionItem(conditions[19]));
+    }
+    function isValidConditionGroupShape(group) {
+      return group == null
+          || (
+            group is map
+            && group.keys().hasOnly(['logic', 'conditions'])
+            && group.keys().hasAll(['logic', 'conditions'])
+            && (group.logic == 'all' || group.logic == 'any')
+            && group.conditions is list
+            && group.conditions.size() >= 1
+            && group.conditions.size() <= 20
+            && isValidConditionItems(group.conditions)
+          );
+    }
+    function isValidCompositionLayoutGrid(layout) {
+      return layout is map
+          && (!layout.keys().hasAny(['row']) || layout.row == null || (layout.row is int && layout.row >= 0))
+          && (!layout.keys().hasAny(['column']) || layout.column == null || (layout.column is int && layout.column >= 0))
+          && (!layout.keys().hasAny(['span']) || (layout.span is int && layout.span >= 1 && layout.span <= 12));
+    }
+    function isValidScreenFieldRole(fieldRole) {
+      return fieldRole is string && (
+        fieldRole == 'input' ||
+        fieldRole == 'display' ||
+        fieldRole == 'filter' ||
+        fieldRole == 'tableColumn' ||
+        fieldRole == 'repeaterItem'
+      );
+    }
+    function isValidScreenFieldComposition(data) {
+      return (!data.keys().hasAny(['sectionId']) || data.sectionId == null || (
+        data.sectionId is string && data.sectionId.size() > 0
+      ))
+          && (!data.keys().hasAny(['fieldRole']) || isValidScreenFieldRole(data.fieldRole))
+          && (!data.keys().hasAny(['layout']) || isValidCompositionLayoutGrid(data.layout))
+          && (!data.keys().hasAny(['visibilityCondition']) || isValidConditionGroupShape(data.visibilityCondition))
+          && (!data.keys().hasAny(['enabledCondition']) || isValidConditionGroupShape(data.enabledCondition))
+          && (!data.keys().hasAny(['requiredCondition']) || isValidConditionGroupShape(data.requiredCondition));
+    }
+    function isValidScreenActionComposition(data) {
+      return (!data.keys().hasAny(['sectionId']) || data.sectionId == null || (
+        data.sectionId is string && data.sectionId.size() > 0
+      ))
+          && (!data.keys().hasAny(['layout']) || isValidCompositionLayoutGrid(data.layout))
+          && (!data.keys().hasAny(['visibilityCondition']) || isValidConditionGroupShape(data.visibilityCondition))
+          && (!data.keys().hasAny(['enabledCondition']) || isValidConditionGroupShape(data.enabledCondition));
+    }
+
+    // ── ScreenSection write helpers (ScreenSection-1) ─────────────────
+    function isScreenSectionWriter(projectId) {
+      return isScreenSpecWriter(projectId);
+    }
+    function isValidScreenSectionName(name) {
+      return name is string
+          && name.size() >= 2
+          && name.size() <= 80
+          && name.matches('^[a-zA-Z][a-zA-Z0-9_]{1,79}$');
+    }
+    function isValidScreenSectionLabel(label) {
+      return label is string
+          && label.size() >= 1
+          && label.size() <= 120;
+    }
+    function isValidScreenSectionType(sectionType) {
+      return sectionType is string && (
+        sectionType == 'search' ||
+        sectionType == 'form' ||
+        sectionType == 'detail' ||
+        sectionType == 'table' ||
+        sectionType == 'card' ||
+        sectionType == 'tabs' ||
+        sectionType == 'tab' ||
+        sectionType == 'repeater' ||
+        sectionType == 'history' ||
+        sectionType == 'custom'
+      );
+    }
+    function isValidScreenSectionOrder(order) {
+      return order is int && order >= 0;
+    }
+    function isValidScreenSectionLayout(layout) {
+      return layout is map
+          && layout.keys().hasAll(['columns', 'gap', 'collapsible', 'defaultCollapsed'])
+          && (
+            layout.columns == 1 ||
+            layout.columns == 2 ||
+            layout.columns == 3 ||
+            layout.columns == 4 ||
+            layout.columns == 6 ||
+            layout.columns == 12
+          )
+          && (
+            layout.gap == 'none' ||
+            layout.gap == 'sm' ||
+            layout.gap == 'md' ||
+            layout.gap == 'lg'
+          )
+          && layout.collapsible is bool
+          && layout.defaultCollapsed is bool;
+    }
+    function isValidScreenSectionParentSectionId(parentSectionId) {
+      return parentSectionId == null
+          || (parentSectionId is string && parentSectionId.size() > 0);
+    }
+    function isValidScreenSectionDescription(description) {
+      return description == null
+          || (description is string && description.size() <= 500);
+    }
+    function isValidScreenSectionParentRef(projectId, data) {
+      return data.screenSpecId is string && data.screenSpecId.size() > 0;
+    }
+    function isValidScreenSectionParentOnCreate(projectId, data) {
+      let specId = data.screenSpecId;
+      return isValidScreenSectionParentRef(projectId, data)
+          && exists(screenSpecDocPath(projectId, specId))
+          && get(screenSpecDocPath(projectId, specId)).data.projectId == projectId
+          && get(screenSpecDocPath(projectId, specId)).data.isDeleted == false;
+    }
+    function screenSectionWriteKeys() {
+      return [
+        'id',
+        'projectId',
+        'screenSpecId',
+        'name',
+        'label',
+        'sectionType',
+        'parentSectionId',
+        'order',
+        'layout',
+        'visibilityCondition',
+        'description',
+        'schemaVersion',
+        'createdAt',
+        'createdBy',
+        'updatedAt',
+        'updatedBy',
+      ];
+    }
+    function screenSectionRequiredKeys() {
+      return [
+        'id',
+        'projectId',
+        'screenSpecId',
+        'name',
+        'label',
+        'sectionType',
+        'parentSectionId',
+        'order',
+        'layout',
+        'visibilityCondition',
+        'description',
+        'schemaVersion',
+        'createdAt',
+        'createdBy',
+        'updatedAt',
+        'updatedBy',
+      ];
+    }
+    function screenSectionFieldValidation(projectId, data) {
+      return isValidScreenSectionName(data.name)
+          && isValidScreenSectionLabel(data.label)
+          && isValidScreenSectionType(data.sectionType)
+          && isValidScreenSectionOrder(data.order)
+          && isValidScreenSectionLayout(data.layout)
+          && isValidScreenSectionParentSectionId(data.parentSectionId)
+          && isValidConditionGroupShape(data.visibilityCondition)
+          && isValidScreenSectionDescription(data.description)
+          && isValidScreenSectionParentRef(projectId, data)
+          && data.schemaVersion == 1;
+    }
+    function isValidScreenSectionCreate(projectId, sectionId) {
+      let data = request.resource.data;
+      return isScreenSectionWriter(projectId)
+          && data.id == sectionId
+          && data.projectId == projectId
+          && data.keys().hasAll(screenSectionRequiredKeys())
+          && data.keys().hasOnly(screenSectionWriteKeys())
+          && screenSectionFieldValidation(projectId, data)
+          && isValidScreenSectionParentOnCreate(projectId, data)
+          && data.createdBy == uid()
+          && data.updatedBy == uid()
+          && data.createdAt == request.time
+          && data.updatedAt == request.time;
+    }
+    function isValidScreenSectionUpdate(projectId, sectionId) {
+      let data = request.resource.data;
+      let prev = resource.data;
+      return isScreenSectionWriter(projectId)
+          && data.id == sectionId
+          && data.projectId == projectId
+          && data.id == prev.id
+          && data.projectId == prev.projectId
+          && data.screenSpecId == prev.screenSpecId
+          && data.createdAt == prev.createdAt
+          && data.createdBy == prev.createdBy
+          && data.schemaVersion == prev.schemaVersion
+          && data.schemaVersion == 1
+          && data.keys().hasAll(screenSectionRequiredKeys())
+          && data.keys().hasOnly(screenSectionWriteKeys())
+          && screenSectionFieldValidation(projectId, data)
+          && data.updatedBy == uid()
+          && data.updatedAt == request.time;
+    }
+    function isValidScreenSectionDelete(projectId, sectionId) {
+      return isScreenSectionWriter(projectId);
     }
 
     // ── users/{uid} bootstrap helpers (PR #355) ───────────────────
@@ -1574,6 +1879,13 @@ service cloud.firestore {
         allow create: if isValidScreenSpecCreate(projectId, screenSpecId);
         allow update: if isValidScreenSpecUpdate(projectId, screenSpecId);
         allow delete: if false;
+      }
+
+      match /screenSections/{sectionId} {
+        allow get, list: if canReadProject(projectId);
+        allow create: if isValidScreenSectionCreate(projectId, sectionId);
+        allow update: if isValidScreenSectionUpdate(projectId, sectionId);
+        allow delete: if isValidScreenSectionDelete(projectId, sectionId);
       }
 
       match /screenFields/{fieldId} {
