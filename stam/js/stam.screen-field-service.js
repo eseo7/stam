@@ -33,6 +33,7 @@
     SECTION_SPEC_MISMATCH: 'SCREEN_FIELD_SECTION_SPEC_MISMATCH',
     FIELD_ROLE_SECTION_MISMATCH: 'SCREEN_FIELD_FIELD_ROLE_SECTION_MISMATCH',
     CONDITIONS_REFERENCE_FIELD: 'SCREEN_FIELD_CONDITIONS_REFERENCE_FIELD',
+    ADAPTER_DEPENDENCY_MISSING: 'SCREEN_FIELD_ADAPTER_DEPENDENCY_MISSING',
   };
 
   var DEFAULT_LAYOUT = { row: null, column: null, span: 12 };
@@ -901,6 +902,130 @@
     return null;
   }
 
+  function requireAdapterMethod(adapter, methodName, label) {
+    if (!adapter || typeof adapter[methodName] !== 'function') {
+      throw createServiceError(
+        ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+        'screenFieldService: ' + label + ' adapter dependency missing'
+      );
+    }
+    return adapter;
+  }
+
+  function documentNeedsSectionLookup(doc) {
+    return normalizeSectionId(doc && doc.sectionId) != null;
+  }
+
+  function documentNeedsFieldIdLookup(doc) {
+    var contract = compositionContract();
+    if (!contract || !contract.documentHasFieldConditionReferences) return false;
+    return contract.documentHasFieldConditionReferences(doc || {});
+  }
+
+  function buildCompositionValidationContext(deps, projectId, screenSpecId, doc) {
+    try {
+      var source = doc || {};
+      var needsSections = documentNeedsSectionLookup(source);
+      var needsFieldIds = documentNeedsFieldIdLookup(source);
+
+      if (needsSections) {
+        requireAdapterMethod(deps.sectionAdapter, 'listByScreenSpec', 'section');
+      }
+      if (needsFieldIds) {
+        requireAdapterMethod(deps.fieldAdapter, 'listByScreenSpec', 'field');
+      }
+
+      var fieldIdsPromise = needsFieldIds
+        ? deps.fieldAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
+          if (!Array.isArray(items)) {
+            throw createServiceError(
+              ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+              'screenFieldService: field adapter listByScreenSpec returned invalid result'
+            );
+          }
+          return items.map(function (item) {
+            return clean(item.id);
+          }).filter(Boolean);
+        })
+        : Promise.resolve([]);
+
+      var sectionsPromise = needsSections
+        ? deps.sectionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
+          if (!Array.isArray(items)) {
+            throw createServiceError(
+              ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+              'screenFieldService: section adapter listByScreenSpec returned invalid result'
+            );
+          }
+          return buildSectionsById(items);
+        })
+        : Promise.resolve(Object.create(null));
+
+      return Promise.all([fieldIdsPromise, sectionsPromise]).then(function (results) {
+        return {
+          fieldIds: results[0],
+          sectionsById: results[1],
+        };
+      });
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  }
+
+  function scanConditionReferencesToField(deps, projectId, screenSpecId, fieldId, excludeFieldId) {
+    try {
+      requireAdapterMethod(deps.fieldAdapter, 'listByScreenSpec', 'field');
+      requireAdapterMethod(deps.sectionAdapter, 'listByScreenSpec', 'section');
+      requireAdapterMethod(deps.actionAdapter, 'listByScreenSpec', 'action');
+
+    var contract = compositionContract();
+    if (!contract || typeof contract.findFieldReferenceProperty !== 'function') {
+      throw createServiceError(
+        ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+        'screenFieldService: condition contract dependency missing'
+      );
+    }
+
+    var targetId = clean(fieldId);
+    var specId = clean(screenSpecId);
+    var excludeId = clean(excludeFieldId);
+    var references = [];
+
+    function scanItems(items, entity, keys) {
+      if (!Array.isArray(items)) {
+        throw createServiceError(
+          ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+          'screenFieldService: adapter listByScreenSpec returned invalid result'
+        );
+      }
+      items.forEach(function (item) {
+        if (!item || clean(item.id) === excludeId) return;
+        if (clean(item.screenSpecId) !== specId) return;
+        var property = contract.findFieldReferenceProperty(item, targetId, keys);
+        if (property) {
+          references.push({ entity: entity, id: clean(item.id), property: property });
+        }
+      });
+    }
+
+    return Promise.all([
+      deps.fieldAdapter.listByScreenSpec(projectId, screenSpecId).then(function (fields) {
+        scanItems(fields, 'field', ['visibilityCondition', 'enabledCondition', 'requiredCondition']);
+      }),
+      deps.sectionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (sections) {
+        scanItems(sections, 'section', ['visibilityCondition']);
+      }),
+      deps.actionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (actions) {
+        scanItems(actions, 'action', ['visibilityCondition', 'enabledCondition']);
+      }),
+    ]).then(function () {
+      return references;
+    });
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  }
+
   function buildSectionsById(sections) {
     var map = Object.create(null);
     (sections || []).forEach(function (section) {
@@ -909,69 +1034,6 @@
       }
     });
     return map;
-  }
-
-  function buildCompositionValidationContext(deps, projectId, screenSpecId) {
-    var fieldAdapter = deps.fieldAdapter;
-    var sectionAdapter = deps.sectionAdapter;
-    var fieldIdsPromise = fieldAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
-      return (items || []).map(function (item) {
-        return clean(item.id);
-      }).filter(Boolean);
-    });
-    var sectionsPromise = sectionAdapter
-      ? sectionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
-        return buildSectionsById(items);
-      })
-      : Promise.resolve(Object.create(null));
-
-    return Promise.all([fieldIdsPromise, sectionsPromise]).then(function (results) {
-      return {
-        fieldIds: results[0],
-        sectionsById: results[1],
-      };
-    });
-  }
-
-  function countConditionReferencesToField(deps, projectId, screenSpecId, fieldId) {
-    var contract = compositionContract();
-    if (!contract || typeof contract.documentReferencesFieldId !== 'function') {
-      return Promise.resolve(0);
-    }
-
-    var targetId = clean(fieldId);
-    var count = 0;
-
-    function scanCollection(items, keys) {
-      (items || []).forEach(function (item) {
-        if (!item || clean(item.id) === targetId) return;
-        if (contract.documentReferencesFieldId(item, targetId, keys)) {
-          count += 1;
-        }
-      });
-    }
-
-    var promises = [
-      deps.fieldAdapter.listByScreenSpec(projectId, screenSpecId).then(function (fields) {
-        scanCollection(fields, ['visibilityCondition', 'enabledCondition', 'requiredCondition']);
-      }),
-    ];
-
-    if (deps.sectionAdapter) {
-      promises.push(deps.sectionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (sections) {
-        scanCollection(sections, ['visibilityCondition']);
-      }));
-    }
-
-    if (deps.actionAdapter) {
-      promises.push(deps.actionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (actions) {
-        scanCollection(actions, ['visibilityCondition', 'enabledCondition']);
-      }));
-    }
-
-    return Promise.all(promises).then(function () {
-      return count;
-    });
   }
 
   function resolveAdapter(adapter) {
@@ -1079,7 +1141,7 @@
       var source = Object.assign({}, input || {});
       var screenSpecId = clean(source.screenSpecId);
 
-      return buildCompositionValidationContext(compositionDeps, pid, screenSpecId).then(function (validationContext) {
+      return buildCompositionValidationContext(compositionDeps, pid, screenSpecId, source).then(function (validationContext) {
         var ctx = Object.assign({}, context || {}, { projectId: pid }, validationContext);
         var item = buildCreatePayload(source, ctx, clock);
         return check(ACTIONS.CREATE, pid, item, context).then(function () {
@@ -1102,7 +1164,8 @@
         if (!current) {
           throw createServiceError(ERROR_CODES.NOT_FOUND, 'screenFieldService: screen field not found');
         }
-        return buildCompositionValidationContext(compositionDeps, pid, current.screenSpecId).then(function (validationContext) {
+        var mergedForContext = Object.assign({}, current, patch || {});
+        return buildCompositionValidationContext(compositionDeps, pid, current.screenSpecId, mergedForContext).then(function (validationContext) {
           var ctx = Object.assign({}, context || {}, { projectId: pid }, validationContext);
           var nextPatch = buildUpdatePatch(current, patch, ctx, clock);
           if (hasOwn(patch, 'name') && normalizeName(patch.name) !== normalizeName(current.name)) {
@@ -1125,11 +1188,12 @@
         if (!current) {
           throw createServiceError(ERROR_CODES.NOT_FOUND, 'screenFieldService: screen field not found');
         }
-        return countConditionReferencesToField(compositionDeps, pid, current.screenSpecId, fid).then(function (referenceCount) {
-          if (referenceCount > 0) {
+        return scanConditionReferencesToField(compositionDeps, pid, current.screenSpecId, fid, fid).then(function (references) {
+          if (references.length > 0) {
             throw createServiceError(
               ERROR_CODES.CONDITIONS_REFERENCE_FIELD,
-              'screenFieldService: conditions reference field'
+              'screenFieldService: conditions reference field',
+              { references: references }
             );
           }
           return adapter.delete(pid, fid);
@@ -1185,7 +1249,7 @@
     normalizeCompositionFieldsForWrite: normalizeCompositionFieldsForWrite,
     validateCompositionFields: validateCompositionFields,
     buildCompositionValidationContext: buildCompositionValidationContext,
-    countConditionReferencesToField: countConditionReferencesToField,
+    scanConditionReferencesToField: scanConditionReferencesToField,
     normalizeMemberRole: normalizeMemberRole,
     canWriteScreenField: canWriteScreenField,
     canReadScreenField: canReadScreenField,

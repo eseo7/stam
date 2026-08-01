@@ -173,7 +173,10 @@ screenSpec
 - JavaScript 문자열 / eval 표현식 **금지**
 - flat group only (중첩 group 미지원)
 - conditions 최대 **20**개
-- **Rules:** logic + conditions list bounds (1–20) + **각 condition item source/operator 필수** (`isValidConditionItemBasic` unrolled) — operator/value/sourceId 의미 검증은 Service
+- **Rules:** `keys().hasOnly(['logic','conditions'])`, logic `all|any`, conditions list **1–20**, **1~20번째 item 전체** `isValidConditionItem` unrolled 검증 (재귀 helper **미사용**)
+- **Rules item:** `keys().hasOnly(['source','sourceId','operator','value'])`, source/operator enum, sourceId 계약, operator/value 타입 계약
+- **Rules 미검증:** Field 문서 존재·screenSpec 관계 (Service `validateConditionReferences` 담당)
+- field `sourceId` Rules: non-empty string (`size()>0`); **공백-only trim 검증은 Rules helper 제약으로 불가** (Service에서 trim+blank 거부)
 - `source=field` → `sourceId`는 동일 screenSpec의 screenField ID
 - `source=role` → value는 owner/admin/editor/viewer
 - `source=screenMode` → list/create/detail/edit/popup
@@ -198,8 +201,8 @@ screenSpec
 | **layout (write)** | 누락 시 default; 명시 invalid span/unknown key/타입 오류 거부 |
 | **layout (read)** | 누락 key만 default; stored invalid span 등은 그대로 노출 |
 | **schemaVersion (read)** | 누락 → 1; stored non-1 값은 은폐하지 않음 |
-| **Section/Field 참조 검증** | Service create/update 시 Adapter에서 sectionsById·fieldIds 로드 (caller context 신뢰 금지) |
-| **Field delete** | 동일 screenSpec 내 condition field 참조 존재 시 `CONDITIONS_REFERENCE_FIELD` 거부 |
+| **Section/Field 참조 검증** | Service create/update 시 필요 시 Adapter에서 sectionsById·fieldIds 로드 (caller context 신뢰 금지; Adapter 누락 시 **fail-closed**) |
+| **Field delete** | Field/Section/Action Adapter **3종 필수** + `listByScreenSpec`; 동일 screenSpec condition field 참조 존재 시 `CONDITIONS_REFERENCE_FIELD` 거부; Adapter 누락·비배열 조회 시 `ADAPTER_DEPENDENCY_MISSING` |
 
 ---
 
@@ -256,7 +259,9 @@ update 시 정규화 **선행** — PR C `#407` 회귀 방지.
 - **ScreenSection-1** helpers + `match /screenSections/{sectionId}`
 - screenFields / screenActions writeKeys에 composition 필드 **optional 추가**
 - requiredKeys는 **변경 없음** (기존 v1 문서 backward compat)
-- 복잡한 참조 무결성·순환 검증은 Service 담당
+- **ConditionGroup shape:** `isValidConditionGroupShape` + `isValidConditionItem` (source/operator enum, sourceId, operator/value, unknown key 거부, indices 0–19 unrolled)
+- 복잡한 참조 무결성·순환 검증·Field 존재 검증은 Service 담당
+- Rules 계약 테스트: `scripts/test-screen-composition-rules-contract.mjs` (**static** — Emulator 미실행)
 
 ---
 
@@ -307,17 +312,18 @@ screenSections는 screenSpecs와 **동일 writer/reader** 원칙:
 
 ## 17. 계약 테스트 목록과 수량
 
-### 신규 (7 files, 148 cases)
+### D1 계약 (8 files, 186 cases — 3차 재보정 반영)
 
-| 파일 | 케이스 | 결과 |
-|------|--------|------|
-| `test-screen-section-service-contract.mjs` | 33 | PASS |
-| `test-screen-section-adapter-contract.mjs` | 14 | PASS |
-| `test-screen-section-rules-contract.mjs` | 11 | PASS |
-| `test-screen-section-role-matrix-contract.mjs` | 10 | PASS |
-| `test-screen-field-composition-extension-contract.mjs` | 32 | PASS |
-| `test-screen-action-composition-extension-contract.mjs` | 22 | PASS |
-| `test-screen-composition-fixture-contract.mjs` | 26 | PASS |
+| 파일 | 케이스 | 유형 | 결과 |
+|------|--------|------|------|
+| `test-screen-section-service-contract.mjs` | 33 | runtime service | PASS |
+| `test-screen-section-adapter-contract.mjs` | 14 | runtime adapter | PASS |
+| `test-screen-section-rules-contract.mjs` | 11 | static rules | PASS |
+| `test-screen-section-role-matrix-contract.mjs` | 10 | static matrix | PASS |
+| `test-screen-field-composition-extension-contract.mjs` | 45 | runtime service | PASS |
+| `test-screen-action-composition-extension-contract.mjs` | 26 | runtime service | PASS |
+| `test-screen-composition-fixture-contract.mjs` | 26 | static fixture | PASS |
+| `test-screen-composition-rules-contract.mjs` | 21 | **static rules** | PASS |
 
 실행:
 
@@ -329,7 +335,10 @@ node scripts/test-screen-section-role-matrix-contract.mjs
 node scripts/test-screen-field-composition-extension-contract.mjs
 node scripts/test-screen-action-composition-extension-contract.mjs
 node scripts/test-screen-composition-fixture-contract.mjs
+node scripts/test-screen-composition-rules-contract.mjs
 ```
+
+**3차 재보정 vs 2차(148 cases):** +38 (field fail-closed +13, action fail-closed +4, rules static +21, −0 section)
 
 ### 회귀 (23 suites)
 

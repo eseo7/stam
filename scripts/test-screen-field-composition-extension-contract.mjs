@@ -141,6 +141,9 @@ function test(name, fn) {
   testCount += 1;
   fn();
 }
+function asyncTest(name) {
+  testCount += 1;
+}
 
 // ── spec 12.E: legacy normalize defaults ─────────────────────────────
 test('legacy doc without composition fields applies defaults', () => {
@@ -448,7 +451,8 @@ test('invalid schemaVersion is preserved on read', () => {
 
 function createFakeFieldAdapter(initial = []) {
   const store = new Map(initial.map((item) => [item.id, { ...item }]));
-  return {
+  let deleteCalls = 0;
+  const adapter = {
     listByScreenSpec(projectId, screenSpecId) {
       return Promise.resolve(Array.from(store.values()).filter((item) => (
         item.projectId === projectId && item.screenSpecId === screenSpecId
@@ -472,10 +476,15 @@ function createFakeFieldAdapter(initial = []) {
       return Promise.resolve({ ...next });
     },
     delete(projectId, fieldId) {
+      deleteCalls += 1;
       store.delete(fieldId);
       return Promise.resolve();
     },
+    deleteCallCount() {
+      return deleteCalls;
+    },
   };
+  return adapter;
 }
 
 function createFakeSectionAdapter(sections = []) {
@@ -500,24 +509,13 @@ function createFakeActionAdapter(actions = []) {
   };
 }
 
-test('createService ignores spoofed sectionsById and loads adapter sections', () => {
-  // executed in async runner below
-});
-
-test('deleteField rejects when conditions reference field', () => {
-  // executed in async runner below
-});
-
-test('deleteField succeeds when no condition references field', () => {
-  // executed in async runner below
-});
-
 test('invalid field name reject', () => {
   const result = contract.validateScreenFieldInput(validCreateInput({ name: '1bad' }), 'create');
   assert.equal(result.valid, false);
 });
 
 async function runAsyncTests() {
+  asyncTest('createService ignores spoofed sectionsById and loads adapter sections');
   {
     const fieldAdapter = createFakeFieldAdapter([seedField({ id: 'fld-peer' })]);
     const sectionAdapter = createFakeSectionAdapter([]);
@@ -541,6 +539,72 @@ async function runAsyncTests() {
     );
   }
 
+  asyncTest('create rejects when sectionId set but section adapter missing');
+  {
+    const fieldAdapter = createFakeFieldAdapter([seedField({ id: 'fld-peer' })]);
+    const service = contract.createService({
+      adapter: fieldAdapter,
+      authorize: () => true,
+    });
+
+    await assert.rejects(
+      () => service.create('P1', validCreateInput({
+        name: 'needsSectionAdapter',
+        sectionId: 'sec-form',
+      }), { actorUid: 'u1' }),
+      (err) => err.code === contract.ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+    );
+  }
+
+  asyncTest('create rejects when field condition present but field list adapter missing');
+  {
+    const brokenAdapter = {
+      findDuplicateNormalizedName() { return Promise.resolve(null); },
+      getById() { return Promise.resolve(null); },
+      create() { return Promise.resolve(null); },
+      update() { return Promise.resolve(null); },
+      delete() { return Promise.resolve(); },
+    };
+    const service = contract.createService({
+      adapter: brokenAdapter,
+      authorize: () => true,
+    });
+
+    await assert.rejects(
+      () => service.create('P1', validCreateInput({
+        name: 'needsFieldAdapter',
+        enabledCondition: fieldCondition('fld-missing'),
+      }), {
+        actorUid: 'u1',
+        fieldIds: ['fld-missing'],
+      }),
+      (err) => err.code === contract.ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+    );
+  }
+
+  asyncTest('create succeeds when section adapter provides section lookup');
+  {
+    const fieldAdapter = createFakeFieldAdapter([seedField({ id: 'fld-peer' })]);
+    const sectionAdapter = createFakeSectionAdapter([{
+      id: 'sec-form',
+      projectId: 'P1',
+      screenSpecId: 'scr-1',
+      sectionType: 'form',
+    }]);
+    const service = contract.createService({
+      adapter: fieldAdapter,
+      sectionAdapter,
+      authorize: () => true,
+    });
+
+    const created = await service.create('P1', validCreateInput({
+      name: 'adapterBackedSection',
+      sectionId: 'sec-form',
+    }), { actorUid: 'u1' });
+    assert.equal(created.sectionId, 'sec-form');
+  }
+
+  asyncTest('deleteField rejects when peer field conditions reference target');
   {
     const target = seedField({ id: 'fld-target', name: 'targetField' });
     const peer = seedField({
@@ -560,8 +624,10 @@ async function runAsyncTests() {
       () => service.delete('P1', 'fld-target', { actorUid: 'u1' }),
       (err) => err.code === contract.ERROR_CODES.CONDITIONS_REFERENCE_FIELD,
     );
+    assert.equal(fieldAdapter.deleteCallCount(), 0);
   }
 
+  asyncTest('deleteField succeeds when all adapters present and no references');
   {
     const target = seedField({ id: 'fld-target', name: 'targetField' });
     const fieldAdapter = createFakeFieldAdapter([target]);
@@ -575,6 +641,219 @@ async function runAsyncTests() {
     await service.delete('P1', 'fld-target', { actorUid: 'u1' });
     const remaining = await fieldAdapter.getById('P1', 'fld-target');
     assert.equal(remaining, null);
+    assert.equal(fieldAdapter.deleteCallCount(), 1);
+  }
+
+  asyncTest('deleteField rejects when action adapter missing');
+  {
+    const target = seedField({ id: 'fld-target', name: 'targetField' });
+    const fieldAdapter = createFakeFieldAdapter([target]);
+    const service = contract.createService({
+      adapter: fieldAdapter,
+      sectionAdapter: createFakeSectionAdapter([]),
+      authorize: () => true,
+    });
+
+    await assert.rejects(
+      () => service.delete('P1', 'fld-target', { actorUid: 'u1' }),
+      (err) => err.code === contract.ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+    );
+    assert.equal(fieldAdapter.deleteCallCount(), 0);
+  }
+
+  asyncTest('deleteField rejects when section adapter missing');
+  {
+    const target = seedField({ id: 'fld-target', name: 'targetField' });
+    const fieldAdapter = createFakeFieldAdapter([target]);
+    const service = contract.createService({
+      adapter: fieldAdapter,
+      sectionAdapter: null,
+      actionAdapter: createFakeActionAdapter([]),
+      authorize: () => true,
+    });
+
+    await assert.rejects(
+      () => service.delete('P1', 'fld-target', { actorUid: 'u1' }),
+      (err) => err.code === contract.ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+    );
+    assert.equal(fieldAdapter.deleteCallCount(), 0);
+  }
+
+  asyncTest('deleteField rejects when action adapter is null');
+  {
+    const target = seedField({ id: 'fld-target', name: 'targetField' });
+    const fieldAdapter = createFakeFieldAdapter([target]);
+    const service = contract.createService({
+      adapter: fieldAdapter,
+      sectionAdapter: createFakeSectionAdapter([]),
+      actionAdapter: null,
+      authorize: () => true,
+    });
+
+    await assert.rejects(
+      () => service.delete('P1', 'fld-target', { actorUid: 'u1' }),
+      (err) => err.code === contract.ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+    );
+    assert.equal(fieldAdapter.deleteCallCount(), 0);
+  }
+
+  asyncTest('deleteField rejects when section listByScreenSpec returns non-array');
+  {
+    const target = seedField({ id: 'fld-target', name: 'targetField' });
+    const fieldAdapter = createFakeFieldAdapter([target]);
+    const sectionAdapter = {
+      listByScreenSpec() { return Promise.resolve(undefined); },
+    };
+    const service = contract.createService({
+      adapter: fieldAdapter,
+      sectionAdapter,
+      actionAdapter: createFakeActionAdapter([]),
+      authorize: () => true,
+    });
+
+    await assert.rejects(
+      () => service.delete('P1', 'fld-target', { actorUid: 'u1' }),
+      (err) => err.code === contract.ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+    );
+    assert.equal(fieldAdapter.deleteCallCount(), 0);
+  }
+
+  asyncTest('deleteField rejects when action listByScreenSpec returns non-array');
+  {
+    const target = seedField({ id: 'fld-target', name: 'targetField' });
+    const fieldAdapter = createFakeFieldAdapter([target]);
+    const actionAdapter = {
+      listByScreenSpec() { return Promise.resolve(null); },
+    };
+    const service = contract.createService({
+      adapter: fieldAdapter,
+      sectionAdapter: createFakeSectionAdapter([]),
+      actionAdapter,
+      authorize: () => true,
+    });
+
+    await assert.rejects(
+      () => service.delete('P1', 'fld-target', { actorUid: 'u1' }),
+      (err) => err.code === contract.ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+    );
+    assert.equal(fieldAdapter.deleteCallCount(), 0);
+  }
+
+  asyncTest('deleteField rejects when target field not found');
+  {
+    const fieldAdapter = createFakeFieldAdapter([]);
+    const service = contract.createService({
+      adapter: fieldAdapter,
+      sectionAdapter: createFakeSectionAdapter([]),
+      actionAdapter: createFakeActionAdapter([]),
+      authorize: () => true,
+    });
+
+    await assert.rejects(
+      () => service.delete('P1', 'fld-missing', { actorUid: 'u1' }),
+      (err) => err.code === contract.ERROR_CODES.NOT_FOUND,
+    );
+    assert.equal(fieldAdapter.deleteCallCount(), 0);
+  }
+
+  asyncTest('deleteField rejects when section visibilityCondition references target');
+  {
+    const target = seedField({ id: 'fld-target', name: 'targetField' });
+    const sectionRef = {
+      id: 'sec-form',
+      projectId: 'P1',
+      screenSpecId: 'scr-1',
+      sectionType: 'form',
+      visibilityCondition: fieldCondition('fld-target'),
+    };
+    const fieldAdapter = createFakeFieldAdapter([target]);
+    const service = contract.createService({
+      adapter: fieldAdapter,
+      sectionAdapter: createFakeSectionAdapter([sectionRef]),
+      actionAdapter: createFakeActionAdapter([]),
+      authorize: () => true,
+    });
+
+    await assert.rejects(
+      () => service.delete('P1', 'fld-target', { actorUid: 'u1' }),
+      (err) => {
+        assert.equal(err.code, contract.ERROR_CODES.CONDITIONS_REFERENCE_FIELD);
+        assert.equal(err.references[0].entity, 'section');
+        return true;
+      },
+    );
+    assert.equal(fieldAdapter.deleteCallCount(), 0);
+  }
+
+  asyncTest('deleteField rejects when action enabledCondition references target');
+  {
+    const target = seedField({ id: 'fld-target', name: 'targetField' });
+    const actionRef = {
+      id: 'act-1',
+      projectId: 'P1',
+      screenSpecId: 'scr-1',
+      name: 'save',
+      label: '저장',
+      actionType: 'save',
+      enabledCondition: fieldCondition('fld-target'),
+    };
+    const fieldAdapter = createFakeFieldAdapter([target]);
+    const service = contract.createService({
+      adapter: fieldAdapter,
+      sectionAdapter: createFakeSectionAdapter([]),
+      actionAdapter: createFakeActionAdapter([actionRef]),
+      authorize: () => true,
+    });
+
+    await assert.rejects(
+      () => service.delete('P1', 'fld-target', { actorUid: 'u1' }),
+      (err) => {
+        assert.equal(err.code, contract.ERROR_CODES.CONDITIONS_REFERENCE_FIELD);
+        assert.equal(err.references[0].entity, 'action');
+        return true;
+      },
+    );
+    assert.equal(fieldAdapter.deleteCallCount(), 0);
+  }
+
+  asyncTest('deleteField ignores references from other screenSpec');
+  {
+    const target = seedField({ id: 'fld-target', name: 'targetField', screenSpecId: 'scr-1' });
+    const otherSpecPeer = seedField({
+      id: 'fld-other-spec',
+      screenSpecId: 'scr-2',
+      name: 'otherSpecPeer',
+      enabledCondition: fieldCondition('fld-target'),
+    });
+    const fieldAdapter = createFakeFieldAdapter([target, otherSpecPeer]);
+    const service = contract.createService({
+      adapter: fieldAdapter,
+      sectionAdapter: createFakeSectionAdapter([]),
+      actionAdapter: createFakeActionAdapter([]),
+      authorize: () => true,
+    });
+
+    await service.delete('P1', 'fld-target', { actorUid: 'u1' });
+    assert.equal(fieldAdapter.deleteCallCount(), 1);
+  }
+
+  asyncTest('deleteField allows self-reference on target field document');
+  {
+    const target = seedField({
+      id: 'fld-target',
+      name: 'targetField',
+      requiredCondition: fieldCondition('fld-target'),
+    });
+    const fieldAdapter = createFakeFieldAdapter([target]);
+    const service = contract.createService({
+      adapter: fieldAdapter,
+      sectionAdapter: createFakeSectionAdapter([]),
+      actionAdapter: createFakeActionAdapter([]),
+      authorize: () => true,
+    });
+
+    await service.delete('P1', 'fld-target', { actorUid: 'u1' });
+    assert.equal(fieldAdapter.deleteCallCount(), 1);
   }
 }
 

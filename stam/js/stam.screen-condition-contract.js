@@ -551,6 +551,33 @@
     return raw.schemaVersion;
   }
 
+  function conditionGroupHasFieldSource(group) {
+    if (!group || !Array.isArray(group.conditions)) return false;
+    for (var i = 0; i < group.conditions.length; i += 1) {
+      var item = group.conditions[i];
+      if (isPlainObject(item) && item.source === 'field') return true;
+    }
+    return false;
+  }
+
+  function documentHasFieldConditionReferences(doc, keys) {
+    if (!doc) return false;
+    var conditionKeys = keys || ['visibilityCondition', 'enabledCondition', 'requiredCondition'];
+    for (var i = 0; i < conditionKeys.length; i += 1) {
+      if (conditionGroupHasFieldSource(doc[conditionKeys[i]])) return true;
+    }
+    return false;
+  }
+
+  function findFieldReferenceProperty(doc, fieldId, conditionKeys) {
+    if (!doc) return null;
+    var keys = conditionKeys || ['visibilityCondition', 'enabledCondition', 'requiredCondition'];
+    for (var i = 0; i < keys.length; i += 1) {
+      if (conditionGroupReferencesFieldId(doc[keys[i]], fieldId)) return keys[i];
+    }
+    return null;
+  }
+
   function conditionGroupReferencesFieldId(group, fieldId) {
     if (!group || !Array.isArray(group.conditions)) return false;
     var target = clean(fieldId);
@@ -678,6 +705,9 @@
     normalizeFieldRoleForRead: normalizeFieldRoleForRead,
     normalizeSchemaVersionForRead: normalizeSchemaVersionForRead,
     conditionGroupReferencesFieldId: conditionGroupReferencesFieldId,
+    conditionGroupHasFieldSource: conditionGroupHasFieldSource,
+    documentHasFieldConditionReferences: documentHasFieldConditionReferences,
+    findFieldReferenceProperty: findFieldReferenceProperty,
     documentReferencesFieldId: documentReferencesFieldId,
     validateFieldRole: validateFieldRole,
     validateSectionType: validateSectionType,

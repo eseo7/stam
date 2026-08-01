@@ -1443,46 +1443,94 @@ service cloud.firestore {
     }
 
     // ── Shared composition shape helpers (PR D1) ──────────────────────
-    function isValidConditionItemBasic(item) {
-      return item is map
-          && item.keys().hasAll(['source', 'operator'])
-          && item.source is string
-          && item.source.size() > 0
-          && item.operator is string
-          && item.operator.size() > 0;
+    function isValidConditionSource(source) {
+      return source == 'field'
+          || source == 'role'
+          || source == 'screenMode'
+          || source == 'recordState';
     }
-    function isValidConditionItemsBasic(conditions) {
-      return (conditions.size() < 1 || isValidConditionItemBasic(conditions[0]))
-          && (conditions.size() < 2 || isValidConditionItemBasic(conditions[1]))
-          && (conditions.size() < 3 || isValidConditionItemBasic(conditions[2]))
-          && (conditions.size() < 4 || isValidConditionItemBasic(conditions[3]))
-          && (conditions.size() < 5 || isValidConditionItemBasic(conditions[4]))
-          && (conditions.size() < 6 || isValidConditionItemBasic(conditions[5]))
-          && (conditions.size() < 7 || isValidConditionItemBasic(conditions[6]))
-          && (conditions.size() < 8 || isValidConditionItemBasic(conditions[7]))
-          && (conditions.size() < 9 || isValidConditionItemBasic(conditions[8]))
-          && (conditions.size() < 10 || isValidConditionItemBasic(conditions[9]))
-          && (conditions.size() < 11 || isValidConditionItemBasic(conditions[10]))
-          && (conditions.size() < 12 || isValidConditionItemBasic(conditions[11]))
-          && (conditions.size() < 13 || isValidConditionItemBasic(conditions[12]))
-          && (conditions.size() < 14 || isValidConditionItemBasic(conditions[13]))
-          && (conditions.size() < 15 || isValidConditionItemBasic(conditions[14]))
-          && (conditions.size() < 16 || isValidConditionItemBasic(conditions[15]))
-          && (conditions.size() < 17 || isValidConditionItemBasic(conditions[16]))
-          && (conditions.size() < 18 || isValidConditionItemBasic(conditions[17]))
-          && (conditions.size() < 19 || isValidConditionItemBasic(conditions[18]))
-          && (conditions.size() < 20 || isValidConditionItemBasic(conditions[19]));
+    function isValidConditionOperator(operator) {
+      return operator == 'eq'
+          || operator == 'neq'
+          || operator == 'in'
+          || operator == 'notIn'
+          || operator == 'exists'
+          || operator == 'notExists'
+          || operator == 'contains'
+          || operator == 'gt'
+          || operator == 'gte'
+          || operator == 'lt'
+          || operator == 'lte';
+    }
+    function isValidConditionScalar(value) {
+      return value == null
+          || value is string
+          || value is bool
+          || value is int
+          || value is float;
+    }
+    function isValidConditionValue(operator, value) {
+      return (operator == 'exists' || operator == 'notExists')
+          ? value == null
+          : (operator == 'in' || operator == 'notIn')
+              ? value is list && value.size() > 0
+          : (operator == 'gt' || operator == 'gte' || operator == 'lt' || operator == 'lte')
+              ? value is int || value is float
+          : operator == 'contains'
+              ? (value is string && value.size() > 0) || (value is list && value.size() > 0)
+          : (operator == 'eq' || operator == 'neq')
+              ? isValidConditionScalar(value) && !(value is list) && !(value is map)
+          : false;
+    }
+    function isValidConditionSourceId(source, sourceId) {
+      return source == 'field'
+          ? sourceId is string && sourceId.size() > 0
+          : (source == 'role' || source == 'screenMode' || source == 'recordState')
+              ? sourceId == null
+          : false;
+    }
+    function isValidConditionItem(item) {
+      return item is map
+          && item.keys().hasOnly(['source', 'sourceId', 'operator', 'value'])
+          && item.keys().hasAll(['source', 'sourceId', 'operator', 'value'])
+          && isValidConditionSource(item.source)
+          && isValidConditionOperator(item.operator)
+          && isValidConditionSourceId(item.source, item.sourceId)
+          && isValidConditionValue(item.operator, item.value);
+    }
+    function isValidConditionItems(conditions) {
+      return (conditions.size() < 1 || isValidConditionItem(conditions[0]))
+          && (conditions.size() < 2 || isValidConditionItem(conditions[1]))
+          && (conditions.size() < 3 || isValidConditionItem(conditions[2]))
+          && (conditions.size() < 4 || isValidConditionItem(conditions[3]))
+          && (conditions.size() < 5 || isValidConditionItem(conditions[4]))
+          && (conditions.size() < 6 || isValidConditionItem(conditions[5]))
+          && (conditions.size() < 7 || isValidConditionItem(conditions[6]))
+          && (conditions.size() < 8 || isValidConditionItem(conditions[7]))
+          && (conditions.size() < 9 || isValidConditionItem(conditions[8]))
+          && (conditions.size() < 10 || isValidConditionItem(conditions[9]))
+          && (conditions.size() < 11 || isValidConditionItem(conditions[10]))
+          && (conditions.size() < 12 || isValidConditionItem(conditions[11]))
+          && (conditions.size() < 13 || isValidConditionItem(conditions[12]))
+          && (conditions.size() < 14 || isValidConditionItem(conditions[13]))
+          && (conditions.size() < 15 || isValidConditionItem(conditions[14]))
+          && (conditions.size() < 16 || isValidConditionItem(conditions[15]))
+          && (conditions.size() < 17 || isValidConditionItem(conditions[16]))
+          && (conditions.size() < 18 || isValidConditionItem(conditions[17]))
+          && (conditions.size() < 19 || isValidConditionItem(conditions[18]))
+          && (conditions.size() < 20 || isValidConditionItem(conditions[19]));
     }
     function isValidConditionGroupShape(group) {
       return group == null
           || (
             group is map
+            && group.keys().hasOnly(['logic', 'conditions'])
             && group.keys().hasAll(['logic', 'conditions'])
             && (group.logic == 'all' || group.logic == 'any')
             && group.conditions is list
             && group.conditions.size() >= 1
             && group.conditions.size() <= 20
-            && isValidConditionItemsBasic(group.conditions)
+            && isValidConditionItems(group.conditions)
           );
     }
     function isValidCompositionLayoutGrid(layout) {

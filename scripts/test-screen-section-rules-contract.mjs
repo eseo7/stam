@@ -76,8 +76,8 @@ const compositionHelpers = rulesSource.match(
 assert.ok(compositionHelpers, 'composition helper block must exist');
 
 test('condition item shape validation helpers exist', () => {
-  assert.match(compositionHelpers[0], /function isValidConditionItemBasic\(/);
-  assert.match(compositionHelpers[0], /function isValidConditionItemsBasic\(/);
+  assert.match(compositionHelpers[0], /function isValidConditionItem\(/);
+  assert.match(compositionHelpers[0], /function isValidConditionItems\(/);
   assert.match(compositionHelpers[0], /function isValidConditionGroupShape\(group\)/);
 });
 

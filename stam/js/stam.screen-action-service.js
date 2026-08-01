@@ -30,6 +30,7 @@
     TARGET_CONSTRAINT: 'SCREEN_ACTION_TARGET_CONSTRAINT',
     SECTION_NOT_FOUND: 'SCREEN_ACTION_SECTION_NOT_FOUND',
     SECTION_SPEC_MISMATCH: 'SCREEN_ACTION_SECTION_SPEC_MISMATCH',
+    ADAPTER_DEPENDENCY_MISSING: 'SCREEN_ACTION_ADAPTER_DEPENDENCY_MISSING',
   };
 
   var DEFAULT_LAYOUT = { row: null, column: null, span: 12 };
@@ -838,26 +839,74 @@
     return map;
   }
 
-  function buildCompositionValidationContext(deps, projectId, screenSpecId) {
-    var fieldAdapter = deps.fieldAdapter;
-    var sectionAdapter = deps.sectionAdapter;
-    var fieldIdsPromise = fieldAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
-      return (items || []).map(function (item) {
-        return clean(item.id);
-      }).filter(Boolean);
-    });
-    var sectionsPromise = sectionAdapter
-      ? sectionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
-        return buildSectionsById(items);
-      })
-      : Promise.resolve(Object.create(null));
+  function requireAdapterMethod(adapter, methodName, label) {
+    if (!adapter || typeof adapter[methodName] !== 'function') {
+      throw createServiceError(
+        ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+        'screenActionService: ' + label + ' adapter dependency missing'
+      );
+    }
+    return adapter;
+  }
 
-    return Promise.all([fieldIdsPromise, sectionsPromise]).then(function (results) {
-      return {
-        fieldIds: results[0],
-        sectionsById: results[1],
-      };
-    });
+  function documentNeedsSectionLookup(doc) {
+    return normalizeSectionId(doc && doc.sectionId) != null;
+  }
+
+  function documentNeedsFieldIdLookup(doc) {
+    var contract = compositionContract();
+    if (!contract || !contract.documentHasFieldConditionReferences) return false;
+    return contract.documentHasFieldConditionReferences(doc || {}, ['visibilityCondition', 'enabledCondition']);
+  }
+
+  function buildCompositionValidationContext(deps, projectId, screenSpecId, doc) {
+    try {
+      var source = doc || {};
+      var needsSections = documentNeedsSectionLookup(source);
+      var needsFieldIds = documentNeedsFieldIdLookup(source);
+
+      if (needsSections) {
+        requireAdapterMethod(deps.sectionAdapter, 'listByScreenSpec', 'section');
+      }
+      if (needsFieldIds) {
+        requireAdapterMethod(deps.fieldAdapter, 'listByScreenSpec', 'field');
+      }
+
+      var fieldIdsPromise = needsFieldIds
+        ? deps.fieldAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
+          if (!Array.isArray(items)) {
+            throw createServiceError(
+              ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+              'screenActionService: field adapter listByScreenSpec returned invalid result'
+            );
+          }
+          return items.map(function (item) {
+            return clean(item.id);
+          }).filter(Boolean);
+        })
+        : Promise.resolve([]);
+
+      var sectionsPromise = needsSections
+        ? deps.sectionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
+          if (!Array.isArray(items)) {
+            throw createServiceError(
+              ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+              'screenActionService: section adapter listByScreenSpec returned invalid result'
+            );
+          }
+          return buildSectionsById(items);
+        })
+        : Promise.resolve(Object.create(null));
+
+      return Promise.all([fieldIdsPromise, sectionsPromise]).then(function (results) {
+        return {
+          fieldIds: results[0],
+          sectionsById: results[1],
+        };
+      });
+    } catch (err) {
+      return Promise.reject(err);
+    }
   }
 
   function resolveAdapter(adapter) {
@@ -933,15 +982,8 @@
     var clock = opts.clock;
 
     function compositionDeps() {
-      var fa = fieldAdapter || resolveFieldAdapter(null);
-      if (!fa) {
-        throw createServiceError(
-          ERROR_CODES.VALIDATION_FAILED,
-          'screenActionService: fieldAdapter is required for composition validation'
-        );
-      }
       return {
-        fieldAdapter: fa,
+        fieldAdapter: resolveFieldAdapter(fieldAdapter),
         sectionAdapter: sectionAdapter || resolveSectionAdapter(null),
         actionAdapter: adapter,
       };
@@ -997,7 +1039,7 @@
       var source = Object.assign({}, input || {});
       var screenSpecId = clean(source.screenSpecId);
 
-      return buildCompositionValidationContext(compositionDeps(), pid, screenSpecId).then(function (validationContext) {
+      return buildCompositionValidationContext(compositionDeps(), pid, screenSpecId, source).then(function (validationContext) {
         var ctx = Object.assign({}, context || {}, { projectId: pid }, validationContext);
         var item = buildCreatePayload(source, ctx, clock);
         return check(ACTIONS.CREATE, pid, item, context).then(function () {
@@ -1020,7 +1062,8 @@
         if (!current) {
           throw createServiceError(ERROR_CODES.NOT_FOUND, 'screenActionService: screen action not found');
         }
-        return buildCompositionValidationContext(compositionDeps(), pid, current.screenSpecId).then(function (validationContext) {
+        var mergedForContext = Object.assign({}, current, patch || {});
+        return buildCompositionValidationContext(compositionDeps(), pid, current.screenSpecId, mergedForContext).then(function (validationContext) {
           var ctx = Object.assign({}, context || {}, { projectId: pid }, validationContext);
           var nextPatch = buildUpdatePatch(current, patch, ctx, clock);
           if (hasOwn(patch, 'name') && normalizeName(patch.name) !== normalizeName(current.name)) {

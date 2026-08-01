@@ -138,6 +138,9 @@ function test(name, fn) {
   testCount += 1;
   fn();
 }
+function asyncTest(name) {
+  testCount += 1;
+}
 
 // ── spec 12.F: legacy normalize defaults ─────────────────────────────
 test('legacy action without composition fields normalizes with defaults', () => {
@@ -377,4 +380,162 @@ test('update successMessage blank to null', () => {
   assert.equal(patch.successMessage, null);
 });
 
-console.log(`screen action composition extension contract (${testCount} cases): PASS`);
+function createFakeFieldAdapter(fields = []) {
+  const store = new Map(fields.map((item) => [item.id, { ...item }]));
+  return {
+    listByScreenSpec(projectId, screenSpecId) {
+      return Promise.resolve(Array.from(store.values()).filter((item) => (
+        item.projectId === projectId && item.screenSpecId === screenSpecId
+      )));
+    },
+  };
+}
+
+function createFakeSectionAdapter(sections = []) {
+  const store = new Map(sections.map((item) => [item.id, { ...item }]));
+  return {
+    listByScreenSpec(projectId, screenSpecId) {
+      return Promise.resolve(Array.from(store.values()).filter((item) => (
+        item.projectId === projectId && item.screenSpecId === screenSpecId
+      )));
+    },
+  };
+}
+
+function createFakeActionAdapter(initial = []) {
+  const store = new Map(initial.map((item) => [item.id, { ...item }]));
+  return {
+    listByScreenSpec(projectId, screenSpecId) {
+      return Promise.resolve(Array.from(store.values()).filter((item) => (
+        item.projectId === projectId && item.screenSpecId === screenSpecId
+      )));
+    },
+    findDuplicateNormalizedName() { return Promise.resolve(null); },
+    getById(projectId, actionId) {
+      const item = store.get(actionId);
+      return Promise.resolve(item && item.projectId === projectId ? { ...item } : null);
+    },
+    create(projectId, action) {
+      const id = action.id || `act-${store.size + 1}`;
+      const next = { ...action, id, projectId };
+      store.set(id, next);
+      return Promise.resolve({ ...next });
+    },
+    update(projectId, actionId, patch) {
+      const current = store.get(actionId);
+      const next = { ...current, ...patch };
+      store.set(actionId, next);
+      return Promise.resolve({ ...next });
+    },
+    delete(projectId, actionId) {
+      store.delete(actionId);
+      return Promise.resolve();
+    },
+  };
+}
+
+async function runAsyncTests() {
+  asyncTest('create rejects when sectionId set but section adapter missing');
+  {
+    const actionAdapter = createFakeActionAdapter([]);
+    const service = contract.createService({
+      adapter: actionAdapter,
+      authorize: () => true,
+    });
+
+    await assert.rejects(
+      () => service.create('P1', validCreateInput({
+        name: 'needsSectionAdapter',
+        sectionId: 'sec-form',
+      }), {
+        actorUid: 'u1',
+        sectionsById: {
+          'sec-form': { id: 'sec-form', screenSpecId: 'scr-1', sectionType: 'form' },
+        },
+      }),
+      (err) => err.code === contract.ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+    );
+  }
+
+  asyncTest('create rejects when field condition present but field list adapter missing');
+  {
+    const brokenFieldAdapter = createFakeFieldAdapter([]);
+    delete brokenFieldAdapter.listByScreenSpec;
+    const actionAdapter = createFakeActionAdapter([]);
+    const service = contract.createService({
+      adapter: actionAdapter,
+      fieldAdapter: brokenFieldAdapter,
+      authorize: () => true,
+    });
+
+    await assert.rejects(
+      () => service.create('P1', validCreateInput({
+        name: 'needsFieldLookup',
+        enabledCondition: fieldCondition('fld-peer'),
+      }), {
+        actorUid: 'u1',
+        fieldIds: ['fld-peer'],
+      }),
+      (err) => err.code === contract.ERROR_CODES.ADAPTER_DEPENDENCY_MISSING,
+    );
+  }
+
+  asyncTest('create succeeds with adapter-backed section and field lookup');
+  {
+    const fieldAdapter = createFakeFieldAdapter([{
+      id: 'fld-peer',
+      projectId: 'P1',
+      screenSpecId: 'scr-1',
+      name: 'peer',
+    }]);
+    const sectionAdapter = createFakeSectionAdapter([{
+      id: 'sec-form',
+      projectId: 'P1',
+      screenSpecId: 'scr-1',
+      sectionType: 'form',
+    }]);
+    const actionAdapter = createFakeActionAdapter([]);
+    const service = contract.createService({
+      adapter: actionAdapter,
+      fieldAdapter,
+      sectionAdapter,
+      authorize: () => true,
+    });
+
+    const created = await service.create('P1', validCreateInput({
+      name: 'adapterBackedAction',
+      sectionId: 'sec-form',
+      enabledCondition: fieldCondition('fld-peer'),
+    }), { actorUid: 'u1' });
+    assert.equal(created.sectionId, 'sec-form');
+    assert.equal(created.enabledCondition.conditions[0].sourceId, 'fld-peer');
+  }
+
+  asyncTest('update validates merged document with adapter field lookup');
+  {
+    const actionAdapter = createFakeActionAdapter([seedAction()]);
+    const fieldAdapter = createFakeFieldAdapter([{
+      id: 'fld-peer',
+      projectId: 'P1',
+      screenSpecId: 'scr-1',
+      name: 'peer',
+    }]);
+    const service = contract.createService({
+      adapter: actionAdapter,
+      fieldAdapter,
+      authorize: () => true,
+    });
+
+    const updated = await service.update('P1', 'act-1', {
+      enabledCondition: fieldCondition('fld-peer'),
+    }, { actorUid: 'u1' });
+    assert.equal(updated.enabledCondition.conditions[0].sourceId, 'fld-peer');
+  }
+}
+
+runAsyncTests().then(() => {
+  console.log(`screen action composition extension contract (${testCount} cases): PASS`);
+}).catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
