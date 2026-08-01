@@ -1443,34 +1443,15 @@ service cloud.firestore {
     }
 
     // ── Shared composition shape helpers (PR D1) ──────────────────────
-    function isValidConditionItemBasic(item) {
-      return item is map
-          && item.keys().hasAll(['source', 'operator'])
-          && item.source is string
-          && item.source.size() > 0
-          && item.operator is string
-          && item.operator.size() > 0;
-    }
-    function isValidConditionListBasicFrom(conditions, index) {
-      return index >= conditions.size()
-          || (
-            isValidConditionItemBasic(conditions[index])
-            && isValidConditionListBasicFrom(conditions, index + 1)
-          );
-    }
-    function isValidConditionListBasic(conditions) {
-      return conditions is list
-          && conditions.size() >= 1
-          && conditions.size() <= 20
-          && isValidConditionListBasicFrom(conditions, 0);
-    }
     function isValidConditionGroupShape(group) {
       return group == null
           || (
             group is map
             && group.keys().hasAll(['logic', 'conditions'])
             && (group.logic == 'all' || group.logic == 'any')
-            && isValidConditionListBasic(group.conditions)
+            && group.conditions is list
+            && group.conditions.size() >= 1
+            && group.conditions.size() <= 20
           );
     }
     function isValidCompositionLayoutGrid(layout) {
@@ -1510,9 +1491,6 @@ service cloud.firestore {
     // ── ScreenSection write helpers (ScreenSection-1) ─────────────────
     function isScreenSectionWriter(projectId) {
       return isScreenSpecWriter(projectId);
-    }
-    function screenSectionDocPath(projectId, sectionId) {
-      return /databases/$(database)/documents/projects/$(projectId)/screenSections/$(sectionId);
     }
     function isValidScreenSectionName(name) {
       return name is string
