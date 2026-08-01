@@ -560,7 +560,8 @@ Service errors: `err.code = '<CODE>'`. Adapter preflight: `err.preflight = true`
 | `scripts/test-screen-field-rules-contract.mjs` | Rules structure |
 | `scripts/test-screen-field-role-matrix-contract.mjs` | Role matrix |
 | `scripts/test-screen-field-adapter-contract.mjs` | Adapter compat Transaction contract |
-| `scripts/test-screen-field-adapter-firestore-emulator.mjs` | Adapter compat emulator integration |
+| `scripts/test-screen-field-firestore-rules-emulator.mjs` | Rules Emulator E2E (로컬·수동) |
+| `scripts/test-screen-field-adapter-firestore-emulator.mjs` | Adapter Emulator E2E (로컬·수동) |
 | `docs/ops/STAM-PR-B-ScreenFields-Spec-v1.md` | 본 spec 정식본 |
 
 ### 18.2 수정
@@ -568,12 +569,22 @@ Service errors: `err.code = '<CODE>'`. Adapter preflight: `err.preflight = true`
 | 파일 | 변경 |
 |------|------|
 | `firestore.rules` | ScreenField-1 helpers + match block |
-| `firestore.indexes.json` | optional: `screenFields` + `screenSpecId` (list query) |
-| `.github/workflows/firebase-firestore-rules-*.yml` | emulator job에 screenField suite 추가 |
 
 ### 18.3 변경 없음
 
-`stam/pages/**`, `stam/css/**`, `stam.screen-specification*.js`, Field Editor, screenActions.
+`stam/pages/**`, `stam/css/**`, `stam.screen-specification*.js`, Field Editor, screenActions, `firestore.indexes.json` (이번 PR에서 변경 없음; duplicate-name query·list query에 신규 composite index 근거 없음).
+
+### 18.4 CI 및 Emulator 현황 (PR #406)
+
+| 항목 | 현황 |
+|------|------|
+| Emulator 테스트 파일 | **2종 구현됨** — `test-screen-field-firestore-rules-emulator.mjs`, `test-screen-field-adapter-firestore-emulator.mjs` |
+| 로컬 실행 | **미실행** — Java 미설치 환경 |
+| 기존 CI 연결 | **없음** — `.github/workflows/`에 screen-field emulator job 미등록 |
+| Preview workflow (`firebase-hosting-pr-preview.yml`) | Firebase Hosting preview channel deploy **만** 수행 |
+| Rules workflow (`firebase-firestore-rules-pr-preview.yml`) | `stam-preview-hosting` staging Rules deploy **만** 수행 (emulator test 없음) |
+| PR #406 완료 증거 | **계약 테스트 7종 PASS** + Preview/Rules workflow SUCCESS. **Emulator 실행은 포함되지 않음.** |
+| 후속 | `.github/workflows` Emulator job 추가 — **별도 승인 PR에서 CI 연결 검토** |
 
 ---
 
