@@ -173,6 +173,7 @@ screenSpec
 - JavaScript 문자열 / eval 표현식 **금지**
 - flat group only (중첩 group 미지원)
 - conditions 최대 **20**개
+- **Rules:** logic + conditions list bounds (1–20) only — per-item operator/source 검증은 Service
 - `source=field` → `sourceId`는 동일 screenSpec의 screenField ID
 - `source=role` → value는 owner/admin/editor/viewer
 - `source=screenMode` → list/create/detail/edit/popup
