@@ -20,8 +20,10 @@ assert.ok(serviceSource, 'stam.screen-field-service.js must exist');
 assert.ok(adapterSource, 'stam.screen-field-firestore-adapter.js must exist');
 
 assert.match(adapterSource, /COLLECTION = 'screenFields'/);
+assert.match(adapterSource, /runCreatePreflight/);
 assert.match(adapterSource, /runCreateTransaction/);
-assert.match(adapterSource, /transaction\.get\(query\)/);
+assert.doesNotMatch(adapterSource, /transaction\.get\(query\)/i);
+assert.doesNotMatch(adapterSource, /transaction\.get\(\s*collectionRef\([^\)]*\)\.where/i);
 assert.match(adapterSource, /function deleteField/);
 assert.match(serviceSource, /DELETE: 'screenField\.delete'/);
 assert.match(serviceSource, /SCREEN_FIELD_DUPLICATE_NAME/);

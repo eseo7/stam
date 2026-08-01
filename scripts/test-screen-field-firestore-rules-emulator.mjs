@@ -47,7 +47,7 @@ function runWithSpawnedEmulators() {
         '--project', 'stam-preview-hosting',
         childCmd,
       ],
-      { cwd: ROOT, stdio: 'inherit', env: process.env },
+      { cwd: ROOT, stdio: 'inherit', env: process.env, shell: true },
     );
     exitCode = result.status ?? 1;
   } finally {
@@ -72,8 +72,8 @@ function bootstrapEmulatorsIfNeeded() {
 
 export async function runScreenFieldFirestoreRulesEmulatorTests() {
   const require = createRequire(import.meta.url);
-  const ADMIN_ROOT = process.env.STAM_FIREBASE_ADMIN_ROOT || '/tmp/stam-firebase-admin';
-  const CLIENT_ROOT = process.env.STAM_FIREBASE_CLIENT_ROOT || '/tmp/stam-firebase-client';
+  const ADMIN_ROOT = process.env.STAM_FIREBASE_ADMIN_ROOT || 'D:/vibe_coding/STAM/.tmp-firebase-admin';
+  const CLIENT_ROOT = process.env.STAM_FIREBASE_CLIENT_ROOT || 'D:/vibe_coding/STAM/.tmp-firebase-client';
   const FIRESTORE_PROJECT = 'stam-preview-hosting';
   const APP_PROJECT = 'P1';
   const OTHER_PROJECT = 'P2';
@@ -92,6 +92,7 @@ export async function runScreenFieldFirestoreRulesEmulatorTests() {
     connectAuthEmulator,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
+    signOut,
   } = require('firebase/auth');
   const {
     getFirestore,
@@ -220,78 +221,59 @@ export async function runScreenFieldFirestoreRulesEmulatorTests() {
       });
     }
 
-    batch.set(db.doc(`projects/${APP_PROJECT}/screenSpecs/scr-seed-parent`), {
-      id: 'scr-seed-parent',
-      projectId: APP_PROJECT,
-      code: 'SCR-001',
-      title: 'Parent Screen Spec',
-      screenType: 'form',
-      writeStatus: 'writing',
-      reviewStatus: 'none',
-      approvalStatus: 'none',
-      ownerId: userIds.owner,
-      ownerName: USERS.owner.displayName,
-      createdBy: userIds.owner,
-      updatedBy: userIds.owner,
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
-      deletedAt: null,
-      deletedBy: null,
-      isDeleted: false,
-      version: 1,
-    });
+    function seedScreenSpec(specId, projectId, extra = {}, opts = {}) {
+      const body = {
+        id: specId,
+        code: 'SCR-001',
+        title: `Parent ${specId}`,
+        screenType: 'form',
+        writeStatus: 'writing',
+        reviewStatus: 'none',
+        approvalStatus: 'none',
+        ownerId: userIds.owner,
+        ownerName: USERS.owner.displayName,
+        createdBy: userIds.owner,
+        updatedBy: userIds.owner,
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+        deletedAt: null,
+        deletedBy: null,
+        isDeleted: false,
+        version: 1,
+        ...extra,
+      };
+      if (!opts.omitProjectId) {
+        body.projectId = projectId;
+      }
+      batch.set(db.doc(`projects/${projectId}/screenSpecs/${specId}`), body);
+    }
 
-    batch.set(db.doc(`projects/${APP_PROJECT}/screenSpecs/scr-deleted-parent`), {
-      id: 'scr-deleted-parent',
-      projectId: APP_PROJECT,
+    seedScreenSpec('scr-seed-parent', APP_PROJECT, { code: 'SCR-001' });
+    seedScreenSpec('scr-deleted-parent', APP_PROJECT, {
       code: 'SCR-002',
-      title: 'Deleted Parent',
-      screenType: 'form',
-      writeStatus: 'writing',
-      reviewStatus: 'none',
-      approvalStatus: 'none',
-      ownerId: userIds.owner,
-      ownerName: USERS.owner.displayName,
-      createdBy: userIds.owner,
-      updatedBy: userIds.owner,
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
+      isDeleted: true,
       deletedAt: FieldValue.serverTimestamp(),
       deletedBy: userIds.owner,
-      isDeleted: true,
-      version: 1,
     });
-
-    batch.set(db.doc(`projects/${OTHER_PROJECT}/screenSpecs/scr-other-parent`), {
-      id: 'scr-other-parent',
-      projectId: OTHER_PROJECT,
-      code: 'SCR-001',
-      title: 'Other Parent',
-      screenType: 'form',
-      writeStatus: 'writing',
-      reviewStatus: 'none',
-      approvalStatus: 'none',
-      ownerId: userIds.owner,
-      ownerName: USERS.owner.displayName,
-      createdBy: userIds.owner,
-      updatedBy: userIds.owner,
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
-      deletedAt: null,
-      deletedBy: null,
-      isDeleted: false,
-      version: 1,
-    });
+    seedScreenSpec('scr-other-parent', OTHER_PROJECT, { code: 'SCR-001' });
+    seedScreenSpec('scr-no-project-id', APP_PROJECT, { code: 'SCR-003' }, { omitProjectId: true });
 
     await batch.commit();
   }
 
   async function commitCreate(db, payload) {
     const ref = doc(db, `projects/${APP_PROJECT}/screenFields/${payload.id}`);
-    await setDoc(ref, Object.assign({}, payload, {
+    await setDoc(ref, {
+      ...payload,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-    }));
+    });
+    return payload.id;
+  }
+
+  async function setCreateRaw(db, payload) {
+    const ref = doc(db, `projects/${APP_PROJECT}/screenFields/${payload.id}`);
+    await setDoc(ref, payload);
     return payload.id;
   }
 
@@ -306,6 +288,21 @@ export async function runScreenFieldFirestoreRulesEmulatorTests() {
     assert.equal(denied, true);
   }
 
+  function fieldRef(db, fieldId) {
+    return doc(db, `projects/${APP_PROJECT}/screenFields/${fieldId}`);
+  }
+
+  async function readFieldDoc(db, fieldId) {
+    const snap = await getDoc(fieldRef(db, fieldId));
+    assert.equal(snap.exists(), true);
+    return snap.data();
+  }
+
+  async function buildFullUpdate(db, fieldId, overrides) {
+    const current = await readFieldDoc(db, fieldId);
+    return { ...current, ...overrides };
+  }
+
   const { app, auth, db } = initClient();
   const userIds = {};
   for (const [key, profile] of Object.entries(USERS)) {
@@ -315,35 +312,52 @@ export async function runScreenFieldFirestoreRulesEmulatorTests() {
   await seedWithAdmin(userIds);
 
   await signInAs(auth, USERS.viewer.email);
-  const readSnap = await getDocs(collection(db, `projects/${APP_PROJECT}/screenFields`));
-  assert.ok(readSnap.size >= 0);
+  await getDocs(collection(db, `projects/${APP_PROJECT}/screenFields`));
   console.log('viewer read list: ALLOW');
 
-  await expectDenied(() => commitCreate(db, baseFieldPayload(userIds.viewer, { id: 'fld-viewer-deny' })));
+  await expectDenied(() => commitCreate(db, baseFieldPayload(userIds.viewer, { id: 'fld-viewer-create-deny' })));
   console.log('viewer create: DENY');
 
   await signInAs(auth, USERS.editor.email);
   const editorFieldId = await commitCreate(db, baseFieldPayload(userIds.editor, { id: 'fld-editor-create' }));
   console.log('editor create: ALLOW');
 
-  await updateDoc(doc(db, `projects/${APP_PROJECT}/screenFields/${editorFieldId}`), {
+  await updateDoc(fieldRef(db, editorFieldId), await buildFullUpdate(db, editorFieldId, {
     label: 'Updated Label',
     updatedBy: userIds.editor,
     updatedAt: serverTimestamp(),
-  });
+  }));
   console.log('editor update: ALLOW');
 
-  await deleteDoc(doc(db, `projects/${APP_PROJECT}/screenFields/${editorFieldId}`));
-  const deletedSnap = await getDoc(doc(db, `projects/${APP_PROJECT}/screenFields/${editorFieldId}`));
-  assert.equal(deletedSnap.exists(), false);
+  await deleteDoc(fieldRef(db, editorFieldId));
+  assert.equal((await getDoc(fieldRef(db, editorFieldId))).exists(), false);
   console.log('editor hard delete + get NOT_FOUND: ALLOW');
 
   const reRegisterId = await commitCreate(db, baseFieldPayload(userIds.editor, {
     id: 'fld-reregister-name',
     name: 'titleText',
   }));
-  assert.equal(reRegisterId, 'fld-reregister-name');
-  console.log('delete then same name re-register (rules layer): ALLOW');
+  console.log('delete then same name re-register: ALLOW');
+
+  await signInAs(auth, USERS.viewer.email);
+  const viewerUpdatePatch = await buildFullUpdate(db, reRegisterId, {
+    label: 'Viewer edit',
+    updatedBy: userIds.viewer,
+    updatedAt: serverTimestamp(),
+  });
+  await expectDenied(() => updateDoc(fieldRef(db, reRegisterId), viewerUpdatePatch));
+  console.log('viewer update: DENY');
+
+  await expectDenied(() => deleteDoc(fieldRef(db, reRegisterId)));
+  console.log('viewer delete: DENY');
+
+  await signOut(auth);
+  await expectDenied(() => getDoc(fieldRef(db, reRegisterId)));
+  await expectDenied(() => getDocs(collection(db, `projects/${APP_PROJECT}/screenFields`)));
+  await expectDenied(() => setCreateRaw(db, baseFieldPayload('anon', { id: 'fld-anon-create' })));
+  console.log('signed-out get/list/create: DENY');
+
+  await signInAs(auth, USERS.editor.email);
 
   await expectDenied(() => commitCreate(db, baseFieldPayload(userIds.editor, {
     id: 'fld-no-parent',
@@ -363,26 +377,68 @@ export async function runScreenFieldFirestoreRulesEmulatorTests() {
   })));
   console.log('other project parent reference create: DENY');
 
-  const immutableId = await commitCreate(db, baseFieldPayload(userIds.editor, { id: 'fld-immutable' }));
-  const immutableSnap = await getDoc(doc(db, `projects/${APP_PROJECT}/screenFields/${immutableId}`));
-  const immutableData = immutableSnap.data();
-  await expectDenied(() => updateDoc(doc(db, `projects/${APP_PROJECT}/screenFields/${immutableId}`), {
-    ...immutableData,
+  await expectDenied(() => commitCreate(db, baseFieldPayload(userIds.editor, {
+    id: 'fld-parent-project-mismatch',
+    screenSpecId: 'scr-no-project-id',
+  })));
+  console.log('parent projectId missing create: DENY');
+
+  const validControlId = 'fld-audit-control';
+  await commitCreate(db, baseFieldPayload(userIds.editor, { id: validControlId, name: 'auditControl' }));
+  const validControl = await readFieldDoc(db, validControlId);
+  assert.ok(validControl.createdAt);
+  console.log('audit control create with serverTimestamp: ALLOW');
+
+  await expectDenied(() => setCreateRaw(db, {
+    ...baseFieldPayload(userIds.editor, { id: 'fld-bad-time', name: 'badTime' }),
+    createdAt: '2020-01-01T00:00:00.000Z',
+    updatedAt: '2020-01-01T00:00:00.000Z',
+  }));
+  console.log('audit timestamp string forgery on create: DENY');
+
+  await expectDenied(() => setCreateRaw(db, {
+    ...baseFieldPayload(userIds.editor, { id: 'fld-bad-created-by', name: 'badCreatedBy' }),
+    createdBy: 'forged-user',
+    updatedBy: userIds.editor,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }));
+  console.log('createdBy forgery on create: DENY');
+
+  await expectDenied(() => setCreateRaw(db, {
+    ...baseFieldPayload(userIds.editor, { id: 'fld-bad-updated-by', name: 'badUpdatedBy' }),
+    updatedBy: 'forged-user',
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }));
+  console.log('updatedBy forgery on create: DENY');
+
+  const immutableId = await commitCreate(db, baseFieldPayload(userIds.editor, { id: 'fld-immutable', name: 'immutableField' }));
+  const immutablePatch = await buildFullUpdate(db, immutableId, {
     screenSpecId: 'scr-deleted-parent',
     updatedBy: userIds.editor,
     updatedAt: serverTimestamp(),
-  }));
+  });
+  await expectDenied(() => updateDoc(fieldRef(db, immutableId), immutablePatch));
   console.log('immutable screenSpecId change: DENY');
 
-  await expectDenied(() => commitCreate(db, Object.assign(baseFieldPayload(userIds.editor, { id: 'fld-bad-time' }), {
-    createdAt: '2020-01-01T00:00:00.000Z',
-    updatedAt: '2020-01-01T00:00:00.000Z',
-  })));
-  console.log('audit timestamp forgery: DENY');
+  const immutableAuditId = await commitCreate(db, baseFieldPayload(userIds.editor, { id: 'fld-immutable-audit', name: 'immutableAudit' }));
+  const immutableAudit = await readFieldDoc(db, immutableAuditId);
+  await expectDenied(() => updateDoc(fieldRef(db, immutableAuditId), {
+    ...immutableAudit,
+    createdAt: '2019-01-01T00:00:00.000Z',
+    createdBy: 'forged-user',
+    updatedBy: userIds.editor,
+    updatedAt: serverTimestamp(),
+  }));
+  console.log('update createdAt/createdBy change: DENY');
 
-  await expectDenied(() => commitCreate(db, Object.assign(baseFieldPayload(userIds.editor, { id: 'fld-extra-key' }), {
+  await expectDenied(() => setCreateRaw(db, {
+    ...baseFieldPayload(userIds.editor, { id: 'fld-extra-key', name: 'extraKey' }),
     channelScope: 'pc',
-  })));
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }));
   console.log('forbidden extra field: DENY');
 
   await signInAs(auth, USERS.outsider.email);
@@ -392,10 +448,6 @@ export async function runScreenFieldFirestoreRulesEmulatorTests() {
   await signInAs(auth, USERS.editor.email);
   await expectDenied(() => getDocs(collection(db, `projects/${OTHER_PROJECT}/screenFields`)));
   console.log('other project access: DENY');
-
-  await signInAs(auth, USERS.viewer.email);
-  await expectDenied(() => deleteDoc(doc(db, `projects/${APP_PROJECT}/screenFields/${reRegisterId}`)));
-  console.log('viewer delete: DENY');
 
   await deleteApp(app);
   console.log('screen field firestore rules emulator: PASS');

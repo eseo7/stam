@@ -354,16 +354,15 @@ findDuplicateNormalizedName(db, projectId, screenSpecId, normalizedName, exclude
 1. authorize(CREATE, context)
 2. validateScreenFieldInput(input, 'create')
 3. buildCreatePayload → ISO createdAt/updatedAt in payload (pre-adapter)
-4. assertParentScreenSpec:
-   - projects/{projectId}/screenSpecs/{screenSpecId} exists
-   - parent.projectId == projectId
-   - parent.isDeleted != true (field present and false)
-5. adapter.create (transaction):
-   a. READ parent screenSpec (fail → PARENT_NOT_FOUND)
-   b. QUERY screenFields where screenSpecId == X (in-transaction collection read)
-   c. duplicate normalized name check → fail DUPLICATE_NAME
-   d. SET new doc random id with payload + serverTimestamp audit
-6. normalizeScreenField(read back) → ISO dates
+4. Service preflight duplicate: findDuplicateNormalizedName (query.get outside transaction)
+5. Adapter runCreatePreflight:
+   a. assertScreenSpecParentExists (query.get DocumentReference outside transaction)
+   b. assertDuplicateNameAbsent (query.get outside transaction)
+6. Adapter runCreateTransaction:
+   a. transaction.get(parent screenSpec DocumentReference)
+   b. validate parent projectId exact equality + non-deleted
+   c. transaction.set(new random-id doc) + serverTimestamp audit
+7. normalizeScreenField(read back) → ISO dates
 ```
 
 ### 11.2 UPDATE
@@ -373,10 +372,13 @@ findDuplicateNormalizedName(db, projectId, screenSpecId, normalizedName, exclude
 2. load current by id
 3. validateScreenFieldInput(patch, 'update')
 4. buildUpdatePatch(current, patch)
-5. if name changed → duplicate check (exclude self) in transaction
-6. adapter.update → serverTimestamp updatedAt only
-7. normalize read back
+5. if name changed → Service preflight duplicate (exclude self)
+6. Adapter runUpdatePreflight → query.get duplicate check (outside transaction)
+7. Adapter runUpdateTransaction → transaction.get(field DocumentReference) + transaction.update
+8. normalize read back
 ```
+
+**Firebase Web compat note:** `Transaction.get()` accepts **DocumentReference only** — not Query. Duplicate checks are **never** inside transactions.
 
 **No optimistic version lock in PR B** (screenFields는 `version` 필드 없음). Last-write-wins on scalar fields.
 
@@ -393,33 +395,32 @@ Parent screenSpec **존재 여부와 무관**하게 delete 허용 (orphan field 
 
 ---
 
-## 12. transaction 중복 검사 — 방식과 보장 한계
+## 12. 중복 검사 — 방식과 보장 한계
 
-### 12.1 방식
+### 12.1 방식 (query preflight — transaction 밖)
 
-Adapter `create` (및 name 변경 `update`)는 **`db.runTransaction`** 사용:
+**Firebase Web compat SDK:** `Transaction.get()`은 **DocumentReference만** 허용한다. Query read는 **지원하지 않는다**.  
+공식: https://firebase.google.com/docs/reference/js/v8/firebase.firestore.Transaction
 
-1. Transaction 내 parent screenSpec `get` — path: `projects/{projectId}/screenSpecs/{screenSpecId}`
-2. Transaction 내 `collectionRef.where('screenSpecId','==', id)` **`transaction.get(query)`** (Firebase compat SDK 지원 확인됨 — `stam.screen-field-firestore-adapter.js`)
-3. In-memory normalized name collision check (`normalizeName`: trim + toLowerCase)
-4. Write (random auto-id doc)
-
-Service **preflight** (`findDuplicateNormalizedName`)는 Adapter create/update 전 best-effort 1차 검사.
-
-**Composite index:** single-field equality `screenSpecId` query — `firestore.indexes.json` 변경 **불필요** (자동 single-field index).
+1. **Service preflight:** `findDuplicateNormalizedName` → `collection.where('screenSpecId','==', id).get()` (**transaction 밖**)
+2. **Adapter runCreatePreflight / runUpdatePreflight:** parent `doc.get()` + duplicate query `.get()` (**transaction 밖**)
+3. **Adapter transaction:** parent `transaction.get(parentDocRef)` + `transaction.set` / `transaction.get(fieldDocRef)` + `transaction.update` only
 
 ### 12.2 보장 한계
 
 | 주장 | 실제 |
 |------|------|
-| Rules가 name unique 보장 | **❌ 불가** — cross-doc unique Rules 미지원 |
-| Service preflight only | **best-effort** — race window 존재 |
-| Transaction read-check-write | **best-effort** — query read set에 concurrent insert가 포함되지 않으면 duplicate 통과 가능 |
-| 100% global unique | **❌ 주장 금지** — unique-key registry / deterministic ID 미도입 |
+| Rules가 name unique 보장 | **❌ 불가** |
+| Adapter transaction duplicate check | **❌ 사용하지 않음** — compat Transaction.get(Query) 미지원 |
+| Service + Adapter query preflight | **best-effort** — sequential duplicate reject |
+| Concurrent insert 100% unique | **❌ 보장하지 않음** — unique registry / deterministic ID 없음 |
 
-**문서 표현 (필수):** 「Firestore Rules는 name 유일성을 보장하지 않는다. Service preflight와 Adapter transaction query re-check로 동일 screenSpecId 내 normalized name 중복을 **best-effort**로 방지한다. 랜덤 fieldId 구조에서는 concurrent insert에 대해 100% 유일성을 보장하지 않는다.」
+**문서 표현 (필수):** 「Firestore Rules는 name 유일성을 보장하지 않는다. Service 및 Adapter **query preflight**(transaction 밖)로 동일 screenSpecId 내 normalized name 중복을 **best-effort**로 방지한다. Firebase Web compat `Transaction.get()`은 Query를 지원하지 않으므로 concurrent insert에 대해 100% 유일성을 보장하지 않는다.」
 
-**테스트:** sequential duplicate → Service/Adapter reject. concurrent duplicate → guarantee 주장 없음 (`test-screen-field-service-contract.mjs` sequential case only).
+**테스트:**
+- `test-screen-field-adapter-contract.mjs` — Transaction mock rejects Query
+- `test-screen-field-service-contract.mjs` — sequential duplicate reject
+- `test-screen-field-adapter-firestore-emulator.mjs` — compat adapter create/update/delete (emulator)
 
 ---
 
@@ -531,7 +532,8 @@ Service errors: `err.code = '<CODE>'`. Adapter preflight: `err.preflight = true`
 | `scripts/test-screen-field-service-contract.mjs` | Service contract |
 | `scripts/test-screen-field-rules-contract.mjs` | Rules structure |
 | `scripts/test-screen-field-role-matrix-contract.mjs` | Role matrix |
-| `scripts/test-screen-field-firestore-rules-emulator.mjs` | Emulator E2E |
+| `scripts/test-screen-field-adapter-contract.mjs` | Adapter compat Transaction contract |
+| `scripts/test-screen-field-adapter-firestore-emulator.mjs` | Adapter compat emulator integration |
 | `docs/ops/STAM-PR-B-ScreenFields-Spec-v1.md` | 본 spec 정식본 |
 
 ### 18.2 수정

@@ -4,6 +4,9 @@
  * Firestore implementation boundary for ScreenField Domain Service.
  * Screens must not call this adapter directly; use STAM.screenFieldService.
  * No UI wiring is performed in this file.
+ *
+ * Duplicate-name checks use query preflight OUTSIDE transactions.
+ * Firebase Web compat Transaction.get() accepts DocumentReference only — not Query.
  * ========================================================================== */
 (function () {
   'use strict';
@@ -88,6 +91,20 @@
     return clean(name).toLowerCase();
   }
 
+  function validateParentSnapshot(snap, projectId) {
+    if (!snap || !snap.exists) {
+      throw preflightError(PREFLIGHT_CODES.PARENT_NOT_FOUND);
+    }
+    var parent = snap.data ? snap.data() : {};
+    if (clean(parent.projectId) !== requireProjectId(projectId)) {
+      throw preflightError(PREFLIGHT_CODES.PARENT_PROJECT_MISMATCH);
+    }
+    if (parent.isDeleted === true) {
+      throw preflightError(PREFLIGHT_CODES.PARENT_NOT_FOUND);
+    }
+    return parent;
+  }
+
   function toPlainTimestamp(value) {
     if (!value) return value;
     if (typeof value.toDate === 'function') return value.toDate().toISOString();
@@ -132,23 +149,6 @@
     return clean(a.id).localeCompare(clean(b.id));
   }
 
-  function assertParentScreenSpec(transaction, db, projectId, screenSpecId) {
-    var ref = screenSpecRef(db, projectId, screenSpecId);
-    return transaction.get(ref).then(function (snap) {
-      if (!snap || !snap.exists) {
-        throw preflightError(PREFLIGHT_CODES.PARENT_NOT_FOUND);
-      }
-      var parent = snap.data() || {};
-      if (clean(parent.projectId) && clean(parent.projectId) !== projectId) {
-        throw preflightError(PREFLIGHT_CODES.PARENT_PROJECT_MISMATCH);
-      }
-      if (parent.isDeleted === true) {
-        throw preflightError(PREFLIGHT_CODES.PARENT_NOT_FOUND);
-      }
-      return parent;
-    });
-  }
-
   function findDuplicateInSnapshot(snapshot, normalizedName, excludeFieldId) {
     var excludeId = clean(excludeFieldId);
     var duplicate = null;
@@ -161,15 +161,6 @@
       }
     });
     return duplicate;
-  }
-
-  function runDuplicateNameQuery(transaction, db, projectId, screenSpecId, normalizedName, excludeFieldId) {
-    var query = collectionRef(db, projectId).where('screenSpecId', '==', screenSpecId);
-    return transaction.get(query).then(function (snapshot) {
-      if (findDuplicateInSnapshot(snapshot, normalizedName, excludeFieldId)) {
-        throw preflightError(PREFLIGHT_CODES.DUPLICATE_NAME);
-      }
-    });
   }
 
   function applyWriteTimestamps(payload, mode) {
@@ -200,19 +191,39 @@
     });
   }
 
+  function assertDuplicateNameAbsent(db, projectId, screenSpecId, normalizedName, excludeFieldId) {
+    return findDuplicateNormalizedName(db, projectId, screenSpecId, normalizedName, excludeFieldId).then(function (duplicateId) {
+      if (duplicateId) {
+        throw preflightError(PREFLIGHT_CODES.DUPLICATE_NAME);
+      }
+    });
+  }
+
+  function assertScreenSpecParentExists(db, projectId, screenSpecId) {
+    return screenSpecRef(db, requireProjectId(projectId), requireScreenSpecId(screenSpecId)).get().then(function (snap) {
+      return validateParentSnapshot(snap, projectId);
+    });
+  }
+
+  function findDuplicateNormalizedName(db, projectId, screenSpecId, normalizedName, excludeFieldId) {
+    var query = collectionRef(db, requireProjectId(projectId)).where('screenSpecId', '==', requireScreenSpecId(screenSpecId));
+    return query.get().then(function (snapshot) {
+      return findDuplicateInSnapshot(snapshot, clean(normalizedName).toLowerCase(), excludeFieldId);
+    });
+  }
+
   function runCreateTransaction(db, projectId, payload) {
     var pid = requireProjectId(projectId);
     var input = Object.assign({}, payload || {});
     var screenSpecId = requireScreenSpecId(input.screenSpecId);
-    var normalizedName = normalizeName(input.name);
     var ref = input.id ? collectionRef(db, pid).doc(input.id) : collectionRef(db, pid).doc();
     input.id = input.id || ref.id;
     input.projectId = input.projectId || pid;
+    var parentRef = screenSpecRef(db, pid, screenSpecId);
 
     return db.runTransaction(function (transaction) {
-      return assertParentScreenSpec(transaction, db, pid, screenSpecId).then(function () {
-        return runDuplicateNameQuery(transaction, db, pid, screenSpecId, normalizedName);
-      }).then(function () {
+      return transaction.get(parentRef).then(function (snap) {
+        validateParentSnapshot(snap, pid);
         var writePayload = applyWriteTimestamps(input, 'create');
         transaction.set(ref, writePayload);
         return input.id;
@@ -220,7 +231,7 @@
     });
   }
 
-  function runUpdateTransaction(db, projectId, fieldId, patch, currentName) {
+  function runUpdateTransaction(db, projectId, fieldId, patch) {
     var pid = requireProjectId(projectId);
     var fid = requireFieldId(fieldId);
     var rawPatch = Object.assign({}, patch || {});
@@ -237,42 +248,38 @@
         if (!snap || !snap.exists) {
           throw preflightError(PREFLIGHT_CODES.UPDATE_DOC_MISSING);
         }
-        var current = snap.data() || {};
-        var screenSpecId = clean(current.screenSpecId);
-        var nextName = hasOwn(rawPatch, 'name') ? rawPatch.name : current.name;
-        var normalizedName = normalizeName(nextName);
-        var currentNormalized = normalizeName(currentName != null ? currentName : current.name);
-        if (normalizedName !== currentNormalized) {
-          return runDuplicateNameQuery(transaction, db, pid, screenSpecId, normalizedName, fid);
-        }
-      }).then(function () {
         var writePatch = applyWriteTimestamps(sanitizeUpdatePatch(rawPatch), 'update');
         transaction.update(ref, writePatch);
       });
     });
   }
 
-  function assertScreenSpecParentExists(db, projectId, screenSpecId) {
-    return screenSpecRef(db, requireProjectId(projectId), requireScreenSpecId(screenSpecId)).get().then(function (snap) {
-      if (!snap || !snap.exists) {
-        throw preflightError(PREFLIGHT_CODES.PARENT_NOT_FOUND);
-      }
-      var parent = snap.data() || {};
-      if (clean(parent.projectId) && clean(parent.projectId) !== requireProjectId(projectId)) {
-        throw preflightError(PREFLIGHT_CODES.PARENT_PROJECT_MISMATCH);
-      }
-      if (parent.isDeleted === true) {
-        throw preflightError(PREFLIGHT_CODES.PARENT_NOT_FOUND);
-      }
-      return parent;
+  function runCreatePreflight(db, projectId, payload, excludeFieldId) {
+    var pid = requireProjectId(projectId);
+    var input = payload || {};
+    var screenSpecId = requireScreenSpecId(input.screenSpecId);
+    var normalizedName = normalizeName(input.name);
+    return assertScreenSpecParentExists(db, pid, screenSpecId).then(function () {
+      return assertDuplicateNameAbsent(db, pid, screenSpecId, normalizedName, excludeFieldId);
     });
   }
 
-  function findDuplicateNormalizedName(db, projectId, screenSpecId, normalizedName, excludeFieldId) {
-    var query = collectionRef(db, requireProjectId(projectId)).where('screenSpecId', '==', requireScreenSpecId(screenSpecId));
-    return query.get().then(function (snapshot) {
-      return findDuplicateInSnapshot(snapshot, clean(normalizedName).toLowerCase(), excludeFieldId);
-    });
+  function runUpdatePreflight(db, projectId, fieldId, patch, current) {
+    var pid = requireProjectId(projectId);
+    var fid = requireFieldId(fieldId);
+    var rawPatch = patch || {};
+    var base = current || null;
+    if (!base) {
+      return Promise.reject(preflightError(PREFLIGHT_CODES.UPDATE_DOC_MISSING));
+    }
+    if (!hasOwn(rawPatch, 'name')) {
+      return Promise.resolve();
+    }
+    var normalizedName = normalizeName(rawPatch.name);
+    if (normalizeName(rawPatch.name) === normalizeName(base.name)) {
+      return Promise.resolve();
+    }
+    return assertDuplicateNameAbsent(db, pid, base.screenSpecId, normalizedName, fid);
   }
 
   function createAdapter(options) {
@@ -332,7 +339,9 @@
       if (hasOwn(field || {}, 'id') && !clean(field.id)) {
         delete input.id;
       }
-      return runCreateTransaction(db(), pid, input).then(function (fieldId) {
+      return runCreatePreflight(db(), pid, input).then(function () {
+        return runCreateTransaction(db(), pid, input);
+      }).then(function (fieldId) {
         return getById(pid, fieldId);
       });
     }
@@ -345,7 +354,9 @@
         if (!current) {
           throw preflightError(PREFLIGHT_CODES.UPDATE_DOC_MISSING);
         }
-        return runUpdateTransaction(db(), pid, fid, rawPatch, current.name);
+        return runUpdatePreflight(db(), pid, fid, rawPatch, current).then(function () {
+          return runUpdateTransaction(db(), pid, fid, rawPatch);
+        });
       }).then(function () {
         return getById(pid, fid);
       });
@@ -382,10 +393,13 @@
     PREFLIGHT_CODES: PREFLIGHT_CODES,
     normalizeName: normalizeName,
     compareScreenFields: compareScreenFields,
+    runCreatePreflight: runCreatePreflight,
     runCreateTransaction: runCreateTransaction,
+    runUpdatePreflight: runUpdatePreflight,
     runUpdateTransaction: runUpdateTransaction,
     assertScreenSpecParentExists: assertScreenSpecParentExists,
     findDuplicateNormalizedName: findDuplicateNormalizedName,
+    validateParentSnapshot: validateParentSnapshot,
     create: createAdapter,
   };
 }());
