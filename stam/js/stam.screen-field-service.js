@@ -29,7 +29,98 @@
     DEFAULT_VALUE_INVALID: 'SCREEN_FIELD_DEFAULT_VALUE_INVALID',
     OPTIONS_INVALID: 'SCREEN_FIELD_OPTIONS_INVALID',
     VALIDATION_RULE_INVALID: 'SCREEN_FIELD_VALIDATION_RULE_INVALID',
+    SECTION_NOT_FOUND: 'SCREEN_FIELD_SECTION_NOT_FOUND',
+    SECTION_SPEC_MISMATCH: 'SCREEN_FIELD_SECTION_SPEC_MISMATCH',
+    FIELD_ROLE_SECTION_MISMATCH: 'SCREEN_FIELD_FIELD_ROLE_SECTION_MISMATCH',
   };
+
+  var DEFAULT_LAYOUT = { row: null, column: null, span: 12 };
+  var FIELD_ROLE_VALUES = ['input', 'display', 'filter', 'tableColumn', 'repeaterItem'];
+
+  function compositionContract() {
+    return window.STAM && window.STAM.screenConditionContract;
+  }
+
+  function normalizeSectionId(value) {
+    if (value === undefined || value === null) return null;
+    var trimmed = clean(value);
+    return trimmed || null;
+  }
+
+  function normalizeLayout(raw) {
+    var layout = raw && typeof raw === 'object' ? raw : {};
+    var contract = compositionContract();
+    var span = layout.span == null ? 12 : layout.span;
+    var normalized = {
+      row: layout.row == null ? null : layout.row,
+      column: layout.column == null ? null : layout.column,
+      span: span,
+    };
+    if (contract && contract.validateLayoutGrid) {
+      var errors = [];
+      contract.validateLayoutGrid(normalized, errors, 'layout');
+      if (errors.length) return DEFAULT_LAYOUT;
+    }
+    return normalized;
+  }
+
+  function normalizeCompositionFields(raw) {
+    var source = raw || {};
+    return {
+      sectionId: normalizeSectionId(source.sectionId),
+      fieldRole: FIELD_ROLE_VALUES.indexOf(clean(source.fieldRole)) >= 0 ? clean(source.fieldRole) : 'input',
+      layout: normalizeLayout(source.layout),
+      visibilityCondition: compositionContract() && compositionContract().normalizeConditionGroup
+        ? compositionContract().normalizeConditionGroup(source.visibilityCondition)
+        : (source.visibilityCondition || null),
+      enabledCondition: compositionContract() && compositionContract().normalizeConditionGroup
+        ? compositionContract().normalizeConditionGroup(source.enabledCondition)
+        : (source.enabledCondition || null),
+      requiredCondition: compositionContract() && compositionContract().normalizeConditionGroup
+        ? compositionContract().normalizeConditionGroup(source.requiredCondition)
+        : (source.requiredCondition || null),
+    };
+  }
+
+  function validateCompositionFields(doc, context, errors) {
+    var composition = normalizeCompositionFields(doc);
+    var contract = compositionContract();
+    if (!contract) return composition;
+
+    if (composition.fieldRole && contract.validateFieldRole) {
+      contract.validateFieldRole(composition.fieldRole, errors);
+    }
+    if (contract.validateLayoutGrid) {
+      contract.validateLayoutGrid(composition.layout, errors, 'layout');
+    }
+
+    var sectionsById = (context && context.sectionsById) || {};
+    if (composition.sectionId) {
+      var section = sectionsById[composition.sectionId];
+      if (!section) {
+        pushError(errors, 'sectionId', 'section not found');
+      } else if (clean(section.screenSpecId) !== clean(doc.screenSpecId)) {
+        pushError(errors, 'sectionId', 'section screenSpecId mismatch');
+      } else {
+        if (composition.fieldRole === 'tableColumn' && section.sectionType !== 'table') {
+          pushError(errors, 'fieldRole', 'tableColumn requires table section');
+        }
+        if (composition.fieldRole === 'repeaterItem' && section.sectionType !== 'repeater') {
+          pushError(errors, 'fieldRole', 'repeaterItem requires repeater section');
+        }
+      }
+    }
+
+    var fieldIds = (context && context.fieldIds) || [];
+    var condCtx = { screenSpecId: doc.screenSpecId, fieldIds: fieldIds };
+    ['visibilityCondition', 'enabledCondition', 'requiredCondition'].forEach(function (key) {
+      if (composition[key] && contract.validateConditionGroup) {
+        contract.validateConditionGroup(composition[key], condCtx, errors, key);
+      }
+    });
+
+    return composition;
+  }
 
   var WRITE_ROLES = ['owner', 'admin', 'editor'];
   var READ_ROLES = ['owner', 'admin', 'editor', 'viewer'];
@@ -561,7 +652,7 @@
     return { valid: errors.length === 0, mode: m, errors: errors };
   }
 
-  function validateCompleteDocument(doc) {
+  function validateCompleteDocument(doc, context) {
     var input = doc || {};
     var errors = [];
     var type = validateType(errors, input.type, 'create');
@@ -589,6 +680,7 @@
       minLength,
       maxLength
     );
+    validateCompositionFields(input, context || {}, errors);
     return { valid: errors.length === 0, errors: errors };
   }
 
@@ -619,10 +711,12 @@
       throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenFieldService: invalid create input', { errors: validation.errors });
     }
 
-    var createValidation = validateCompleteDocument(Object.assign({}, source, { projectId: projectId }));
+    var createValidation = validateCompleteDocument(Object.assign({}, source, { projectId: projectId }), context);
     if (!createValidation.valid) {
       throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenFieldService: invalid create input', { errors: createValidation.errors });
     }
+
+    var composition = normalizeCompositionFields(source);
 
     return {
       projectId: projectId,
@@ -641,6 +735,12 @@
       maxLength: hasOwn(source, 'maxLength') ? source.maxLength : null,
       options: Array.isArray(source.options) ? normalizeOptionsInput(source.options) : [],
       validationRules: Array.isArray(source.validationRules) ? source.validationRules : [],
+      sectionId: composition.sectionId,
+      fieldRole: composition.fieldRole,
+      layout: composition.layout,
+      visibilityCondition: composition.visibilityCondition,
+      enabledCondition: composition.enabledCondition,
+      requiredCondition: composition.requiredCondition,
       schemaVersion: SCHEMA_VERSION,
       createdAt: t,
       createdBy: actor.uid,
@@ -658,7 +758,12 @@
     assertValidInput(source, 'update');
     var actor = actorFromContext(context);
     var merged = Object.assign({}, base, source);
-    var complete = validateCompleteDocument(merged);
+    var composition = normalizeCompositionFields(merged);
+    Object.assign(merged, composition);
+    if (hasOwn(source, 'name')) merged.name = clean(source.name);
+    if (hasOwn(source, 'label')) merged.label = clean(source.label);
+
+    var complete = validateCompleteDocument(merged, context);
     if (!complete.valid) {
       throw createServiceError(
         ERROR_CODES.VALIDATION_FAILED,
@@ -669,7 +774,8 @@
 
     var next = {};
     ['name', 'label', 'type', 'order', 'required', 'readonly', 'disabled', 'defaultValue',
-      'placeholder', 'helpText', 'minLength', 'maxLength', 'options', 'validationRules'].forEach(function (field) {
+      'placeholder', 'helpText', 'minLength', 'maxLength', 'options', 'validationRules',
+      'sectionId', 'fieldRole', 'layout', 'visibilityCondition', 'enabledCondition', 'requiredCondition'].forEach(function (field) {
       if (hasOwn(source, field)) next[field] = merged[field];
     });
     next.updatedAt = nowIso(clock);
@@ -697,6 +803,12 @@
       maxLength: raw.maxLength == null ? null : normalizeCount(raw.maxLength),
       options: Array.isArray(raw.options) ? raw.options : [],
       validationRules: Array.isArray(raw.validationRules) ? raw.validationRules : [],
+      sectionId: normalizeSectionId(raw.sectionId),
+      fieldRole: FIELD_ROLE_VALUES.indexOf(clean(raw.fieldRole)) >= 0 ? clean(raw.fieldRole) : 'input',
+      layout: normalizeLayout(raw.layout),
+      visibilityCondition: raw.visibilityCondition || null,
+      enabledCondition: raw.enabledCondition || null,
+      requiredCondition: raw.requiredCondition || null,
       schemaVersion: raw.schemaVersion === 1 ? 1 : 1,
       createdAt: raw.createdAt || null,
       createdBy: clean(raw.createdBy),
@@ -921,6 +1033,10 @@
     buildCreatePayload: buildCreatePayload,
     buildUpdatePatch: buildUpdatePatch,
     normalizeName: normalizeName,
+    DEFAULT_LAYOUT: DEFAULT_LAYOUT,
+    FIELD_ROLE_VALUES: FIELD_ROLE_VALUES,
+    normalizeCompositionFields: normalizeCompositionFields,
+    validateCompositionFields: validateCompositionFields,
     normalizeMemberRole: normalizeMemberRole,
     canWriteScreenField: canWriteScreenField,
     canReadScreenField: canReadScreenField,

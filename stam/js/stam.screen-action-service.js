@@ -28,7 +28,82 @@
     IMMUTABLE_FIELD: 'SCREEN_ACTION_IMMUTABLE_FIELD',
     PERMISSION_DENIED: 'SCREEN_ACTION_PERMISSION_DENIED',
     TARGET_CONSTRAINT: 'SCREEN_ACTION_TARGET_CONSTRAINT',
+    SECTION_NOT_FOUND: 'SCREEN_ACTION_SECTION_NOT_FOUND',
+    SECTION_SPEC_MISMATCH: 'SCREEN_ACTION_SECTION_SPEC_MISMATCH',
   };
+
+  var DEFAULT_LAYOUT = { row: null, column: null, span: 12 };
+
+  function compositionContract() {
+    return window.STAM && window.STAM.screenConditionContract;
+  }
+
+  function normalizeSectionId(value) {
+    if (value === undefined || value === null) return null;
+    var trimmed = clean(value);
+    return trimmed || null;
+  }
+
+  function normalizeLayout(raw) {
+    var layout = raw && typeof raw === 'object' ? raw : {};
+    var contract = compositionContract();
+    var span = layout.span == null ? 12 : layout.span;
+    var normalized = {
+      row: layout.row == null ? null : layout.row,
+      column: layout.column == null ? null : layout.column,
+      span: span,
+    };
+    if (contract && contract.validateLayoutGrid) {
+      var errors = [];
+      contract.validateLayoutGrid(normalized, errors, 'layout');
+      if (errors.length) return DEFAULT_LAYOUT;
+    }
+    return normalized;
+  }
+
+  function normalizeCompositionFields(raw) {
+    var source = raw || {};
+    return {
+      sectionId: normalizeSectionId(source.sectionId),
+      layout: normalizeLayout(source.layout),
+      visibilityCondition: compositionContract() && compositionContract().normalizeConditionGroup
+        ? compositionContract().normalizeConditionGroup(source.visibilityCondition)
+        : (source.visibilityCondition || null),
+      enabledCondition: compositionContract() && compositionContract().normalizeConditionGroup
+        ? compositionContract().normalizeConditionGroup(source.enabledCondition)
+        : (source.enabledCondition || null),
+    };
+  }
+
+  function validateCompositionFields(doc, context, errors) {
+    var composition = normalizeCompositionFields(doc);
+    var contract = compositionContract();
+    if (!contract) return composition;
+
+    if (contract.validateLayoutGrid) {
+      contract.validateLayoutGrid(composition.layout, errors, 'layout');
+    }
+
+    var sectionsById = (context && context.sectionsById) || {};
+    if (composition.sectionId) {
+      var section = sectionsById[composition.sectionId];
+      if (!section) {
+        pushError(errors, 'sectionId', 'section not found');
+      } else if (clean(section.screenSpecId) !== clean(doc.screenSpecId)) {
+        pushError(errors, 'sectionId', 'section screenSpecId mismatch');
+      }
+    }
+
+    var fieldIds = (context && context.fieldIds) || [];
+    var condCtx = { screenSpecId: doc.screenSpecId, fieldIds: fieldIds };
+    ['visibilityCondition', 'enabledCondition'].forEach(function (key) {
+      if (composition[key] && contract.validateConditionGroup) {
+        contract.validateConditionGroup(composition[key], condCtx, errors, key);
+      }
+    });
+
+    return composition;
+  }
 
   var WRITE_ROLES = ['owner', 'admin', 'editor'];
   var READ_ROLES = ['owner', 'admin', 'editor', 'viewer'];
@@ -427,7 +502,7 @@
     return { valid: errors.length === 0, mode: m, errors: errors };
   }
 
-  function validateCompleteDocument(doc) {
+  function validateCompleteDocument(doc, context) {
     var input = doc || {};
     var errors = [];
     var actionType = validateActionType(errors, input.actionType, 'create');
@@ -456,6 +531,7 @@
       input
     );
     validateOptionalString(errors, 'successMessage', input.successMessage, 500);
+    validateCompositionFields(input, context || {}, errors);
     return { valid: errors.length === 0, errors: errors };
   }
 
@@ -486,10 +562,12 @@
       throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenActionService: invalid create input', { errors: validation.errors });
     }
 
-    var createValidation = validateCompleteDocument(Object.assign({}, source, { projectId: projectId }));
+    var createValidation = validateCompleteDocument(Object.assign({}, source, { projectId: projectId }), context);
     if (!createValidation.valid) {
       throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenActionService: invalid create input', { errors: createValidation.errors });
     }
+
+    var composition = normalizeCompositionFields(source);
 
     var actionType = clean(source.actionType);
     var confirmRequired = source.confirmRequired === true;
@@ -527,6 +605,10 @@
         ? (source.successMessage == null ? null : clean(source.successMessage) || null)
         : null,
       targetScreenSpecId: targetScreenSpecId,
+      sectionId: composition.sectionId,
+      layout: composition.layout,
+      visibilityCondition: composition.visibilityCondition,
+      enabledCondition: composition.enabledCondition,
       schemaVersion: SCHEMA_VERSION,
       createdAt: t,
       createdBy: actor.uid,
@@ -591,7 +673,12 @@
     applyUpdateStringNormalization(merged, source);
     applyActionTypeTargetNormalization(merged);
 
-    var complete = validateCompleteDocument(merged);
+    var composition = normalizeCompositionFields(merged);
+    Object.assign(merged, composition);
+    if (hasOwn(source, 'name')) merged.name = clean(source.name);
+    if (hasOwn(source, 'label')) merged.label = clean(source.label);
+
+    var complete = validateCompleteDocument(merged, context);
     if (!complete.valid) {
       throw createServiceError(
         ERROR_CODES.VALIDATION_FAILED,
@@ -604,6 +691,7 @@
     [
       'name', 'label', 'actionType', 'controlType', 'placement', 'variant', 'order',
       'disabled', 'confirmRequired', 'confirmTitle', 'confirmMessage', 'successMessage', 'targetScreenSpecId',
+      'sectionId', 'layout', 'visibilityCondition', 'enabledCondition',
     ].forEach(function (field) {
       if (hasOwn(source, field)) next[field] = merged[field];
     });
@@ -632,6 +720,7 @@
     if (actionType !== 'navigate' && actionType !== 'openDrawer') {
       targetScreenSpecId = null;
     }
+    var composition = normalizeCompositionFields(raw);
 
     return {
       id: clean(raw.id),
@@ -650,6 +739,10 @@
       confirmMessage: raw.confirmMessage == null ? null : clean(raw.confirmMessage) || null,
       successMessage: raw.successMessage == null ? null : clean(raw.successMessage) || null,
       targetScreenSpecId: targetScreenSpecId,
+      sectionId: composition.sectionId,
+      layout: composition.layout,
+      visibilityCondition: composition.visibilityCondition,
+      enabledCondition: composition.enabledCondition,
       schemaVersion: raw.schemaVersion === 1 ? 1 : 1,
       createdAt: raw.createdAt || null,
       createdBy: clean(raw.createdBy),
@@ -731,6 +824,12 @@
     }
     if (err.code === 'SCREEN_ACTION_IMMUTABLE_FIELD') {
       return createServiceError(ERROR_CODES.IMMUTABLE_FIELD, err.message);
+    }
+    if (err.code === 'SCREEN_ACTION_SECTION_NOT_FOUND') {
+      return createServiceError(ERROR_CODES.SECTION_NOT_FOUND, err.message);
+    }
+    if (err.code === 'SCREEN_ACTION_SECTION_SPEC_MISMATCH') {
+      return createServiceError(ERROR_CODES.SECTION_SPEC_MISMATCH, err.message);
     }
     return err;
   }
@@ -899,5 +998,8 @@
     canReadScreenAction: canReadScreenAction,
     createMemberRoleAuthorize: createMemberRoleAuthorize,
     mapAdapterError: mapAdapterError,
+    DEFAULT_LAYOUT: DEFAULT_LAYOUT,
+    normalizeCompositionFields: normalizeCompositionFields,
+    validateCompositionFields: validateCompositionFields,
   };
 }());
