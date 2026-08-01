@@ -47,11 +47,16 @@ service cloud.firestore {
      *   Viewer remains read-only. Hard delete allowed for writers.
      *   Parent screenSpec existence validated on create. Name uniqueness is NOT rules-enforced.
      *
+     * ScreenAction-1:
+     *   screenActions write opened for active project members with role owner/admin/editor.
+     *   Viewer remains read-only. Hard delete allowed for writers.
+     *   Parent/target screenSpec existence validated on create/update when applicable.
+     *   Name uniqueness is NOT rules-enforced.
+     *
      *   Signed-in users may create or update only their own `users/{uid}`
      *   document for Google login bootstrap. Client cannot change `status`,
      *   `provider`, `userId`, or `createdAt` on update. Unopened artifact
-     *   collections (screenFields, screenActions, artifactLinks)
-     *   remain write-closed.
+     *   collections (artifactLinks) remain write-closed.
      *
      *   - Rules gate is UID-based: allowed iff `projects/{projectId}/
      *     members/{request.auth.uid}` exists and .status == "active".
@@ -1214,6 +1219,208 @@ service cloud.firestore {
       return isScreenFieldWriter(projectId);
     }
 
+    // ── ScreenAction write helpers (ScreenAction-1) ───────────────────
+    function isScreenActionWriter(projectId) {
+      return isScreenSpecWriter(projectId);
+    }
+    function isValidScreenActionName(name) {
+      return name is string
+          && name.size() >= 2
+          && name.size() <= 80
+          && name.matches('^[a-zA-Z][a-zA-Z0-9_]{1,79}$');
+    }
+    function isValidScreenActionLabel(label) {
+      return label is string
+          && label.size() >= 1
+          && label.size() <= 120;
+    }
+    function isValidScreenActionType(actionType) {
+      return actionType is string && (
+        actionType == 'navigate' ||
+        actionType == 'submit' ||
+        actionType == 'save' ||
+        actionType == 'cancel' ||
+        actionType == 'delete' ||
+        actionType == 'openDrawer' ||
+        actionType == 'closeDrawer' ||
+        actionType == 'download' ||
+        actionType == 'custom'
+      );
+    }
+    function isValidScreenActionControlType(controlType) {
+      return controlType is string && (
+        controlType == 'button' ||
+        controlType == 'link' ||
+        controlType == 'icon' ||
+        controlType == 'menuItem'
+      );
+    }
+    function isValidScreenActionPlacement(placement) {
+      return placement is string && (
+        placement == 'header' ||
+        placement == 'toolbar' ||
+        placement == 'form' ||
+        placement == 'tableRow' ||
+        placement == 'footer' ||
+        placement == 'inline'
+      );
+    }
+    function isValidScreenActionVariant(variant) {
+      return variant is string && (
+        variant == 'primary' ||
+        variant == 'secondary' ||
+        variant == 'tertiary' ||
+        variant == 'danger' ||
+        variant == 'text'
+      );
+    }
+    function isValidScreenActionOrder(order) {
+      return order is int && order >= 0;
+    }
+    function isValidScreenActionTargetRef(data) {
+      let actionType = data.actionType;
+      let target = data.targetScreenSpecId;
+      return actionType == 'navigate'
+          ? target is string && target.size() > 0
+          : actionType == 'openDrawer'
+          ? target == null || (target is string && target.size() > 0)
+          : target == null;
+    }
+    function isValidScreenActionTargetOnWrite(projectId, data) {
+      let target = data.targetScreenSpecId;
+      return target == null
+          || (exists(screenSpecDocPath(projectId, target))
+              && get(screenSpecDocPath(projectId, target)).data.projectId == projectId
+              && get(screenSpecDocPath(projectId, target)).data.isDeleted == false);
+    }
+    function isValidScreenActionConfirm(data) {
+      return data.confirmRequired is bool
+          && (
+            !data.confirmRequired
+              ? data.confirmTitle == null && data.confirmMessage == null
+              : data.confirmMessage is string
+                  && data.confirmMessage.size() >= 1
+                  && data.confirmMessage.size() <= 500
+          )
+          && (data.confirmTitle == null || (
+            data.confirmTitle is string && data.confirmTitle.size() <= 120
+          ))
+          && (data.successMessage == null || (
+            data.successMessage is string && data.successMessage.size() <= 500
+          ));
+    }
+    function isValidScreenActionParentRef(projectId, data) {
+      return data.screenSpecId is string && data.screenSpecId.size() > 0;
+    }
+    function isValidScreenActionParentOnCreate(projectId, data) {
+      let specId = data.screenSpecId;
+      return isValidScreenActionParentRef(projectId, data)
+          && exists(screenSpecDocPath(projectId, specId))
+          && get(screenSpecDocPath(projectId, specId)).data.projectId == projectId
+          && get(screenSpecDocPath(projectId, specId)).data.isDeleted == false;
+    }
+    function screenActionWriteKeys() {
+      return [
+        'id',
+        'projectId',
+        'screenSpecId',
+        'order',
+        'name',
+        'label',
+        'actionType',
+        'controlType',
+        'placement',
+        'variant',
+        'targetScreenSpecId',
+        'disabled',
+        'confirmRequired',
+        'confirmTitle',
+        'confirmMessage',
+        'successMessage',
+        'schemaVersion',
+        'createdAt',
+        'createdBy',
+        'updatedAt',
+        'updatedBy',
+      ];
+    }
+    function screenActionRequiredKeys() {
+      return [
+        'id',
+        'projectId',
+        'screenSpecId',
+        'order',
+        'name',
+        'label',
+        'actionType',
+        'controlType',
+        'placement',
+        'variant',
+        'targetScreenSpecId',
+        'disabled',
+        'confirmRequired',
+        'confirmTitle',
+        'confirmMessage',
+        'successMessage',
+        'schemaVersion',
+        'createdAt',
+        'createdBy',
+        'updatedAt',
+        'updatedBy',
+      ];
+    }
+    function screenActionFieldValidation(projectId, data) {
+      return isValidScreenActionName(data.name)
+          && isValidScreenActionLabel(data.label)
+          && isValidScreenActionType(data.actionType)
+          && isValidScreenActionControlType(data.controlType)
+          && isValidScreenActionPlacement(data.placement)
+          && isValidScreenActionVariant(data.variant)
+          && isValidScreenActionOrder(data.order)
+          && data.disabled is bool
+          && isValidScreenActionConfirm(data)
+          && isValidScreenActionTargetRef(data)
+          && isValidScreenActionTargetOnWrite(projectId, data)
+          && isValidScreenActionParentRef(projectId, data)
+          && data.schemaVersion == 1;
+    }
+    function isValidScreenActionCreate(projectId, actionId) {
+      let data = request.resource.data;
+      return isScreenActionWriter(projectId)
+          && data.id == actionId
+          && data.projectId == projectId
+          && data.keys().hasAll(screenActionRequiredKeys())
+          && data.keys().hasOnly(screenActionWriteKeys())
+          && screenActionFieldValidation(projectId, data)
+          && isValidScreenActionParentOnCreate(projectId, data)
+          && data.createdBy == uid()
+          && data.updatedBy == uid()
+          && data.createdAt == request.time
+          && data.updatedAt == request.time;
+    }
+    function isValidScreenActionUpdate(projectId, actionId) {
+      let data = request.resource.data;
+      let prev = resource.data;
+      return isScreenActionWriter(projectId)
+          && data.id == actionId
+          && data.projectId == projectId
+          && data.id == prev.id
+          && data.projectId == prev.projectId
+          && data.screenSpecId == prev.screenSpecId
+          && data.createdAt == prev.createdAt
+          && data.createdBy == prev.createdBy
+          && data.schemaVersion == prev.schemaVersion
+          && data.schemaVersion == 1
+          && data.keys().hasAll(screenActionRequiredKeys())
+          && data.keys().hasOnly(screenActionWriteKeys())
+          && screenActionFieldValidation(projectId, data)
+          && data.updatedBy == uid()
+          && data.updatedAt == request.time;
+    }
+    function isValidScreenActionDelete(projectId, actionId) {
+      return isScreenActionWriter(projectId);
+    }
+
     // ── users/{uid} bootstrap helpers (PR #355) ───────────────────
     // Path variable userId must be passed into helpers explicitly.
     function userBootstrapKeys() {
@@ -1378,7 +1585,9 @@ service cloud.firestore {
 
       match /screenActions/{actionId} {
         allow get, list: if canReadProject(projectId);
-        allow create, update, delete: if false;
+        allow create: if isValidScreenActionCreate(projectId, actionId);
+        allow update: if isValidScreenActionUpdate(projectId, actionId);
+        allow delete: if isValidScreenActionDelete(projectId, actionId);
       }
 
       match /artifactLinks/{linkId} {
