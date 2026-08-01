@@ -27,7 +27,7 @@
 - Firestore Rules **Emulator E2E**
 - **Hard delete** (editor+)
 - 상위 `screenSpecId` 존재·동일 `projectId` 검증
-- 동일 `screenSpecId` 내 **정규화 name** 중복 차단 (Service + Adapter transaction)
+- 동일 `screenSpecId` 내 **정규화 name** 중복 차단 (**Service + Adapter query preflight**, transaction 밖; sequential best-effort reject, concurrent uniqueness not guaranteed)
 - Audit 필드: screenSpecs와 **동형** (Service ISO → Adapter serverTimestamp → read ISO normalize)
 
 ### 1.3 PR B 제외
@@ -331,13 +331,16 @@ create(options?) => {
   listByScreenSpec(projectId, screenSpecId, query?) => Promise<raw[]>
   listByProject(projectId, query?) => Promise<raw[]>
   getById(projectId, fieldId) => Promise<raw|null>
-  create(projectId, field) => Promise<raw>      // transaction — §11
+  create(projectId, field) => Promise<raw>      // preflight + doc-ref transaction — §11
   update(projectId, fieldId, patch) => Promise<raw>
   delete(projectId, fieldId) => Promise<void>   // hard delete
 }
 
 // contract exports
-runCreateTransaction(db, projectId, payload)   // test hook
+runCreatePreflight(db, projectId, payload, excludeFieldId?)
+runCreateTransaction(db, projectId, payload)
+runUpdatePreflight(db, projectId, fieldId, patch, current)
+runUpdateTransaction(db, projectId, fieldId, patch)
 assertScreenSpecParentExists(db, projectId, screenSpecId)
 findDuplicateNormalizedName(db, projectId, screenSpecId, normalizedName, excludeFieldId?)
 ```
@@ -411,7 +414,8 @@ Parent screenSpec **존재 여부와 무관**하게 delete 허용 (orphan field 
 | 주장 | 실제 |
 |------|------|
 | Rules가 name unique 보장 | **❌ 불가** |
-| Adapter transaction duplicate check | **❌ 사용하지 않음** — compat Transaction.get(Query) 미지원 |
+| Adapter transaction duplicate check | **❌ 사용하지 않음** — compat `Transaction.get(Query)` 미지원 |
+| Adapter transaction scope | **DocumentReference read + write only** (parent/field doc) |
 | Service + Adapter query preflight | **best-effort** — sequential duplicate reject |
 | Concurrent insert 100% unique | **❌ 보장하지 않음** — unique registry / deterministic ID 없음 |
 
@@ -437,8 +441,8 @@ Parent screenSpec **존재 여부와 무관**하게 delete 허용 (orphan field 
 | `isValidScreenFieldLabel(label)` | 1–120 |
 | `isValidScreenFieldType(type)` | enum |
 | `isValidScreenFieldOrder(order)` | int ≥ 0 |
-| `isValidScreenFieldOptions(data)` | array shape, ≤100, value/label |
-| `isValidScreenFieldValidationRules(data)` | regex-only, ≤10 |
+| `isValidScreenFieldOptions(data)` | `options` is list; size ≤100; select/multiselect ≥1 else empty |
+| `isValidScreenFieldValidationRules(data)` | `validationRules` is list; size ≤10 |
 | `isValidScreenFieldDefaultValue(data)` | coarse type kind vs `data.type` |
 | `isValidScreenFieldMinMax(data)` | min≤max when both set |
 | `isValidScreenFieldParentRef(projectId, data)` | screenSpecId non-empty string |
@@ -459,7 +463,30 @@ match /screenFields/{fieldId} {
 }
 ```
 
-**명시적 non-goals (Rules):** parent screenSpec existence, normalized name uniqueness — **Service/Adapter only**.
+**Rules가 보장하는 것 (PR B):**
+
+- top-level 필드 whitelist / required keys
+- `name`, `label`, `type`, `order`, boolean flags, coarse `defaultValue` kind
+- `options` — **list**, max 100, select/multiselect empty/non-empty count only
+- `validationRules` — **list**, max 10 only
+- parent screenSpec exists + `projectId` exact match + non-deleted (**create only**)
+- audit timestamp/actor policy, immutable fields on update
+- hard delete writer gate
+
+**Rules non-goals (Service 계약):**
+
+- normalized **name uniqueness**
+- option item map structure, label/value, value unique, `disabled` type
+- validationRule `kind` / `pattern` / `flags`, regex compile validity
+- `defaultValue` vs options cross-validation (full semantics)
+- `minLength` / `maxLength` text-type enforcement beyond coarse checks
+
+**Service가 보장하는 것:**
+
+- option label/value trim, value unique (case-sensitive), max 100
+- validationRules regex-only, pattern compile, max 10
+- defaultValue type/options matrix, file/image null-only
+- name normalize + duplicate query preflight (sequential best-effort)
 
 ---
 
@@ -484,7 +511,7 @@ Counter doc: **없음** (screenFields는 code/counter 불사용).
 | **create** | `projects/{pid}/screenSpecs/{screenSpecId}` exists; `projectId` 일치; `isDeleted !== true` | `SCREEN_FIELD_PARENT_NOT_FOUND`, `SCREEN_FIELD_PARENT_PROJECT_MISMATCH` |
 | **update** | `screenSpecId` **immutable** — patch 금지 | `SCREEN_FIELD_IMMUTABLE_FIELD` |
 | **delete** | parent 존재 **미검증** | — |
-| **Rules** | `screenSpecId` is string non-empty only | — |
+| **Rules (create)** | parent exists; `projectId` exact match; `isDeleted !== true` | — |
 
 ---
 
@@ -577,20 +604,37 @@ Service errors: `err.code = '<CODE>'`. Adapter preflight: `err.preflight = true`
 - viewer: read pass, write fail
 - screenFields write-closed regression removed
 
-### 19.4 Emulator E2E (`test-screen-field-firestore-rules-emulator.mjs`)
+### 19.4 Rules Emulator E2E (`test-screen-field-firestore-rules-emulator.mjs`)
+
+역할·Rules shape·audit·parent 검증 전용. **Adapter name 중복 검증 아님.**
 
 | # | 시나리오 |
 |---|----------|
-| 1 | editor create field on existing screenSpec → success |
-| 2 | viewer create → permission denied |
-| 3 | create with invalid type enum → rules reject |
-| 4 | create duplicate normalized name (sequential) → second transaction fail (adapter) + rules pass shape |
-| 5 | update name to collision → fail |
-| 6 | editor hard delete own field → success |
-| 7 | viewer delete → denied |
-| 8 | create with non-existent screenSpecId → adapter PARENT_NOT_FOUND before write |
-| 9 | list by project member reader → success |
-| 10 | cross-project read → denied |
+| 1 | viewer list/get 허용 |
+| 2 | viewer create/update/delete 거부 |
+| 3 | editor create / update / hard delete 허용 |
+| 4 | signed-out get/list/create 거부 |
+| 5 | non-member / cross-project 접근 거부 |
+| 6 | parent missing / deleted / other-project / projectId 누락 create 거부 |
+| 7 | audit timestamp·createdBy·updatedBy 위조 create 거부 |
+| 8 | update 시 createdAt/createdBy immutable 거부 |
+| 9 | screenSpecId immutable 거부 |
+| 10 | forbidden extra top-level key 거부 |
+| 11 | delete 후 get NOT_FOUND; 동일 name 재등록 Rules layer 허용 |
+
+### 19.5 Adapter Emulator E2E (`test-screen-field-adapter-firestore-emulator.mjs`)
+
+compat Web SDK + Firestore emulator. **Service/Adapter query preflight** 경로.
+
+| # | 시나리오 |
+|---|----------|
+| 1 | create 성공 |
+| 2 | sequential duplicate normalized name create 거부 |
+| 3 | 일반 update 성공 |
+| 4 | rename update 성공 |
+| 5 | rename duplicate reject |
+| 6 | hard delete 성공 |
+| 7 | `Transaction.get()` — DocumentReference only (Query 미사용) |
 
 ---
 
@@ -613,7 +657,7 @@ Service errors: `err.code = '<CODE>'`. Adapter preflight: `err.preflight = true`
 | 1 | Hard delete PR B 포함 | ✅ **닫힘** |
 | 2 | Random fieldId (auto-id) | ✅ **닫힘** |
 | 3 | deterministic fieldId 제외 | ✅ **닫힘** |
-| 4 | name 중복: Service + Adapter transaction | ✅ **닫힘** |
+| 4 | name 중복: Service + Adapter **query preflight** (tx 밖) | ✅ **닫힘** |
 | 5 | Rules는 name unique **미보장** 명시 | ✅ **닫힘** |
 | 6 | 저장 경로 flat subcollection | ✅ **닫힘** |
 | 7 | channelScope/localeScope PR B 제외 | ✅ **닫힘** |

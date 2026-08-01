@@ -31,10 +31,14 @@ const helpers = helperBlock[0];
 
 assert.match(helpers, /return isScreenSpecWriter\(projectId\)/);
 assert.match(helpers, /data\.schemaVersion == 1/);
-assert.match(helpers, /rule\.kind == 'regex'/);
+assert.match(helpers, /data\.options is list/);
 assert.match(helpers, /data\.options\.size\(\) <= 100/);
+assert.match(helpers, /data\.validationRules is list/);
+assert.match(helpers, /data\.validationRules\.size\(\) <= 10/);
 assert.match(helpers, /get\(screenSpecDocPath\(projectId, specId\)\)\.data\.isDeleted == false/);
 
+assert.doesNotMatch(helpers, /function isValidScreenFieldOptionItem\(/);
+assert.doesNotMatch(helpers, /function isValidScreenFieldValidationRuleItem\(/);
 assert.doesNotMatch(helpers, /unique name/i);
 assert.doesNotMatch(helpers, /normalized name/i);
 assert.doesNotMatch(helpers, /duplicate name/i);

@@ -1060,18 +1060,6 @@ service cloud.firestore {
     function isValidScreenFieldOrder(order) {
       return order is int && order >= 0;
     }
-    function isValidScreenFieldOptionItem(item) {
-      return item is map
-          && item.keys().hasAll(['value', 'label'])
-          && item.value is string
-          && item.label is string
-          && item.value.size() >= 1
-          && item.value.size() <= 80
-          && item.label.size() >= 1
-          && item.label.size() <= 120
-          && item.value.matches('^[a-zA-Z0-9_-]{1,80}$')
-          && (!item.keys().hasAny(['disabled']) || item.disabled is bool);
-    }
     function isValidScreenFieldOptions(data) {
       return data.options is list
           && data.options.size() <= 100
@@ -1080,18 +1068,6 @@ service cloud.firestore {
               ? data.options.size() == 0
               : data.options.size() >= 1
           );
-    }
-    function isValidScreenFieldValidationRuleItem(rule) {
-      return rule is map
-          && rule.keys().hasAll(['kind', 'pattern'])
-          && rule.kind == 'regex'
-          && rule.pattern is string
-          && rule.pattern.size() >= 1
-          && rule.pattern.size() <= 500
-          && (!rule.keys().hasAny(['flags']) || (
-            rule.flags is string
-            && rule.flags.size() <= 4
-          ));
     }
     function isValidScreenFieldValidationRules(data) {
       return data.validationRules is list
