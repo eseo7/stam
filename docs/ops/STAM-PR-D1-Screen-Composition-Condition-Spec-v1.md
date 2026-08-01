@@ -173,7 +173,7 @@ screenSpec
 - JavaScript 문자열 / eval 표현식 **금지**
 - flat group only (중첩 group 미지원)
 - conditions 최대 **20**개
-- **Rules:** logic + conditions list bounds (1–20) only — per-item operator/source 검증은 Service
+- **Rules:** logic + conditions list bounds (1–20) + **각 condition item source/operator 필수** (`isValidConditionItemBasic` unrolled) — operator/value/sourceId 의미 검증은 Service
 - `source=field` → `sourceId`는 동일 screenSpec의 screenField ID
 - `source=role` → value는 owner/admin/editor/viewer
 - `source=screenMode` → list/create/detail/edit/popup
@@ -193,6 +193,13 @@ screenSpec
 | layout.defaultCollapsed | collapsible=false이면 false |
 | condition strings | trim |
 | field sourceId | field source면 필수, role/screenMode/recordState면 null |
+| **fieldRole (write)** | 누락 시 input; 명시 invalid/blank 거부 (기본값으로 은폐 금지) |
+| **fieldRole (read)** | legacy 누락 → input; stored invalid 값은 그대로 노출 |
+| **layout (write)** | 누락 시 default; 명시 invalid span/unknown key/타입 오류 거부 |
+| **layout (read)** | 누락 key만 default; stored invalid span 등은 그대로 노출 |
+| **schemaVersion (read)** | 누락 → 1; stored non-1 값은 은폐하지 않음 |
+| **Section/Field 참조 검증** | Service create/update 시 Adapter에서 sectionsById·fieldIds 로드 (caller context 신뢰 금지) |
+| **Field delete** | 동일 screenSpec 내 condition field 참조 존재 시 `CONDITIONS_REFERENCE_FIELD` 거부 |
 
 ---
 
@@ -300,16 +307,16 @@ screenSections는 screenSpecs와 **동일 writer/reader** 원칙:
 
 ## 17. 계약 테스트 목록과 수량
 
-### 신규 (7 files, 135 cases)
+### 신규 (7 files, 148 cases)
 
 | 파일 | 케이스 | 결과 |
 |------|--------|------|
 | `test-screen-section-service-contract.mjs` | 33 | PASS |
 | `test-screen-section-adapter-contract.mjs` | 14 | PASS |
-| `test-screen-section-rules-contract.mjs` | 10 | PASS |
+| `test-screen-section-rules-contract.mjs` | 11 | PASS |
 | `test-screen-section-role-matrix-contract.mjs` | 10 | PASS |
-| `test-screen-field-composition-extension-contract.mjs` | 23 | PASS |
-| `test-screen-action-composition-extension-contract.mjs` | 19 | PASS |
+| `test-screen-field-composition-extension-contract.mjs` | 32 | PASS |
+| `test-screen-action-composition-extension-contract.mjs` | 22 | PASS |
 | `test-screen-composition-fixture-contract.mjs` | 26 | PASS |
 
 실행:

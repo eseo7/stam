@@ -295,8 +295,15 @@ assert.equal(authorize(contract.ACTIONS.CREATE, { context: { memberRole: 'viewer
 assert.equal(authorize(contract.ACTIONS.DELETE, { context: { memberRole: 'editor' } }), true);
 
 const adapter = createFakeAdapter([seedAction()]);
+const fieldAdapter = {
+  listByScreenSpec() {
+    return Promise.resolve([]);
+  },
+};
 const service = contract.createService({
   adapter,
+  fieldAdapter,
+  sectionAdapter: { listByScreenSpec: () => Promise.resolve([]) },
   authorize: (action) => authorize(action, { context: { memberRole: 'editor' } }),
   clock: () => '2026-02-01T00:00:00.000Z',
 });

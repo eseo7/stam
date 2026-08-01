@@ -32,6 +32,7 @@
     SECTION_NOT_FOUND: 'SCREEN_FIELD_SECTION_NOT_FOUND',
     SECTION_SPEC_MISMATCH: 'SCREEN_FIELD_SECTION_SPEC_MISMATCH',
     FIELD_ROLE_SECTION_MISMATCH: 'SCREEN_FIELD_FIELD_ROLE_SECTION_MISMATCH',
+    CONDITIONS_REFERENCE_FIELD: 'SCREEN_FIELD_CONDITIONS_REFERENCE_FIELD',
   };
 
   var DEFAULT_LAYOUT = { row: null, column: null, span: 12 };
@@ -47,52 +48,62 @@
     return trimmed || null;
   }
 
-  function normalizeLayout(raw) {
-    var layout = raw && typeof raw === 'object' ? raw : {};
+  function normalizeLayoutForRead(raw) {
     var contract = compositionContract();
-    var span = layout.span == null ? 12 : layout.span;
-    var normalized = {
-      row: layout.row == null ? null : layout.row,
-      column: layout.column == null ? null : layout.column,
-      span: span,
-    };
-    if (contract && contract.validateLayoutGrid) {
-      var errors = [];
-      contract.validateLayoutGrid(normalized, errors, 'layout');
-      if (errors.length) return DEFAULT_LAYOUT;
+    if (contract && contract.normalizeLayoutGridForRead) {
+      return contract.normalizeLayoutGridForRead(raw);
     }
-    return normalized;
+    return Object.assign({}, DEFAULT_LAYOUT);
   }
 
-  function normalizeCompositionFields(raw) {
-    var source = raw || {};
-    return {
-      sectionId: normalizeSectionId(source.sectionId),
-      fieldRole: FIELD_ROLE_VALUES.indexOf(clean(source.fieldRole)) >= 0 ? clean(source.fieldRole) : 'input',
-      layout: normalizeLayout(source.layout),
-      visibilityCondition: compositionContract() && compositionContract().normalizeConditionGroup
-        ? compositionContract().normalizeConditionGroup(source.visibilityCondition)
-        : (source.visibilityCondition || null),
-      enabledCondition: compositionContract() && compositionContract().normalizeConditionGroup
-        ? compositionContract().normalizeConditionGroup(source.enabledCondition)
-        : (source.enabledCondition || null),
-      requiredCondition: compositionContract() && compositionContract().normalizeConditionGroup
-        ? compositionContract().normalizeConditionGroup(source.requiredCondition)
-        : (source.requiredCondition || null),
+  function normalizeCompositionFieldsForWrite(source, errors) {
+    var contract = compositionContract();
+    var input = source || {};
+    var composition = {
+      sectionId: normalizeSectionId(input.sectionId),
+      fieldRole: contract && contract.resolveFieldRoleForWrite
+        ? contract.resolveFieldRoleForWrite(input, errors, 'input')
+        : 'input',
+      layout: null,
+      visibilityCondition: contract && contract.normalizeConditionGroup
+        ? contract.normalizeConditionGroup(input.visibilityCondition)
+        : (input.visibilityCondition || null),
+      enabledCondition: contract && contract.normalizeConditionGroup
+        ? contract.normalizeConditionGroup(input.enabledCondition)
+        : (input.enabledCondition || null),
+      requiredCondition: contract && contract.normalizeConditionGroup
+        ? contract.normalizeConditionGroup(input.requiredCondition)
+        : (input.requiredCondition || null),
     };
+
+    if (contract && contract.normalizeLayoutGridForWrite) {
+      if (!hasOwn(input, 'layout')) {
+        composition.layout = Object.assign({}, DEFAULT_LAYOUT);
+      } else {
+        var layout = contract.normalizeLayoutGridForWrite(input.layout, errors, 'layout');
+        if (layout === undefined) {
+          composition.layout = undefined;
+        } else {
+          composition.layout = layout;
+        }
+      }
+    } else {
+      composition.layout = hasOwn(input, 'layout') ? input.layout : Object.assign({}, DEFAULT_LAYOUT);
+    }
+
+    return composition;
   }
 
   function validateCompositionFields(doc, context, errors) {
-    var composition = normalizeCompositionFields(doc);
+    var writeErrors = [];
+    var composition = normalizeCompositionFieldsForWrite(doc, writeErrors);
+    writeErrors.forEach(function (entry) {
+      errors.push(entry);
+    });
+    if (writeErrors.length) return composition;
+
     var contract = compositionContract();
     if (!contract) return composition;
-
-    if (composition.fieldRole && contract.validateFieldRole) {
-      contract.validateFieldRole(composition.fieldRole, errors);
-    }
-    if (contract.validateLayoutGrid) {
-      contract.validateLayoutGrid(composition.layout, errors, 'layout');
-    }
 
     var sectionsById = (context && context.sectionsById) || {};
     if (composition.sectionId) {
@@ -711,12 +722,16 @@
       throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenFieldService: invalid create input', { errors: validation.errors });
     }
 
-    var createValidation = validateCompleteDocument(Object.assign({}, source, { projectId: projectId }), context);
+    var createValidation = validateCompleteDocument(Object.assign({}, source, { projectId: projectId, screenSpecId: screenSpecId }), context);
     if (!createValidation.valid) {
       throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenFieldService: invalid create input', { errors: createValidation.errors });
     }
 
-    var composition = normalizeCompositionFields(source);
+    var compositionErrors = [];
+    var composition = normalizeCompositionFieldsForWrite(source, compositionErrors);
+    if (compositionErrors.length) {
+      throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenFieldService: invalid create input', { errors: compositionErrors });
+    }
 
     return {
       projectId: projectId,
@@ -758,7 +773,15 @@
     assertValidInput(source, 'update');
     var actor = actorFromContext(context);
     var merged = Object.assign({}, base, source);
-    var composition = normalizeCompositionFields(merged);
+    var compositionErrors = [];
+    var composition = normalizeCompositionFieldsForWrite(merged, compositionErrors);
+    if (compositionErrors.length) {
+      throw createServiceError(
+        ERROR_CODES.VALIDATION_FAILED,
+        'screenFieldService: invalid merged document after update',
+        { errors: compositionErrors }
+      );
+    }
     Object.assign(merged, composition);
     if (hasOwn(source, 'name')) merged.name = clean(source.name);
     if (hasOwn(source, 'label')) merged.label = clean(source.label);
@@ -785,6 +808,7 @@
 
   function normalizeScreenField(raw) {
     if (!raw) return null;
+    var contract = compositionContract();
     return {
       id: clean(raw.id),
       projectId: clean(raw.projectId),
@@ -804,12 +828,16 @@
       options: Array.isArray(raw.options) ? raw.options : [],
       validationRules: Array.isArray(raw.validationRules) ? raw.validationRules : [],
       sectionId: normalizeSectionId(raw.sectionId),
-      fieldRole: FIELD_ROLE_VALUES.indexOf(clean(raw.fieldRole)) >= 0 ? clean(raw.fieldRole) : 'input',
-      layout: normalizeLayout(raw.layout),
+      fieldRole: contract && contract.normalizeFieldRoleForRead
+        ? contract.normalizeFieldRoleForRead(raw)
+        : (hasOwn(raw, 'fieldRole') ? raw.fieldRole : 'input'),
+      layout: normalizeLayoutForRead(raw.layout),
       visibilityCondition: raw.visibilityCondition || null,
       enabledCondition: raw.enabledCondition || null,
       requiredCondition: raw.requiredCondition || null,
-      schemaVersion: raw.schemaVersion === 1 ? 1 : 1,
+      schemaVersion: contract && contract.normalizeSchemaVersionForRead
+        ? contract.normalizeSchemaVersionForRead(raw, SCHEMA_VERSION)
+        : (hasOwn(raw, 'schemaVersion') ? raw.schemaVersion : SCHEMA_VERSION),
       createdAt: raw.createdAt || null,
       createdBy: clean(raw.createdBy),
       updatedAt: raw.updatedAt || null,
@@ -857,6 +885,95 @@
     };
   }
 
+  function resolveSectionAdapter(sectionAdapter) {
+    if (sectionAdapter) return sectionAdapter;
+    if (window.STAM && window.STAM.screenSectionFirestoreAdapter) {
+      return window.STAM.screenSectionFirestoreAdapter.create();
+    }
+    return null;
+  }
+
+  function resolveActionAdapter(actionAdapter) {
+    if (actionAdapter) return actionAdapter;
+    if (window.STAM && window.STAM.screenActionFirestoreAdapter) {
+      return window.STAM.screenActionFirestoreAdapter.create();
+    }
+    return null;
+  }
+
+  function buildSectionsById(sections) {
+    var map = Object.create(null);
+    (sections || []).forEach(function (section) {
+      if (section && clean(section.id)) {
+        map[clean(section.id)] = section;
+      }
+    });
+    return map;
+  }
+
+  function buildCompositionValidationContext(deps, projectId, screenSpecId) {
+    var fieldAdapter = deps.fieldAdapter;
+    var sectionAdapter = deps.sectionAdapter;
+    var fieldIdsPromise = fieldAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
+      return (items || []).map(function (item) {
+        return clean(item.id);
+      }).filter(Boolean);
+    });
+    var sectionsPromise = sectionAdapter
+      ? sectionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
+        return buildSectionsById(items);
+      })
+      : Promise.resolve(Object.create(null));
+
+    return Promise.all([fieldIdsPromise, sectionsPromise]).then(function (results) {
+      return {
+        fieldIds: results[0],
+        sectionsById: results[1],
+      };
+    });
+  }
+
+  function countConditionReferencesToField(deps, projectId, screenSpecId, fieldId) {
+    var contract = compositionContract();
+    if (!contract || typeof contract.documentReferencesFieldId !== 'function') {
+      return Promise.resolve(0);
+    }
+
+    var targetId = clean(fieldId);
+    var count = 0;
+
+    function scanCollection(items, keys) {
+      (items || []).forEach(function (item) {
+        if (!item || clean(item.id) === targetId) return;
+        if (contract.documentReferencesFieldId(item, targetId, keys)) {
+          count += 1;
+        }
+      });
+    }
+
+    var promises = [
+      deps.fieldAdapter.listByScreenSpec(projectId, screenSpecId).then(function (fields) {
+        scanCollection(fields, ['visibilityCondition', 'enabledCondition', 'requiredCondition']);
+      }),
+    ];
+
+    if (deps.sectionAdapter) {
+      promises.push(deps.sectionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (sections) {
+        scanCollection(sections, ['visibilityCondition']);
+      }));
+    }
+
+    if (deps.actionAdapter) {
+      promises.push(deps.actionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (actions) {
+        scanCollection(actions, ['visibilityCondition', 'enabledCondition']);
+      }));
+    }
+
+    return Promise.all(promises).then(function () {
+      return count;
+    });
+  }
+
   function resolveAdapter(adapter) {
     if (adapter) return adapter;
     if (window.STAM && window.STAM.screenFieldFirestoreAdapter) {
@@ -901,8 +1018,16 @@
   function createService(options) {
     var opts = options || {};
     var adapter = resolveAdapter(opts.adapter);
+    var sectionAdapter = resolveSectionAdapter(opts.sectionAdapter);
+    var actionAdapter = resolveActionAdapter(opts.actionAdapter);
     var authorize = opts.authorize || defaultAuthorize;
     var clock = opts.clock;
+
+    var compositionDeps = {
+      fieldAdapter: adapter,
+      sectionAdapter: sectionAdapter,
+      actionAdapter: actionAdapter,
+    };
 
     function check(action, projectId, payload, context) {
       var ctx = Object.assign({}, context || {}, { projectId: projectId });
@@ -951,14 +1076,19 @@
 
     function create(projectId, input, context) {
       var pid = requireProjectId(projectId);
-      var ctx = Object.assign({}, context || {}, { projectId: pid });
-      var item = buildCreatePayload(Object.assign({}, input || {}), ctx, clock);
-      return check(ACTIONS.CREATE, pid, item, context).then(function () {
-        return preflightDuplicateName(adapter, pid, item.screenSpecId, item.name);
-      }).then(function () {
-        return adapter.create(pid, item);
-      }).then(function (saved) {
-        return normalizeScreenField(saved || item);
+      var source = Object.assign({}, input || {});
+      var screenSpecId = clean(source.screenSpecId);
+
+      return buildCompositionValidationContext(compositionDeps, pid, screenSpecId).then(function (validationContext) {
+        var ctx = Object.assign({}, context || {}, { projectId: pid }, validationContext);
+        var item = buildCreatePayload(source, ctx, clock);
+        return check(ACTIONS.CREATE, pid, item, context).then(function () {
+          return preflightDuplicateName(adapter, pid, item.screenSpecId, item.name);
+        }).then(function () {
+          return adapter.create(pid, item);
+        }).then(function (saved) {
+          return normalizeScreenField(saved || item);
+        });
       }).catch(rethrowAdapterError);
     }
 
@@ -972,13 +1102,16 @@
         if (!current) {
           throw createServiceError(ERROR_CODES.NOT_FOUND, 'screenFieldService: screen field not found');
         }
-        var nextPatch = buildUpdatePatch(current, patch, context, clock);
-        if (hasOwn(patch, 'name') && normalizeName(patch.name) !== normalizeName(current.name)) {
-          return preflightDuplicateName(adapter, pid, current.screenSpecId, patch.name, fid).then(function () {
-            return adapter.update(pid, fid, nextPatch);
-          });
-        }
-        return adapter.update(pid, fid, nextPatch);
+        return buildCompositionValidationContext(compositionDeps, pid, current.screenSpecId).then(function (validationContext) {
+          var ctx = Object.assign({}, context || {}, { projectId: pid }, validationContext);
+          var nextPatch = buildUpdatePatch(current, patch, ctx, clock);
+          if (hasOwn(patch, 'name') && normalizeName(patch.name) !== normalizeName(current.name)) {
+            return preflightDuplicateName(adapter, pid, current.screenSpecId, patch.name, fid).then(function () {
+              return adapter.update(pid, fid, nextPatch);
+            });
+          }
+          return adapter.update(pid, fid, nextPatch);
+        });
       }).then(normalizeScreenField).catch(rethrowAdapterError);
     }
 
@@ -986,7 +1119,21 @@
       var pid = requireProjectId(projectId);
       var fid = requireFieldId(fieldId);
       return check(ACTIONS.DELETE, pid, { id: fid }, context).then(function () {
-        return adapter.delete(pid, fid);
+        return adapter.getById(pid, fid);
+      }).then(function (currentRaw) {
+        var current = normalizeScreenField(currentRaw);
+        if (!current) {
+          throw createServiceError(ERROR_CODES.NOT_FOUND, 'screenFieldService: screen field not found');
+        }
+        return countConditionReferencesToField(compositionDeps, pid, current.screenSpecId, fid).then(function (referenceCount) {
+          if (referenceCount > 0) {
+            throw createServiceError(
+              ERROR_CODES.CONDITIONS_REFERENCE_FIELD,
+              'screenFieldService: conditions reference field'
+            );
+          }
+          return adapter.delete(pid, fid);
+        });
       }).catch(rethrowAdapterError);
     }
 
@@ -1035,8 +1182,10 @@
     normalizeName: normalizeName,
     DEFAULT_LAYOUT: DEFAULT_LAYOUT,
     FIELD_ROLE_VALUES: FIELD_ROLE_VALUES,
-    normalizeCompositionFields: normalizeCompositionFields,
+    normalizeCompositionFieldsForWrite: normalizeCompositionFieldsForWrite,
     validateCompositionFields: validateCompositionFields,
+    buildCompositionValidationContext: buildCompositionValidationContext,
+    countConditionReferencesToField: countConditionReferencesToField,
     normalizeMemberRole: normalizeMemberRole,
     canWriteScreenField: canWriteScreenField,
     canReadScreenField: canReadScreenField,

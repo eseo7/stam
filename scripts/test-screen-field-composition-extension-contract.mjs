@@ -225,9 +225,28 @@ test('fieldRole enum accepts all supported values', () => {
   }
 });
 
-test('fieldRole invalid value normalizes to input on create', () => {
-  const payload = assertCreatePayload(validCreateInput({ fieldRole: 'sortKey' }));
+test('fieldRole invalid value rejects on create', () => {
+  assert.throws(
+    () => assertCreatePayload(validCreateInput({ fieldRole: 'sortKey' })),
+    (err) => err.code === contract.ERROR_CODES.VALIDATION_FAILED,
+  );
+});
+
+test('fieldRole blank string rejects on create', () => {
+  assert.throws(
+    () => assertCreatePayload(validCreateInput({ fieldRole: '   ' })),
+    (err) => err.code === contract.ERROR_CODES.VALIDATION_FAILED,
+  );
+});
+
+test('fieldRole missing defaults to input on create', () => {
+  const payload = assertCreatePayload(validCreateInput());
   assert.equal(payload.fieldRole, 'input');
+});
+
+test('legacy stored invalid fieldRole is preserved on read', () => {
+  const normalized = contract.normalizeScreenField(seedField({ fieldRole: 'sortKey' }));
+  assert.equal(normalized.fieldRole, 'sortKey');
 });
 
 test('fieldRole enum rejects unsupported values via condition contract', () => {
@@ -290,11 +309,31 @@ test('layout span valid values persist', () => {
   }
 });
 
-test('layout invalid span falls back to default on normalize', () => {
+test('layout invalid span is preserved on read', () => {
   const normalized = contract.normalizeScreenField(seedField({
     layout: { row: null, column: null, span: 99 },
   }));
-  assert.deepEqual(normalized.layout, contract.DEFAULT_LAYOUT);
+  assert.equal(normalized.layout.span, 99);
+});
+
+test('layout invalid span rejects on create', () => {
+  assert.throws(
+    () => assertCreatePayload(validCreateInput({
+      name: 'badSpanField',
+      layout: { row: null, column: null, span: 99 },
+    })),
+    (err) => err.code === contract.ERROR_CODES.VALIDATION_FAILED,
+  );
+});
+
+test('layout unknown key rejects on create', () => {
+  assert.throws(
+    () => assertCreatePayload(validCreateInput({
+      name: 'badLayoutKey',
+      layout: { row: null, column: null, span: 12, extra: 1 },
+    })),
+    (err) => err.code === contract.ERROR_CODES.VALIDATION_FAILED,
+  );
 });
 
 test('layout invalid span reject via condition contract', () => {
@@ -402,9 +441,146 @@ test('buildCreatePayload sets schemaVersion and audit fields', () => {
   assert.ok(payload.updatedAt);
 });
 
+test('invalid schemaVersion is preserved on read', () => {
+  const normalized = contract.normalizeScreenField(seedField({ schemaVersion: 2 }));
+  assert.equal(normalized.schemaVersion, 2);
+});
+
+function createFakeFieldAdapter(initial = []) {
+  const store = new Map(initial.map((item) => [item.id, { ...item }]));
+  return {
+    listByScreenSpec(projectId, screenSpecId) {
+      return Promise.resolve(Array.from(store.values()).filter((item) => (
+        item.projectId === projectId && item.screenSpecId === screenSpecId
+      )));
+    },
+    findDuplicateNormalizedName() { return Promise.resolve(null); },
+    getById(projectId, fieldId) {
+      const item = store.get(fieldId);
+      return Promise.resolve(item && item.projectId === projectId ? { ...item } : null);
+    },
+    create(projectId, field) {
+      const id = field.id || `fld-${store.size + 1}`;
+      const next = { ...field, id, projectId };
+      store.set(id, next);
+      return Promise.resolve({ ...next });
+    },
+    update(projectId, fieldId, patch) {
+      const current = store.get(fieldId);
+      const next = { ...current, ...patch };
+      store.set(fieldId, next);
+      return Promise.resolve({ ...next });
+    },
+    delete(projectId, fieldId) {
+      store.delete(fieldId);
+      return Promise.resolve();
+    },
+  };
+}
+
+function createFakeSectionAdapter(sections = []) {
+  const store = new Map(sections.map((item) => [item.id, { ...item }]));
+  return {
+    listByScreenSpec(projectId, screenSpecId) {
+      return Promise.resolve(Array.from(store.values()).filter((item) => (
+        item.projectId === projectId && item.screenSpecId === screenSpecId
+      )));
+    },
+  };
+}
+
+function createFakeActionAdapter(actions = []) {
+  const store = new Map(actions.map((item) => [item.id, { ...item }]));
+  return {
+    listByScreenSpec(projectId, screenSpecId) {
+      return Promise.resolve(Array.from(store.values()).filter((item) => (
+        item.projectId === projectId && item.screenSpecId === screenSpecId
+      )));
+    },
+  };
+}
+
+test('createService ignores spoofed sectionsById and loads adapter sections', () => {
+  // executed in async runner below
+});
+
+test('deleteField rejects when conditions reference field', () => {
+  // executed in async runner below
+});
+
+test('deleteField succeeds when no condition references field', () => {
+  // executed in async runner below
+});
+
 test('invalid field name reject', () => {
   const result = contract.validateScreenFieldInput(validCreateInput({ name: '1bad' }), 'create');
   assert.equal(result.valid, false);
 });
 
-console.log(`screen field composition extension contract (${testCount} cases): PASS`);
+async function runAsyncTests() {
+  {
+    const fieldAdapter = createFakeFieldAdapter([seedField({ id: 'fld-peer' })]);
+    const sectionAdapter = createFakeSectionAdapter([]);
+    const service = contract.createService({
+      adapter: fieldAdapter,
+      sectionAdapter,
+      authorize: () => true,
+    });
+
+    await assert.rejects(
+      () => service.create('P1', validCreateInput({
+        name: 'spoofSectionField',
+        sectionId: 'sec-fake',
+      }), {
+        actorUid: 'u1',
+        sectionsById: {
+          'sec-fake': { id: 'sec-fake', screenSpecId: 'scr-1', sectionType: 'form' },
+        },
+      }),
+      (err) => err.code === contract.ERROR_CODES.VALIDATION_FAILED,
+    );
+  }
+
+  {
+    const target = seedField({ id: 'fld-target', name: 'targetField' });
+    const peer = seedField({
+      id: 'fld-peer',
+      name: 'peerField',
+      enabledCondition: fieldCondition('fld-target'),
+    });
+    const fieldAdapter = createFakeFieldAdapter([target, peer]);
+    const service = contract.createService({
+      adapter: fieldAdapter,
+      sectionAdapter: createFakeSectionAdapter([]),
+      actionAdapter: createFakeActionAdapter([]),
+      authorize: () => true,
+    });
+
+    await assert.rejects(
+      () => service.delete('P1', 'fld-target', { actorUid: 'u1' }),
+      (err) => err.code === contract.ERROR_CODES.CONDITIONS_REFERENCE_FIELD,
+    );
+  }
+
+  {
+    const target = seedField({ id: 'fld-target', name: 'targetField' });
+    const fieldAdapter = createFakeFieldAdapter([target]);
+    const service = contract.createService({
+      adapter: fieldAdapter,
+      sectionAdapter: createFakeSectionAdapter([]),
+      actionAdapter: createFakeActionAdapter([]),
+      authorize: () => true,
+    });
+
+    await service.delete('P1', 'fld-target', { actorUid: 'u1' });
+    const remaining = await fieldAdapter.getById('P1', 'fld-target');
+    assert.equal(remaining, null);
+  }
+}
+
+runAsyncTests().then(() => {
+  console.log(`screen field composition extension contract (${testCount} cases): PASS`);
+}).catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

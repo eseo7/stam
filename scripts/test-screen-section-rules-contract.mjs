@@ -70,6 +70,17 @@ test('visibilityCondition shape validation', () => {
   assert.match(helpers, /isValidConditionGroupShape\(data\.visibilityCondition\)/);
 });
 
+const compositionHelpers = rulesSource.match(
+  /\/\/ ── Shared composition shape helpers \(PR D1\)[\s\S]*?\/\/ ── ScreenSection write helpers \(ScreenSection-1\)/,
+);
+assert.ok(compositionHelpers, 'composition helper block must exist');
+
+test('condition item shape validation helpers exist', () => {
+  assert.match(compositionHelpers[0], /function isValidConditionItemBasic\(/);
+  assert.match(compositionHelpers[0], /function isValidConditionItemsBasic\(/);
+  assert.match(compositionHelpers[0], /function isValidConditionGroupShape\(group\)/);
+});
+
 test('immutable fields on update', () => {
   assert.match(helpers, /data\.id == prev\.id/);
   assert.match(helpers, /data\.projectId == prev\.projectId/);

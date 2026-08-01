@@ -25,6 +25,7 @@
   var SPAN_VALUES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
   var FIELD_ROLE_VALUES = ['input', 'display', 'filter', 'tableColumn', 'repeaterItem'];
+  var LAYOUT_GRID_KEYS = ['row', 'column', 'span'];
   var SECTION_TYPE_VALUES = [
     'search', 'form', 'detail', 'table', 'card', 'tabs', 'tab', 'repeater', 'history', 'custom',
   ];
@@ -432,6 +433,147 @@
     return validateConditionReferences(group, context, errors, fieldPrefix);
   }
 
+  function normalizeLayoutGridForRead(raw) {
+    if (!isPlainObject(raw)) {
+      return { row: null, column: null, span: 12 };
+    }
+    return {
+      row: hasOwn(raw, 'row') ? raw.row : null,
+      column: hasOwn(raw, 'column') ? raw.column : null,
+      span: hasOwn(raw, 'span') ? raw.span : 12,
+    };
+  }
+
+  function normalizeLayoutGridForWrite(layout, errors, fieldPrefix) {
+    errors = errors || [];
+    fieldPrefix = fieldPrefix || 'layout';
+
+    if (layout == null) {
+      pushError(errors, fieldPrefix, 'layout is required');
+      return undefined;
+    }
+
+    if (!isPlainObject(layout)) {
+      pushError(errors, fieldPrefix, 'layout must be an object');
+      return undefined;
+    }
+
+    var valid = true;
+    Object.keys(layout).forEach(function (key) {
+      if (!includesValue(LAYOUT_GRID_KEYS, key)) {
+        pushError(errors, fieldPrefix + '.' + key, 'unknown layout key');
+        valid = false;
+      }
+    });
+
+    var normalized = {
+      row: null,
+      column: null,
+      span: 12,
+    };
+
+    if (hasOwn(layout, 'row')) {
+      if (layout.row !== null && !isNonNegativeInteger(layout.row)) {
+        pushError(errors, fieldPrefix + '.row', 'row must be null or a non-negative integer');
+        valid = false;
+      } else {
+        normalized.row = layout.row;
+      }
+    }
+
+    if (hasOwn(layout, 'column')) {
+      if (layout.column !== null && !isNonNegativeInteger(layout.column)) {
+        pushError(errors, fieldPrefix + '.column', 'column must be null or a non-negative integer');
+        valid = false;
+      } else {
+        normalized.column = layout.column;
+      }
+    }
+
+    if (hasOwn(layout, 'span')) {
+      if (!includesValue(SPAN_VALUES, layout.span)) {
+        pushError(errors, fieldPrefix + '.span', 'span must be an integer between 1 and 12');
+        valid = false;
+      } else {
+        normalized.span = layout.span;
+      }
+    }
+
+    return valid ? normalized : undefined;
+  }
+
+  function resolveFieldRoleForWrite(source, errors, defaultWhenMissing) {
+    if (!hasOwn(source || {}, 'fieldRole')) {
+      return defaultWhenMissing;
+    }
+
+    if (source.fieldRole === null || source.fieldRole === undefined) {
+      pushError(errors, 'fieldRole', 'fieldRole cannot be null');
+      return undefined;
+    }
+
+    if (typeof source.fieldRole !== 'string') {
+      pushError(errors, 'fieldRole', 'fieldRole must be a string');
+      return undefined;
+    }
+
+    if (isBlankString(source.fieldRole)) {
+      pushError(errors, 'fieldRole', 'fieldRole cannot be empty');
+      return undefined;
+    }
+
+    var normalized = clean(source.fieldRole);
+    if (!includesValue(FIELD_ROLE_VALUES, normalized)) {
+      pushError(errors, 'fieldRole', 'unsupported fieldRole: ' + normalized);
+      return undefined;
+    }
+
+    return normalized;
+  }
+
+  function normalizeFieldRoleForRead(raw) {
+    if (!hasOwn(raw || {}, 'fieldRole') || raw.fieldRole === undefined) {
+      return 'input';
+    }
+    if (raw.fieldRole === null) {
+      return null;
+    }
+    if (typeof raw.fieldRole === 'string') {
+      return raw.fieldRole.trim();
+    }
+    return raw.fieldRole;
+  }
+
+  function normalizeSchemaVersionForRead(raw, defaultVersion) {
+    if (!hasOwn(raw || {}, 'schemaVersion')) {
+      return defaultVersion;
+    }
+    return raw.schemaVersion;
+  }
+
+  function conditionGroupReferencesFieldId(group, fieldId) {
+    if (!group || !Array.isArray(group.conditions)) return false;
+    var target = clean(fieldId);
+    if (!target) return false;
+
+    for (var i = 0; i < group.conditions.length; i += 1) {
+      var item = group.conditions[i];
+      if (!isPlainObject(item) || item.source !== 'field') continue;
+      if (clean(item.sourceId) === target) return true;
+    }
+
+    return false;
+  }
+
+  function documentReferencesFieldId(doc, fieldId, conditionKeys) {
+    if (!doc) return false;
+    var keys = conditionKeys || ['visibilityCondition', 'enabledCondition', 'requiredCondition'];
+    for (var i = 0; i < keys.length; i += 1) {
+      if (conditionGroupReferencesFieldId(doc[keys[i]], fieldId)) return true;
+    }
+    return false;
+  }
+
   function validateLayoutGrid(layout, errors, fieldPrefix) {
     errors = errors || [];
     fieldPrefix = fieldPrefix || 'layout';
@@ -447,6 +589,13 @@
     }
 
     var valid = true;
+
+    Object.keys(layout).forEach(function (key) {
+      if (!includesValue(LAYOUT_GRID_KEYS, key)) {
+        pushError(errors, fieldPrefix + '.' + key, 'unknown layout key');
+        valid = false;
+      }
+    });
 
     if (hasOwn(layout, 'row')) {
       if (layout.row !== null && !isNonNegativeInteger(layout.row)) {
@@ -513,6 +662,7 @@
     MAX_CONDITIONS: MAX_CONDITIONS,
     SPAN_VALUES: SPAN_VALUES,
     FIELD_ROLE_VALUES: FIELD_ROLE_VALUES,
+    LAYOUT_GRID_KEYS: LAYOUT_GRID_KEYS,
     SECTION_TYPE_VALUES: SECTION_TYPE_VALUES,
     clean: clean,
     normalizeNullableString: normalizeNullableString,
@@ -522,6 +672,13 @@
     validateConditionReferences: validateConditionReferences,
     validateConditionGroup: validateConditionGroup,
     validateLayoutGrid: validateLayoutGrid,
+    normalizeLayoutGridForRead: normalizeLayoutGridForRead,
+    normalizeLayoutGridForWrite: normalizeLayoutGridForWrite,
+    resolveFieldRoleForWrite: resolveFieldRoleForWrite,
+    normalizeFieldRoleForRead: normalizeFieldRoleForRead,
+    normalizeSchemaVersionForRead: normalizeSchemaVersionForRead,
+    conditionGroupReferencesFieldId: conditionGroupReferencesFieldId,
+    documentReferencesFieldId: documentReferencesFieldId,
     validateFieldRole: validateFieldRole,
     validateSectionType: validateSectionType,
   };

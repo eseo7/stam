@@ -44,45 +44,52 @@
     return trimmed || null;
   }
 
-  function normalizeLayout(raw) {
-    var layout = raw && typeof raw === 'object' ? raw : {};
+  function normalizeLayoutForRead(raw) {
     var contract = compositionContract();
-    var span = layout.span == null ? 12 : layout.span;
-    var normalized = {
-      row: layout.row == null ? null : layout.row,
-      column: layout.column == null ? null : layout.column,
-      span: span,
-    };
-    if (contract && contract.validateLayoutGrid) {
-      var errors = [];
-      contract.validateLayoutGrid(normalized, errors, 'layout');
-      if (errors.length) return DEFAULT_LAYOUT;
+    if (contract && contract.normalizeLayoutGridForRead) {
+      return contract.normalizeLayoutGridForRead(raw);
     }
-    return normalized;
+    return Object.assign({}, DEFAULT_LAYOUT);
   }
 
-  function normalizeCompositionFields(raw) {
-    var source = raw || {};
-    return {
-      sectionId: normalizeSectionId(source.sectionId),
-      layout: normalizeLayout(source.layout),
-      visibilityCondition: compositionContract() && compositionContract().normalizeConditionGroup
-        ? compositionContract().normalizeConditionGroup(source.visibilityCondition)
-        : (source.visibilityCondition || null),
-      enabledCondition: compositionContract() && compositionContract().normalizeConditionGroup
-        ? compositionContract().normalizeConditionGroup(source.enabledCondition)
-        : (source.enabledCondition || null),
+  function normalizeCompositionFieldsForWrite(source, errors) {
+    var contract = compositionContract();
+    var input = source || {};
+    var composition = {
+      sectionId: normalizeSectionId(input.sectionId),
+      layout: null,
+      visibilityCondition: contract && contract.normalizeConditionGroup
+        ? contract.normalizeConditionGroup(input.visibilityCondition)
+        : (input.visibilityCondition || null),
+      enabledCondition: contract && contract.normalizeConditionGroup
+        ? contract.normalizeConditionGroup(input.enabledCondition)
+        : (input.enabledCondition || null),
     };
+
+    if (contract && contract.normalizeLayoutGridForWrite) {
+      if (!hasOwn(input, 'layout')) {
+        composition.layout = Object.assign({}, DEFAULT_LAYOUT);
+      } else {
+        var layout = contract.normalizeLayoutGridForWrite(input.layout, errors, 'layout');
+        composition.layout = layout === undefined ? undefined : layout;
+      }
+    } else {
+      composition.layout = hasOwn(input, 'layout') ? input.layout : Object.assign({}, DEFAULT_LAYOUT);
+    }
+
+    return composition;
   }
 
   function validateCompositionFields(doc, context, errors) {
-    var composition = normalizeCompositionFields(doc);
+    var writeErrors = [];
+    var composition = normalizeCompositionFieldsForWrite(doc, writeErrors);
+    writeErrors.forEach(function (entry) {
+      errors.push(entry);
+    });
+    if (writeErrors.length) return composition;
+
     var contract = compositionContract();
     if (!contract) return composition;
-
-    if (contract.validateLayoutGrid) {
-      contract.validateLayoutGrid(composition.layout, errors, 'layout');
-    }
 
     var sectionsById = (context && context.sectionsById) || {};
     if (composition.sectionId) {
@@ -562,12 +569,16 @@
       throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenActionService: invalid create input', { errors: validation.errors });
     }
 
-    var createValidation = validateCompleteDocument(Object.assign({}, source, { projectId: projectId }), context);
+    var createValidation = validateCompleteDocument(Object.assign({}, source, { projectId: projectId, screenSpecId: screenSpecId }), context);
     if (!createValidation.valid) {
       throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenActionService: invalid create input', { errors: createValidation.errors });
     }
 
-    var composition = normalizeCompositionFields(source);
+    var compositionErrors = [];
+    var composition = normalizeCompositionFieldsForWrite(source, compositionErrors);
+    if (compositionErrors.length) {
+      throw createServiceError(ERROR_CODES.VALIDATION_FAILED, 'screenActionService: invalid create input', { errors: compositionErrors });
+    }
 
     var actionType = clean(source.actionType);
     var confirmRequired = source.confirmRequired === true;
@@ -673,7 +684,15 @@
     applyUpdateStringNormalization(merged, source);
     applyActionTypeTargetNormalization(merged);
 
-    var composition = normalizeCompositionFields(merged);
+    var compositionErrors = [];
+    var composition = normalizeCompositionFieldsForWrite(merged, compositionErrors);
+    if (compositionErrors.length) {
+      throw createServiceError(
+        ERROR_CODES.VALIDATION_FAILED,
+        'screenActionService: invalid merged document after update',
+        { errors: compositionErrors }
+      );
+    }
     Object.assign(merged, composition);
     if (hasOwn(source, 'name')) merged.name = clean(source.name);
     if (hasOwn(source, 'label')) merged.label = clean(source.label);
@@ -715,12 +734,12 @@
 
   function normalizeScreenAction(raw) {
     if (!raw) return null;
+    var contract = compositionContract();
     var actionType = ACTION_TYPE_VALUES.indexOf(clean(raw.actionType)) >= 0 ? clean(raw.actionType) : 'custom';
     var targetScreenSpecId = raw.targetScreenSpecId == null ? null : (clean(raw.targetScreenSpecId) || null);
     if (actionType !== 'navigate' && actionType !== 'openDrawer') {
       targetScreenSpecId = null;
     }
-    var composition = normalizeCompositionFields(raw);
 
     return {
       id: clean(raw.id),
@@ -739,11 +758,13 @@
       confirmMessage: raw.confirmMessage == null ? null : clean(raw.confirmMessage) || null,
       successMessage: raw.successMessage == null ? null : clean(raw.successMessage) || null,
       targetScreenSpecId: targetScreenSpecId,
-      sectionId: composition.sectionId,
-      layout: composition.layout,
-      visibilityCondition: composition.visibilityCondition,
-      enabledCondition: composition.enabledCondition,
-      schemaVersion: raw.schemaVersion === 1 ? 1 : 1,
+      sectionId: normalizeSectionId(raw.sectionId),
+      layout: normalizeLayoutForRead(raw.layout),
+      visibilityCondition: raw.visibilityCondition || null,
+      enabledCondition: raw.enabledCondition || null,
+      schemaVersion: contract && contract.normalizeSchemaVersionForRead
+        ? contract.normalizeSchemaVersionForRead(raw, SCHEMA_VERSION)
+        : (hasOwn(raw, 'schemaVersion') ? raw.schemaVersion : SCHEMA_VERSION),
       createdAt: raw.createdAt || null,
       createdBy: clean(raw.createdBy),
       updatedAt: raw.updatedAt || null,
@@ -789,6 +810,54 @@
       }
       return false;
     };
+  }
+
+  function resolveFieldAdapter(fieldAdapter) {
+    if (fieldAdapter) return fieldAdapter;
+    if (window.STAM && window.STAM.screenFieldFirestoreAdapter) {
+      return window.STAM.screenFieldFirestoreAdapter.create();
+    }
+    return null;
+  }
+
+  function resolveSectionAdapter(sectionAdapter) {
+    if (sectionAdapter) return sectionAdapter;
+    if (window.STAM && window.STAM.screenSectionFirestoreAdapter) {
+      return window.STAM.screenSectionFirestoreAdapter.create();
+    }
+    return null;
+  }
+
+  function buildSectionsById(sections) {
+    var map = Object.create(null);
+    (sections || []).forEach(function (section) {
+      if (section && clean(section.id)) {
+        map[clean(section.id)] = section;
+      }
+    });
+    return map;
+  }
+
+  function buildCompositionValidationContext(deps, projectId, screenSpecId) {
+    var fieldAdapter = deps.fieldAdapter;
+    var sectionAdapter = deps.sectionAdapter;
+    var fieldIdsPromise = fieldAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
+      return (items || []).map(function (item) {
+        return clean(item.id);
+      }).filter(Boolean);
+    });
+    var sectionsPromise = sectionAdapter
+      ? sectionAdapter.listByScreenSpec(projectId, screenSpecId).then(function (items) {
+        return buildSectionsById(items);
+      })
+      : Promise.resolve(Object.create(null));
+
+    return Promise.all([fieldIdsPromise, sectionsPromise]).then(function (results) {
+      return {
+        fieldIds: results[0],
+        sectionsById: results[1],
+      };
+    });
   }
 
   function resolveAdapter(adapter) {
@@ -858,8 +927,25 @@
   function createService(options) {
     var opts = options || {};
     var adapter = resolveAdapter(opts.adapter);
+    var fieldAdapter = resolveFieldAdapter(opts.fieldAdapter);
+    var sectionAdapter = resolveSectionAdapter(opts.sectionAdapter);
     var authorize = opts.authorize || defaultAuthorize;
     var clock = opts.clock;
+
+    function compositionDeps() {
+      var fa = fieldAdapter || resolveFieldAdapter(null);
+      if (!fa) {
+        throw createServiceError(
+          ERROR_CODES.VALIDATION_FAILED,
+          'screenActionService: fieldAdapter is required for composition validation'
+        );
+      }
+      return {
+        fieldAdapter: fa,
+        sectionAdapter: sectionAdapter || resolveSectionAdapter(null),
+        actionAdapter: adapter,
+      };
+    }
 
     function check(action, projectId, payload, context) {
       var ctx = Object.assign({}, context || {}, { projectId: projectId });
@@ -908,14 +994,19 @@
 
     function create(projectId, input, context) {
       var pid = requireProjectId(projectId);
-      var ctx = Object.assign({}, context || {}, { projectId: pid });
-      var item = buildCreatePayload(Object.assign({}, input || {}), ctx, clock);
-      return check(ACTIONS.CREATE, pid, item, context).then(function () {
-        return preflightDuplicateName(adapter, pid, item.screenSpecId, item.name);
-      }).then(function () {
-        return adapter.create(pid, item);
-      }).then(function (saved) {
-        return normalizeScreenAction(saved || item);
+      var source = Object.assign({}, input || {});
+      var screenSpecId = clean(source.screenSpecId);
+
+      return buildCompositionValidationContext(compositionDeps(), pid, screenSpecId).then(function (validationContext) {
+        var ctx = Object.assign({}, context || {}, { projectId: pid }, validationContext);
+        var item = buildCreatePayload(source, ctx, clock);
+        return check(ACTIONS.CREATE, pid, item, context).then(function () {
+          return preflightDuplicateName(adapter, pid, item.screenSpecId, item.name);
+        }).then(function () {
+          return adapter.create(pid, item);
+        }).then(function (saved) {
+          return normalizeScreenAction(saved || item);
+        });
       }).catch(rethrowAdapterError);
     }
 
@@ -929,13 +1020,16 @@
         if (!current) {
           throw createServiceError(ERROR_CODES.NOT_FOUND, 'screenActionService: screen action not found');
         }
-        var nextPatch = buildUpdatePatch(current, patch, context, clock);
-        if (hasOwn(patch, 'name') && normalizeName(patch.name) !== normalizeName(current.name)) {
-          return preflightDuplicateName(adapter, pid, current.screenSpecId, patch.name, aid).then(function () {
-            return adapter.update(pid, aid, nextPatch);
-          });
-        }
-        return adapter.update(pid, aid, nextPatch);
+        return buildCompositionValidationContext(compositionDeps(), pid, current.screenSpecId).then(function (validationContext) {
+          var ctx = Object.assign({}, context || {}, { projectId: pid }, validationContext);
+          var nextPatch = buildUpdatePatch(current, patch, ctx, clock);
+          if (hasOwn(patch, 'name') && normalizeName(patch.name) !== normalizeName(current.name)) {
+            return preflightDuplicateName(adapter, pid, current.screenSpecId, patch.name, aid).then(function () {
+              return adapter.update(pid, aid, nextPatch);
+            });
+          }
+          return adapter.update(pid, aid, nextPatch);
+        });
       }).then(normalizeScreenAction).catch(rethrowAdapterError);
     }
 
@@ -999,7 +1093,8 @@
     createMemberRoleAuthorize: createMemberRoleAuthorize,
     mapAdapterError: mapAdapterError,
     DEFAULT_LAYOUT: DEFAULT_LAYOUT,
-    normalizeCompositionFields: normalizeCompositionFields,
+    normalizeCompositionFieldsForWrite: normalizeCompositionFieldsForWrite,
     validateCompositionFields: validateCompositionFields,
+    buildCompositionValidationContext: buildCompositionValidationContext,
   };
 }());

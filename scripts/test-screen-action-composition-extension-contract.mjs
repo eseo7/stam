@@ -202,6 +202,28 @@ test('layout storage on create', () => {
   assert.equal(payload.layout.span, 6);
 });
 
+test('layout invalid span rejects on create', () => {
+  assert.throws(
+    () => assertCreatePayload(validCreateInput({
+      name: 'badLayoutAction',
+      layout: { row: null, column: null, span: 99 },
+    })),
+    (err) => err.code === contract.ERROR_CODES.VALIDATION_FAILED,
+  );
+});
+
+test('layout invalid span preserved on read', () => {
+  const normalized = contract.normalizeScreenAction(seedAction({
+    layout: { row: null, column: null, span: 99 },
+  }));
+  assert.equal(normalized.layout.span, 99);
+});
+
+test('invalid schemaVersion preserved on read', () => {
+  const normalized = contract.normalizeScreenAction(seedAction({ schemaVersion: 9 }));
+  assert.equal(normalized.schemaVersion, 9);
+});
+
 test('layout invalid span reject via condition contract', () => {
   const errors = [];
   const ok = conditionContract.validateLayoutGrid({ row: null, column: null, span: 13 }, errors, 'layout');

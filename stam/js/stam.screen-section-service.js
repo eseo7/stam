@@ -576,7 +576,6 @@
     applyLayoutNormalization(merged, source, base);
     applyVisibilityNormalization(merged, source);
     applyUpdateStringNormalization(merged, source);
-    applyLayoutNormalization(merged, source, base);
 
     var complete = validateCompleteDocument(merged, context || {});
     if (!complete.valid) {
@@ -625,7 +624,9 @@
       layout: normalizeLayoutObject(raw.layout || defaultLayout()),
       visibilityCondition: visibilityCondition,
       description: raw.description == null ? null : clean(raw.description) || null,
-      schemaVersion: raw.schemaVersion === 1 ? 1 : 1,
+      schemaVersion: conditionContract() && conditionContract().normalizeSchemaVersionForRead
+        ? conditionContract().normalizeSchemaVersionForRead(raw, SCHEMA_VERSION)
+        : (hasOwn(raw, 'schemaVersion') ? raw.schemaVersion : SCHEMA_VERSION),
       createdAt: raw.createdAt || null,
       createdBy: clean(raw.createdBy),
       updatedAt: raw.updatedAt || null,
