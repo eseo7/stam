@@ -48,7 +48,7 @@
         data-pc-risk-level="warn"
         data-pc-updated="업데이트 오늘 10:42"></section>
 
-      <section class="screen-spec-page">
+      <section class="screen-spec-page" data-stam-screen-spec-live="true">
 
         <div class="ss-page-hdr stam-board-header">
           <div class="ss-page-hdr-l stam-board-title-wrap">
@@ -281,12 +281,12 @@
         @media (max-width:460px){ .ssv2-igrid{grid-template-columns:1fr} .ssv2-dw-bd{padding:14px} .ssv2-dw-tabs{padding:0 10px} .ssv2-tab{padding:10px 10px;font-size:12px} }
       </style>
 
-      <div class="ssv2-scrim" id="ssv2-scrim"></div>
+      <div class="stam-drawer-scrim" id="ssv2-scrim" aria-hidden="true"></div>
       <aside class="ssv2-drawer" id="ssv2-drawer" data-open="false" data-mode="detail" role="dialog" aria-modal="true" aria-label="화면설계서 상세">
         <div class="ssv2-dw-hd">
           <div class="ssv2-hrow1">
             <span id="ssv2-wid" class="ssv2-badge">SCR-000</span>
-            <span id="ssv2-status-chip" class="ssv2-stchip" style="background:var(--bg-sur2);color:var(--t2)">작성중</span>
+            <span id="ssv2-status-chip" class="ssv2-stchip ss-chip-ws-w">작성중</span>
             <button id="ssv2-close" type="button" aria-label="닫기" style="margin-left:auto;border:0;background:none;font-size:16px;color:var(--t3);cursor:pointer">✕</button>
           </div>
           <div id="ssv2-title" class="ssv2-htitle">화면설계서</div>
@@ -302,21 +302,30 @@
           <!-- detail: 4 tab panels -->
           <div id="ssv2-detail">
             <div class="ssv2-tabpanel" data-tp="0"></div>
-            <div class="ssv2-tabpanel" data-tp="1" style="display:none"></div>
-            <div class="ssv2-tabpanel" data-tp="2" style="display:none"></div>
-            <div class="ssv2-tabpanel" data-tp="3" style="display:none"></div>
+            <div class="ssv2-tabpanel" data-tp="1" hidden></div>
+            <div class="ssv2-tabpanel" data-tp="2" hidden></div>
+            <div class="ssv2-tabpanel" data-tp="3" hidden></div>
           </div>
           <!-- form (register/edit 공용) -->
-          <div id="ssv2-form" style="display:none">
+          <div id="ssv2-form" hidden>
             <div class="ssv2-fld"><label>화면명 *</label><input id="ssv2-f-name" type="text" placeholder="화면명을 입력하세요"></div>
             <div class="ssv2-fld"><label>화면 유형</label><select id="ssv2-f-type"><option value="">선택</option><option>목록</option><option>상세</option><option>등록</option><option>수정</option><option>팝업</option><option>대시보드</option><option>기타</option></select></div>
             <div class="ssv2-fld"><label>작성 상태</label><select id="ssv2-f-status"><option>작성중</option><option>검토요청</option><option>검토완료</option><option>승인완료</option><option>보류</option></select></div>
-            <div class="ssv2-fld"><label>담당자</label><input id="ssv2-f-owner" type="text" placeholder="담당자"></div>
+            <div class="ssv2-fld"><label>담당자</label><input id="ssv2-f-owner" type="text" class="stam-input is-readonly" readonly aria-readonly="true" tabindex="-1"></div>
             <div class="ssv2-fld"><label>적용 템플릿</label><input id="ssv2-f-template" type="text" placeholder="예: TPL-LIST-01"></div>
             <div class="ssv2-fld"><label>화면 경로</label><input id="ssv2-f-route" type="text" placeholder="예: /boards/foo"></div>
-            <div class="ssv2-fld"><label>연결 요구사항</label><input id="ssv2-f-req" type="text" placeholder="예: REQ-001"></div>
-            <div class="ssv2-fld"><label>연결 기능정의</label><input id="ssv2-f-fun" type="text" placeholder="예: REQ-001-FUN"></div>
-            <div class="ssv2-fld"><label>연결 WBS</label><input id="ssv2-f-wbs" type="text" placeholder="예: REQ-001-WBS1"></div>
+            <div class="ssv2-fld stam-form-field full-span" data-stam-screen-spec-link-slot="requirement">
+              <label>연결 요구사항</label>
+              <div data-stam-requirement-picker data-stam-requirement-picker-placeholder="요구사항 선택"></div>
+            </div>
+            <div class="ssv2-fld stam-form-field full-span" data-stam-screen-spec-link-slot="functionalSpec">
+              <label>연결 기능정의</label>
+              <div data-stam-functional-spec-picker data-stam-functional-spec-picker-placeholder="기능정의 선택"></div>
+            </div>
+            <div class="ssv2-fld stam-form-field full-span" data-stam-screen-spec-link-slot="wbs">
+              <label>연결 WBS</label>
+              <div data-stam-wbs-picker data-stam-wbs-picker-placeholder="WBS 선택"></div>
+            </div>
             <div class="ssv2-fld"><label>연결 메뉴</label><input id="ssv2-f-menu" type="text" placeholder="예: MENU-001"></div>
             <div class="ssv2-fld"><label>설명</label><textarea id="ssv2-f-desc" rows="3" placeholder="화면 설명"></textarea></div>
           </div>
@@ -337,7 +346,7 @@
             </div>
           </div>
           <!-- 수정/등록 footer: 취소 ── 저장 -->
-          <div class="ssv2-foot-row" id="ssv2-foot-form" style="display:none">
+          <div class="ssv2-foot-row" id="ssv2-foot-form" hidden>
             <div class="stam-dw-foot-left">
               <button class="ssv2-fbtn ghost" id="ssv2-cancel-btn" type="button">취소</button>
             </div>
@@ -370,6 +379,8 @@
 </div>
 
 <script src="../../js/stam.icons.js"></script>
+<script src="../../js/stam.ui-messages.js"></script>
+<script src="../../js/stam.ui-feedback.js"></script>
 <script src="../../js/stam.theme.js"></script>
 <script src="../../js/stam.nav-data.js"></script>
 <script src="../../js/stam.shell.js"></script>
@@ -379,10 +390,24 @@
 <script src="../../js/stam.project-context-render.js"></script>
 <script src="../../js/stam.board-filter.js"></script>
 <script src="../../js/stam.screen-specification.js"></script>
-<!-- ── 화면설계서 데이터 연동 (목록 통합 + 상세/등록/수정/삭제) ── -->
+<!-- ── 화면설계서 Firestore 목록·등록 + 공통 Picker ── -->
 <script src="../../js/stam.custom-select.js"></script>
-<script src="../../js/stam.core-db-schema.js"></script>
-<script src="../../js/stam.local-core-db.js"></script>
+<script src="/__/firebase/8.10.1/firebase-app.js"></script>
+<script src="/__/firebase/8.10.1/firebase-auth.js"></script>
+<script src="/__/firebase/8.10.1/firebase-firestore.js"></script>
+<script src="/__/firebase/init.js"></script>
+<script src="../../js/stam.screen-spec-firestore-adapter.js"></script>
+<script src="../../js/stam.screen-spec-service.js"></script>
+<script src="../../js/stam.requirements-firestore-adapter.js"></script>
+<script src="../../js/stam.requirements-service.js"></script>
+<script src="../../js/stam.functional-spec-firestore-adapter.js"></script>
+<script src="../../js/stam.functional-spec-service.js"></script>
+<script src="../../js/stam.wbs-firestore-adapter.js"></script>
+<script src="../../js/stam.wbs-service.js"></script>
+<script src="../../js/stam.reference-picker.js"></script>
+<script src="../../js/stam.requirement-picker.js"></script>
+<script src="../../js/stam.functional-spec-picker.js"></script>
+<script src="../../js/stam.wbs-picker.js"></script>
 <script src="../../js/stam.screen-specification-cycle.js"></script>
 <script src="../../js/stam.screen-specification-crud.js"></script>
 

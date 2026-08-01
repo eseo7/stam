@@ -1,365 +1,612 @@
 /* ============================================================================
- * STAM 화면설계서 게시판 — Local Core DB v2 CRUD 연결
+ * STAM Screen Specification Firestore CRUD UI Wiring
  * ----------------------------------------------------------------------------
- * v2 목록(#ss-v2-tbody)과 전용 v2 Drawer(#ssv2-drawer)를 Local Core DB v2
- * (stam-core-local-db-v1 · screenSpecifications store)에 연결한다.
- *   - 등록: 직접 입력 → screenSpecifications insert (sourceType=manual)
- *   - 상세: 행 클릭 → 추적 정보(screenSpecId/screenType/templateId/연결ID/
- *     importBatchId·importRowId/일자/상태) + 변경이력 표시
- *   - 수정: updateRecord + artifactChanges append (updatedAt 갱신)
- *   - 삭제: soft delete(status=deleted) — 물리 삭제 금지, 변경이력 남김
- *   - 상태: draft/reviewing/confirmed/rejected + reviewStatus 매핑
- * 기존 화면설계서 목록/템플릿/에디터는 건드리지 않는다(회귀 방지). 템플릿/에디터
- * 고급 편집은 후속. 자동 seed/clear/deleteDatabase 없음. Firebase/API 미사용.
- * ==========================================================================*/
+ * Wires screen-specification.html register drawer (#ssv2-drawer) to
+ * STAM.screenSpecService.create with requirement / functional-spec / WBS pickers.
+ * Existing approved CRUD integration path.
+ * List read: stam.screen-specification-cycle.js
+ * ========================================================================== */
 (function () {
   'use strict';
 
-  var core = window.STAM_CORE || {};
-  var db = core.db, schema = core.schema;
-  var board = window.STAM && window.STAM.ssBoard;
-  if (!db || !schema || !board) return;
+  var WRITE_DENIED_MSG = '이 프로젝트에서는 화면설계서 등록 권한이 없습니다. (viewer)';
 
-  var PID = board.PID;
-  var STORE = 'screenSpecifications';
-  var BY = 'prototype-user';
-  var currentId = null;
-
-  function nowIso() { return new Date().toISOString(); }
-  function pad(n) { return n < 10 ? '0' + n : '' + n; }
-  function genId() {
-    var d = new Date();
-    return 'SCR-MANUAL-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '-' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
-  }
-  function changeId(id, kind) { return 'CHG-' + id + '-' + kind + '-' + Date.now(); }
-  function esc(s) { return board.esc(s); }
-  function $(id) { return document.getElementById(id); }
-
-  var KO_TO_V2 = {
-    '작성중': { status: 'draft', reviewStatus: 'Review Needed' },
-    '검토요청': { status: 'reviewing', reviewStatus: 'In Review' },
-    '검토완료': { status: 'reviewing', reviewStatus: 'Approved' },
-    '승인완료': { status: 'confirmed', reviewStatus: 'Approved' },
-    '보류': { status: 'rejected', reviewStatus: 'Rejected' }
+  var SCREEN_TYPE_KO_TO_DOMAIN = {
+    '목록': 'list',
+    '상세': 'detail',
+    '등록': 'form',
+    '수정': 'form',
+    '팝업': 'popup',
+    '대시보드': 'main',
+    '기타': 'other',
   };
-  function statusFromKo(ko) { return KO_TO_V2[ko] || KO_TO_V2['작성중']; }
-  function koFromRec(rec) {
-    var s = rec.status, r = rec.reviewStatus;
-    if (s === 'confirmed') return '승인완료';
-    if (s === 'rejected') return '보류';
-    if (s === 'reviewing') return r === 'Approved' ? '검토완료' : '검토요청';
-    return '작성중';
-  }
 
-  var drawer = $('ssv2-drawer'), scrim = $('ssv2-scrim');
-
-  // ── 수정 모드 select → 공통 STAM custom select (요구사항정의서와 동일 동작/스타일) ──
-  var SSV2_CS_CFG = {
-    selectSelector: '#ssv2-form select',
-    nativeMarkerAttr: 'data-ssv2-cs',
-    uidPrefix: 'ssv2cs',
-    wrapClass: 'ssv2-cs',
-    triggerClass: 'ssv2-cs-trigger',
-    valClass: 'ssv2-cs-val',
-    caretClass: 'ssv2-cs-caret',
-    panelClass: 'ssv2-cs-panel',
-    optClass: 'ssv2-cs-opt',
-    checkClass: 'ssv2-cs-check',
-    otextClass: 'ssv2-cs-otext',
-    nativeClass: 'ssv2-cs-native',
-    flipContainer: '.ssv2-dw-bd',
-    openClass: 'open',
-    upClass: 'cs-up',
-    openSelector: '.ssv2-cs.open'
+  var STATUS_KO_TO_DOMAIN = {
+    '작성중': { writeStatus: 'writing', reviewStatus: 'none', approvalStatus: 'none' },
+    '검토요청': { writeStatus: 'complete', reviewStatus: 'pending', approvalStatus: 'none' },
+    '검토완료': { writeStatus: 'complete', reviewStatus: 'done', approvalStatus: 'none' },
+    '승인완료': { writeStatus: 'complete', reviewStatus: 'done', approvalStatus: 'approved' },
+    '보류': { writeStatus: 'complete', reviewStatus: 'done', approvalStatus: 'rejected' },
   };
-  function hasCS() { return !!(window.STAM && window.STAM.customSelect); }
-  function closeAllSelects() { if (hasCS()) window.STAM.customSelect.closeAll(document, SSV2_CS_CFG); }
-  // 값이 매 레코드마다 바뀌므로, 빌드된 custom select 를 native 로 복원 후 다시 빌드한다
-  // (custom-select 모듈은 1회 빌드만 하므로 값 동기화를 위해 reset → fill → enhance 순서로 사용).
-  function resetSelects() {
-    var form = $('ssv2-form'); if (!form) return;
-    form.querySelectorAll('.ssv2-cs').forEach(function (w) {
-      var nat = w.querySelector('select');
-      if (nat) { nat.classList.remove('ssv2-cs-native'); nat.removeAttribute('data-ssv2-cs'); w.parentNode.insertBefore(nat, w); }
-      w.remove();
-    });
-  }
-  function enhanceSelects() { var form = $('ssv2-form'); if (form && hasCS()) window.STAM.customSelect.init(form, SSV2_CS_CFG); }
 
-  function setMode(mode) {
-    if (drawer) drawer.setAttribute('data-mode', mode);
-    var isForm = (mode === 'register' || mode === 'edit');
-    if (!isForm) closeAllSelects();
-    var det = $('ssv2-detail'), form = $('ssv2-form'), fd = $('ssv2-foot-detail'), ff = $('ssv2-foot-form');
-    var tabs = $('ssv2-tabs'), hmeta = $('ssv2-hmeta');
-    if (det) det.style.display = isForm ? 'none' : '';
-    if (form) form.style.display = isForm ? '' : 'none';
-    if (tabs) tabs.style.display = isForm ? 'none' : 'flex';
-    if (hmeta) hmeta.style.display = isForm ? 'none' : 'flex';
-    if (fd) fd.style.display = isForm ? 'none' : 'flex';
-    if (ff) ff.style.display = isForm ? 'flex' : 'none';
-  }
-  function openDrawer(mode) {
-    if (scrim) scrim.style.display = 'block';
-    if (drawer) drawer.setAttribute('data-open', 'true');
-    setMode(mode);
-  }
-  function closeDrawer() {
-    closeAllSelects();
-    if (scrim) scrim.style.display = 'none';
-    if (drawer) drawer.setAttribute('data-open', 'false');
+  var busy = { create: false };
+  var pickersMounted = false;
+  var pickerLoadState = {
+    requirement: 'idle',
+    functionalSpec: 'idle',
+    wbs: 'idle',
+  };
+
+  function ownerDisplayName(member, user) {
+    return clean(member.displayName) ||
+      clean(member.memberName) ||
+      clean(user.displayName) ||
+      clean(user.email) ||
+      '담당자';
   }
 
-  // ── 값 → 한글 표시 ──────────────────────────────────────────────────
-  function reviewKo(r) { return ({ 'Review Needed': '검토 필요', 'In Review': '검토중', 'Approved': '승인완료', 'Rejected': '반려', 'Changed': '변경됨' })[r] || (r || '미지정'); }
-  function sourceKo(rec) {
-    var s = rec.sourceType;
-    if (s === 'manual') return '직접 등록';
-    if (s === 'Requirement Import') return '요구사항 가져오기';
-    if (!s) return rec.importBatchId ? '요구사항 가져오기' : '직접 등록';
-    return s;
-  }
-  function approvalKo(rec) {
-    if (rec.status === 'confirmed') return '승인완료';
-    if (rec.status === 'rejected') return '반려';
-    if (rec.reviewStatus === 'Approved') return '승인완료';
-    return '미승인';
-  }
-  function statusChipHtml(rec) {
-    var st = board.statusInfo(rec);
-    return '<span class="ssv2-stchip" style="background:' + st.bg + ';color:' + st.fg + '">' + esc(st.label) + '</span>';
+  function resetPickerLoadState() {
+    pickerLoadState.requirement = 'idle';
+    pickerLoadState.functionalSpec = 'idle';
+    pickerLoadState.wbs = 'idle';
   }
 
-  function setHeader(rec) {
-    var st = board.statusInfo(rec || { status: 'draft' });
-    var wid = $('ssv2-wid'); if (wid) wid.textContent = (rec && rec.id) || '신규';
-    var chip = $('ssv2-status-chip'); if (chip) { chip.textContent = st.label; chip.style.background = st.bg; chip.style.color = st.fg; }
-    var title = $('ssv2-title'); if (title) title.textContent = rec ? board.nameOf(rec) : '새 화면설계서 등록';
-    var hmeta = $('ssv2-hmeta');
-    if (hmeta) {
-      if (!rec) { hmeta.innerHTML = ''; return; }
-      var owner = board.ownerOf(rec);
-      var ini = esc(String(owner).charAt(0) || '?');
-      hmeta.innerHTML = '<span class="ssv2-typechip">' + esc(rec.screenType || '화면') + '</span>' +
-        '<span class="ssv2-ava">' + ini + '</span><span style="font-size:11.5px;color:var(--t2)">' + esc(owner) + '</span>';
+  function trackPickerLoad(name, promise) {
+    if (!promise || typeof promise.then !== 'function') {
+      pickerLoadState[name] = 'ok';
+      return Promise.resolve();
     }
-  }
-
-  // ── 상세 (요구사항정의서 공통 상세 레이아웃: 탭 + igrid + 카드 + 타임라인) ──
-  function ic(label, value, opts) {
-    opts = opts || {};
-    var empty = (value == null || value === '');
-    var inner = opts.html ? value : esc(empty ? (opts.empty || '미지정') : value);
-    return '<div class="ssv2-ic' + (opts.full ? ' full' : '') + '">' +
-      '<div class="ssv2-ik">' + esc(label) + '</div>' +
-      '<div class="ssv2-iv' + (empty && !opts.html ? ' muted' : '') + '">' + inner +
-      (opts.sub ? ' <small>' + esc(opts.sub) + '</small>' : '') + '</div></div>';
-  }
-  function card(label, id, typeName, color) {
-    var has = !!id;
-    var icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:' + (has ? (color || 'var(--stam)') : 'var(--t3)') + '"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>';
-    return '<div class="ssv2-card">' + icon +
-      '<div style="min-width:0"><div class="ssv2-card-id' + (has ? '' : ' none') + '"' + ((has && color) ? (' style="color:' + color + '"') : '') + '>' + esc(has ? id : '연결 없음') + '</div>' +
-      '<div class="ssv2-card-name">' + esc(label) + '</div></div>' +
-      '<span class="ssv2-card-type">' + esc(typeName) + '</span></div>';
-  }
-  function setPanel(idx, html) { if (!drawer) return; var p = drawer.querySelector('.ssv2-tabpanel[data-tp="' + idx + '"]'); if (p) p.innerHTML = html; }
-  function setActiveTab(idx) {
-    if (!drawer) return;
-    drawer.querySelectorAll('.ssv2-tab').forEach(function (t) { t.classList.toggle('on', t.getAttribute('data-ssv2-tab') === String(idx)); });
-    drawer.querySelectorAll('.ssv2-tabpanel').forEach(function (p) { p.style.display = p.getAttribute('data-tp') === String(idx) ? '' : 'none'; });
-  }
-
-  function openDetail(id) {
-    return db.getRecord(STORE, id).then(function (rec) {
-      if (!rec) return;
-      currentId = id;
-      setHeader(rec);
-      var fmeta = $('ssv2-foot-meta'); if (fmeta) fmeta.textContent = rec.updatedAt ? ('최종 변경 ' + board.dpart(rec.updatedAt)) : '';
-      setActiveTab(0);
-      // 탭 0: 기본 정보 (카드/grid) + 설명
-      var srcSub = rec.importBatchId ? ('가져오기 회차 ' + rec.importBatchId + (rec.importRowId ? ' · 원본 행 ' + rec.importRowId : '')) : '';
-      var g = '<div class="ssv2-sec"><div class="ssv2-sec-hdr"><h3>기본 정보</h3></div><div class="ssv2-igrid">';
-      g += ic('화면 ID', '<span style="font-weight:700;color:var(--stam)">' + esc(rec.id) + '</span>', { html: true });
-      g += ic('화면명', board.nameOf(rec));
-      g += ic('화면 유형', rec.screenType);
-      g += ic('작성 상태', statusChipHtml(rec), { html: true });
-      g += ic('검토 상태', reviewKo(rec.reviewStatus));
-      g += ic('승인 상태', approvalKo(rec));
-      g += ic('담당자', rec.owner, { empty: '미지정' });
-      g += ic('적용 템플릿', rec.templateId);
-      g += ic('화면 경로', rec.routePath);
-      g += ic('생성 방식', sourceKo(rec), { sub: srcSub });
-      g += ic('최초 등록일', board.dpart(rec.createdAt));
-      g += ic('최종 수정일', board.dpart(rec.updatedAt));
-      g += '</div></div>';
-      g += '<div class="ssv2-sec"><div class="ssv2-sec-hdr"><h3>설명</h3></div>' +
-        (rec.description ? '<div class="ssv2-purp">' + esc(rec.description) + '</div>' : '<div class="ssv2-empty">화면설계서 설명이 없습니다.</div>') + '</div>';
-      setPanel(0, g);
-      // 탭 1: 연결 정보 (카드형)
-      var linkN = [rec.requirementId, rec.functionId, rec.wbsId, rec.menuId].filter(Boolean).length;
-      var c = '<div class="ssv2-sec"><div class="ssv2-sec-hdr"><h3>연결 정보</h3><span class="ssv2-sec-badge">연결 ' + linkN + '</span></div>' +
-        '<div style="display:flex;flex-direction:column;gap:8px">';
-      c += card('연결 요구사항', rec.requirementId, '요구사항', 'var(--stam)');
-      c += card('연결 기능정의', rec.functionId, '기능정의', '#10B981');
-      c += card('연결 WBS', rec.wbsId, 'WBS', '#8B5CF6');
-      c += card('연결 메뉴', rec.menuId, '메뉴/화면', '#F59E0B');
-      c += '</div></div>';
-      setPanel(1, c);
-      openDrawer('detail');
-      return renderHistory(id);
+    pickerLoadState[name] = 'loading';
+    return promise.then(function () {
+      pickerLoadState[name] = 'ok';
+    }).catch(function (err) {
+      pickerLoadState[name] = 'error';
+      console.error('[screen-spec-firestore-crud] ' + name + ' picker load failed', err);
     });
   }
 
-  function renderHistory(id) {
-    return db.listRecords('artifactChanges', PID, { includeDeleted: true }).then(function (all) {
-      var mine = (all || []).filter(function (c) { return c.artifactId === id; })
-        .sort(function (a, b) { return String(b.at || '').localeCompare(String(a.at || '')); });
-      // 탭 2: 검토 이력 (현재 데이터 없음 → fallback)
-      setPanel(2, '<div class="ssv2-sec"><div class="ssv2-sec-hdr"><h3>검토 이력</h3></div><div class="ssv2-empty">검토 이력이 없습니다.</div></div>');
-      // 탭 3: 변경 이력 (타임라인)
-      var h = '<div class="ssv2-sec"><div class="ssv2-sec-hdr"><h3>변경 이력</h3><span class="ssv2-sec-badge">' + mine.length + '건</span></div>';
-      if (!mine.length) h += '<div class="ssv2-empty">변경 이력이 없습니다.</div>';
-      else h += '<div class="ssv2-chg-list">' + mine.map(function (c) {
-        var who = (!c.by || c.by === 'prototype-user') ? '작업자' : c.by;
-        var what = c.changeType === 'create' ? '화면설계서를 등록했습니다.'
-          : c.changeType === 'delete' ? '화면설계서를 삭제했습니다.'
-            : (c.field === 'status' ? '작성 상태를 변경했습니다.' : '화면설계서를 수정했습니다.');
-        return '<div class="ssv2-chg-item"><span class="ssv2-chg-dot"></span>' +
-          '<span><span class="ssv2-chg-who">' + esc(who) + '</span> — ' + what + '</span>' +
-          '<span class="ssv2-chg-sp"></span><span class="ssv2-chg-date">' + esc(board.dpart(c.at)) + '</span></div>';
-      }).join('') + '</div>';
-      h += '</div>';
-      setPanel(3, h);
-    });
+  function tripletStatus(selection, keys) {
+    var vals = keys.map(function (key) { return clean(selection[key]); });
+    var any = vals.some(Boolean);
+    var all = vals.every(Boolean);
+    return { any: any, all: all };
   }
 
-  // ── 폼 ──────────────────────────────────────────────────────────────
-  function fillForm(rec) {
-    $('ssv2-f-name').value = rec ? board.nameOf(rec) : '';
-    $('ssv2-f-type').value = (rec && rec.screenType) || '';
-    $('ssv2-f-status').value = rec ? koFromRec(rec) : '작성중';
-    $('ssv2-f-owner').value = (rec && rec.owner) || '';
-    $('ssv2-f-template').value = (rec && rec.templateId) || '';
-    $('ssv2-f-route').value = (rec && rec.routePath) || '';
-    $('ssv2-f-req').value = (rec && rec.requirementId) || '';
-    $('ssv2-f-fun').value = (rec && rec.functionId) || '';
-    $('ssv2-f-wbs').value = (rec && rec.wbsId) || '';
-    $('ssv2-f-menu').value = (rec && rec.menuId) || '';
-    $('ssv2-f-desc').value = (rec && rec.description) || '';
+  function validateLinkSelections() {
+    var checks = [
+      {
+        label: '요구사항',
+        status: tripletStatus(getRequirementSelection(), ['requirementId', 'requirementCode', 'requirementTitle']),
+      },
+      {
+        label: '기능정의',
+        status: tripletStatus(getFunctionalSpecSelection(), ['functionalSpecId', 'functionalSpecCode', 'functionalSpecTitle']),
+      },
+      {
+        label: 'WBS',
+        status: tripletStatus(getWbsSelection(), ['wbsItemId', 'wbsItemCode', 'wbsItemTitle']),
+      },
+    ];
+    for (var i = 0; i < checks.length; i += 1) {
+      var check = checks[i];
+      if (check.status.any && !check.status.all) {
+        alert(check.label + ' 연결 정보가 불완전합니다. 다시 선택하세요.');
+        return false;
+      }
+    }
+    return true;
   }
-  function readForm() {
-    var ko = $('ssv2-f-status').value || '작성중';
-    var v2 = statusFromKo(ko);
+
+  function validatePickerLoads() {
+    var failed = [];
+    if (pickerLoadState.requirement === 'error') failed.push('요구사항');
+    if (pickerLoadState.functionalSpec === 'error') failed.push('기능정의');
+    if (pickerLoadState.wbs === 'error') failed.push('WBS');
+    if (!failed.length) return true;
+    alert(failed.join(', ') + ' 목록을 불러오지 못했습니다. Drawer를 닫고 다시 시도하세요.');
+    return false;
+  }
+
+  function isLiveMode() {
+    return !!document.querySelector('[data-stam-screen-spec-live="true"]');
+  }
+
+  function listApi() {
+    return window.STAM && window.STAM.screenSpecFirestoreList;
+  }
+
+  function contract() {
+    return window.STAM && window.STAM.screenSpecServiceContract;
+  }
+
+  function service() {
+    return window.STAM && window.STAM.screenSpecService;
+  }
+
+  function uiMessages() {
+    return window.STAM && window.STAM.uiMessages;
+  }
+
+  function clean(value) {
+    return String(value == null ? '' : value).trim();
+  }
+
+  function $(id) {
+    return document.getElementById(id);
+  }
+
+  function memberRole() {
+    var api = listApi();
+    if (!api || typeof api.getState !== 'function') return '';
+    var snapshot = api.getState();
+    return snapshot && snapshot.member ? clean(snapshot.member.role) : '';
+  }
+
+  function canWrite() {
+    var roleContract = contract();
+    if (!roleContract || typeof roleContract.canWriteScreenSpec !== 'function') return false;
+    return roleContract.canWriteScreenSpec(memberRole());
+  }
+
+  function writeGuard() {
+    var api = listApi();
+    var messages = uiMessages();
+    var denied = messages && messages.screenSpec && messages.screenSpec.writeDenied;
+    if (!api || typeof api.getState !== 'function') {
+      alert(denied || WRITE_DENIED_MSG);
+      return null;
+    }
+    var snapshot = api.getState() || {};
+    var role = clean(snapshot.member && snapshot.member.role).toLowerCase();
+    var projectId = clean(snapshot.projectId);
+    if (!projectId) {
+      alert('프로젝트를 선택한 뒤 다시 시도하세요.');
+      return null;
+    }
+    if (['owner', 'admin', 'editor'].indexOf(role) < 0) {
+      alert(denied || WRITE_DENIED_MSG);
+      return null;
+    }
+    return { snapshot: snapshot, projectId: projectId, memberRole: role };
+  }
+
+  function serviceContext(source) {
+    var api = listApi();
+    if (api && typeof api.serviceContext === 'function') {
+      return api.serviceContext(source);
+    }
+    return { source: source || 'screen-spec-firestore-crud' };
+  }
+
+  function formRoot() {
+    return $('ssv2-form');
+  }
+
+  function linkSlot(name) {
+    var form = formRoot();
+    if (!form) return null;
+    return form.querySelector('[data-stam-screen-spec-link-slot="' + name + '"]');
+  }
+
+  function requirementPickerEl() {
+    var slot = linkSlot('requirement');
+    return slot ? slot.querySelector('[data-stam-requirement-picker]') : null;
+  }
+
+  function functionalSpecPickerEl() {
+    var slot = linkSlot('functionalSpec');
+    return slot ? slot.querySelector('[data-stam-functional-spec-picker]') : null;
+  }
+
+  function wbsPickerEl() {
+    var slot = linkSlot('wbs');
+    return slot ? slot.querySelector('[data-stam-wbs-picker]') : null;
+  }
+
+  function pickerOptions(source) {
+    var api = listApi();
+    var snapshot = api && typeof api.getState === 'function' ? api.getState() : {};
     return {
-      screenName: $('ssv2-f-name').value.trim(),
-      screenType: $('ssv2-f-type').value.trim(),
-      owner: $('ssv2-f-owner').value.trim(),
-      templateId: $('ssv2-f-template').value.trim(),
-      routePath: $('ssv2-f-route').value.trim(),
-      requirementId: $('ssv2-f-req').value.trim(),
-      functionId: $('ssv2-f-fun').value.trim(),
-      wbsId: $('ssv2-f-wbs').value.trim(),
-      menuId: $('ssv2-f-menu').value.trim(),
-      description: $('ssv2-f-desc').value.trim(),
-      status: v2.status, reviewStatus: v2.reviewStatus
+      projectId: clean(snapshot.projectId),
+      memberRole: clean(snapshot.member && snapshot.member.role),
+      context: serviceContext(source),
     };
   }
 
-  function openRegister() {
-    currentId = null; resetSelects(); fillForm(null); setHeader(null); openDrawer('register'); enhanceSelects();
-  }
-  function openEdit(id) {
-    return db.getRecord(STORE, id).then(function (rec) {
-      if (!rec) return;
-      currentId = id; resetSelects(); fillForm(rec); setHeader(rec); openDrawer('edit'); enhanceSelects();
-    });
+  function getRequirementSelection() {
+    var api = window.STAM && window.STAM.requirementPicker;
+    var picker = requirementPickerEl();
+    if (!api || !picker || typeof api.getValue !== 'function') {
+      return { requirementId: '', requirementCode: '', requirementTitle: '' };
+    }
+    return api.getValue(picker);
   }
 
-  function save() {
-    var f = readForm();
-    if (!f.screenName) { alert('화면명을 입력하세요.'); return; }
-    if (currentId) {
-      var id = currentId;
-      db.getRecord(STORE, id).then(function (prev) {
-        if (!prev) return;
-        var patch = {
-          screenName: f.screenName, title: f.screenName, screenType: f.screenType, owner: f.owner,
-          templateId: f.templateId, routePath: f.routePath, requirementId: f.requirementId,
-          functionId: f.functionId, wbsId: f.wbsId, menuId: f.menuId, description: f.description,
-          status: f.status, reviewStatus: f.reviewStatus, updatedBy: BY
-        };
-        var statusChanged = (prev.status !== f.status) || (prev.reviewStatus !== f.reviewStatus);
-        return db.updateRecord(STORE, id, patch).then(function () {
-          return db.appendChange({
-            changeId: changeId(id, statusChanged ? 'status' : 'update'), projectId: PID, artifactId: id,
-            changeType: 'update', field: statusChanged ? 'status' : 'summary',
-            before: statusChanged ? koFromRec(prev) : null,
-            after: statusChanged ? koFromRec({ status: f.status, reviewStatus: f.reviewStatus }) : '화면설계서 수정',
-            at: nowIso(), by: BY
-          });
-        });
-      }).then(function () { closeDrawer(); return board.refresh(); }).catch(function (e) { alert('저장 오류: ' + e.message); });
+  function getFunctionalSpecSelection() {
+    var api = window.STAM && window.STAM.functionalSpecPicker;
+    var picker = functionalSpecPickerEl();
+    if (!api || !picker || typeof api.getValue !== 'function') {
+      return { functionalSpecId: '', functionalSpecCode: '', functionalSpecTitle: '' };
+    }
+    return api.getValue(picker);
+  }
+
+  function getWbsSelection() {
+    var api = window.STAM && window.STAM.wbsPicker;
+    var picker = wbsPickerEl();
+    if (!api || !picker || typeof api.getValue !== 'function') {
+      return { wbsItemId: '', wbsItemCode: '', wbsItemTitle: '' };
+    }
+    return api.getValue(picker);
+  }
+
+  function clearRequirementSelection() {
+    var api = window.STAM && window.STAM.requirementPicker;
+    var picker = requirementPickerEl();
+    if (api && picker && typeof api.clear === 'function') api.clear(picker);
+  }
+
+  function clearFunctionalSpecSelection() {
+    var api = window.STAM && window.STAM.functionalSpecPicker;
+    var picker = functionalSpecPickerEl();
+    if (api && picker && typeof api.clear === 'function') api.clear(picker);
+  }
+
+  function clearWbsSelection() {
+    var api = window.STAM && window.STAM.wbsPicker;
+    var picker = wbsPickerEl();
+    if (api && picker && typeof api.clear === 'function') api.clear(picker);
+  }
+
+  function destroyPickers() {
+    var reqApi = window.STAM && window.STAM.requirementPicker;
+    var fnApi = window.STAM && window.STAM.functionalSpecPicker;
+    var wbsApi = window.STAM && window.STAM.wbsPicker;
+    var req = requirementPickerEl();
+    var fn = functionalSpecPickerEl();
+    var wbs = wbsPickerEl();
+    if (reqApi && req && typeof reqApi.destroy === 'function') reqApi.destroy(req);
+    if (fnApi && fn && typeof fnApi.destroy === 'function') fnApi.destroy(fn);
+    if (wbsApi && wbs && typeof wbsApi.destroy === 'function') wbsApi.destroy(wbs);
+    pickersMounted = false;
+    resetPickerLoadState();
+  }
+
+  function mountPickers() {
+    if (pickersMounted) {
+      refreshPickerContext();
+      loadPickers();
+      return;
+    }
+    var opts = pickerOptions('screen-spec-picker-mount');
+    var reqApi = window.STAM && window.STAM.requirementPicker;
+    var req = requirementPickerEl();
+    if (reqApi && req && typeof reqApi.mount === 'function' && req.getAttribute('data-stam-reference-picker-mounted') !== '1') {
+      reqApi.mount(req, opts);
+    }
+    var fnApi = window.STAM && window.STAM.functionalSpecPicker;
+    var fn = functionalSpecPickerEl();
+    if (fnApi && fn && typeof fnApi.mount === 'function' && fn.getAttribute('data-stam-reference-picker-mounted') !== '1') {
+      fnApi.mount(fn, opts);
+    }
+    var wbsApi = window.STAM && window.STAM.wbsPicker;
+    var wbs = wbsPickerEl();
+    if (wbsApi && wbs && typeof wbsApi.mount === 'function' && wbs.getAttribute('data-stam-reference-picker-mounted') !== '1') {
+      wbsApi.mount(wbs, opts);
+    }
+    pickersMounted = true;
+    loadPickers();
+  }
+
+  function loadPickers() {
+    var reqApi = window.STAM && window.STAM.requirementPicker;
+    var fnApi = window.STAM && window.STAM.functionalSpecPicker;
+    var wbsApi = window.STAM && window.STAM.wbsPicker;
+    var tasks = [];
+    var req = requirementPickerEl();
+    var fn = functionalSpecPickerEl();
+    var wbs = wbsPickerEl();
+    if (reqApi && req && typeof reqApi.load === 'function') {
+      tasks.push(trackPickerLoad('requirement', reqApi.load(req)));
     } else {
-      var nid = genId();
-      var rec = {
-        id: nid, projectId: PID, boardType: 'screenSpecification', screenSpecId: nid, sourceType: 'manual',
-        screenName: f.screenName, title: f.screenName, screenType: f.screenType, owner: f.owner || '미지정',
-        templateId: f.templateId, routePath: f.routePath, requirementId: f.requirementId,
-        functionId: f.functionId, wbsId: f.wbsId, menuId: f.menuId, description: f.description,
-        status: f.status, reviewStatus: f.reviewStatus
-      };
-      db.createRecord(STORE, rec).then(function () {
-        return db.appendChange({ changeId: changeId(nid, 'create'), projectId: PID, artifactId: nid, changeType: 'create', field: 'screenSpecification', before: null, after: f.screenName, at: nowIso(), by: BY });
-      }).then(function () { closeDrawer(); return board.refresh(); }).catch(function (e) { alert('등록 오류: ' + e.message); });
+      pickerLoadState.requirement = 'ok';
+    }
+    if (fnApi && fn && typeof fnApi.load === 'function') {
+      tasks.push(trackPickerLoad('functionalSpec', fnApi.load(fn)));
+    } else {
+      pickerLoadState.functionalSpec = 'ok';
+    }
+    if (wbsApi && wbs && typeof wbsApi.load === 'function') {
+      tasks.push(trackPickerLoad('wbs', wbsApi.load(wbs)));
+    } else {
+      pickerLoadState.wbs = 'ok';
+    }
+    return Promise.all(tasks);
+  }
+
+  function refreshPickerContext() {
+    var opts = pickerOptions('screen-spec-picker-refresh');
+    var reqApi = window.STAM && window.STAM.requirementPicker;
+    if (reqApi && typeof reqApi.refreshContext === 'function') {
+      var req = requirementPickerEl();
+      if (req) reqApi.refreshContext(req, opts);
+    }
+    var fnApi = window.STAM && window.STAM.functionalSpecPicker;
+    if (fnApi && typeof fnApi.refreshContext === 'function') {
+      var fn = functionalSpecPickerEl();
+      if (fn) fnApi.refreshContext(fn, opts);
+    }
+    var wbsApi = window.STAM && window.STAM.wbsPicker;
+    if (wbsApi && typeof wbsApi.refreshContext === 'function') {
+      var wbs = wbsPickerEl();
+      if (wbs) wbsApi.refreshContext(wbs, opts);
     }
   }
 
-  var CONFIRM_MSG = '이 화면설계서를 삭제하시겠습니까? 삭제된 항목은 목록에서 숨겨지지만 변경이력에는 남습니다.';
-  function del() {
-    if (!currentId) return;
-    if (!window.confirm(CONFIRM_MSG)) return;
-    var id = currentId;
-    db.softDeleteRecord(STORE, id, { by: BY, reason: '사용자 삭제' }).then(function () {
-      return db.appendChange({ changeId: changeId(id, 'delete'), projectId: PID, artifactId: id, changeType: 'delete', field: 'status', before: 'active', after: 'deleted', at: nowIso(), by: BY });
-    }).then(function () { closeDrawer(); return board.refresh(); }).catch(function (e) { alert('삭제 오류: ' + e.message); });
+  function applyPickerDisabled(disabled) {
+    var reqApi = window.STAM && window.STAM.requirementPicker;
+    var fnApi = window.STAM && window.STAM.functionalSpecPicker;
+    var wbsApi = window.STAM && window.STAM.wbsPicker;
+    if (reqApi && typeof reqApi.setDisabled === 'function') {
+      var req = requirementPickerEl();
+      if (req) reqApi.setDisabled(req, disabled);
+    }
+    if (fnApi && typeof fnApi.setDisabled === 'function') {
+      var fn = functionalSpecPickerEl();
+      if (fn) fnApi.setDisabled(fn, disabled);
+    }
+    if (wbsApi && typeof wbsApi.setDisabled === 'function') {
+      var wbs = wbsPickerEl();
+      if (wbs) wbsApi.setDisabled(wbs, disabled);
+    }
   }
 
-  // ── 바인딩 ──────────────────────────────────────────────────────────
-  // data-ssv2-reg는 헤더 버튼과 테이블 내부 모두에서 쓰이므로 document 위임
-  document.addEventListener('click', function (e) {
-    var reg = e.target.closest('[data-ssv2-reg]'); if (reg) { e.stopPropagation(); openRegister(); return; }
-  }, true);
-  var tbody = $('ss-tbody');
-  if (tbody) tbody.addEventListener('click', function (e) {
-    var ed = e.target.closest('[data-ssv2-edit]'); if (ed) { e.stopPropagation(); openEdit(ed.getAttribute('data-ssv2-edit')); return; }
-    var de = e.target.closest('[data-ssv2-detail]'); if (de) { e.stopPropagation(); openDetail(de.getAttribute('data-ssv2-detail')); return; }
-    var row = e.target.closest('.ssv2-int-row'); if (!row) return;
-    var id = row.getAttribute('data-ssv2-id'); if (id) openDetail(id);
-  });
-  var closeBtn = $('ssv2-close'); if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
-  if (scrim) scrim.addEventListener('click', closeDrawer);
-  // 탭 전환
-  var tabsEl = $('ssv2-tabs');
-  if (tabsEl) tabsEl.addEventListener('click', function (e) {
-    var t = e.target.closest('.ssv2-tab'); if (!t) return;
-    setActiveTab(t.getAttribute('data-ssv2-tab'));
-  });
-  // 전체 보기 (후속 연결 예정 안내)
-  var fvBtn = $('ssv2-fullview-btn');
-  if (fvBtn) fvBtn.addEventListener('click', function () { alert('화면설계서 전체 보기 기능은 후속 연결 예정입니다.'); });
-  var editBtn = $('ssv2-edit-btn'); if (editBtn) editBtn.addEventListener('click', function () { if (currentId) openEdit(currentId); });
-  var delBtn = $('ssv2-del-btn'); if (delBtn) delBtn.addEventListener('click', del);
-  var saveBtn = $('ssv2-save-btn'); if (saveBtn) saveBtn.addEventListener('click', save);
-  var cancelBtn = $('ssv2-cancel-btn'); if (cancelBtn) cancelBtn.addEventListener('click', function () { if (currentId) openDetail(currentId); else closeDrawer(); });
+  function setButtonDisabled(el, disabled, title) {
+    if (!el) return;
+    el.disabled = !!disabled;
+    if (disabled && title) el.setAttribute('title', title);
+    else el.removeAttribute('title');
+    el.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+  }
 
-  // custom select: 바깥 클릭 → 닫기 / ESC → 열린 패널 우선 닫기
-  document.addEventListener('click', function (e) {
-    if (!e.target.closest('.ssv2-cs')) closeAllSelects();
-  });
-  document.addEventListener('keydown', function (e) {
-    if (e.key !== 'Escape') return;
-    if (document.querySelector('.ssv2-cs.open')) { e.preventDefault(); e.stopPropagation(); closeAllSelects(); }
-  }, true);
+  function applyWriteAccessUI() {
+    var writable = canWrite();
+    setButtonDisabled($('ssv2-save-btn'), !writable, WRITE_DENIED_MSG);
+    setButtonDisabled(document.querySelector('[data-ssv2-reg]'), !writable, WRITE_DENIED_MSG);
+    applyPickerDisabled(!writable);
+  }
 
+  function screenTypeFromKo(ko) {
+    return SCREEN_TYPE_KO_TO_DOMAIN[ko] || 'other';
+  }
+
+  function statusFromKo(ko) {
+    return STATUS_KO_TO_DOMAIN[ko] || STATUS_KO_TO_DOMAIN['작성중'];
+  }
+
+  function applyLinkTriplet(target, selection, fields, omitWhenEmpty) {
+    var id = clean(selection[fields[0]]);
+    var code = clean(selection[fields[1]]);
+    var title = clean(selection[fields[2]]);
+    if (id && code && title) {
+      target[fields[0]] = id;
+      target[fields[1]] = code;
+      target[fields[2]] = title;
+    } else if (!omitWhenEmpty) {
+      target[fields[0]] = '';
+      target[fields[1]] = '';
+      target[fields[2]] = '';
+    }
+  }
+
+  function buildCreateInput() {
+    var mapped = statusFromKo($('ssv2-f-status') && $('ssv2-f-status').value || '작성중');
+    var snapshot = listApi() && typeof listApi().getState === 'function' ? listApi().getState() : {};
+    var member = snapshot.member || {};
+    var user = snapshot.user || {};
+    var ownerId = clean(user.uid);
+    var ownerName = ownerDisplayName(member, user);
+
+    var input = {
+      title: clean($('ssv2-f-name') && $('ssv2-f-name').value),
+      screenType: screenTypeFromKo(clean($('ssv2-f-type') && $('ssv2-f-type').value)),
+      writeStatus: mapped.writeStatus,
+      reviewStatus: mapped.reviewStatus,
+      approvalStatus: mapped.approvalStatus,
+      ownerId: ownerId,
+      ownerName: ownerName,
+      templateId: clean($('ssv2-f-template') && $('ssv2-f-template').value),
+      routePath: clean($('ssv2-f-route') && $('ssv2-f-route').value),
+      description: clean($('ssv2-f-desc') && $('ssv2-f-desc').value),
+    };
+
+    applyLinkTriplet(input, getRequirementSelection(), [
+      'requirementId', 'requirementCode', 'requirementTitle',
+    ], true);
+    applyLinkTriplet(input, getFunctionalSpecSelection(), [
+      'functionalSpecId', 'functionalSpecCode', 'functionalSpecTitle',
+    ], true);
+    applyLinkTriplet(input, getWbsSelection(), [
+      'wbsItemId', 'wbsItemCode', 'wbsItemTitle',
+    ], true);
+
+    return input;
+  }
+
+  function resetRegisterForm() {
+    var snapshot = listApi() && typeof listApi().getState === 'function' ? listApi().getState() : {};
+    var member = snapshot.member || {};
+    var user = snapshot.user || {};
+    if ($('ssv2-f-name')) $('ssv2-f-name').value = '';
+    if ($('ssv2-f-type')) $('ssv2-f-type').selectedIndex = 0;
+    if ($('ssv2-f-status')) $('ssv2-f-status').selectedIndex = 0;
+    if ($('ssv2-f-owner')) {
+      $('ssv2-f-owner').value = ownerDisplayName(member, user);
+    }
+    if ($('ssv2-f-template')) $('ssv2-f-template').value = '';
+    if ($('ssv2-f-route')) $('ssv2-f-route').value = '';
+    if ($('ssv2-f-menu')) $('ssv2-f-menu').value = '';
+    if ($('ssv2-f-desc')) $('ssv2-f-desc').value = '';
+    clearRequirementSelection();
+    clearFunctionalSpecSelection();
+    clearWbsSelection();
+  }
+
+  function setMode(mode) {
+    var drawer = $('ssv2-drawer');
+    if (drawer) drawer.setAttribute('data-mode', mode);
+    var isForm = mode === 'register' || mode === 'edit';
+    var det = $('ssv2-detail');
+    var form = formRoot();
+    var fd = $('ssv2-foot-detail');
+    var ff = $('ssv2-foot-form');
+    var tabs = $('ssv2-tabs');
+    var hmeta = $('ssv2-hmeta');
+    if (det) det.hidden = isForm;
+    if (form) form.hidden = !isForm;
+    if (tabs) tabs.hidden = isForm;
+    if (hmeta) hmeta.hidden = isForm;
+    if (fd) fd.hidden = isForm;
+    if (ff) ff.hidden = !isForm;
+  }
+
+  function setHeaderRegister() {
+    var wid = $('ssv2-wid');
+    if (wid) wid.textContent = '신규';
+    var chip = $('ssv2-status-chip');
+    if (chip) {
+      chip.textContent = '작성중';
+    }
+    var title = $('ssv2-title');
+    if (title) title.textContent = '새 화면설계서 등록';
+    var hmeta = $('ssv2-hmeta');
+    if (hmeta) hmeta.innerHTML = '';
+  }
+
+  function openDrawerRegister() {
+    var scrim = $('ssv2-scrim');
+    var drawer = $('ssv2-drawer');
+    if (scrim) {
+      scrim.classList.add('show');
+      scrim.setAttribute('aria-hidden', 'false');
+    }
+    if (drawer) drawer.setAttribute('data-open', 'true');
+    resetRegisterForm();
+    setHeaderRegister();
+    setMode('register');
+    mountPickers();
+    applyWriteAccessUI();
+  }
+
+  function closeDrawer() {
+    destroyPickers();
+    var scrim = $('ssv2-scrim');
+    var drawer = $('ssv2-drawer');
+    if (scrim) {
+      scrim.classList.remove('show');
+      scrim.setAttribute('aria-hidden', 'true');
+    }
+    if (drawer) drawer.setAttribute('data-open', 'false');
+  }
+
+  function closeAndRefresh() {
+    closeDrawer();
+    var api = listApi();
+    if (api && typeof api.load === 'function') {
+      return api.load();
+    }
+    return Promise.resolve();
+  }
+
+  function setSaving(saving) {
+    var btn = $('ssv2-save-btn');
+    if (!btn) return;
+    btn.disabled = saving || !canWrite();
+    if (saving) btn.setAttribute('data-ss-saving', '1');
+    else btn.removeAttribute('data-ss-saving');
+  }
+
+  function submitRegister() {
+    if (busy.create) return Promise.resolve();
+    var guard = writeGuard();
+    if (!guard) return Promise.resolve();
+    var svc = service();
+    if (!svc || typeof svc.create !== 'function') return Promise.resolve();
+
+    var title = clean($('ssv2-f-name') && $('ssv2-f-name').value);
+    if (!title) {
+      alert('화면명을 입력하세요.');
+      return Promise.resolve();
+    }
+    if (title.length < 2) {
+      alert('화면명은 2자 이상 입력하세요.');
+      return Promise.resolve();
+    }
+    if (!validatePickerLoads()) return Promise.resolve();
+    if (!validateLinkSelections()) return Promise.resolve();
+
+    busy.create = true;
+    setSaving(true);
+    var input = buildCreateInput();
+    var context = serviceContext('screen-spec-firestore-create');
+
+    return svc.create(guard.projectId, input, context).then(function () {
+      busy.create = false;
+      setSaving(false);
+      return closeAndRefresh();
+    }).catch(function (err) {
+      busy.create = false;
+      setSaving(false);
+      console.error('[screen-spec-firestore-crud] create failed', err);
+      alert('등록 오류: ' + (err && err.message ? err.message : err));
+    });
+  }
+
+  function bindEvents() {
+    document.addEventListener('click', function (e) {
+      var reg = e.target.closest('[data-ssv2-reg]');
+      if (!reg || !isLiveMode()) return;
+      e.stopPropagation();
+      e.preventDefault();
+      openDrawerRegister();
+    }, true);
+
+    var closeBtn = $('ssv2-close');
+    if (closeBtn) closeBtn.addEventListener('click', function () {
+      if (!isLiveMode()) return;
+      closeDrawer();
+    });
+
+    var scrim = $('ssv2-scrim');
+    if (scrim) scrim.addEventListener('click', function () {
+      if (!isLiveMode()) return;
+      closeDrawer();
+    });
+
+    var saveBtn = $('ssv2-save-btn');
+    if (saveBtn) saveBtn.addEventListener('click', function () {
+      if (!isLiveMode()) return;
+      submitRegister();
+    });
+
+    var cancelBtn = $('ssv2-cancel-btn');
+    if (cancelBtn) cancelBtn.addEventListener('click', function () {
+      if (!isLiveMode()) return;
+      closeDrawer();
+    });
+  }
+
+  window.STAM = window.STAM || {};
+  window.STAM.screenSpecFirestoreCrud = {
+    applyWriteAccessUI: applyWriteAccessUI,
+    openRegister: openDrawerRegister,
+    closeDrawer: closeDrawer,
+    submitRegister: submitRegister,
+    destroyPickers: destroyPickers,
+    buildCreateInput: buildCreateInput,
+  };
+
+  if (isLiveMode()) {
+    bindEvents();
+  }
 }());

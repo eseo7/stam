@@ -2,104 +2,14 @@
  * STAM Screen Specification — 화면설계서 목록 상호작용
  * stam/pages/boards/screen-specification.html (예정)
  * v1.0 | 2026-06-11
- * mock only — no localStorage / Firestore / DB
+ * Live 목록: STAM.screenSpecFirestoreList · 등록: screenSpecFirestoreCrud
  * ============================================================ */
 (function () {
   'use strict';
 
-  /* ── Data ── */
-  var MENUS = [
-    { id: 'G-01', name: '대시보드', screens: [
-      { id: 'SCR-001', name: '대시보드', ver: 'v1.1', wst: 'complete', rst: 'done', ast: 'approved', type: 'main', menu: '대시보드', owner: '박PM', av: '박', ac: '#5451E8', upd: '2026-06-07', hasImg: true, annots: 2,
-        purp: 'STAM 플랫폼 첫 진입 화면으로 프로젝트 전체 현황과 처리 대기 항목을 일람합니다.',
-        acts: [{ n: '화면설계서 바로가기', loc: '현황 카드', act: '목록 이동' }, { n: '검토 요청 확인', loc: '알림 영역', act: 'Drawer 열기' }],
-        links: { req: ['REQ-001'], art: [], work: [], ifc: [], fn: [] },
-        hist: [{ k: 'edit', who: '박PM', at: '06-07', t: 'KPI 카드 순서 변경', f: 'v1.0', to: 'v1.1' }, { k: 'create', who: '이UX', at: '05-20', t: '최초 등록', n: 'v0.1' }] }
-    ] },
-    { id: 'G-02', name: '회원', screens: [
-      { id: 'SCR-002', name: '회원가입', ver: 'v1.0', wst: 'complete', rst: 'pending', ast: 'none', type: 'form', menu: '회원 > 회원가입', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-10', hasImg: true, annots: 3,
-        purp: '사용자 계정 생성을 위한 정보 입력 화면입니다. 약관 동의, 본인 인증 단계를 포함합니다.',
-        acts: [{ n: '이름·이메일 입력', loc: '폼 필드', act: '입력값 유효성 검사' }, { n: '회원가입 완료', loc: '제출 버튼', act: '계정 생성 처리' }],
-        links: { req: ['REQ-001', 'REQ-002'], art: [], work: [], ifc: ['IFC-001'], fn: [] },
-        hist: [{ k: 'edit', who: '이UX', at: '06-10', t: '약관 동의 항목 추가', f: 'v0.9', to: 'v1.0' }, { k: 'st', who: '김기획', at: '06-09', t: '검토 요청 전환', f: '작성완료', to: '검토 대기' }, { k: 'create', who: '이UX', at: '05-25', t: '최초 등록', n: 'v0.1' }] },
-      { id: 'SCR-003', name: '로그인 / 인증', ver: 'v1.2', wst: 'complete', rst: 'done', ast: 'approved', type: 'form', menu: '회원 > 로그인', owner: '최개발', av: '최', ac: '#00BF40', upd: '2026-06-05', hasImg: true, annots: 4,
-        purp: 'STAM 플랫폼 진입을 위한 인증 화면입니다.',
-        acts: [{ n: '로그인', loc: '제출 버튼', act: '인증 처리' }, { n: '비밀번호 찾기', loc: '링크', act: '재설정 화면 이동' }],
-        links: { req: ['REQ-001'], art: [], work: [], ifc: ['IFC-001'], fn: [] },
-        hist: [{ k: 'edit', who: '최개발', at: '06-05', t: '접근성 개선', f: 'v1.1', to: 'v1.2' }, { k: 'st', who: '박PM', at: '05-28', t: '승인 완료', f: '검토 대기', to: '승인 완료' }] },
-      { id: 'SCR-004', name: '마이페이지', ver: 'v0.8', wst: 'writing', rst: 'none', ast: 'none', type: 'main', menu: '회원 > 마이페이지', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-08', hasImg: false, annots: 0,
-        purp: '로그인 사용자의 프로필, 활동 이력, 설정을 관리하는 화면입니다.',
-        acts: [{ n: '프로필 수정', loc: '편집 버튼', act: '수정 폼 열기' }, { n: '활동 이력 조회', loc: '탭', act: '이력 목록 표시' }],
-        links: { req: ['REQ-004'], art: [], work: [], ifc: [], fn: [] },
-        hist: [{ k: 'edit', who: '이UX', at: '06-08', t: '활동 이력 탭 추가', f: 'v0.7', to: 'v0.8' }, { k: 'create', who: '이UX', at: '05-30', t: '최초 등록', n: 'v0.1' }] }
-    ] },
-    { id: 'G-03', name: '산출물 관리', screens: [
-      { id: 'SCR-005', name: '요구사항정의서 목록', ver: 'v1.0', wst: 'complete', rst: 'done', ast: 'approved', type: 'list', menu: '산출물 관리 > 요구사항정의서', owner: '김기획', av: '김', ac: '#6541F2', upd: '2026-06-07', hasImg: true, annots: 2,
-        purp: '프로젝트 요구사항을 정의하고 관리하는 목록 화면입니다.',
-        acts: [{ n: '요구사항 등록', loc: '상단 버튼', act: '등록 Drawer 열기' }, { n: '행 클릭', loc: '목록 행', act: '상세 Drawer 열기' }],
-        links: { req: [], art: [], work: ['WBS-010'], ifc: [], fn: ['FN-001'] },
-        hist: [{ k: 'st', who: '박PM', at: '06-07', t: '승인 완료', f: '검토 대기', to: '승인 완료' }, { k: 'edit', who: '김기획', at: '06-05', t: '필터 구성 확정', f: 'v0.3', to: 'v1.0' }] },
-      { id: 'SCR-006', name: '메뉴구조 / 화면목록', ver: 'v0.5', wst: 'writing', rst: 'none', ast: 'none', type: 'list', menu: '산출물 관리 > 메뉴구조', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-09', hasImg: false, annots: 0,
-        purp: '프로젝트의 메뉴 구조와 화면 목록을 계층형으로 관리하는 화면입니다.',
-        acts: [{ n: '메뉴 추가', loc: '상단 버튼', act: '등록 Drawer 열기' }, { n: '화면 연결', loc: '행 액션', act: '화면설계서 연결' }],
-        links: { req: ['REQ-011'], art: [], work: ['WBS-002'], ifc: [], fn: ['FN-002', 'FN-003'] },
-        hist: [{ k: 'edit', who: '이UX', at: '06-09', t: '계층 표현 방식 수정', f: 'v0.4', to: 'v0.5' }, { k: 'create', who: '이UX', at: '06-01', t: '최초 등록', n: 'v0.1' }] },
-      { id: 'SCR-007', name: 'WBS 작업', ver: 'v1.1', wst: 'complete', rst: 'done', ast: 'approved', type: 'list', menu: '산출물 관리 > WBS 작업', owner: '박PM', av: '박', ac: '#5451E8', upd: '2026-06-06', hasImg: true, annots: 5,
-        purp: '프로젝트 작업을 계획·관리하는 목록 화면입니다. 간트 타임라인을 포함합니다.',
-        acts: [{ n: '작업 등록', loc: '상단 버튼', act: '등록 Drawer 열기' }, { n: '행 클릭', loc: '목록 행', act: '상세 Drawer 열기' }],
-        links: { req: ['REQ-008'], art: [], work: ['WBS-007'], ifc: [], fn: [] },
-        hist: [{ k: 'edit', who: '박PM', at: '06-06', t: '간트 타임라인 추가', f: 'v1.0', to: 'v1.1' }, { k: 'st', who: '박PM', at: '05-30', t: '승인 완료', f: '검토 대기', to: '승인 완료' }] },
-      { id: 'SCR-008', name: '화면설계서 목록', ver: 'v0.6', wst: 'writing', rst: 'none', ast: 'none', type: 'list', menu: '산출물 관리 > 화면설계서', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-09', hasImg: false, annots: 0,
-        purp: '화면설계서를 메뉴 단위 hierarchy 구조로 관리하는 목록 화면입니다.',
-        acts: [{ n: '화면 등록', loc: '상단 버튼', act: '등록 Drawer 열기' }, { n: '행 클릭', loc: '목록 행', act: '상세 Drawer 열기' }],
-        links: { req: ['REQ-011'], art: ['ART-003'], work: ['WBS-011'], ifc: [], fn: [] },
-        hist: [{ k: 'edit', who: '이UX', at: '06-09', t: 'hierarchy tree table 구조 적용', f: 'v0.5', to: 'v0.6' }, { k: 'create', who: '이UX', at: '06-01', t: '최초 등록', n: 'v0.1' }] },
-      { id: 'SCR-009', name: '화면설계서 상세', ver: 'v0.4', wst: 'complete', rst: 'done', ast: 'approved', type: 'detail', menu: '산출물 관리 > 화면설계서', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-08', hasImg: true, annots: 7,
-        purp: '화면설계서 항목의 개요·연결정보·검토이력을 우측 Drawer 방식으로 표시합니다.',
-        acts: [{ n: '탭 전환', loc: 'Drawer 탭', act: '탭 콘텐츠 전환' }, { n: '검토 요청', loc: 'Drawer 하단', act: '상태 변경' }],
-        links: { req: ['REQ-012'], art: ['ART-003'], work: ['WBS-009'], ifc: [], fn: ['FN-004'] },
-        hist: [{ k: 'st', who: '박PM', at: '06-08', t: '승인 완료', f: '검토 대기', to: '승인 완료' }, { k: 'edit', who: '이UX', at: '06-07', t: '연결정보 탭 추가', f: 'v0.3', to: 'v0.4' }] },
-      { id: 'SCR-010', name: '화면설계서 등록', ver: 'v0.3', wst: 'writing', rst: 'none', ast: 'none', type: 'form', menu: '산출물 관리 > 화면설계서', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-08', hasImg: false, annots: 0,
-        purp: '새 화면설계서를 등록하는 폼 화면입니다. 기본 정보, 이미지 첨부, 연결정보를 입력합니다.',
-        acts: [{ n: '정보 입력', loc: '폼 필드', act: '유효성 검사' }, { n: '저장', loc: '하단 버튼', act: '등록 처리' }],
-        links: { req: ['REQ-012'], art: [], work: ['WBS-009'], ifc: [], fn: [] },
-        hist: [{ k: 'edit', who: '이UX', at: '06-08', t: '이미지 첨부 영역 추가', f: 'v0.2', to: 'v0.3' }, { k: 'create', who: '이UX', at: '06-03', t: '최초 등록', n: 'v0.1' }] },
-      { id: 'SCR-011', name: '화면설계서 수정', ver: 'v0.3', wst: 'writing', rst: 'none', ast: 'none', type: 'form', menu: '산출물 관리 > 화면설계서', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-08', hasImg: false, annots: 0,
-        purp: '기존 화면설계서를 수정하는 폼 화면입니다. 변경 사유 입력 기능을 포함합니다.',
-        acts: [{ n: '정보 수정', loc: '폼 필드', act: '유효성 검사' }, { n: '저장', loc: '하단 버튼', act: '변경 처리' }],
-        links: { req: ['REQ-012'], art: [], work: ['WBS-009'], ifc: [], fn: [] },
-        hist: [{ k: 'edit', who: '이UX', at: '06-08', t: '변경 사유 입력 추가', f: 'v0.2', to: 'v0.3' }, { k: 'create', who: '이UX', at: '06-03', t: '최초 등록', n: 'v0.1' }] }
-    ] },
-    { id: 'G-04', name: '검토 관리', screens: [
-      { id: 'SCR-012', name: '검토 요청 현황', ver: 'v0.7', wst: 'complete', rst: 'pending', ast: 'none', type: 'list', menu: '검토 관리 > 검토 요청 현황', owner: '김기획', av: '김', ac: '#6541F2', upd: '2026-06-09', hasImg: false, annots: 0,
-        purp: '프로젝트 전체 검토 요청 현황을 일람하고 처리하는 화면입니다.',
-        acts: [{ n: '검토 요청 확인', loc: '목록 행', act: '상세 Drawer 열기' }, { n: '승인/반려', loc: '행 액션', act: '상태 변경' }],
-        links: { req: ['REQ-015'], art: [], work: [], ifc: [], fn: [] },
-        hist: [{ k: 'st', who: '박PM', at: '06-09', t: '검토 요청 전환', f: '작성완료', to: '검토 대기' }, { k: 'edit', who: '김기획', at: '06-07', t: '상태 chip 구성 보정', f: 'v0.6', to: 'v0.7' }] },
-      { id: 'SCR-013', name: '검토 요청 결과', ver: 'v0.2', wst: 'writing', rst: 'none', ast: 'none', type: 'detail', menu: '검토 관리 > 검토 결과', owner: '김기획', av: '김', ac: '#6541F2', upd: '2026-06-09', hasImg: false, annots: 0,
-        purp: '검토 요청 처리 결과를 확인하는 화면입니다. 승인/반려 사유를 포함합니다.',
-        acts: [{ n: '목록으로 돌아가기', loc: '하단 버튼', act: '목록 이동' }],
-        links: { req: ['REQ-015'], art: [], work: [], ifc: [], fn: [] },
-        hist: [{ k: 'create', who: '김기획', at: '06-09', t: '최초 등록', n: 'v0.1' }] }
-    ] },
-    { id: 'G-05', name: '보내기 / 설정', screens: [
-      { id: 'SCR-014', name: '산출물보내기', ver: 'v1.0', wst: 'complete', rst: 'pending', ast: 'none', type: 'popup', menu: '보내기 / 설정 >보내기', owner: '이UX', av: '이', ac: '#0066FF', upd: '2026-06-06', hasImg: false, annots: 0,
-        purp: '선택한 산출물을 PDF·Excel 등 형식으로보내는 팝업 화면입니다.',
-        acts: [{ n: '형식 선택', loc: '라디오', act: '형식 변경' }, { n: '보내기', loc: '하단 버튼', act: '파일 생성' }],
-        links: { req: [], art: ['ART-006'], work: [], ifc: ['IFC-002'], fn: ['FN-005'] },
-        hist: [{ k: 'st', who: '김기획', at: '06-06', t: '검토 요청 전환', f: '작성완료', to: '검토 대기' }, { k: 'create', who: '이UX', at: '05-28', t: '최초 등록', n: 'v0.1' }] },
-      { id: 'SCR-015', name: '프로젝트 구성원 관리', ver: 'v0.3', wst: 'complete', rst: 'pending', ast: 'none', type: 'admin', menu: '보내기 / 설정 > 구성원 관리', owner: '박PM', av: '박', ac: '#5451E8', upd: '2026-06-09', hasImg: false, annots: 0,
-        purp: '프로젝트 참여 구성원의 역할 및 접근 범위를 관리하는 화면입니다.',
-        acts: [{ n: '구성원 초대', loc: '상단 버튼', act: '초대 Drawer 열기' }, { n: '역할 변경', loc: '행 선택', act: '역할 저장' }],
-        links: { req: ['REQ-004'], art: [], work: ['WBS-002'], ifc: [], fn: [] },
-        hist: [{ k: 'st', who: '박PM', at: '06-09', t: '검토 요청 전환', f: '작성완료', to: '검토 대기' }, { k: 'edit', who: '박PM', at: '06-07', t: '접근 범위 컬럼 추가', f: 'v0.2', to: 'v0.3' }] }
-    ] }
-  ];
+  var SS_FIRESTORE_LIVE = !!document.querySelector('[data-stam-screen-spec-live="true"]');
 
-  var ALL_SCREENS = MENUS.reduce(function (acc, g) {
-    return acc.concat(g.screens);
-  }, []);
-
+  /* ── Detail drawer link maps (legacy ss-drawer prototype — not live list) ── */
   var REQ_MAP = { 'REQ-001': { n: '인증 요구사항', st: 'approved' }, 'REQ-002': { n: '회원가입 정보 입력', st: 'approved' }, 'REQ-004': { n: '구성원 접근 범위', st: 'approved' }, 'REQ-008': { n: '작업 목록 조회', st: 'approved' }, 'REQ-011': { n: '화면 목록 조회', st: 'approved' }, 'REQ-012': { n: 'Drawer 패턴 정의', st: 'review' }, 'REQ-015': { n: '검토 결과 표시', st: 'draft' } };
   var ART_MAP = { 'ART-003': { n: '화면설계서 Drawer 패턴 정의서', st: 'review' }, 'ART-006': { n: '산출물보내기 명세서', st: 'done' } };
   var WBS_MAP = { 'WBS-002': { n: 'IA 구조 확정 및 메뉴 기준 수립', st: 'done' }, 'WBS-007': { n: 'WBS 목록 화면 기준 설계', st: 'draft' }, 'WBS-009': { n: 'WBS Drawer 상세 설계', st: 'draft' }, 'WBS-010': { n: '요구사항정의서 목록 화면 준비', st: 'draft' }, 'WBS-011': { n: '화면설계서 목록 화면 설계', st: 'draft' } };
@@ -131,9 +41,8 @@
     dwItem: null,
     dwTab: 0,
     openId: null,
-    grp: { 'G-01': false, 'G-02': false, 'G-03': true, 'G-04': false, 'G-05': false },
     sel: new Set(),
-    F: { wst: '', rst: '', ast: '', type: '', grpId: '', img: '' }
+    F: { wst: '', rst: '', ast: '', type: '', img: '' }
   };
 
   /* ── Helpers ── */
@@ -189,43 +98,22 @@
     return '<span class="ss-ava" style="width:' + sz + 'px;height:' + sz + 'px;background:' + (col || '#5451E8') + ';font-size:' + Math.round(sz * 0.45) + 'px">' + ini + '</span>';
   }
 
-  function findScreen(id) {
-    for (var i = 0; i < ALL_SCREENS.length; i++) {
-      if (ALL_SCREENS[i].id === id) return ALL_SCREENS[i];
-    }
-    return null;
+  function liveListApi() {
+    return window.STAM && window.STAM.screenSpecFirestoreList;
   }
 
-  function findMenu(gid) {
-    for (var i = 0; i < MENUS.length; i++) {
-      if (MENUS[i].id === gid) return MENUS[i];
-    }
-    return null;
+  function countLiveFiltered(F) {
+    var api = liveListApi();
+    if (!api || typeof api.countFilteredItems !== 'function') return 0;
+    return api.countFilteredItems(F || S.F, window.STAM && window.STAM.ssLiveQuery);
   }
 
   /* ── Summary Strip ── */
   function renderStrip() {
-    var all = ALL_SCREENS;
-    var t = all.length;
-    var w = all.filter(function (s) { return s.wst === 'writing'; }).length;
-    var p = all.filter(function (s) { return s.rst === 'pending'; }).length;
-    var a = all.filter(function (s) { return s.ast === 'approved'; }).length;
-    var cells = [
-      { id: 'all', lbl: '전체', v: t, dot: null, col: 'var(--t1)', sub: '전체 화면설계서' },
-      { id: 'writing', lbl: '작성중', v: w, dot: '#64748B', col: '#475569', sub: '작성 진행 중' },
-      { id: 'pending', lbl: '검토 대기', v: p, dot: '#854D0E', col: '#854D0E', sub: '검토자 배정 대기' },
-      { id: 'approved', lbl: '승인 완료', v: a, dot: '#047857', col: '#047857', sub: '승인 확정' }
-    ];
-    var el = document.getElementById('ss-sstrip');
-    if (!el) return;
-    el.innerHTML = cells.map(function (c) {
-      return '<div class="ss-sstrip-cell' + (S.q === c.id ? ' on' : '') + '" data-ss-q="' + c.id + '">' +
-        '<div class="ss-sstrip-lbl">' + (c.dot ? '<span class="ss-sstrip-dot" style="background:' + c.dot + '"></span>' : '') + c.lbl + '</div>' +
-        '<div class="ss-sstrip-num" style="color:' + c.col + '">' + c.v + '<span style="font-size:12px;font-weight:500;color:var(--t3);margin-left:3px">건</span></div>' +
-        '<div class="ss-sstrip-sub">' + c.sub + '</div></div>';
-    }).join('');
-    var meta = document.getElementById('ss-sstrip-meta');
-    if (meta) meta.textContent = '메뉴 그룹 ' + MENUS.length + '개 · 화면 ' + t + '개';
+    var api = liveListApi();
+    if (api && typeof api.renderStrip === 'function') {
+      api.renderStrip();
+    }
   }
 
   /* ── Filter logic ── */
@@ -249,14 +137,8 @@
 
   /* updateFilterInfo: 패널 내 foot-info 텍스트 업데이트 (초기 렌더 시 호출) */
   function updateFilterInfo() {
-    var cnt   = getFilterCount();
-    var total = 0;
-    MENUS.forEach(function (grp) {
-      var screens = grp.screens;
-      if (cnt > 0) screens = filterScreens(screens);
-      total += screens.length;
-    });
-    /* STAM.boardFilter.init()이 생성한 sbf-foot-info 요소를 찾아 업데이트 */
+    var cnt = getFilterCount();
+    var total = countLiveFiltered(S.F);
     var el = document.querySelector('#ss-fpop .sbf-foot-info');
     if (el) el.textContent = '조건 ' + cnt + '개 · 결과 ' + total + '건';
   }
@@ -298,26 +180,11 @@
   }
 
   function toggleGrpSel(gid) {
-    var grp = findMenu(gid);
-    if (!grp) return;
-    var ids = grp.screens.map(function (s) { return s.id; });
-    var allSel = ids.every(function (id) { return S.sel.has(id); });
-    ids.forEach(function (id) {
-      if (allSel) S.sel.delete(id); else S.sel.add(id);
-    });
-    renderTable();
-    updateSelBar();
+    if (SS_FIRESTORE_LIVE) return;
   }
 
   function updateGroupCheckboxes() {
-    MENUS.forEach(function (grp) {
-      var cb = document.getElementById('cb-' + grp.id);
-      if (!cb) return;
-      var ids = grp.screens.map(function (s) { return s.id; });
-      var selCount = ids.filter(function (id) { return S.sel.has(id); }).length;
-      cb.checked = selCount === ids.length && ids.length > 0;
-      cb.indeterminate = selCount > 0 && selCount < ids.length;
-    });
+    if (SS_FIRESTORE_LIVE) return;
   }
 
   function updateSelBar() {
@@ -364,151 +231,9 @@
 
   /* ── Table ── */
   function renderTable() {
-    var q = S.srch.toLowerCase();
-    var html = '';
-    var total = 0;
-
-    /* Records section (신규 작성 기록) — 항상 상단에 표시 */
-    if (SSP.records && SSP.records.length > 0) {
-      var rDraft  = SSP.records.filter(function(r) { return r.status === 'draft'; }).length;
-      var rSaved  = SSP.records.filter(function(r) { return r.status === 'saved'; }).length;
-      var rReview = SSP.records.filter(function(r) { return r.status === 'review'; }).length;
-      html += '<tr class="ss-gr-row ss-records-grp">' +
-        '<td class="ss-ch stam-check-cell"></td>' +
-        '<td colspan="8"><div class="ss-gr-cell">' +
-        '<svg class="ss-gr-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
-        '<span class="ss-gr-name">신규 작성 기록</span>' +
-        '<span class="ss-gr-sep"></span>' +
-        '<span class="ss-gr-count">' + SSP.records.length + '개 화면</span>' +
-        '<div class="ss-gr-chips">' +
-        (rDraft  > 0 ? '<span class="ss-gr-chip ss-chip-rec-draft">작성중 '  + rDraft  + '</span>' : '') +
-        (rSaved  > 0 ? '<span class="ss-gr-chip ss-chip-rec-saved">저장됨 '   + rSaved  + '</span>' : '') +
-        (rReview > 0 ? '<span class="ss-gr-chip ss-chip-rec-review">검토요청 ' + rReview + '</span>' : '') +
-        '</div></div></td></tr>';
-
-      SSP.records.forEach(function(rec, ri) {
-        var last = ri === SSP.records.length - 1;
-        var blockInfo = rec.blocks ? rec.blocks.length + '블록' : '';
-        var tplInfo   = rec.pageTemplateName || '';
-        var infoTxt   = tplInfo + (tplInfo && blockInfo ? ' · ' : '') + blockInfo;
-        html += '<tr class="ss-sc-row ss-record-row stam-table-row' + (last ? ' lg' : '') +
-          '" data-id="' + rec.id + '" data-record-id="' + rec.id + '">' +
-          '<td class="ss-ch stam-check-cell"></td>' +
-          '<td class="ss-name-col"><div class="ss-sc-cell">' +
-            '<span class="ss-sc-ind">└</span>' +
-            '<span class="ss-sc-id">' + rec.screenId + '</span>' +
-            '<span class="ss-sc-name">' + (rec.screenName || '제목 없음') + '</span>' +
-            '<span class="ss-type-chip ss-type-chip-sm ss-rec-svc-chip">' + rec.serviceTypeName + '</span>' +
-            '<span class="ss-type-chip ss-type-chip-sm">' + rec.frontAdminName + '</span>' +
-          '</div></td>' +
-          '<td><span class="ss-vp">v0.1</span></td>' +
-          '<td>' + recordStatusChip(rec.status) + '</td>' +
-          '<td>' + rChip(rec.reviewStatus === 'requested' ? 'pending' : 'none') + '</td>' +
-          '<td>' + aChip('none') + '</td>' +
-          '<td style="font-size:11px;color:var(--t3);white-space:nowrap">' + infoTxt + '</td>' +
-          '<td style="color:var(--t3);font-size:12px">' + (rec.updatedAt ? rec.updatedAt.slice(5).replace('.', '-') : '') + '</td>' +
-          '<td><div class="ss-rec-actions">' +
-            '<button type="button" class="ss-rec-act-btn" data-ssv-action="record-detail" data-record-id="' + rec.id + '">상세</button>' +
-            '<button type="button" class="ss-rec-act-btn ss-rec-act-edit" data-ssv-action="record-edit" data-record-id="' + rec.id + '">수정</button>' +
-          '</div></td>' +
-        '</tr>';
-      });
-    }
-
-    MENUS.forEach(function (grp) {
-      if (S.F.grpId && grp.id !== S.F.grpId) return;
-      var screens = grp.screens;
-      if (S.q === 'writing') screens = screens.filter(function (s) { return s.wst === 'writing'; });
-      if (S.q === 'pending') screens = screens.filter(function (s) { return s.rst === 'pending'; });
-      if (S.q === 'approved') screens = screens.filter(function (s) { return s.ast === 'approved'; });
-      screens = filterScreens(screens);
-      var grpMatch = q && grp.name.toLowerCase().indexOf(q) !== -1;
-      if (q && !grpMatch) {
-        screens = screens.filter(function (s) {
-          return s.id.toLowerCase().indexOf(q) !== -1 || s.name.toLowerCase().indexOf(q) !== -1;
-        });
-      }
-      if (screens.length === 0 && !grpMatch && q) return;
-      if (screens.length === 0 && S.q !== 'all') return;
-      total += screens.length;
-      var gW = screens.filter(function (s) { return s.wst === 'writing'; }).length;
-      var gP = screens.filter(function (s) { return s.rst === 'pending'; }).length;
-      var gA = screens.filter(function (s) { return s.ast === 'approved'; }).length;
-      var exp = S.grp[grp.id] !== false || (q && screens.length > 0);
-      var grpIds = grp.screens.map(function (s) { return s.id; });
-      var grpSelCount = grpIds.filter(function (id) { return S.sel.has(id); }).length;
-      var cbChecked = grpSelCount === grp.screens.length && grp.screens.length > 0;
-      var cbIndet = grpSelCount > 0 && grpSelCount < grp.screens.length;
-      html += '<tr class="ss-gr-row">' +
-        '<td class="ss-ch stam-check-cell"><input type="checkbox" class="ss-cb stam-check" id="cb-' + grp.id + '"' +
-        (cbChecked ? ' checked' : '') + (cbIndet ? ' data-indet' : '') +
-        ' data-ss-grp-sel="' + grp.id + '"></td>' +
-        '<td colspan="8"><div class="ss-gr-cell" data-ss-grp="' + grp.id + '">' +
-        '<svg class="ss-gr-caret' + (exp ? '' : ' col') + '" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>' +
-        '<span class="ss-gr-icon">' + ic(ICONS.folder, 14) + '</span>' +
-        '<span class="ss-gr-name">' + grp.name + '</span>' +
-        '<span class="ss-gr-sep"></span>' +
-        '<span class="ss-gr-count">' + grp.screens.length + '개 화면</span>' +
-        '<div class="ss-gr-chips">' +
-        (gW > 0 ? '<span class="ss-gr-chip ss-chip-ws-w">작성중 ' + gW + '</span>' : '') +
-        (gP > 0 ? '<span class="ss-gr-chip ss-chip-rs-p">검토대기 ' + gP + '</span>' : '') +
-        (gA > 0 ? '<span class="ss-gr-chip ss-chip-as-a">승인 ' + gA + '</span>' : '') +
-        '</div></div></td></tr>';
-      if (!exp) return;
-      screens.forEach(function (s, i) {
-        var last = i === screens.length - 1;
-        var isSel = S.sel.has(s.id);
-        var isOpen = S.openId === s.id;
-        html += '<tr class="ss-sc-row stam-table-row' + (isSel ? ' sel is-selected' : '') + (isOpen ? ' is-active' : '') + (last ? ' lg' : '') + '" data-id="' + s.id + '">' +
-          '<td class="ss-ch stam-check-cell"><input type="checkbox" class="ss-cb stam-check"' + (isSel ? ' checked' : '') +
-          ' data-ss-sel="' + s.id + '"></td>' +
-          '<td class="ss-name-col"><div class="ss-sc-cell"><span class="ss-sc-ind">└</span>' +
-          '<span class="ss-sc-id">' + s.id + '</span><span class="ss-sc-name">' + s.name + '</span>' +
-          typChipSm(s.type) + '</div></td>' +
-          '<td><span class="ss-vp">' + s.ver + '</span></td>' +
-          '<td>' + wChip(s.wst) + '</td>' +
-          '<td>' + rChip(s.rst) + '</td>' +
-          '<td>' + aChip(s.ast) + '</td>' +
-          '<td style="display:flex;align-items:center;gap:4px">' + imgChip(s.hasImg) + annChip(s.annots) + '</td>' +
-          '<td style="color:var(--t3);font-size:12px">' + s.upd.slice(5) + '</td>' +
-          '<td></td></tr>';
-      });
-    });
-    if (!html) {
-      var hasFilter = !!(S.srch || (S.q && S.q !== 'all') || S.F.wst || S.F.rst || S.F.ast || S.F.type || S.F.grpId || S.F.img);
-      var emptyCard = hasFilter
-        ? buildEmptyCard({
-            iconPath: '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
-            title: '조건에 맞는 화면설계서가 없습니다.',
-            desc: '검색어나 필터를 줄이거나 초기화하고 다시 확인하세요.',
-            actions: [{ label: '필터 초기화', action: 'ss-empty-reset-filter', primary: true }]
-          })
-        : buildEmptyCard({
-            iconPath: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>',
-            title: '아직 작성된 화면설계서가 없습니다.',
-            desc: '템플릿을 선택해 화면설계서 초안을 만들고, 화면 목적과 구성 블록을 채워보세요.',
-            actions: [{ label: '템플릿으로 작성', action: 'template', primary: true }]
-          });
-      html = '<tr><td colspan="9" style="padding:0;background:transparent;border:0">' + emptyCard + '</td></tr>';
-    }
-    var tbody = document.getElementById('ss-tbody');
-    if (tbody) tbody.innerHTML = html;
-    // v2(screenSpecifications) 데이터를 동일 목록에 통합 주입 (하단 별도 목록 없음)
-    if (tbody && window.STAM && window.STAM.ssv2 && window.STAM.ssv2.afterRender) window.STAM.ssv2.afterRender(tbody);
-    var tfoot = document.getElementById('ss-tfoot-info');
-    if (tfoot) {
-      tfoot.innerHTML = total === ALL_SCREENS.length
-        ? '전체 ' + ALL_SCREENS.length + '건'
-        : '필터 적용 · <b style="color:var(--t1)">' + total + '</b>건';
-    }
-    document.querySelectorAll('.ss-gr-row .ss-cb[data-indet]').forEach(function (cb) {
-      cb.indeterminate = true;
-    });
-    var allCb = document.getElementById('ss-cb-all');
-    var totalRows = document.querySelectorAll('.ss-sc-row').length;
-    if (allCb) {
-      allCb.checked = S.sel.size === totalRows && totalRows > 0;
-      allCb.indeterminate = S.sel.size > 0 && S.sel.size < totalRows;
+    var api = liveListApi();
+    if (api && typeof api.render === 'function') {
+      api.render();
     }
   }
 
@@ -518,6 +243,10 @@
 
   function setQ(q) {
     S.q = q;
+    if (SS_FIRESTORE_LIVE) {
+      window.STAM = window.STAM || {};
+      window.STAM.ssLiveQuery = q;
+    }
     renderStrip();
     renderTable();
   }
@@ -529,8 +258,7 @@
   }
 
   function toggleGroup(gid) {
-    S.grp[gid] = !S.grp[gid];
-    renderTable();
+    if (SS_FIRESTORE_LIVE) return;
   }
 
   /* ── Drawer ── */
@@ -565,7 +293,8 @@
   }
 
   function openDetail(id) {
-    showDw('detail', findScreen(id));
+    if (SS_FIRESTORE_LIVE) return;
+    showDw('detail', null);
   }
 
   function openRegister() {
@@ -1036,7 +765,7 @@
    * FULLPAGE EDITOR — View Mode 구조
    * view.mode: list | template | editor | preview
    * draft: template/editor/preview 전용
-   * savedItems: list/detail 기준 (ALL_SCREENS와 동기화)
+   * savedItems: 템플릿 에디터 prototype 저장 목록
    * ================================================================ */
 
   /* ── State ── */
@@ -5294,10 +5023,6 @@
       _draft: d
     };
     SSP.savedItems.push(saved);
-    for (var i = 0; i < MENUS.length; i++) {
-      if (MENUS[i].id === 'G-03') { MENUS[i].screens.push(saved); break; }
-    }
-    ALL_SCREENS.push(saved);
     SSP.draft = null;
     return saved;
   }
@@ -5521,7 +5246,10 @@
       } else if (act === 'ss-empty-reset-filter') {
         S.q = 'all';
         S.srch = '';
-        S.F = { wst: '', rst: '', ast: '', type: '', grpId: '', img: '' };
+        S.F = { wst: '', rst: '', ast: '', type: '', img: '' };
+        window.STAM = window.STAM || {};
+        window.STAM.ssLiveQuery = 'all';
+        window.STAM.ssLiveFilters = { wst: '', rst: '', ast: '', type: '', img: '' };
         var srchEl = document.getElementById('ss-srch');
         if (srchEl) srchEl.value = '';
         renderStrip();
@@ -5935,14 +5663,6 @@
           { value: 'popup',  label: '팝업' },
           { value: 'admin',  label: '관리 화면' }
         ]},
-        { key: 'grp', label: '메뉴 그룹', type: 'radio', options: [
-          { value: '', label: '전체' },
-          { value: 'G-01', label: '대시보드' },
-          { value: 'G-02', label: '회원' },
-          { value: 'G-03', label: '산출물 관리' },
-          { value: 'G-04', label: '검토 관리' },
-          { value: 'G-05', label: '내보내기 / 설정' }
-        ]},
         { key: 'img', label: '이미지 / 주석', type: 'radio', options: [
           { value: '', label: '전체' },
           { value: 'has', label: '이미지 있음' },
@@ -5957,14 +5677,9 @@
           rst:   values.rst   ? values.rst[0]   || '' : '',
           ast:   values.ast   ? values.ast[0]   || '' : '',
           type:  values.type  ? values.type[0]  || '' : '',
-          grpId: values.grp   ? values.grp[0]   || '' : '',
           img:   values.img   ? values.img[0]   || '' : ''
         };
-        var prevF = S.F;
-        S.F = tmpF;
-        var total = 0;
-        MENUS.forEach(function (g) { total += filterScreens(g.screens).length; });
-        S.F = prevF;
+        var total = countLiveFiltered(tmpF);
         var cnt = Object.keys(tmpF).filter(function (k) { return tmpF[k] !== ''; }).length;
         var el = document.querySelector('#ss-fpop .sbf-foot-info');
         if (el) el.textContent = '조건 ' + cnt + '개 · 결과 ' + total + '건';
@@ -5974,12 +5689,27 @@
         S.F.rst   = values.rst   ? values.rst[0]   || '' : '';
         S.F.ast   = values.ast   ? values.ast[0]   || '' : '';
         S.F.type  = values.type  ? values.type[0]  || '' : '';
-        S.F.grpId = values.grp   ? values.grp[0]   || '' : '';
         S.F.img   = values.img   ? values.img[0]   || '' : '';
+        window.STAM = window.STAM || {};
+        window.STAM.ssLiveFilters = {
+          wst: S.F.wst,
+          rst: S.F.rst,
+          ast: S.F.ast,
+          type: S.F.type,
+          img: S.F.img,
+        };
         renderTable();
       },
       onReset: function () {
-        S.F = { wst: '', rst: '', ast: '', type: '', grpId: '', img: '' };
+        S.F = { wst: '', rst: '', ast: '', type: '', img: '' };
+        window.STAM = window.STAM || {};
+        window.STAM.ssLiveFilters = {
+          wst: '',
+          rst: '',
+          ast: '',
+          type: '',
+          img: '',
+        };
         renderTable();
       }
     });
@@ -6131,6 +5861,15 @@
   }
 
   function initAll() {
+    window.STAM = window.STAM || {};
+    window.STAM.ssLiveQuery = S.q;
+    window.STAM.ssLiveFilters = {
+      wst: S.F.wst,
+      rst: S.F.rst,
+      ast: S.F.ast,
+      type: S.F.type,
+      img: S.F.img,
+    };
     renderStrip();
     renderTable();
     /* updateFilterBtn 제거: STAM.boardFilter.init()이 배지 상태를 관리 */
