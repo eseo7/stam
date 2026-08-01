@@ -207,13 +207,33 @@ assert.match(countersBlock[0], /counterId == 'functionalSpecifications'/);
 assert.match(countersBlock[0], /counterId == 'wbsItems'/);
 
 // ── Unopened artifact collections remain write-closed ────────────
-for (const collection of ['screenActions', 'artifactLinks']) {
+for (const collection of ['artifactLinks']) {
   assert.match(
     rulesSource,
     new RegExp(`match /${collection}/\\{[^}]+\\}[\\s\\S]*allow create, update, delete: if false;`),
     `${collection} writes must stay closed`,
   );
 }
+
+// ── screenActions write opened (ScreenAction-1) ──────────────────
+assert.match(rulesSource, /ScreenAction write helpers \(ScreenAction-1\)/);
+assert.match(
+  rulesSource,
+  /match \/screenActions\/\{actionId\}[\s\S]*allow create: if isValidScreenActionCreate\(projectId, actionId\);/,
+);
+assert.match(
+  rulesSource,
+  /match \/screenActions\/\{actionId\}[\s\S]*allow update: if isValidScreenActionUpdate\(projectId, actionId\);/,
+);
+assert.match(
+  rulesSource,
+  /match \/screenActions\/\{actionId\}[\s\S]*allow delete: if isValidScreenActionDelete\(projectId, actionId\);/,
+);
+assert.doesNotMatch(
+  rulesSource,
+  /function isValidScreenActionCreate[\s\S]*normalized name/i,
+  'rules must not claim normalized name uniqueness enforcement',
+);
 
 // ── screenFields write opened (ScreenField-1) ────────────────────
 assert.match(rulesSource, /ScreenField write helpers \(ScreenField-1\)/);
