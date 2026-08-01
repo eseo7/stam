@@ -535,6 +535,47 @@
     };
   }
 
+  function applyActionTypeTargetNormalization(merged) {
+    var actionType = clean(merged.actionType);
+    if (actionType === 'navigate') {
+      merged.targetScreenSpecId = normalizeTargetScreenSpecId(merged.targetScreenSpecId);
+    } else if (actionType === 'openDrawer') {
+      merged.targetScreenSpecId = merged.targetScreenSpecId == null
+        ? null
+        : normalizeTargetScreenSpecId(merged.targetScreenSpecId);
+    } else {
+      merged.targetScreenSpecId = null;
+    }
+  }
+
+  function applyConfirmNormalization(merged) {
+    if (merged.confirmRequired !== true) {
+      merged.confirmTitle = null;
+      merged.confirmMessage = null;
+    }
+  }
+
+  function applyUpdateStringNormalization(merged, source) {
+    if (hasOwn(source, 'name')) merged.name = clean(source.name);
+    if (hasOwn(source, 'label')) merged.label = clean(source.label);
+    if (hasOwn(source, 'actionType')) merged.actionType = clean(source.actionType);
+    if (hasOwn(source, 'controlType')) merged.controlType = clean(source.controlType);
+    if (hasOwn(source, 'placement')) merged.placement = clean(source.placement);
+    if (hasOwn(source, 'variant')) merged.variant = clean(source.variant);
+    if (hasOwn(source, 'confirmTitle')) {
+      merged.confirmTitle = source.confirmTitle == null ? null : (clean(source.confirmTitle) || null);
+    }
+    if (hasOwn(source, 'confirmMessage')) {
+      merged.confirmMessage = source.confirmMessage == null ? null : clean(source.confirmMessage);
+    }
+    if (hasOwn(source, 'successMessage')) {
+      merged.successMessage = source.successMessage == null ? null : (clean(source.successMessage) || null);
+    }
+    if (hasOwn(source, 'targetScreenSpecId')) {
+      merged.targetScreenSpecId = normalizeTargetScreenSpecId(source.targetScreenSpecId);
+    }
+  }
+
   function buildUpdatePatch(current, patch, context, clock) {
     var base = current || null;
     if (!base || !clean(base.id)) {
@@ -544,6 +585,12 @@
     assertValidInput(source, 'update');
     var actor = actorFromContext(context);
     var merged = Object.assign({}, base, source);
+
+    applyActionTypeTargetNormalization(merged);
+    applyConfirmNormalization(merged);
+    applyUpdateStringNormalization(merged, source);
+    applyActionTypeTargetNormalization(merged);
+
     var complete = validateCompleteDocument(merged);
     if (!complete.valid) {
       throw createServiceError(
@@ -561,24 +608,15 @@
       if (hasOwn(source, field)) next[field] = merged[field];
     });
 
-    if (hasOwn(source, 'actionType') || hasOwn(source, 'targetScreenSpecId')) {
-      var actionType = merged.actionType;
-      if (actionType === 'navigate') {
-        next.targetScreenSpecId = clean(merged.targetScreenSpecId);
-      } else if (actionType === 'openDrawer') {
-        next.targetScreenSpecId = merged.targetScreenSpecId == null ? null : (clean(merged.targetScreenSpecId) || null);
-      } else {
-        next.targetScreenSpecId = null;
-      }
+    if (hasOwn(source, 'actionType') && merged.targetScreenSpecId !== base.targetScreenSpecId) {
+      next.targetScreenSpecId = merged.targetScreenSpecId;
     }
 
-    if (hasOwn(source, 'confirmRequired') || hasOwn(source, 'confirmTitle') || hasOwn(source, 'confirmMessage')) {
+    if (hasOwn(source, 'confirmRequired')) {
+      next.confirmRequired = merged.confirmRequired === true;
       if (merged.confirmRequired !== true) {
         next.confirmTitle = null;
         next.confirmMessage = null;
-      } else {
-        next.confirmTitle = merged.confirmTitle == null ? null : (clean(merged.confirmTitle) || null);
-        next.confirmMessage = merged.confirmMessage == null ? null : clean(merged.confirmMessage);
       }
     }
 

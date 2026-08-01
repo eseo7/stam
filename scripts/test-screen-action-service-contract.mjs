@@ -226,6 +226,69 @@ await assert.rejects(
   (err) => err.code === contract.ERROR_CODES.VALIDATION_FAILED,
 );
 
+const navigateToCancelPatch = contract.buildUpdatePatch(
+  seedAction({
+    actionType: 'navigate',
+    targetScreenSpecId: 'scr-target',
+  }),
+  { actionType: 'cancel' },
+  { actorUid: 'u1' },
+);
+assert.equal(navigateToCancelPatch.actionType, 'cancel');
+assert.equal(navigateToCancelPatch.targetScreenSpecId, null);
+
+const drawerToSubmitPatch = contract.buildUpdatePatch(
+  seedAction({
+    actionType: 'openDrawer',
+    targetScreenSpecId: 'scr-target',
+  }),
+  { actionType: 'submit' },
+  { actorUid: 'u1' },
+);
+assert.equal(drawerToSubmitPatch.actionType, 'submit');
+assert.equal(drawerToSubmitPatch.targetScreenSpecId, null);
+
+const confirmOffPatch = contract.buildUpdatePatch(
+  seedAction({
+    confirmRequired: true,
+    confirmTitle: '삭제 확인',
+    confirmMessage: '정말 삭제하시겠습니까?',
+  }),
+  { confirmRequired: false },
+  { actorUid: 'u1' },
+);
+assert.equal(confirmOffPatch.confirmRequired, false);
+assert.equal(confirmOffPatch.confirmTitle, null);
+assert.equal(confirmOffPatch.confirmMessage, null);
+
+const trimNamePatch = contract.buildUpdatePatch(
+  seedAction(),
+  { name: '  saveDraft  ' },
+  { actorUid: 'u1' },
+);
+assert.equal(trimNamePatch.name, 'saveDraft');
+
+const trimLabelPatch = contract.buildUpdatePatch(
+  seedAction(),
+  { label: '  제출  ' },
+  { actorUid: 'u1' },
+);
+assert.equal(trimLabelPatch.label, '제출');
+
+const trimSuccessPatch = contract.buildUpdatePatch(
+  seedAction(),
+  { successMessage: '  저장되었습니다  ' },
+  { actorUid: 'u1' },
+);
+assert.equal(trimSuccessPatch.successMessage, '저장되었습니다');
+
+const blankSuccessPatch = contract.buildUpdatePatch(
+  seedAction({ successMessage: '기존' }),
+  { successMessage: '   ' },
+  { actorUid: 'u1' },
+);
+assert.equal(blankSuccessPatch.successMessage, null);
+
 const authorize = contract.createMemberRoleAuthorize((request) => request.context.memberRole);
 assert.equal(authorize(contract.ACTIONS.READ, { context: { memberRole: 'viewer' } }), true);
 assert.equal(authorize(contract.ACTIONS.CREATE, { context: { memberRole: 'viewer' } }), false);
@@ -246,6 +309,28 @@ await assert.rejects(
 
 const created = await service.create('P1', validCreateInput({ name: 'submitForm', actionType: 'submit' }), { actorUid: 'u1' });
 await service.update('P1', created.id, { label: '제출' }, { actorUid: 'u1' });
+
+const navigateAction = await service.create('P1', validCreateInput({
+  name: 'goList',
+  actionType: 'navigate',
+  targetScreenSpecId: 'scr-target',
+}), { actorUid: 'u1' });
+const cancelled = await service.update('P1', navigateAction.id, { actionType: 'cancel' }, { actorUid: 'u1' });
+assert.equal(cancelled.actionType, 'cancel');
+assert.equal(cancelled.targetScreenSpecId, null);
+
+const confirmAction = await service.create('P1', validCreateInput({
+  name: 'deleteRow',
+  actionType: 'delete',
+  confirmRequired: true,
+  confirmTitle: '삭제',
+  confirmMessage: '정말 삭제?',
+}), { actorUid: 'u1' });
+const confirmOff = await service.update('P1', confirmAction.id, { confirmRequired: false }, { actorUid: 'u1' });
+assert.equal(confirmOff.confirmRequired, false);
+assert.equal(confirmOff.confirmTitle, null);
+assert.equal(confirmOff.confirmMessage, null);
+
 await service.update('P1', created.id, { name: 'submitForm' }, { actorUid: 'u1' });
 await service.delete('P1', created.id, { actorUid: 'u1' });
 assert.equal(await service.getById('P1', created.id, { actorUid: 'u1', memberRole: 'editor' }), null);

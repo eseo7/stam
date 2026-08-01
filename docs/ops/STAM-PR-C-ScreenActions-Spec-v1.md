@@ -23,7 +23,7 @@
 - Domain Service (`STAM.screenActionService`)
 - Firestore Adapter (`STAM.screenActionFirestoreAdapter`)
 - Firestore Rules write open (ScreenAction-1 helpers, editor 이상)
-- Service/Adapter/Rules **contract tests** (5종)
+- Service/Adapter/Rules **contract tests** (4종)
 - Firestore Rules **Emulator E2E** + Adapter **Emulator E2E** (로컬·수동)
 - **Hard delete** (editor+)
 - 상위 `screenSpecId` 존재·동일 `projectId` 검증 (**create** — Service preflight + Adapter preflight/transaction; Rules create)
@@ -413,7 +413,13 @@ Counter doc: **없음**.
 1. authorize(UPDATE)
 2. adapter.getById → NOT_FOUND if missing
 3. validateScreenActionInput(patch, 'update')
-4. buildUpdatePatch(current, patch) — merged validateCompleteDocument
+4. buildUpdatePatch(current, patch):
+   a. current + patch 병합
+   b. actionType 전환에 따른 targetScreenSpecId 정규화
+   c. confirmRequired 전환에 따른 confirmTitle/confirmMessage 정규화
+   d. update 문자열 필드 trim/null 정규화
+   e. 정규화된 완성 문서 validateCompleteDocument
+   f. Adapter 전달 patch 생성 (자동 정규화 필드 포함)
 5. if name normalized changed → Service preflight duplicate (exclude self)
 6. Adapter runUpdatePreflight (outside transaction):
    a. if name changed → assertDuplicateNameAbsent
@@ -735,7 +741,7 @@ compat Web SDK + Firestore emulator + auth. **Service/Adapter query preflight** 
 | 기존 CI 연결 | **없음** — `.github/workflows/`에 screen-action emulator job 미등록 |
 | Preview workflow (`firebase-hosting-pr-preview.yml`) | Firebase Hosting preview channel deploy **만** 수행 |
 | Rules workflow (`firebase-firestore-rules-pr-preview.yml`) | `stam-preview-hosting` staging Rules deploy **만** 수행 (emulator test 없음) |
-| PR C 완료 증거 | **계약 테스트 5종 PASS** + Preview/Rules workflow SUCCESS. **Emulator 실행은 CI에 포함되지 않음.** |
+| PR C 완료 증거 | **계약 테스트 4종 PASS** + Preview/Rules workflow SUCCESS. **Emulator 실행은 CI에 포함되지 않음.** |
 | 후속 | `.github/workflows` Emulator job 추가 — **별도 승인 PR에서 CI 연결 검토** |
 
 ---
