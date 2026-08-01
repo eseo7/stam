@@ -281,12 +281,12 @@
         @media (max-width:460px){ .ssv2-igrid{grid-template-columns:1fr} .ssv2-dw-bd{padding:14px} .ssv2-dw-tabs{padding:0 10px} .ssv2-tab{padding:10px 10px;font-size:12px} }
       </style>
 
-      <div class="ssv2-scrim" id="ssv2-scrim"></div>
+      <div class="stam-drawer-scrim" id="ssv2-scrim" aria-hidden="true"></div>
       <aside class="ssv2-drawer" id="ssv2-drawer" data-open="false" data-mode="detail" role="dialog" aria-modal="true" aria-label="화면설계서 상세">
         <div class="ssv2-dw-hd">
           <div class="ssv2-hrow1">
             <span id="ssv2-wid" class="ssv2-badge">SCR-000</span>
-            <span id="ssv2-status-chip" class="ssv2-stchip" style="background:var(--bg-sur2);color:var(--t2)">작성중</span>
+            <span id="ssv2-status-chip" class="ssv2-stchip ss-chip-ws-w">작성중</span>
             <button id="ssv2-close" type="button" aria-label="닫기" style="margin-left:auto;border:0;background:none;font-size:16px;color:var(--t3);cursor:pointer">✕</button>
           </div>
           <div id="ssv2-title" class="ssv2-htitle">화면설계서</div>
@@ -302,12 +302,12 @@
           <!-- detail: 4 tab panels -->
           <div id="ssv2-detail">
             <div class="ssv2-tabpanel" data-tp="0"></div>
-            <div class="ssv2-tabpanel" data-tp="1" style="display:none"></div>
-            <div class="ssv2-tabpanel" data-tp="2" style="display:none"></div>
-            <div class="ssv2-tabpanel" data-tp="3" style="display:none"></div>
+            <div class="ssv2-tabpanel" data-tp="1" hidden></div>
+            <div class="ssv2-tabpanel" data-tp="2" hidden></div>
+            <div class="ssv2-tabpanel" data-tp="3" hidden></div>
           </div>
           <!-- form (register/edit 공용) -->
-          <div id="ssv2-form" style="display:none">
+          <div id="ssv2-form" hidden>
             <div class="ssv2-fld"><label>화면명 *</label><input id="ssv2-f-name" type="text" placeholder="화면명을 입력하세요"></div>
             <div class="ssv2-fld"><label>화면 유형</label><select id="ssv2-f-type"><option value="">선택</option><option>목록</option><option>상세</option><option>등록</option><option>수정</option><option>팝업</option><option>대시보드</option><option>기타</option></select></div>
             <div class="ssv2-fld"><label>작성 상태</label><select id="ssv2-f-status"><option>작성중</option><option>검토요청</option><option>검토완료</option><option>승인완료</option><option>보류</option></select></div>
@@ -346,7 +346,7 @@
             </div>
           </div>
           <!-- 수정/등록 footer: 취소 ── 저장 -->
-          <div class="ssv2-foot-row" id="ssv2-foot-form" style="display:none">
+          <div class="ssv2-foot-row" id="ssv2-foot-form" hidden>
             <div class="stam-dw-foot-left">
               <button class="ssv2-fbtn ghost" id="ssv2-cancel-btn" type="button">취소</button>
             </div>
@@ -408,8 +408,8 @@
 <script src="../../js/stam.requirement-picker.js"></script>
 <script src="../../js/stam.functional-spec-picker.js"></script>
 <script src="../../js/stam.wbs-picker.js"></script>
-<script src="../../js/stam.screen-spec-firestore-list.js"></script>
-<script src="../../js/stam.screen-spec-firestore-crud.js"></script>
+<script src="../../js/stam.screen-specification-cycle.js"></script>
+<script src="../../js/stam.screen-specification-crud.js"></script>
 
 </body>
 </html>

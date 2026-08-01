@@ -24,8 +24,8 @@ const LIVE_JS = [
   'stam/js/stam.functional-spec-service.js',
   'stam/js/stam.wbs-service.js',
   'stam/js/stam.screen-spec-service.js',
-  'stam/js/stam.screen-spec-firestore-list.js',
-  'stam/js/stam.screen-spec-firestore-crud.js',
+  'stam/js/stam.screen-specification-cycle.js',
+  'stam/js/stam.screen-specification-crud.js',
 ];
 
 for (const rel of LIVE_JS) {
@@ -40,16 +40,16 @@ const HOOKS = [
   'data-stam-requirement-picker',
   'data-stam-functional-spec-picker',
   'data-stam-wbs-picker',
-  'stam.screen-spec-firestore-list.js',
-  'stam.screen-spec-firestore-crud.js',
+  'stam.screen-specification-cycle.js',
+  'stam.screen-specification-crud.js',
 ];
 
 for (const hook of HOOKS) {
   assert.match(html, new RegExp(hook.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `${hook} in HTML`);
 }
 
-assert.doesNotMatch(html, /stam\.screen-specification-cycle\.js/);
-assert.doesNotMatch(html, /stam\.screen-specification-crud\.js/);
+assert.doesNotMatch(html, /stam\.screen-spec-firestore-list\.js/);
+assert.doesNotMatch(html, /stam\.screen-spec-firestore-crud\.js/);
 assert.doesNotMatch(html, /stam\.local-core-db\.js/);
 assert.doesNotMatch(html, /id="ssv2-f-req"/);
 assert.doesNotMatch(html, /id="ssv2-f-fun"/);
@@ -58,8 +58,8 @@ assert.doesNotMatch(html, /id="ssv2-f-wbs"/);
 assert.match(html, /stam\.custom-select\.css/);
 assert.match(html, /stam\.screen-spec-firestore-adapter\.js/);
 
-const listSource = await readFile(path.join(ROOT, 'stam/js/stam.screen-spec-firestore-list.js'), 'utf8');
-const crudSource = await readFile(path.join(ROOT, 'stam/js/stam.screen-spec-firestore-crud.js'), 'utf8');
+const listSource = await readFile(path.join(ROOT, 'stam/js/stam.screen-specification-cycle.js'), 'utf8');
+const crudSource = await readFile(path.join(ROOT, 'stam/js/stam.screen-specification-crud.js'), 'utf8');
 const specSource = await readFile(path.join(ROOT, 'stam/js/stam.screen-specification.js'), 'utf8');
 
 assert.doesNotMatch(specSource, /var MENUS\s*=/);
@@ -86,6 +86,9 @@ assert.match(crudSource, /functionalSpecId/);
 assert.match(crudSource, /requirementId/);
 assert.doesNotMatch(crudSource, /functionId/);
 assert.doesNotMatch(crudSource, /wbsId[^e]/);
+assert.doesNotMatch(listSource, /\.style\.|style\s*=/);
+assert.doesNotMatch(crudSource, /\.style\.|style\s*=/);
+assert.doesNotMatch(listSource + crudSource, /#64748B|#854D0E|#047857/i);
 
 function createDom() {
   const document = {
