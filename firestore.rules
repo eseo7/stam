@@ -42,6 +42,11 @@ service cloud.firestore {
      *   Viewer remains read-only. Delete stays closed.
      *   SCR-### counter added at projects/{projectId}/counters/screenSpecs.
      *
+     * ScreenField-1:
+     *   screenFields write opened for active project members with role owner/admin/editor.
+     *   Viewer remains read-only. Hard delete allowed for writers.
+     *   Parent screenSpec existence validated on create. Name uniqueness is NOT rules-enforced.
+     *
      *   Signed-in users may create or update only their own `users/{uid}`
      *   document for Google login bootstrap. Client cannot change `status`,
      *   `provider`, `userId`, or `createdAt` on update. Unopened artifact
@@ -1018,6 +1023,221 @@ service cloud.firestore {
           && data.updatedAt == request.time;
     }
 
+    // ── ScreenField write helpers (ScreenField-1) ─────────────────────
+    function isScreenFieldWriter(projectId) {
+      return isScreenSpecWriter(projectId);
+    }
+    function screenSpecDocPath(projectId, screenSpecId) {
+      return /databases/$(database)/documents/projects/$(projectId)/screenSpecs/$(screenSpecId);
+    }
+    function isValidScreenFieldName(name) {
+      return name is string
+          && name.size() >= 2
+          && name.size() <= 80
+          && name.matches('^[a-zA-Z][a-zA-Z0-9_]{1,79}$');
+    }
+    function isValidScreenFieldLabel(label) {
+      return label is string
+          && label.size() >= 1
+          && label.size() <= 120;
+    }
+    function isValidScreenFieldType(type) {
+      return type is string && (
+        type == 'text' ||
+        type == 'textarea' ||
+        type == 'number' ||
+        type == 'boolean' ||
+        type == 'switch' ||
+        type == 'select' ||
+        type == 'multiselect' ||
+        type == 'date' ||
+        type == 'datetime' ||
+        type == 'file' ||
+        type == 'image' ||
+        type == 'editor'
+      );
+    }
+    function isValidScreenFieldOrder(order) {
+      return order is int && order >= 0;
+    }
+    function isValidScreenFieldOptionItem(item) {
+      return item is map
+          && item.keys().hasAll(['value', 'label'])
+          && item.value is string
+          && item.label is string
+          && item.value.size() >= 1
+          && item.value.size() <= 80
+          && item.label.size() >= 1
+          && item.label.size() <= 120
+          && item.value.matches('^[a-zA-Z0-9_-]{1,80}$')
+          && (!item.keys().hasAny(['disabled']) || item.disabled is bool);
+    }
+    function isValidScreenFieldOptions(data) {
+      return data.options is list
+          && data.options.size() <= 100
+          && (
+            (!isValidScreenFieldType(data.type) || (data.type != 'select' && data.type != 'multiselect'))
+              ? data.options.size() == 0
+              : data.options.size() >= 1
+          );
+    }
+    function isValidScreenFieldValidationRuleItem(rule) {
+      return rule is map
+          && rule.keys().hasAll(['kind', 'pattern'])
+          && rule.kind == 'regex'
+          && rule.pattern is string
+          && rule.pattern.size() >= 1
+          && rule.pattern.size() <= 500
+          && (!rule.keys().hasAny(['flags']) || (
+            rule.flags is string
+            && rule.flags.size() <= 4
+          ));
+    }
+    function isValidScreenFieldValidationRules(data) {
+      return data.validationRules is list
+          && data.validationRules.size() <= 10;
+    }
+    function isValidScreenFieldDefaultValue(data) {
+      let type = data.type;
+      let value = data.defaultValue;
+      return (type == 'file' || type == 'image')
+          ? value == null
+          : value == null
+          || (type == 'text' || type == 'textarea' || type == 'editor') && value is string
+          || type == 'number' && value is number
+          || (type == 'boolean' || type == 'switch') && value is bool
+          || type == 'select' && value is string
+          || type == 'multiselect' && value is list
+          || (type == 'date' || type == 'datetime') && value is string;
+    }
+    function isValidScreenFieldMinMax(data) {
+      let textType = data.type == 'text' || data.type == 'textarea' || data.type == 'editor';
+      let minOk = !data.keys().hasAny(['minLength']) || data.minLength == null || (textType && data.minLength is int && data.minLength >= 0);
+      let maxOk = !data.keys().hasAny(['maxLength']) || data.maxLength == null || (textType && data.maxLength is int && data.maxLength >= 0);
+      let pairOk = !textType
+          || !data.keys().hasAny(['minLength'])
+          || !data.keys().hasAny(['maxLength'])
+          || data.minLength == null
+          || data.maxLength == null
+          || data.minLength <= data.maxLength;
+      return minOk && maxOk && pairOk;
+    }
+    function isValidScreenFieldParentRef(projectId, data) {
+      return data.screenSpecId is string && data.screenSpecId.size() > 0;
+    }
+    function isValidScreenFieldParentOnCreate(projectId, data) {
+      let specId = data.screenSpecId;
+      return isValidScreenFieldParentRef(projectId, data)
+          && exists(screenSpecDocPath(projectId, specId))
+          && get(screenSpecDocPath(projectId, specId)).data.projectId == projectId
+          && get(screenSpecDocPath(projectId, specId)).data.isDeleted == false;
+    }
+    function screenFieldWriteKeys() {
+      return [
+        'id',
+        'projectId',
+        'screenSpecId',
+        'order',
+        'name',
+        'label',
+        'type',
+        'required',
+        'readonly',
+        'disabled',
+        'defaultValue',
+        'placeholder',
+        'helpText',
+        'minLength',
+        'maxLength',
+        'options',
+        'validationRules',
+        'schemaVersion',
+        'createdAt',
+        'createdBy',
+        'updatedAt',
+        'updatedBy',
+      ];
+    }
+    function screenFieldRequiredKeys() {
+      return [
+        'id',
+        'projectId',
+        'screenSpecId',
+        'order',
+        'name',
+        'label',
+        'type',
+        'required',
+        'readonly',
+        'disabled',
+        'defaultValue',
+        'options',
+        'validationRules',
+        'schemaVersion',
+        'createdAt',
+        'createdBy',
+        'updatedAt',
+        'updatedBy',
+      ];
+    }
+    function screenFieldFieldValidation(projectId, data) {
+      return isValidScreenFieldName(data.name)
+          && isValidScreenFieldLabel(data.label)
+          && isValidScreenFieldType(data.type)
+          && isValidScreenFieldOrder(data.order)
+          && data.required is bool
+          && data.readonly is bool
+          && data.disabled is bool
+          && isValidScreenFieldDefaultValue(data)
+          && isValidScreenFieldMinMax(data)
+          && isValidScreenFieldOptions(data)
+          && isValidScreenFieldValidationRules(data)
+          && isValidScreenFieldParentRef(projectId, data)
+          && (!data.keys().hasAny(['placeholder']) || data.placeholder == null || (
+            data.placeholder is string && data.placeholder.size() <= 200
+          ))
+          && (!data.keys().hasAny(['helpText']) || data.helpText == null || (
+            data.helpText is string && data.helpText.size() <= 500
+          ))
+          && data.schemaVersion == 1;
+    }
+    function isValidScreenFieldCreate(projectId, fieldId) {
+      let data = request.resource.data;
+      return isScreenFieldWriter(projectId)
+          && data.id == fieldId
+          && data.projectId == projectId
+          && data.keys().hasAll(screenFieldRequiredKeys())
+          && data.keys().hasOnly(screenFieldWriteKeys())
+          && screenFieldFieldValidation(projectId, data)
+          && isValidScreenFieldParentOnCreate(projectId, data)
+          && data.createdBy == uid()
+          && data.updatedBy == uid()
+          && data.createdAt == request.time
+          && data.updatedAt == request.time;
+    }
+    function isValidScreenFieldUpdate(projectId, fieldId) {
+      let data = request.resource.data;
+      let prev = resource.data;
+      return isScreenFieldWriter(projectId)
+          && data.id == fieldId
+          && data.projectId == projectId
+          && data.id == prev.id
+          && data.projectId == prev.projectId
+          && data.screenSpecId == prev.screenSpecId
+          && data.createdAt == prev.createdAt
+          && data.createdBy == prev.createdBy
+          && data.schemaVersion == prev.schemaVersion
+          && data.schemaVersion == 1
+          && data.keys().hasAll(screenFieldRequiredKeys())
+          && data.keys().hasOnly(screenFieldWriteKeys())
+          && screenFieldFieldValidation(projectId, data)
+          && data.updatedBy == uid()
+          && data.updatedAt == request.time;
+    }
+    function isValidScreenFieldDelete(projectId, fieldId) {
+      return isScreenFieldWriter(projectId);
+    }
+
     // ── users/{uid} bootstrap helpers (PR #355) ───────────────────
     // Path variable userId must be passed into helpers explicitly.
     function userBootstrapKeys() {
@@ -1175,7 +1395,9 @@ service cloud.firestore {
 
       match /screenFields/{fieldId} {
         allow get, list: if canReadProject(projectId);
-        allow create, update, delete: if false;
+        allow create: if isValidScreenFieldCreate(projectId, fieldId);
+        allow update: if isValidScreenFieldUpdate(projectId, fieldId);
+        allow delete: if isValidScreenFieldDelete(projectId, fieldId);
       }
 
       match /screenActions/{actionId} {
