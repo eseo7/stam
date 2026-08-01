@@ -207,13 +207,33 @@ assert.match(countersBlock[0], /counterId == 'functionalSpecifications'/);
 assert.match(countersBlock[0], /counterId == 'wbsItems'/);
 
 // ── Unopened artifact collections remain write-closed ────────────
-for (const collection of ['screenFields', 'screenActions', 'artifactLinks']) {
+for (const collection of ['screenActions', 'artifactLinks']) {
   assert.match(
     rulesSource,
     new RegExp(`match /${collection}/\\{[^}]+\\}[\\s\\S]*allow create, update, delete: if false;`),
     `${collection} writes must stay closed`,
   );
 }
+
+// ── screenFields write opened (ScreenField-1) ────────────────────
+assert.match(rulesSource, /ScreenField write helpers \(ScreenField-1\)/);
+assert.match(
+  rulesSource,
+  /match \/screenFields\/\{fieldId\}[\s\S]*allow create: if isValidScreenFieldCreate\(projectId, fieldId\);/,
+);
+assert.match(
+  rulesSource,
+  /match \/screenFields\/\{fieldId\}[\s\S]*allow update: if isValidScreenFieldUpdate\(projectId, fieldId\);/,
+);
+assert.match(
+  rulesSource,
+  /match \/screenFields\/\{fieldId\}[\s\S]*allow delete: if isValidScreenFieldDelete\(projectId, fieldId\);/,
+);
+assert.doesNotMatch(
+  rulesSource,
+  /function isValidScreenFieldCreate[\s\S]*normalized name/i,
+  'rules must not claim normalized name uniqueness enforcement',
+);
 
 // ── Catch-all deny ───────────────────────────────────────────────
 assert.match(
