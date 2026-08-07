@@ -19,8 +19,8 @@ Acceptance Criteria 문서 확정 PR: #410
 - 작업 등급: **L3 — 중요**
 - Repo: `eseo7/stam`
 - Acceptance 확정 PR: #410
-- 적용 대상 구현 PR: 미생성
-- 구현 Branch: 미생성
+- 적용 대상 구현 PR: #412
+- 구현 Branch: feat/common-picker-hardening
 - 구현 Base: `main`
 - 작성일: 2026-08-07
 - 기준 상태: 구현 전 확정
@@ -77,26 +77,65 @@ Inventory 결과에서 실제 수정 대상 파일을 확정한 후 아래 `수�
 
 ## 4. 수정 허용
 
-구현 전 Inventory 완료 후 실제 파일 경로를 확정한다.
+> **Criteria Freeze 기준**: PR #412 / Branch: feat/common-picker-hardening  
+> **Inventory 출처**: PR #411 (`stam/docs/governance/inventory/PR-411-common-picker-inventory.md`)  
+> **Freeze 일자**: 2026-08-07
 
-예정 범위:
+### 4.1 공통 SSOT 보강
+
+- `stam/js/stam.custom-select.js`
+  - Escape key close 지원 추가 (AC-FN-004 충족)
+  - keydown 핸들러에 Escape 처리 추가
+
+### 4.2 요구사항정의서 Picker 정규화
+
+- `stam/css/stam.requirements.css`
+  - `rq-cs-*` 중복 CSS 전체 제거 (약 55줄 + dark mode 블록)
+  - `stam.custom-select.css`의 `stam-cs-*`로 대체
+
+- `stam/js/stam.requirements.js`
+  - `RQ_CS_CFG` 클래스 설정을 `stam-cs-*` 기준으로 정규화
+  - 화면별 기능 설정(`selectSelector`, `flipContainer`, `nativeMarkerAttr`, `uidPrefix`)은 유지
+  - `wrapClass`, `triggerClass`, `valClass`, `panelClass`, `optClass`, `checkClass`, `otextClass`, `nativeClass`, `openSelector` → `stam-cs-*` 기준으로 변경
+
+- `stam/js/stam.requirements-firestore-crud.js`
+  - `syncCustomSelect(sel)` 함수 내 `.rq-cs-val` 참조 갱신 또는 제거
+  - `rq-cs-*` 클래스명이 `stam-cs-*`로 변경되므로 참조 동기화 필수
+
+### 4.3 메뉴화면목록 Picker 정규화
+
+- `stam/css/stam.menu-screen-list.css`
+  - `msl-cs-*` 중복 CSS 전체 제거 (약 30줄 + dark mode 블록)
+  - `stam.custom-select.css`의 `stam-cs-*`로 대체
+
+- `stam/js/stam.menu-screen-list.js`
+  - `MSL_CS_CFG` 클래스 설정을 `stam-cs-*` 기준으로 정규화
+  - 화면별 기능 설정(`selectSelector`, `flipContainer`, marker)은 유지
+  - `wrapClass`, `triggerClass`, `valClass`, `panelClass`, `optClass`, `checkClass`, `otextClass`, `nativeClass`, `openSelector` → `stam-cs-*` 기준으로 변경
+
+### 4.4 수정 허용 외 (HOLD — 별도 후속 PR)
+
+아래 파일은 이번 PR 범위에 포함하지 않는다.
 
 ```text
-공통 Picker component/style/script
-Picker를 대표 적용할 화면
-Picker 관련 기존 중복 CSS
-Picker 관련 테스트
-이번 PR의 acceptance/review/smoke 문서
-```
+stam/js/stam.functional-spec-firestore-crud.js
+  - fn-cs-val 참조 syncCustomSelect — FN_CS_CFG는 이미 dual-class(fn-cs stam-cs)이며
+    CSS 이전(PR #98) 완료 상태. 별도 회귀 검토 후 후속 PR 판단.
 
-실제 구현 전 아래 형식으로 파일을 명시한다.
+stam/pages/boards/requirements.html
+  - 수정 불필요 확정 (main 기준 독립 확인 완료)
+  - rq-cs-* 직접 참조 없음
+  - Native <select class="... rq-inp"> 구조만 존재
+  - Picker DOM / CSS class는 stam.requirements.js + STAM.customSelect가 동적 생성
 
-```text
-- <공통 Picker 파일>
-- <공통 Picker CSS 파일>
-- <대표 적용 화면>
-- <중복 제거 대상 CSS>
-- <관련 테스트 파일>
+stam/pages/boards/menu-screen-list.html
+  - 수정 불필요 확정 (main 기준 독립 확인 완료)
+  - msl-cs-* 직접 참조 없음
+  - stam.custom-select.css 이미 로딩 중
+  - Picker DOM / CSS class는 stam.menu-screen-list.js + STAM.customSelect가 동적 생성
+
+stam/js/stam.wbs.js
+  - wbs-selectbox: 화면 고유 기능, 이미 stam-cs-* 시각 클래스 사용. 이번 PR 범위 외.
 ```
 
 `stam/**` 전체와 같은 광범위한 허용 범위는 사용하지 않는다.
