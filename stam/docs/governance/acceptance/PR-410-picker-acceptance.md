@@ -1,4 +1,4 @@
-# PR #XXX Acceptance Criteria — STAM Common Picker
+# PR #410 Acceptance Criteria — STAM Common Picker
 
 > 본 문서는 공통 Picker 구현을 시작하기 전에 확정하는 Acceptance Criteria다.
 > 구현 결과에 맞추기 위한 사후 기준 완화 또는 임의 변경은 금지한다.
@@ -17,7 +17,7 @@
 - Repo: `eseo7/stam`
 - Base: `main`
 - Branch: 구현 시작 시 기록
-- PR: 생성 후 기록
+- PR: #410
 - 작성일: 2026-08-07
 - 기준 상태: 구현 전 확정
 
