@@ -1,4 +1,7 @@
-# PR #410 Acceptance Criteria — STAM Common Picker
+# STAM Common Picker Acceptance Criteria
+
+Acceptance Criteria 문서 확정 PR: #410  
+적용 대상: 후속 Common Picker Inventory / 구현 PR
 
 > 본 문서는 공통 Picker 구현을 시작하기 전에 확정하는 Acceptance Criteria다.
 > 구현 결과에 맞추기 위한 사후 기준 완화 또는 임의 변경은 금지한다.
@@ -15,11 +18,21 @@
 - 작업명: STAM Common Picker 선행 공통화
 - 작업 등급: **L3 — 중요**
 - Repo: `eseo7/stam`
-- Base: `main`
-- Branch: 구현 시작 시 기록
-- PR: #410
+- Acceptance 확정 PR: #410
+- 적용 대상 구현 PR: 미생성
+- 구현 Branch: 미생성
+- 구현 Base: `main`
 - 작성일: 2026-08-07
 - 기준 상태: 구현 전 확정
+
+> **후속 PR 연결 규칙**
+>
+> 후속 Common Picker 구현 PR이 생성되면 `적용 대상 구현 PR` 항목에 실제 PR 번호를 기록한다.
+>
+> 이는 기준 변경이 아니라 행정 메타데이터 갱신으로 본다.
+>
+> Acceptance Criteria의 기능/UI/공통화/반응형/회귀 등 실질 기준을 변경하는 경우에는
+> STAM AI Verification Protocol의 기준 변경 절차(변경 전/후·사유·승인·기존 판정 영향 기록)를 따른다.
 
 ---
 
