@@ -105,8 +105,12 @@ data-stam-wbs-member-picker, data-wbs-sel
 공통 CSS:    stam/css/stam.custom-select.css (.stam-cs-* 클래스)
 공통 DOM:    <div class="stam-cs" data-stam-cs> ... </div> (JS가 native <select>를 래핑하여 생성)
 공통 상태:   .is-open / .is-up / .is-disabled / .is-sel / .is-active / .is-placeholder
-공통 키보드: ArrowUp/Down, Home, End, Enter, Space, Tab, Escape
+공통 키보드: ArrowUp/Down, Home, End, Enter, Space, Tab
 ```
+
+> **⚠ Escape 미지원**: `STAM.customSelect`에는 현재 Escape key close 처리가 없다.  
+> PR #410 Acceptance Criteria의 **AC-FN-004**를 충족하려면 후속 구현 PR에서 Escape close 지원 여부를 보강해야 한다.  
+> (이번 Inventory PR에서는 제품 코드를 수정하지 않는다.)
 
 **동작 방식**: 화면에 미리 선언된 native `<select>` 요소를 `STAM.customSelect.init(root, cfg)` 호출 시 감지하여, cfg에 명시된 클래스명으로 커스텀 dropdown DOM을 자동 생성한다. native `<select>`는 `.stam-cs-native` 처리하여 숨긴다.
 
@@ -430,7 +434,7 @@ data-stam-wbs-member-picker, data-wbs-sel
 
 | 파일 | 이유 |
 |------|------|
-| `stam/js/stam.custom-select.js` | SSOT — 수정 불필요 |
+| `stam/js/stam.custom-select.js` | SSOT — 현행 유지. 단, **Escape key close 지원 검토** 필요 (AC-FN-004 충족 대상). 실제 수정 여부는 후속 구현 PR에서 확정. |
 | `stam/css/stam.custom-select.css` | SSOT — 수정 불필요 |
 | `stam/js/stam.reference-picker.js` | SSOT — 수정 불필요 |
 | `stam/js/stam.wbs-picker.js` | 완전 공통화 상태 |
@@ -591,4 +595,5 @@ referencePicker 사용 화면 (HTML 기준):
    - `stam.menu-screen-list.css`에 `msl-cs-*` 중복 CSS 존재 (약 30줄)
    - 위 두 화면의 JS config도 `stam-cs-*` 기준으로 전환 미완
    - 전환 후 `syncCustomSelect` 함수 2개 제거 가능
+   - `STAM.customSelect`에 **Escape key close 처리 없음** — `STAM.referencePicker`에는 존재하므로 두 공통 모듈 간 키보드 지원 수준 불일치. AC-FN-004 충족을 위해 후속 구현 PR에서 보강 검토 필요.
 5. **신규 컴포넌트 생성 불필요**: 기존 공통 모듈 활용만으로 완전한 SSOT 달성 가능.
