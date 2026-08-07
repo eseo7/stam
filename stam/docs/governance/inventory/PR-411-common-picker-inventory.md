@@ -9,7 +9,7 @@
 
 ## 1. 조사 정보
 
-- Inventory PR: #XXX (PR 생성 후 실제 번호로 변경)
+- Inventory PR: #411
 - Acceptance 기준 PR: #410
 - Repo: eseo7/stam
 - Branch: docs/common-picker-inventory
