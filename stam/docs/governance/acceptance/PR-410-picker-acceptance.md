@@ -120,12 +120,19 @@ Inventory 결과에서 실제 수정 대상 파일을 확정한 후 아래 `수�
 ```text
 stam/js/stam.functional-spec-firestore-crud.js
   - fn-cs-val 참조 syncCustomSelect — FN_CS_CFG는 이미 dual-class(fn-cs stam-cs)이며
-    CSS 이전(PR #98) 완료 상태. 별도 검토 후 후속 PR 판단.
+    CSS 이전(PR #98) 완료 상태. 별도 회귀 검토 후 후속 PR 판단.
 
 stam/pages/boards/requirements.html
+  - 수정 불필요 확정 (main 기준 독립 확인 완료)
+  - rq-cs-* 직접 참조 없음
+  - Native <select class="... rq-inp"> 구조만 존재
+  - Picker DOM / CSS class는 stam.requirements.js + STAM.customSelect가 동적 생성
+
 stam/pages/boards/menu-screen-list.html
-  - CSS/JS 클래스 전환 결과에 따라 HTML 수정 필요 여부 확인 후 판단.
-    native <select> 구조만 있으면 수정 불필요 (JS가 동적으로 클래스 생성).
+  - 수정 불필요 확정 (main 기준 독립 확인 완료)
+  - msl-cs-* 직접 참조 없음
+  - stam.custom-select.css 이미 로딩 중
+  - Picker DOM / CSS class는 stam.menu-screen-list.js + STAM.customSelect가 동적 생성
 
 stam/js/stam.wbs.js
   - wbs-selectbox: 화면 고유 기능, 이미 stam-cs-* 시각 클래스 사용. 이번 PR 범위 외.
